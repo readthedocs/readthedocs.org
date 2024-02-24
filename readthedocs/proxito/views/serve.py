@@ -391,7 +391,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         the Docs default page (Maze Found) is rendered by Django and served.
         """
         log.bind(proxito_path=proxito_path)
-        log.debug('Executing 404 handler.')
+        log.debug("Executing 404 handler.")
         unresolved_domain = request.unresolved_domain
         # We force all storage calls to use the external versions storage,
         # since we are serving an external version.
@@ -708,11 +708,12 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
         # Verify if the project is marked as spam and return a custom robots.txt
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
+
             if is_robotstxt_denied(project):
                 return render(
                     request,
-                    'robots.spam.txt',
-                    content_type='text/plain',
+                    "robots.spam.txt",
+                    content_type="text/plain",
                 )
 
         # Use the ``robots.txt`` file from the default version configured
@@ -747,33 +748,30 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
                 filename="robots.txt",
                 check_if_exists=True,
             )
-            log.info('Serving custom robots.txt file.')
+            log.info("Serving custom robots.txt file.")
             return response
         except StorageFileNotFound:
             pass
 
         # Serve default robots.txt
-        sitemap_url = '{scheme}://{domain}/sitemap.xml'.format(
-            scheme='https',
+        sitemap_url = "{scheme}://{domain}/sitemap.xml".format(
+            scheme="https",
             domain=project.subdomain(),
         )
         context = {
-            'sitemap_url': sitemap_url,
-            'hidden_paths': self._get_hidden_paths(project),
+            "sitemap_url": sitemap_url,
+            "hidden_paths": self._get_hidden_paths(project),
         }
         return render(
             request,
-            'robots.txt',
+            "robots.txt",
             context,
-            content_type='text/plain',
+            content_type="text/plain",
         )
 
     def _get_hidden_paths(self, project):
         """Get the absolute paths of the public hidden versions of `project`."""
-        hidden_versions = (
-            Version.internal.public(project=project)
-            .filter(hidden=True)
-        )
+        hidden_versions = Version.internal.public(project=project).filter(hidden=True)
         resolver = Resolver()
         hidden_paths = [
             resolver.resolve_path(project, version_slug=version.slug)
@@ -846,8 +844,8 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             Use hyphen instead of underscore in language and country value.
             ref: https://en.wikipedia.org/wiki/Hreflang#Common_Mistakes
             """
-            if '_' in lang:
-                return lang.replace('_', '-')
+            if "_" in lang:
+                return lang.replace("_", "-")
             return lang
 
         def changefreqs_generator():
@@ -861,8 +859,8 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             aggressive. If the tag is removed and a branch is created with the same
             name, we will want bots to revisit this.
             """
-            changefreqs = ['weekly', 'daily']
-            yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
+            changefreqs = ["weekly", "daily"]
+            yield from itertools.chain(changefreqs, itertools.repeat("monthly"))
 
         project = request.unresolved_domain.project
         public_versions = Version.internal.public(
@@ -879,28 +877,34 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
         # We want stable with priority=1 and changefreq='weekly' and
         # latest with priority=0.9 and changefreq='daily'
         # More details on this: https://github.com/rtfd/readthedocs.org/issues/5447
-        if (len(sorted_versions) >= 2 and sorted_versions[0].slug == LATEST and
-                sorted_versions[1].slug == STABLE):
-            sorted_versions[0], sorted_versions[1] = sorted_versions[1], sorted_versions[0]
+        if (
+            len(sorted_versions) >= 2
+            and sorted_versions[0].slug == LATEST
+            and sorted_versions[1].slug == STABLE
+        ):
+            sorted_versions[0], sorted_versions[1] = (
+                sorted_versions[1],
+                sorted_versions[0],
+            )
 
         versions = []
         for version, priority, changefreq in zip(
-                sorted_versions,
-                priorities_generator(),
-                changefreqs_generator(),
+            sorted_versions,
+            priorities_generator(),
+            changefreqs_generator(),
         ):
             element = {
-                'loc': version.get_subdomain_url(),
-                'priority': priority,
-                'changefreq': changefreq,
-                'languages': [],
+                "loc": version.get_subdomain_url(),
+                "priority": priority,
+                "changefreq": changefreq,
+                "languages": [],
             }
 
             # Version can be enabled, but not ``built`` yet. We want to show the
             # link without a ``lastmod`` attribute
-            last_build = version.builds.order_by('-date').first()
+            last_build = version.builds.order_by("-date").first()
             if last_build:
-                element['lastmod'] = last_build.date.isoformat()
+                element["lastmod"] = last_build.date.isoformat()
 
             resolver = Resolver()
             if project.translations.exists():
@@ -915,27 +919,31 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
                             project=translation,
                             version=translated_version,
                         )
-                        element['languages'].append({
-                            'hreflang': hreflang_formatter(translation.language),
-                            'href': href,
-                        })
+                        element["languages"].append(
+                            {
+                                "hreflang": hreflang_formatter(translation.language),
+                                "href": href,
+                            }
+                        )
 
                 # Add itself also as protocol requires
-                element['languages'].append({
-                    'hreflang': project.language,
-                    'href': element['loc'],
-                })
+                element["languages"].append(
+                    {
+                        "hreflang": project.language,
+                        "href": element["loc"],
+                    }
+                )
 
             versions.append(element)
 
         context = {
-            'versions': versions,
+            "versions": versions,
         }
         return render(
             request,
-            'sitemap.xml',
+            "sitemap.xml",
             context,
-            content_type='application/xml',
+            content_type="application/xml",
         )
 
     def _get_project(self):

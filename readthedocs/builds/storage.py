@@ -42,8 +42,8 @@ class BuildMediaStorageMixin:
         It may just be Azure, but for listdir to work correctly, this is needed.
         """
         path = str(path)
-        if not path.endswith('/'):
-            path += '/'
+        if not path.endswith("/"):
+            path += "/"
 
         return path
 
@@ -68,10 +68,10 @@ class BuildMediaStorageMixin:
 
         :param path: the path to the directory to remove
         """
-        if path in ('', '/'):
-            raise SuspiciousFileOperation('Deleting all storage cannot be right')
+        if path in ("", "/"):
+            raise SuspiciousFileOperation("Deleting all storage cannot be right")
 
-        log.debug('Deleting path from media storage', path=path)
+        log.debug("Deleting path from media storage", path=path)
         folders, files = self.listdir(self._dirpath(path))
         for folder_name in folders:
             if folder_name:
@@ -89,7 +89,7 @@ class BuildMediaStorageMixin:
         :param destination: the destination path in storage
         """
         log.debug(
-            'Copying source directory to media storage',
+            "Copying source directory to media storage",
             source=source,
             destination=destination,
         )
@@ -144,10 +144,10 @@ class BuildMediaStorageMixin:
         return safe_join(directory, filepath)
 
     def walk(self, top):
-        if top in ('', '/'):
-            raise SuspiciousFileOperation('Iterating all storage cannot be right')
+        if top in ("", "/"):
+            raise SuspiciousFileOperation("Iterating all storage cannot be right")
 
-        log.debug('Walking path in media storage', path=top)
+        log.debug("Walking path in media storage", path=top)
         folders, files = self.listdir(self._dirpath(top))
 
         yield top, folders, files
@@ -163,11 +163,11 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
     """Storage subclass that writes build artifacts in PRODUCTION_MEDIA_ARTIFACTS or MEDIA_ROOT."""
 
     def __init__(self, **kwargs):
-        location = kwargs.pop('location', None)
+        location = kwargs.pop("location", None)
 
         if not location:
             # Mirrors the logic of getting the production media path
-            if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+            if settings.DEFAULT_PRIVACY_LEVEL == "public" or settings.DEBUG:
                 location = settings.MEDIA_ROOT
             else:
                 location = settings.PRODUCTION_MEDIA_ARTIFACTS
@@ -217,7 +217,6 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
 
 
 class StaticFilesStorage(BaseStaticFilesStorage):
-
     # Root path of the nginx internal redirect
     # that will serve files from this storage.
     internal_redirect_root_path = "proxito-static"

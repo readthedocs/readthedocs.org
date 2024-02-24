@@ -28,7 +28,6 @@ from .mockers import BuildEnvironmentMocker
 
 @pytest.mark.django_db(databases="__all__")
 class BuildEnvironmentBase:
-
     # NOTE: `load_yaml_config` maybe be moved to the setup and assign to self.
 
     @pytest.fixture(autouse=True)
@@ -74,8 +73,8 @@ class BuildEnvironmentBase:
             build_commit=self.build.commit,
         )
 
-class TestCustomConfigFile(BuildEnvironmentBase):
 
+class TestCustomConfigFile(BuildEnvironmentBase):
     # Relative path to where a custom config file is assumed to exist in repo
     config_file_name = "unique.yaml"
 
@@ -154,6 +153,7 @@ class TestCustomConfigFile(BuildEnvironmentBase):
 
         # Assert that we are building a PDF, since that is what our custom config file says
         build_docs_class.assert_called_with("sphinx_pdf")
+
 
 class TestBuildTask(BuildEnvironmentBase):
     @pytest.mark.parametrize(
@@ -641,10 +641,9 @@ class TestBuildTask(BuildEnvironmentBase):
         self._trigger_update_docs_task()
 
         # It has to be called twice, ``before_start`` and ``after_return``
-        clean_build.assert_has_calls([
-            mock.call(mock.ANY),  # the argument is an APIVersion
-            mock.call(mock.ANY)
-        ])
+        clean_build.assert_has_calls(
+            [mock.call(mock.ANY), mock.call(mock.ANY)]  # the argument is an APIVersion
+        )
 
         send_notifications.assert_called_once_with(
             self.version.pk,
@@ -1894,27 +1893,27 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
     def _trigger_sync_repository_task(self):
         sync_repository_task.delay(self.version.pk, build_api_key="1234")
 
-    @mock.patch('readthedocs.projects.tasks.builds.clean_build')
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
     def test_clean_build_after_sync_repository(self, clean_build):
         self._trigger_sync_repository_task()
         clean_build.assert_called_once()
 
-    @mock.patch('readthedocs.projects.tasks.builds.SyncRepositoryTask.execute')
-    @mock.patch('readthedocs.projects.tasks.builds.clean_build')
+    @mock.patch("readthedocs.projects.tasks.builds.SyncRepositoryTask.execute")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
     def test_clean_build_after_failure_in_sync_repository(self, clean_build, execute):
-        execute.side_effect = Exception('Something weird happen')
+        execute.side_effect = Exception("Something weird happen")
 
         self._trigger_sync_repository_task()
         clean_build.assert_called_once()
 
     @pytest.mark.parametrize(
-        'verbose_name',
+        "verbose_name",
         [
-            'stable',
-            'latest',
+            "stable",
+            "latest",
         ],
     )
-    @mock.patch('readthedocs.projects.tasks.builds.SyncRepositoryTask.on_failure')
+    @mock.patch("readthedocs.projects.tasks.builds.SyncRepositoryTask.on_failure")
     def test_check_duplicate_reserved_version_latest(self, on_failure, verbose_name):
         # `repository.tags` and `repository.branch` both will return a tag/branch named `latest/stable`
         with mock.patch(
