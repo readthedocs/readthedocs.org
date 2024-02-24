@@ -10,13 +10,13 @@ from datetime import datetime
 import structlog
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from docker import APIClient
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.models import Feature
