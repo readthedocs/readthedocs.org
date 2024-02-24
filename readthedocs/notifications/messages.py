@@ -189,6 +189,19 @@ BUILD_MESSAGES = [
         type=ERROR,
     ),
     Message(
+        id=BuildUserError.VCS_DEPRECATED,
+        header=_("Build used a deprecated VCS that's not supported anymore: {{vcs}}."),
+        body=_(
+            textwrap.dedent(
+                """
+                {{vcs}} VCS is not supported anymore.
+                Read more about this in our blog post <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">Dropping support for Subversion, Mercurial, and Bazaar</a>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
         header=_("Build terminated due to unknown error."),
         body=_(

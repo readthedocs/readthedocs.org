@@ -1,6 +1,8 @@
 """Base classes for VCS backends."""
+import datetime
 import os
 
+import pytz
 import structlog
 
 from readthedocs.core.utils.filesystem import safe_rmtree
@@ -31,6 +33,47 @@ class VCSVersion:
             self.repository.repo_url,
             self.verbose_name,
         )
+
+
+class Deprecated:
+    def __init__(self, *args, **kwargs):
+        tzinfo = pytz.PDT
+        now = datetime.now(tz=tzinfo)
+
+        # Brownout dates as published in https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/
+        # fmt: off
+        disabled = any([
+            # 12 hours browndate
+            datetime.datetime(2024, 4, 1, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 4, 1, 12, 0, 0, tzinfo=tzinfo),
+            # 24 hours browndate
+            datetime.datetime(2024, 5, 6, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 5, 7, 0, 0, 0, tzinfo=tzinfo),
+            # 48 hours browndate
+            datetime.datetime(2024, 5, 20, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 5, 22, 0, 0, 0, tzinfo=tzinfo),
+            # Deprecated after June 3
+            datetime.datetime(2024, 6, 3, 0, 0, 0, tzinfo=tzinfo) < now,
+        ])
+        # fmt: on
+
+        if disabled:
+            import bzr
+            import hg
+            import svn
+
+            vcs = None
+            if isinstance(self, bzr.Backend):
+                vcs = "Bazaar"
+            elif isinstance(self, svn.Backend):
+                vcs = "Subversion"
+            elif isinstance(self, hg.Backend):
+                vcs = "Mercurial"
+
+            raise BuildUserError(
+                message_id=BuildUserError.VCS_DEPRECATED,
+                format_values={
+                    "vcs": vcs,
+                },
+            )
+        super().__init__(self, *args, *kwargs)
 
 
 class BaseVCS:
