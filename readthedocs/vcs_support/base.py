@@ -37,8 +37,8 @@ class VCSVersion:
 
 class Deprecated:
     def __init__(self, *args, **kwargs):
-        tzinfo = pytz.PDT
-        now = datetime.now(tz=tzinfo)
+        tzinfo = pytz.timezone("America/Los_Angeles")
+        now = datetime.datetime.now(tz=tzinfo)
 
         # Brownout dates as published in https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/
         # fmt: off
@@ -55,9 +55,7 @@ class Deprecated:
         # fmt: on
 
         if disabled:
-            import bzr
-            import hg
-            import svn
+            from .backends import bzr, hg, svn
 
             vcs = None
             if isinstance(self, bzr.Backend):

@@ -5,7 +5,7 @@ from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, Deprecated, VCSVersion
 
 
-class Backend(BaseVCS, Deprecated):
+class Backend(Deprecated, BaseVCS):
 
     """Mercurial VCS backend."""
 
