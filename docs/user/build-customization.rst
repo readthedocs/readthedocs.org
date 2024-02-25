@@ -345,12 +345,11 @@ Take a look at the following example:
          # Install poetry
          # https://python-poetry.org/docs/#installing-manually
          - pip install poetry
-         # Tell poetry to not use a virtual environment
-         - poetry config virtualenvs.create false
        post_install:
          # Install dependencies with 'docs' dependency group
          # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
-         - poetry install --with docs
+         # VIRTUAL_ENV needs to be set manually for now, see #11150
+         - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
 
    sphinx:
      configuration: docs/conf.py
