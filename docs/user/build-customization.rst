@@ -348,7 +348,8 @@ Take a look at the following example:
        post_install:
          # Install dependencies with 'docs' dependency group
          # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
-         # VIRTUAL_ENV needs to be set manually for now, see #11150
+         # VIRTUAL_ENV needs to be set manually for now.
+         # See https://github.com/readthedocs/readthedocs.org/pull/11152/
          - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
 
    sphinx:
