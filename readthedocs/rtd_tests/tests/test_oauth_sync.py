@@ -1,6 +1,6 @@
 import django_dynamic_fixture as fixture
 import requests_mock
-from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
+from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -61,10 +61,6 @@ class GitHubOAuthSyncTests(TestCase):
 
     def setUp(self):
         self.user = fixture.get(User)
-        self.socialapp = fixture.get(
-            SocialApp,
-            provider=GitHubOAuth2Adapter.provider_id,
-        )
         self.socialaccount = fixture.get(
             SocialAccount,
             user=self.user,
@@ -72,7 +68,6 @@ class GitHubOAuthSyncTests(TestCase):
         )
         self.token = fixture.get(
             SocialToken,
-            app=self.socialapp,
             account=self.socialaccount,
         )
         self.service = GitHubService.for_user(self.user)[0]
@@ -293,7 +288,6 @@ class GitHubOAuthSyncTests(TestCase):
         )
         fixture.get(
             SocialToken,
-            app=self.socialapp,
             account=user_2_socialaccount,
         )
 
