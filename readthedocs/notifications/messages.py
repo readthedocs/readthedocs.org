@@ -190,7 +190,7 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildUserError.VCS_DEPRECATED,
-        header=_("Build used a deprecated VCS that's not supported anymore: {{vcs}}."),
+        header=_("Build used a deprecated VCS is not supported: {{vcs}}."),
         body=_(
             textwrap.dedent(
                 """
