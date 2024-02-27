@@ -901,7 +901,7 @@ class CommunityBaseSettings(Settings):
             'console': {
                 'level': 'INFO',
                 'class': 'logging.StreamHandler',
-                'formatter': 'plain_console',
+                'formatter': 'default',
             },
             'debug': {
                 'level': 'DEBUG',

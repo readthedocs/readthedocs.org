@@ -102,7 +102,6 @@ class DockerBaseSettings(CommunityBaseSettings):
         # Allow Sphinx and other tools to create loggers
         logging["disable_existing_loggers"] = False
 
-        logging["handlers"]["console"]["formatter"] = "colored_console"
         logging["loggers"].update(
             {
                 # Disable Django access requests logging (e.g. GET /path/to/url)
