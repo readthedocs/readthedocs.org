@@ -1,3 +1,29 @@
+Version 10.20.0
+---------------
+
+:Date: February 27, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Allauth: define secrets in settings (`#11156 <https://github.com/readthedocs/readthedocs.org/pull/11156>`__)
+* `@humitos <https://github.com/humitos>`__: APIv3: add `_links.notifications` to `Project` resource (`#11155 <https://github.com/readthedocs/readthedocs.org/pull/11155>`__)
+* `@hoyes <https://github.com/hoyes>`__: Dev: Default RTD_DJANGO_DEBUG to False if not set (`#11154 <https://github.com/readthedocs/readthedocs.org/pull/11154>`__)
+* `@humitos <https://github.com/humitos>`__: Build: bugfix to show build notifications (`#11153 <https://github.com/readthedocs/readthedocs.org/pull/11153>`__)
+* `@ewjoachim <https://github.com/ewjoachim>`__: Fix Poetry instructions (`#11152 <https://github.com/readthedocs/readthedocs.org/pull/11152>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11148 <https://github.com/readthedocs/readthedocs.org/pull/11148>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: deprecation dates at application level (`#11147 <https://github.com/readthedocs/readthedocs.org/pull/11147>`__)
+* `@taylorhummon <https://github.com/taylorhummon>`__: fix highlighting of "fail_on_warning: true" in tutorial (`#11144 <https://github.com/readthedocs/readthedocs.org/pull/11144>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Refactor the index page to match the sidebar (`#11141 <https://github.com/readthedocs/readthedocs.org/pull/11141>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Refactor documentation navigation (`#11139 <https://github.com/readthedocs/readthedocs.org/pull/11139>`__)
+* `@humitos <https://github.com/humitos>`__: Lint: more files (`#11137 <https://github.com/readthedocs/readthedocs.org/pull/11137>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add missing context variable (`#11135 <https://github.com/readthedocs/readthedocs.org/pull/11135>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update Django allauth to 0.57.0 (`#11134 <https://github.com/readthedocs/readthedocs.org/pull/11134>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: fix rendering (`#11133 <https://github.com/readthedocs/readthedocs.org/pull/11133>`__)
+* `@humitos <https://github.com/humitos>`__:  Notifications: allow dismiss user's notifications  (`#11130 <https://github.com/readthedocs/readthedocs.org/pull/11130>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.19.0 (`#11128 <https://github.com/readthedocs/readthedocs.org/pull/11128>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add model history on AddonsConfig (`#11127 <https://github.com/readthedocs/readthedocs.org/pull/11127>`__)
+* `@humitos <https://github.com/humitos>`__: Projects: remove old/non-used fields (`#11124 <https://github.com/readthedocs/readthedocs.org/pull/11124>`__)
+* `@humitos <https://github.com/humitos>`__: Addons + Proxito: return `X-RTD-Resolver-Filename` and inject via CF (`#11100 <https://github.com/readthedocs/readthedocs.org/pull/11100>`__)
+* `@arti-bol <https://github.com/arti-bol>`__: Added a troubleshooting section for webhook (`#11099 <https://github.com/readthedocs/readthedocs.org/pull/11099>`__)
+
 Version 10.19.0
 ---------------
 

@@ -1,5 +1,5 @@
-Understanding the security implications of documentation pages
-==============================================================
+Security considerations for documentation pages
+===============================================
 
 This article explains the security implications of documentation pages,
 this doesn't apply to the main dashboard (readthedocs.org/readthedocs.com),

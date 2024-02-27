@@ -17,7 +17,7 @@ you have to ensure that the value is correct.
 This can be complex,
 supporting pull request builds (which are published on a separate domain),
 special branches
-or if you are using :term:`subproject` s or :ref:`translations <localization:Localization of Documentation>`.
+or if you are using :term:`subproject` s or :doc:`translations </localization>`.
 We recommend not including a ``html_baseurl`` in your ``conf.py``,
 and letting Read the Docs define it.
 

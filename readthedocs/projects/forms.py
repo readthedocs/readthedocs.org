@@ -44,10 +44,10 @@ class ProjectForm(SimpleHistoryModelForm):
     :param user: If provided, add this user as a project user on save
     """
 
-    required_css_class = 'required'
+    required_css_class = "required"
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -203,13 +203,13 @@ class ProjectBasicsForm(ProjectForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['repo'].widget.attrs['placeholder'] = self.placehold_repo()
-        self.fields['repo'].widget.attrs['required'] = True
+        self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
+        self.fields["repo"].widget.attrs["required"] = True
 
     def save(self, commit=True):
         """Add remote repository relationship to the project instance."""
         instance = super().save(commit)
-        remote_repo = self.cleaned_data.get('remote_repository', None)
+        remote_repo = self.cleaned_data.get("remote_repository", None)
         if remote_repo:
             if commit:
                 remote_repo.projects.add(self.instance)
@@ -219,25 +219,27 @@ class ProjectBasicsForm(ProjectForm):
         return instance
 
     def clean_name(self):
-        name = self.cleaned_data.get('name', '')
+        name = self.cleaned_data.get("name", "")
         if not self.instance.pk:
             potential_slug = slugify(name)
             if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
-                    _('Invalid project name, a project already exists with that name'),
+                    _("Invalid project name, a project already exists with that name"),
                 )  # yapf: disable # noqa
             if not potential_slug:
                 # Check the generated slug won't be empty
-                raise forms.ValidationError(_('Invalid project name'),)
+                raise forms.ValidationError(
+                    _("Invalid project name"),
+                )
 
         return name
 
     def clean_repo(self):
-        repo = self.cleaned_data.get('repo', '')
-        return repo.rstrip('/')
+        repo = self.cleaned_data.get("repo", "")
+        return repo.rstrip("/")
 
     def clean_remote_repository(self):
-        remote_repo = self.cleaned_data.get('remote_repository', None)
+        remote_repo = self.cleaned_data.get("remote_repository", None)
         if not remote_repo:
             return None
         try:
@@ -249,15 +251,17 @@ class ProjectBasicsForm(ProjectForm):
             raise forms.ValidationError(_("Repository invalid")) from exc
 
     def placehold_repo(self):
-        return choice([
-            'https://bitbucket.org/cherrypy/cherrypy',
-            'https://bitbucket.org/birkenfeld/sphinx',
-            'https://bitbucket.org/hpk42/tox',
-            'https://github.com/zzzeek/sqlalchemy.git',
-            'https://github.com/django/django.git',
-            'https://github.com/fabric/fabric.git',
-            'https://github.com/ericholscher/django-kong.git',
-        ])
+        return choice(
+            [
+                "https://bitbucket.org/cherrypy/cherrypy",
+                "https://bitbucket.org/birkenfeld/sphinx",
+                "https://bitbucket.org/hpk42/tox",
+                "https://github.com/zzzeek/sqlalchemy.git",
+                "https://github.com/django/django.git",
+                "https://github.com/fabric/fabric.git",
+                "https://github.com/ericholscher/django-kong.git",
+            ]
+        )
 
 
 class ProjectExtraForm(ProjectForm):
@@ -267,12 +271,12 @@ class ProjectExtraForm(ProjectForm):
     class Meta:
         model = Project
         fields = (
-            'description',
-            'documentation_type',
-            'language',
-            'programming_language',
-            'tags',
-            'project_url',
+            "description",
+            "documentation_type",
+            "language",
+            "programming_language",
+            "tags",
+            "project_url",
         )
 
     description = forms.CharField(
@@ -282,12 +286,12 @@ class ProjectExtraForm(ProjectForm):
     )
 
     def clean_tags(self):
-        tags = self.cleaned_data.get('tags', [])
+        tags = self.cleaned_data.get("tags", [])
         for tag in tags:
             if len(tag) > 100:
                 raise forms.ValidationError(
                     _(
-                        'Length of each tag must be less than or equal to 100 characters.',
+                        "Length of each tag must be less than or equal to 100 characters.",
                     ),
                 )
         return tags
@@ -326,8 +330,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         super().__init__(*args, **kwargs)
 
         # Remove the nullable option from the form
-        self.fields['analytics_disabled'].widget = forms.CheckboxInput()
-        self.fields['analytics_disabled'].empty_value = False
+        self.fields["analytics_disabled"].widget = forms.CheckboxInput()
+        self.fields["analytics_disabled"].empty_value = False
 
         # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
@@ -353,27 +357,28 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             self.fields.pop("show_version_warning")
 
         if not settings.ALLOW_PRIVATE_REPOS:
-            for field in ['privacy_level', 'external_builds_privacy_level']:
+            for field in ["privacy_level", "external_builds_privacy_level"]:
                 self.fields.pop(field)
 
-        default_choice = (None, '-' * 9)
-        versions_choices = self.instance.versions(manager=INTERNAL).filter(
-            machine=False).values_list('verbose_name', flat=True)
+        default_choice = (None, "-" * 9)
+        versions_choices = (
+            self.instance.versions(manager=INTERNAL)
+            .filter(machine=False)
+            .values_list("verbose_name", flat=True)
+        )
 
-        self.fields['default_branch'].widget = forms.Select(
-            choices=[default_choice] + list(
-                zip(versions_choices, versions_choices)
-            ),
+        self.fields["default_branch"].widget = forms.Select(
+            choices=[default_choice] + list(zip(versions_choices, versions_choices)),
         )
 
         active_versions = self.get_all_active_versions()
 
         if active_versions:
-            self.fields['default_version'].widget = forms.Select(
+            self.fields["default_version"].widget = forms.Select(
                 choices=active_versions,
             )
         else:
-            self.fields['default_version'].widget.attrs['readonly'] = True
+            self.fields["default_version"].widget.attrs["readonly"] = True
 
         self.setup_external_builds_option()
 
@@ -458,17 +463,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 return True
         return False
 
-    def clean_conf_py_file(self):
-        filename = self.cleaned_data.get("conf_py_file", "").strip()
-        if filename and "conf.py" not in filename:
-            raise forms.ValidationError(
-                _(
-                    'Your configuration file is invalid, make sure it contains '
-                    'conf.py in it.',
-                ),
-            )  # yapf: disable
-        return filename
-
     def clean_readthedocs_yaml_path(self):
         """
         Validate user input to help user.
@@ -491,15 +485,17 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         version_qs = self.instance.all_active_versions()
         if version_qs.exists():
             version_qs = sort_version_aware(version_qs)
-            all_versions = [(version.slug, version.verbose_name) for version in version_qs]
+            all_versions = [
+                (version.slug, version.verbose_name) for version in version_qs
+            ]
             return all_versions
         return None
 
 
 class UpdateProjectForm(
-        ProjectTriggerBuildMixin,
-        ProjectBasicsForm,
-        ProjectExtraForm,
+    ProjectTriggerBuildMixin,
+    ProjectBasicsForm,
+    ProjectExtraForm,
 ):
 
     """Basic project settings form for Admin."""
@@ -508,25 +504,24 @@ class UpdateProjectForm(
         model = Project
         fields = (
             # Basics
-            'name',
-            'repo',
+            "name",
+            "repo",
             "repo_type",
             # Extra
-            'description',
-            'language',
-            'programming_language',
-            'project_url',
-            'tags',
+            "description",
+            "language",
+            "programming_language",
+            "project_url",
+            "tags",
         )
 
     def clean_language(self):
         """Ensure that language isn't already active."""
-        language = self.cleaned_data['language']
+        language = self.cleaned_data["language"]
         project = self.instance
         if project:
             msg = _(
-                'There is already a "{lang}" translation '
-                'for the {proj} project.',
+                'There is already a "{lang}" translation for the {proj} project.',
             )
             if project.translations.filter(language=language).exists():
                 raise forms.ValidationError(
@@ -539,8 +534,7 @@ class UpdateProjectForm(
                         msg.format(lang=language, proj=main_project.slug),
                     )
                 siblings = (
-                    main_project.translations
-                    .filter(language=language)
+                    main_project.translations.filter(language=language)
                     .exclude(pk=project.pk)
                     .exists()
                 )
@@ -562,33 +556,33 @@ class ProjectRelationshipForm(forms.ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project')
-        self.user = kwargs.pop('user')
+        self.project = kwargs.pop("project")
+        self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
-        if hasattr(self, 'instance') and self.instance.pk is not None:
-            self.fields['child'].queryset = Project.objects.filter(pk=self.instance.child.pk)
+        if hasattr(self, "instance") and self.instance.pk is not None:
+            self.fields["child"].queryset = Project.objects.filter(
+                pk=self.instance.child.pk
+            )
         else:
-            self.fields['child'].queryset = self.project.get_subproject_candidates(self.user)
+            self.fields["child"].queryset = self.project.get_subproject_candidates(
+                self.user
+            )
 
     def clean_parent(self):
-        self.project.is_valid_as_superproject(
-            forms.ValidationError
-        )
+        self.project.is_valid_as_superproject(forms.ValidationError)
         return self.project
 
     def clean_alias(self):
-        alias = self.cleaned_data['alias']
-        subproject = (
-            self.project.subprojects
-            .filter(alias=alias)
-            .exclude(id=self.instance.pk)
+        alias = self.cleaned_data["alias"]
+        subproject = self.project.subprojects.filter(alias=alias).exclude(
+            id=self.instance.pk
         )
 
         if subproject.exists():
             raise forms.ValidationError(
-                _('A subproject with this alias already exists'),
+                _("A subproject with this alias already exists"),
             )
         return alias
 
@@ -680,12 +674,12 @@ class EmailHookForm(forms.Form):
     email = forms.EmailField()
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project', None)
+        self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
     def clean_email(self):
         self.email = EmailHook.objects.get_or_create(
-            email=self.cleaned_data['email'],
+            email=self.cleaned_data["email"],
             project=self.project,
         )[0]
         return self.email
@@ -703,39 +697,42 @@ class WebHookForm(forms.ModelForm):
 
     class Meta:
         model = WebHook
-        fields = ['project', 'url', 'events', 'payload', 'secret']
+        fields = ["project", "url", "events", "payload", "secret"]
         widgets = {
-            'events': forms.CheckboxSelectMultiple,
+            "events": forms.CheckboxSelectMultiple,
         }
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project', None)
+        self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
         if self.instance and self.instance.pk:
             # Show secret in the detail form, but as readonly.
-            self.fields['secret'].disabled = True
+            self.fields["secret"].disabled = True
         else:
             # Don't show the secret in the creation form.
-            self.fields.pop('secret')
-            self.fields['payload'].initial = json.dumps({
-                'event': '{{ event }}',
-                'name': '{{ project.name }}',
-                'slug': '{{ project.slug }}',
-                'version': '{{ version.slug }}',
-                'commit': '{{ build.commit }}',
-                'build': '{{ build.id }}',
-                'start_date': '{{ build.start_date }}',
-                'build_url': '{{ build.url }}',
-                'docs_url': '{{ build.docs_url }}',
-            }, indent=2)
+            self.fields.pop("secret")
+            self.fields["payload"].initial = json.dumps(
+                {
+                    "event": "{{ event }}",
+                    "name": "{{ project.name }}",
+                    "slug": "{{ project.slug }}",
+                    "version": "{{ version.slug }}",
+                    "commit": "{{ build.commit }}",
+                    "build": "{{ build.id }}",
+                    "start_date": "{{ build.start_date }}",
+                    "build_url": "{{ build.url }}",
+                    "docs_url": "{{ build.docs_url }}",
+                },
+                indent=2,
+            )
 
     def clean_project(self):
         return self.project
 
     def clean_payload(self):
         """Check if the payload is a valid json object and format it."""
-        payload = self.cleaned_data['payload']
+        payload = self.cleaned_data["payload"]
         try:
             payload = json.loads(payload)
             payload = json.dumps(payload, indent=2)
@@ -753,19 +750,22 @@ class TranslationBaseForm(forms.Form):
     project = forms.ChoiceField()
 
     def __init__(self, *args, **kwargs):
-        self.parent = kwargs.pop('parent', None)
-        self.user = kwargs.pop('user')
+        self.parent = kwargs.pop("parent", None)
+        self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
-        self.fields['project'].choices = self.get_choices()
+        self.fields["project"].choices = self.get_choices()
 
     def get_choices(self):
-        return [(
-            project.slug,
-            '{project} ({lang})'.format(
-                project=project.slug,
-                lang=project.get_language_display(),
-            ),
-        ) for project in self.get_translation_queryset().all()]
+        return [
+            (
+                project.slug,
+                "{project} ({lang})".format(
+                    project=project.slug,
+                    lang=project.get_language_display(),
+                ),
+            )
+            for project in self.get_translation_queryset().all()
+        ]
 
     def clean(self):
         if not self.parent.supports_translations:
@@ -779,7 +779,7 @@ class TranslationBaseForm(forms.Form):
     def clean_project(self):
         """Ensures that selected project is valid as a translation."""
 
-        translation_project_slug = self.cleaned_data['project']
+        translation_project_slug = self.cleaned_data["project"]
 
         # Ensure parent project isn't already itself a translation
         if self.parent.main_language_project is not None:
@@ -798,7 +798,7 @@ class TranslationBaseForm(forms.Form):
             )
         self.translation = project_translation_qs.first()
         if self.translation.language == self.parent.language:
-            msg = ('Both projects can not have the same language ({lang}).')
+            msg = "Both projects can not have the same language ({lang})."
             raise forms.ValidationError(
                 _(msg).format(lang=self.parent.get_language_display()),
             )
@@ -811,15 +811,15 @@ class TranslationBaseForm(forms.Form):
         )
         # yapf: enable
         if exists_translation:
-            msg = ('This project already has a translation for {lang}.')
+            msg = "This project already has a translation for {lang}."
             raise forms.ValidationError(
                 _(msg).format(lang=self.translation.get_language_display()),
             )
         is_parent = self.translation.translations.exists()
         if is_parent:
             msg = (
-                'A project with existing translations '
-                'can not be added as a project translation.'
+                "A project with existing translations "
+                "can not be added as a project translation."
             )
             raise forms.ValidationError(_(msg))
         return translation_project_slug
@@ -869,7 +869,7 @@ class RedirectForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project', None)
+        self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
         # Remove the nullable option from the form.
@@ -893,15 +893,15 @@ class DomainForm(forms.ModelForm):
 
     class Meta:
         model = Domain
-        fields = ['project', 'domain', 'canonical', 'https']
+        fields = ["project", "domain", "canonical", "https"]
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project', None)
+        self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
         # Disable domain manipulation on Update, but allow on Create
         if self.instance.pk:
-            self.fields['domain'].disabled = True
+            self.fields["domain"].disabled = True
 
         # Remove the https option at creation,
         # but show it if the domain is already marked as http only,
@@ -914,17 +914,15 @@ class DomainForm(forms.ModelForm):
 
     def clean_domain(self):
         """Validates domain."""
-        domain = self.cleaned_data['domain'].lower()
+        domain = self.cleaned_data["domain"].lower()
         parsed = urlparse(domain)
 
         # Force the scheme to have a valid netloc.
         if not parsed.scheme:
-            parsed = urlparse(f'https://{domain}')
+            parsed = urlparse(f"https://{domain}")
 
         if not parsed.netloc:
-            raise forms.ValidationError(
-                f'{domain} is not a valid domain.'
-            )
+            raise forms.ValidationError(f"{domain} is not a valid domain.")
 
         domain_string = parsed.netloc
 
@@ -938,24 +936,21 @@ class DomainForm(forms.ModelForm):
             settings.RTD_EXTERNAL_VERSION_DOMAIN,
         ]:
             if invalid_domain and domain_string.endswith(invalid_domain):
-                raise forms.ValidationError(
-                    f'{invalid_domain} is not a valid domain.'
-                )
+                raise forms.ValidationError(f"{invalid_domain} is not a valid domain.")
 
         return domain_string
 
     def clean_canonical(self):
-        canonical = self.cleaned_data['canonical']
+        canonical = self.cleaned_data["canonical"]
         pk = self.instance.pk
         has_canonical_domain = (
-            Domain.objects
-            .filter(project=self.project, canonical=True)
+            Domain.objects.filter(project=self.project, canonical=True)
             .exclude(pk=pk)
             .exists()
         )
         if canonical and has_canonical_domain:
             raise forms.ValidationError(
-                _('Only one domain can be canonical at a time.'),
+                _("Only one domain can be canonical at a time."),
             )
         return canonical
 
@@ -978,10 +973,12 @@ class IntegrationForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project', None)
+        self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
         # Alter the integration type choices to only provider webhooks
-        self.fields['integration_type'].choices = Integration.WEBHOOK_INTEGRATIONS  # yapf: disable  # noqa
+        self.fields[
+            "integration_type"
+        ].choices = Integration.WEBHOOK_INTEGRATIONS  # yapf: disable  # noqa
 
     def clean_project(self):
         return self.project
@@ -997,10 +994,10 @@ class ProjectAdvertisingForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['allow_promos']
+        fields = ["allow_promos"]
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project', None)
+        self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
 
@@ -1018,11 +1015,11 @@ class FeatureForm(forms.ModelForm):
 
     class Meta:
         model = Feature
-        fields = ['projects', 'feature_id', 'default_true', 'future_default_true']
+        fields = ["projects", "feature_id", "default_true", "future_default_true"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['feature_id'].choices = Feature.FEATURES
+        self.fields["feature_id"].choices = Feature.FEATURES
 
 
 class EnvironmentVariableForm(forms.ModelForm):
@@ -1037,43 +1034,43 @@ class EnvironmentVariableForm(forms.ModelForm):
 
     class Meta:
         model = EnvironmentVariable
-        fields = ('name', 'value', 'public', 'project')
+        fields = ("name", "value", "public", "project")
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project', None)
+        self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
         # Remove the nullable option from the form.
         # TODO: remove after migration.
-        self.fields['public'].widget = forms.CheckboxInput()
-        self.fields['public'].empty_value = False
+        self.fields["public"].widget = forms.CheckboxInput()
+        self.fields["public"].empty_value = False
 
     def clean_project(self):
         return self.project
 
     def clean_name(self):
         """Validate environment variable name chosen."""
-        name = self.cleaned_data['name']
-        if name.startswith('__'):
+        name = self.cleaned_data["name"]
+        if name.startswith("__"):
             raise forms.ValidationError(
                 _("Variable name can't start with __ (double underscore)"),
             )
-        if name.startswith('READTHEDOCS'):
+        if name.startswith("READTHEDOCS"):
             raise forms.ValidationError(
                 _("Variable name can't start with READTHEDOCS"),
             )
         if self.project.environmentvariable_set.filter(name=name).exists():
             raise forms.ValidationError(
                 _(
-                    'There is already a variable with this name for this project',
+                    "There is already a variable with this name for this project",
                 ),
             )
-        if ' ' in name:
+        if " " in name:
             raise forms.ValidationError(
                 _("Variable name can't contain spaces"),
             )
-        if not fullmatch('[a-zA-Z0-9_]+', name):
+        if not fullmatch("[a-zA-Z0-9_]+", name):
             raise forms.ValidationError(
-                _('Only letters, numbers and underscore are allowed'),
+                _("Only letters, numbers and underscore are allowed"),
             )
         return name

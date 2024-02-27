@@ -1,5 +1,5 @@
-Preview documentation from pull requests
-========================================
+Pull request previews
+=====================
 
 Your project can be configured to build and host documentation for every new
 pull request. Previewing changes during review makes it

@@ -1,5 +1,5 @@
-About |com_brand|
-=================
+Business hosting
+================
 
 .. this page is currently moving towards becoming "About Read the Docs for Business"
 .. rather than an index of features.

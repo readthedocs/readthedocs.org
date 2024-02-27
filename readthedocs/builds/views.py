@@ -168,6 +168,7 @@ class BuildDetail(BuildBase, DetailView):
         context["project"] = self.project
 
         build = self.get_object()
+        context["notifications"] = build.notifications.all()
 
         if not build.notifications.filter(
             message_id=BuildAppError.GENERIC_WITH_BUILD_ID
@@ -212,5 +213,5 @@ class BuildDetail(BuildBase, DetailView):
         issue_url = scheme.format(**scheme_dict)
         issue_url = urlparse(issue_url).geturl()
         context["issue_url"] = issue_url
-        context["notifications"] = build.notifications.all()
+
         return context

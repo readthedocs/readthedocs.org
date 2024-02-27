@@ -82,10 +82,9 @@ django-celery-beat
 # TODO: remove this dependency once we upgrade Celery. It should auto-install it.
 tzdata
 
-# 0.52.0 requires creating a new email template:
-#  templates/account/email/acccount_already_exists_message.html
-# See https://github.com/readthedocs/readthedocs.org/pull/9853#discussion_r1060496492
-django-allauth==0.51.0
+# 0.58.0 refactored the built-in templates,
+# we need to check if we need to update our custom templates.
+django-allauth==0.57.2
 
 requests-oauthlib
 
