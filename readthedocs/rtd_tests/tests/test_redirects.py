@@ -116,7 +116,6 @@ class RedirectBuildTests(TestCase):
             Project,
             slug="project-1",
             documentation_type="sphinx",
-            conf_py_file="test_conf.py",
             versions=[fixture()],
         )
         self.version = self.project.versions.all()[0]
