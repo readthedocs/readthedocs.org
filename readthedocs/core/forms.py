@@ -24,14 +24,7 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         # Don't allow users edit someone else's user page
         profile_fields = ["first_name", "last_name", "homepage"]
-        optout_email_fields = [
-            "optout_email_config_file_deprecation",
-            "optout_email_build_image_deprecation",
-        ]
-        fields = (
-            *profile_fields,
-            *optout_email_fields,
-        )
+        fields = (*profile_fields,)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -46,10 +39,6 @@ class UserProfileForm(forms.ModelForm):
             Fieldset(
                 _("User settings"),
                 *self.Meta.profile_fields,
-            ),
-            Fieldset(
-                _("Email settings"),
-                *self.Meta.optout_email_fields,
             ),
         ]
         self.helper.layout = Layout(*field_sets)
