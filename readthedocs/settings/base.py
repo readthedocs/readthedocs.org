@@ -685,6 +685,16 @@ class CommunityBaseSettings(Settings):
             ],
             # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org.
         },
+        # Deprecated, we use `bitbucket_oauth2` for all new connections.
+        "bitbucket": {
+            "APPS": [
+                {
+                    "client_id": "123",
+                    "secret": "456",
+                    "key": ""
+                },
+            ],
+        },
     }
     ACCOUNT_FORMS = {
         'signup': 'readthedocs.forms.SignupFormWithNewsletter',
