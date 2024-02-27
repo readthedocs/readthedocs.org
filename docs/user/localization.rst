@@ -1,5 +1,5 @@
-Localization of documentation
-=============================
+Localization and Internationalization
+======================================
 
 In this article, we explain high-level approaches to internationalizing and localizing your documentation.
 

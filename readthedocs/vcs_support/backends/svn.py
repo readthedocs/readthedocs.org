@@ -6,10 +6,10 @@ from io import StringIO
 from django.conf import settings
 
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from readthedocs.vcs_support.base import BaseVCS, Deprecated, VCSVersion
 
 
-class Backend(BaseVCS):
+class Backend(Deprecated, BaseVCS):
 
     """Subversion VCS backend."""
 

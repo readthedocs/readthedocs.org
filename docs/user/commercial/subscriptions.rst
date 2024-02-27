@@ -1,5 +1,5 @@
-How to manage your Read the Docs for Business subscription
-==========================================================
+How to manage your subscription
+===============================
 
 We want to make it easy to manage your billing information.
 All :doc:`organization owners </commercial/subscriptions>` can manage the subscription for that organization.

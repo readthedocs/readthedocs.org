@@ -19,6 +19,7 @@ from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)  # noqa
 
+
 class BaseAnalyticsView(CDNCacheControlMixin, APIView):
 
     """

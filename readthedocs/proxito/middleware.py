@@ -15,9 +15,11 @@ from corsheaders.middleware import (
 )
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
+from django.http.response import BadHeaderError, ResponseHeaders
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.html import escape
 
 from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
@@ -198,6 +200,7 @@ class ProxitoMiddleware(MiddlewareMixin):
     def process_request(self, request):  # noqa
         # Initialize our custom request attributes.
         request.unresolved_domain = None
+        request.unresolved_url = None
 
         skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
         if skip:
@@ -367,11 +370,33 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         return None
 
+    def add_resolver_headers(self, request, response):
+        if request.unresolved_url is not None:
+            # TODO: add more ``X-RTD-Resolver-*`` headers
+            header_value = escape(request.unresolved_url.filename)
+            try:
+                # Use Django internals to validate the header's value before injecting it.
+                ResponseHeaders({})._convert_to_charset(
+                    header_value,
+                    "latin-1",
+                    mime_encode=True,
+                )
+
+                response["X-RTD-Resolver-Filename"] = header_value
+            except BadHeaderError:
+                # Skip adding the header because it fails validation
+                log.info(
+                    "Skip adding X-RTD-Resolver-Filename header due to invalid value.",
+                    filename=request.unresolved_url.filename,
+                    value=header_value,
+                )
+
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
         self.add_cache_headers(request, response)
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         self.add_hosting_integrations_headers(request, response)
+        self.add_resolver_headers(request, response)
         self.add_cors_headers(request, response)
         return response
