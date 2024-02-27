@@ -8,7 +8,7 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     """Settings for local development with Docker"""
 
-    DEBUG = bool(os.environ.get("RTD_DJANGO_DEBUG", True))
+    DEBUG = bool(os.environ.get("RTD_DJANGO_DEBUG", False))
 
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
