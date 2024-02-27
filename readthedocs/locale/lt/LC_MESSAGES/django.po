@@ -4,12 +4,12 @@
 #
 # Translators:
 # Tomas Straupis, 2021,2023
-#: notifications/messages.py:394
+#: notifications/messages.py:407
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-20 10:17+0000\n"
+"POT-Creation-Date: 2024-02-27 10:58+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Tomas Straupis, 2021,2023\n"
 "Language-Team: Lithuanian (http://app.transifex.com/readthedocs/readthedocs/"
@@ -22,8 +22,8 @@ msgstr ""
 "11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? "
 "1 : n % 1 != 0 ? 2: 3);\n"
 
-#: analytics/models.py:69 builds/models.py:713 projects/models.py:1556
-#: search/models.py:28 templates/base.html:274
+#: analytics/models.py:69 builds/models.py:713 projects/models.py:1457
+#: search/models.py:28 templates/base.html:266
 msgid "Version"
 msgstr "Versija"
 
@@ -51,15 +51,15 @@ msgstr "Kurti API raktą"
 msgid "Build API keys"
 msgstr "Kurti API raktus"
 
-#: api/v2/serializers.py:398
+#: api/v2/serializers.py:393
 msgid "This field is required."
 msgstr "Tai privalomas laukas."
 
-#: api/v2/serializers.py:399
+#: api/v2/serializers.py:394
 msgid "Object does not exist."
 msgstr ""
 
-#: api/v2/serializers.py:401
+#: api/v2/serializers.py:396
 #, python-brace-format
 msgid "Incorrect type. Expected URL string, received {data_type}."
 msgstr ""
@@ -69,14 +69,14 @@ msgid "Languages"
 msgstr "Kalbos"
 
 #: api/v2/templates/restapi/footer.html:42
-#: templates/core/project_bar_base.html:53
+#: templates/core/project_bar_base.html:41
 #: templates/core/project_details.html:17
 msgid "Versions"
 msgstr "Versijos"
 
 #: api/v2/templates/restapi/footer.html:55
 #: api/v2/templates/restapi/footer.html:75
-#: templates/core/project_bar_base.html:47
+#: templates/core/project_bar_base.html:35
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
 msgstr "Atsisiuntimai"
@@ -90,7 +90,7 @@ msgid "Project Home"
 msgstr "Projekto namai"
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:13
-#: templates/core/project_bar_base.html:51
+#: templates/core/project_bar_base.html:39
 msgid "Builds"
 msgstr "Kūrimai"
 
@@ -123,7 +123,7 @@ msgstr "Pas GitLab"
 
 #. Translators: This is about starting a search
 #: api/v2/templates/restapi/footer.html:118
-#: templates/core/project_bar_base.html:49
+#: templates/core/project_bar_base.html:37
 #: templates/search/elastic_search.html:80
 #: templates/search/elastic_search.html:92
 msgid "Search"
@@ -137,43 +137,43 @@ msgstr "Ieškoti dokumentų"
 msgid "Hosted by"
 msgstr "Talpintojas"
 
-#: api/v2/templates/restapi/footer.html:136 templates/base.html:246
+#: api/v2/templates/restapi/footer.html:136 templates/base.html:238
 msgid "Privacy Policy"
 msgstr "Privatumo politika"
 
-#: api/v3/serializers.py:622
+#: api/v3/serializers.py:589
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Netinkamas projekto pavadinimas „{0}“: žetonas nesukurtas."
 
-#: api/v3/serializers.py:626
+#: api/v3/serializers.py:593
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "Projekto žetonas „{0}“ jau yra."
 
-#: api/v3/serializers.py:849
+#: api/v3/serializers.py:816
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "Projektas su {slug_name}={value} netinkamas kaip subprojektas"
 
-#: api/v3/serializers.py:857 projects/forms.py:591
+#: api/v3/serializers.py:824 projects/forms.py:585
 msgid "A subproject with this alias already exists"
 msgstr "Subprojektas su tokiu pavadinimu jau yra"
 
-#: api/v3/serializers.py:1000
+#: api/v3/serializers.py:967
 #, python-brace-format
 msgid ""
 "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
 "instead. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1006
+#: api/v3/serializers.py:973
 #, python-brace-format
 msgid ""
 "sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1012
+#: api/v3/serializers.py:979
 #, python-brace-format
 msgid ""
 "sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
@@ -203,7 +203,7 @@ msgid "Log out"
 msgstr "Atsijungti"
 
 #: audit/models.py:91 organizations/views/private.py:148
-#: organizations/views/private.py:213 projects/views/private.py:467
+#: organizations/views/private.py:213 projects/views/private.py:451
 msgid "Invitation sent"
 msgstr "Pakvietimas išsiųstas"
 
@@ -233,7 +233,7 @@ msgid "Username"
 msgstr "Naudotojo vardas"
 
 #: audit/models.py:138 builds/models.py:96 builds/models.py:707
-#: organizations/filters.py:134 projects/models.py:1550 redirects/models.py:48
+#: organizations/filters.py:134 projects/models.py:1451 redirects/models.py:48
 msgid "Project"
 msgstr "Projektas"
 
@@ -474,7 +474,7 @@ msgstr "Aktyvi"
 msgid "Build successful"
 msgstr "Kūrimas sėkmingas"
 
-#: builds/filters.py:28 projects/models.py:1658
+#: builds/filters.py:28 projects/models.py:1559
 #: templates/builds/build_detail.html:143
 msgid "Build failed"
 msgstr "Kūrimas nepavyko"
@@ -550,7 +550,7 @@ msgstr "Sukurta"
 msgid "Uploaded"
 msgstr "Įkelta"
 
-#: builds/models.py:156 projects/models.py:482
+#: builds/models.py:156 projects/models.py:471
 msgid "Privacy Level"
 msgstr "Privatumo lygis"
 
@@ -583,7 +583,7 @@ msgstr "Turi ePub"
 msgid "Has HTML Zip"
 msgstr "Turi HTML Zip"
 
-#: builds/models.py:175 projects/models.py:319 projects/models.py:586
+#: builds/models.py:175 projects/models.py:554
 msgid "Documentation type"
 msgstr "Dokumentacijos tipas"
 
@@ -636,7 +636,7 @@ msgstr "Klaida"
 msgid "Exit code"
 msgstr "Baigimo kodas"
 
-#: builds/models.py:763 projects/models.py:1567
+#: builds/models.py:763 projects/models.py:1468
 msgid "Commit"
 msgstr "Patvirtinti"
 
@@ -1012,14 +1012,11 @@ msgstr "Komanda nenormaliai baigta"
 msgid "A build environment is currently running for this version"
 msgstr "Šiai versijai šiuo metu veikia kūrimo aplinka"
 
-#: doc_builder/exceptions.py:21
-#, fuzzy
-#| msgctxt "Build is a verb"
-#| msgid "Build version"
+#: doc_builder/exceptions.py:20
 msgid "Build user exception"
-msgstr "Kurti versiją"
+msgstr ""
 
-#: doc_builder/exceptions.py:25
+#: doc_builder/exceptions.py:24
 msgid "Build application exception"
 msgstr ""
 
@@ -1045,7 +1042,7 @@ msgid "Publication date"
 msgstr "Publikavimo data"
 
 #: gold/models.py:29 organizations/models.py:32 organizations/models.py:230
-#: organizations/models.py:304 projects/models.py:219 projects/models.py:1569
+#: organizations/models.py:304 projects/models.py:219 projects/models.py:1470
 msgid "Modified date"
 msgstr "Keitimo data"
 
@@ -1370,90 +1367,94 @@ msgid "Build terminated due to excessive memory consumption."
 msgstr ""
 
 #: notifications/messages.py:193
+msgid "Build used a deprecated VCS is not supported: {{vcs}}."
+msgstr ""
+
+#: notifications/messages.py:206
 msgid "Build terminated due to unknown error."
 msgstr ""
 
-#: notifications/messages.py:205
+#: notifications/messages.py:218
 msgid "Builds are temporary disabled for this project."
 msgstr ""
 
-#: notifications/messages.py:219
+#: notifications/messages.py:232
 msgid "No HTML content found"
 msgstr ""
 
-#: notifications/messages.py:231
+#: notifications/messages.py:244
 msgid "Build output directory is not a directory"
 msgstr ""
 
-#: notifications/messages.py:244
+#: notifications/messages.py:257
 msgid "Build output directory doesn't contain any file"
 msgstr ""
 
-#: notifications/messages.py:257
+#: notifications/messages.py:270
 msgid "Build output directory contains multiple files"
 msgstr ""
 
-#: notifications/messages.py:271
+#: notifications/messages.py:284
 msgid "Index file is not present in HTML output directory"
 msgstr ""
 
-#: notifications/messages.py:284
+#: notifications/messages.py:297
 msgid "Your project is outputing files in an old directory"
 msgstr ""
 
-#: notifications/messages.py:298
+#: notifications/messages.py:311
 msgid "Your project doesn't have a <code>.readthedocs.yaml</code> file"
 msgstr ""
 
-#: notifications/messages.py:312
+#: notifications/messages.py:325
 msgid "Configuration key <code>build.image</code> is deprecated"
 msgstr ""
 
-#: notifications/messages.py:326
+#: notifications/messages.py:339
 msgid "Configuration key <code>build.os</code> is required"
 msgstr ""
 
-#: notifications/messages.py:340
+#: notifications/messages.py:353
 msgid "There is at least one file that exceeds the size limit"
 msgstr ""
 
-#: notifications/messages.py:353
+#: notifications/messages.py:366
 msgid "There is no PDF file in output directory"
 msgstr ""
 
-#: notifications/messages.py:366
+#: notifications/messages.py:379
 msgid "Config key <code>build.commands</code> is in beta"
 msgstr ""
 
-#: notifications/messages.py:379
+#: notifications/messages.py:392
 msgid "No TeX files were found"
 msgstr ""
 
-#: notifications/messages.py:406
+#: notifications/messages.py:419
 msgid "MkDocs <code>docs_dir</code> configuration option is invalid"
 msgstr ""
 
-#: notifications/messages.py:419
+#: notifications/messages.py:432
 msgid "MkDocs <code>docs_dir</code> path not found"
 msgstr ""
 
-#: notifications/messages.py:433
+#: notifications/messages.py:446
 msgid "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
 msgstr ""
 
-#: notifications/messages.py:447
+#: notifications/messages.py:460
 msgid "MkDocs configuration file is empty"
 msgstr ""
 
-#: notifications/messages.py:459
+#: notifications/messages.py:472
 msgid "MkDocs configuration file not found"
 msgstr ""
 
-#: notifications/messages.py:473
+#: notifications/messages.py:486
 msgid "Unknown error when loading your MkDocs configuration file"
 msgstr ""
 
-#: notifications/messages.py:487
+#: notifications/messages.py:500
 msgid "Syntax error in <code>mkdocs.yml</code>"
 msgstr ""
 
@@ -1461,7 +1462,7 @@ msgstr ""
 msgid "Show under bell icon"
 msgstr ""
 
-#: notifications/models.py:83
+#: notifications/models.py:86
 msgid "Unknown message"
 msgstr ""
 
@@ -1472,11 +1473,11 @@ msgstr "Naudotojai"
 #: oauth/models.py:33 oauth/models.py:126 organizations/filters.py:59
 #: organizations/filters.py:65 organizations/models.py:48
 #: organizations/models.py:253 projects/filters.py:42 projects/filters.py:107
-#: projects/models.py:229 projects/models.py:1561
+#: projects/models.py:229 projects/models.py:1462
 msgid "Name"
 msgstr "Vardas"
 
-#: oauth/models.py:34 templates/base.html:175
+#: oauth/models.py:34 templates/base.html:167
 msgid "Email"
 msgstr "Epaštas"
 
@@ -1579,7 +1580,7 @@ msgstr ""
 msgid "Read-only"
 msgstr "Tik skaitymui"
 
-#: organizations/constants.py:10 templates/core/project_bar_base.html:56
+#: organizations/constants.py:10 templates/core/project_bar_base.html:44
 #: templates/profiles/base_profile.html:29
 #: templates/profiles/base_profile_edit.html:31
 msgid "Admin"
@@ -1611,7 +1612,7 @@ msgstr "Visi projektai"
 
 #: organizations/filters.py:142 organizations/filters.py:172
 #: organizations/filters.py:219 organizations/models.py:314
-#: templates/base.html:211
+#: templates/base.html:203
 msgid "Team"
 msgstr "Komanda"
 
@@ -1653,11 +1654,11 @@ msgstr "Netinkamas organizacijos pavadinimas: nėra sugeneruoto žetono"
 msgid "Organization %(name)s already exists"
 msgstr "Organizacija %(name)s jau yra"
 
-#: organizations/forms.py:133 organizations/forms.py:219 projects/forms.py:643
+#: organizations/forms.py:133 organizations/forms.py:219 projects/forms.py:637
 msgid "Email address or username"
 msgstr "E-pašto adresas arba naudotojo vardas"
 
-#: organizations/forms.py:149 organizations/forms.py:254 projects/forms.py:658
+#: organizations/forms.py:149 organizations/forms.py:254 projects/forms.py:652
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr "Naudotojas %(username)s neegzistuoja"
@@ -1975,7 +1976,7 @@ msgid ""
 "          "
 msgstr ""
 
-#: organizations/templates/organizations/organization_detail.html:79
+#: organizations/templates/organizations/organization_detail.html:71
 #: organizations/templates/organizations/team_list.html:69
 msgid "There are no teams currently established."
 msgstr ""
@@ -2207,7 +2208,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2149
+#: projects/constants.py:99 projects/models.py:2050
 msgid "Public"
 msgstr "Viešas"
 
@@ -2297,10 +2298,8 @@ msgid "You must first <a href='{url}'>add a connected service "
 msgstr ""
 
 #: projects/forms.py:148
-#, fuzzy
-#| msgid "Connected Services"
 msgid "No connected services found"
-msgstr "Prijungtos paslaugos"
+msgstr ""
 
 #: projects/forms.py:154
 msgid ""
@@ -2309,10 +2308,8 @@ msgid ""
 msgstr ""
 
 #: projects/forms.py:157 projects/forms.py:179
-#, fuzzy
-#| msgid "Organization slug"
 msgid "Organization single sign-on enabled"
-msgstr "Organizacijos žetonas"
+msgstr ""
 
 #: projects/forms.py:162 projects/forms.py:184
 msgid ""
@@ -2334,75 +2331,69 @@ msgstr ""
 msgid "Invalid project name, a project already exists with that name"
 msgstr "Netinkamas projekto pavadinimas, projektas tokiu pavadinimu jau yra"
 
-#: projects/forms.py:231
+#: projects/forms.py:232
 msgid "Invalid project name"
 msgstr "Netinkamas projekto pavadinimas"
 
-#: projects/forms.py:249
+#: projects/forms.py:251
 msgid "Repository invalid"
 msgstr "Netinkama repozitorija"
 
-#: projects/forms.py:290
+#: projects/forms.py:294
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "Kiekvienos žymos ilgis turi būti ne mažesnis nei 100 simbolių."
 
-#: projects/forms.py:345
+#: projects/forms.py:349
 #, python-brace-format
 msgid ""
 "This setting is inherited from the <a href=\"{link}\">parent translation</a>."
 msgstr ""
 
-#: projects/forms.py:386
+#: projects/forms.py:391
 msgid ""
 "We have detected that this project is private, pull request previews are set "
 "to private."
 msgstr ""
 
-#: projects/forms.py:390
+#: projects/forms.py:395
 msgid ""
 "We have detected that this project is public, pull request previews are set "
 "to public."
 msgstr ""
 
-#: projects/forms.py:407
+#: projects/forms.py:412
 msgid "To build from pull requests you need a "
 msgstr ""
 
-#: projects/forms.py:418
+#: projects/forms.py:423
 msgid ""
 "To build from pull requests your repository's webhook needs to send pull "
 "request events. "
 msgstr ""
 
-#: projects/forms.py:466
-msgid ""
-"Your configuration file is invalid, make sure it contains conf.py in it."
-msgstr ""
-"Jūsų konfigūracijos failas netinkamas, įsitikinkite, kad jame yra conf.py."
-
-#: projects/forms.py:528
+#: projects/forms.py:524
 #, python-brace-format
 msgid "There is already a \"{lang}\" translation for the {proj} project."
 msgstr "Jau yra projekto {proj} vertimo kalba „{lang}“."
 
-#: projects/forms.py:616
+#: projects/forms.py:610
 msgid "Enable Addons"
 msgstr ""
 
-#: projects/forms.py:618
+#: projects/forms.py:612
 msgid "Show a notification on builds from pull requests"
 msgstr ""
 
-#: projects/forms.py:621
+#: projects/forms.py:615
 msgid "Show a notification on non-stable and latest versions"
 msgstr ""
 
-#: projects/forms.py:662
+#: projects/forms.py:656
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr ""
 
-#: projects/forms.py:744
+#: projects/forms.py:741
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
@@ -2412,27 +2403,27 @@ msgid ""
 "translations."
 msgstr ""
 
-#: projects/forms.py:958
+#: projects/forms.py:953
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:1059
+#: projects/forms.py:1056
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Kintamojo pavadinimas negali prasidėti __ (dvigubu pabraukimu)"
 
-#: projects/forms.py:1063
+#: projects/forms.py:1060
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Kintamojo pavadinimas negali prasidėti READTHEDOCS"
 
-#: projects/forms.py:1068
+#: projects/forms.py:1065
 msgid "There is already a variable with this name for this project"
 msgstr "Šiame projekte jau yra kintamasis tokiu pavadinimu"
 
-#: projects/forms.py:1073
+#: projects/forms.py:1070
 msgid "Variable name can't contain spaces"
 msgstr "Kintamojo pavadinime negali būti tarpų"
 
-#: projects/forms.py:1077
+#: projects/forms.py:1074
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Leidžiamos tik raidės, skaitmenys ir pabraukimai"
 
@@ -2523,11 +2514,11 @@ msgid ""
 "your VCS."
 msgstr ""
 
-#: projects/models.py:306 projects/models.py:573
+#: projects/models.py:306
 msgid "Requirements file"
 msgstr "Reikalavimų failas"
 
-#: projects/models.py:312 projects/models.py:579
+#: projects/models.py:312
 msgid ""
 "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
 "files\">pip requirements file</a> needed to build your documentation. Path "
@@ -2537,63 +2528,56 @@ msgstr ""
 "files\">pip reikalavimų failas</a> reikalingas, kad būtų galima sukurti jūsų "
 "dokumentaciją. Kelias iš jūsų projekto šaknies."
 
-#: projects/models.py:324 projects/models.py:591
-msgid ""
-"Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
-"en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
-"info on sphinx builders</a>."
-msgstr ""
-
-#: projects/models.py:331
+#: projects/models.py:320
 msgid "Custom path prefix"
 msgstr ""
 
-#: projects/models.py:337
+#: projects/models.py:326
 msgid ""
 "A custom path prefix used when serving documentation from this project. By "
 "default we serve documentation at the root (/) of a domain."
 msgstr ""
 
-#: projects/models.py:342
+#: projects/models.py:331
 msgid "Custom subproject path prefix"
 msgstr ""
 
-#: projects/models.py:348
+#: projects/models.py:337
 msgid ""
 "A custom path prefix used when evaluating the root of a subproject. By "
 "default we serve documentation from subprojects under the `/projects/` "
 "prefix."
 msgstr ""
 
-#: projects/models.py:355
+#: projects/models.py:344
 msgid "Build pull requests for this project"
 msgstr ""
 
-#: projects/models.py:358
+#: projects/models.py:347
 msgid ""
 "More information in <a href=\"https://docs.readthedocs.io/page/guides/"
 "autobuild-docs-for-pull-requests.html\">our docs</a>."
 msgstr ""
 
-#: projects/models.py:362
+#: projects/models.py:351
 msgid "Privacy level of Pull Requests"
 msgstr ""
 
-#: projects/models.py:369
+#: projects/models.py:358
 msgid ""
 "Should builds from pull requests be public? <strong>If your repository is "
 "public, don't set this to private</strong>."
 msgstr ""
 
-#: projects/models.py:374
+#: projects/models.py:363
 msgid "CDN Enabled"
 msgstr "CDN įjungtas"
 
-#: projects/models.py:376
+#: projects/models.py:365
 msgid "Analytics code"
 msgstr "Analitikos kodas"
 
-#: projects/models.py:381
+#: projects/models.py:370
 msgid ""
 "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
 "down your page loads."
@@ -2601,25 +2585,25 @@ msgstr ""
 "Google Analytics Tracking ID (pvz. <code>UA-22345342-1</code>). Tai gali "
 "sulėtinti jūsų puslapių įkėlimą."
 
-#: projects/models.py:387
+#: projects/models.py:376
 msgid "Disable Analytics"
 msgstr ""
 
-#: projects/models.py:391
+#: projects/models.py:380
 msgid ""
 "Disable Google Analytics completely for this project (requires rebuilding "
 "documentation)"
 msgstr ""
 
-#: projects/models.py:396
+#: projects/models.py:385
 msgid "Alternative container image"
 msgstr "Alternatyvus konteinerio atvaizdas"
 
-#: projects/models.py:402
+#: projects/models.py:391
 msgid "Container memory limit"
 msgstr "Konteinerio atminties riba"
 
-#: projects/models.py:407
+#: projects/models.py:396
 msgid ""
 "Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
 "code>"
@@ -2627,51 +2611,51 @@ msgstr ""
 "Atminties riba Docker formatu -- pavyzdžiui: <code>512m</code> arba "
 "<code>1g</code>"
 
-#: projects/models.py:412
+#: projects/models.py:401
 msgid "Container time limit in seconds"
 msgstr "Konteinerio laiko limitas sekundėmis"
 
-#: projects/models.py:417
+#: projects/models.py:406
 msgid "Alternate build queue id"
 msgstr "Alternatyvaus kūrimo eilės id"
 
-#: projects/models.py:423
+#: projects/models.py:412
 msgid "Maximum concurrent builds allowed for this project"
 msgstr ""
 
-#: projects/models.py:428
+#: projects/models.py:417
 msgid "Allow paid advertising"
 msgstr "Leisti mokamą reklamą"
 
-#: projects/models.py:430
+#: projects/models.py:419
 msgid "If unchecked, users will still see community ads."
 msgstr "Neįjungus naudotojai vis tiek matys bendruomenės reklamą."
 
-#: projects/models.py:433
+#: projects/models.py:422
 msgid "Ad-free"
 msgstr "Be reklamų"
 
-#: projects/models.py:438
+#: projects/models.py:427
 msgid "Is spam?"
 msgstr ""
 
-#: projects/models.py:441
+#: projects/models.py:430
 msgid "Manually marked as (not) spam"
 msgstr ""
 
-#: projects/models.py:444
+#: projects/models.py:433
 msgid "Show version warning"
 msgstr "Rodyti versijos įspėjimą"
 
-#: projects/models.py:446
+#: projects/models.py:435
 msgid "Show warning banner in non-stable nor latest versions."
 msgstr "Rodyti įspėjimo juostą nestabiliose ar paskutinėse versijose."
 
-#: projects/models.py:450
+#: projects/models.py:439
 msgid "Path for .readthedocs.yaml"
 msgstr ""
 
-#: projects/models.py:456
+#: projects/models.py:445
 msgid ""
 "<strong>Warning: experimental feature</strong>. Custom path from repository "
 "top-level to your <code>.readthedocs.yaml</code>, ex. <code>subpath/docs/."
@@ -2679,361 +2663,308 @@ msgid ""
 "yaml</code>."
 msgstr ""
 
-#: projects/models.py:464
+#: projects/models.py:453
 msgid "Featured"
 msgstr "Siūloma"
 
-#: projects/models.py:466
+#: projects/models.py:455
 msgid "Skip (disable) building this project"
 msgstr ""
 
-#: projects/models.py:474
+#: projects/models.py:463
 msgid "Delisted"
 msgstr ""
 
-#: projects/models.py:476
+#: projects/models.py:465
 msgid ""
 "Delisting a project removes it from Read the Docs search indexing and asks "
 "external search engines to remove it via robots.txt"
 msgstr ""
 
-#: projects/models.py:487
+#: projects/models.py:476
 msgid "Should the project dashboard be public?"
 msgstr ""
 
-#: projects/models.py:494
+#: projects/models.py:483
 msgid "Related projects"
 msgstr "Susiję projektai"
 
-#: projects/models.py:502 templates/search/elastic_search.html:57
+#: projects/models.py:491 templates/search/elastic_search.html:57
 msgid "Language"
 msgstr "Kalba"
 
-#: projects/models.py:506
+#: projects/models.py:495
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr ""
 "Kalba, kuria kuriama dokumentacija. Pastaba: tai įtakoja jūsų projekto URL."
 
-#: projects/models.py:514
+#: projects/models.py:503
 msgid "Programming Language"
 msgstr "Programavimo kalba"
 
-#: projects/models.py:518
+#: projects/models.py:507
 msgid "The primary programming language the project is written in."
 msgstr "Pirminė programavimo kalba, kuria parašytas projektas."
 
-#: projects/models.py:534
+#: projects/models.py:523
 msgid "This project has been built with a webhook"
 msgstr "Šitas projektas sukurtas su webhook"
 
-#: projects/models.py:538
+#: projects/models.py:527
 msgid "This project has been successfully cloned"
 msgstr "Šis projektas buvo sėkmingai klonuotas"
 
-#: projects/models.py:597
-msgid "Enable EPUB build"
-msgstr "Įjungti EPUB kūrimą"
-
-#: projects/models.py:600
-msgid "Create a EPUB version of your documentation with each build."
-msgstr "Kurti jūsų dokumentacijos EPUB versiją su kiekvienu kūrimu."
-
-#: projects/models.py:604
-msgid "Enable PDF build"
-msgstr "Įjungti PDF kūrimą"
-
-#: projects/models.py:607
-msgid "Create a PDF version of your documentation with each build."
-msgstr "Kurti jūsų dokumentacijos PDF versiją su kiekvienu kūrimu."
-
-#: projects/models.py:611 projects/models.py:1566
-msgid "Path"
-msgstr "Kelias"
-
-#: projects/models.py:615
-msgid "The directory where <code>conf.py</code> lives"
-msgstr "Kelias, kuriame yra <code>conf.py</code>"
-
-#: projects/models.py:619
-msgid "Python configuration file"
-msgstr "Python konfigūracijos failas"
-
-#: projects/models.py:624
+#: projects/models.py:561
 msgid ""
-"Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
-"code>). Leave blank if you want us to find it for you."
+"Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
+"en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info on sphinx builders</a>."
 msgstr ""
-"Kelias nuo projekto šaknies iki <code>conf.py</code> failo (pvz. <code>docs/"
-"conf.py</code>). Palikite tuščią, jei norite, kad mes už jus jį rastume."
 
-#: projects/models.py:630
-msgid "Install Project"
-msgstr "Įdiegti projektą"
-
-#: projects/models.py:632
-msgid ""
-"Install your project inside a virtualenv using <code>setup.py install</code>"
-msgstr ""
-"Įdiegti jūsų projektą virtualenv viduje naudojant <code>setup.py install</"
-"code>"
-
-#: projects/models.py:638
-msgid "Python Interpreter"
-msgstr "Python inerpretatorius"
-
-#: projects/models.py:643
-msgid "The Python interpreter used to create the virtual environment."
-msgstr "Python interpretatorius, naudojamas virtualios aplinkos kūrimui."
-
-#: projects/models.py:647
-msgid "Use system packages"
-msgstr "Naudoti sistemos paketus"
-
-#: projects/models.py:649
-msgid "Give the virtual environment access to the global site-packages dir."
-msgstr ""
-"Suteikti virtualiai aplinkai prieigą prie globalaus site-packages aplanko."
-
-#: projects/models.py:659
+#: projects/models.py:572
 msgid "project"
 msgstr ""
 
-#: projects/models.py:670
+#: projects/models.py:583
 msgid "Model must have slug"
 msgstr "Modelis turi turėti žetoną"
 
-#: projects/models.py:1431
+#: projects/models.py:1332
 msgid "Subproject nesting is not supported"
 msgstr "Subprojektų hierarchijos nepalaikomos"
 
-#: projects/models.py:1568
+#: projects/models.py:1467
+msgid "Path"
+msgstr "Kelias"
+
+#: projects/models.py:1469
 msgid "Build id"
 msgstr ""
 
-#: projects/models.py:1571
+#: projects/models.py:1472
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1576
+#: projects/models.py:1477
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1622 projects/models.py:1790
+#: projects/models.py:1523 projects/models.py:1691
 msgid "created"
 msgstr "sukurta"
 
-#: projects/models.py:1627
+#: projects/models.py:1528
 msgid "modified"
 msgstr "keista"
 
-#: projects/models.py:1656
+#: projects/models.py:1557
 msgid "Build triggered"
 msgstr ""
 
-#: projects/models.py:1657
+#: projects/models.py:1558
 msgid "Build passed"
 msgstr ""
 
-#: projects/models.py:1673
+#: projects/models.py:1574
 msgid "URL"
 msgstr ""
 
-#: projects/models.py:1675
+#: projects/models.py:1576
 msgid "URL to send the webhook to"
 msgstr "URL, kur bus siunčiami webhooks"
 
-#: projects/models.py:1678
+#: projects/models.py:1579
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1686
+#: projects/models.py:1587
 msgid "Events to subscribe"
 msgstr ""
 
-#: projects/models.py:1689
+#: projects/models.py:1590
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1691
+#: projects/models.py:1592
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">the docs</a> for available substitutions."
 msgstr ""
 
-#: projects/models.py:1801
+#: projects/models.py:1702
 msgid "Domain"
 msgstr "Vardas"
 
-#: projects/models.py:1808
+#: projects/models.py:1709
 msgid "This domain was auto-created"
 msgstr ""
 
-#: projects/models.py:1812
+#: projects/models.py:1713
 msgid "This domain is a CNAME for the project"
 msgstr ""
 
-#: projects/models.py:1817
+#: projects/models.py:1718
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:1821
+#: projects/models.py:1722
 msgid "Use HTTPS"
 msgstr "Naudoti HTTPS"
 
-#: projects/models.py:1823
+#: projects/models.py:1724
 msgid "Always use HTTPS for this domain"
 msgstr "Visada naudoti HTTPS šiam vardui"
 
-#: projects/models.py:1827
+#: projects/models.py:1728
 msgid "Number of times this domain has been hit"
 msgstr "Kiek kartų buvo pasiektas šis vardas"
 
-#: projects/models.py:1832 templates/projects/domain_form.html:49
+#: projects/models.py:1733 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1841
+#: projects/models.py:1742
 msgid "Skip validation process."
 msgstr ""
 
-#: projects/models.py:1845
+#: projects/models.py:1746
 msgid "Start date of the validation process."
 msgstr ""
 
-#: projects/models.py:1854
+#: projects/models.py:1755
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1859
+#: projects/models.py:1760
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1864
+#: projects/models.py:1765
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:2000
+#: projects/models.py:1901
 msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:2004
+#: projects/models.py:1905
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:2008
+#: projects/models.py:1909
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:2013
+#: projects/models.py:1914
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 
-#: projects/models.py:2019
+#: projects/models.py:1920
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:2023
+#: projects/models.py:1924
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:2027
+#: projects/models.py:1928
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:2032
+#: projects/models.py:1933
 msgid ""
 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
 "one (Project.custom_prefix)."
 msgstr ""
 
-#: projects/models.py:2037
+#: projects/models.py:1938
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:2042
+#: projects/models.py:1943
 msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:2046
+#: projects/models.py:1947
 msgid "Webhook: Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:2050
+#: projects/models.py:1951
 msgid "Webhook: Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:2053
+#: projects/models.py:1954
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:2054
+#: projects/models.py:1955
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:2057
+#: projects/models.py:1958
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:2061
+#: projects/models.py:1962
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:2066
+#: projects/models.py:1967
 msgid ""
 "Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 
-#: projects/models.py:2072
+#: projects/models.py:1973
 msgid "Search: Disable server side search"
 msgstr ""
 
-#: projects/models.py:2076
+#: projects/models.py:1977
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:2080
+#: projects/models.py:1981
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:2085
+#: projects/models.py:1986
 msgid "Build: Set scale-in protection before/after building."
 msgstr ""
 
-#: projects/models.py:2098
+#: projects/models.py:1999
 msgid "Feature identifier"
 msgstr "Savybės identifikatorius"
 
-#: projects/models.py:2103
+#: projects/models.py:2004
 msgid "Date feature was added"
 msgstr "Datos savybė buvo pridėta"
 
-#: projects/models.py:2109
+#: projects/models.py:2010
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2113
+#: projects/models.py:2014
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2137
+#: projects/models.py:2038
 msgid "Name of the environment variable"
 msgstr "Aplinkos kintamojo pavadinimas"
 
-#: projects/models.py:2141
+#: projects/models.py:2042
 msgid "Value of the environment variable"
 msgstr "Aplinkos kintamojo reikšmė"
 
-#: projects/models.py:2146
+#: projects/models.py:2047
 msgid "Project where this variable will be used"
 msgstr "Projektas, kur šis kintamasis bus naudojamas"
 
-#: projects/models.py:2152
+#: projects/models.py:2053
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
@@ -3117,7 +3048,7 @@ msgstr ""
 msgid "The only allowed filenames are <code>{filenames}</code>."
 msgstr ""
 
-#: projects/views/private.py:164 projects/views/private.py:174
+#: projects/views/private.py:165 projects/views/private.py:174
 msgid "Project settings updated"
 msgstr "Projekto nustatymai pakeisti"
 
@@ -3125,11 +3056,11 @@ msgstr "Projekto nustatymai pakeisti"
 msgid "Project addons updated"
 msgstr ""
 
-#: projects/views/private.py:192
+#: projects/views/private.py:191
 msgid "Project deleted"
 msgstr "Projektas ištrintas"
 
-#: projects/views/private.py:378
+#: projects/views/private.py:366
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
@@ -3138,12 +3069,12 @@ msgstr ""
 "Yra problemų su jūsų {service} paskyra, bandykite prijungti iš naujo jūsų <a "
 "href=\"{url}\">prijungtų paslaugų puslapyje</a>."
 
-#: projects/views/private.py:501
+#: projects/views/private.py:485
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:955
+#: projects/views/private.py:915
 msgid "Project has been opted out from advertisement support"
 msgstr "Projektas buvo išimtas iš reklamos palaikymo"
 
@@ -3328,67 +3259,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:442
+#: settings/base.py:443
 msgid "Catalan"
 msgstr "Katalonų"
 
-#: settings/base.py:443
+#: settings/base.py:444
 msgid "English"
 msgstr "Anglų"
 
-#: settings/base.py:444
+#: settings/base.py:445
 msgid "Spanish"
 msgstr "Ispanų"
 
-#: settings/base.py:445
+#: settings/base.py:446
 msgid "Brazilian Portuguese"
 msgstr "Brazilijos portugalų"
 
-#: settings/base.py:446
+#: settings/base.py:447
 msgid "Norwegian Bokmål"
 msgstr "Norvegijos Bakmål"
 
-#: settings/base.py:447
+#: settings/base.py:448
 msgid "French"
 msgstr "Prancūzų"
 
-#: settings/base.py:448
+#: settings/base.py:449
 msgid "Russian"
 msgstr "Rusų"
 
-#: settings/base.py:449
+#: settings/base.py:450
 msgid "German"
 msgstr "Vokiečių"
 
-#: settings/base.py:450
+#: settings/base.py:451
 msgid "Galician"
 msgstr "Galų"
 
-#: settings/base.py:451
+#: settings/base.py:452
 msgid "Vietnamese"
 msgstr "Vietnamiečių"
 
-#: settings/base.py:452
+#: settings/base.py:453
 msgid "Simplified Chinese"
 msgstr "Supaprastinta kinų"
 
-#: settings/base.py:453
+#: settings/base.py:454
 msgid "Traditional Chinese"
 msgstr "Tradicinė kinų"
 
-#: settings/base.py:454
+#: settings/base.py:455
 msgid "Japanese"
 msgstr "Japonų"
 
-#: settings/base.py:455
+#: settings/base.py:456
 msgid "Ukrainian"
 msgstr "Ukrainiečių"
 
-#: settings/base.py:456
+#: settings/base.py:457
 msgid "Italian"
 msgstr "Italų"
 
-#: settings/base.py:457
+#: settings/base.py:458
 msgid "Korean"
 msgstr "Korėjiečių"
 
@@ -3712,15 +3643,15 @@ msgstr ""
 msgid "Read the Docs Archive"
 msgstr "Read the Docs Archyvas"
 
-#: templates/base.html:161
+#: templates/base.html:153
 msgid "Stay Updated"
 msgstr "Gaukite naujienas"
 
-#: templates/base.html:165
+#: templates/base.html:157
 msgid "Blog"
 msgstr "Dienoraštis"
 
-#: templates/base.html:169
+#: templates/base.html:161
 msgid ""
 "Sign up for our newsletter to get our latest blog updates delivered to your "
 "inbox weekly."
@@ -3728,71 +3659,71 @@ msgstr ""
 "Prenumeruokite mūsų naujienlaikraštį, kad gautumėte informaciją apie "
 "naujausius dienoraščio įrašus kas savaitę į jūsų pašto dėžutę."
 
-#: templates/base.html:182
+#: templates/base.html:174
 msgid "Subscribe"
 msgstr "Prenumeruoti"
 
-#: templates/base.html:190
+#: templates/base.html:182
 msgid "Thank you!"
 msgstr ""
 
-#: templates/base.html:191
+#: templates/base.html:183
 msgid "You have successfully joined our subscriber list."
 msgstr ""
 
-#: templates/base.html:204
+#: templates/base.html:196
 msgid "Resources"
 msgstr ""
 
-#: templates/base.html:208
+#: templates/base.html:200
 msgid "Tutorial"
 msgstr ""
 
-#: templates/base.html:214
+#: templates/base.html:206
 msgid "Documentation"
 msgstr "Dokumentacija"
 
-#: templates/base.html:217
+#: templates/base.html:209
 msgid "Going Ad-free"
 msgstr ""
 
-#: templates/base.html:220
+#: templates/base.html:212
 msgid "Site Support"
 msgstr ""
 
-#: templates/base.html:223
+#: templates/base.html:215
 msgid "Site Status"
 msgstr ""
 
-#: templates/base.html:230
+#: templates/base.html:222
 msgid "Company"
 msgstr ""
 
-#: templates/base.html:234
+#: templates/base.html:226
 msgid "Jobs"
 msgstr ""
 
-#: templates/base.html:237
+#: templates/base.html:229
 msgid "Advertise with Us"
 msgstr "Reklamuokitės su mumis"
 
-#: templates/base.html:240
+#: templates/base.html:232
 msgid "Read the Docs for Business"
 msgstr ""
 
-#: templates/base.html:243
+#: templates/base.html:235
 msgid "Branding & Media Kit"
 msgstr ""
 
-#: templates/base.html:249
+#: templates/base.html:241
 msgid "Terms of Service"
 msgstr ""
 
-#: templates/base.html:270
+#: templates/base.html:262
 msgid "Read the Docs, Inc & contributors"
 msgstr "Read the Docs, Inc & talkininkai"
 
-#: templates/base.html:293
+#: templates/base.html:285
 msgid "Change Language"
 msgstr "Keisti kalbą"
 
@@ -4017,6 +3948,12 @@ msgstr "Kurkite, talpinkite ir naršykite dokumentaciją."
 msgid "Log in"
 msgstr "Prisijungti"
 
+#: templates/core/notifications.html:13
+#, fuzzy
+#| msgid "Remove Notifications"
+msgid "Close notification"
+msgstr "Išimti pranešimus"
+
 #: templates/core/project_bar_base.html:12
 #: templates/core/project_list_detailed.html:34
 #: templates/projects/project_version_list.html:53
@@ -4027,7 +3964,7 @@ msgstr "Žiūrėti Dokumentaciją"
 msgid "delisted"
 msgstr ""
 
-#: templates/core/project_bar_base.html:45
+#: templates/core/project_bar_base.html:33
 msgid "Overview"
 msgstr "Apžvalga"
 
@@ -5695,3 +5632,57 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
+
+#~ msgid ""
+#~ "Your configuration file is invalid, make sure it contains conf.py in it."
+#~ msgstr ""
+#~ "Jūsų konfigūracijos failas netinkamas, įsitikinkite, kad jame yra conf.py."
+
+#~ msgid "Enable EPUB build"
+#~ msgstr "Įjungti EPUB kūrimą"
+
+#~ msgid "Create a EPUB version of your documentation with each build."
+#~ msgstr "Kurti jūsų dokumentacijos EPUB versiją su kiekvienu kūrimu."
+
+#~ msgid "Enable PDF build"
+#~ msgstr "Įjungti PDF kūrimą"
+
+#~ msgid "Create a PDF version of your documentation with each build."
+#~ msgstr "Kurti jūsų dokumentacijos PDF versiją su kiekvienu kūrimu."
+
+#~ msgid "The directory where <code>conf.py</code> lives"
+#~ msgstr "Kelias, kuriame yra <code>conf.py</code>"
+
+#~ msgid "Python configuration file"
+#~ msgstr "Python konfigūracijos failas"
+
+#~ msgid ""
+#~ "Path from project root to <code>conf.py</code> file (ex. <code>docs/conf."
+#~ "py</code>). Leave blank if you want us to find it for you."
+#~ msgstr ""
+#~ "Kelias nuo projekto šaknies iki <code>conf.py</code> failo (pvz. "
+#~ "<code>docs/conf.py</code>). Palikite tuščią, jei norite, kad mes už jus "
+#~ "jį rastume."
+
+#~ msgid "Install Project"
+#~ msgstr "Įdiegti projektą"
+
+#~ msgid ""
+#~ "Install your project inside a virtualenv using <code>setup.py install</"
+#~ "code>"
+#~ msgstr ""
+#~ "Įdiegti jūsų projektą virtualenv viduje naudojant <code>setup.py install</"
+#~ "code>"
+
+#~ msgid "Python Interpreter"
+#~ msgstr "Python inerpretatorius"
+
+#~ msgid "The Python interpreter used to create the virtual environment."
+#~ msgstr "Python interpretatorius, naudojamas virtualios aplinkos kūrimui."
+
+#~ msgid "Use system packages"
+#~ msgstr "Naudoti sistemos paketus"
+
+#~ msgid "Give the virtual environment access to the global site-packages dir."
+#~ msgstr ""
+#~ "Suteikti virtualiai aplinkai prieigą prie globalaus site-packages aplanko."
