@@ -1,4 +1,4 @@
-Private documentation sharing
+Sharing private documentation
 =============================
 
 .. include:: /shared/admonition-rtd-business.rst

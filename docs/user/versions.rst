@@ -1,5 +1,5 @@
-Versioned documentation
-=======================
+Versions
+========
 
 Read the Docs supports multiple versions of your repository.
 On initial import,
