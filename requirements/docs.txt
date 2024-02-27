@@ -154,7 +154,7 @@ sphinxext-opengraph==0.9.1
     # via -r requirements/docs.in
 tornado==6.4
     # via livereload
-urllib3==2.2.0
+urllib3==2.2.1
     # via requests
 
 # The following packages are considered to be unsafe in a requirements file:

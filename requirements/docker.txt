@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.44
+boto3==1.34.49
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.44
+botocore==1.34.49
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -80,7 +80,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==42.0.3
+cryptography==42.0.5
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -201,7 +201,7 @@ elastic-transport==8.12.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.12.0
+elasticsearch==8.12.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -232,7 +232,7 @@ idna==3.6
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.21.0
+ipython==8.22.1
     # via ipdb
 jedi==0.19.1
     # via ipython
@@ -265,7 +265,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.14
+orjson==3.9.15
     # via -r requirements/pip.txt
 packaging==23.2
     # via
@@ -445,7 +445,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.25.0
+virtualenv==20.25.1
     # via
     #   -r requirements/pip.txt
     #   tox
