@@ -245,7 +245,6 @@ class TestProjectAdvancedForm(TestCase):
             {
                 "default_version": LATEST,
                 "documentation_type": SPHINX,
-                "python_interpreter": "python3",
                 "privacy_level": PRIVATE,
                 "versioning_scheme": MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
             },
@@ -261,7 +260,6 @@ class TestProjectAdvancedForm(TestCase):
             {
                 "default_version": LATEST,
                 "documentation_type": SPHINX,
-                "python_interpreter": "python3",
                 "privacy_level": PRIVATE,
                 "external_builds_privacy_level": PRIVATE,
                 "versioning_scheme": MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -279,7 +277,6 @@ class TestProjectAdvancedForm(TestCase):
             {
                 "default_version": LATEST,
                 "documentation_type": SPHINX,
-                "python_interpreter": "python3",
                 "privacy_level": PRIVATE,
                 "readthedocs_yaml_path": custom_readthedocs_yaml_path,
                 "versioning_scheme": MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
