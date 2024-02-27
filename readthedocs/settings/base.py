@@ -697,6 +697,7 @@ class CommunityBaseSettings(Settings):
         },
     }
 
+    @property
     def SOCIALACCOUNT_PROVIDERS(self):
         """
         This is useful to override in a subclass, mainly to add the secrets when deploying.
