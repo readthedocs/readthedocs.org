@@ -291,7 +291,6 @@ class UpdateProjectForm(
             "default_branch",
             "language",
             "description",
-
             # Project related settings
             "default_version",
             "privacy_level",
@@ -302,7 +301,6 @@ class UpdateProjectForm(
             "analytics_code",
             "analytics_disabled",
             "show_version_warning",
-
             # Meta data
             "programming_language",
             "project_url",
