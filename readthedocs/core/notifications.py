@@ -29,7 +29,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-                We are launching our new <strong>beta dashboard</strong> with a fresh redesign and new powerful features.
+                Our new <strong>beta dashboard</strong> is now available for testing.
                 <a href="https://beta.readthedocs.org/">Give it a try</a> and send us feedback.
             """
             ).strip(),
