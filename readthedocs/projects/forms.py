@@ -287,21 +287,21 @@ class UpdateProjectForm(
             # Basics and repo settings
             "name",
             "repo",
-            "default_branch",
             "repo_type",
+            "default_branch",
             "language",
             "description",
 
             # Project related settings
             "default_version",
             "privacy_level",
-            "analytics_code",
-            "analytics_disabled",
-            "show_version_warning",
             "versioning_scheme",
             "external_builds_enabled",
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
+            "analytics_code",
+            "analytics_disabled",
+            "show_version_warning",
 
             # Meta data
             "programming_language",
