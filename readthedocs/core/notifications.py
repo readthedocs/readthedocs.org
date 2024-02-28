@@ -29,8 +29,14 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
+                {% if RTD_EXT_THEME_ENABLED %}
+                This dashboard is currently in beta,
+                you can <a href="https://{{ PRODUCTION_DOMAIN }}">return to the legacy dashboard</a> if you encounter any problems.
+                Feel free to <a href="https://{{ PRODUCTION_DOMAIN }}/support/">report any feedback</a> you may have.
+                {% else %}
                 Our new <strong>beta dashboard</strong> is now available for testing.
-                <a href="https://beta.readthedocs.org/">Give it a try</a> and send us feedback.
+                <a href="https://beta.{{ PRODUCTION_DOMAIN }}/">Give it a try</a> and send us feedback.
+                {% endif %}
             """
             ).strip(),
         ),
