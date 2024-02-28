@@ -48,7 +48,9 @@ def subscription_created_event(event):
     we re-enable it, since the user just subscribed to a plan.
     """
     stripe_subscription_id = event.data["object"]["id"]
-    log.bind(stripe_subscription_id=stripe_subscription_id)
+    structlog.contextvars.bind_contextvars(
+        stripe_subscription_id=stripe_subscription_id
+    )
 
     stripe_subscription = djstripe.Subscription.objects.filter(
         id=stripe_subscription_id
@@ -95,7 +97,9 @@ def subscription_updated_event(event):
     in case it changed.
     """
     stripe_subscription_id = event.data["object"]["id"]
-    log.bind(stripe_subscription_id=stripe_subscription_id)
+    structlog.contextvars.bind_contextvars(
+        stripe_subscription_id=stripe_subscription_id
+    )
     stripe_subscription = djstripe.Subscription.objects.filter(
         id=stripe_subscription_id
     ).first()
@@ -159,7 +163,9 @@ def subscription_canceled(event):
     since those are from new users.
     """
     stripe_subscription_id = event.data["object"]["id"]
-    log.bind(stripe_subscription_id=stripe_subscription_id)
+    structlog.contextvars.bind_contextvars(
+        stripe_subscription_id=stripe_subscription_id
+    )
     stripe_subscription = djstripe.Subscription.objects.filter(
         id=stripe_subscription_id
     ).first()
@@ -174,7 +180,7 @@ def subscription_canceled(event):
         log.error("Subscription isn't attached to an organization")
         return
 
-    log.bind(organization_slug=organization.slug)
+    structlog.contextvars.bind_contextvars(organization_slug=organization.slug)
     is_trial_subscription = stripe_subscription.items.filter(
         price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
     ).exists()
@@ -196,7 +202,7 @@ def subscription_canceled(event):
 def customer_updated_event(event):
     """Update the organization with the new information from the stripe customer."""
     stripe_customer = event.data["object"]
-    log.bind(stripe_customer_id=stripe_customer["id"])
+    structlog.contextvars.bind_contextvars(stripe_customer_id=stripe_customer["id"])
     organization = Organization.objects.filter(stripe_id=stripe_customer["id"]).first()
     if not organization:
         log.error("Customer isn't attached to an organization.")

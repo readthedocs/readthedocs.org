@@ -403,7 +403,7 @@ def send_build_status(build_pk, commit, status):
 
     provider_name = build.project.git_provider_name
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         build_id=build.pk,
         project_slug=build.project.slug,
         commit=commit,

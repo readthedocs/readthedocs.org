@@ -37,7 +37,7 @@ def index_build(build_id):
         )
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=build.id,
@@ -87,7 +87,7 @@ def reindex_version(version_id, search_index_name=None):
         )
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=latest_successful_build.id,

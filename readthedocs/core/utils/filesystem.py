@@ -83,7 +83,7 @@ def safe_open(
 
     path = Path(path).absolute()
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         path_resolved=str(path.absolute().resolve()),
     )
 

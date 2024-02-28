@@ -242,7 +242,7 @@ class GitHubService(Service):
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
         url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             url=url,
             project_slug=project.slug,
             integration_id=integration.pk,
@@ -297,7 +297,7 @@ class GitHubService(Service):
 
         data = self.get_webhook_data(project, integration)
         url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             url=url,
             project_slug=project.slug,
             integration_id=integration.pk,
@@ -309,7 +309,7 @@ class GitHubService(Service):
                 data=data,
                 headers={"content-type": "application/json"},
             )
-            log.bind(http_status_code=resp.status_code)
+            structlog.contextvars.bind_contextvars(http_status_code=resp.status_code)
 
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
@@ -356,7 +356,7 @@ class GitHubService(Service):
         resp = None
 
         provider_data = self.get_provider_data(project, integration)
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
         )
@@ -373,7 +373,7 @@ class GitHubService(Service):
                 data=data,
                 headers={"content-type": "application/json"},
             )
-            log.bind(
+            structlog.contextvars.bind_contextvars(
                 http_status_code=resp.status_code,
                 url=url,
             )
@@ -445,7 +445,7 @@ class GitHubService(Service):
             "context": context,
         }
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             commit_status=github_build_status,
             user_username=self.user.username,
@@ -460,7 +460,7 @@ class GitHubService(Service):
                 data=json.dumps(data),
                 headers={"content-type": "application/json"},
             )
-            log.bind(http_status_code=resp.status_code)
+            structlog.contextvars.bind_contextvars(http_status_code=resp.status_code)
             if resp.status_code == 201:
                 log.debug("GitHub commit status created for project.")
                 return True
