@@ -238,6 +238,7 @@ class CommunityBaseSettings(Settings):
             'djstripe',
             'django_celery_beat',
             "django_safemigrate.apps.SafeMigrateConfig",
+            "django_structlog",
 
             # our apps
             'readthedocs.projects',
@@ -320,13 +321,12 @@ class CommunityBaseSettings(Settings):
             'readthedocs.core.middleware.ReferrerPolicyMiddleware',
             'simple_history.middleware.HistoryRequestMiddleware',
             'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
-            'django_structlog.middlewares.CeleryMiddleware',
         ]
         if self.SHOW_DEBUG_TOOLBAR:
             middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
         return middlewares
 
-
+    DJANGO_STRUCTLOG_CELERY_ENABLED = True
 
     AUTHENTICATION_BACKENDS = (
         # Needed to login by username in Django admin, regardless of `allauth`
