@@ -137,7 +137,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     in our database.
     """
 
-    name = __name__ + '.sync_repository_task'
+    name = __name__ + ".sync_repository_task"
     max_retries = 5
     default_retry_delay = 7 * 60
     throws = (
@@ -146,7 +146,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     )
 
     def before_start(self, task_id, args, kwargs):
-        log.info('Running task.', name=self.name)
+        log.info("Running task.", name=self.name)
 
         # Create the object to store all the task-related data
         self.data = TaskData()
@@ -169,7 +169,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
         # Also note there are builds that are triggered without a commit
         # because they just build the latest commit for that version
-        self.data.build_commit = kwargs.get('build_commit')
+        self.data.build_commit = kwargs.get("build_commit")
 
         log.bind(
             project_slug=self.data.project.slug,
@@ -180,7 +180,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         # Do not log as error handled exceptions
         if isinstance(exc, RepositoryError):
             log.warning(
-                'There was an error with the repository.',
+                "There was an error with the repository.",
             )
         elif isinstance(exc, SyncRepositoryLocked):
             log.warning(
@@ -275,10 +275,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     build all the documentation formats and upload them to the storage.
     """
 
-    name = __name__ + '.update_docs_task'
-    autoretry_for = (
-        BuildMaxConcurrencyError,
-    )
+    name = __name__ + ".update_docs_task"
+    autoretry_for = (BuildMaxConcurrencyError,)
     max_retries = settings.RTD_BUILDS_MAX_RETRIES
     default_retry_delay = settings.RTD_BUILDS_RETRY_DELAY
     retry_backoff = False
@@ -321,10 +319,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _setup_sigterm(self):
         def sigterm_received(*args, **kwargs):
-            log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
+            log.warning(
+                "SIGTERM received. Waiting for build to stop gracefully after it finishes."
+            )
 
         def sigint_received(*args, **kwargs):
-            log.warning('SIGINT received. Canceling the build running.')
+            log.warning("SIGINT received. Canceling the build running.")
 
             # Only allow to cancel the build if it's not already uploading the files.
             # This is to protect our users to end up with half of the documentation uploaded.
@@ -348,12 +348,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
             concurrency_limit_reached = response.get("limit_reached", False)
             max_concurrent_builds = response.get(
-                'max_concurrent',
+                "max_concurrent",
                 settings.RTD_MAX_CONCURRENT_BUILDS,
             )
         except Exception:
             log.exception(
-                'Error while hitting/parsing API for concurrent limit checks from builder.',
+                "Error while hitting/parsing API for concurrent limit checks from builder.",
                 project_slug=self.data.project.slug,
                 version_slug=self.data.version.slug,
             )
@@ -376,7 +376,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _check_project_disabled(self):
         if self.data.project.skip:
-            log.warning('Project build skipped.')
+            log.warning("Project build skipped.")
             raise BuildAppError(BuildAppError.BUILDS_DISABLED)
 
     def before_start(self, task_id, args, kwargs):
@@ -404,13 +404,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.project = self.data.version.project
 
         # Save the builder instance's name into the build object
-        self.data.build['builder'] = socket.gethostname()
+        self.data.build["builder"] = socket.gethostname()
 
         # Reset any previous build error reported to the user
-        self.data.build['error'] = ''
+        self.data.build["error"] = ""
         # Also note there are builds that are triggered without a commit
         # because they just build the latest commit for that version
-        self.data.build_commit = kwargs.get('build_commit')
+        self.data.build_commit = kwargs.get("build_commit")
 
         self.data.build_director = BuildDirector(
             data=self.data,
@@ -418,7 +418,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         log.bind(
             # NOTE: ``self.data.build`` is just a regular dict, not an APIBuild :'(
-            builder=self.data.build['builder'],
+            builder=self.data.build["builder"],
             commit=self.data.build_commit,
             project_slug=self.data.project.slug,
             version_slug=self.data.version.slug,
@@ -471,7 +471,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             #
             # So, we create the `self.data.build` with the minimum required data.
             self.data.build = {
-                'id': self.data.build_pk,
+                "id": self.data.build_pk,
             }
 
         # Known errors in our application code (e.g. we couldn't connect to
@@ -518,7 +518,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if message_id not in self.exceptions_without_notifications:
             self.send_notifications(
                 self.data.version_pk,
-                self.data.build['id'],
+                self.data.build["id"],
                 event=WebHookEvent.BUILD_FAILED,
             )
 
@@ -546,7 +546,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
             send_external_build_status(
                 version_type=version_type,
-                build_pk=self.data.build['id'],
+                build_pk=self.data.build["id"],
                 commit=self.data.build_commit,
                 status=status,
             )
@@ -666,20 +666,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         self.send_notifications(
             self.data.version.pk,
-            self.data.build['id'],
+            self.data.build["id"],
             event=WebHookEvent.BUILD_PASSED,
         )
 
         if self.data.build_commit:
             send_external_build_status(
                 version_type=self.data.version.type,
-                build_pk=self.data.build['id'],
+                build_pk=self.data.build["id"],
                 commit=self.data.build_commit,
                 status=BUILD_STATUS_SUCCESS,
             )
 
         # Update build object
-        self.data.build['success'] = True
+        self.data.build["success"] = True
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
         """
@@ -691,11 +691,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         See https://docs.celeryproject.org/en/master/userguide/tasks.html#retrying
         """
-        log.info('Retrying this task.')
+        log.info("Retrying this task.")
 
         if isinstance(exc, BuildMaxConcurrencyError):
             log.warning(
-                'Delaying tasks due to concurrency limit.',
+                "Delaying tasks due to concurrency limit.",
                 project_slug=self.data.project.slug,
                 version_slug=self.data.version.slug,
             )
@@ -718,7 +718,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
            so some attributes from the `self.data` object may not be defined.
         """
         # Update build object
-        self.data.build['length'] = (timezone.now() - self.data.start_time).seconds
+        self.data.build["length"] = (timezone.now() - self.data.start_time).seconds
 
         build_state = None
         # The state key might not be defined
@@ -747,9 +747,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
 
         log.info(
-            'Build finished.',
-            length=self.data.build['length'],
-            success=self.data.build['success']
+            "Build finished.",
+            length=self.data.build["length"],
+            success=self.data.build["success"],
         )
 
     def update_build(self, state=None):
@@ -861,23 +861,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if build_pk:
             build = self.data.api_client.build(build_pk).get()
         private_keys = [
-            'project',
-            'version',
-            'resource_uri',
-            'absolute_uri',
+            "project",
+            "version",
+            "resource_uri",
+            "absolute_uri",
         ]
         # TODO: try to use the same technique than for ``APIProject``.
-        return {
-            key: val
-            for key, val in build.items() if key not in private_keys
-        }
+        return {key: val for key, val in build.items() if key not in private_keys}
 
     # NOTE: this can be just updated on `self.data.build['']` and sent once the
     # build has finished to reduce API calls.
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
         self.data.api_client.project(self.data.project.pk).patch(
-            {'has_valid_clone': True}
+            {"has_valid_clone": True}
         )
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
@@ -892,7 +889,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         Remove build artifacts of types not included in this build (PDF, ePub, zip only).
         """
         time_before_store_build_artifacts = timezone.now()
-        log.info('Writing build artifacts to media storage')
+        log.info("Writing build artifacts to media storage")
         self.update_build(state=BUILD_STATE_UPLOADING)
 
         valid_artifacts = self.get_valid_artifact_types()
