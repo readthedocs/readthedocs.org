@@ -477,6 +477,7 @@ def send_build_status(build_pk, commit, status):
                 "provider_name": provider_name,
                 "url_connect_account": reverse("socialaccount_connections"),
             },
+            dismissable=True,
         )
 
         log.info("No social account or repository permission available.")
