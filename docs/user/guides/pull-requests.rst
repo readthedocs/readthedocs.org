@@ -43,7 +43,7 @@ while private previews are only available to users with access to the Read the D
 To change the privacy level:
 
 #. Go to your project dashboard
-#. Go to :guilabel:`Admin`, then :guilabel:`settings`
+#. Go to :guilabel:`Admin`, then :guilabel:`Settings`
 #. Select your option in :guilabel:`Privacy level of builds from pull requests`
 #. Click on :guilabel:`Save`
 
