@@ -190,7 +190,7 @@ class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
 
 class ProjectBasicsForm(ProjectForm):
 
-    """Form for basic project fields."""
+    """Form used when importing a project."""
 
     class Meta:
         model = Project
@@ -264,39 +264,6 @@ class ProjectBasicsForm(ProjectForm):
         )
 
 
-class ProjectExtraForm(ProjectForm):
-
-    """Additional project information form."""
-
-    class Meta:
-        model = Project
-        fields = (
-            "description",
-            "documentation_type",
-            "language",
-            "programming_language",
-            "tags",
-            "project_url",
-        )
-
-    description = forms.CharField(
-        required=False,
-        max_length=150,
-        widget=forms.Textarea,
-    )
-
-    def clean_tags(self):
-        tags = self.cleaned_data.get("tags", [])
-        for tag in tags:
-            if len(tag) > 100:
-                raise forms.ValidationError(
-                    _(
-                        "Length of each tag must be less than or equal to 100 characters.",
-                    ),
-                )
-        return tags
-
-
 class ProjectConfigForm(forms.Form):
 
     """Simple intermediate step to communicate about the .readthedocs.yaml file."""
@@ -307,28 +274,47 @@ class ProjectConfigForm(forms.Form):
         super().__init__(*args, **kwargs)
 
 
-class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
+class UpdateProjectForm(
+    ProjectTriggerBuildMixin,
+    ProjectBasicsForm,
+):
 
-    """Advanced project option form."""
+    """Main project settings form."""
 
     class Meta:
         model = Project
         fields = (
-            "default_version",
+            # Basics and repo settings
+            "name",
+            "repo",
+            "repo_type",
             "default_branch",
+            "language",
+            "description",
+            # Project related settings
+            "default_version",
             "privacy_level",
-            "analytics_code",
-            "analytics_disabled",
-            "show_version_warning",
             "versioning_scheme",
             "external_builds_enabled",
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
+            "analytics_code",
+            "analytics_disabled",
+            "show_version_warning",
+            # Meta data
+            "programming_language",
+            "project_url",
+            "tags",
         )
+
+    description = forms.CharField(
+        required=False,
+        max_length=150,
+        widget=forms.Textarea,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         # Remove the nullable option from the form
         self.fields["analytics_disabled"].widget = forms.CheckboxInput()
         self.fields["analytics_disabled"].empty_value = False
@@ -491,30 +477,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             return all_versions
         return None
 
-
-class UpdateProjectForm(
-    ProjectTriggerBuildMixin,
-    ProjectBasicsForm,
-    ProjectExtraForm,
-):
-
-    """Basic project settings form for Admin."""
-
-    class Meta:  # noqa
-        model = Project
-        fields = (
-            # Basics
-            "name",
-            "repo",
-            "repo_type",
-            # Extra
-            "description",
-            "language",
-            "programming_language",
-            "project_url",
-            "tags",
-        )
-
     def clean_language(self):
         """Ensure that language isn't already active."""
         language = self.cleaned_data["language"]
@@ -543,6 +505,17 @@ class UpdateProjectForm(
                         msg.format(lang=language, proj=main_project.slug),
                     )
         return language
+
+    def clean_tags(self):
+        tags = self.cleaned_data.get("tags", [])
+        for tag in tags:
+            if len(tag) > 100:
+                raise forms.ValidationError(
+                    _(
+                        "Length of each tag must be less than or equal to 100 characters.",
+                    ),
+                )
+        return tags
 
 
 class ProjectRelationshipForm(forms.ModelForm):

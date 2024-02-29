@@ -27,7 +27,7 @@ class TestExternalBuildOption(TestCase):
             integration_type=Integration.GITHUB_WEBHOOK,
             project=self.project,
         )
-        self.url = reverse("projects_advanced", args=[self.project.slug])
+        self.url = reverse("projects_edit", args=[self.project.slug])
         self.client.force_login(self.user)
 
     def test_unsuported_integration(self):
