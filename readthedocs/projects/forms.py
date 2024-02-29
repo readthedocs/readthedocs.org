@@ -63,6 +63,9 @@ class ProjectTriggerBuildMixin:
     """
     Mixin to trigger build on form save.
 
+    We trigger a build to the default branch and the LATEST version of the project,
+    since both are related, latest is an alias of the default version.
+
     This should be replaced with signals instead of calling trigger_build
     explicitly.
     """
@@ -71,7 +74,14 @@ class ProjectTriggerBuildMixin:
         """Trigger build on commit save."""
         project = super().save(commit)
         if commit:
-            trigger_build(project=project)
+            default_branch = project.versions.filter(
+                slug=project.get_default_branch()
+            ).first()
+            if default_branch and default_branch.active:
+                trigger_build(project=project, version=default_branch)
+            latest_version = project.get_latest_version()
+            if latest_version and latest_version != default_branch and latest_version.active:
+                trigger_build(project=project, version=latest_version)
         return project
 
 

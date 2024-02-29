@@ -284,9 +284,9 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(self.project.privacy_level, PRIVATE)
 
-    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    @mock.patch("readthedocs.core.utils.trigger_build")
     @override_settings(ALLOW_PRIVATE_REPOS=False)
-    def test_custom_readthedocs_yaml(self, update_docs_task):
+    def test_custom_readthedocs_yaml(self, trigger_build):
         custom_readthedocs_yaml_path = "folder/.readthedocs.yaml"
         form = UpdateProjectForm(
             {
@@ -309,6 +309,50 @@ class TestProjectAdvancedForm(TestCase):
         project = form.save()
         self.assertEqual(project.readthedocs_yaml_path, custom_readthedocs_yaml_path)
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    def test_trigger_build_on_save(self, trigger_build):
+        latest_version = self.project.get_latest_version()
+        default_branch = get(Version, project=self.project, slug='main', active=True)
+
+        self.project.default_branch = default_branch.slug
+        self.project.save()
+
+        data = {
+            "name": "Project",
+            "repo": "https://github.com/readthedocs/readthedocs.org/",
+            "repo_type": self.project.repo_type,
+            "default_version": LATEST,
+            "versioning_scheme": self.project.versioning_scheme,
+            "language": "en",
+        }
+        form = UpdateProjectForm(data, instance=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+        
+        self.assertEqual(trigger_build.call_count, 2)
+        trigger_build.assert_has_calls(
+            [
+                mock.call(
+                    project=self.project,
+                    version=default_branch,
+                ),
+                mock.call(
+                    project=self.project,
+                    version=latest_version,
+                ),
+            ]
+        )
+
+        latest_version.active = False
+        latest_version.save()
+
+        trigger_build.reset_mock()
+        form.save()
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=default_branch,
+        )
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
     def setUp(self):

@@ -9,7 +9,7 @@ from django.forms.models import model_to_dict
 from django.test import TestCase
 from django.utils import timezone
 from django_dynamic_fixture import get
-from rest_framework.reverse import reverse
+from django.urls import reverse
 
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
