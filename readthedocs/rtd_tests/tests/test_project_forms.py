@@ -133,6 +133,7 @@ class TestProjectForms(TestCase):
         latest.refresh_from_db()
         self.assertEqual(latest.identifier, "custom")
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_length_of_tags(self):
         project = get(Project)
         data = {
@@ -781,6 +782,7 @@ class TestTranslationForms(TestCase):
             "".join(form.errors["language"]),
         )
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_can_change_language_to_self_lang(self):
         self.project_a_es.translations.add(self.project_b_en)
         self.project_a_es.translations.add(self.project_c_br)
