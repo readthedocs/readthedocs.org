@@ -699,7 +699,6 @@ class TestBuildTask(BuildEnvironmentBase):
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
     def test_cancelled_build(
         self,
-        send_notifications,
         execute,
         send_external_build_status,
     ):
