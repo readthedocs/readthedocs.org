@@ -16,6 +16,8 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.config.config import CONFIG_FILENAME_REGEX
+from readthedocs.config.find import find_one
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
@@ -107,20 +109,6 @@ class BuildDirector:
         #
         # self.run_build_job("pre_checkout")
         self.checkout()
-
-        # Output the path for the config file used.
-        # This works as confirmation for us & the user about which file is used,
-        # as well as the fact that *any* config file is used.
-        if self.data.config.source_file:
-            cwd = self.data.project.checkout_path(self.data.version.slug)
-            command = self.vcs_environment.run(
-                "cat",
-                # Show user the relative path to the config file
-                # TODO: Have our standard path replacement code catch this.
-                # https://github.com/readthedocs/readthedocs.org/pull/10413#discussion_r1230765843
-                self.data.config.source_file.replace(cwd + "/", ""),
-                cwd=cwd,
-            )
 
         self.run_build_job("post_checkout")
 
@@ -240,6 +228,25 @@ class BuildDirector:
 
         if custom_config_file:
             log.info("Using a custom .readthedocs.yaml file.", path=custom_config_file)
+
+        checkout_path = self.data.project.checkout_path(self.data.version.slug)
+        default_config_file = find_one(checkout_path, CONFIG_FILENAME_REGEX)
+
+        # Output the path for the config file used.
+        # This works as confirmation for us & the user about which file is used,
+        # as well as the fact that *any* config file is used.
+        if custom_config_file or default_config_file:
+            command = self.vcs_environment.run(
+                "cat",
+                # Show user the relative path to the config file
+                # TODO: Have our standard path replacement code catch this.
+                # https://github.com/readthedocs/readthedocs.org/pull/10413#discussion_r1230765843
+                (custom_config_file or default_config_file).replace(
+                    checkout_path + "/", ""
+                ),
+                cwd=checkout_path,
+            )
+
         self.data.config = load_yaml_config(
             version=self.data.version,
             readthedocs_yaml_path=custom_config_file,
