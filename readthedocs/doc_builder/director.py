@@ -231,19 +231,18 @@ class BuildDirector:
 
         checkout_path = self.data.project.checkout_path(self.data.version.slug)
         default_config_file = find_one(checkout_path, CONFIG_FILENAME_REGEX)
+        final_config_file = custom_config_file or default_config_file
 
         # Output the path for the config file used.
         # This works as confirmation for us & the user about which file is used,
         # as well as the fact that *any* config file is used.
-        if custom_config_file or default_config_file:
+        if final_config_file:
             command = self.vcs_environment.run(
                 "cat",
                 # Show user the relative path to the config file
                 # TODO: Have our standard path replacement code catch this.
                 # https://github.com/readthedocs/readthedocs.org/pull/10413#discussion_r1230765843
-                (custom_config_file or default_config_file).replace(
-                    checkout_path + "/", ""
-                ),
+                final_config_file.replace(checkout_path + "/", ""),
                 cwd=checkout_path,
             )
 
