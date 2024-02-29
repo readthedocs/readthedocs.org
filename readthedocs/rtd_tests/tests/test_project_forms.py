@@ -313,7 +313,7 @@ class TestProjectAdvancedForm(TestCase):
     @mock.patch("readthedocs.projects.forms.trigger_build")
     def test_trigger_build_on_save(self, trigger_build):
         latest_version = self.project.get_latest_version()
-        default_branch = get(Version, project=self.project, slug='main', active=True)
+        default_branch = get(Version, project=self.project, slug="main", active=True)
 
         self.project.default_branch = default_branch.slug
         self.project.save()
@@ -329,7 +329,7 @@ class TestProjectAdvancedForm(TestCase):
         form = UpdateProjectForm(data, instance=self.project)
         self.assertTrue(form.is_valid())
         form.save()
-        
+
         self.assertEqual(trigger_build.call_count, 2)
         trigger_build.assert_has_calls(
             [
@@ -353,6 +353,7 @@ class TestProjectAdvancedForm(TestCase):
             project=self.project,
             version=default_branch,
         )
+
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
     def setUp(self):

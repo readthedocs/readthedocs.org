@@ -80,7 +80,11 @@ class ProjectTriggerBuildMixin:
             if default_branch and default_branch.active:
                 trigger_build(project=project, version=default_branch)
             latest_version = project.get_latest_version()
-            if latest_version and latest_version != default_branch and latest_version.active:
+            if (
+                latest_version
+                and latest_version != default_branch
+                and latest_version.active
+            ):
                 trigger_build(project=project, version=latest_version)
         return project
 
