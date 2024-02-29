@@ -25,7 +25,7 @@ messages = [
     ),
     Message(
         id=MESSAGE_BETA_DASHBOARD_AVAILABLE,
-        header=_("New beta dashboard available"),
+        header=_("New beta dashboard"),
         body=_(
             textwrap.dedent(
                 """
