@@ -99,6 +99,7 @@ class Notification(TimeStampedModel):
 
     def get_absolute_url(self):
         content_type_name = self.attached_to_content_type.name
+        path = ""
         if content_type_name == "user":
             url = "users-notifications-detail"
             path = reverse(
