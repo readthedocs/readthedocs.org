@@ -117,8 +117,8 @@ class Backend(BaseVCS):
         # Git backend.
         # If version_identifier is empty, then the fetch operation cannot know what to fetch
         # and will fetch everything, in order to build what might be defined elsewhere
-        # as the "default branch". This can be the case for an initial build started BEFORE
-        # a webhook or sync versions task has concluded what the default branch is.
+        # as the "default branch". This can be the case for old projects that don't have
+        # their latest branch in sync with the default branch.
         if self.version_type == BRANCH and self.version_identifier:
             # Here we point directly to the remote branch name and update our local remote
             # refspec to point here.
@@ -174,7 +174,7 @@ class Backend(BaseVCS):
         #  of the default branch. Once this case has been made redundant, we can have
         #  --no-checkout for all clones.
         # --depth 1: Shallow clone, fetch as little data as possible.
-        cmd = ["git", "clone", "--depth", "1", self.repo_url, "."]
+        cmd = ["git", "clone", "--depth", "1", "--", self.repo_url, "."]
 
         try:
             # TODO: Explain or remove the return value
@@ -203,12 +203,16 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        remote_reference = self.get_remote_fetch_refspec()
-
-        if remote_reference:
-            # TODO: We are still fetching the latest 50 commits.
-            # A PR might have another commit added after the build has started...
-            cmd.append(remote_reference)
+        is_rtd_latest = (
+            self.verbose_name == LATEST_VERBOSE_NAME and self.version_machine
+        )
+        omit_remote_reference = is_rtd_latest and not self.project.default_branch
+        if not omit_remote_reference:
+            remote_reference = self.get_remote_fetch_refspec()
+            if remote_reference:
+                # TODO: We are still fetching the latest 50 commits.
+                # A PR might have another commit added after the build has started...
+                cmd.extend(["--", remote_reference])
 
         # Log a warning, except for machine versions since it's a known bug that
         # we haven't stored a remote refspec in Version for those "stable" versions.
@@ -302,6 +306,25 @@ class Backend(BaseVCS):
                 },
             ) from exc
 
+    def get_default_branch(self):
+        """
+        Return the default branch of the repository.
+
+        The default branch is the branch that is checked out when cloning the
+        repository. This is usually master or main, it can be configured
+        in the repository settings.
+
+        The ``git symbolic-ref`` command will produce an output like:
+
+        .. code-block:: text
+
+           origin/main
+        """
+        cmd = ["git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD"]
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        default_branch = stdout.strip().removeprefix("origin/")
+        return default_branch or self.fallback_branch
+
     def lsremote(self, include_tags=True, include_branches=True):
         """
         Use ``git ls-remote`` to list branches and tags without cloning the repository.
@@ -317,7 +340,7 @@ class Backend(BaseVCS):
         if include_branches:
             extra_args.append("--heads")
 
-        cmd = ["git", "ls-remote", *extra_args, self.repo_url]
+        cmd = ["git", "ls-remote", *extra_args, "--", self.repo_url]
 
         self.check_working_dir()
         _, stdout, _ = self.run(*cmd, demux=True, record=False)

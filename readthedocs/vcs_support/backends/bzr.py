@@ -15,7 +15,6 @@ class Backend(Deprecated, BaseVCS):
     """Bazaar VCS backend."""
 
     supports_tags = True
-    fallback_branch = ""
 
     def clone(self):
         self.make_clean_working_dir()

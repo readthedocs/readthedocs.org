@@ -22,6 +22,7 @@ from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     ARTIFACT_TYPES,
     ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT,
+    BRANCH,
     BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CANCELLED,
@@ -33,6 +34,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
+    LATEST,
     UNDELETABLE_ARTIFACT_TYPES,
 )
 from readthedocs.builds.models import APIVersion, Build
@@ -117,6 +119,10 @@ class TaskData:
     config: BuildConfigV2 = None
     project: APIProject = None
     version: APIVersion = None
+    # Default branch for the project.
+    # This is used to update the latest version in case the project doesn't
+    # have an explicit default branch set.
+    default_branch: str = None
 
     # Dictionary returned from the API.
     build: dict = field(default_factory=dict)
@@ -639,17 +645,28 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # TODO: remove this condition and *always* update the DB Version instance
         if "html" in valid_artifacts:
             try:
-                self.data.api_client.version(self.data.version.pk).patch(
-                    {
-                        "built": True,
-                        "documentation_type": self.data.version.documentation_type,
-                        "has_pdf": "pdf" in valid_artifacts,
-                        "has_epub": "epub" in valid_artifacts,
-                        "has_htmlzip": "htmlzip" in valid_artifacts,
-                        "build_data": self.data.version.build_data,
-                        "addons": self.data.version.addons,
-                    }
+                payload = {
+                    "built": True,
+                    "documentation_type": self.data.version.documentation_type,
+                    "has_pdf": "pdf" in valid_artifacts,
+                    "has_epub": "epub" in valid_artifacts,
+                    "has_htmlzip": "htmlzip" in valid_artifacts,
+                    "build_data": self.data.version.build_data,
+                    "addons": self.data.version.addons,
+                }
+                # Update the latest version to point to the current default branch
+                # if the project doesn't have a default branch set.
+                is_rtd_latest = (
+                    self.data.version.slug == LATEST and self.data.version.machine
                 )
+                if (
+                    is_rtd_latest
+                    and not self.data.project.default_branch
+                    and self.data.default_branch
+                ):
+                    payload["identifier"] = self.data.default_branch
+                    payload["type"] = BRANCH
+                self.data.api_client.version(self.data.version.pk).patch(payload)
             except HttpClientError:
                 # NOTE: I think we should fail the build if we cannot update
                 # the version at this point. Otherwise, we will have inconsistent data
@@ -783,6 +800,18 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build_director.create_vcs_environment()
         with self.data.build_director.vcs_environment:
             self.data.build_director.setup_vcs()
+
+            # Get the default branch of the repository if the project doesn't
+            # have an explicit default branch set and we are building latest.
+            # The identifier from latest will be updated with this value
+            # if the build succeeds.
+            is_rtd_latest = (
+                self.data.version.slug == LATEST and self.data.version.machine
+            )
+            if is_rtd_latest and not self.data.project.default_branch:
+                self.data.default_branch = (
+                    self.data.build_director.vcs_repository.get_default_branch()
+                )
 
             # Sync tags/branches from VCS repository into Read the Docs'
             # `Version` objects in the database. This method runs commands

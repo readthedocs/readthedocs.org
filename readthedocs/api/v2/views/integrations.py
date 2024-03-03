@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import BRANCH, LATEST
 from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
 from readthedocs.core.views.hooks import (
     build_branches,
@@ -309,7 +309,7 @@ class WebhookMixin:
 
     def update_default_branch(self, default_branch):
         """
-        Update the `Version.identifer` for `latest` with the VCS's `default_branch`.
+        Update the `Version.identifier` for `latest` with the VCS's `default_branch`.
 
         The VCS's `default_branch` is the branch cloned when there is no specific branch specified
         (e.g. `git clone <URL>`).
@@ -331,7 +331,8 @@ class WebhookMixin:
             # Always check for the machine attribute, since latest can be user created.
             # RTD doesn't manage those.
             self.project.versions.filter(slug=LATEST, machine=True).update(
-                identifier=default_branch
+                identifier=default_branch,
+                type=BRANCH,
             )
 
 

@@ -29,7 +29,6 @@ from readthedocs.builds.constants import (
     EXTERNAL_VERSION_STATES,
     INTERNAL,
     LATEST,
-    NON_REPOSITORY_VERSIONS,
     PREDEFINED_MATCH_ARGS,
     PREDEFINED_MATCH_ARGS_VALUES,
     STABLE,
@@ -278,9 +277,9 @@ class Version(TimeStampedModel):
     def vcs_url(self):
         version_name = self.verbose_name
         if not self.is_external:
-            if self.slug == STABLE:
+            if self.slug == STABLE and self.machine:
                 version_name = self.ref
-            elif self.slug == LATEST:
+            elif self.slug == LATEST and self.machine:
                 version_name = self.project.get_default_branch()
             else:
                 version_name = self.slug
@@ -327,10 +326,10 @@ class Version(TimeStampedModel):
         """
         # LATEST is special as it is usually a branch but does not contain the
         # name in verbose_name.
-        if self.slug == LATEST:
+        if self.slug == LATEST and self.machine:
             return self.project.get_default_branch()
 
-        if self.slug == STABLE:
+        if self.slug == STABLE and self.machine:
             if self.type == BRANCH:
                 # Special case, as we do not store the original branch name
                 # that the stable version works on. We can only interpolate the
@@ -340,11 +339,6 @@ class Version(TimeStampedModel):
                 if self.identifier.startswith('origin/'):
                     return self.identifier[len('origin/'):]
             return self.identifier
-
-        # By now we must have handled all special versions.
-        if self.slug in NON_REPOSITORY_VERSIONS:
-            # pylint: disable=broad-exception-raised
-            raise Exception('All special versions must be handled by now.')
 
         if self.type in (BRANCH, TAG):
             # If this version is a branch or a tag, the verbose_name will

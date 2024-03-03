@@ -591,18 +591,9 @@ class Project(models.Model):
 
         try:
             if not self.versions.filter(slug=LATEST).exists():
-                self.versions.create_latest()
+                self.versions.create_latest(identifier=self.get_default_branch())
         except Exception:
             log.exception("Error creating default branches")
-
-        # Update `Version.identifier` for `latest` with the default branch the user has selected,
-        # even if it's `None` (meaning to match the `default_branch` of the repository)
-        # NOTE: this code is required to be *after* ``create_latest()``.
-        # It has to be updated after creating LATEST originally.
-        log.debug(
-            "Updating default branch.", slug=LATEST, identifier=self.default_branch
-        )
-        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -1130,7 +1121,8 @@ class Project(models.Model):
         """
         latest = self.get_latest_version()
         if not latest:
-            latest = self.versions.create_latest()
+            latest = self.versions.create_latest(identifier=self.get_default_branch())
+
         if not latest.machine:
             return
 
@@ -1219,7 +1211,13 @@ class Project(models.Model):
         return LATEST
 
     def get_default_branch(self):
-        """Get the version representing 'latest'."""
+        """
+        Get the branch/tag name of the version representing 'latest'.
+
+        If the project has a default branch explicitly set, we use that,
+        otherwise we try to get it from the remote repository,
+        or fallback to the default branch of the VCS backend.
+        """
         if self.default_branch:
             return self.default_branch
 
