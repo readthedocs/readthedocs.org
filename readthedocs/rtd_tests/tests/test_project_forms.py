@@ -12,6 +12,8 @@ from readthedocs.builds.models import Version
 from readthedocs.core.forms import RichValidationError
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
+    ADDONS_FLYOUT_SORTING_CALVER,
+    ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
     PRIVATE,
@@ -22,6 +24,7 @@ from readthedocs.projects.constants import (
     SPHINX,
 )
 from readthedocs.projects.forms import (
+    AddonsConfigForm,
     EmailHookForm,
     EnvironmentVariableForm,
     ProjectAutomaticForm,
@@ -1038,4 +1041,69 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         self.assertEqual(
             EnvironmentVariable.objects.latest().value,
             r"'string escaped here: #$\1[]{}\|'",
+        )
+
+
+class TestAddonsConfigForm(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+
+    def test_addonsconfig_form(self):
+        data = {
+            "enabled": True,
+            "analytics_enabled": False,
+            "doc_diff_enabled": False,
+            "external_version_warning_enabled": True,
+            "flyout_enabled": True,
+            "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
+            "flyout_sorting_latest_stable_at_beginning": True,
+            "flyout_sorting_custom_pattern": None,
+            "hotkeys_enabled": False,
+            "search_enabled": False,
+            "stable_latest_version_warning_enabled": True,
+        }
+        form = AddonsConfigForm(data=data, project=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        self.assertEqual(self.project.addons.enabled, True)
+        self.assertEqual(self.project.addons.analytics_enabled, False)
+        self.assertEqual(self.project.addons.doc_diff_enabled, False)
+        self.assertEqual(self.project.addons.external_version_warning_enabled, True)
+        self.assertEqual(self.project.addons.flyout_enabled, True)
+        self.assertEqual(
+            self.project.addons.flyout_sorting,
+            ADDONS_FLYOUT_SORTING_CALVER,
+        )
+        self.assertEqual(
+            self.project.addons.flyout_sorting_latest_stable_at_beginning,
+            True,
+        )
+        self.assertEqual(self.project.addons.flyout_sorting_custom_pattern, None)
+        self.assertEqual(self.project.addons.hotkeys_enabled, False)
+        self.assertEqual(self.project.addons.search_enabled, False)
+        self.assertEqual(
+            self.project.addons.stable_latest_version_warning_enabled,
+            True,
+        )
+
+    def test_addonsconfig_form_invalid_sorting_custom_pattern(self):
+        data = {
+            "enabled": True,
+            "analytics_enabled": False,
+            "doc_diff_enabled": False,
+            "external_version_warning_enabled": True,
+            "flyout_enabled": True,
+            "flyout_sorting": ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
+            "flyout_sorting_latest_stable_at_beginning": True,
+            "flyout_sorting_custom_pattern": None,
+            "hotkeys_enabled": False,
+            "search_enabled": False,
+            "stable_latest_version_warning_enabled": True,
+        }
+        form = AddonsConfigForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            "The flyout sorting custom pattern is required when selecting a custom pattern.",
+            form.errors["__all__"][0],
         )
