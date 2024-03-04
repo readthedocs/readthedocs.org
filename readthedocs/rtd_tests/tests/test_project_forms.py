@@ -284,7 +284,7 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(self.project.privacy_level, PRIVATE)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.projects.forms.trigger_build")
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_custom_readthedocs_yaml(self, trigger_build):
         custom_readthedocs_yaml_path = "folder/.readthedocs.yaml"
