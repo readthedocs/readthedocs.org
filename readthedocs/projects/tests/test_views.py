@@ -11,7 +11,6 @@ from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import (
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPE_HTMLZIP,
-    PRIVATE,
     PUBLIC,
 )
 from readthedocs.projects.models import Project
