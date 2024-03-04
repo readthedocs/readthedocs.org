@@ -187,6 +187,7 @@ class AddonsConfig(TimeStampedModel):
     flyout_sorting = models.CharField(
         choices=ADDONS_FLYOUT_SORTING_CHOICES,
         default=ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+        max_length=64,
     )
     flyout_sorting_custom_pattern = models.CharField(
         max_length=32,
@@ -198,7 +199,7 @@ class AddonsConfig(TimeStampedModel):
     )
     flyout_sorting_latest_stable_at_beginning = models.BooleanField(
         default=True,
-        help_text="Show <code>stable</code> and <code>latest</code> at the beginning",
+        help_text="Show <code>latest</code> and <code>stable</code> at the beginning",
     )
 
     # Hotkeys
