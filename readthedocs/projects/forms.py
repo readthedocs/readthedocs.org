@@ -384,16 +384,15 @@ class UpdateProjectForm(
 
     def setup_external_builds_option(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
-        if settings.ALLOW_PRIVATE_REPOS and self.instance.remote_repository:
+        if (
+            settings.ALLOW_PRIVATE_REPOS
+            and self.instance.remote_repository
+            and not self.instance.remote_repository.private
+        ):
             self.fields["external_builds_privacy_level"].disabled = True
-            if self.instance.remote_repository.private:
-                help_text = _(
-                    "We have detected that this project is private, pull request previews are set to private."
-                )
-            else:
-                help_text = _(
-                    "We have detected that this project is public, pull request previews are set to public."
-                )
+            help_text = _(
+                "We have detected that this project is public, pull request previews are set to public."
+            )
             self.fields["external_builds_privacy_level"].help_text = help_text
 
         integrations = list(self.instance.integrations.all())

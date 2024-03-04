@@ -65,7 +65,6 @@ from .constants import (
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
-    PRIVATE,
     PUBLIC,
 )
 
@@ -583,9 +582,11 @@ class Project(models.Model):
                     _("Model must have slug")
                 )
 
-        if self.remote_repository:
-            privacy_level = PRIVATE if self.remote_repository.private else PUBLIC
-            self.external_builds_privacy_level = privacy_level
+        # If the project is linked to a remote repository,
+        # and the repository is public, we force the privacy level of
+        # pull requests previews to be public, see GHSA-pw32-ffxw-68rh.
+        if self.remote_repository and not self.remote_repository.private:
+            self.external_builds_privacy_level = PUBLIC
 
         super().save(*args, **kwargs)
 
