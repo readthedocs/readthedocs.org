@@ -192,7 +192,7 @@ def sort_versions_python_packaging(version_list, latest_stable_at_beginning):
         if latest_stable_at_beginning:
             if version.slug in (STABLE, LATEST):
                 # It relies on the version list sorted alphabetically first ("l" comes first than "s")
-                initial_versions.insert(0, (version, version.slug))
+                initial_versions.append((version, version.slug))
                 continue
 
         try:
@@ -233,7 +233,6 @@ def sort_versions_custom_pattern(version_list, raw_pattern, latest_stable_at_beg
     It uses ``Bumpver`` behinds the scenes for the parsing and sorting.
     https://github.com/mbarkhau/bumpver
     """
-    raw_pattern = "YYYY.0M.0D"
     alphabetically_sorted_version_list = sorted(
         version_list,
         key=operator.attrgetter("slug"),
@@ -246,7 +245,7 @@ def sort_versions_custom_pattern(version_list, raw_pattern, latest_stable_at_beg
         if latest_stable_at_beginning:
             if version.slug in (STABLE, LATEST):
                 # It relies on the version list sorted alphabetically first ("l" comes first than "s")
-                initial_versions.insert(0, (version, version.slug))
+                initial_versions.append((version, version.slug))
                 continue
 
         try:
