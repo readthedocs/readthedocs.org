@@ -577,7 +577,7 @@ class AddonsConfigForm(forms.ModelForm):
             "external_version_warning_enabled",
             "flyout_enabled",
             "flyout_sorting",
-            "flyout_sorting_stable_latest_at_beginning",
+            "flyout_sorting_latest_stable_at_beginning",
             "flyout_sorting_custom_pattern",
             "hotkeys_enabled",
             "search_enabled",

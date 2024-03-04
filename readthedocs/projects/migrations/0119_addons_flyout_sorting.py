@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="addonsconfig",
-            name="flyout_sorting_stable_latest_at_beginning",
+            name="flyout_sorting_latest_stable_at_beginning",
             field=models.BooleanField(
                 default=True,
                 help_text="Show <code>stable</code> and <code>latest</code> at the beginning",

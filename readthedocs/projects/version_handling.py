@@ -169,7 +169,7 @@ def determine_stable_version(version_list):
     return None
 
 
-def sort_versions_python_packaging(version_list, stable_latest_at_beginning):
+def sort_versions_python_packaging(version_list, latest_stable_at_beginning):
     """
     Sort Read the Docs versions list using ``packaging`` algorithm.
 
@@ -189,7 +189,7 @@ def sort_versions_python_packaging(version_list, stable_latest_at_beginning):
     valid_versions = []
     invalid_versions = []
     for i, version in enumerate(alphabetically_sorted_version_list):
-        if stable_latest_at_beginning:
+        if latest_stable_at_beginning:
             if version.slug in (STABLE, LATEST):
                 # It relies on the version list sorted alphabetically first ("l" comes first than "s")
                 initial_versions.insert(0, (version, version.slug))
@@ -211,7 +211,7 @@ def sort_versions_python_packaging(version_list, stable_latest_at_beginning):
     return [item[0] for item in all_versions if item[0] is not None]
 
 
-def sort_versions_calver(version_list, stable_latest_at_beginning):
+def sort_versions_calver(version_list, latest_stable_at_beginning):
     """
     Sort Read the Docs versions using CalVer pattern: ``YYYY.0M.0M``.
 
@@ -219,11 +219,11 @@ def sort_versions_calver(version_list, stable_latest_at_beginning):
     """
     raw_pattern = "YYYY.0M.0D"
     return sort_versions_custom_pattern(
-        version_list, raw_pattern, stable_latest_at_beginning
+        version_list, raw_pattern, latest_stable_at_beginning
     )
 
 
-def sort_versions_custom_pattern(version_list, raw_pattern, stable_latest_at_beginning):
+def sort_versions_custom_pattern(version_list, raw_pattern, latest_stable_at_beginning):
     """
     Sort Read the Docs versions using a custom pattern.
 
@@ -243,7 +243,7 @@ def sort_versions_custom_pattern(version_list, raw_pattern, stable_latest_at_beg
     valid_versions = []
     invalid_versions = []
     for i, version in enumerate(alphabetically_sorted_version_list):
-        if stable_latest_at_beginning:
+        if latest_stable_at_beginning:
             if version.slug in (STABLE, LATEST):
                 # It relies on the version list sorted alphabetically first ("l" comes first than "s")
                 initial_versions.insert(0, (version, version.slug))

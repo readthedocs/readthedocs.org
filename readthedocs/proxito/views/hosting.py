@@ -301,18 +301,18 @@ class AddonsResponse:
             ):
                 versions_active_built_not_hidden = sort_versions_python_packaging(
                     versions_active_built_not_hidden,
-                    project.addons.flyout_sorting_stable_latest_at_beginning,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
             elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
                 versions_active_built_not_hidden = sort_versions_calver(
                     versions_active_built_not_hidden,
-                    project.addons.flyout_sorting_stable_latest_at_beginning,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
             elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN:
                 versions_active_built_not_hidden = sort_versions_custom_pattern(
                     versions_active_built_not_hidden,
                     project.addons.flyout_sorting_custom_pattern,
-                    project.addons.flyout_sorting_stable_latest_at_beginning,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
 
         if version:
