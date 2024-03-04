@@ -810,11 +810,14 @@ class TestBuildTask(BuildEnvironmentBase):
         python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3"]
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
-                mock.call(
-                    "cat",
-                    "readthedocs.yml",
-                    cwd="/tmp/readthedocs-tests/git-repository",
-                ),
+                # TODO: check for this in the VCS environment.
+                # We can't check it here because this is the build environment.
+                #
+                # mock.call(
+                #     "cat",
+                #     "readthedocs.yml",
+                #     cwd="/tmp/readthedocs-tests/git-repository",
+                # ),
                 mock.call("asdf", "install", "python", python_version),
                 mock.call("asdf", "global", "python", python_version),
                 mock.call("asdf", "reshim", "python", record=False),
@@ -1348,7 +1351,10 @@ class TestBuildTask(BuildEnvironmentBase):
         ]
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
-                mock.call("cat", "readthedocs.yml", cwd=mock.ANY),
+                # TODO: check for this in the VCS environment.
+                # We can't check it here because this is the build environment.
+                #
+                # mock.call("cat", "readthedocs.yml", cwd=mock.ANY),
                 mock.call("asdf", "install", "python", python_version),
                 mock.call("asdf", "global", "python", python_version),
                 mock.call("asdf", "reshim", "python", record=False),
@@ -1442,7 +1448,10 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
-                mock.call("cat", "readthedocs.yml", cwd=mock.ANY),
+                # TODO: check for this in the VCS environment.
+                # We can't check it here because this is the build environment.
+                #
+                # mock.call("cat", "readthedocs.yml", cwd=mock.ANY),
                 mock.call("asdf", "install", "python", "mambaforge-4.10.3-10"),
                 mock.call("asdf", "global", "python", "mambaforge-4.10.3-10"),
                 mock.call("asdf", "reshim", "python", record=False),
