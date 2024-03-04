@@ -19,6 +19,6 @@ Changing the versioning scheme
 ------------------------------
 
 #. Go the :guilabel:`Admin` tab of your project.
-#. Click on :guilabel:`Advanced Settings`.
+#. Click on :guilabel:`Settings`.
 #. Select the new versioning scheme in the :guilabel:`Versioning scheme` dropdown.
 #. Click on :guilabel:`Save`.

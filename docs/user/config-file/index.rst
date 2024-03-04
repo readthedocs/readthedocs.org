@@ -1,4 +1,4 @@
-Configuration file tutorial
+Configuration file overview
 ===========================
 
 As part of the initial set up for your Read the Docs site,

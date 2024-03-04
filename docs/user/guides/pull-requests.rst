@@ -10,7 +10,7 @@ See `Limitations`_ for more information.
 If your account is already connected:
 
 #. Go to your project dashboard
-#. Go to :guilabel:`Admin`, then :guilabel:`Advanced settings`
+#. Go to :guilabel:`Admin`, then :guilabel:`Settings`
 #. Enable the :guilabel:`Build pull requests for this project` option
 #. Click on :guilabel:`Save`
 
@@ -43,7 +43,7 @@ while private previews are only available to users with access to the Read the D
 To change the privacy level:
 
 #. Go to your project dashboard
-#. Go to :guilabel:`Admin`, then :guilabel:`Advanced settings`
+#. Go to :guilabel:`Admin`, then :guilabel:`Settings`
 #. Select your option in :guilabel:`Privacy level of builds from pull requests`
 #. Click on :guilabel:`Save`
 

@@ -73,7 +73,7 @@ class Service:
 
     @property
     def provider_name(self):
-        return registry.by_id(self.provider_id).name
+        return registry.get_class(self.provider_id).name
 
     def get_session(self):
         if self.session is None:
@@ -105,12 +105,13 @@ class Service:
                 }
             )
 
+        social_app = self.account.get_provider().app
         self.session = OAuth2Session(
-            client_id=token.app.client_id,
+            client_id=social_app.client_id,
             token=token_config,
             auto_refresh_kwargs={
-                "client_id": token.app.client_id,
-                "client_secret": token.app.secret,
+                "client_id": social_app.client_id,
+                "client_secret": social_app.secret,
             },
             auto_refresh_url=self.get_adapter().access_token_url,
             token_updater=self.token_updater(token),

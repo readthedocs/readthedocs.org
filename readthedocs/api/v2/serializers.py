@@ -77,19 +77,14 @@ class ProjectAdminSerializer(ProjectSerializer):
 
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
-            "enable_epub_build",
-            "enable_pdf_build",
-            "conf_py_file",
             "analytics_code",
             "analytics_disabled",
             "cdn_enabled",
             "container_image",
             "container_mem_limit",
             "container_time_limit",
-            "install_project",
             "skip",
             "requirements_file",
-            "python_interpreter",
             "features",
             "has_valid_clone",
             "has_valid_webhook",

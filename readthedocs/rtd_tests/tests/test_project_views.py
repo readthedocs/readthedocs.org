@@ -121,7 +121,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertIsNotNone(proj)
         for key, val in list(self.step_data["basics"].items()):
             self.assertEqual(getattr(proj, key), val)
-        self.assertEqual(proj.documentation_type, "sphinx")
+        self.assertIsNone(proj.documentation_type)
 
     def test_remote_repository_is_added(self):
         remote_repo = get(RemoteRepository, default_branch="default-branch")

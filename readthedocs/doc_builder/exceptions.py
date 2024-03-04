@@ -11,20 +11,17 @@ All these exception should only define the "message id" under one of these categ
 Then the header/body texts should be defined in ``readthedocs/notifications/messages.py``.
 """
 
+from django.utils.translation import gettext_lazy as _
+
+from readthedocs.notifications.exceptions import NotificationBaseException
 
 
-class BuildBaseException(Exception):
-
-    default_message = "Build user exception"
-
-    def __init__(self, message_id, format_values=None, **kwargs):
-        self.message_id = message_id
-        self.format_values = format_values
-        super().__init__(self.default_message, **kwargs)
+class BuildBaseException(NotificationBaseException):
+    default_message = _("Build user exception")
 
 
 class BuildAppError(BuildBaseException):
-    default_message = "Build app exception"
+    default_message = _("Build application exception")
 
     GENERIC_WITH_BUILD_ID = "build:app:generic-with-build-id"
     BUILDS_DISABLED = "build:app:project-builds-disabled"
@@ -53,6 +50,7 @@ class BuildUserError(BuildBaseException):
     BUILD_COMMANDS_IN_BETA = "build:user:build-commands-config-key-in-beta"
     BUILD_TIME_OUT = "build:user:time-out"
     BUILD_EXCESSIVE_MEMORY = "build:user:excessive-memory"
+    VCS_DEPRECATED = "build:vcs:deprecated"
 
 
 class BuildMaxConcurrencyError(BuildUserError):

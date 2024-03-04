@@ -237,6 +237,7 @@ class CommunityBaseSettings(Settings):
             'simple_history',
             'djstripe',
             'django_celery_beat',
+            "django_safemigrate.apps.SafeMigrateConfig",
 
             # our apps
             'readthedocs.projects',
@@ -313,6 +314,7 @@ class CommunityBaseSettings(Settings):
             'django.middleware.clickjacking.XFrameOptionsMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
+            "allauth.account.middleware.AccountMiddleware",
             'dj_pagination.middleware.PaginationMiddleware',
             'csp.middleware.CSPMiddleware',
             'readthedocs.core.middleware.ReferrerPolicyMiddleware',
@@ -644,6 +646,13 @@ class CommunityBaseSettings(Settings):
 
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
+            "APPS": [
+                {
+                    "client_id": "123",
+                    "secret": "456",
+                    "key": ""
+                },
+            ],
             "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'user:email',
@@ -653,13 +662,39 @@ class CommunityBaseSettings(Settings):
             ],
         },
         'gitlab': {
+            "APPS": [
+                {
+                    "client_id": "123",
+                    "secret": "456",
+                    "key": ""
+                },
+            ],
             "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'api',
                 'read_user',
             ],
         },
-        # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org
+        "bitbucket_oauth2": {
+            "APPS": [
+                {
+                    "client_id": "123",
+                    "secret": "456",
+                    "key": ""
+                },
+            ],
+            # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org.
+        },
+        # Deprecated, we use `bitbucket_oauth2` for all new connections.
+        "bitbucket": {
+            "APPS": [
+                {
+                    "client_id": "123",
+                    "secret": "456",
+                    "key": ""
+                },
+            ],
+        },
     }
     ACCOUNT_FORMS = {
         'signup': 'readthedocs.forms.SignupFormWithNewsletter',

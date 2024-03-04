@@ -65,9 +65,9 @@ class TestSignals(TestCase):
             verified=False,
         )
 
-        self.assertEqual(Notification.objects.for_user(user).count(), 1)
+        self.assertEqual(Notification.objects.for_user(user, resource="all").count(), 1)
 
-        notification = Notification.objects.for_user(user).first()
+        notification = Notification.objects.for_user(user, resource="all").first()
         self.assertEqual(notification.message_id, MESSAGE_EMAIL_VALIDATION_PENDING)
         self.assertEqual(notification.state, UNREAD)
 
@@ -77,7 +77,7 @@ class TestSignals(TestCase):
         notification.refresh_from_db()
 
         # 0 notifications to show to the user (none UNREAD)
-        self.assertEqual(Notification.objects.for_user(user).count(), 0)
+        self.assertEqual(Notification.objects.for_user(user, resource="all").count(), 0)
 
         # 1 notification exists attached to this user, tho
         self.assertEqual(

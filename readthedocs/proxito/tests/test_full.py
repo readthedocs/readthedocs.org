@@ -799,6 +799,7 @@ class TestDocServingBackends(BaseDocServing):
 @override_settings(
     PYTHON_MEDIA=False,
     PUBLIC_DOMAIN='readthedocs.io',
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
 # since the setting is evaluated just once (first test to use the storage
@@ -1466,6 +1467,33 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(pageview.view_count, 1)
         self.assertEqual(pageview.status, 404)
 
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_dont_track_external_domains(self, storage_exists):
+        storage_exists.return_value = False
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        get(
+            Version,
+            slug="123",
+            type=EXTERNAL,
+            built=True,
+            active=True,
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        resp = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/123/"},
+            ),
+            headers={"host": "project--123.dev.readthedocs.build"},
+        )
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(PageView.objects.all().count(), 0)
+
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_track_broken_link_custom_404(self, storage_open):
         get(
@@ -1696,6 +1724,28 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(
             resp.headers["x-accel-redirect"],
             "/proxito-static/media/javascript/readthedocs-doc-embed.js",
+        )
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
+    @mock.patch(
+        "readthedocs.proxito.views.mixins.staticfiles_storage",
+        new=StaticFileSystemStorageTest(),
+    )
+    def test_serve_static_files_internal_nginx_redirect_always_appended(self):
+        """Test for #11080."""
+        resp = self.client.get(
+            reverse(
+                "proxito_static_files",
+                args=["proxito-static/javascript/readthedocs-doc-embed.js"],
+            ),
+            headers={"host": "project.readthedocs.io"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp.headers["x-accel-redirect"],
+            "/proxito-static/media/proxito-static/javascript/readthedocs-doc-embed.js",
         )
         self.assertEqual(
             resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"

@@ -430,6 +430,51 @@ class TestReadTheDocsConfigJson(TestCase):
         # ``a1b2c3-9``is the latest successful build object created
         assert r.json()["builds"]["current"]["commit"] == "a1b2c3-9"
 
+    def test_builds_current_is_latest_one_without_url_parameter(self):
+        # Create 10 successful build objects
+        # The latest one (ordered by date) will be ``a1b2c3-9``
+        for i in range(10):
+            fixture.get(
+                Build,
+                date=timezone.now(),
+                project=self.project,
+                version=self.version,
+                commit=f"a1b2c3-{i}",
+                length=60,
+                state="finished",
+                success=True,
+            )
+
+        # Latest failed build
+        fixture.get(
+            Build,
+            date=timezone.now(),
+            project=self.project,
+            version=self.version,
+            commit=f"a1b2c3-failed",
+            length=60,
+            state="finished",
+            success=False,
+        )
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "project-slug": "project",
+                "version-slug": "latest",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+
+        # ``a1b2c3-9``is the latest successful build object created
+        assert r.json()["builds"]["current"]["commit"] == "a1b2c3-9"
+
     def test_project_subproject(self):
         subproject = fixture.get(
             Project,
@@ -656,7 +701,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(21):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -685,7 +730,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(21):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -721,7 +766,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(25):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -747,7 +792,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(25):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

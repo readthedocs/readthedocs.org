@@ -25,6 +25,7 @@ def readthedocs_processor(request):
         "USE_ORGANIZATIONS": settings.RTD_ALLOW_ORGANIZATIONS,
         "SUPPORT_EMAIL": settings.SUPPORT_EMAIL,
         "PUBLIC_API_URL": settings.PUBLIC_API_URL,
+        "RTD_EXT_THEME_ENABLED": settings.RTD_EXT_THEME_ENABLED,
     }
     return exports
 
@@ -44,7 +45,10 @@ def user_notifications(request):
 
     user_notifications = Notification.objects.none()
     if request.user.is_authenticated:
-        user_notifications = Notification.objects.for_user(request.user)
+        user_notifications = Notification.objects.for_user(
+            request.user,
+            resource=request.user,
+        )
 
     return {
         "user_notifications": user_notifications,

@@ -1,9 +1,11 @@
+import copy
 import textwrap
 
 import structlog
 from django.template import Context, Template
 from django.utils.translation import gettext_noop as _
 
+from readthedocs.core.context_processors import readthedocs_processor
 from readthedocs.doc_builder.exceptions import (
     BuildAppError,
     BuildCancelled,
@@ -181,6 +183,19 @@ BUILD_MESSAGES = [
                 """
             This build was terminated due to excessive memory consumption.
             Read more about <a href="https://docs.readthedocs.io/en/stable/builds.html#build-resources">time and memory limits in our documentation</a>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.VCS_DEPRECATED,
+        header=_("Build used a deprecated VCS is not supported: {{vcs}}."),
+        body=_(
+            textwrap.dedent(
+                """
+                {{vcs}} VCS is not supported anymore.
+                Read more about this in our blog post <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">Dropping support for Subversion, Mercurial, and Bazaar</a>.
             """
             ).strip(),
         ),
@@ -514,8 +529,18 @@ class MessagesRegistry:
                 raise ValueError("A message with the same 'id' is already registered.")
             self.messages[message.id] = message
 
-    def get(self, message_id):
-        return self.messages.get(message_id)
+    def get(self, message_id, format_values=None):
+        # Copy to avoid setting format values on the static instance of the
+        # message inside the registry, set on a per-request instance instead.
+        message = copy.copy(self.messages.get(message_id))
+
+        if message is not None:
+            # Always include global variables, override with provided values
+            all_format_values = readthedocs_processor(None)
+            all_format_values.update(format_values or {})
+            message.set_format_values(all_format_values)
+
+        return message
 
 
 registry = MessagesRegistry()

@@ -24,7 +24,6 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelV
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
@@ -422,7 +421,7 @@ class NotificationsForUserViewSet(
     filterset_class = NotificationFilter
 
     def get_queryset(self):
-        return Notification.objects.for_user(self.request.user)
+        return Notification.objects.for_user(self.request.user, resource="all")
 
 
 class NotificationsProjectViewSet(
@@ -679,10 +678,5 @@ class NotificationsOrganizationViewSet(
     permission_classes = [IsAuthenticated & IsOrganizationAdmin]
 
     def get_queryset(self):
-        content_type = ContentType.objects.get_for_model(Organization)
-        return self.queryset.filter(
-            attached_to_content_type=content_type,
-            attached_to_id__in=AdminPermission.organizations(
-                self.request.user, owner=True, member=False
-            ).values("id"),
-        )
+        organization = self._get_parent_organization()
+        return organization.notifications.all()
