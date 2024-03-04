@@ -11,7 +11,6 @@ from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import (
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPE_HTMLZIP,
-    PRIVATE,
     PUBLIC,
 )
 from readthedocs.projects.models import Project
@@ -111,7 +110,7 @@ class TestExternalBuildOption(TestCase):
         )
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
-    def test_privacy_level_pr_previews_match_remote_repository(self):
+    def test_privacy_level_pr_previews_match_remote_repository_if_public(self):
         remote_repository = get(RemoteRepository, private=False)
         self.project.remote_repository = remote_repository
         self.project.save()
@@ -128,9 +127,8 @@ class TestExternalBuildOption(TestCase):
 
         resp = self.client.get(self.url)
         field = resp.context["form"].fields["external_builds_privacy_level"]
-        self.assertTrue(field.disabled)
-        self.assertIn("We have detected that this project is private", field.help_text)
-        self.assertEqual(self.project.external_builds_privacy_level, PRIVATE)
+        self.assertFalse(field.disabled)
+        self.assertEqual(self.project.external_builds_privacy_level, PUBLIC)
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
