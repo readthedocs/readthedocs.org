@@ -573,6 +573,7 @@ class AddonsConfigForm(forms.ModelForm):
             "project",
             "analytics_enabled",
             "doc_diff_enabled",
+            "doc_diff_root_selector",
             "external_version_warning_enabled",
             "flyout_enabled",
             "hotkeys_enabled",
