@@ -114,9 +114,7 @@ class BuildConfigBase:
         except ConfigValidationError as error:
             # Expand the format values defined when the exception is risen
             # with extra ones we have here
-            format_values = (
-                error.format_values if hasattr(error, "format_values") else {}
-            )
+            format_values = getattr(error, "format_values", {})
             format_values.update(
                 {
                     "key": key,
