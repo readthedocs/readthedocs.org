@@ -589,6 +589,11 @@ class AddonsConfigForm(forms.ModelForm):
                 "Show a notification on non-stable and latest versions"
             ),
         }
+        widgets = {
+            "doc_diff_root_selector": forms.TextInput(
+                attrs={"placeholder": "[role=main]"}
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
