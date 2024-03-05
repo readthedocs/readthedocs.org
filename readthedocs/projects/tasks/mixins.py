@@ -1,4 +1,5 @@
 from collections import Counter
+from dataclasses import dataclass
 
 import structlog
 
@@ -10,6 +11,12 @@ from ..exceptions import RepositoryError
 from ..models import Feature
 
 log = structlog.get_logger(__name__)
+
+
+@dataclass
+class VersionData:
+    identifier: str
+    verbose_name: str
 
 
 class SyncRepositoryMixin:
@@ -50,6 +57,7 @@ class SyncRepositoryMixin:
         )
         tags = []
         branches = []
+
         if vcs_repository.supports_lsremote:
             branches, tags = vcs_repository.lsremote(
                 include_tags=sync_tags,
@@ -64,21 +72,9 @@ class SyncRepositoryMixin:
             if sync_branches:
                 branches = vcs_repository.branches
 
-        tags_data = [
-            {
-                "identifier": v.identifier,
-                "verbose_name": v.verbose_name,
-            }
-            for v in tags
-        ]
+        tags_data = [VersionData(v.identifer, v.verbose_name) for v in tags]
 
-        branches_data = [
-            {
-                "identifier": v.identifier,
-                "verbose_name": v.verbose_name,
-            }
-            for v in branches
-        ]
+        branches_data = [VersionData(v.identifer, v.verbose_name) for v in branches]
 
         log.debug("Synchronizing versions.", branches=branches, tags=tags)
 
@@ -101,11 +97,9 @@ class SyncRepositoryMixin:
         ``latest`` or ``stable``. Raise a RepositoryError exception
         if there is a duplicated name.
 
-        :param data: Dict containing the versions from tags and branches
+        :param data: DataClass containing the versions from tags and branches
         """
-        version_names = [
-            version["verbose_name"] for version in tags_data + branches_data
-        ]
+        version_names = [version.verbose_name for version in tags_data + branches_data]
         counter = Counter(version_names)
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
             if counter[reserved_name] > 1:
