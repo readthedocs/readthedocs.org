@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.49
+boto3==1.34.54
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.49
+botocore==1.34.54
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -132,7 +132,7 @@ django-cors-headers==4.3.1
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
-django-csp==3.7
+django-csp==3.8
     # via -r requirements/pip.txt
 django-debug-toolbar==4.3.0
     # via -r requirements/pip.txt
@@ -308,7 +308,7 @@ python-crontab==3.0.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -327,7 +327,7 @@ pyyaml==6.0.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==5.0.1
+redis==5.0.2
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -405,7 +405,7 @@ tomli==2.0.1
     #   coverage
     #   dparse
     #   pytest
-typing-extensions==4.9.0
+typing-extensions==4.10.0
     # via
     #   -r requirements/pip.txt
     #   asgiref

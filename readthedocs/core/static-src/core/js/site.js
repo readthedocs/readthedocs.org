@@ -3,7 +3,7 @@
 // Dismiss a notification
 module.exports.handle_notification_dismiss = function () {
   $(document).ready(function () {
-    $('ul.notifications li.notification > a').click(function (ev) {
+    $('ul.notifications li.notification > a.notification-action').click(function (ev) {
       var url = $(this).attr('href');
       var dismiss_url = $(this).parent().attr('data-dismiss-url');
       var csrf_token = $(this).parent().attr('data-csrf-token');

@@ -154,10 +154,10 @@ $(document).ready(function () {
       {% if not build.success and "setup.py install" in build.commands.last.output %}
         <div class="build-ideas">
           <p>
-            {% url 'projects_advanced' build.project.slug as advanced_url %}
+            {% url 'projects_edit' build.project.slug as project_settings_url %}
             {% blocktrans trimmed %}
               Don't want <em>setup.py install</em> called?
-              Change the <strong>Install Project</strong> setting in your <a href="{{ advanced_url }}">advanced settings</a>.
+              Change the <strong>Install Project</strong> setting in your <a href="{{ project_settings_url }}">project settings</a>.
             {% endblocktrans %}
           </p>
         </div>
