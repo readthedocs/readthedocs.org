@@ -30,30 +30,30 @@ BUILD_FINAL_STATES = (
 )
 
 BUILD_TYPES = (
-    ('html', _('HTML')),
-    ('pdf', _('PDF')),
-    ('epub', _('Epub')),
+    ("html", _("HTML")),
+    ("pdf", _("PDF")),
+    ("epub", _("Epub")),
     # There is currently no support for building man/dash formats, but we keep
     # it there since the DB might still contain those values for legacy
     # projects.
-    ('man', _('Manpage')),
-    ('dash', _('Dash')),
+    ("man", _("Manpage")),
+    ("dash", _("Dash")),
 )
 
 # Manager name for Internal Versions or Builds.
 # ie: Versions and Builds Excluding pull request/merge request Versions and Builds.
-INTERNAL = 'internal'
+INTERNAL = "internal"
 # Manager name for External Versions or Builds.
 # ie: Only pull request/merge request Versions and Builds.
-EXTERNAL = 'external'
-EXTERNAL_TEXT = _('External')
+EXTERNAL = "external"
+EXTERNAL_TEXT = _("External")
 
-BRANCH = 'branch'
-BRANCH_TEXT = _('Branch')
-TAG = 'tag'
-TAG_TEXT = _('Tag')
-UNKNOWN = 'unknown'
-UNKNOWN_TEXT = _('Unknown')
+BRANCH = "branch"
+BRANCH_TEXT = _("Branch")
+TAG = "tag"
+TAG_TEXT = _("Tag")
+UNKNOWN = "unknown"
+UNKNOWN_TEXT = _("Unknown")
 
 VERSION_TYPES = (
     (BRANCH, BRANCH_TEXT),
@@ -84,59 +84,59 @@ NON_REPOSITORY_VERSIONS = (
 # General build statuses, i.e. the status that is reported back to the
 # user on a Git Provider. This not the same as BUILD_STATE which the internal
 # representation.
-BUILD_STATUS_FAILURE = 'failed'
-BUILD_STATUS_PENDING = 'pending'
-BUILD_STATUS_SUCCESS = 'success'
+BUILD_STATUS_FAILURE = "failed"
+BUILD_STATUS_PENDING = "pending"
+BUILD_STATUS_SUCCESS = "success"
 
 # GitHub Build Statuses
-GITHUB_BUILD_STATUS_FAILURE = 'failure'
-GITHUB_BUILD_STATUS_PENDING = 'pending'
-GITHUB_BUILD_STATUS_SUCCESS = 'success'
+GITHUB_BUILD_STATUS_FAILURE = "failure"
+GITHUB_BUILD_STATUS_PENDING = "pending"
+GITHUB_BUILD_STATUS_SUCCESS = "success"
 
 # GitLab Build Statuses
-GITLAB_BUILD_STATUS_FAILURE = 'failed'
-GITLAB_BUILD_STATUS_PENDING = 'pending'
-GITLAB_BUILD_STATUS_SUCCESS = 'success'
+GITLAB_BUILD_STATUS_FAILURE = "failed"
+GITLAB_BUILD_STATUS_PENDING = "pending"
+GITLAB_BUILD_STATUS_SUCCESS = "success"
 
 # Used to select correct Build status and description to be sent to each service API
 SELECT_BUILD_STATUS = {
     BUILD_STATUS_FAILURE: {
-        'github': GITHUB_BUILD_STATUS_FAILURE,
-        'gitlab': GITLAB_BUILD_STATUS_FAILURE,
-        'description': 'Read the Docs build failed!',
+        "github": GITHUB_BUILD_STATUS_FAILURE,
+        "gitlab": GITLAB_BUILD_STATUS_FAILURE,
+        "description": "Read the Docs build failed!",
     },
     BUILD_STATUS_PENDING: {
-        'github': GITHUB_BUILD_STATUS_PENDING,
-        'gitlab': GITLAB_BUILD_STATUS_PENDING,
-        'description': 'Read the Docs build is in progress!',
+        "github": GITHUB_BUILD_STATUS_PENDING,
+        "gitlab": GITLAB_BUILD_STATUS_PENDING,
+        "description": "Read the Docs build is in progress!",
     },
     BUILD_STATUS_SUCCESS: {
-        'github': GITHUB_BUILD_STATUS_SUCCESS,
-        'gitlab': GITLAB_BUILD_STATUS_SUCCESS,
-        'description': 'Read the Docs build succeeded!',
+        "github": GITHUB_BUILD_STATUS_SUCCESS,
+        "gitlab": GITLAB_BUILD_STATUS_SUCCESS,
+        "description": "Read the Docs build succeeded!",
     },
 }
 
-GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
-GITLAB_EXTERNAL_VERSION_NAME = 'Merge Request'
-GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
+GITHUB_EXTERNAL_VERSION_NAME = "Pull Request"
+GITLAB_EXTERNAL_VERSION_NAME = "Merge Request"
+GENERIC_EXTERNAL_VERSION_NAME = "External Version"
 
 
 # Automation rules
 
-ALL_VERSIONS = 'all-versions'
-ALL_VERSIONS_REGEX = r'.*'
-SEMVER_VERSIONS = 'semver-versions'
+ALL_VERSIONS = "all-versions"
+ALL_VERSIONS_REGEX = r".*"
+SEMVER_VERSIONS = "semver-versions"
 
 # Pattern referred from
 # https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
-SEMVER_VERSIONS_REGEX = r'^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'  # noqa
+SEMVER_VERSIONS_REGEX = r"^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"  # noqa
 
 
 PREDEFINED_MATCH_ARGS = (
-    (ALL_VERSIONS, _('Any version')),
-    (SEMVER_VERSIONS, _('SemVer versions')),
-    (None, _('Custom match')),
+    (ALL_VERSIONS, _("Any version")),
+    (SEMVER_VERSIONS, _("SemVer versions")),
+    (None, _("Custom match")),
 )
 
 PREDEFINED_MATCH_ARGS_VALUES = {
@@ -144,10 +144,8 @@ PREDEFINED_MATCH_ARGS_VALUES = {
     SEMVER_VERSIONS: SEMVER_VERSIONS_REGEX,
 }
 
-BUILD_STATUS_NORMAL = 'normal'
-BUILD_STATUS_CHOICES = (
-    (BUILD_STATUS_NORMAL, 'Normal'),
-)
+BUILD_STATUS_NORMAL = "normal"
+BUILD_STATUS_CHOICES = ((BUILD_STATUS_NORMAL, "Normal"),)
 
 
 MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit
