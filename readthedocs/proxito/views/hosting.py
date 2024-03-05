@@ -324,6 +324,9 @@ class AddonsResponse:
                     # https://github.com/readthedocs/readthedocs.org/issues/9530
                     "code": project.analytics_code,
                 },
+                "doc_diff": {
+                    "enabled": False,
+                },
                 "external_version_warning": {
                     "enabled": project.addons.external_version_warning_enabled,
                     # NOTE: I think we are moving away from these selectors
