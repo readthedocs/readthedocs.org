@@ -219,7 +219,7 @@ class StripeEventView(APIView):
     def post(self, request, format=None):
         try:
             event = stripe.Event.construct_from(request.data, settings.STRIPE_SECRET)
-            log.bind(event=event.type)
+            structlog.contextvars.bind_contextvars(event=event.type)
             if event.type not in self.EVENTS:
                 log.warning("Unhandled Stripe event.", event_type=event.type)
                 return Response(
@@ -227,11 +227,11 @@ class StripeEventView(APIView):
                 )
 
             stripe_customer = event.data.object.customer
-            log.bind(stripe_customer=stripe_customer)
+            structlog.contextvars.bind_contextvars(stripe_customer=stripe_customer)
 
             if event.type == self.EVENT_CHECKOUT_COMPLETED:
                 username = event.data.object.client_reference_id
-                log.bind(user_username=username)
+                structlog.contextvars.bind_contextvars(user_username=username)
                 mode = event.data.object.mode
                 if mode == "subscription":
                     # Gold Membership
@@ -240,7 +240,7 @@ class StripeEventView(APIView):
                         event.data.object.subscription
                     )
                     stripe_price = self._get_stripe_price(subscription)
-                    log.bind(stripe_price=stripe_price.id)
+                    structlog.contextvars.bind_contextvars(stripe_price=stripe_price.id)
                     log.info("Gold Membership subscription.")
                     gold, _ = GoldUser.objects.get_or_create(
                         user=user,
@@ -275,7 +275,7 @@ class StripeEventView(APIView):
 
             elif event.type == self.EVENT_CHECKOUT_PAYMENT_FAILED:
                 username = event.data.object.client_reference_id
-                log.bind(user_username=username)
+                structlog.contextvars.bind_contextvars(user_username=username)
                 # TODO: add user notification saying it failed
                 log.exception("Gold User payment failed.")
 

@@ -171,7 +171,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         # because they just build the latest commit for that version
         self.data.build_commit = kwargs.get("build_commit")
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=self.data.project.slug,
             version_slug=self.data.version.slug,
         )
@@ -387,7 +387,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # required arguments.
         self.data.version_pk, self.data.build_pk = args
 
-        log.bind(build_id=self.data.build_pk)
+        structlog.contextvars.bind_contextvars(build_id=self.data.build_pk)
         log.info("Running task.", name=self.name)
 
         self.data.start_time = timezone.now()
@@ -416,7 +416,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             data=self.data,
         )
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             # NOTE: ``self.data.build`` is just a regular dict, not an APIBuild :'(
             builder=self.data.build["builder"],
             commit=self.data.build_commit,
@@ -893,7 +893,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(state=BUILD_STATE_UPLOADING)
 
         valid_artifacts = self.get_valid_artifact_types()
-        log.bind(artifacts=valid_artifacts)
+        structlog.contextvars.bind_contextvars(artifacts=valid_artifacts)
 
         types_to_copy = []
         types_to_delete = []

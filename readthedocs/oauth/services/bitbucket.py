@@ -240,7 +240,7 @@ class BitbucketService(Service):
 
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
             url=url,
@@ -294,7 +294,7 @@ class BitbucketService(Service):
 
         data = self.get_webhook_data(project, integration)
         resp = None
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
             url=url,
@@ -346,7 +346,7 @@ class BitbucketService(Service):
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
-        log.bind(project_slug=project.slug)
+        structlog.contextvars.bind_contextvars(project_slug=project.slug)
         provider_data = self.get_provider_data(project, integration)
 
         # Handle the case where we don't have a proper provider_data set
