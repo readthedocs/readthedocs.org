@@ -644,7 +644,7 @@ class CommunityBaseSettings(Settings):
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_STORE_TOKENS = True
 
-    SOCIALACCOUNT_PROVIDERS = {
+    _SOCIALACCOUNT_PROVIDERS = {
         'github': {
             "APPS": [
                 {
@@ -696,6 +696,16 @@ class CommunityBaseSettings(Settings):
             ],
         },
     }
+
+    @property
+    def SOCIALACCOUNT_PROVIDERS(self):
+        """
+        This is useful to override in a subclass, mainly to add the secrets when deploying.
+
+        Our ops repos have a complex (shared) inheritance structure, so it's easier this way.
+        """
+        return self._SOCIALACCOUNT_PROVIDERS
+
     ACCOUNT_FORMS = {
         'signup': 'readthedocs.forms.SignupFormWithNewsletter',
     }
