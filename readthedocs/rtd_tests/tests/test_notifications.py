@@ -55,6 +55,7 @@ class NotificationTests(TestCase):
                 "PRODUCTION_DOMAIN": "readthedocs.org",
                 "PUBLIC_DOMAIN": mock.ANY,
                 "PUBLIC_API_URL": mock.ANY,
+                "RTD_EXT_THEME_ENABLED": mock.ANY,
                 "SITE_ROOT": mock.ANY,
                 "SUPPORT_EMAIL": "support@readthedocs.org",
                 "TEMPLATE_ROOT": mock.ANY,

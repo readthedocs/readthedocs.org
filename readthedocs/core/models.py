@@ -43,22 +43,6 @@ class UserProfile(TimeStampedModel):
     whitelisted = models.BooleanField(_("Whitelisted"), default=False)
     banned = models.BooleanField(_("Banned"), default=False)
 
-    # Opt-out on emails
-    # NOTE: this is a temporary field that we can remove after September 25, 2023
-    # See https://blog.readthedocs.com/migrate-configuration-v2/
-    optout_email_config_file_deprecation = models.BooleanField(
-        _("Opt-out from email about 'Config file deprecation'"),
-        default=False,
-        null=True,
-    )
-    # NOTE: this is a temporary field that we can remove after October 16, 2023
-    # See https://blog.readthedocs.com/use-build-os-config/
-    optout_email_build_image_deprecation = models.BooleanField(
-        _("Opt-out from email about '\"build.image\" config key deprecation'"),
-        default=False,
-        null=True,
-    )
-
     # Model history
     history = ExtraHistoricalRecords()
 

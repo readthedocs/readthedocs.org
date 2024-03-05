@@ -11,7 +11,7 @@ By default, only users that belong to your organization can see the dashboard of
 If you want users outside your organization and anonymous users to be able to see the dashboard of your project,
 and the build output of *public versions* you can set the privacy level of your project to ``Public``.
 
-You can administer this in your :term:`dashboard` by navigating to :menuselection:`Admin --> Advanced Settings`
+You can administer this in your :term:`dashboard` by navigating to :menuselection:`Admin --> Settings`
 and changing :guilabel:`Privacy level` to `Public`.
 
 .. note::

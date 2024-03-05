@@ -17,7 +17,7 @@ from readthedocs.config import ALL
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
 from readthedocs.config.tests.test_config import get_build_config
-from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
@@ -695,6 +695,55 @@ class TestBuildTask(BuildEnvironmentBase):
         assert revoke_key_request._request.method == "POST"
         assert revoke_key_request.path == "/api/v2/revoke/"
 
+    @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
+    def test_cancelled_build(
+        self,
+        execute,
+        send_external_build_status,
+    ):
+        # Force an exception from the execution of the task. We don't really
+        # care "where" it was raised: setup, build, syncing directories, etc
+        execute.side_effect = BuildCancelled(
+            message_id=BuildCancelled.CANCELLED_BY_USER
+        )
+
+        self._trigger_update_docs_task()
+
+        send_external_build_status.assert_called_once_with(
+            version_type=self.version.type,
+            build_pk=self.build.pk,
+            commit=self.build.commit,
+            status=BUILD_STATUS_FAILURE,
+        )
+
+        notification_request = self.requests_mock.request_history[-3]
+        assert notification_request._request.method == "POST"
+        assert notification_request.path == "/api/v2/notifications/"
+        assert notification_request.json() == {
+            "attached_to": f"build/{self.build.pk}",
+            "message_id": BuildCancelled.CANCELLED_BY_USER,
+            "state": "unread",
+            "dismissable": False,
+            "news": False,
+            "format_values": {},
+        }
+
+        # Test we are updating the DB by calling the API with the updated build object
+        # The second last one should be the PATCH for the build
+        build_status_request = self.requests_mock.request_history[-2]
+        assert build_status_request._request.method == "PATCH"
+        assert build_status_request.path == "/api/v2/build/1/"
+        assert build_status_request.json() == {
+            "builder": mock.ANY,
+            "commit": self.build.commit,
+            "error": "",  # We are not sending ``error`` anymore
+            "id": self.build.pk,
+            "length": mock.ANY,
+            "state": "cancelled",
+            "success": False,
+        }
+
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_commands_executed(
         self,
@@ -761,11 +810,14 @@ class TestBuildTask(BuildEnvironmentBase):
         python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3"]
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
-                mock.call(
-                    "cat",
-                    "readthedocs.yml",
-                    cwd="/tmp/readthedocs-tests/git-repository",
-                ),
+                # TODO: check for this in the VCS environment.
+                # We can't check it here because this is the build environment.
+                #
+                # mock.call(
+                #     "cat",
+                #     "readthedocs.yml",
+                #     cwd="/tmp/readthedocs-tests/git-repository",
+                # ),
                 mock.call("asdf", "install", "python", python_version),
                 mock.call("asdf", "global", "python", python_version),
                 mock.call("asdf", "reshim", "python", record=False),
@@ -1299,7 +1351,10 @@ class TestBuildTask(BuildEnvironmentBase):
         ]
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
-                mock.call("cat", "readthedocs.yml", cwd=mock.ANY),
+                # TODO: check for this in the VCS environment.
+                # We can't check it here because this is the build environment.
+                #
+                # mock.call("cat", "readthedocs.yml", cwd=mock.ANY),
                 mock.call("asdf", "install", "python", python_version),
                 mock.call("asdf", "global", "python", python_version),
                 mock.call("asdf", "reshim", "python", record=False),
@@ -1393,7 +1448,10 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
-                mock.call("cat", "readthedocs.yml", cwd=mock.ANY),
+                # TODO: check for this in the VCS environment.
+                # We can't check it here because this is the build environment.
+                #
+                # mock.call("cat", "readthedocs.yml", cwd=mock.ANY),
                 mock.call("asdf", "install", "python", "mambaforge-4.10.3-10"),
                 mock.call("asdf", "global", "python", "mambaforge-4.10.3-10"),
                 mock.call("asdf", "reshim", "python", record=False),
