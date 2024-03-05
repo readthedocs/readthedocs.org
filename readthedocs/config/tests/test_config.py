@@ -424,6 +424,9 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.message_id == ConfigValidationError.INVALID_CHOICE
         assert excinfo.value.format_values.get("key") == "build.tools.python"
+        assert excinfo.value.format_values.get("choices") == ", ".join(
+            settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"].keys()
+        )
 
     def test_new_build_config(self):
         build = get_build_config(

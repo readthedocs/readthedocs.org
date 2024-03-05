@@ -112,13 +112,22 @@ class BuildConfigBase:
         try:
             yield
         except ConfigValidationError as error:
-            raise ConfigError(
-                message_id=error.message_id,
-                format_values={
+            # Expand the format values defined when the exception is risen
+            # with extra ones we have here
+            format_values = (
+                error.format_values if hasattr(error, "format_values") else {}
+            )
+            format_values.update(
+                {
                     "key": key,
                     "value": error.format_values.get("value"),
                     "source_file": os.path.relpath(self.source_file, self.base_path),
-                },
+                }
+            )
+
+            raise ConfigError(
+                message_id=error.message_id,
+                format_values=format_values,
             ) from error
 
     def pop(self, name, container, default, raise_ex):
