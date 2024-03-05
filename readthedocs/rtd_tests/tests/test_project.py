@@ -7,9 +7,9 @@ import pytest
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
-from rest_framework.reverse import reverse
 
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
@@ -263,7 +263,7 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         # Create translation of ``main_project``.
         get(Project, main_language_project=main_project)
 
-        url = reverse("project-translations", [main_project.id])
+        url = reverse("project-translations", args=[main_project.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 

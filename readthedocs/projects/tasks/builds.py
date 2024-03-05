@@ -24,6 +24,7 @@ from readthedocs.builds.constants import (
     ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT,
     BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
+    BUILD_STATE_CANCELLED,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
@@ -487,6 +488,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 message_id = exc.message_id
             else:
                 message_id = BuildUserError.GENERIC
+
+            # Set build state as cancelled if the user cancelled the build
+            if isinstance(exc, BuildCancelled):
+                self.data.build["state"] = BUILD_STATE_CANCELLED
 
         else:
             # We don't know what happened in the build. Log the exception and

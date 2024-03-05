@@ -265,6 +265,10 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         version = unresolved.version
         filename = unresolved.filename
 
+        # Inject the UnresolvedURL into the HttpRequest so we can access from the middleware.
+        # We could resolve it again from the middleware, but we would duplicating DB queries.
+        request.unresolved_url = unresolved
+
         # Check if the old language code format was used, and redirect to the new one.
         # NOTE: we may have some false positives here, for example for an URL like:
         # /pt-br/latest/pt_BR/index.html, but our protection for infinite redirects
@@ -420,6 +424,11 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 path=proxito_path,
                 append_indexhtml=False,
             )
+
+            # Inject the UnresolvedURL into the HttpRequest so we can access from the middleware.
+            # We could resolve it again from the middleware, but we would duplicating DB queries.
+            request.unresolved_url = unresolved
+
             project = unresolved.project
             version = unresolved.version
             filename = unresolved.filename

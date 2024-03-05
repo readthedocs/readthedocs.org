@@ -1,3 +1,56 @@
+Version 10.21.0
+---------------
+
+:Date: March 04, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Project: force PR previews to match repo only if the repo is public (`#11184 <https://github.com/readthedocs/readthedocs.org/pull/11184>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11180 <https://github.com/readthedocs/readthedocs.org/pull/11180>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Init path to ensure it exists (`#11178 <https://github.com/readthedocs/readthedocs.org/pull/11178>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: build both default and latest version when saving the project form (`#11177 <https://github.com/readthedocs/readthedocs.org/pull/11177>`__)
+* `@humitos <https://github.com/humitos>`__: Build: show the YAML config file before validating it (`#11175 <https://github.com/readthedocs/readthedocs.org/pull/11175>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: make the OAuth one dismissable (`#11172 <https://github.com/readthedocs/readthedocs.org/pull/11172>`__)
+* `@humitos <https://github.com/humitos>`__: Build: set CANCELLED state when the build is cancelled (`#11171 <https://github.com/readthedocs/readthedocs.org/pull/11171>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: merge basic and advanced forms (`#11169 <https://github.com/readthedocs/readthedocs.org/pull/11169>`__)
+* `@humitos <https://github.com/humitos>`__: Admin: remove temporal opt-out email settings (`#11164 <https://github.com/readthedocs/readthedocs.org/pull/11164>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: notification to point users there (`#11161 <https://github.com/readthedocs/readthedocs.org/pull/11161>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: Include Bitbucket in the list of social accounts (`#11160 <https://github.com/readthedocs/readthedocs.org/pull/11160>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.20.0 (`#11158 <https://github.com/readthedocs/readthedocs.org/pull/11158>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: define secrets in settings (`#11156 <https://github.com/readthedocs/readthedocs.org/pull/11156>`__)
+* `@hoyes <https://github.com/hoyes>`__: Dev: Default RTD_DJANGO_DEBUG to False if not set (`#11154 <https://github.com/readthedocs/readthedocs.org/pull/11154>`__)
+* `@humitos <https://github.com/humitos>`__: Build: bugfix to show build notifications (`#11153 <https://github.com/readthedocs/readthedocs.org/pull/11153>`__)
+* `@ewjoachim <https://github.com/ewjoachim>`__: Fix Poetry instructions (`#11152 <https://github.com/readthedocs/readthedocs.org/pull/11152>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: deprecation dates at application level (`#11147 <https://github.com/readthedocs/readthedocs.org/pull/11147>`__)
+* `@humitos <https://github.com/humitos>`__:  Notifications: allow dismiss user's notifications  (`#11130 <https://github.com/readthedocs/readthedocs.org/pull/11130>`__)
+* `@humitos <https://github.com/humitos>`__: Projects: remove old/non-used fields (`#11124 <https://github.com/readthedocs/readthedocs.org/pull/11124>`__)
+* `@stsewd <https://github.com/stsewd>`__: Match login template with changes from .com (`#11101 <https://github.com/readthedocs/readthedocs.org/pull/11101>`__)
+* `@humitos <https://github.com/humitos>`__: Addons + Proxito: return `X-RTD-Resolver-Filename` and inject via CF (`#11100 <https://github.com/readthedocs/readthedocs.org/pull/11100>`__)
+
+Version 10.20.0
+---------------
+
+:Date: February 27, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Allauth: define secrets in settings (`#11156 <https://github.com/readthedocs/readthedocs.org/pull/11156>`__)
+* `@humitos <https://github.com/humitos>`__: APIv3: add `_links.notifications` to `Project` resource (`#11155 <https://github.com/readthedocs/readthedocs.org/pull/11155>`__)
+* `@hoyes <https://github.com/hoyes>`__: Dev: Default RTD_DJANGO_DEBUG to False if not set (`#11154 <https://github.com/readthedocs/readthedocs.org/pull/11154>`__)
+* `@humitos <https://github.com/humitos>`__: Build: bugfix to show build notifications (`#11153 <https://github.com/readthedocs/readthedocs.org/pull/11153>`__)
+* `@ewjoachim <https://github.com/ewjoachim>`__: Fix Poetry instructions (`#11152 <https://github.com/readthedocs/readthedocs.org/pull/11152>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11148 <https://github.com/readthedocs/readthedocs.org/pull/11148>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: deprecation dates at application level (`#11147 <https://github.com/readthedocs/readthedocs.org/pull/11147>`__)
+* `@taylorhummon <https://github.com/taylorhummon>`__: fix highlighting of "fail_on_warning: true" in tutorial (`#11144 <https://github.com/readthedocs/readthedocs.org/pull/11144>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Refactor the index page to match the sidebar (`#11141 <https://github.com/readthedocs/readthedocs.org/pull/11141>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Refactor documentation navigation (`#11139 <https://github.com/readthedocs/readthedocs.org/pull/11139>`__)
+* `@humitos <https://github.com/humitos>`__: Lint: more files (`#11137 <https://github.com/readthedocs/readthedocs.org/pull/11137>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add missing context variable (`#11135 <https://github.com/readthedocs/readthedocs.org/pull/11135>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update Django allauth to 0.57.0 (`#11134 <https://github.com/readthedocs/readthedocs.org/pull/11134>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: fix rendering (`#11133 <https://github.com/readthedocs/readthedocs.org/pull/11133>`__)
+* `@humitos <https://github.com/humitos>`__:  Notifications: allow dismiss user's notifications  (`#11130 <https://github.com/readthedocs/readthedocs.org/pull/11130>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.19.0 (`#11128 <https://github.com/readthedocs/readthedocs.org/pull/11128>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add model history on AddonsConfig (`#11127 <https://github.com/readthedocs/readthedocs.org/pull/11127>`__)
+* `@humitos <https://github.com/humitos>`__: Projects: remove old/non-used fields (`#11124 <https://github.com/readthedocs/readthedocs.org/pull/11124>`__)
+* `@humitos <https://github.com/humitos>`__: Addons + Proxito: return `X-RTD-Resolver-Filename` and inject via CF (`#11100 <https://github.com/readthedocs/readthedocs.org/pull/11100>`__)
+* `@arti-bol <https://github.com/arti-bol>`__: Added a troubleshooting section for webhook (`#11099 <https://github.com/readthedocs/readthedocs.org/pull/11099>`__)
+
 Version 10.19.0
 ---------------
 

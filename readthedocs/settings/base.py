@@ -669,8 +669,11 @@ class CommunityBaseSettings(Settings):
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_STORE_TOKENS = True
 
-    SOCIALACCOUNT_PROVIDERS = {
+    _SOCIALACCOUNT_PROVIDERS = {
         "github": {
+            "APPS": [
+                {"client_id": "123", "secret": "456", "key": ""},
+            ],
             "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "user:email",
@@ -680,14 +683,38 @@ class CommunityBaseSettings(Settings):
             ],
         },
         "gitlab": {
+            "APPS": [
+                {"client_id": "123", "secret": "456", "key": ""},
+            ],
             "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "api",
                 "read_user",
             ],
         },
-        # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org
+        "bitbucket_oauth2": {
+            "APPS": [
+                {"client_id": "123", "secret": "456", "key": ""},
+            ],
+            # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org.
+        },
+        # Deprecated, we use `bitbucket_oauth2` for all new connections.
+        "bitbucket": {
+            "APPS": [
+                {"client_id": "123", "secret": "456", "key": ""},
+            ],
+        },
     }
+
+    @property
+    def SOCIALACCOUNT_PROVIDERS(self):
+        """
+        This is useful to override in a subclass, mainly to add the secrets when deploying.
+
+        Our ops repos have a complex (shared) inheritance structure, so it's easier this way.
+        """
+        return self._SOCIALACCOUNT_PROVIDERS
+
     ACCOUNT_FORMS = {
         "signup": "readthedocs.forms.SignupFormWithNewsletter",
     }

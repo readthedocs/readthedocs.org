@@ -672,7 +672,6 @@ class APITests(TestCase):
         project = get(
             Project,
             main_language_project=None,
-            conf_py_file="foo",
             readthedocs_yaml_path="bar",
         )
         client = APIClient()
@@ -681,7 +680,6 @@ class APITests(TestCase):
             client.force_authenticate(user=user)
             resp = client.get("/api/v2/project/%s/" % (project.pk))
             self.assertEqual(resp.status_code, 200)
-            self.assertNotIn("conf_py_file", resp.data)
             self.assertNotIn("readthedocs_yaml_path", resp.data)
 
         _, build_api_key = BuildAPIKey.objects.create_key(project)
@@ -689,8 +687,6 @@ class APITests(TestCase):
 
         resp = client.get("/api/v2/project/%s/" % (project.pk))
         self.assertEqual(resp.status_code, 200)
-        self.assertIn("conf_py_file", resp.data)
-        self.assertEqual(resp.data["conf_py_file"], "foo")
         self.assertIn("readthedocs_yaml_path", resp.data)
         self.assertEqual(resp.data["readthedocs_yaml_path"], "bar")
 
@@ -3230,7 +3226,6 @@ class APIVersionTests(TestCase):
                 "analytics_disabled": False,
                 "canonical_url": "http://pip.readthedocs.io/en/latest/",
                 "cdn_enabled": False,
-                "conf_py_file": "",
                 "container_image": None,
                 "container_mem_limit": None,
                 "container_time_limit": None,
@@ -3239,18 +3234,14 @@ class APIVersionTests(TestCase):
                 "description": "",
                 "documentation_type": "sphinx",
                 "environment_variables": {},
-                "enable_epub_build": True,
-                "enable_pdf_build": True,
                 "features": [],
                 "has_valid_clone": False,
                 "has_valid_webhook": False,
                 "id": 6,
-                "install_project": False,
                 "language": "en",
                 "max_concurrent_builds": None,
                 "name": "Pip",
                 "programming_language": "words",
-                "python_interpreter": "python3",
                 "repo": "https://github.com/pypa/pip",
                 "repo_type": "git",
                 "requirements_file": None,

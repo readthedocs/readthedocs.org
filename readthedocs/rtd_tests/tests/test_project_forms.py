@@ -24,10 +24,8 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.forms import (
     EmailHookForm,
     EnvironmentVariableForm,
-    ProjectAdvancedForm,
     ProjectAutomaticForm,
     ProjectBasicsForm,
-    ProjectExtraForm,
     ProjectManualForm,
     TranslationForm,
     UpdateProjectForm,
@@ -135,21 +133,28 @@ class TestProjectForms(TestCase):
         latest.refresh_from_db()
         self.assertEqual(latest.identifier, "custom")
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_length_of_tags(self):
+        project = get(Project)
         data = {
+            "name": "Project",
+            "repo": "https://github.com/readthedocs/readthedocs.org/",
+            "repo_type": project.repo_type,
+            "default_version": LATEST,
+            "versioning_scheme": project.versioning_scheme,
             "documentation_type": "sphinx",
             "language": "en",
         }
         data["tags"] = "{},{}".format("a" * 50, "b" * 99)
-        form = ProjectExtraForm(data)
+        form = UpdateProjectForm(data, instance=project)
         self.assertTrue(form.is_valid())
 
         data["tags"] = "{},{}".format("a" * 90, "b" * 100)
-        form = ProjectExtraForm(data)
+        form = UpdateProjectForm(data, instance=project)
         self.assertTrue(form.is_valid())
 
         data["tags"] = "{},{}".format("a" * 99, "b" * 101)
-        form = ProjectExtraForm(data)
+        form = UpdateProjectForm(data, instance=project)
         self.assertFalse(form.is_valid())
         self.assertTrue(form.has_error("tags"))
         error_msg = "Length of each tag must be less than or equal to 100 characters."
@@ -220,7 +225,7 @@ class TestProjectAdvancedForm(TestCase):
         )
 
     def test_list_only_active_versions_on_default_version(self):
-        form = ProjectAdvancedForm(instance=self.project)
+        form = UpdateProjectForm(instance=self.project)
         # This version is created automatically by the project on save
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
         self.assertEqual(
@@ -235,17 +240,21 @@ class TestProjectAdvancedForm(TestCase):
         # No active versions of project exists
         self.assertFalse(project_1.versions.filter(active=True).exists())
 
-        form = ProjectAdvancedForm(instance=project_1)
+        form = UpdateProjectForm(instance=project_1)
         self.assertTrue(form.fields["default_version"].widget.attrs["readonly"])
         self.assertEqual(form.fields["default_version"].initial, "latest")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cant_update_privacy_level(self):
-        form = ProjectAdvancedForm(
+        form = UpdateProjectForm(
             {
+                "name": "Project",
+                "repo": "https://github.com/readthedocs/readthedocs.org/",
+                "repo_type": self.project.repo_type,
                 "default_version": LATEST,
+                "language": self.project.language,
+                "versioning_scheme": self.project.versioning_scheme,
                 "documentation_type": SPHINX,
-                "python_interpreter": "python3",
                 "privacy_level": PRIVATE,
                 "versioning_scheme": MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
             },
@@ -257,11 +266,15 @@ class TestProjectAdvancedForm(TestCase):
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_can_update_privacy_level(self):
-        form = ProjectAdvancedForm(
+        form = UpdateProjectForm(
             {
+                "name": "Project",
+                "repo": "https://github.com/readthedocs/readthedocs.org/",
+                "repo_type": self.project.repo_type,
                 "default_version": LATEST,
+                "versioning_scheme": self.project.versioning_scheme,
+                "language": self.project.language,
                 "documentation_type": SPHINX,
-                "python_interpreter": "python3",
                 "privacy_level": PRIVATE,
                 "external_builds_privacy_level": PRIVATE,
                 "versioning_scheme": MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -271,15 +284,19 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(self.project.privacy_level, PRIVATE)
 
-    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    @mock.patch("readthedocs.projects.forms.trigger_build")
     @override_settings(ALLOW_PRIVATE_REPOS=False)
-    def test_custom_readthedocs_yaml(self, update_docs_task):
+    def test_custom_readthedocs_yaml(self, trigger_build):
         custom_readthedocs_yaml_path = "folder/.readthedocs.yaml"
-        form = ProjectAdvancedForm(
+        form = UpdateProjectForm(
             {
+                "name": "Project",
+                "repo": "https://github.com/readthedocs/readthedocs.org/",
+                "repo_type": self.project.repo_type,
                 "default_version": LATEST,
+                "language": self.project.language,
+                "versioning_scheme": self.project.versioning_scheme,
                 "documentation_type": SPHINX,
-                "python_interpreter": "python3",
                 "privacy_level": PRIVATE,
                 "readthedocs_yaml_path": custom_readthedocs_yaml_path,
                 "versioning_scheme": MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -291,6 +308,51 @@ class TestProjectAdvancedForm(TestCase):
         self.assertEqual(self.project.privacy_level, PUBLIC)
         project = form.save()
         self.assertEqual(project.readthedocs_yaml_path, custom_readthedocs_yaml_path)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    def test_trigger_build_on_save(self, trigger_build):
+        latest_version = self.project.get_latest_version()
+        default_branch = get(Version, project=self.project, slug="main", active=True)
+
+        self.project.default_branch = default_branch.slug
+        self.project.save()
+
+        data = {
+            "name": "Project",
+            "repo": "https://github.com/readthedocs/readthedocs.org/",
+            "repo_type": self.project.repo_type,
+            "default_version": LATEST,
+            "versioning_scheme": self.project.versioning_scheme,
+            "language": "en",
+        }
+        form = UpdateProjectForm(data, instance=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        self.assertEqual(trigger_build.call_count, 2)
+        trigger_build.assert_has_calls(
+            [
+                mock.call(
+                    project=self.project,
+                    version=default_branch,
+                ),
+                mock.call(
+                    project=self.project,
+                    version=latest_version,
+                ),
+            ]
+        )
+
+        latest_version.active = False
+        latest_version.save()
+
+        trigger_build.reset_mock()
+        form.save()
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=default_branch,
+        )
 
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
@@ -325,7 +387,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
         )
 
     def test_list_only_non_auto_generated_versions_in_default_branch_choices(self):
-        form = ProjectAdvancedForm(instance=self.project)
+        form = UpdateProjectForm(instance=self.project)
         # This version is created automatically by the project on save
         latest = self.project.versions.filter(slug=LATEST)
         self.assertTrue(latest.exists())
@@ -364,7 +426,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             identifier="ab96cbff71a8f40a4240aaf9d12e6c10",
             verbose_name="latest",
         )
-        form = ProjectAdvancedForm(instance=self.project)
+        form = UpdateProjectForm(instance=self.project)
         # This version is created by the user
         latest = self.project.versions.filter(slug=LATEST)
         # This version is created by the user
@@ -386,7 +448,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
         )
 
     def test_commit_name_not_in_default_branch_choices(self):
-        form = ProjectAdvancedForm(instance=self.project)
+        form = UpdateProjectForm(instance=self.project)
         # This version is created by the user
         latest = self.project.versions.filter(slug=LATEST)
         # This version is created by the user
@@ -419,7 +481,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             type=EXTERNAL,
             privacy_level=PUBLIC,
         )
-        form = ProjectAdvancedForm(instance=self.project)
+        form = UpdateProjectForm(instance=self.project)
 
         self.assertNotIn(
             external_version.verbose_name,
@@ -713,6 +775,10 @@ class TestTranslationForms(TestCase):
         # Parent project tries to change lang
         form = UpdateProjectForm(
             {
+                "name": "Project",
+                "repo": "https://github.com/readthedocs/readthedocs.org/",
+                "repo_type": self.project_a_es.repo_type,
+                "versioning_scheme": self.project_a_es.versioning_scheme,
                 "documentation_type": "sphinx",
                 "language": "en",
             },
@@ -727,6 +793,10 @@ class TestTranslationForms(TestCase):
         # Translation tries to change lang
         form = UpdateProjectForm(
             {
+                "name": "Project",
+                "repo": "https://github.com/readthedocs/readthedocs.org/",
+                "repo_type": self.project_b_en.repo_type,
+                "versioning_scheme": self.project_b_en.versioning_scheme,
                 "documentation_type": "sphinx",
                 "language": "es",
             },
@@ -742,6 +812,10 @@ class TestTranslationForms(TestCase):
         # to the same as its sibling
         form = UpdateProjectForm(
             {
+                "name": "Project",
+                "repo": "https://github.com/readthedocs/readthedocs.org/",
+                "repo_type": self.project_b_en.repo_type,
+                "versioning_scheme": self.project_b_en.versioning_scheme,
                 "documentation_type": "sphinx",
                 "language": "br",
             },
@@ -753,6 +827,7 @@ class TestTranslationForms(TestCase):
             "".join(form.errors["language"]),
         )
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_can_change_language_to_self_lang(self):
         self.project_a_es.translations.add(self.project_b_en)
         self.project_a_es.translations.add(self.project_c_br)
@@ -764,6 +839,8 @@ class TestTranslationForms(TestCase):
                 "repo": "https://github.com/test/test",
                 "repo_type": self.project_a_es.repo_type,
                 "name": self.project_a_es.name,
+                "default_version": LATEST,
+                "versioning_scheme": self.project_b_en.versioning_scheme,
                 "documentation_type": "sphinx",
                 "language": "es",
             },
@@ -777,6 +854,8 @@ class TestTranslationForms(TestCase):
                 "repo": "https://github.com/test/test",
                 "repo_type": self.project_b_en.repo_type,
                 "name": self.project_b_en.name,
+                "default_version": LATEST,
+                "versioning_scheme": self.project_b_en.versioning_scheme,
                 "documentation_type": "sphinx",
                 "language": "en",
             },

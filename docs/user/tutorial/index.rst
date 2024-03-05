@@ -237,7 +237,7 @@ Trigger a build from a pull request
 Read the Docs allows you to :doc:`trigger builds from GitHub pull requests </pull-requests>`
 and gives you a preview of how the documentation would look like with those changes.
 
-To enable that functionality, first click on the :guilabel:`Advanced Settings` link on the left
+To enable that functionality, first click on the :guilabel:`Settings` link on the left
 under the :guilabel:`⚙ Admin` menu, check the "Build pull requests for this project" checkbox,
 and click the :guilabel:`Save` button at the bottom of the page.
 
@@ -390,7 +390,7 @@ click on the |:pencil2:| icon, and add these contents:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 12-13
+   :emphasize-lines: 14
 
    version: 2
 
@@ -520,7 +520,7 @@ so that users see the ``stable`` documentation
 when they visit the :term:`root URL` of your documentation
 (while still being able to change the version in the flyout menu).
 
-For that, go to the :guilabel:`Advanced Settings` link
+For that, go to the :guilabel:`Settings` link
 under the :guilabel:`⚙ Admin` menu of your project home,
 choose ``stable`` in the "Default version*" dropdown,
 and hit :guilabel:`Save` at the bottom.
@@ -579,7 +579,7 @@ and a new build will be triggered for it.
 
    From this point, ``1.0.x`` version is no longer the most up to date one.
    To display a warning to your readers, go to the :guilabel:`⚙ Admin` menu of your project home,
-   click on the :guilabel:`Advanced Settings` link on the left,
+   click on the :guilabel:`Settings` link on the left,
    enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
 
    If you now browse the ``1.0.x`` documentation, you will see a warning on top
