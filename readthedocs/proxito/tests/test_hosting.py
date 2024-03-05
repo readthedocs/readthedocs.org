@@ -628,7 +628,9 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
         expected_response = self._get_response_dict("v0")
         # Remove `addons.doc_diff` from the response because it's not present when `url=` is not sent
-        expected_response["addons"].pop("doc_diff")
+        expected_response["addons"]["doc_diff"] = {
+            "enabled": False,
+        }
 
         assert self._normalize_datetime_fields(r.json()) == expected_response
 
