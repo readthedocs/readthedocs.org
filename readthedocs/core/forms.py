@@ -209,6 +209,7 @@ class SupportForm(forms.Form):
             ("high", _("High")),
         ),
         help_text=_("Please rate the severity of this event."),
+        required=False,
     )
     subject = forms.CharField(widget=forms.HiddenInput)
 
@@ -217,17 +218,15 @@ class SupportForm(forms.Form):
 
         self.fields["name"].initial = user.get_full_name
         self.fields["email"].initial = user.email
-        self.fields["subject"].hidden = True
 
         if settings.ALLOW_PRIVATE_REPOS:
             self.fields["subject"].initial = "Commercial Support Request"
         else:
             self.fields["subject"].initial = "Community Support Request"
 
-            if not (user.gold.exists or user.goldonce.exists):
-                self.fields["security_level"].widget = forms.HiddenInput
-                self.fields["security_level"].disabled = True
-                self.fields["security_level"].required = False
-                self.fields["security_level"].help_text = _(
+            if not (user.gold.exists() or user.goldonce.exists()):
+                self.fields["severity_level"].disabled = True
+                self.fields["severity_level"].widget.attrs["readonly"] = True
+                self.fields["severity_level"].help_text = _(
                     "This option is only enabled for Gold users."
                 )
