@@ -34,11 +34,8 @@ def get_version_compare_data(project, base_version=None, user=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    if (
-        not project.show_version_warning or
-        (base_version and base_version.is_external)
-    ):
-        return {'is_highest': False}
+    if not project.show_version_warning or (base_version and base_version.is_external):
+        return {"is_highest": False}
 
     versions_qs = Version.internal.public(project=project, user=user).filter(
         built=True, active=True
@@ -49,21 +46,21 @@ def get_version_compare_data(project, base_version=None, user=None):
         versions_qs = versions_qs.filter(type=TAG)
 
     # Optimization
-    versions_qs = versions_qs.select_related('project')
+    versions_qs = versions_qs.select_related("project")
 
     highest_version_obj, highest_version_comparable = highest_version(
         versions_qs,
     )
     ret_val = {
-        'project': str(highest_version_obj),
-        'version': str(highest_version_comparable),
-        'is_highest': True,
+        "project": str(highest_version_obj),
+        "version": str(highest_version_comparable),
+        "is_highest": True,
     }
     if highest_version_obj:
         # Never link to the dashboard,
         # users reading the docs may don't have access to the dashboard.
-        ret_val['url'] = highest_version_obj.get_absolute_url()
-        ret_val['slug'] = highest_version_obj.slug
+        ret_val["url"] = highest_version_obj.get_absolute_url()
+        ret_val["slug"] = highest_version_obj.slug
     if base_version and base_version.slug != LATEST:
         try:
             base_version_comparable = parse_version_failsafe(
@@ -72,13 +69,13 @@ def get_version_compare_data(project, base_version=None, user=None):
             if base_version_comparable:
                 # This is only place where is_highest can get set. All error
                 # cases will be set to True, for non- standard versions.
-                ret_val['is_highest'] = (
+                ret_val["is_highest"] = (
                     base_version_comparable >= highest_version_comparable
                 )
             else:
-                ret_val['is_highest'] = True
+                ret_val["is_highest"] = True
         except (Version.DoesNotExist, TypeError):
-            ret_val['is_highest'] = True
+            ret_val["is_highest"] = True
     return ret_val
 
 
@@ -105,24 +102,24 @@ class BaseFooterHTML(CDNCacheTagsMixin, APIView):
        are called many times, so a basic cache is implemented.
     """
 
-    http_method_names = ['get']
+    http_method_names = ["get"]
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, JSONPRenderer]
-    project_cache_tag = 'rtd-footer'
+    project_cache_tag = "rtd-footer"
 
     @lru_cache(maxsize=1)
     def _get_project(self):
-        project_slug = self.request.GET.get('project', None)
+        project_slug = self.request.GET.get("project", None)
         project = get_object_or_404(Project, slug=project_slug)
         return project
 
     @lru_cache(maxsize=1)
     def _get_version(self):
-        version_slug = self.request.GET.get('version', None)
+        version_slug = self.request.GET.get("version", None)
 
         # Hack in a fix for missing version slug deploy
         # that went out a while back
-        if version_slug == '':
+        if version_slug == "":
             version_slug = LATEST
 
         project = self._get_project()
@@ -142,23 +139,23 @@ class BaseFooterHTML(CDNCacheTagsMixin, APIView):
         return versions
 
     def _get_context(self):
-        theme = self.request.GET.get('theme', False)
-        docroot = self.request.GET.get('docroot', '')
-        source_suffix = self.request.GET.get('source_suffix', '.rst')
+        theme = self.request.GET.get("theme", False)
+        docroot = self.request.GET.get("docroot", "")
+        source_suffix = self.request.GET.get("source_suffix", ".rst")
 
-        new_theme = (theme == 'sphinx_rtd_theme')
+        new_theme = theme == "sphinx_rtd_theme"
 
         project = self._get_project()
         main_project = project.main_language_project or project
         version = self._get_version()
 
-        page_slug = self.request.GET.get('page', '')
-        path = ''
-        if page_slug and page_slug != 'index':
+        page_slug = self.request.GET.get("page", "")
+        path = ""
+        if page_slug and page_slug != "index":
             if version.documentation_type in {SPHINX_HTMLDIR, MKDOCS}:
-                path = re.sub('/index$', '', page_slug) + '/'
+                path = re.sub("/index$", "", page_slug) + "/"
             else:
-                path = page_slug + '.html'
+                path = page_slug + ".html"
 
         context = {
             "project": project,
@@ -176,27 +173,27 @@ class BaseFooterHTML(CDNCacheTagsMixin, APIView):
                 docroot,
                 page_slug,
                 source_suffix,
-                'edit',
+                "edit",
             ),
-            'github_view_url': version.get_github_url(
+            "github_view_url": version.get_github_url(
                 docroot,
                 page_slug,
                 source_suffix,
-                'view',
+                "view",
             ),
-            'gitlab_edit_url': version.get_gitlab_url(
+            "gitlab_edit_url": version.get_gitlab_url(
                 docroot,
                 page_slug,
                 source_suffix,
-                'edit',
+                "edit",
             ),
-            'gitlab_view_url': version.get_gitlab_url(
+            "gitlab_view_url": version.get_gitlab_url(
                 docroot,
                 page_slug,
                 source_suffix,
-                'view',
+                "view",
             ),
-            'bitbucket_url': version.get_bitbucket_url(
+            "bitbucket_url": version.get_bitbucket_url(
                 docroot,
                 page_slug,
                 source_suffix,
@@ -214,22 +211,19 @@ class BaseFooterHTML(CDNCacheTagsMixin, APIView):
         )
 
         context = self._get_context()
-        html = template_loader.get_template('restapi/footer.html').render(
+        html = template_loader.get_template("restapi/footer.html").render(
             context,
             request,
         )
 
-        show_version_warning = (
-            project.show_version_warning and
-            not version.is_external
-        )
+        show_version_warning = project.show_version_warning and not version.is_external
 
         resp_data = {
-            'html': html,
-            'show_version_warning': show_version_warning,
-            'version_active': version.active,
-            'version_compare': version_compare_data,
-            'version_supported': version.supported,
+            "html": html,
+            "show_version_warning": show_version_warning,
+            "version_active": version.active,
+            "version_compare": version_compare_data,
+            "version_supported": version.supported,
         }
 
         return Response(resp_data)

@@ -22,7 +22,7 @@ from readthedocs.projects.constants import (
 
 
 def get_github_username_repo(url):
-    if 'github' in url:
+    if "github" in url:
         for regex in GITHUB_REGEXS:
             match = regex.search(url)
             if match:
@@ -31,7 +31,7 @@ def get_github_username_repo(url):
 
 
 def get_bitbucket_username_repo(url=None):
-    if 'bitbucket' in url:
+    if "bitbucket" in url:
         for regex in BITBUCKET_REGEXS:
             match = regex.search(url)
             if match:
@@ -40,7 +40,7 @@ def get_bitbucket_username_repo(url=None):
 
 
 def get_gitlab_username_repo(url=None):
-    if 'gitlab' in url:
+    if "gitlab" in url:
         for regex in GITLAB_REGEXS:
             match = regex.search(url)
             if match:
@@ -56,14 +56,14 @@ def get_vcs_url(*, project, version_type, version_name):
     External version example: https://github.com/rtfd/readthedocs.org/pull/99/.
     """
     if version_type == EXTERNAL:
-        if 'github' in project.repo:
+        if "github" in project.repo:
             user, repo = get_github_username_repo(project.repo)
             return GITHUB_PULL_REQUEST_URL.format(
                 user=user,
                 repo=repo,
                 number=version_name,
             )
-        if 'gitlab' in project.repo:
+        if "gitlab" in project.repo:
             user, repo = get_gitlab_username_repo(project.repo)
             return GITLAB_MERGE_REQUEST_URL.format(
                 user=user,
@@ -71,16 +71,16 @@ def get_vcs_url(*, project, version_type, version_name):
                 number=version_name,
             )
         # TODO: Add VCS URL for Bitbucket.
-        return ''
+        return ""
 
-    url = ''
-    if ('github' in project.repo) or ('gitlab' in project.repo):
-        url = f'/tree/{version_name}/'
-    elif 'bitbucket' in project.repo:
-        url = f'/src/{version_name}'
+    url = ""
+    if ("github" in project.repo) or ("gitlab" in project.repo):
+        url = f"/tree/{version_name}/"
+    elif "bitbucket" in project.repo:
+        url = f"/src/{version_name}"
 
     # TODO: improve this replacing
-    return project.repo.replace('git://', 'https://').replace('.git', '') + url
+    return project.repo.replace("git://", "https://").replace(".git", "") + url
 
 
 def external_version_name(build_or_version):
