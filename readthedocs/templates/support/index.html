@@ -59,20 +59,6 @@ and we will get back to you as soon as possible.
 </p>
 
 
-{% if form %}
-<form
-    class="ui form"
-    method="POST"
-    name="support-request"
-    action="{{ SUPPORT_FORM_ENDPOINT }}"
-    enctype="multipart/form-data"
-    accept-charset="utf-8"
->
-  {{ form|crispy }}
-
-  <input class="ui primary button" type="submit" value="Submit support request">
-
-{% else %}
 </form>
   method="POST"
   name="support-request"
@@ -142,7 +128,6 @@ and we will get back to you as soon as possible.
 
   </div>
 </form>
-{% endif %}
 {% endif %}
 
 </div>
