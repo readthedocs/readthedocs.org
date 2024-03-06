@@ -141,6 +141,10 @@ the Docker containers from your host system. For security reasons, we do not
 commit these secrets to our repository. Instead, we individually define these
 settings for our local environments.
 
+We recommend using `direnv`_ for storing local development secrets.
+
+.. _direnv: https://direnv.net/
+
 Allauth secrets
 ~~~~~~~~~~~~~~~
 
