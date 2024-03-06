@@ -214,7 +214,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         providers = self._SOCIALACCOUNT_PROVIDERS
         for provider in providers.keys():
             try:
-                for setting in ["client_id", "secret", "key"]:
+                for setting in ["client_id", "secret"]:
                     value = os.environ.get(
                         f"RTD_SOCIALACCOUNT_PROVIDERS_{provider.upper()}_{setting.upper()}"
                     )
