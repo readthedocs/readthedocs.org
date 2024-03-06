@@ -2,6 +2,7 @@
 
 import structlog
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms.fields import CharField
@@ -183,3 +184,48 @@ class FacetField(forms.MultipleChoiceField):
         if ":" not in value:
             return False
         return True
+
+
+class SupportForm(forms.Form):
+    name = forms.CharField()
+    email = forms.EmailField()
+    explanation = forms.CharField(
+        label=_("Explanation of the issue"),
+        help_text=_("Please provide as much detail as possible."),
+        widget=forms.Textarea,
+    )
+    url = forms.URLField(
+        help_text=_("Is there a specific page this happened?"),
+        required=False,
+    )
+    # TODO: "field_file.html" is not available on SemanticUI
+    # attachment = forms.ImageField(label=_("Screenshot or additional file"), help_text=_("Anything else that would help us solve this issue?"))
+    severity_level = forms.ChoiceField(
+        choices=(
+            ("low", _("Low")),
+            ("medium", _("Medium")),
+            ("high", _("High")),
+        ),
+        help_text=_("Please rate the severity of this event."),
+    )
+    subject = forms.CharField(widget=forms.HiddenInput)
+
+    def __init__(self, user):
+        super().__init__()
+
+        self.fields["name"].initial = user.get_full_name
+        self.fields["email"].initial = user.email
+        self.fields["subject"].hidden = True
+
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.fields["subject"].initial = "Commercial Support Request"
+        else:
+            self.fields["subject"].initial = "Community Support Request"
+
+            if not (user.gold.exists or user.goldonce.exists):
+                self.fields["security_level"].widget = forms.HiddenInput
+                self.fields["security_level"].disabled = True
+                self.fields["security_level"].required = False
+                self.fields["security_level"].help_text = _(
+                    "This option is only enabled for Gold users."
+                )
