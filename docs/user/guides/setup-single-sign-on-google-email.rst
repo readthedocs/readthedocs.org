@@ -85,7 +85,7 @@ and disable login on Read the Docs completely for that user.
 
    If the user was already signed in to Read the Docs when their access was revoked,
    they may still have access to documentation pages until their session expires.
-   This is one hour for the dashboard, and [update this] for documentation pages.
+   This is three days for the dashboard and documentation pages.
 
    To completely revoke access to a user, remove them from all the teams they are part of.
 
