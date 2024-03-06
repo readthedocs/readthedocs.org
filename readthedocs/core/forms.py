@@ -198,8 +198,10 @@ class SupportForm(forms.Form):
         help_text=_("Is there a specific page this happened?"),
         required=False,
     )
-    # TODO: "field_file.html" is not available on SemanticUI
-    # attachment = forms.ImageField(label=_("Screenshot or additional file"), help_text=_("Anything else that would help us solve this issue?"))
+    attachment = forms.FileField(
+        label=_("Screenshot or additional file"),
+        help_text=_("Anything else that would help us solve this issue?"),
+    )
     severity_level = forms.ChoiceField(
         choices=(
             ("low", _("Low")),
