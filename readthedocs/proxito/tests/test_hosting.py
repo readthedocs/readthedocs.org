@@ -12,8 +12,12 @@ from django.utils import timezone
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import Domain, Feature, Project
+from readthedocs.projects.constants import (
+    PRIVATE,
+    PUBLIC,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+)
+from readthedocs.projects.models import AddonsConfig, Domain, Project
 
 
 @override_settings(
@@ -39,7 +43,6 @@ class TestReadTheDocsConfigJson(TestCase):
             external_builds_privacy_level=PUBLIC,
             repo="https://github.com/readthedocs/project",
             programming_language="words",
-            single_version=False,
             users=[self.user],
             main_language_project=None,
             project_url="http://project.com",
@@ -125,42 +128,20 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 400
         assert r.json() == self._get_response_dict("v2")
 
-    def test_disabled_addons_via_feature_flags(self):
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_ANALYTICS_DISABLED,
+    def test_disabled_addons_via_addons_config(self):
+        addons = fixture.get(
+            AddonsConfig,
+            project=self.project,
         )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_EXTERNAL_VERSION_WARNING_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_NON_LATEST_VERSION_WARNING_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_DOC_DIFF_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_FLYOUT_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_SEARCH_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_HOTKEYS_DISABLED,
-        )
+        addons.analytics_enabled = False
+        addons.doc_diff_enabled = False
+        addons.external_version_warning_enabled = False
+        addons.ethicalads_enabled = False
+        addons.flyout_enabled = False
+        addons.hotkeys_enabled = False
+        addons.search_enabled = False
+        addons.stable_latest_version_warning_enabled = False
+        addons.save()
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -314,6 +295,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         expected = [
+            {"slug": "en", "url": "https://project.dev.readthedocs.io/en/latest/"},
             {"slug": "ja", "url": "https://project.dev.readthedocs.io/ja/latest/"},
         ]
         assert r.json()["addons"]["flyout"]["translations"] == expected
@@ -368,7 +350,7 @@ class TestReadTheDocsConfigJson(TestCase):
         self.version.has_htmlzip = True
         self.version.save()
 
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
 
         r = self.client.get(
@@ -435,6 +417,51 @@ class TestReadTheDocsConfigJson(TestCase):
             reverse("proxito_readthedocs_docs_addons"),
             {
                 "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+
+        # ``a1b2c3-9``is the latest successful build object created
+        assert r.json()["builds"]["current"]["commit"] == "a1b2c3-9"
+
+    def test_builds_current_is_latest_one_without_url_parameter(self):
+        # Create 10 successful build objects
+        # The latest one (ordered by date) will be ``a1b2c3-9``
+        for i in range(10):
+            fixture.get(
+                Build,
+                date=timezone.now(),
+                project=self.project,
+                version=self.version,
+                commit=f"a1b2c3-{i}",
+                length=60,
+                state="finished",
+                success=True,
+            )
+
+        # Latest failed build
+        fixture.get(
+            Build,
+            date=timezone.now(),
+            project=self.project,
+            version=self.version,
+            commit=f"a1b2c3-failed",
+            length=60,
+            state="finished",
+            success=False,
+        )
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "project-slug": "project",
+                "version-slug": "latest",
                 "client-version": "0.6.0",
                 "api-version": "0.1.0",
             },
@@ -537,6 +564,10 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.json()["addons"]["flyout"]["versions"] == expected_versions
 
         expected_translations = [
+            {
+                "slug": "en",
+                "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
+            },
             {
                 "slug": "es",
                 "url": "https://project.dev.readthedocs.io/projects/subproject/es/latest/",
@@ -670,7 +701,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(16):
+        with self.assertNumQueries(21):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -699,7 +730,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(16):
+        with self.assertNumQueries(21):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -735,7 +766,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(25):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -761,7 +792,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(25):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

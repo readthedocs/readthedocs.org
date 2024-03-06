@@ -3,11 +3,13 @@
 import csv
 from io import StringIO
 
+from django.conf import settings
+
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from readthedocs.vcs_support.base import BaseVCS, Deprecated, VCSVersion
 
 
-class Backend(BaseVCS):
+class Backend(Deprecated, BaseVCS):
 
     """Subversion VCS backend."""
 
@@ -37,7 +39,10 @@ class Backend(BaseVCS):
             url = self.repo_url
         retcode, out, err = self.run("svn", "checkout", url, ".")
         if retcode != 0:
-            raise RepositoryError(RepositoryError.CLONE_ERROR())
+            message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_NOT_ALLOWED
+            if settings.ALLOW_PRIVATE_REPOS:
+                message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED
+            raise RepositoryError(message_id=message_id)
         return retcode, out, err
 
     @property

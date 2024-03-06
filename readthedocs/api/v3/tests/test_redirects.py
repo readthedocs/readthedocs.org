@@ -1,7 +1,14 @@
-from .mixins import APIEndpointMixin
 from django.urls import reverse
+from django_dynamic_fixture import get
 
+from readthedocs.redirects.constants import (
+    CLEAN_URL_TO_HTML_REDIRECT,
+    EXACT_REDIRECT,
+    HTML_TO_CLEAN_URL_REDIRECT,
+)
 from readthedocs.redirects.models import Redirect
+
+from .mixins import APIEndpointMixin
 
 
 class RedirectsEndpointTests(APIEndpointMixin):
@@ -118,11 +125,33 @@ class RedirectsEndpointTests(APIEndpointMixin):
             self._get_response_dict("projects-redirects-list_POST"),
         )
 
-    def test_projects_redirects_type_prefix_list_post(self):
+    def test_projects_redirects_old_type_post(self):
+        for redirect_type in ["prefix", "sphinx_html", "sphinx_htmldir"]:
+            self.assertEqual(Redirect.objects.count(), 1)
+            data = {
+                "from_url": "/redirect-this/",
+                "type": redirect_type,
+            }
+
+            self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+            response = self.client.post(
+                reverse(
+                    "projects-redirects-list",
+                    kwargs={
+                        "parent_lookup_project__slug": self.project.slug,
+                    },
+                ),
+                data,
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(Redirect.objects.all().count(), 1)
+            json_response = response.json()
+            self.assertIn("type", json_response)
+
+    def test_projects_redirects_type_clean_url_to_html_list_post(self):
         self.assertEqual(Redirect.objects.count(), 1)
         data = {
-            "from_url": "/redirect-this/",
-            "type": "prefix",
+            "type": CLEAN_URL_TO_HTML_REDIRECT,
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
@@ -139,31 +168,7 @@ class RedirectsEndpointTests(APIEndpointMixin):
         self.assertEqual(Redirect.objects.all().count(), 2)
 
         redirect = Redirect.objects.first()
-        self.assertEqual(redirect.redirect_type, "prefix")
-        self.assertEqual(redirect.from_url, "/redirect-this/")
-        self.assertEqual(redirect.to_url, "")
-
-    def test_projects_redirects_type_sphinx_html_list_post(self):
-        self.assertEqual(Redirect.objects.count(), 1)
-        data = {
-            "type": "sphinx_html",
-        }
-
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
-        response = self.client.post(
-            reverse(
-                "projects-redirects-list",
-                kwargs={
-                    "parent_lookup_project__slug": self.project.slug,
-                },
-            ),
-            data,
-        )
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(Redirect.objects.all().count(), 2)
-
-        redirect = Redirect.objects.first()
-        self.assertEqual(redirect.redirect_type, "sphinx_html")
+        self.assertEqual(redirect.redirect_type, CLEAN_URL_TO_HTML_REDIRECT)
         self.assertEqual(redirect.from_url, "")
         self.assertEqual(redirect.to_url, "")
 
@@ -194,6 +199,165 @@ class RedirectsEndpointTests(APIEndpointMixin):
         self.assertDictEqual(
             response_json,
             self._get_response_dict("projects-redirects-detail_PUT"),
+        )
+
+    def test_projects_redirects_position(self):
+        url = reverse(
+            "projects-redirects-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # A new redirect will be created at the start by default.
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/one/",
+                "to_url": "/two/",
+                "type": EXACT_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        second_redirect = Redirect.objects.get(pk=response.json()["pk"])
+
+        self.redirect.refresh_from_db()
+
+        self.assertEqual(second_redirect.position, 0)
+        self.assertEqual(self.redirect.position, 1)
+
+        # Explicitly create a redirect at the end.
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/two/",
+                "to_url": "/three/",
+                "type": EXACT_REDIRECT,
+                "position": 2,
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        third_redirect = Redirect.objects.get(pk=response.json()["pk"])
+
+        self.redirect.refresh_from_db()
+        second_redirect.refresh_from_db()
+
+        self.assertEqual(second_redirect.position, 0)
+        self.assertEqual(self.redirect.position, 1)
+        self.assertEqual(third_redirect.position, 2)
+
+        url = reverse(
+            "projects-redirects-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "redirect_pk": self.redirect.pk,
+            },
+        )
+
+        # Move redirect to the end.
+        response = self.client.put(url, {"position": 2, "type": EXACT_REDIRECT})
+        self.assertEqual(response.status_code, 200)
+
+        self.redirect.refresh_from_db()
+        second_redirect.refresh_from_db()
+        third_redirect.refresh_from_db()
+
+        self.assertEqual(second_redirect.position, 0)
+        self.assertEqual(third_redirect.position, 1)
+        self.assertEqual(self.redirect.position, 2)
+
+        url = reverse(
+            "projects-redirects-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "redirect_pk": second_redirect.pk,
+            },
+        )
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+
+        self.redirect.refresh_from_db()
+        third_redirect.refresh_from_db()
+
+        self.assertEqual(third_redirect.position, 0)
+        self.assertEqual(self.redirect.position, 1)
+
+    def test_projects_redirects_validations(self):
+        url = reverse(
+            "projects-redirects-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/one/$rest",
+                "to_url": "/two/",
+                "type": EXACT_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(), ["The $rest wildcard has been removed in favor of *."]
+        )
+
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/one/*.html",
+                "to_url": "/two/",
+                "type": EXACT_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(), ["The * wildcard must be at the end of the path."]
+        )
+
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/one/",
+                "to_url": "/two/:splat",
+                "type": EXACT_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            [
+                "The * wildcard must be at the end of from_url to use the :splat placeholder in to_url."
+            ],
+        )
+
+        get(Redirect, redirect_type=CLEAN_URL_TO_HTML_REDIRECT, project=self.project)
+        response = self.client.post(
+            url,
+            data={
+                "type": CLEAN_URL_TO_HTML_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            ["Only one redirect of type `clean_url_to_html` is allowed per project."],
+        )
+
+        get(Redirect, redirect_type=HTML_TO_CLEAN_URL_REDIRECT, project=self.project)
+        response = self.client.post(
+            url,
+            data={
+                "type": HTML_TO_CLEAN_URL_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            ["Only one redirect of type `html_to_clean_url` is allowed per project."],
         )
 
     def test_projects_redirects_detail_delete(self):

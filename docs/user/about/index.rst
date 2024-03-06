@@ -64,11 +64,11 @@ we've brought most of the most important ones below.
 .. toctree::
    :hidden:
 
-   /commercial/index
    /reference/policies
    /advertising/index
    /story
    /sponsors
+   /science
    /open-source-philosophy
    /team
    /support

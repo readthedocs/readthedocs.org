@@ -1,6 +1,6 @@
-import structlog
 from unittest import mock
 
+import structlog
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -48,7 +48,6 @@ class PrivacyTests(TestCase):
             default_branch="",
             project_url="http://django-kong.rtfd.org",
             default_version=LATEST,
-            python_interpreter="python",
             description="OOHHH AH AH AH KONG SMASH",
             documentation_type="sphinx",
         )

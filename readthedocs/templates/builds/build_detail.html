@@ -150,56 +150,34 @@ $(document).ready(function () {
     </div>
 
     {% if request.user|is_admin:project %}
+      {# TODO: migrate these "build ideas" to the new notification system #}
       {% if not build.success and "setup.py install" in build.commands.last.output %}
         <div class="build-ideas">
           <p>
-            {% url 'projects_advanced' build.project.slug as advanced_url %}
+            {% url 'projects_edit' build.project.slug as project_settings_url %}
             {% blocktrans trimmed %}
               Don't want <em>setup.py install</em> called?
-              Change the <strong>Install Project</strong> setting in your <a href="{{ advanced_url }}">advanced settings</a>.
+              Change the <strong>Install Project</strong> setting in your <a href="{{ project_settings_url }}">project settings</a>.
             {% endblocktrans %}
           </p>
         </div>
       {% endif %}
-
-      {# This message is not dynamic and only appears when loading the page after the build has finished #}
-      {% if build.finished and build.deprecated_build_image_used %}
-      <div class="build-ideas">
-          <p>
-              {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/use-build-os-config/" %}
-              <strong>Your builds will stop working soon!</strong><br/>
-              "build.image" config key is deprecated and it will be removed soon.
-              <a href="{{ config_file_link }}">Read our blog post to know how to migrate to new key "build.os"</a>
-              and ensure your project continues building successfully.
-              {% endblocktrans %}
-          </p>
-      </div>
-      {% endif %}
-      {% if build.finished and build.deprecated_config_used %}
-      <div class="build-ideas">
-        <p>
-          {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/migrate-configuration-v2/" %}
-            <strong>Your builds will stop working soon!</strong><br/>
-            Configuration files will <strong>soon be required</strong> by projects, and will no longer be optional.
-            <a href="{{ config_file_link }}">Read our blog post to create one</a>
-            and ensure your project continues building successfully.
-          {% endblocktrans %}
-        </p>
-      </div>
-      {% endif %}
-
     {% endif %}
 
-    {% if build.finished and build.config.build.commands %}
-    <div class="build-ideas">
-      <p>
-        {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/build-customization.html#override-the-build-process" %}
-        <strong>The <code>"build.commands"</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
-        Read more at <a href="{{ config_file_link }}">our documentation</a> to find out its limitations and potential issues.
-        {% endblocktrans %}
-      </p>
-    </div>
+
+    {% comment %}
+      Show non-error notifications as "build-ideas" (e.g. "build.commands is in beta")
+
+      This temporal until we render these notifications from the front-end.
+    {% endcomment %}
+    {% for notification in notifications %}
+    {% if notification.get_message.type != "error" %}
+    <p class="build-ideas">
+      {{ notification.get_message.get_rendered_body|safe }}
+    </p>
     {% endif %}
+    {% endfor %}
+
 
     {% if build.output %}
       {# If we have build output, this is an old build #}
@@ -233,6 +211,30 @@ $(document).ready(function () {
     {% else %}
       {# Show new command output if lacking build.output #}
 
+    {% comment %}
+      Show error notifications as "build-error" (e.g. "syntax error in YAML")
+
+      This temporal until we render these notifications from the front-end.
+    {% endcomment %}
+    {% for notification in notifications %}
+    {% if notification.get_message.type == "error" %}
+    <div class="build-error">
+        <h3>{{ notification.get_message.type|title }}</h3>
+        <p class="build-error">{{ notification.get_message.get_rendered_body|safe }}</p>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+      {% comment %}
+      After deploying the new notification system (`Notification` model),
+      we won't be populating `Build.error` field anymore and these errors won't be shown anymore.
+      However, old builds will still need to render the `Build.error` message
+      and that's why we are keeping this HTML + KO code here.
+
+      In the future, we can decide fully migrate `Build.error` -> `Notification` and remove this
+      block completely. Read more at
+      https://github.com/readthedocs/readthedocs.org/issues/10980#issuecomment-1876785304
+      {% endcomment %}
       <div class="build-error"
            data-bind="visible: error"
            style="display: none;">

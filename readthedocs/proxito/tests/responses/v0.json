@@ -79,7 +79,7 @@
   },
   "addons": {
     "analytics": {
-      "enabled": true,
+      "enabled": false,
       "code": null
     },
     "external_version_warning": {
@@ -117,10 +117,9 @@
     "search": {
       "enabled": true,
       "api_endpoint": "/_/api/v3/search/",
-      "default_filter": "subprojects:project/latest",
+      "default_filter": "project:project/latest",
       "filters": [
-        ["Search only in this project", "project:project/latest"],
-        ["Search subprojects", "subprojects:project/latest"]
+        ["Include subprojects", "subprojects:project/latest"]
       ],
       "project": "project",
       "version": "latest"

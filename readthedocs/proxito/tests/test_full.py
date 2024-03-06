@@ -19,8 +19,10 @@ from readthedocs.projects.constants import (
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPE_HTMLZIP,
     MKDOCS,
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
     SPHINX,
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
@@ -46,122 +48,132 @@ class TestFullDocServing(BaseDocServing):
     # Test the full range of possible doc URL's
 
     def test_health_check(self):
-        url = reverse('health_check')
-        host = 'project.dev.readthedocs.io'
+        url = reverse("health_check")
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json(), {'status': 200})
+        self.assertEqual(resp.json(), {"status": 200})
 
         # Test with IP address, which should still work
         # since we're skipping middleware
-        host = '127.0.0.1'
+        host = "127.0.0.1"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), {"status": 200})
         self.assertEqual(resp["CDN-Cache-Control"], "private")
 
     def test_subproject_serving(self):
-        url = '/projects/subproject/en/latest/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/projects/subproject/en/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/subproject/latest/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/subproject/latest/awesome.html",
         )
 
     def test_subproject_single_version(self):
-        self.subproject.single_version = True
+        self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.subproject.save()
-        url = '/projects/subproject/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/projects/subproject/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/subproject/latest/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/subproject/latest/awesome.html",
         )
 
     def test_subproject_translation_serving(self):
-        url = '/projects/subproject/es/latest/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/projects/subproject/es/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/subproject-translation/latest/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/subproject-translation/latest/awesome.html",
         )
 
     def test_subproject_alias_serving(self):
-        url = '/projects/this-is-an-alias/en/latest/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/projects/this-is-an-alias/en/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/subproject-alias/latest/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/subproject-alias/latest/awesome.html",
         )
 
     def test_translation_serving(self):
-        url = '/es/latest/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/es/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/translation/latest/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/translation/latest/awesome.html",
         )
 
     def test_normal_serving(self):
-        url = '/en/latest/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/en/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/awesome.html",
         )
 
     def test_single_version_serving(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
-        url = '/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/awesome.html",
         )
 
     def test_single_version_serving_looks_like_normal(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
-        url = '/en/stable/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/en/stable/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/project/latest/en/stable/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/en/stable/awesome.html",
         )
 
     def test_index_serving(self):
-        host = 'project.dev.readthedocs.io'
-        urls = ('/en/latest/awesome/', '/en/latest/awesome/index.html')
+        host = "project.dev.readthedocs.io"
+        urls = ("/en/latest/awesome/", "/en/latest/awesome/index.html")
         for url in urls:
             resp = self.client.get(url, headers={"host": host})
             self.assertEqual(
-                resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome/index.html',
+                resp["x-accel-redirect"],
+                "/proxito/media/html/project/latest/awesome/index.html",
             )
 
     def test_single_version_external_serving(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         fixture.get(
             Version,
-            verbose_name='10',
-            slug='10',
+            verbose_name="10",
+            slug="10",
             type=EXTERNAL,
             active=True,
             project=self.project,
         )
-        url = '/awesome.html'
-        host = 'project--10.dev.readthedocs.build'
+        url = "/awesome.html"
+        host = "project--10.dev.readthedocs.build"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/external/html/project/10/awesome.html",
         )
 
     def test_external_version_serving(self):
         fixture.get(
             Version,
-            verbose_name='10',
-            slug='10',
+            verbose_name="10",
+            slug="10",
             type=EXTERNAL,
             active=True,
             project=self.project,
@@ -170,7 +182,8 @@ class TestFullDocServing(BaseDocServing):
         host = "project--10.dev.readthedocs.build"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/external/html/project/10/awesome.html",
         )
 
     def test_external_version_serving_old_slugs(self):
@@ -182,19 +195,20 @@ class TestFullDocServing(BaseDocServing):
         """
         fixture.get(
             Version,
-            verbose_name='10',
-            slug='10',
+            verbose_name="10",
+            slug="10",
             type=EXTERNAL,
             active=True,
             project=self.project,
         )
-        self.project.slug = 'test--project'
+        self.project.slug = "test--project"
         self.project.save()
 
         host = "test--project--10.dev.readthedocs.build"
         resp = self.client.get("/en/10/awesome.html", headers={"host": host})
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/external/html/test--project/10/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/external/html/test--project/10/awesome.html",
         )
 
     # Invalid tests
@@ -227,8 +241,8 @@ class TestFullDocServing(BaseDocServing):
     def test_serve_external_version_on_main_domain(self):
         fixture.get(
             Version,
-            verbose_name='10',
-            slug='10',
+            verbose_name="10",
+            slug="10",
             type=EXTERNAL,
             active=True,
             project=self.project,
@@ -281,27 +295,27 @@ class TestFullDocServing(BaseDocServing):
         self.assertEqual(resp["X-RTD-Version"], "10")
 
     def test_invalid_language_for_project_with_versions(self):
-        url = '/foo/latest/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/foo/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(resp.status_code, 404)
 
     def test_invalid_translation_for_project_with_versions(self):
-        url = '/cs/latest/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/cs/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(resp.status_code, 404)
 
     def test_invalid_subproject(self):
-        url = '/projects/doesnt-exist/foo.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/projects/doesnt-exist/foo.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(resp.status_code, 404)
 
     # https://github.com/readthedocs/readthedocs.org/pull/6226/files/596aa85a4886407f0eb65233ebf9c38ee3e8d485#r332445803
     def test_valid_project_as_invalid_subproject(self):
-        url = '/projects/translation/es/latest/foo.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/projects/translation/es/latest/foo.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(resp.status_code, 404)
 
@@ -311,7 +325,7 @@ class TestFullDocServing(BaseDocServing):
         self.assertFalse("strict-transport-security" in response)
 
         response = self.client.get("/", headers={"host": host}, secure=True)
-        self.assertFalse('strict-transport-security' in response)
+        self.assertFalse("strict-transport-security" in response)
 
         with override_settings(PUBLIC_DOMAIN_USES_HTTPS=True):
             response = self.client.get("/", headers={"host": host})
@@ -319,12 +333,12 @@ class TestFullDocServing(BaseDocServing):
 
             response = self.client.get("/", headers={"host": host}, secure=True)
             self.assertEqual(
-                response['strict-transport-security'],
-                'max-age=31536000; includeSubDomains; preload',
+                response["strict-transport-security"],
+                "max-age=31536000; includeSubDomains; preload",
             )
 
     def test_custom_domain_response_hsts(self):
-        hostname = 'docs.random.com'
+        hostname = "docs.random.com"
         domain = fixture.get(
             Domain,
             project=self.project,
@@ -335,21 +349,22 @@ class TestFullDocServing(BaseDocServing):
         )
 
         response = self.client.get("/", headers={"host": hostname})
-        self.assertFalse('strict-transport-security' in response)
+        self.assertFalse("strict-transport-security" in response)
 
         response = self.client.get("/", headers={"host": hostname}, secure=True)
-        self.assertFalse('strict-transport-security' in response)
+        self.assertFalse("strict-transport-security" in response)
 
         domain.hsts_max_age = 3600
         domain.save()
 
         response = self.client.get("/", headers={"host": hostname})
-        self.assertFalse('strict-transport-security' in response)
+        self.assertFalse("strict-transport-security" in response)
 
         response = self.client.get("/", headers={"host": hostname}, secure=True)
-        self.assertTrue('strict-transport-security' in response)
+        self.assertTrue("strict-transport-security" in response)
         self.assertEqual(
-            response['strict-transport-security'], 'max-age=3600',
+            response["strict-transport-security"],
+            "max-age=3600",
         )
 
         domain.hsts_include_subdomains = True
@@ -357,13 +372,14 @@ class TestFullDocServing(BaseDocServing):
         domain.save()
 
         response = self.client.get("/", headers={"host": hostname}, secure=True)
-        self.assertTrue('strict-transport-security' in response)
+        self.assertTrue("strict-transport-security" in response)
         self.assertEqual(
-            response['strict-transport-security'], 'max-age=3600; includeSubDomains; preload',
+            response["strict-transport-security"],
+            "max-age=3600; includeSubDomains; preload",
         )
 
     def test_single_version_serving_projects_dir(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/projects/awesome.html"
         host = "project.dev.readthedocs.io"
@@ -374,7 +390,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_version_serving_language_like_subdir(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/en/api/awesome.html"
         host = "project.dev.readthedocs.io"
@@ -385,7 +401,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_version_serving_language_like_dir(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/en/awesome.html"
         host = "project.dev.readthedocs.io"
@@ -393,6 +409,50 @@ class TestFullDocServing(BaseDocServing):
         self.assertEqual(
             resp["x-accel-redirect"],
             "/proxito/media/html/project/latest/en/awesome.html",
+        )
+
+    def test_multiple_versions_without_translations_serving(self):
+        self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+        self.project.save()
+        url = "/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(
+            resp["x-accel-redirect"], "/proxito/media/html/project/latest/awesome.html"
+        )
+
+    def test_multiple_versions_without_translations_serving_language_like_subdir(self):
+        self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+        self.project.save()
+        url = "/en/api/awesome.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 404)
+
+        self.version.slug = "en"
+        self.version.save()
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/en/api/awesome.html",
+        )
+
+    def test_multiple_versions_without_translations_serving_subprojects_like_subdir(
+        self,
+    ):
+        self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+        self.project.save()
+        url = "/projects/api/awesome.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 404)
+
+        self.version.slug = "projects"
+        self.version.save()
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/projects/api/awesome.html",
         )
 
     def test_old_language_code(self):
@@ -436,14 +496,15 @@ class TestDocServingBackends(BaseDocServing):
     @override_settings(PYTHON_MEDIA=True)
     def test_python_media_serving(self):
         with mock.patch(
-                'readthedocs.proxito.views.mixins.serve', return_value=HttpResponse()) as serve_mock:
-            url = '/en/latest/awesome.html'
-            host = 'project.dev.readthedocs.io'
+            "readthedocs.proxito.views.mixins.serve", return_value=HttpResponse()
+        ) as serve_mock:
+            url = "/en/latest/awesome.html"
+            host = "project.dev.readthedocs.io"
             self.client.get(url, headers={"host": host})
             serve_mock.assert_called_with(
                 mock.ANY,
-                '/media/html/project/latest/awesome.html',
-                os.path.join(settings.SITE_ROOT, 'media'),
+                "/media/html/project/latest/awesome.html",
+                os.path.join(settings.SITE_ROOT, "media"),
             )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -453,7 +514,8 @@ class TestDocServingBackends(BaseDocServing):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/awesome.html",
         )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -463,8 +525,8 @@ class TestDocServingBackends(BaseDocServing):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
-            resp['x-accel-redirect'],
-            '/proxito/media/html/project/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html",
         )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -683,11 +745,11 @@ class TestDocServingBackends(BaseDocServing):
 
     def test_track_html_files_only(self):
         self.assertEqual(AuditLog.objects.all().count(), 0)
-        url = '/en/latest/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/en/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
         with override_settings(RTD_DEFAULT_FEATURES={}):
             resp = self.client.get(url, headers={"host": host})
-        self.assertIn('x-accel-redirect', resp)
+        self.assertIn("x-accel-redirect", resp)
         self.assertEqual(AuditLog.objects.all().count(), 0)
 
         url = "/en/latest/awesome.html"
@@ -698,7 +760,7 @@ class TestDocServingBackends(BaseDocServing):
             )
         ):
             resp = self.client.get(url, headers={"host": host})
-        self.assertIn('x-accel-redirect', resp)
+        self.assertIn("x-accel-redirect", resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
 
         log = AuditLog.objects.last()
@@ -740,7 +802,7 @@ class TestDocServingBackends(BaseDocServing):
             )
         ):
             resp = self.client.get(url, headers={"host": host})
-        self.assertIn('x-accel-redirect', resp)
+        self.assertIn("x-accel-redirect", resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
 
         log = AuditLog.objects.last()
@@ -752,7 +814,8 @@ class TestDocServingBackends(BaseDocServing):
 
 @override_settings(
     PYTHON_MEDIA=False,
-    PUBLIC_DOMAIN='readthedocs.io',
+    PUBLIC_DOMAIN="readthedocs.io",
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
 # since the setting is evaluated just once (first test to use the storage
@@ -773,7 +836,7 @@ class TestAdditionalDocViews(BaseDocServing):
         # Cleanup cache to avoid throttling on tests
         cache.clear()
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt(self, storage_exists):
         storage_exists.return_value = False
         self.project.versions.update(active=True, built=True)
@@ -792,14 +855,14 @@ class TestAdditionalDocViews(BaseDocServing):
         ).lstrip()
         self.assertEqual(response.content.decode(), expected)
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_disallow_hidden_versions(self, storage_exists):
         storage_exists.return_value = False
         self.project.versions.update(active=True, built=True)
         fixture.get(
             Version,
             project=self.project,
-            slug='hidden',
+            slug="hidden",
             active=True,
             hidden=True,
             privacy_level=PUBLIC,
@@ -807,7 +870,7 @@ class TestAdditionalDocViews(BaseDocServing):
         fixture.get(
             Version,
             project=self.project,
-            slug='hidden-2',
+            slug="hidden-2",
             active=True,
             hidden=True,
             privacy_level=PUBLIC,
@@ -815,7 +878,7 @@ class TestAdditionalDocViews(BaseDocServing):
         fixture.get(
             Version,
             project=self.project,
-            slug='hidden-and-inactive',
+            slug="hidden-and-inactive",
             active=False,
             hidden=True,
             privacy_level=PUBLIC,
@@ -823,7 +886,7 @@ class TestAdditionalDocViews(BaseDocServing):
         fixture.get(
             Version,
             project=self.project,
-            slug='hidden-and-private',
+            slug="hidden-and-private",
             active=False,
             hidden=True,
             privacy_level=PRIVATE,
@@ -846,10 +909,12 @@ class TestAdditionalDocViews(BaseDocServing):
         ).lstrip()
         self.assertEqual(response.content.decode(), expected)
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_private_version(self, storage_exists):
         storage_exists.return_value = False
-        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        self.project.versions.update(
+            active=True, built=True, privacy_level=constants.PRIVATE
+        )
         response = self.client.get(
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
@@ -861,11 +926,14 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(
-            response['x-accel-redirect'], '/proxito/media/html/project/latest/robots.txt',
+            response["x-accel-redirect"],
+            "/proxito/media/html/project/latest/robots.txt",
         )
 
     def test_custom_robots_txt_private_version(self):
-        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        self.project.versions.update(
+            active=True, built=True, privacy_level=constants.PRIVATE
+        )
         response = self.client.get(
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
@@ -890,11 +958,10 @@ class TestAdditionalDocViews(BaseDocServing):
             ),
             headers={"host": "project.readthedocs.io"},
         )
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.status_code, 302
-        )
-        self.assertEqual(
-            response['location'], '/en/latest/index-exists/',
+            response["location"],
+            "/en/latest/index-exists/",
         )
 
     def test_versioned_no_slash(self):
@@ -910,11 +977,10 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse("proxito_404_handler", kwargs={"proxito_path": "/en/latest"}),
             headers={"host": "project.readthedocs.io"},
         )
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.status_code, 302
-        )
-        self.assertEqual(
-            response['location'], '/en/latest/',
+            response["location"],
+            "/en/latest/",
         )
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
@@ -937,11 +1003,10 @@ class TestAdditionalDocViews(BaseDocServing):
             ),
             headers={"host": "project.readthedocs.io"},
         )
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.status_code, 302
-        )
-        self.assertEqual(
-            response['location'], '/en/latest/readme-exists/README.html',
+            response["location"],
+            "/en/latest/readme-exists/README.html",
         )
 
     def test_directory_indexes_get_args(self):
@@ -962,19 +1027,18 @@ class TestAdditionalDocViews(BaseDocServing):
             + "?foo=bar",
             headers={"host": "project.readthedocs.io"},
         )
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.status_code, 302
-        )
-        self.assertEqual(
-            response['location'], '/en/latest/index-exists/?foo=bar',
+            response["location"],
+            "/en/latest/index-exists/?foo=bar",
         )
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, 'open')
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_404_storage_serves_custom_404_sphinx(self, storage_open):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1037,7 +1101,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True)
         version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1061,9 +1125,11 @@ class TestAdditionalDocViews(BaseDocServing):
             headers={"host": "project.readthedocs.io"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/en/fancy-version/not-found/README.html')
+        self.assertEqual(
+            response["location"], "/en/fancy-version/not-found/README.html"
+        )
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, 'open')
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_404_index_redirect_skips_not_built_versions(self, storage_open):
         self.version.built = False
         self.version.save()
@@ -1150,7 +1216,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1176,12 +1242,12 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.status_code, 404)
         storage_open.assert_called_once_with("html/project/fancy-version/404.html")
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, 'open')
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_404_storage_serves_custom_404_sphinx_htmldir(self, storage_open):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1206,12 +1272,12 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.status_code, 404)
         storage_open.assert_called_once_with("html/project/fancy-version/404.html")
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, 'open')
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_404_storage_serves_custom_404_mkdocs(self, storage_open):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1237,12 +1303,12 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.status_code, 404)
         storage_open.assert_called_once_with("html/project/fancy-version/404.html")
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, 'open')
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_404_all_paths_checked_sphinx(self, storage_open):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1263,12 +1329,12 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(r.status_code, 404)
         storage_open.assert_not_called()
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, 'open')
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_404_all_paths_checked_sphinx_single_html(self, storage_open):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1294,7 +1360,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1320,7 +1386,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1348,7 +1414,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
-            slug='fancy-version',
+            slug="fancy-version",
             privacy_level=constants.PUBLIC,
             active=True,
             built=True,
@@ -1419,6 +1485,33 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(pageview.path, "/en/not-found/")
         self.assertEqual(pageview.view_count, 1)
         self.assertEqual(pageview.status, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_dont_track_external_domains(self, storage_exists):
+        storage_exists.return_value = False
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        get(
+            Version,
+            slug="123",
+            type=EXTERNAL,
+            built=True,
+            active=True,
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        resp = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/123/"},
+            ),
+            headers={"host": "project--123.dev.readthedocs.build"},
+        )
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(PageView.objects.all().count(), 0)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_track_broken_link_custom_404(self, storage_open):
@@ -1515,37 +1608,37 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         not_translated_public_version = fixture.get(
             Version,
-            identifier='not-translated-version',
-            verbose_name='not-translated-version',
-            slug='not-translated-version',
+            identifier="not-translated-version",
+            verbose_name="not-translated-version",
+            slug="not-translated-version",
             privacy_level=constants.PUBLIC,
             project=self.project,
-            active=True
+            active=True,
         )
         stable_version = fixture.get(
             Version,
-            identifier='stable',
-            verbose_name='stable',
-            slug='stable',
+            identifier="stable",
+            verbose_name="stable",
+            slug="stable",
             privacy_level=constants.PUBLIC,
             project=self.project,
-            active=True
+            active=True,
         )
         # This is a EXTERNAL Version
         external_version = fixture.get(
             Version,
-            identifier='pr-version',
-            verbose_name='pr-version',
-            slug='pr-9999',
+            identifier="pr-version",
+            verbose_name="pr-version",
+            slug="pr-9999",
             project=self.project,
             active=True,
-            type=EXTERNAL
+            type=EXTERNAL,
         )
         # This also creates a Version `latest` Automatically for this project
         translation = fixture.get(
             Project,
             main_language_project=self.project,
-            language='translation-es',
+            language="translation-es",
             privacy_level=constants.PUBLIC,
         )
         translation.versions.update(privacy_level=constants.PUBLIC)
@@ -1554,7 +1647,7 @@ class TestAdditionalDocViews(BaseDocServing):
         hreflang_test_translation_project = fixture.get(
             Project,
             main_language_project=self.project,
-            language='zh_CN',
+            language="zh_CN",
             privacy_level=constants.PUBLIC,
         )
         hreflang_test_translation_project.versions.update(
@@ -1565,8 +1658,10 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/xml')
-        for version in self.project.versions(manager=INTERNAL).filter(privacy_level=constants.PUBLIC):
+        self.assertEqual(response["Content-Type"], "application/xml")
+        for version in self.project.versions(manager=INTERNAL).filter(
+            privacy_level=constants.PUBLIC
+        ):
             self.assertContains(
                 response,
                 self.project.get_docs_url(
@@ -1596,7 +1691,7 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         # hreflang should use hyphen instead of underscore
         # in language and country value. (zh_CN should be zh-CN)
-        self.assertContains(response, 'zh-CN')
+        self.assertContains(response, "zh-CN")
 
         # External Versions should not be in the sitemap_xml.
         self.assertNotContains(
@@ -1609,26 +1704,30 @@ class TestAdditionalDocViews(BaseDocServing):
 
         # Check if STABLE version has 'priority of 1 and changefreq of weekly.
         self.assertEqual(
-            response.context['versions'][0]['loc'],
+            response.context["versions"][0]["loc"],
             self.project.get_docs_url(
                 version_slug=stable_version.slug,
                 lang_slug=self.project.language,
-            ),)
-        self.assertEqual(response.context['versions'][0]['priority'], 1)
-        self.assertEqual(response.context['versions'][0]['changefreq'], 'weekly')
+            ),
+        )
+        self.assertEqual(response.context["versions"][0]["priority"], 1)
+        self.assertEqual(response.context["versions"][0]["changefreq"], "weekly")
 
         # Check if LATEST version has priority of 0.9 and changefreq of daily.
         self.assertEqual(
-            response.context['versions'][1]['loc'],
+            response.context["versions"][1]["loc"],
             self.project.get_docs_url(
-                version_slug='latest',
+                version_slug="latest",
                 lang_slug=self.project.language,
-            ),)
-        self.assertEqual(response.context['versions'][1]['priority'], 0.9)
-        self.assertEqual(response.context['versions'][1]['changefreq'], 'daily')
+            ),
+        )
+        self.assertEqual(response.context["versions"][1]["priority"], 0.9)
+        self.assertEqual(response.context["versions"][1]["changefreq"], "daily")
 
     def test_sitemap_all_private_versions(self):
-        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        self.project.versions.update(
+            active=True, built=True, privacy_level=constants.PRIVATE
+        )
         response = self.client.get(
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
         )
@@ -1650,6 +1749,28 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(
             resp.headers["x-accel-redirect"],
             "/proxito-static/media/javascript/readthedocs-doc-embed.js",
+        )
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
+    @mock.patch(
+        "readthedocs.proxito.views.mixins.staticfiles_storage",
+        new=StaticFileSystemStorageTest(),
+    )
+    def test_serve_static_files_internal_nginx_redirect_always_appended(self):
+        """Test for #11080."""
+        resp = self.client.get(
+            reverse(
+                "proxito_static_files",
+                args=["proxito-static/javascript/readthedocs-doc-embed.js"],
+            ),
+            headers={"host": "project.readthedocs.io"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp.headers["x-accel-redirect"],
+            "/proxito-static/media/proxito-static/javascript/readthedocs-doc-embed.js",
         )
         self.assertEqual(
             resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
@@ -1682,7 +1803,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
 @override_settings(
     ALLOW_PRIVATE_REPOS=True,
-    PUBLIC_DOMAIN='dev.readthedocs.io',
+    PUBLIC_DOMAIN="dev.readthedocs.io",
     PUBLIC_DOMAIN_USES_HTTPS=True,
     RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
@@ -1694,15 +1815,6 @@ class TestAdditionalDocViews(BaseDocServing):
     new=StaticFileSystemStorageTest(),
 )
 class TestCDNCache(BaseDocServing):
-
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.CDN_ENABLED,
-            projects=list(Project.objects.all()),
-        )
-
     def _test_cache_control_header_project(self, expected_value, host=None):
         """
         Test the CDN-Cache-Control header on requests for `self.project`.
@@ -1710,31 +1822,31 @@ class TestCDNCache(BaseDocServing):
         :param expected_value: The expected value of the header: 'public' or 'private'.
         :param host: Hostname to use in the requests.
         """
-        host = host or 'project.dev.readthedocs.io'
+        host = host or "project.dev.readthedocs.io"
 
         # Normal serving.
         urls = [
-            '/en/latest/',
-            '/en/latest/foo.html',
+            "/en/latest/",
+            "/en/latest/foo.html",
         ]
         for url in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
-            self.assertEqual(resp.headers['CDN-Cache-Control'], expected_value, url)
-            self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest', url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], expected_value, url)
+            self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest", url)
 
         # Page & system redirects are always cached.
         # Authz is done on the redirected URL.
-        location = f'https://{host}/en/latest/'
+        location = f"https://{host}/en/latest/"
         urls = [
-            ['', location],
-            ['/', location],
-            ['/page/foo.html', f'https://{host}/en/latest/foo.html'],
+            ["", location],
+            ["/", location],
+            ["/page/foo.html", f"https://{host}/en/latest/foo.html"],
         ]
         for url, location in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
-            self.assertEqual(resp['Location'], location, url)
-            self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
-            self.assertEqual(resp.headers['Cache-Tag'], 'project', url)
+            self.assertEqual(resp["Location"], location, url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+            self.assertEqual(resp.headers["Cache-Tag"], "project", url)
 
         # Proxied static files are always cached.
         resp = self.client.get("/_/static/file.js", secure=True, headers={"host": host})
@@ -1744,7 +1856,7 @@ class TestCDNCache(BaseDocServing):
         )
 
         # Slash redirects can always be cached.
-        url = '/en//latest//'
+        url = "/en//latest//"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], "/en/latest/", url)
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
@@ -1774,30 +1886,32 @@ class TestCDNCache(BaseDocServing):
         :param expected_value: The expected value of the header: 'public' or 'private'.
         :param host: Hostname to use in the requests.
         """
-        host = host or 'project.dev.readthedocs.io'
+        host = host or "project.dev.readthedocs.io"
 
         # Normal serving.
         urls = [
-            '/projects/subproject/en/latest/',
-            '/projects/subproject/en/latest/foo.html',
+            "/projects/subproject/en/latest/",
+            "/projects/subproject/en/latest/foo.html",
         ]
         for url in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
-            self.assertEqual(resp.headers['CDN-Cache-Control'], expected_value, url)
-            self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest', url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], expected_value, url)
+            self.assertEqual(
+                resp.headers["Cache-Tag"], "subproject,subproject:latest", url
+            )
 
         # Page & system redirects are always cached.
         # Authz is done on the redirected URL.
-        location = f'https://{host}/projects/subproject/en/latest/'
+        location = f"https://{host}/projects/subproject/en/latest/"
         urls = [
-            ['/projects/subproject', location],
-            ['/projects/subproject/', location],
+            ["/projects/subproject", location],
+            ["/projects/subproject/", location],
         ]
         for url, location in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
-            self.assertEqual(resp['Location'], location, url)
-            self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
-            self.assertEqual(resp.headers['Cache-Tag'], 'subproject', url)
+            self.assertEqual(resp["Location"], location, url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+            self.assertEqual(resp.headers["Cache-Tag"], "subproject", url)
 
         # Proxied static files are always cached.
         resp = self.client.get("/_/static/file.js", secure=True, headers={"host": host})
@@ -1807,7 +1921,7 @@ class TestCDNCache(BaseDocServing):
         )
 
         # Slash redirects can always be cached.
-        url = '/projects//subproject//'
+        url = "/projects//subproject//"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], "/projects/subproject/", url)
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
@@ -1815,13 +1929,15 @@ class TestCDNCache(BaseDocServing):
 
     def test_cache_on_private_versions(self):
         self.project.versions.update(privacy_level=PRIVATE)
-        self._test_cache_control_header_project(expected_value='private')
+        self._test_cache_control_header_project(expected_value="private")
 
     def test_cache_on_private_versions_custom_domain(self):
         self.project.versions.update(privacy_level=PRIVATE)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_project(expected_value='private', host=self.domain.domain)
+        self._test_cache_control_header_project(
+            expected_value="private", host=self.domain.domain
+        )
 
         # HTTPS redirects can always be cached.
         resp = self.client.get(
@@ -1833,13 +1949,15 @@ class TestCDNCache(BaseDocServing):
 
     def test_cache_public_versions(self):
         self.project.versions.update(privacy_level=PUBLIC)
-        self._test_cache_control_header_project(expected_value='public')
+        self._test_cache_control_header_project(expected_value="public")
 
     def test_cache_public_versions_custom_domain(self):
         self.project.versions.update(privacy_level=PUBLIC)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_project(expected_value='public', host=self.domain.domain)
+        self._test_cache_control_header_project(
+            expected_value="public", host=self.domain.domain
+        )
 
         # HTTPS redirect respects the privacy level of the version.
         resp = self.client.get(
@@ -1851,17 +1969,19 @@ class TestCDNCache(BaseDocServing):
 
     def test_cache_on_private_versions_subproject(self):
         self.subproject.versions.update(privacy_level=PRIVATE)
-        self._test_cache_control_header_subproject(expected_value='private')
+        self._test_cache_control_header_subproject(expected_value="private")
 
     def test_cache_on_private_versions_custom_domain_subproject(self):
         self.subproject.versions.update(privacy_level=PRIVATE)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_subproject(expected_value='private', host=self.domain.domain)
+        self._test_cache_control_header_subproject(
+            expected_value="private", host=self.domain.domain
+        )
 
         # HTTPS redirects can always be cached.
         resp = self.client.get(
-            '/projects/subproject/en/latest/',
+            "/projects/subproject/en/latest/",
             secure=False,
             headers={"host": self.domain.domain},
         )
@@ -1874,17 +1994,19 @@ class TestCDNCache(BaseDocServing):
 
     def test_cache_public_versions_subproject(self):
         self.subproject.versions.update(privacy_level=PUBLIC)
-        self._test_cache_control_header_subproject(expected_value='public')
+        self._test_cache_control_header_subproject(expected_value="public")
 
     def test_cache_public_versions_custom_domain(self):
         self.subproject.versions.update(privacy_level=PUBLIC)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_subproject(expected_value='public', host=self.domain.domain)
+        self._test_cache_control_header_subproject(
+            expected_value="public", host=self.domain.domain
+        )
 
         # HTTPS redirects can always be cached.
         resp = self.client.get(
-            '/projects/subproject/en/latest/',
+            "/projects/subproject/en/latest/",
             secure=False,
             headers={"host": self.domain.domain},
         )

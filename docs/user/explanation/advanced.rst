@@ -1,3 +1,5 @@
+:orphan:
+
 Deep dive into Read the Docs
 ============================
 
@@ -18,13 +20,3 @@ we explain some of the more specific or advanced concepts of writing documentati
 
 ⏩️ :doc:`/explanation/configuration-file`
   Some background on our configuration file and versioning configuration files.
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   /subprojects
-   /localization
-   /downloadable-documentation
-   /environment-variables
-   configuration-file

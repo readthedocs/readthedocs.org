@@ -4,11 +4,13 @@ import csv
 import re
 from io import StringIO
 
+from django.conf import settings
+
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from readthedocs.vcs_support.base import BaseVCS, Deprecated, VCSVersion
 
 
-class Backend(BaseVCS):
+class Backend(Deprecated, BaseVCS):
 
     """Bazaar VCS backend."""
 
@@ -20,7 +22,10 @@ class Backend(BaseVCS):
         try:
             self.run("bzr", "checkout", self.repo_url, ".")
         except RepositoryError:
-            raise RepositoryError(RepositoryError.CLONE_ERROR())
+            message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_NOT_ALLOWED
+            if settings.ALLOW_PRIVATE_REPOS:
+                message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED
+            raise RepositoryError(message_id=message_id)
 
     @property
     def tags(self):

@@ -1,6 +1,5 @@
 """Build configuration for rtd."""
 
-import collections
 import copy
 import os
 import re
@@ -13,6 +12,7 @@ from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
 
+from .exceptions import ConfigError, ConfigValidationError
 from .find import find_one
 from .models import (
     BuildJobs,
@@ -29,8 +29,6 @@ from .models import (
 )
 from .parser import ParseError, parse
 from .validation import (
-    VALUE_NOT_FOUND,
-    ValidationError,
     validate_bool,
     validate_choice,
     validate_dict,
@@ -44,143 +42,17 @@ __all__ = (
     "ALL",
     "load",
     "BuildConfigV2",
-    "ConfigError",
-    "ConfigOptionNotSupportedError",
-    "ConfigFileNotFound",
-    "DefaultConfigFileNotFound",
-    "InvalidConfig",
     "PIP",
     "SETUPTOOLS",
     "LATEST_CONFIGURATION_VERSION",
 )
 
-ALL = 'all'
-PIP = 'pip'
-SETUPTOOLS = 'setuptools'
-CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
-
-CONFIG_NOT_SUPPORTED = 'config-not-supported'
-VERSION_INVALID = 'version-invalid'
-CONFIG_SYNTAX_INVALID = 'config-syntax-invalid'
-CONFIG_REQUIRED = 'config-required'
-CONFIG_FILE_REQUIRED = 'config-file-required'
-PYTHON_INVALID = 'python-invalid'
-SUBMODULES_INVALID = 'submodules-invalid'
-INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
-INVALID_KEY = 'invalid-key'
-INVALID_NAME = 'invalid-name'
+ALL = "all"
+PIP = "pip"
+SETUPTOOLS = "setuptools"
+CONFIG_FILENAME_REGEX = r"^\.?readthedocs.ya?ml$"
 
 LATEST_CONFIGURATION_VERSION = 2
-
-
-# TODO: make these exception to inherit from `BuildUserError`
-class ConfigError(Exception):
-
-    """Base error for the rtd configuration file."""
-
-    def __init__(self, message, code):
-        self.code = code
-        super().__init__(message)
-
-
-class ConfigFileNotFound(ConfigError):
-
-    """Error when we can't find a configuration file."""
-
-    def __init__(self, directory):
-        super().__init__(
-            f'Configuration file not found in: {directory}',
-            CONFIG_FILE_REQUIRED,
-        )
-
-
-class DefaultConfigFileNotFound(ConfigError):
-
-    """Error when we can't find a configuration file."""
-
-    def __init__(self):
-        super().__init__(
-            "No default configuration file found at repository's root.",
-            CONFIG_FILE_REQUIRED,
-        )
-
-
-class ConfigOptionNotSupportedError(ConfigError):
-
-    """Error for unsupported configuration options in a version."""
-
-    def __init__(self, configuration):
-        self.configuration = configuration
-        template = (
-            'The "{}" configuration option is not supported in this version'
-        )
-        super().__init__(
-            template.format(self.configuration),
-            CONFIG_NOT_SUPPORTED,
-        )
-
-
-class InvalidConfig(ConfigError):
-
-    """Error for a specific key validation."""
-
-    # Define the default message to show on ``InvalidConfig``
-    default_message_template = 'Invalid configuration option "{key}"'
-
-    # Create customized message for based on each particular ``key``
-    message_templates = collections.defaultdict(lambda: "{default_message}: {error}")
-
-    # Redirect the user to the blog post when using
-    # `python.system_packages` or `python.use_system_site_packages`
-    message_templates.update(
-        {
-            "python.system_packages": "{default_message}. "
-            "This configuration key has been deprecated and removed. "
-            "Refer to https://blog.readthedocs.com/drop-support-system-packages/ to read more about this change and how to upgrade your config file."  # noqa
-        }
-    )
-    # Use same message for `python.use_system_site_packages`
-    message_templates.update(
-        {
-            "python.use_system_site_packages": message_templates.get(
-                "python.system_packages"
-            )
-        }
-    )
-
-    def __init__(self, key, code, error_message, source_file=None):
-        self.key = key
-        self.code = code
-        self.source_file = source_file
-
-        display_key = self._get_display_key()
-        default_message = self.default_message_template.format(
-            key=display_key,
-            code=code,
-            error=error_message,
-        )
-        message = self.message_templates[display_key].format(
-            default_message=default_message,
-            key=display_key,
-            code=code,
-            error=error_message,
-        )
-        super().__init__(message, code=code)
-
-    def _get_display_key(self):
-        """
-        Display keys in a more friendly format.
-
-        Indexes are displayed like ``n``,
-        but users may be more familiar with the ``[n]`` syntax.
-        For example ``python.install.0.requirements``
-        is changed to `python.install[0].requirements`.
-        """
-        return re.sub(
-            r'^([a-zA-Z_.-]+)\.(\d+)([a-zA-Z_.-]*)$',
-            r'\1[\2]\3',
-            self.key
-        )
 
 
 class BuildConfigBase:
@@ -200,16 +72,16 @@ class BuildConfigBase:
     """
 
     PUBLIC_ATTRIBUTES = [
-        'version',
-        'formats',
-        'python',
-        'conda',
-        'build',
-        'doctype',
-        'sphinx',
-        'mkdocs',
-        'submodules',
-        'search',
+        "version",
+        "formats",
+        "python",
+        "conda",
+        "build",
+        "doctype",
+        "sphinx",
+        "mkdocs",
+        "submodules",
+        "search",
     ]
 
     version = None
@@ -229,26 +101,31 @@ class BuildConfigBase:
 
         self._config = {}
 
-    def error(self, key, message, code):
-        """Raise an error related to ``key``."""
-        raise InvalidConfig(
-            key=key,
-            code=code,
-            error_message=message,
-            source_file=self.source_file,
-        )
-
     @contextmanager
     def catch_validation_error(self, key):
-        """Catch a ``ValidationError`` and raises an ``InvalidConfig`` error."""
+        """Catch a ``ConfigValidationError`` and raises a ``ConfigError`` error."""
+        # NOTE: I don't like too much this pattern of re-raising an exception via a context manager.
+        # I think we should raise the exception where it happens, instead of encapsulating all of them.
+        # The only small limitation that I found is the requirement of passing ``key`` down to where
+        # the exception happens.
+        # I'm keeping this pattern for now until we decide to refactor it.
         try:
             yield
-        except ValidationError as error:
-            raise InvalidConfig(
-                key=key,
-                code=error.code,
-                error_message=str(error),
-                source_file=self.source_file,
+        except ConfigValidationError as error:
+            # Expand the format values defined when the exception is risen
+            # with extra ones we have here
+            format_values = getattr(error, "format_values", {})
+            format_values.update(
+                {
+                    "key": key,
+                    "value": error.format_values.get("value"),
+                    "source_file": os.path.relpath(self.source_file, self.base_path),
+                }
+            )
+
+            raise ConfigError(
+                message_id=error.message_id,
+                format_values=format_values,
             ) from error
 
     def pop(self, name, container, default, raise_ex):
@@ -273,7 +150,12 @@ class BuildConfigBase:
                 value = container.pop(key)
             return value
         if raise_ex:
-            raise ValidationError(key, VALUE_NOT_FOUND)
+            raise ConfigValidationError(
+                message_id=ConfigValidationError.VALUE_NOT_FOUND,
+                format_values={
+                    "value": key,
+                },
+            )
         return default
 
     def pop_config(self, key, default=None, raise_ex=False):
@@ -284,7 +166,7 @@ class BuildConfigBase:
         :param default: Optionally, it can receive a default value
         :param raise_ex: If True, raises an exception when the key is not found
         """
-        return self.pop(key.split('.'), self._raw_config, default, raise_ex)
+        return self.pop(key.split("."), self._raw_config, default, raise_ex)
 
     def validate(self):
         raise NotImplementedError()
@@ -292,6 +174,10 @@ class BuildConfigBase:
     @property
     def is_using_conda(self):
         return self.python_interpreter in ("conda", "mamba")
+
+    @property
+    def is_using_build_commands(self):
+        return self.build.commands != []
 
     @property
     def is_using_setup_py_install(self):
@@ -325,21 +211,24 @@ class BuildConfigBase:
 
     def __getattr__(self, name):
         """Raise an error for unknown attributes."""
-        raise ConfigOptionNotSupportedError(name)
+        raise ConfigError(
+            message_id=ConfigError.KEY_NOT_SUPPORTED_IN_VERSION,
+            format_values={"key": name},
+        )
 
 
 class BuildConfigV2(BuildConfigBase):
 
     """Version 2 of the configuration file."""
 
-    version = '2'
-    valid_formats = ['htmlzip', 'pdf', 'epub']
+    version = "2"
+    valid_formats = ["htmlzip", "pdf", "epub"]
     valid_install_method = [PIP, SETUPTOOLS]
     valid_sphinx_builders = {
-        'html': 'sphinx',
-        'htmldir': 'sphinx_htmldir',
-        'dirhtml': 'sphinx_htmldir',
-        'singlehtml': 'sphinx_singlehtml',
+        "html": "sphinx",
+        "htmldir": "sphinx_htmldir",
+        "dirhtml": "sphinx_htmldir",
+        "singlehtml": "sphinx_singlehtml",
     }
 
     @property
@@ -348,17 +237,19 @@ class BuildConfigV2(BuildConfigBase):
 
     def validate(self):
         """Validates and process ``raw_config``."""
-        self._config['formats'] = self.validate_formats()
-        self._config['conda'] = self.validate_conda()
-        # This should be called before validate_python
-        self._config['build'] = self.validate_build()
-        self._config['python'] = self.validate_python()
+        self._config["formats"] = self.validate_formats()
+
+        # This should be called before ``validate_python`` and ``validate_conda``
+        self._config["build"] = self.validate_build()
+
+        self._config["conda"] = self.validate_conda()
+        self._config["python"] = self.validate_python()
         # Call this before validate sphinx and mkdocs
         self.validate_doc_types()
-        self._config['mkdocs'] = self.validate_mkdocs()
-        self._config['sphinx'] = self.validate_sphinx()
-        self._config['submodules'] = self.validate_submodules()
-        self._config['search'] = self.validate_search()
+        self._config["mkdocs"] = self.validate_mkdocs()
+        self._config["sphinx"] = self.validate_sphinx()
+        self._config["submodules"] = self.validate_submodules()
+        self._config["search"] = self.validate_search()
         self.validate_keys()
 
     def validate_formats(self):
@@ -368,10 +259,10 @@ class BuildConfigV2(BuildConfigBase):
         The ``ALL`` keyword can be used to indicate that all formats are used.
         We ignore the default values here.
         """
-        formats = self.pop_config('formats', [])
+        formats = self.pop_config("formats", [])
         if formats == ALL:
             return self.valid_formats
-        with self.catch_validation_error('formats'):
+        with self.catch_validation_error("formats"):
             validate_list(formats)
             for format_ in formats:
                 validate_choice(format_, self.valid_formats)
@@ -379,17 +270,22 @@ class BuildConfigV2(BuildConfigBase):
 
     def validate_conda(self):
         """Validates the conda key."""
-        raw_conda = self._raw_config.get('conda')
+        raw_conda = self._raw_config.get("conda")
         if raw_conda is None:
+            if self.is_using_conda and not self.is_using_build_commands:
+                raise ConfigError(
+                    message_id=ConfigError.CONDA_KEY_REQUIRED,
+                    format_values={"key": "conda"},
+                )
             return None
 
-        with self.catch_validation_error('conda'):
+        with self.catch_validation_error("conda"):
             validate_dict(raw_conda)
 
         conda = {}
-        with self.catch_validation_error('conda.environment'):
-            environment = self.pop_config('conda.environment', raise_ex=True)
-            conda['environment'] = validate_path(environment, self.base_path)
+        with self.catch_validation_error("conda.environment"):
+            environment = self.pop_config("conda.environment", raise_ex=True)
+            conda["environment"] = validate_path(environment, self.base_path)
         return conda
 
     # TODO: rename these methods to call them just `validate_build_config`
@@ -400,13 +296,13 @@ class BuildConfigV2(BuildConfigBase):
         At least one element must be provided in ``build.tools``.
         """
         build = {}
-        with self.catch_validation_error('build.os'):
-            build_os = self.pop_config('build.os', raise_ex=True)
-            build['os'] = validate_choice(build_os, self.settings['os'].keys())
+        with self.catch_validation_error("build.os"):
+            build_os = self.pop_config("build.os", raise_ex=True)
+            build["os"] = validate_choice(build_os, self.settings["os"].keys())
 
         tools = {}
-        with self.catch_validation_error('build.tools'):
-            tools = self.pop_config('build.tools')
+        with self.catch_validation_error("build.tools"):
+            tools = self.pop_config("build.tools")
             if tools:
                 validate_dict(tools)
                 for tool in tools.keys():
@@ -434,19 +330,19 @@ class BuildConfigV2(BuildConfigBase):
             validate_list(commands)
 
         if not (tools or commands):
-            self.error(
-                key="build.tools",
-                message=(
-                    "At least one item should be provided in 'tools' or 'commands'"
-                ),
-                code=CONFIG_REQUIRED,
+            raise ConfigError(
+                message_id=ConfigError.NOT_BUILD_TOOLS_OR_COMMANDS,
+                format_values={
+                    "key": "build",
+                },
             )
 
         if commands and jobs:
-            self.error(
-                key="build.commands",
-                message="The keys build.jobs and build.commands can't be used together.",
-                code=INVALID_KEYS_COMBINATION,
+            raise ConfigError(
+                message_id=ConfigError.BUILD_JOBS_AND_COMMANDS,
+                format_values={
+                    "key": "build",
+                },
             )
 
         build["jobs"] = {}
@@ -462,7 +358,7 @@ class BuildConfigV2(BuildConfigBase):
             with self.catch_validation_error("build.commands"):
                 build["commands"].append(validate_string(command))
 
-        build['tools'] = {}
+        build["tools"] = {}
         if tools:
             for tool, version in tools.items():
                 with self.catch_validation_error(f"build.tools.{tool}"):
@@ -471,31 +367,30 @@ class BuildConfigV2(BuildConfigBase):
                         self.settings["tools"][tool].keys(),
                     )
 
-        build['apt_packages'] = self.validate_apt_packages()
+        build["apt_packages"] = self.validate_apt_packages()
         return build
 
     def validate_apt_packages(self):
         apt_packages = []
-        with self.catch_validation_error('build.apt_packages'):
-            raw_packages = self._raw_config.get('build', {}).get('apt_packages', [])
+        with self.catch_validation_error("build.apt_packages"):
+            raw_packages = self._raw_config.get("build", {}).get("apt_packages", [])
             validate_list(raw_packages)
             # Transform to a dict, so is easy to validate individual entries.
-            self._raw_config.setdefault('build', {})['apt_packages'] = (
-                list_to_dict(raw_packages)
+            self._raw_config.setdefault("build", {})["apt_packages"] = list_to_dict(
+                raw_packages
             )
 
             apt_packages = [
-                self.validate_apt_package(index)
-                for index in range(len(raw_packages))
+                self.validate_apt_package(index) for index in range(len(raw_packages))
             ]
             if not raw_packages:
-                self.pop_config('build.apt_packages')
+                self.pop_config("build.apt_packages")
 
         return apt_packages
 
     def validate_build(self):
-        raw_build = self._raw_config.get('build', {})
-        with self.catch_validation_error('build'):
+        raw_build = self._raw_config.get("build", {})
+        with self.catch_validation_error("build"):
             validate_dict(raw_build)
         return self.validate_build_config_with_os()
 
@@ -508,35 +403,38 @@ class BuildConfigV2(BuildConfigBase):
         and https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_debian_package_file_names  # noqa
         for allowed chars in packages names.
         """
-        key = f'build.apt_packages.{index}'
+        key = f"build.apt_packages.{index}"
         package = self.pop_config(key)
         with self.catch_validation_error(key):
             validate_string(package)
             package = package.strip()
             invalid_starts = [
                 # Don't allow extra options.
-                '-',
+                "-",
                 # Don't allow to install from a path.
-                '/',
-                '.',
+                "/",
+                ".",
             ]
             for start in invalid_starts:
                 if package.startswith(start):
-                    self.error(
-                        key=key,
-                        message=(
-                            'Invalid package name. '
-                            f'Package can\'t start with {start}.',
-                        ),
-                        code=INVALID_NAME,
+                    raise ConfigError(
+                        message_id=ConfigError.APT_INVALID_PACKAGE_NAME_PREFIX,
+                        format_values={
+                            "prefix": start,
+                            "package": package,
+                            "key": key,
+                        },
                     )
+
             # List of valid chars in packages names.
-            pattern = re.compile(r'^[a-zA-Z0-9][a-zA-Z0-9.+-]*$')
+            pattern = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9.+-]*$")
             if not pattern.match(package):
-                self.error(
-                    key=key,
-                    message='Invalid package name.',
-                    code=INVALID_NAME,
+                raise ConfigError(
+                    message_id=ConfigError.APT_INVALID_PACKAGE_NAME,
+                    format_values={
+                        "package": package,
+                        "key": key,
+                    },
                 )
         return package
 
@@ -551,26 +449,25 @@ class BuildConfigV2(BuildConfigBase):
            - ``version`` can be a string or number type.
            - ``extra_requirements`` needs to be used with ``install: 'pip'``.
         """
-        raw_python = self._raw_config.get('python', {})
-        with self.catch_validation_error('python'):
+        raw_python = self._raw_config.get("python", {})
+        with self.catch_validation_error("python"):
             validate_dict(raw_python)
 
         python = {}
-        with self.catch_validation_error('python.install'):
-            raw_install = self._raw_config.get('python', {}).get('install', [])
+        with self.catch_validation_error("python.install"):
+            raw_install = self._raw_config.get("python", {}).get("install", [])
             validate_list(raw_install)
             if raw_install:
                 # Transform to a dict, so it's easy to validate extra keys.
-                self._raw_config.setdefault('python', {})['install'] = (
-                    list_to_dict(raw_install)
+                self._raw_config.setdefault("python", {})["install"] = list_to_dict(
+                    raw_install
                 )
             else:
-                self.pop_config('python.install')
+                self.pop_config("python.install")
 
-        raw_install = self._raw_config.get('python', {}).get('install', [])
-        python['install'] = [
-            self.validate_python_install(index)
-            for index in range(len(raw_install))
+        raw_install = self._raw_config.get("python", {}).get("install", [])
+        python["install"] = [
+            self.validate_python_install(index) for index in range(len(raw_install))
         ]
 
         return python
@@ -578,55 +475,54 @@ class BuildConfigV2(BuildConfigBase):
     def validate_python_install(self, index):
         """Validates the python.install.{index} key."""
         python_install = {}
-        key = 'python.install.{}'.format(index)
-        raw_install = self._raw_config['python']['install'][str(index)]
+        key = "python.install.{}".format(index)
+        raw_install = self._raw_config["python"]["install"][str(index)]
         with self.catch_validation_error(key):
             validate_dict(raw_install)
 
-        if 'requirements' in raw_install:
-            requirements_key = key + '.requirements'
+        if "requirements" in raw_install:
+            requirements_key = key + ".requirements"
             with self.catch_validation_error(requirements_key):
                 requirements = validate_path(
                     self.pop_config(requirements_key),
                     self.base_path,
                 )
-                python_install['requirements'] = requirements
-        elif 'path' in raw_install:
-            path_key = key + '.path'
+                python_install["requirements"] = requirements
+        elif "path" in raw_install:
+            path_key = key + ".path"
             with self.catch_validation_error(path_key):
                 path = validate_path(
                     self.pop_config(path_key),
                     self.base_path,
                 )
-                python_install['path'] = path
+                python_install["path"] = path
 
-            method_key = key + '.method'
+            method_key = key + ".method"
             with self.catch_validation_error(method_key):
                 method = validate_choice(
                     self.pop_config(method_key, PIP),
                     self.valid_install_method,
                 )
-                python_install['method'] = method
+                python_install["method"] = method
 
-            extra_req_key = key + '.extra_requirements'
+            extra_req_key = key + ".extra_requirements"
             with self.catch_validation_error(extra_req_key):
                 extra_requirements = validate_list(
                     self.pop_config(extra_req_key, []),
                 )
-                if extra_requirements and python_install['method'] != PIP:
-                    self.error(
-                        extra_req_key,
-                        'You need to install your project with pip '
-                        'to use extra_requirements',
-                        code=PYTHON_INVALID,
+                if extra_requirements and python_install["method"] != PIP:
+                    raise ConfigError(
+                        message_id=ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS,
                     )
-                python_install['extra_requirements'] = extra_requirements
+                python_install["extra_requirements"] = extra_requirements
         else:
-            self.error(
-                key,
-                '"path" or "requirements" key is required',
-                code=CONFIG_REQUIRED,
+            raise ConfigError(
+                message_id=ConfigError.PIP_PATH_OR_REQUIREMENT_REQUIRED,
+                format_values={
+                    "key": key,
+                },
             )
+
         return python_install
 
     def validate_doc_types(self):
@@ -636,13 +532,10 @@ class BuildConfigV2(BuildConfigBase):
         This should be called before validating ``sphinx`` or ``mkdocs`` to
         avoid innecessary validations.
         """
-        with self.catch_validation_error('.'):
-            if 'sphinx' in self._raw_config and 'mkdocs' in self._raw_config:
-                self.error(
-                    '.',
-                    'You can not have the ``sphinx`` and ``mkdocs`` '
-                    'keys at the same time',
-                    code=INVALID_KEYS_COMBINATION,
+        with self.catch_validation_error("."):
+            if "sphinx" in self._raw_config and "mkdocs" in self._raw_config:
+                raise ConfigError(
+                    message_id=ConfigError.SPHINX_MKDOCS_CONFIG_TOGETHER,
                 )
 
     def validate_mkdocs(self):
@@ -651,23 +544,23 @@ class BuildConfigV2(BuildConfigBase):
 
         It makes sure we are using an existing configuration file.
         """
-        raw_mkdocs = self._raw_config.get('mkdocs')
+        raw_mkdocs = self._raw_config.get("mkdocs")
         if raw_mkdocs is None:
             return None
 
-        with self.catch_validation_error('mkdocs'):
+        with self.catch_validation_error("mkdocs"):
             validate_dict(raw_mkdocs)
 
         mkdocs = {}
-        with self.catch_validation_error('mkdocs.configuration'):
-            configuration = self.pop_config('mkdocs.configuration', None)
+        with self.catch_validation_error("mkdocs.configuration"):
+            configuration = self.pop_config("mkdocs.configuration", None)
             if configuration is not None:
                 configuration = validate_path(configuration, self.base_path)
-            mkdocs['configuration'] = configuration
+            mkdocs["configuration"] = configuration
 
-        with self.catch_validation_error('mkdocs.fail_on_warning'):
-            fail_on_warning = self.pop_config('mkdocs.fail_on_warning', False)
-            mkdocs['fail_on_warning'] = validate_bool(fail_on_warning)
+        with self.catch_validation_error("mkdocs.fail_on_warning"):
+            fail_on_warning = self.pop_config("mkdocs.fail_on_warning", False)
+            mkdocs["fail_on_warning"] = validate_bool(fail_on_warning)
 
         return mkdocs
 
@@ -681,35 +574,35 @@ class BuildConfigV2(BuildConfigBase):
            It should be called after ``validate_mkdocs``. That way
            we can default to sphinx if ``mkdocs`` is not given.
         """
-        raw_sphinx = self._raw_config.get('sphinx')
+        raw_sphinx = self._raw_config.get("sphinx")
         if raw_sphinx is None:
             if self.mkdocs is None:
                 raw_sphinx = {}
             else:
                 return None
 
-        with self.catch_validation_error('sphinx'):
+        with self.catch_validation_error("sphinx"):
             validate_dict(raw_sphinx)
 
         sphinx = {}
-        with self.catch_validation_error('sphinx.builder'):
+        with self.catch_validation_error("sphinx.builder"):
             builder = validate_choice(
-                self.pop_config('sphinx.builder', 'html'),
+                self.pop_config("sphinx.builder", "html"),
                 self.valid_sphinx_builders.keys(),
             )
-            sphinx['builder'] = self.valid_sphinx_builders[builder]
+            sphinx["builder"] = self.valid_sphinx_builders[builder]
 
-        with self.catch_validation_error('sphinx.configuration'):
+        with self.catch_validation_error("sphinx.configuration"):
             configuration = self.pop_config(
-                'sphinx.configuration',
+                "sphinx.configuration",
             )
             if configuration is not None:
                 configuration = validate_path(configuration, self.base_path)
-            sphinx['configuration'] = configuration
+            sphinx["configuration"] = configuration
 
-        with self.catch_validation_error('sphinx.fail_on_warning'):
-            fail_on_warning = self.pop_config('sphinx.fail_on_warning', False)
-            sphinx['fail_on_warning'] = validate_bool(fail_on_warning)
+        with self.catch_validation_error("sphinx.fail_on_warning"):
+            fail_on_warning = self.pop_config("sphinx.fail_on_warning", False)
+            sphinx["fail_on_warning"] = validate_bool(fail_on_warning)
 
         return sphinx
 
@@ -720,46 +613,39 @@ class BuildConfigV2(BuildConfigBase):
         - We can use the ``ALL`` keyword in include or exclude.
         - We can't exclude and include submodules at the same time.
         """
-        raw_submodules = self._raw_config.get('submodules', {})
-        with self.catch_validation_error('submodules'):
+        raw_submodules = self._raw_config.get("submodules", {})
+        with self.catch_validation_error("submodules"):
             validate_dict(raw_submodules)
 
         submodules = {}
-        with self.catch_validation_error('submodules.include'):
-            include = self.pop_config('submodules.include', [])
+        with self.catch_validation_error("submodules.include"):
+            include = self.pop_config("submodules.include", [])
             if include != ALL:
                 include = [
-                    validate_string(submodule)
-                    for submodule in validate_list(include)
+                    validate_string(submodule) for submodule in validate_list(include)
                 ]
-            submodules['include'] = include
+            submodules["include"] = include
 
-        with self.catch_validation_error('submodules.exclude'):
-            default = [] if submodules['include'] else ALL
-            exclude = self.pop_config('submodules.exclude', default)
+        with self.catch_validation_error("submodules.exclude"):
+            default = [] if submodules["include"] else ALL
+            exclude = self.pop_config("submodules.exclude", default)
             if exclude != ALL:
                 exclude = [
-                    validate_string(submodule)
-                    for submodule in validate_list(exclude)
+                    validate_string(submodule) for submodule in validate_list(exclude)
                 ]
-            submodules['exclude'] = exclude
+            submodules["exclude"] = exclude
 
-        with self.catch_validation_error('submodules'):
-            is_including = bool(submodules['include'])
-            is_excluding = (
-                submodules['exclude'] == ALL or bool(submodules['exclude'])
-            )
+        with self.catch_validation_error("submodules"):
+            is_including = bool(submodules["include"])
+            is_excluding = submodules["exclude"] == ALL or bool(submodules["exclude"])
             if is_including and is_excluding:
-                self.error(
-                    'submodules',
-                    'You can not exclude and include submodules '
-                    'at the same time',
-                    code=SUBMODULES_INVALID,
+                raise ConfigError(
+                    message_id=ConfigError.SUBMODULES_INCLUDE_EXCLUDE_TOGETHER,
                 )
 
-        with self.catch_validation_error('submodules.recursive'):
-            recursive = self.pop_config('submodules.recursive', False)
-            submodules['recursive'] = validate_bool(recursive)
+        with self.catch_validation_error("submodules.recursive"):
+            recursive = self.pop_config("submodules.recursive", False)
+            submodules["recursive"] = validate_bool(recursive)
 
         return submodules
 
@@ -772,13 +658,13 @@ class BuildConfigV2(BuildConfigBase):
         - The path pattern supports basic globs (*, ?, [seq]).
         - The rank can be a integer number between -10 and 10.
         """
-        raw_search = self._raw_config.get('search', {})
-        with self.catch_validation_error('search'):
+        raw_search = self._raw_config.get("search", {})
+        with self.catch_validation_error("search"):
             validate_dict(raw_search)
 
         search = {}
-        with self.catch_validation_error('search.ranking'):
-            ranking = self.pop_config('search.ranking', {})
+        with self.catch_validation_error("search.ranking"):
+            ranking = self.pop_config("search.ranking", {})
             validate_dict(ranking)
 
             valid_rank_range = list(range(-10, 10 + 1))
@@ -789,23 +675,20 @@ class BuildConfigV2(BuildConfigBase):
                 validate_choice(rank, valid_rank_range)
                 final_ranking[pattern] = rank
 
-            search['ranking'] = final_ranking
+            search["ranking"] = final_ranking
 
-        with self.catch_validation_error('search.ignore'):
+        with self.catch_validation_error("search.ignore"):
             ignore_default = [
-                'search.html',
-                'search/index.html',
-                '404.html',
-                '404/index.html',
+                "search.html",
+                "search/index.html",
+                "404.html",
+                "404/index.html",
             ]
-            search_ignore = self.pop_config('search.ignore', ignore_default)
+            search_ignore = self.pop_config("search.ignore", ignore_default)
             validate_list(search_ignore)
 
-            final_ignore = [
-                validate_path_pattern(pattern)
-                for pattern in search_ignore
-            ]
-            search['ignore'] = final_ignore
+            final_ignore = [validate_path_pattern(pattern) for pattern in search_ignore]
+            search["ignore"] = final_ignore
 
         return search
 
@@ -818,13 +701,14 @@ class BuildConfigV2(BuildConfigBase):
         """
         # The version key isn't popped, but it's
         # validated in `load`.
-        self.pop_config('version', None)
-        wrong_key = '.'.join(self._get_extra_key(self._raw_config))
+        self.pop_config("version", None)
+        wrong_key = ".".join(self._get_extra_key(self._raw_config))
         if wrong_key:
-            self.error(
-                key=wrong_key,
-                message="Make sure the key name is correct.",
-                code=INVALID_KEY,
+            raise ConfigError(
+                message_id=ConfigError.INVALID_KEY_NAME,
+                format_values={
+                    "key": wrong_key,
+                },
             )
 
     def _get_extra_key(self, value):
@@ -850,18 +734,18 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def formats(self):
-        return self._config['formats']
+        return self._config["formats"]
 
     @property
     def conda(self):
-        if self._config['conda']:
-            return Conda(**self._config['conda'])
+        if self._config["conda"]:
+            return Conda(**self._config["conda"])
         return None
 
     @property
     @lru_cache(maxsize=1)
     def build(self):
-        build = self._config['build']
+        build = self._config["build"]
         tools = {
             tool: BuildTool(
                 version=version,
@@ -880,12 +764,16 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def python(self):
         python_install = []
-        python = self._config['python']
-        for install in python['install']:
-            if 'requirements' in install:
-                python_install.append(PythonInstallRequirements(**install),)
-            elif 'path' in install:
-                python_install.append(PythonInstall(**install),)
+        python = self._config["python"]
+        for install in python["install"]:
+            if "requirements" in install:
+                python_install.append(
+                    PythonInstallRequirements(**install),
+                )
+            elif "path" in install:
+                python_install.append(
+                    PythonInstall(**install),
+                )
 
         return Python(
             install=python_install,
@@ -893,14 +781,14 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def sphinx(self):
-        if self._config['sphinx']:
-            return Sphinx(**self._config['sphinx'])
+        if self._config["sphinx"]:
+            return Sphinx(**self._config["sphinx"])
         return None
 
     @property
     def mkdocs(self):
-        if self._config['mkdocs']:
-            return Mkdocs(**self._config['mkdocs'])
+        if self._config["mkdocs"]:
+            return Mkdocs(**self._config["mkdocs"])
         return None
 
     @property
@@ -909,16 +797,16 @@ class BuildConfigV2(BuildConfigBase):
             return GENERIC
 
         if self.mkdocs:
-            return 'mkdocs'
+            return "mkdocs"
         return self.sphinx.builder
 
     @property
     def submodules(self):
-        return Submodules(**self._config['submodules'])
+        return Submodules(**self._config["submodules"])
 
     @property
     def search(self):
-        return Search(**self._config['search'])
+        return Search(**self._config["search"])
 
 
 def load(path, readthedocs_yaml_path=None):
@@ -930,15 +818,16 @@ def load(path, readthedocs_yaml_path=None):
     # Custom non-default config file location
     if readthedocs_yaml_path:
         filename = os.path.join(path, readthedocs_yaml_path)
-        # When a config file is specified and not found, we raise ConfigError
-        # because ConfigFileNotFound
         if not os.path.exists(filename):
-            raise ConfigFileNotFound(os.path.relpath(filename, path))
+            raise ConfigError(
+                message_id=ConfigError.CONFIG_PATH_NOT_FOUND,
+                format_values={"directory": os.path.relpath(filename, path)},
+            )
     # Default behavior
     else:
         filename = find_one(path, CONFIG_FILENAME_REGEX)
         if not filename:
-            raise DefaultConfigFileNotFound()
+            raise ConfigError(ConfigError.DEFAULT_PATH_NOT_FOUND)
 
     # Allow symlinks, but only the ones that resolve inside the base directory.
     with safe_open(
@@ -948,37 +837,21 @@ def load(path, readthedocs_yaml_path=None):
             config = parse(configuration_file.read())
         except ParseError as error:
             raise ConfigError(
-                'Parse error in {filename}: {message}'.format(
-                    filename=os.path.relpath(filename, path),
-                    message=str(error),
-                ),
-                code=CONFIG_SYNTAX_INVALID,
+                message_id=ConfigError.SYNTAX_INVALID,
+                format_values={
+                    "filename": os.path.relpath(filename, path),
+                    "error_message": str(error),
+                },
             ) from error
+
         version = config.get("version", 2)
-        build_config = get_configuration_class(version)(
+        if version not in (2, "2"):
+            raise ConfigError(message_id=ConfigError.INVALID_VERSION)
+
+        build_config = BuildConfigV2(
             config,
             source_file=filename,
         )
 
     build_config.validate()
     return build_config
-
-
-def get_configuration_class(version):
-    """
-    Get the appropriate config class for ``version``.
-
-    :type version: str or int
-    """
-    configurations_class = {
-        2: BuildConfigV2,
-    }
-    try:
-        version = int(version)
-        return configurations_class[version]
-    except (KeyError, ValueError) as error:
-        raise InvalidConfig(
-            'version',
-            code=VERSION_INVALID,
-            error_message='Invalid version of the configuration file',
-        ) from error

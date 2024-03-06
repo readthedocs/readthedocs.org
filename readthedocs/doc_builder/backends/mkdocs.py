@@ -41,7 +41,7 @@ class BaseMkdocs(BaseBuilder):
     """Mkdocs builder."""
 
     # The default theme for mkdocs is the 'mkdocs' theme
-    DEFAULT_THEME_NAME = 'mkdocs'
+    DEFAULT_THEME_NAME = "mkdocs"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -57,13 +57,13 @@ class BaseMkdocs(BaseBuilder):
         # for these project that were building with MkDocs in the Corporate
         # site.
         if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
-            self.DEFAULT_THEME_NAME = 'readthedocs'
+            self.DEFAULT_THEME_NAME = "readthedocs"
             log.warning(
                 "Project using readthedocs theme as default for MkDocs.",
                 project_slug=self.project.slug,
             )
         else:
-            self.DEFAULT_THEME_NAME = 'mkdocs'
+            self.DEFAULT_THEME_NAME = "mkdocs"
 
     def get_final_doctype(self):
         """
@@ -102,7 +102,10 @@ class BaseMkdocs(BaseBuilder):
             )
             if not result:
                 raise UserFileNotFound(
-                    UserFileNotFound.FILE_NOT_FOUND.format(self.yaml_file)
+                    message_id=UserFileNotFound.FILE_NOT_FOUND,
+                    format_values={
+                        "filename": self.yaml_file,
+                    },
                 )
 
             config = yaml_load_safely(result)
@@ -116,16 +119,15 @@ class BaseMkdocs(BaseBuilder):
         except IOError:
             raise MkDocsYAMLParseError(MkDocsYAMLParseError.NOT_FOUND)
         except yaml.YAMLError as exc:
-            note = ''
-            if hasattr(exc, 'problem_mark'):
+            note = ""
+            if hasattr(exc, "problem_mark"):
                 mark = exc.problem_mark
-                note = ' (line %d, column %d)' % (
+                note = " (line %d, column %d)" % (
                     mark.line + 1,
                     mark.column + 1,
                 )
             raise MkDocsYAMLParseError(
-                'Your mkdocs.yml could not be loaded, '
-                'possibly due to a syntax error{note}'.format(note=note),
+                MkDocsYAMLParseError.SYNTAX_ERROR,
             ) from exc
 
     def append_conf(self):
@@ -144,7 +146,7 @@ class BaseMkdocs(BaseBuilder):
                 MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
             )
 
-        user_config['docs_dir'] = docs_dir
+        user_config["docs_dir"] = docs_dir
         static_url = self.project.proxied_static_path
 
         # Set mkdocs config values.
@@ -166,9 +168,10 @@ class BaseMkdocs(BaseBuilder):
                 value = []
             if not isinstance(value, list):
                 raise MkDocsYAMLParseError(
-                    MkDocsYAMLParseError.INVALID_EXTRA_CONFIG.format(
-                        config=config,
-                    ),
+                    message_id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
+                    format_values={
+                        "extra_config": config,
+                    },
                 )
             # Add the static file only if isn't already in the list.
             value.extend([extra for extra in extras if extra not in value])
@@ -199,14 +202,14 @@ class BaseMkdocs(BaseBuilder):
 
         # Use Read the Docs' analytics setup rather than mkdocs'
         # This supports using RTD's privacy improvements around analytics
-        user_config['google_analytics'] = None
+        user_config["google_analytics"] = None
 
         # README: make MkDocs to use ``readthedocs`` theme as default if the
         # user didn't specify a specific theme manually
         if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
-            if 'theme' not in user_config:
+            if "theme" not in user_config:
                 # mkdocs<0.17 syntax
-                user_config['theme'] = self.DEFAULT_THEME_NAME
+                user_config["theme"] = self.DEFAULT_THEME_NAME
 
         # Write the modified mkdocs configuration
         with safe_open(self.yaml_file, "w", encoding="utf-8") as f:
@@ -217,7 +220,7 @@ class BaseMkdocs(BaseBuilder):
 
         # Write the mkdocs.yml to the build logs
         self.run(
-            'cat',
+            "cat",
             os.path.relpath(self.yaml_file, self.project_path),
             cwd=self.project_path,
         )
@@ -227,9 +230,9 @@ class BaseMkdocs(BaseBuilder):
         # Use the analytics code from mkdocs.yml
         # if it isn't set already by Read the Docs,
         analytics_code = self.version.project.analytics_code
-        if not analytics_code and mkdocs_config.get('google_analytics'):
+        if not analytics_code and mkdocs_config.get("google_analytics"):
             # http://www.mkdocs.org/user-guide/configuration/#google_analytics
-            analytics_code = mkdocs_config['google_analytics'][0]
+            analytics_code = mkdocs_config["google_analytics"][0]
 
         commit = (
             self.version.project.vcs_repo(
@@ -269,14 +272,14 @@ class BaseMkdocs(BaseBuilder):
             "html_theme": readthedocs_data["theme"],
             "pagename": None,
         }
-        tmpl = template_loader.get_template('doc_builder/data.js.tmpl')
+        tmpl = template_loader.get_template("doc_builder/data.js.tmpl")
         return tmpl.render(data_ctx)
 
     def build(self):
         build_command = [
-            self.python_env.venv_bin(filename='python'),
-            '-m',
-            'mkdocs',
+            self.python_env.venv_bin(filename="python"),
+            "-m",
+            "mkdocs",
             self.builder,
             "--clean",
             "--site-dir",
@@ -285,7 +288,7 @@ class BaseMkdocs(BaseBuilder):
             os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:
-            build_command.append('--strict')
+            build_command.append("--strict")
         cmd_ret = self.run(
             *build_command,
             cwd=self.project_path,
@@ -303,19 +306,19 @@ class BaseMkdocs(BaseBuilder):
         :see: http://www.mkdocs.org/about/release-notes/#theme-customization-1164
         :returns: the name of the theme RTD will use
         """
-        theme_setting = mkdocs_config.get('theme')
+        theme_setting = mkdocs_config.get("theme")
         if isinstance(theme_setting, dict):
             # Full nested theme config (the new configuration)
-            return theme_setting.get('name') or self.DEFAULT_THEME_NAME
+            return theme_setting.get("name") or self.DEFAULT_THEME_NAME
 
         if theme_setting:
             # A string which is the name of the theme
             return theme_setting
 
-        theme_dir = mkdocs_config.get('theme_dir')
+        theme_dir = mkdocs_config.get("theme_dir")
         if theme_dir:
             # Use the name of the directory in this project's custom theme directory
-            return theme_dir.rstrip('/').split('/')[-1]
+            return theme_dir.rstrip("/").split("/")[-1]
 
         return self.DEFAULT_THEME_NAME
 

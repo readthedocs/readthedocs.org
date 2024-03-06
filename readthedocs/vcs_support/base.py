@@ -1,6 +1,8 @@
 """Base classes for VCS backends."""
+import datetime
 import os
 
+import pytz
 import structlog
 
 from readthedocs.core.utils.filesystem import safe_rmtree
@@ -31,6 +33,46 @@ class VCSVersion:
             self.repository.repo_url,
             self.verbose_name,
         )
+
+
+class Deprecated:
+    def __init__(self, *args, **kwargs):
+        tzinfo = pytz.timezone("America/Los_Angeles")
+        now = datetime.datetime.now(tz=tzinfo)
+
+        # Brownout dates as published in https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/
+        # fmt: off
+        disabled = any([
+            # 12 hours browndate
+            datetime.datetime(2024, 4, 1, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 4, 1, 12, 0, 0, tzinfo=tzinfo),
+            # 24 hours browndate
+            datetime.datetime(2024, 5, 6, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 5, 7, 0, 0, 0, tzinfo=tzinfo),
+            # 48 hours browndate
+            datetime.datetime(2024, 5, 20, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 5, 22, 0, 0, 0, tzinfo=tzinfo),
+            # Deprecated after June 3
+            datetime.datetime(2024, 6, 3, 0, 0, 0, tzinfo=tzinfo) < now,
+        ])
+        # fmt: on
+
+        if disabled:
+            from .backends import bzr, hg, svn
+
+            vcs = None
+            if isinstance(self, bzr.Backend):
+                vcs = "Bazaar"
+            elif isinstance(self, svn.Backend):
+                vcs = "Subversion"
+            elif isinstance(self, hg.Backend):
+                vcs = "Mercurial"
+
+            raise BuildUserError(
+                message_id=BuildUserError.VCS_DEPRECATED,
+                format_values={
+                    "vcs": vcs,
+                },
+            )
+
+        super().__init__(*args, **kwargs)
 
 
 class BaseVCS:
@@ -106,12 +148,10 @@ class BaseVCS:
             # Catch ``BuildCancelled`` here and re raise it. Otherwise, if we
             # raise a ``RepositoryError`` then the ``on_failure`` method from
             # Celery won't treat this problem as a ``BuildCancelled`` issue.
-            raise BuildCancelled from exc
+            raise BuildCancelled(message_id=BuildCancelled.CANCELLED_BY_USER) from exc
         except BuildUserError as exc:
             # Re raise as RepositoryError to handle it properly from outside
-            if hasattr(exc, "message"):
-                raise RepositoryError(exc.message) from exc
-            raise RepositoryError from exc
+            raise RepositoryError(message_id=RepositoryError.GENERIC) from exc
 
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)

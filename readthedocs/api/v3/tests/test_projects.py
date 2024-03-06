@@ -440,6 +440,9 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.show_version_warning, False)
         self.assertEqual(self.project.is_single_version, True)
         self.assertEqual(self.project.external_builds_enabled, True)
+        self.assertEqual(
+            self.project.versioning_scheme, SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        )
 
     def test_partial_update_project(self):
         data = {
@@ -555,3 +558,110 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.project.refresh_from_db()
         self.assertEqual(self.project.privacy_level, "public")
         self.assertEqual(self.project.external_builds_privacy_level, "public")
+
+    def test_projects_notifications_list(self):
+        url = reverse(
+            "projects-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict("projects-notifications-list"),
+        )
+
+    def test_projects_notifications_list_other_user(self):
+        url = reverse(
+            "projects-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_projects_notifications_list_post(self):
+        url = reverse(
+            "projects-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+
+        self.client.logout()
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url)
+
+        # We don't allow POST on this endpoint
+        self.assertEqual(response.status_code, 405)
+
+    def test_projects_notifications_detail(self):
+        url = reverse(
+            "projects-notifications-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "notification_pk": self.notification_project.pk,
+            },
+        )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict("projects-notifications-detail"),
+        )
+
+    def test_projects_notifications_detail_other_user(self):
+        url = reverse(
+            "projects-notifications-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "notification_pk": self.notification_project.pk,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_projects_notifications_detail_patch(self):
+        url = reverse(
+            "projects-notifications-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "notification_pk": self.notification_project.pk,
+            },
+        )
+        data = {
+            "state": "read",
+        }
+
+        self.client.logout()
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.assertEqual(self.project.notifications.first().state, "unread")
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(self.project.notifications.first().state, "read")

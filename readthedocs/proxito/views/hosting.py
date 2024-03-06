@@ -1,5 +1,6 @@
 """Views for hosting features."""
 
+import itertools
 from functools import lru_cache
 
 import packaging
@@ -22,7 +23,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import AddonsConfig, Project
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -113,7 +114,10 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             project = Project.objects.filter(slug=project_slug).first()
             version = Version.objects.filter(slug=version_slug, project=project).first()
             if version:
-                build = version.builds.first()
+                build = version.builds.filter(
+                    success=True,
+                    state=BUILD_STATE_FINISHED,
+                ).first()
 
         return project, version, build, filename
 
@@ -252,7 +256,7 @@ class AddonsResponse:
         version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
 
-        if not project.is_single_version:
+        if project.supports_multiple_versions:
             versions_active_built_not_hidden = (
                 Version.internal.public(
                     project=project,
@@ -268,18 +272,20 @@ class AddonsResponse:
         if version:
             version_downloads = version.get_downloads(pretty=True).items()
 
+        main_project = project.main_language_project or project
         project_translations = (
-            project.translations.all().only("language").order_by("language")
+            main_project.translations.all().only("language").order_by("language")
         )
-        # Make one DB query here and then check on Python code
-        # TODO: make usage of ``Project.addons.<name>_enabled`` to decide if enabled
-        #
-        # NOTE: using ``feature_id__startswith="addons_"`` to make the query faster.
-        # It went down from 20ms to 1ms since it does not have to check the
-        # `Project.pub_date` against all the features.
-        project_features = project.features.filter(
-            feature_id__startswith="addons_"
-        ).values_list("feature_id", flat=True)
+        if project_translations.exists():
+            # Always prefix the list of translations with the main project's language,
+            # when there are translations present.
+            # Example: a project with Russian and Spanish translations will be showns as:
+            #     en (original), es, ru
+            project_translations = itertools.chain([main_project], project_translations)
+
+        # Automatically create an AddonsConfig with the default values for
+        # projects that don't have one already
+        AddonsConfig.objects.get_or_create(project=project)
 
         data = {
             "api_version": "0",
@@ -288,8 +294,6 @@ class AddonsResponse:
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
             ),
             "projects": {
-                # TODO: return the "parent" project here when the "current"
-                # project is a subproject/translation.
                 "current": ProjectSerializerNoLinks(project).data,
             },
             "versions": {
@@ -313,8 +317,7 @@ class AddonsResponse:
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
                 "analytics": {
-                    "enabled": Feature.ADDONS_ANALYTICS_DISABLED
-                    not in project_features,
+                    "enabled": project.addons.analytics_enabled,
                     # TODO: consider adding this field into the ProjectSerializer itself.
                     # NOTE: it seems we are removing this feature,
                     # so we may not need the ``code`` attribute here
@@ -322,15 +325,13 @@ class AddonsResponse:
                     "code": project.analytics_code,
                 },
                 "external_version_warning": {
-                    "enabled": Feature.ADDONS_EXTERNAL_VERSION_WARNING_DISABLED
-                    not in project_features,
+                    "enabled": project.addons.external_version_warning_enabled,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
                 },
                 "non_latest_version_warning": {
-                    "enabled": Feature.ADDONS_NON_LATEST_VERSION_WARNING_DISABLED
-                    not in project_features,
+                    "enabled": project.addons.stable_latest_version_warning_enabled,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
@@ -339,7 +340,7 @@ class AddonsResponse:
                     ),
                 },
                 "flyout": {
-                    "enabled": Feature.ADDONS_FLYOUT_DISABLED not in project_features,
+                    "enabled": project.addons.flyout_enabled,
                     "translations": [
                         {
                             # TODO: name this field "display_name"
@@ -391,29 +392,25 @@ class AddonsResponse:
                     # },
                 },
                 "search": {
-                    "enabled": Feature.ADDONS_SEARCH_DISABLED not in project_features,
+                    "enabled": project.addons.search_enabled,
                     "project": project.slug,
                     "version": version.slug if version else None,
                     "api_endpoint": "/_/api/v3/search/",
                     # TODO: figure it out where this data comes from
                     "filters": [
                         [
-                            "Search only in this project",
-                            f"project:{project.slug}/{version.slug}",
-                        ],
-                        [
-                            "Search subprojects",
+                            "Include subprojects",
                             f"subprojects:{project.slug}/{version.slug}",
                         ],
                     ]
                     if version
                     else [],
-                    "default_filter": f"subprojects:{project.slug}/{version.slug}"
+                    "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
                     else None,
                 },
                 "hotkeys": {
-                    "enabled": Feature.ADDONS_HOTKEYS_DISABLED not in project_features,
+                    "enabled": project.addons.hotkeys_enabled,
                     "doc_diff": {
                         "enabled": True,
                         "trigger": "KeyD",  # Could be something like "Ctrl + D"
@@ -458,8 +455,7 @@ class AddonsResponse:
             data["addons"].update(
                 {
                     "doc_diff": {
-                        "enabled": Feature.ADDONS_DOC_DIFF_DISABLED
-                        not in project_features,
+                        "enabled": project.addons.doc_diff_enabled,
                         # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                         "base_url": resolver.resolve(
                             project=project,
@@ -499,8 +495,7 @@ class AddonsResponse:
             data["addons"].update(
                 {
                     "ethicalads": {
-                        "enabled": Feature.ADDONS_ETHICALADS_DISABLED
-                        not in project_features,
+                        "enabled": project.addons.ethicalads_enabled,
                         # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
                         #
                         # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here

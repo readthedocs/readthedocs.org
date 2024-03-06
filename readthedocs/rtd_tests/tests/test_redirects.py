@@ -3,7 +3,9 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import fixture, get
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Project
+from readthedocs.redirects.constants import EXACT_REDIRECT
 from readthedocs.redirects.models import Redirect
 
 
@@ -36,6 +38,74 @@ class CustomRedirectTests(TestCase):
         expected_path = "/en/latest/install.html#custom-fragment"
         self.assertEqual(path, expected_path)
 
+    def test_redirects_order(self):
+        self.pip.redirects.all().delete()
+        redirect_a = get(
+            Redirect,
+            project=self.pip,
+            from_url="/a/",
+            to_url="/z/",
+            redirect_type=EXACT_REDIRECT,
+        )
+        redirect_b = get(
+            Redirect,
+            project=self.pip,
+            from_url="/b/",
+            to_url="/z/",
+            redirect_type=EXACT_REDIRECT,
+        )
+        redirect_c = get(
+            Redirect,
+            project=self.pip,
+            from_url="/c/",
+            to_url="/z/",
+            redirect_type=EXACT_REDIRECT,
+        )
+
+        def _refresh():
+            redirect_a.refresh_from_db()
+            redirect_b.refresh_from_db()
+            redirect_c.refresh_from_db()
+
+        _refresh()
+        self.assertEqual(self.pip.redirects.count(), 3)
+        self.assertEqual(redirect_c.position, 0)
+        self.assertEqual(redirect_b.position, 1)
+        self.assertEqual(redirect_a.position, 2)
+
+        # Move redirect to the top
+        redirect_a.position = 0
+        redirect_a.save()
+
+        _refresh()
+
+        self.assertEqual(redirect_a.position, 0)
+        self.assertEqual(redirect_c.position, 1)
+        self.assertEqual(redirect_b.position, 2)
+
+        # Move redirect to the bottom
+        redirect_c.position = 5
+        redirect_c.save()
+
+        _refresh()
+        self.assertEqual(redirect_a.position, 0)
+        self.assertEqual(redirect_b.position, 1)
+        self.assertEqual(redirect_c.position, 2)
+
+        # Delete redirect
+        redirect_a.delete()
+
+        redirect_b.refresh_from_db()
+        redirect_c.refresh_from_db()
+        self.assertEqual(redirect_b.position, 0)
+        self.assertEqual(redirect_c.position, 1)
+
+        redirect_c.delete()
+        redirect_b.refresh_from_db()
+        self.assertEqual(redirect_b.position, 0)
+
+        redirect_b.delete()
+
 
 @override_settings(PUBLIC_DOMAIN="readthedocs.org")
 class RedirectBuildTests(TestCase):
@@ -46,7 +116,6 @@ class RedirectBuildTests(TestCase):
             Project,
             slug="project-1",
             documentation_type="sphinx",
-            conf_py_file="test_conf.py",
             versions=[fixture()],
         )
         self.version = self.project.versions.all()[0]
@@ -101,14 +170,14 @@ class GetFullPathTests(TestCase):
         PRODUCTION_DOMAIN="rtfd.org",
     )
     def test_single_version_with_subdomain(self):
-        self.redirect.project.single_version = True
+        self.redirect.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.assertEqual(
             self.redirect.get_full_path("faq.html"),
             "/faq.html",
         )
 
     def test_single_version_no_subdomain(self):
-        self.redirect.project.single_version = True
+        self.redirect.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.assertEqual(
             self.redirect.get_full_path("faq.html"),
             "/faq.html",

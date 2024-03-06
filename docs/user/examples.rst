@@ -32,7 +32,10 @@ Sphinx and MkDocs examples
      - Jupyter Book and Sphinx
      - `[Git] <https://github.com/readthedocs-examples/example-jupyter-book/>`__ `[Rendered] <https://example-jupyter-book.readthedocs.io/>`__
      - Jupyter Book with popular integrations configured
-
+   * - Basic AsciiDoc
+     - Antora
+     - `[Git] <https://github.com/man-chi/example-antora-basic/>`__ `[Rendered] <https://example-antora-basic.readthedocs.io/>`__
+     - Antora with asciidoctor-kroki extension configured for AsciiDoc and Diagram as Code.
 
 Real-life examples
 ------------------

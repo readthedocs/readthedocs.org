@@ -17,6 +17,7 @@ django-simple-history==3.0.0
 
 djangorestframework
 djangorestframework-api-key
+rest-framework-generic-relations
 
 # Embed v1 still uses docutils.
 # Remove this dependency once we deprecate this API.
@@ -34,6 +35,8 @@ django-vanilla-views
 # JSONField. We should probably squash these migrations and remove this
 # dependency as well.
 jsonfield
+
+django-safemigrate
 
 requests
 requests-toolbelt
@@ -79,10 +82,9 @@ django-celery-beat
 # TODO: remove this dependency once we upgrade Celery. It should auto-install it.
 tzdata
 
-# 0.52.0 requires creating a new email template:
-#  templates/account/email/acccount_already_exists_message.html
-# See https://github.com/readthedocs/readthedocs.org/pull/9853#discussion_r1060496492
-django-allauth==0.51.0
+# 0.58.0 refactored the built-in templates,
+# we need to check if we need to update our custom templates.
+django-allauth==0.57.2
 
 requests-oauthlib
 
@@ -137,7 +139,6 @@ django-crispy-forms<2
 docker==6.1.2
 
 django-annoying
-django-messages-extends
 djangorestframework-jsonp
 django-taggit
 dj-pagination
@@ -162,9 +163,15 @@ django-csp
 
 # Upgrading to 3.x requires some extra work
 # https://django-structlog.readthedocs.io/en/latest/upgrade_guide.html#upgrading-to-3-0
+# NOTE: that django-structlog is in version 6.x now,
+# so we should probably consider migrating to avoid incompatibility issues.
 django-structlog==2.2.0
+# Pining due to a Sentry error we started getting
+# https://read-the-docs.sentry.io/issues/4678167578/events/2d9d348729874d67b120b153908ca54c/
+django-ipware<6.0.0
 
-structlog
+# https://github.com/readthedocs/readthedocs.org/issues/10990
+structlog==23.2.0
 dparse
 
 gunicorn

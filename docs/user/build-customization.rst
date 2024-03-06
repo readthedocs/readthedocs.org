@@ -345,12 +345,12 @@ Take a look at the following example:
          # Install poetry
          # https://python-poetry.org/docs/#installing-manually
          - pip install poetry
-         # Tell poetry to not use a virtual environment
-         - poetry config virtualenvs.create false
        post_install:
          # Install dependencies with 'docs' dependency group
          # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
-         - poetry install --with docs
+         # VIRTUAL_ENV needs to be set manually for now.
+         # See https://github.com/readthedocs/readthedocs.org/pull/11152/
+         - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
 
    sphinx:
      configuration: docs/conf.py
@@ -390,7 +390,7 @@ Override the build process
 .. warning::
 
    This feature is in *beta* and could change without warning.
-   We are currently testing `the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`_
+   We are currently testing :ref:`the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`
    on projects using ``build.commands`` configuration key.
 
 If your project requires full control of the build process,

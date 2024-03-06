@@ -10,8 +10,6 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from messages_extends.admin import MessageAdmin
-from messages_extends.models import Message
 from rest_framework.authtoken.admin import TokenAdmin
 
 from readthedocs.core.history import ExtraSimpleHistoryAdmin
@@ -127,30 +125,5 @@ class UserProfileAdmin(ExtraSimpleHistoryAdmin):
     raw_id_fields = ("user",)
 
 
-class MessageAdminExtra(MessageAdmin):
-    list_display = [
-        "user",
-        "organizations",
-        "message",
-        "created",
-        "read",
-    ]
-    list_filter = [
-        "read",
-    ]
-    search_fields = [
-        "user__username",
-        "message",
-        "user__organizationowner__organization__slug",
-    ]
-
-    def organizations(self, obj):
-        return ", ".join(
-            organization.slug for organization in obj.user.owner_organizations.all()
-        )
-
-
 admin.site.unregister(User)
 admin.site.register(User, UserAdminExtra)
-admin.site.unregister(Message)
-admin.site.register(Message, MessageAdminExtra)

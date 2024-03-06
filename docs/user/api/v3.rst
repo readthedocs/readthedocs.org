@@ -300,6 +300,7 @@ Project details
        ``versioning_scheme`` can be one of the following values:
 
        - ``multiple_versions_with_translations``
+       - ``multiple_versions_without_translations``
        - ``single_version_without_translations``
 
     .. note::
@@ -1144,6 +1145,11 @@ Redirect details
            "from_url": "/docs/",
            "to_url": "/documentation/",
            "type": "page",
+           "http_status": 302,
+           "description": "",
+           "enabled": true,
+           "force": false,
+           "position": 0,
            "_links": {
                "_self": "/api/v3/projects/pip/redirects/1/",
                "project": "/api/v3/projects/pip/"
@@ -1226,18 +1232,19 @@ Redirect create
         {
             "from_url": "/docs/",
             "to_url": "/documentation/",
-            "type": "page"
+            "type": "page",
+            "position": 0,
         }
 
     .. note::
 
-       ``type`` can be one of ``prefix``, ``page``, ``exact``, ``sphinx_html`` and ``sphinx_htmldir``.
+       - ``type`` can be one of ``page``, ``exact``, ``clean_url_to_html`` and ``html_to_clean_url``.
+       - Depending on the ``type`` of the redirect, some fields may not be needed:
 
-       Depending on the ``type`` of the redirect, some fields may not be needed:
+         * ``page`` and ``exact`` types require ``from_url`` and ``to_url``.
+         * ``clean_url_to_html`` and ``html_to_clean_url`` types do not require ``from_url`` and ``to_url``.
 
-       * ``prefix`` type does not require ``to_url``.
-       * ``page`` and ``exact`` types require ``from_url`` and ``to_url``.
-       * ``sphinx_html`` and ``sphinx_htmldir`` types do not require ``from_url`` and ``to_url``.
+       - Position starts at 0 and is used to order redirects.
 
     **Example response**:
 
@@ -1289,6 +1296,11 @@ Redirect update
             "to_url": "/documentation.html",
             "type": "page"
         }
+
+    .. note::
+
+       If the position of the redirect is changed,
+       it will be inserted in the new position and the other redirects will be reordered.
 
     **Example response**:
 
@@ -1882,6 +1894,11 @@ Embed
     Retrieve HTML-formatted content from documentation page or section.
     Read :doc:`/guides/embedding-content` to know more about how to use this endpoint.
 
+    .. warning::
+
+       The content will be returned as is, without any sanitization or escaping.
+       You should not include content from arbitrary projects, or projects you do not trust.
+
     **Example request**:
 
     .. prompt:: bash $
@@ -1912,7 +1929,6 @@ Embed
 
        Passing ``?doctool=`` and ``?doctoolversion=`` may improve the response,
        since the endpoint will know more about the exact structure of the HTML and can make better decisions.
-
 
 Additional APIs
 ---------------

@@ -31,7 +31,7 @@ from .constants import (
     DOCKER_VERSION,
     RTD_SKIP_BUILD_EXIT_CODE,
 )
-from .exceptions import BuildAppError, BuildUserError, BuildUserSkip
+from .exceptions import BuildAppError, BuildUserError
 
 log = structlog.get_logger(__name__)
 
@@ -279,7 +279,7 @@ class DockerBuildCommand(BuildCommand):
     """
 
     bash_escape_re = re.compile(
-        r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@" r"\[\\\]\^\`\{\|\}\~])"  # noqa
+        r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@\[\\\]\^\`\{\|\}\~])"  # noqa
     )
 
     def __init__(self, *args, escape_command=True, **kwargs):
@@ -527,13 +527,13 @@ class BaseBuildEnvironment:
                     version_slug=self.version.slug if self.version else "",
                 )
             elif build_cmd.exit_code == RTD_SKIP_BUILD_EXIT_CODE:
-                raise BuildUserSkip()
+                raise BuildUserError(BuildUserError.SKIPPED_EXIT_CODE_183)
             else:
                 # TODO: for now, this still outputs a generic error message
                 # that is the same across all commands. We could improve this
                 # with more granular error messages that vary by the command
                 # being run.
-                raise BuildUserError()
+                raise BuildUserError(BuildUserError.GENERIC)
         return build_cmd
 
 
@@ -776,22 +776,17 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         """
         if state is not None and state.get("Running") is False:
             if state.get("ExitCode") == DOCKER_TIMEOUT_EXIT_CODE:
-                raise BuildUserError(
-                    _("Build exited due to time out"),
-                )
+                raise BuildUserError(message_id=BuildUserError.BUILD_TIME_OUT)
 
             if state.get("OOMKilled", False):
-                raise BuildUserError(
-                    _("Build exited due to excessive memory consumption"),
-                )
+                raise BuildUserError(message_id=BuildUserError.BUILD_EXCESSIVE_MEMORY)
 
             if state.get("Error"):
                 raise BuildAppError(
-                    (
-                        _("Build exited due to unknown error: {0}").format(
-                            state.get("Error")
-                        ),
-                    )
+                    message_id=BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
+                    format_values={
+                        "message": state.get("Error"),
+                    },
                 )
 
     def create_container(self):

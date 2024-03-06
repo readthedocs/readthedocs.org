@@ -8,6 +8,7 @@
         "id": 2,
         "_links": {
             "_self": "https://readthedocs.org/api/v3/projects/project/builds/2/",
+            "notifications": "https://readthedocs.org/api/v3/projects/project/builds/2/notifications/",
             "project": "https://readthedocs.org/api/v3/projects/project/",
             "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
         },
@@ -38,6 +39,7 @@
             "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
             "environmentvariables": "https://readthedocs.org/api/v3/projects/project/environmentvariables/",
             "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
+            "notifications": "https://readthedocs.org/api/v3/projects/project/notifications/",
             "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
             "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
             "translations": "https://readthedocs.org/api/v3/projects/project/translations/",

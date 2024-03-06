@@ -27,7 +27,6 @@ from readthedocs.projects.views.private import (
     IntegrationExchangeDetail,
     IntegrationList,
     IntegrationWebhookSync,
-    ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectDelete,
@@ -35,6 +34,7 @@ from readthedocs.projects.views.private import (
     ProjectNotificationsDelete,
     ProjectRedirectsCreate,
     ProjectRedirectsDelete,
+    ProjectRedirectsInsert,
     ProjectRedirectsList,
     ProjectRedirectsUpdate,
     ProjectTranslationsDelete,
@@ -83,7 +83,9 @@ urlpatterns = [
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/advanced/$",
-        ProjectAdvancedUpdate.as_view(),
+        login_required(
+            RedirectView.as_view(pattern_name="projects_edit", permanent=True),
+        ),
         name="projects_advanced",
     ),
     re_path(
@@ -140,6 +142,11 @@ urlpatterns = [
         r"^(?P<project_slug>[-\w]+)/redirects/create/$",
         ProjectRedirectsCreate.as_view(),
         name="projects_redirects_create",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/redirects/(?P<redirect_pk>\d+)/insert/(?P<position>\d+)/$",
+        ProjectRedirectsInsert.as_view(),
+        name="projects_redirects_insert",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/redirects/(?P<redirect_pk>[-\w]+)/edit/$",

@@ -25,10 +25,7 @@ def activate_version(version, match_result, action_arg, *args, **kwargs):
     version.active = True
     version.save()
     if not version.built:
-        trigger_build(
-            project=version.project,
-            version=version
-        )
+        trigger_build(project=version.project, version=version)
 
 
 def set_default_version(version, match_result, action_arg, *args, **kwargs):

@@ -18,7 +18,6 @@ from requests.exceptions import ConnectionError
 from readthedocs.builds import utils as version_utils
 from readthedocs.builds.models import APIVersion
 from readthedocs.core.utils.filesystem import safe_open
-from readthedocs.doc_builder.exceptions import PDFNotFound
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
@@ -127,26 +126,29 @@ class BaseSphinx(BaseBuilder):
                     self.project_path,
                 ),
             ),
-            '',
+            "",
         )
         remote_version = self.version.commit_name
 
         github_user, github_repo = version_utils.get_github_username_repo(
             url=self.project.repo,
         )
-        github_version_is_editable = (self.version.type == 'branch')
+        github_version_is_editable = self.version.type == "branch"
         display_github = github_user is not None
 
-        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(  # noqa
+        (
+            bitbucket_user,
+            bitbucket_repo,
+        ) = version_utils.get_bitbucket_username_repo(  # noqa
             url=self.project.repo,
         )
-        bitbucket_version_is_editable = (self.version.type == 'branch')
+        bitbucket_version_is_editable = self.version.type == "branch"
         display_bitbucket = bitbucket_user is not None
 
         gitlab_user, gitlab_repo = version_utils.get_gitlab_username_repo(
             url=self.project.repo,
         )
-        gitlab_version_is_editable = (self.version.type == 'branch')
+        gitlab_version_is_editable = self.version.type == "branch"
         display_gitlab = gitlab_user is not None
 
         versions = []
@@ -212,26 +214,23 @@ class BaseSphinx(BaseBuilder):
             "vcs_url": vcs_url,
             "proxied_static_path": self.project.proxied_static_path,
             # GitHub
-            'github_user': github_user,
-            'github_repo': github_repo,
-            'github_version': remote_version,
-            'github_version_is_editable': github_version_is_editable,
-            'display_github': display_github,
-
+            "github_user": github_user,
+            "github_repo": github_repo,
+            "github_version": remote_version,
+            "github_version_is_editable": github_version_is_editable,
+            "display_github": display_github,
             # Bitbucket
-            'bitbucket_user': bitbucket_user,
-            'bitbucket_repo': bitbucket_repo,
-            'bitbucket_version': remote_version,
-            'bitbucket_version_is_editable': bitbucket_version_is_editable,
-            'display_bitbucket': display_bitbucket,
-
+            "bitbucket_user": bitbucket_user,
+            "bitbucket_repo": bitbucket_repo,
+            "bitbucket_version": remote_version,
+            "bitbucket_version_is_editable": bitbucket_version_is_editable,
+            "display_bitbucket": display_bitbucket,
             # GitLab
-            'gitlab_user': gitlab_user,
-            'gitlab_repo': gitlab_repo,
-            'gitlab_version': remote_version,
-            'gitlab_version_is_editable': gitlab_version_is_editable,
-            'display_gitlab': display_gitlab,
-
+            "gitlab_user": gitlab_user,
+            "gitlab_repo": gitlab_repo,
+            "gitlab_version": remote_version,
+            "gitlab_version_is_editable": gitlab_version_is_editable,
+            "display_gitlab": display_gitlab,
             # Features
             "docsearch_disabled": self.project.has_feature(
                 Feature.DISABLE_SERVER_SIDE_SEARCH
@@ -259,7 +258,10 @@ class BaseSphinx(BaseBuilder):
 
         if not os.path.exists(self.config_file):
             raise UserFileNotFound(
-                UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
+                message_id=UserFileNotFound.FILE_NOT_FOUND,
+                format_values={
+                    "filename": os.path.relpath(self.config_file, self.project_path),
+                },
             )
 
         # Allow symlinks, but only the ones that resolve inside the base directory.
@@ -270,17 +272,17 @@ class BaseSphinx(BaseBuilder):
         )
 
         # Append config to project conf file
-        tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
+        tmpl = template_loader.get_template("doc_builder/conf.py.tmpl")
         rendered = tmpl.render(self.get_config_params())
 
         with outfile:
-            outfile.write('\n')
+            outfile.write("\n")
             outfile.write(rendered)
 
         # Print the contents of conf.py in order to make the rendered
         # configfile visible in the build logs
         self.run(
-            'cat',
+            "cat",
             os.path.relpath(
                 self.config_file,
                 self.project_path,
@@ -293,7 +295,6 @@ class BaseSphinx(BaseBuilder):
         build_command = [
             *self.get_sphinx_cmd(),
             "-T",
-            "-E",
         ]
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
@@ -343,21 +344,19 @@ class HtmlBuilder(BaseSphinx):
 
 
 class HtmlDirBuilder(HtmlBuilder):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = "dirhtml"
 
 
 class SingleHtmlBuilder(HtmlBuilder):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = "singlehtml"
 
 
 class LocalMediaBuilder(BaseSphinx):
-    sphinx_builder = 'readthedocssinglehtmllocalmedia'
+    sphinx_builder = "readthedocssinglehtmllocalmedia"
     relative_output_dir = "htmlzip"
 
     def _post_build(self):
@@ -403,7 +402,6 @@ class LocalMediaBuilder(BaseSphinx):
 
 
 class EpubBuilder(BaseSphinx):
-
     sphinx_builder = "epub"
     relative_output_dir = "epub"
 
@@ -481,7 +479,6 @@ class PdfBuilder(BaseSphinx):
         self.run(
             *self.get_sphinx_cmd(),
             "-T",
-            "-E",
             "-b",
             self.sphinx_builder,
             "-d",
@@ -502,7 +499,7 @@ class PdfBuilder(BaseSphinx):
 
         tex_files = glob(os.path.join(self.absolute_host_output_dir, "*.tex"))
         if not tex_files:
-            raise BuildUserError("No TeX files were found.")
+            raise BuildUserError(message_id=BuildUserError.TEX_FILE_NOT_FOUND)
 
         # Run LaTeX -> PDF conversions
         success = self._build_latexmk(self.project_path)
@@ -520,7 +517,7 @@ class PdfBuilder(BaseSphinx):
         # FIXME: instead of checking by language here, what we want to check if
         # ``latex_engine`` is ``platex``
         pdfs = []
-        if self.project.language == 'ja':
+        if self.project.language == "ja":
             # Japanese language is the only one that requires this extra
             # step. I don't know exactly why but most of the documentation that
             # I read differentiate this language from the others. I suppose
@@ -529,18 +526,18 @@ class PdfBuilder(BaseSphinx):
 
         for image in itertools.chain(images, pdfs):
             self.run(
-                'extractbb',
+                "extractbb",
                 image.name,
                 cwd=self.absolute_host_output_dir,
                 record=False,
             )
 
-        rcfile = 'latexmkrc'
-        if self.project.language == 'ja':
-            rcfile = 'latexmkjarc'
+        rcfile = "latexmkrc"
+        if self.project.language == "ja":
+            rcfile = "latexmkjarc"
 
         self.run(
-            'cat',
+            "cat",
             rcfile,
             cwd=self.absolute_host_output_dir,
         )
@@ -581,7 +578,7 @@ class PdfBuilder(BaseSphinx):
         """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
 
         if not self.pdf_file_name:
-            raise PDFNotFound()
+            raise BuildUserError(BuildUserError.PDF_NOT_FOUND)
 
         # TODO: merge this with ePUB since it's pretty much the same
         temp_pdf_file = f"/tmp/{self.project.slug}-{self.version.slug}.pdf"

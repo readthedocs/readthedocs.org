@@ -13,8 +13,16 @@ import pytest
 from django.http import Http404
 from django.test.utils import override_settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Feature
+from readthedocs.redirects.constants import (
+    CLEAN_URL_TO_HTML_REDIRECT,
+    EXACT_REDIRECT,
+    HTML_TO_CLEAN_URL_REDIRECT,
+    PAGE_REDIRECT,
+)
 from readthedocs.redirects.models import Redirect
 
 from .base import BaseDocServing
@@ -147,13 +155,14 @@ class InternalRedirectTests(BaseDocServing):
     PYTHON_MEDIA=True,
     PUBLIC_DOMAIN="dev.readthedocs.io",
     ROOT_URLCONF="readthedocs.proxito.tests.handler_404_urls",
+    RTD_EXTERNAL_VERSION_DOMAIN="readthedocs.build",
 )
 class UserRedirectTests(MockStorageMixin, BaseDocServing):
     def test_forced_redirect(self):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
             force=True,
@@ -167,12 +176,106 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
 
+    def test_disabled_redirect(self):
+        redirect = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            enabled=True,
+        )
+        url = "/en/latest/install.html"
+        r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+        redirect.enabled = False
+        redirect.save()
+
+        with self.assertRaises(Http404):
+            self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+
+    def test_redirect_order(self):
+        redirect_a = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/en/latest/tutorial/:splat",
+            enabled=True,
+        )
+        redirect_b = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/installation.html",
+            enabled=True,
+        )
+
+        redirect_a.refresh_from_db()
+        self.assertEqual(redirect_b.position, 0)
+        self.assertEqual(redirect_a.position, 1)
+
+        url = "/en/latest/install.html"
+        r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/installation.html",
+        )
+
+        redirect_a.position = 0
+        redirect_a.save()
+        redirect_b.refresh_from_db()
+
+        self.assertEqual(redirect_a.position, 0)
+        self.assertEqual(redirect_b.position, 1)
+
+        url = "/en/latest/install.html"
+        r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+    def test_redirect_ignored_on_external_domain(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
+        )
+        url = "/install.html"
+        r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"], "http://project.dev.readthedocs.io/en/latest/install.html"
+        )
+
+        fixture.get(
+            Version,
+            project=self.project,
+            active=True,
+            built=True,
+            slug="22",
+            type=EXTERNAL,
+        )
+        with self.assertRaises(Http404):
+            self.client.get(url, headers={"host": "project--22.readthedocs.build"})
+
     def test_infinite_redirect(self):
         host = "project.dev.readthedocs.io"
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/install.html",
         )
@@ -187,7 +290,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url=f"https://{host}/en/latest/install.html",
         )
@@ -197,7 +300,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         with pytest.raises(Http404):
             self.client.get("/en/latest/install.html?foo=bar", headers={"host": host})
 
-    def test_redirect_prefix_infinite(self):
+    def test_exact_redirect_avoid_infinite_redirect(self):
         """
         Avoid infinite redirects.
 
@@ -205,13 +308,14 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         return a 404.
 
         These examples comes from this issue:
-          * http://github.com/rtfd/readthedocs.org/issues/4673
+          * http://github.com/readthedocs/readthedocs.org/issues/4673
         """
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
         )
         r = self.client.get(
             "/redirect.html", headers={"host": "project.dev.readthedocs.io"}
@@ -232,15 +336,156 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         )
 
         with self.assertRaises(Http404):
-            r = self.client.get(
+            self.client.get(
                 "/en/latest/redirect/", headers={"host": "project.dev.readthedocs.io"}
             )
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/en/latest/subdir/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/redirect.html", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/subdir/redirect.html",
+        )
+
+        with self.assertRaises(Http404):
+            self.client.get(
+                "/en/latest/subdir/redirect.html",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+
+    def test_page_redirect_avoid_infinite_redirect(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/*",
+            to_url="/subdir/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/redirect.html", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/subdir/redirect.html",
+        )
+
+        with self.assertRaises(Http404):
+            self.client.get(
+                "/en/latest/subdir/redirect.html",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/dir/*",
+            to_url="/dir/subdir/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/dir/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/dir/subdir/redirect.html",
+        )
+
+        with self.assertRaises(Http404):
+            self.client.get(
+                "/en/latest/dir/subdir/redirect.html",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+
+    def test_exact_redirect_to_parent_path(self):
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/dir/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/dir/redirect.html",
+        )
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/one/two/*",
+            to_url="/one/:splat",
+        )
+        r = self.client.get(
+            "/one/two/three/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/one/three/redirect.html",
+        )
+
+    def test_page_redirect_to_parent_path(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/guides/*",
+            to_url="/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/guides/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/redirect.html",
+        )
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/one/two/*",
+            to_url="/one/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/one/two/three/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/one/three/redirect.html",
+        )
 
     def test_redirect_root(self):
         Redirect.objects.create(
             project=self.project,
-            redirect_type="prefix",
-            from_url="/woot/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/woot/*",
+            to_url="/en/latest/:splat",
         )
         r = self.client.get(
             "/woot/faq.html", headers={"host": "project.dev.readthedocs.io"}
@@ -261,7 +506,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
     def test_redirect_page(self):
         Redirect.objects.create(
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/install.html",
             to_url="/tutorial/install.html",
         )
@@ -282,7 +527,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         )
         Redirect.objects.create(
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/install.html",
             to_url="/tutorial/install.html",
         )
@@ -303,7 +548,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         )
         Redirect.objects.create(
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/install.html",
             to_url="/tutorial/install.html?query=one",
         )
@@ -335,7 +580,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
         )
@@ -352,7 +597,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/versions.json",
             to_url="/en/latest/versions.json",
         )
@@ -365,20 +610,20 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/versions.json",
         )
 
-    def test_redirect_exact_with_rest(self):
+    def test_redirect_exact_with_wildcard(self):
         """
-        Exact redirects can have a ``$rest`` in the ``from_url``.
+        Exact redirects can have a ``*`` at the end of ``from_url``.
 
         Use case: we want to deprecate version ``2.0`` and replace it by
-        ``3.0``. We write an exact redirect from ``/en/2.0/$rest`` to
-        ``/en/3.0/``.
+        ``3.0``. We write an exact redirect from ``/en/2.0/*`` to
+        ``/en/3.0/:splat``.
         """
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
-            from_url="/en/latest/$rest",
-            to_url="/en/version/",  # change version
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/en/version/:splat",  # change version
         )
         self.assertEqual(self.project.redirects.count(), 1)
         r = self.client.get(
@@ -398,9 +643,9 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.translation,
-            redirect_type="exact",
-            from_url="/es/version/$rest",
-            to_url="/en/master/",  # change language and version
+            redirect_type=EXACT_REDIRECT,
+            from_url="/es/version/*",
+            to_url="/en/master/:splat",  # change language and version
         )
         r = self.client.get(
             "/es/version/guides/install.html",
@@ -410,6 +655,73 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         self.assertEqual(
             r["Location"],
             "http://project.dev.readthedocs.io/en/master/guides/install.html",
+        )
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/tutorials/*",
+            to_url="/en/latest/tutorial.html",
+        )
+        r = self.client.get(
+            "/en/latest/tutorials/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"], "http://project.dev.readthedocs.io/en/latest/tutorial.html"
+        )
+
+    def test_page_redirect_with_wildcard(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/*",
+            to_url="/guides/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/guides/install.html",
+        )
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/guides/*",
+            to_url="/guides/redirects/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/guides/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/guides/redirects/install.html",
+        )
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/tutorials/*",
+            to_url="/tutorial.html",
+        )
+        r = self.client.get(
+            "/en/latest/tutorials/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"], "http://project.dev.readthedocs.io/en/latest/tutorial.html"
         )
 
     def test_redirect_inactive_version(self):
@@ -428,7 +740,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/oldversion/",
             to_url="/en/newversion/",
         )
@@ -445,7 +757,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/how_to_install.html",
             to_url="/install.html",
         )
@@ -465,7 +777,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/how_to_install.html",
             to_url="/install.html",
         )
@@ -483,7 +795,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/install.html",
             to_url="/tutorial/install.html",
         )
@@ -511,7 +823,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
         )
         r = self.client.get(
             "/en/latest/faq/", headers={"host": "project.dev.readthedocs.io"}
@@ -533,7 +845,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
         )
 
         with override_settings(PYTHON_MEDIA=False):
@@ -558,7 +870,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
         )
         r = self.client.get(
             "/en/latest/faq/index.html", headers={"host": "project.dev.readthedocs.io"}
@@ -573,7 +885,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_htmldir",
+            redirect_type=HTML_TO_CLEAN_URL_REDIRECT,
         )
         r = self.client.get(
             "/en/latest/faq.html", headers={"host": "project.dev.readthedocs.io"}
@@ -588,8 +900,9 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/woot/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/woot/*",
+            to_url="/en/latest/:splat",
             http_status=301,
         )
         r = self.client.get(
@@ -606,8 +919,9 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
         )
 
         with self.assertRaises(Http404):
@@ -617,6 +931,40 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
 
+    def test_page_redirect_with_and_without_trailing_slash(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/install",
+            to_url="/tutorial/install/",
+        )
+
+        for url in ["/en/latest/install", "/en/latest/install/"]:
+            resp = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(
+                resp["Location"],
+                "http://project.dev.readthedocs.io/en/latest/tutorial/install/",
+            )
+
+    def test_exact_redirect_with_and_without_trailing_slash(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install",
+            to_url="/en/latest/tutorial/install/",
+        )
+
+        for url in ["/en/latest/install", "/en/latest/install/"]:
+            resp = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(
+                resp["Location"],
+                "http://project.dev.readthedocs.io/en/latest/tutorial/install/",
+            )
+
 
 @override_settings(PUBLIC_DOMAIN="dev.readthedocs.io")
 class UserForcedRedirectTests(BaseDocServing):
@@ -624,7 +972,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
             force=False,
@@ -634,7 +982,7 @@ class UserForcedRedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 200)
 
-    def test_prefix_redirect(self):
+    def test_exact_redirect_with_wildcard(self):
         """
         Test prefix redirect.
 
@@ -645,8 +993,9 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/woot/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/woot/*",
+            to_url="/en/latest/:splat",
             force=True,
         )
         r = self.client.get(
@@ -659,7 +1008,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/install.html",
             to_url="/install.html",
             force=True,
@@ -675,7 +1024,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/install.html",
             to_url=f"https://{host}/install.html",
             force=True,
@@ -693,7 +1042,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/install.html",
             to_url="/tutorial/install.html",
             force=True,
@@ -711,7 +1060,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/install.html",
             to_url="/tutorial/install.html",
             force=True,
@@ -730,7 +1079,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
             force=True,
@@ -744,13 +1093,13 @@ class UserForcedRedirectTests(BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
 
-    def test_redirect_exact_with_rest(self):
+    def test_redirect_exact_with_wildcard(self):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
-            from_url="/en/latest/$rest",
-            to_url="/en/version/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/en/version/:splat",
             force=True,
         )
         self.assertEqual(self.project.redirects.count(), 1)
@@ -767,9 +1116,9 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.translation,
-            redirect_type="exact",
-            from_url="/es/latest/$rest",
-            to_url="/en/master/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/es/latest/*",
+            to_url="/en/master/:splat",
             force=True,
         )
         r = self.client.get(
@@ -788,7 +1137,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/how_to_install.html",
             to_url="/install.html",
             force=True,
@@ -807,7 +1156,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="page",
+            redirect_type=PAGE_REDIRECT,
             from_url="/install.html",
             to_url="/tutorial/install.html",
             force=True,
@@ -831,7 +1180,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
             force=True,
         )
         r = self.client.get(
@@ -847,7 +1196,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
             force=True,
         )
         r = self.client.get(
@@ -863,7 +1212,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_htmldir",
+            redirect_type=HTML_TO_CLEAN_URL_REDIRECT,
             force=True,
         )
         r = self.client.get(
@@ -879,7 +1228,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
             http_status=301,
@@ -901,7 +1250,7 @@ class UserForcedRedirectTests(BaseDocServing):
     ROOT_URLCONF="readthedocs.proxito.tests.handler_404_urls",
 )
 class UserRedirectCrossdomainTest(BaseDocServing):
-    def test_redirect_prefix_crossdomain(self):
+    def test_redirect_exact_redirect_with_wildcard_crossdomain(self):
         """
         Avoid redirecting to an external site unless the external site is in to_url.
 
@@ -911,8 +1260,9 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
         )
 
         urls = [
@@ -949,12 +1299,13 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
 
-    def test_redirect_prefix_crossdomain_with_newline_chars(self):
+    def test_redirect_exact_with_wildcard_crossdomain_with_newline_chars(self):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
         )
         urls = [
             (
@@ -971,14 +1322,46 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
 
-    def test_redirect_sphinx_htmldir_crossdomain(self):
+    def test_redirect_exact_with_wildcard_crossdomain(self):
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/:splat",
+        )
+        urls = [
+            (
+                "http://project.dev.readthedocs.io/en/latest/%0D/example.com/path.html",
+                "http://project.dev.readthedocs.io//example.com/path.html",
+            ),
+            # These are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/en/latest//example.com",
+                "/en/latest/example.com",
+            ),
+            (
+                "http://project.dev.readthedocs.io/en/latest/https://example.com",
+                "/en/latest/https:/example.com",
+            ),
+        ]
+        for url, expected_location in urls:
+            r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
+            self.assertNotIn("X-RTD-Resolver-Filename", r.headers)
+
+    def test_redirect_html_to_clean_url_crossdomain(self):
         """
         Avoid redirecting to an external site unless the external site is in to_url
         """
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_htmldir",
+            redirect_type=HTML_TO_CLEAN_URL_REDIRECT,
         )
 
         urls = [
@@ -1007,12 +1390,12 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
 
-    def test_redirect_sphinx_html_crossdomain(self):
+    def test_redirect_clean_url_to_html_crossdomain(self):
         """Avoid redirecting to an external site unless the external site is in to_url."""
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
         )
 
         urls = [
@@ -1047,9 +1430,9 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         redirect = fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
-            from_url="/projects/$rest",
-            to_url="https://example.com/projects/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/projects/*",
+            to_url="https://example.com/projects/:splat",
         )
         self.assertEqual(self.project.redirects.count(), 1)
         r = self.client.get(
@@ -1062,8 +1445,8 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             "https://example.com/projects/deleted-subproject/en/latest/guides/install.html",
         )
 
-        redirect.from_url = "/projects/not-found/$rest"
-        redirect.to_url = "/projects/subproject/"
+        redirect.from_url = "/projects/not-found/*"
+        redirect.to_url = "/projects/subproject/:splat"
         redirect.save()
         r = self.client.get(
             "/projects/not-found/en/latest/guides/install.html",
@@ -1074,3 +1457,60 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             r["Location"],
             "http://project.dev.readthedocs.io/projects/subproject/en/latest/guides/install.html",
         )
+
+    def test_page_redirect_crossdomain(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/install.html",
+            to_url="https://example.com/",
+        )
+        r = self.client.get(
+            "/en/latest/install.html", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/")
+
+    def test_page_redirect_with_wildcard_crossdomain(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/tutorial/*",
+            to_url="https://example.com/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/tutorial/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/install.html")
+
+    def test_exact_redirect_crossdomain(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="https://example.com/",
+        )
+        r = self.client.get(
+            "/en/latest/install.html", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/")
+
+    def test_exact_redirect_with_wildcard_crossdomain(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="https://example.com/:splat",
+        )
+        r = self.client.get(
+            "/en/latest/install.html", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/install.html")

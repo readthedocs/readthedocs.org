@@ -20,10 +20,9 @@ from readthedocs.subscriptions.tasks import (
     RTD_ALLOW_ORGANIZATIONS=True,
     RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
 )
-@mock.patch("readthedocs.notifications.backends.send_email")
-@mock.patch("readthedocs.notifications.storages.FallbackUniqueStorage")
+@mock.patch("readthedocs.notifications.email.send_email")
 class DailyEmailTests(TestCase):
-    def test_trial_ending(self, mock_storage_class, mock_send_email):
+    def test_trial_ending(self, mock_send_email):
         """Trial ending daily email."""
         now = timezone.now()
 
@@ -54,22 +53,8 @@ class DailyEmailTests(TestCase):
             created=now - timedelta(days=25),
         )
 
-        mock_storage = mock.Mock()
-        mock_storage_class.return_value = mock_storage
-
         daily_email()
 
-        self.assertEqual(mock_storage.add.call_count, 1)
-        mock_storage.add.assert_has_calls(
-            [
-                mock.call(
-                    message=mock.ANY,
-                    extra_tags="",
-                    level=31,
-                    user=owner1,
-                ),
-            ]
-        )
         self.assertEqual(mock_send_email.call_count, 1)
         mock_send_email.assert_has_calls(
             [
@@ -83,9 +68,7 @@ class DailyEmailTests(TestCase):
             ]
         )
 
-    def test_organizations_to_be_disable_email(
-        self, mock_storage_class, mock_send_email
-    ):
+    def test_organizations_to_be_disabled_email(self, mock_send_email):
         """Subscription ended ``DISABLE_AFTER_DAYS`` days ago daily email."""
         customer1 = get(djstripe.Customer)
         latest_invoice1 = get(
@@ -127,22 +110,8 @@ class DailyEmailTests(TestCase):
             stripe_subscription=sub2,
         )
 
-        mock_storage = mock.Mock()
-        mock_storage_class.return_value = mock_storage
-
         daily_email()
 
-        self.assertEqual(mock_storage.add.call_count, 1)
-        mock_storage.add.assert_has_calls(
-            [
-                mock.call(
-                    message=mock.ANY,
-                    extra_tags="",
-                    level=31,
-                    user=owner1,
-                ),
-            ]
-        )
         self.assertEqual(mock_send_email.call_count, 1)
         mock_send_email.assert_has_calls(
             [

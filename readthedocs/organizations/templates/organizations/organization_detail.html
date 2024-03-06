@@ -9,6 +9,8 @@
 {% block organization-bar-details %}active{% endblock %}
 
 {% block content %}
+  {% include "core/notifications.html" with notifications=notifications %}
+
   <div class="col-major organization-major">
     <div class="module organization organization-detail">
       {% if projects|length == 0 %}

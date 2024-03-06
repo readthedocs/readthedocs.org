@@ -8,7 +8,6 @@ from celery.worker.request import Request
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import (
     BUILD_FINAL_STATES,
@@ -18,6 +17,8 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
+from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.notifications.models import Notification
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -129,12 +130,13 @@ def finish_inactive_builds():
 
         build.success = False
         build.state = BUILD_STATE_CANCELLED
-        build.error = _(
-            "This build was terminated due to inactivity. If you "
-            "continue to encounter this error, file a support "
-            "request with and reference this build id ({}).".format(build.pk),
-        )
         build.save()
+
+        Notification.objects.add(
+            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
+            attached_to=build,
+        )
+
         builds_finished.append(build.pk)
         projects_finished.add(build.project.slug)
 

@@ -50,6 +50,8 @@ class PublicDetailPrivateListing(BasePermission):
 
     * Always give permission for a ``detail`` request
     * Only give permission for ``listing`` request if user is admin of the project
+
+    However, for notification endpoints we only allow users with access to the project.
     """
 
     def has_permission(self, request, view):
@@ -61,11 +63,29 @@ class PublicDetailPrivateListing(BasePermission):
         if view.detail and view.action in ("list", "retrieve", "superproject"):
             # detail view is only allowed on list/retrieve actions (not
             # ``update`` or ``partial_update``).
-            return True
+            if view.basename not in (
+                "projects-notifications",
+                "projects-builds-notifications",
+            ):
+                # We don't want to give detail access to resources'
+                # notifications to users that don't have access to those
+                # resources.
+                return True
 
-        project = view._get_parent_project()
-        if view.has_admin_permission(request.user, project):
-            return True
+        if view.basename.startswith("projects"):
+            project = view._get_parent_project()
+            if view.has_admin_permission(request.user, project):
+                return True
+
+        if view.basename.startswith("organizations"):
+            organization = view._get_parent_organization()
+            if view.has_admin_permission(request.user, organization):
+                return True
+
+        if view.basename.startswith("users"):
+            user = view._get_parent_user()
+            if view.has_admin_permission(request.user, user):
+                return True
 
         return False
 
