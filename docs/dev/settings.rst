@@ -157,15 +157,13 @@ providers using the following environment variables:
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITLAB_SECRET
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_BITBUCKET_OAUTH2_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_BITBUCKET_OAUTH2_SECRET
-.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_BITBUCKET_CLIENT_ID
-.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_BITBUCKET_SECRET
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_SECRET
 
 Stripe secrets
 ~~~~~~~~~~~~~~
 
-The following secrets are required to use `djstripe` and our Stripe integration.
+The following secrets are required to use ``djstripe`` and our Stripe integration.
 
 .. envvar:: RTD_STRIPE_SECRET
 .. envvar:: RTD_STRIPE_PUBLISHABLE
