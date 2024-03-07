@@ -204,7 +204,7 @@ def sort_versions_python_packaging(version_list, latest_stable_at_beginning):
 
     all_versions = (
         initial_versions
-        + sorted(valid_versions, key=operator.itemgetter(1))
+        + sorted(valid_versions, key=operator.itemgetter(1), reverse=True)
         + invalid_versions
     )
 
@@ -265,7 +265,7 @@ def sort_versions_custom_pattern(version_list, raw_pattern, latest_stable_at_beg
 
     all_versions = (
         initial_versions
-        + sorted(valid_versions, key=operator.itemgetter(1))
+        + sorted(valid_versions, key=operator.itemgetter(1), reverse=True)
         + invalid_versions
     )
 

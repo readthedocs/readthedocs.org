@@ -39,10 +39,10 @@ class TestVersionHandling:
         expected = [
             # `latest` and `stable` are at the beginning
             "latest",
-            "v1.0",
+            "2.5.3",
             "1.1",
             "1.1.0",
-            "2.5.3",
+            "v1.0",
             # Invalid versions are at the end sorted alphabetically.
             "another-invalid",
             "invalid",
@@ -72,10 +72,10 @@ class TestVersionHandling:
         ]
 
         expected = [
-            "v1.0",
+            "2.5.3",
             "1.1",
             "1.1.0",
-            "2.5.3",
+            "v1.0",
             # Invalid versions are at the end sorted alphabetically.
             "another-invalid",
             "invalid",
@@ -116,10 +116,10 @@ class TestVersionHandling:
             # `latest` and `stable` are at the beginning
             "latest",
             "stable",
-            "2021.01.22",
-            "2022.01.22",
-            "2022.05.02",
             "2023.04.22",
+            "2022.05.02",
+            "2022.01.22",
+            "2021.01.22",
             # invalid ones (alphabetically)
             "1.1",
             "1.1.0",
@@ -171,9 +171,9 @@ class TestVersionHandling:
             # `latest` and `stable` are at the beginning
             "latest",
             "stable",
-            "v1.0",
-            "v1.1",
             "v2.3",
+            "v1.1",
+            "v1.0",
             # invalid ones (alphabetically)
             "1.1",
             "2.5.3",
