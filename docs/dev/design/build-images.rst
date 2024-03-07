@@ -287,7 +287,7 @@ How do we remove an old Python version?
 At some point, an old version of Python will be deprecated (eg. 3.4) and will be removed.
 To achieve this, we can just remove the pre-compiled Python version from the cache.
 
-However, unless it's strictly neeed for some specific reason, we shouldn't require to remove support for a Python version
+However, unless it's strictly needed for some specific reason, we shouldn't require to remove support for a Python version
 as long as we support the Ubuntu OS version where this version was compiled for.
 
 In any case, we will know which projects are using these versions because they are pinning these specific versions in the config file.

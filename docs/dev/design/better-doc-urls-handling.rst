@@ -61,7 +61,7 @@ Look up process
 ---------------
 
 Proxito will process all documentation requests from a single *docs serve* view,
-exluding ``/_`` URLs.
+excluding ``/_`` URLs.
 
 This view then will process the current URL using the root project as follows:
 

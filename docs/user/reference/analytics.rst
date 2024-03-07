@@ -5,7 +5,7 @@ Analytics for search and traffic
 
 Read the Docs supports analytics for search and traffic.
 When someone reads your documentation,
-we collect data about the vist and the referer
+we collect data about the visit and the referer
 with full respect of the privacy of the visitor.
 
 

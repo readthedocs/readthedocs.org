@@ -97,7 +97,7 @@ def sort_versions(version_list):
 
     :returns: sorted list in descending order (latest version first) of versions
 
-    :rtype: list(tupe(readthedocs.builds.models.Version,
+    :rtype: list(tuple(readthedocs.builds.models.Version,
             packaging.version.Version))
     """
     versions = []
@@ -121,7 +121,7 @@ def highest_version(version_list):
     """
     Return the highest version for a given ``version_list``.
 
-    :rtype: tupe(readthedocs.builds.models.Version, packaging.version.Version)
+    :rtype: tuple(readthedocs.builds.models.Version, packaging.version.Version)
     """
     versions = sort_versions(version_list)
     if versions:

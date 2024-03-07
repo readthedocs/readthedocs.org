@@ -58,7 +58,7 @@ class RedirectQuerySet(models.QuerySet):
         normalized_filename = self._normalize_path(filename)
         normalized_path = self._normalize_path(path)
 
-        # Useful to allow redirects to match paths with or without trailling slash.
+        # Useful to allow redirects to match paths with or without trailing slash.
         # For example, ``/docs`` will match ``/docs/`` and ``/docs``.
         filename_without_trailling_slash = normalized_filename.rstrip("/")
         path_without_trailling_slash = normalized_path.rstrip("/")
