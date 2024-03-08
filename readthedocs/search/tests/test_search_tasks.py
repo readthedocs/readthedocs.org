@@ -1,13 +1,13 @@
 """Tests for search tasks."""
 
 from unittest import mock
-import pytest
 
+import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from readthedocs.search.models import SearchQuery
 from readthedocs.search import tasks
+from readthedocs.search.models import SearchQuery
 
 
 @pytest.mark.django_db

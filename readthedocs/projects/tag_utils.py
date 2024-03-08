@@ -1,8 +1,8 @@
 """Customizations to Django Taggit."""
+import requests
 from allauth.socialaccount.models import SocialApp
 from django.db.models import Count
 from django.utils.text import slugify
-import requests
 from taggit.models import Tag
 from taggit.utils import _parse_tags
 

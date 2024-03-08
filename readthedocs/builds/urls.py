@@ -3,7 +3,6 @@
 from django.urls import re_path
 from django.views.generic.base import RedirectView
 
-
 urlpatterns = [
     re_path(
         r"^(?P<project_slug>[-\w]+)/(?P<build_pk>\d+)/$",
