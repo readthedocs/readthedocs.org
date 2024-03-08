@@ -5,6 +5,7 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 import os
+import shutil
 import signal
 import socket
 import subprocess
@@ -606,7 +607,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # These output format does not support multiple files yet.
             # In case multiple files are found, the upload for this format is not performed.
             if artifact_type in ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT:
-                artifact_format_files = len(os.listdir(artifact_directory))
+                list_dir = os.listdir(artifact_directory)
+                artifact_format_files = len(list_dir)
                 if artifact_format_files > 1:
                     log.error(
                         "Multiple files are not supported for this format. "
@@ -625,6 +627,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         format_values={
                             "artifact_type": artifact_type,
                         },
+                    )
+
+                # TODO: improve this renaming :)
+                if artifact_format_files == 1:
+                    filename = list_dir[0]
+                    _, extension = filename.rsplit(".")
+                    shutil.mv(
+                        list_dir[0],
+                        f"{self.data.project.slug}-{self.data.version.slug}.{extension}",
                     )
 
             # If all the conditions were met, the artifact is valid
