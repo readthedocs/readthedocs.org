@@ -1,5 +1,4 @@
 import structlog
-
 from dateutil.parser import parse
 from django.apps import apps
 from django.conf import settings

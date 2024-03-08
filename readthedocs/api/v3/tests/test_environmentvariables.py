@@ -1,8 +1,9 @@
-from .mixins import APIEndpointMixin
+import django_dynamic_fixture as fixture
 from django.urls import reverse
 
-import django_dynamic_fixture as fixture
 from readthedocs.projects.models import EnvironmentVariable
+
+from .mixins import APIEndpointMixin
 
 
 class EnvironmentVariablessEndpointTests(APIEndpointMixin):

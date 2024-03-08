@@ -1,7 +1,6 @@
 """Audit module."""
 
 import structlog
-
 from django.apps import AppConfig
 
 log = structlog.get_logger(__name__)
