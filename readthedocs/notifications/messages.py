@@ -135,7 +135,7 @@ BUILD_MESSAGES = [
             """
             ).strip(),
         ),
-        type=ERROR,
+        type=WARNING,
     ),
     Message(
         id=BuildCancelled.CANCELLED_BY_USER,
