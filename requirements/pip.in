@@ -76,7 +76,7 @@ redis
 celery==5.2.7
 django-celery-beat
 
-# Docker images need a dependency explicity marked for tzdata in order to have
+# Docker images need a dependency explicitly marked for tzdata in order to have
 # necessary timezone data.
 # https://github.com/readthedocs/readthedocs.org/issues/10453
 # TODO: remove this dependency once we upgrade Celery. It should auto-install it.

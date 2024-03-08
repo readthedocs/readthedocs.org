@@ -35,7 +35,7 @@ class ClientError(Exception):
     VERSION_NOT_CURRENTLY_SUPPORTED = (
         "The version specified in 'api-version' is currently not supported"
     )
-    VERSION_INVALID = "The version specifified in 'api-version' is invalid"
+    VERSION_INVALID = "The version specified in 'api-version' is invalid"
 
 
 class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
@@ -327,13 +327,13 @@ class AddonsResponse:
                 "external_version_warning": {
                     "enabled": project.addons.external_version_warning_enabled,
                     # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
+                    # since we are doing floating notifications now.
                     # "query_selector": "[role=main]",
                 },
                 "non_latest_version_warning": {
                     "enabled": project.addons.stable_latest_version_warning_enabled,
                     # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
+                    # since we are doing floating notifications now.
                     # "query_selector": "[role=main]",
                     "versions": list(
                         versions_active_built_not_hidden.values_list("slug", flat=True)
@@ -472,7 +472,7 @@ class AddonsResponse:
                 {
                     "ethicalads": {
                         "enabled": project.addons.ethicalads_enabled,
-                        # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
+                        # NOTE: this endpoint is not authenticated, the user checks are done over an anonymous user for now
                         #
                         # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here
                         "ad_free": is_ad_free_user(AnonymousUser())

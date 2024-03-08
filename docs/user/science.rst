@@ -130,7 +130,7 @@ Here are some popular activities that are well-supported by Jupyter Book:
 Ready to get started?
 """""""""""""""""""""
 
-.. Note that this is a deliberate repitition of a previous segment. Should it repeat? Maybe not, but for now it's nice to be sure that people see it.
+.. Note that this is a deliberate repetition of a previous segment. Should it repeat? Maybe not, but for now it's nice to be sure that people see it.
 
 * All new to this? Take the official :external+jupyterbook:doc:`Jupyter Book Tutorial » <start/your-first-book>`
 * Curious for practical code? See the list of :doc:`example projects » </examples>`

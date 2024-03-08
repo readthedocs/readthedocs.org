@@ -86,7 +86,7 @@ See our :doc:`/config-file/index` docs for more details.
    Using a configuration file :doc:`is required from September 2023 <rtd-blog:migrate-configuration-v2>`.
 
 It is also important to note that the default version of Sphinx is ``v1.8.5``.
-We recommend to set the version your project uses :doc:`explicitily with pinned dependencies </guides/reproducible-builds>`.
+We recommend to set the version your project uses :doc:`explicitly with pinned dependencies </guides/reproducible-builds>`.
 
 Read the Docs will host multiple versions of your code. You can read more about
 how to use this well on our :doc:`/versions` page.
