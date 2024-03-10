@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.54
+boto3==1.34.59
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.54
+botocore==1.34.59
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -106,7 +106,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.10
+django==4.2.11
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -136,7 +136,7 @@ django-autoslug==1.9.9
     # via -r requirements/pip.txt
 django-cacheops==7.0.2
     # via -r requirements/pip.txt
-django-celery-beat==2.5.0
+django-celery-beat==2.6.0
     # via -r requirements/pip.txt
 django-cors-headers==4.3.1
     # via -r requirements/pip.txt
@@ -150,7 +150,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==23.5
+django-filter==24.1
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -232,7 +232,7 @@ idna==3.6
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.22.1
+ipython==8.22.2
     # via ipdb
 jedi==0.19.1
     # via ipython
@@ -406,7 +406,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.13.0
+tox==4.14.1
     # via -r requirements/docker.in
 traitlets==5.14.1
     # via
