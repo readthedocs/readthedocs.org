@@ -30,7 +30,7 @@ def enable_addons_on_new_mkdocs_projects(instance, *args, **kwargs):
     """
     Enable Addons on projects created after 2024-04-01.
 
-    We removed all the `mkdocs.yml` manipulation that set the `readthedocs` if
+    We removed all the `mkdocs.yml` manipulation that set the theme to `readthedocs` if
     undefined and injects JS and CSS files to show the old flyout.
 
     Now, we are enabling addons by default on this projects to move forward
