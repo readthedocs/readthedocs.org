@@ -49,8 +49,9 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
-from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError, BuildUserError
 from readthedocs.integrations.models import GenericAPIWebhook, Integration
+from readthedocs.notifications.constants import READ, UNREAD
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
     RemoteOrganization,
@@ -1566,6 +1567,43 @@ class APITests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertDictEqual(expected, resp.data)
+
+    def test_add_notification_deduplicated(self):
+        project = get(Project)
+        build = get(Build, project=project)
+        data = {
+            "attached_to": f"build/{build.pk}",
+            "message_id": BuildMaxConcurrencyError.LIMIT_REACHED,
+            "state": READ,
+            "dismissable": False,
+            "news": False,
+            "format_values": {"limit": 10},
+        }
+
+        url = "/api/v2/notifications/"
+
+        self.client.logout()
+
+        self.assertEqual(Notification.objects.count(), 0)
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        response = client.post(url, data=data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Notification.objects.count(), 1)
+        n1 = Notification.objects.first()
+
+        # Adding the same notification, de-duplicates it
+        response = client.post(url, data=data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Notification.objects.count(), 1)
+        n2 = Notification.objects.first()
+
+        self.assertEqual(n1.pk, n2.pk)
+        self.assertEqual(n1.state, READ)
+        self.assertEqual(n2.state, UNREAD)
+        self.assertNotEqual(n1.modified, n2.modified)
 
 
 class APIImportTests(TestCase):
