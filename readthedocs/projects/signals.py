@@ -46,7 +46,7 @@ def enable_addons_on_new_mkdocs_projects(instance, *args, **kwargs):
         > datetime.datetime(2023, 4, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
         and instance.documentation_type == MKDOCS
     ):
-        created, config = AddonsConfig.objects.get_or_create(project=project)
+        config, created = AddonsConfig.objects.get_or_create(project=project)
         if created:
             log.info(
                 "Creating AddonsConfig automatically for MkDocs project.",
