@@ -48,7 +48,8 @@ if you have environment variables with private information, make sure they aren'
 See :ref:`environment-variables:Environment variables and build process` for more information.
 
 On |com_brand| you can set pull request previews to be private or public,
-if you didn't import your project manually, the privacy level of pull request previews will match your repository.
+If you didn’t import your project manually and your repository is public,
+the privacy level of pull request previews will be set to *Public*.
 Public pull request previews are available to anyone with the link to the preview,
 while private previews are only available to users with access to the Read the Docs project.
 

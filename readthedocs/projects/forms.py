@@ -64,6 +64,9 @@ class ProjectTriggerBuildMixin:
     """
     Mixin to trigger build on form save.
 
+    We trigger a build to the default branch and the LATEST version of the project,
+    since both are related, latest is an alias of the default version.
+
     This should be replaced with signals instead of calling trigger_build
     explicitly.
     """
@@ -72,7 +75,18 @@ class ProjectTriggerBuildMixin:
         """Trigger build on commit save."""
         project = super().save(commit)
         if commit:
-            trigger_build(project=project)
+            default_branch = project.versions.filter(
+                slug=project.get_default_branch()
+            ).first()
+            if default_branch and default_branch.active:
+                trigger_build(project=project, version=default_branch)
+            latest_version = project.get_latest_version()
+            if (
+                latest_version
+                and latest_version != default_branch
+                and latest_version.active
+            ):
+                trigger_build(project=project, version=latest_version)
         return project
 
 
@@ -371,16 +385,15 @@ class UpdateProjectForm(
 
     def setup_external_builds_option(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
-        if settings.ALLOW_PRIVATE_REPOS and self.instance.remote_repository:
+        if (
+            settings.ALLOW_PRIVATE_REPOS
+            and self.instance.remote_repository
+            and not self.instance.remote_repository.private
+        ):
             self.fields["external_builds_privacy_level"].disabled = True
-            if self.instance.remote_repository.private:
-                help_text = _(
-                    "We have detected that this project is private, pull request previews are set to private."
-                )
-            else:
-                help_text = _(
-                    "We have detected that this project is public, pull request previews are set to public."
-                )
+            help_text = _(
+                "We have detected that this project is public, pull request previews are set to public."
+            )
             self.fields["external_builds_privacy_level"].help_text = help_text
 
         integrations = list(self.instance.integrations.all())

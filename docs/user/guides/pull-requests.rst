@@ -26,7 +26,8 @@ Privacy levels
 
    Privacy levels are only supported on :doc:`/commercial/index`.
 
-If you didn’t import your project manually, the privacy level of pull request previews will match your repository,
+If you didn’t import your project manually and your repository is public,
+the privacy level of pull request previews will be set to *Public*,
 otherwise it will be set to *Private*.
 Public pull request previews are available to anyone with the link to the preview,
 while private previews are only available to users with access to the Read the Docs project.
