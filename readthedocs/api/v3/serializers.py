@@ -11,6 +11,7 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
@@ -329,6 +330,7 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
 
 class VersionSerializer(FlexFieldsModelSerializer):
+    aliases = serializers.SerializerMethodField()
     ref = serializers.CharField()
     downloads = serializers.SerializerMethodField()
     urls = VersionURLsSerializer(source="*")
@@ -337,6 +339,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Version
         fields = [
+            "aliases",
             "id",
             "slug",
             "verbose_name",
@@ -367,6 +370,15 @@ class VersionSerializer(FlexFieldsModelSerializer):
                 data[k] = ("http:" if settings.DEBUG else "https:") + v
 
         return data
+
+    def get_aliases(self, obj):
+        if obj.slug in (STABLE, LATEST):
+            if obj.slug == STABLE:
+                alias_version = obj.project.get_original_stable_version()
+            if obj.slug == LATEST:
+                alias_version = obj.project.get_original_latest_version()
+            return [VersionSerializer(alias_version).data]
+        return []
 
 
 class VersionUpdateSerializer(serializers.ModelSerializer):

@@ -18,7 +18,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
@@ -256,6 +256,9 @@ class AddonsResponse:
         version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
 
+        stable_version = project.versions.filter(slug=STABLE).first()
+        latest_version = project.versions.filter(slug=LATEST).first()
+
         if project.supports_multiple_versions:
             versions_active_built_not_hidden = (
                 Version.internal.public(
@@ -298,6 +301,12 @@ class AddonsResponse:
             },
             "versions": {
                 "current": VersionSerializerNoLinks(version).data if version else None,
+                "stable": VersionSerializerNoLinks(stable_version).data
+                if stable_version
+                else None,
+                "latest": VersionSerializerNoLinks(latest_version).data
+                if latest_version
+                else None,
             },
             "builds": {
                 "current": BuildSerializerNoLinks(build).data if build else None,
