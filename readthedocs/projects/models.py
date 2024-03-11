@@ -1866,7 +1866,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
@@ -1897,10 +1896,6 @@ class Feature(models.Model):
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
-        (
-            MKDOCS_THEME_RTD,
-            _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
-        ),
         (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
