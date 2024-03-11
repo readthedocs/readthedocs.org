@@ -35,7 +35,7 @@ class NotificationQuerySet(models.QuerySet):
         if notification:
             # Remove the fields we are overriding.
             # Avoids passing these fields twice to ``.update()`` which
-            # raises and exception in that case.
+            # raises an exception in that case.
             kwargs.pop("state", None)
             kwargs.pop("modified", None)
 
