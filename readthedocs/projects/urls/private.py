@@ -27,7 +27,6 @@ from readthedocs.projects.views.private import (
     IntegrationExchangeDetail,
     IntegrationList,
     IntegrationWebhookSync,
-    ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectDelete,
@@ -85,7 +84,9 @@ urlpatterns = [
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/advanced/$",
-        ProjectAdvancedUpdate.as_view(),
+        login_required(
+            RedirectView.as_view(pattern_name="projects_edit", permanent=True),
+        ),
         name="projects_advanced",
     ),
     re_path(

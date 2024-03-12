@@ -1,11 +1,8 @@
-Public API
-==========
+Public REST API
+===============
 
-This section of the documentation details the public API
-usable to get details of projects, builds, versions and other details
-from Read the Docs.
-
-
+This section of the documentation details the public REST API.
+Useful to get details of projects, builds, versions, and other resources.
 
 .. toctree::
    :maxdepth: 3

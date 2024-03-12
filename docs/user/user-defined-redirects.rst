@@ -1,5 +1,5 @@
-Custom and built-in redirects on Read the Docs
-==============================================
+Redirects
+=========
 
 Over time, a documentation project may want to rename and move contents around.
 Redirects allow changes in a documentation project to happen without bad user experiences.

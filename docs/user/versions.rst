@@ -1,5 +1,5 @@
-Versioned documentation
-=======================
+Versions
+========
 
 Read the Docs supports multiple versions of your repository.
 On initial import,
@@ -161,7 +161,7 @@ a more stable version of the documentation available. Specifically:
 
 
 This feature is enabled by default on projects using the new beta addons.
-The beta addons can be enabled by using ``build.commands`` config key or via the new beta dashboard (https://beta.readthedocs.org) going to the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`)
+The beta addons can be enabled by using ``build.commands`` config key or via the new beta dashboard (https://beta.readthedocs.org) going to the admin section of your docs (:guilabel:`Admin` > :guilabel:`Settings`)
 
 .. note::
 

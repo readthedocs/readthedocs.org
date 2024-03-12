@@ -19,7 +19,7 @@ from readthedocs.core.utils.extend import get_override_class
 log = structlog.get_logger(__name__)
 
 
-__all__ = ['VersionManager']
+__all__ = ["VersionManager"]
 
 
 class VersionManager(models.Manager):
@@ -44,29 +44,29 @@ class VersionManager(models.Manager):
 
     def create_stable(self, **kwargs):
         defaults = {
-            'slug': STABLE,
-            'verbose_name': STABLE_VERBOSE_NAME,
-            'machine': True,
-            'active': True,
+            "slug": STABLE,
+            "verbose_name": STABLE_VERBOSE_NAME,
+            "machine": True,
+            "active": True,
             # TODO: double-check if we still require the `identifier: STABLE` field.
             # At the time of creation, we don't really know what's the branch/tag identifier
             # for the STABLE version. It makes sense to be `None`, probably.
             #
             # Note that we removed the `identifier: LATEST` from `create_latest` as a way to
             # use the default branch.
-            'identifier': STABLE,
-            'type': TAG,
+            "identifier": STABLE,
+            "type": TAG,
         }
         defaults.update(kwargs)
         return self.create(**defaults)
 
     def create_latest(self, **kwargs):
         defaults = {
-            'slug': LATEST,
-            'verbose_name': LATEST_VERBOSE_NAME,
-            'machine': True,
-            'active': True,
-            'type': BRANCH,
+            "slug": LATEST,
+            "verbose_name": LATEST_VERBOSE_NAME,
+            "machine": True,
+            "active": True,
+            "type": BRANCH,
         }
         defaults.update(kwargs)
         return self.create(**defaults)
@@ -81,7 +81,7 @@ class VersionManager(models.Manager):
         try:
             return super().get(**kwargs)
         except ObjectDoesNotExist:
-            log.warning('Version not found for given kwargs.', kwargs=kwargs)
+            log.warning("Version not found for given kwargs.", kwargs=kwargs)
 
 
 class InternalVersionManager(VersionManager):
@@ -135,7 +135,6 @@ class ExternalBuildManager(models.Manager):
 
 
 class AutomationRuleMatchManager(models.Manager):
-
     def register_match(self, rule, version, max_registers=15):
         created = self.create(
             rule=rule,

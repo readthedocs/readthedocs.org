@@ -35,7 +35,7 @@ Enabling Google Analytics on your project
 Read the Docs has native support for Google Analytics.
 You can enable it by:
 
-* Going to :guilabel:`Admin` > :guilabel:`Advanced Settings` in your project.
+* Going to :guilabel:`Admin` > :guilabel:`Settings` in your project.
 * Fill in the **Analytics code** heading with your Google Tracking ID (example `UA-123456674-1`)
 
 .. figure:: /_static/images/google-analytics-options.png
@@ -65,7 +65,7 @@ Disabling Google Analytics on your project
 Google Analytics can be completely disabled on your own projects.
 To disable Google Analytics:
 
-* Going to :guilabel:`Admin` > :guilabel:`Advanced Settings` in your project.
+* Going to :guilabel:`Admin` > :guilabel:`Settings` in your project.
 * Check the box **Disable Analytics**.
 
 Your documentation will need to be rebuilt for this change to take effect.

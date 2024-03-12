@@ -22,15 +22,3 @@ Explanation
 
 ⏩️ :doc:`/environment-variables`
   An introduction to how pre-defined and user-defined environment variables work and how to use them.
-
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   /choosing-a-site
-   /integrations
-   /subprojects
-   /localization
-   /downloadable-documentation
-   /environment-variables

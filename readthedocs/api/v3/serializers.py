@@ -66,50 +66,7 @@ class NotificationLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
 
     def get__self(self, obj):
-        content_type_name = obj.attached_to_content_type.name
-        if content_type_name == "user":
-            url = "users-notifications-detail"
-            path = reverse(
-                url,
-                kwargs={
-                    "notification_pk": obj.pk,
-                    "parent_lookup_user__username": obj.attached_to.username,
-                },
-            )
-
-        elif content_type_name == "build":
-            url = "projects-builds-notifications-detail"
-            project_slug = obj.attached_to.project.slug
-            path = reverse(
-                url,
-                kwargs={
-                    "notification_pk": obj.pk,
-                    "parent_lookup_project__slug": project_slug,
-                    "parent_lookup_build__id": obj.attached_to_id,
-                },
-            )
-
-        elif content_type_name == "project":
-            url = "projects-notifications-detail"
-            project_slug = obj.attached_to.slug
-            path = reverse(
-                url,
-                kwargs={
-                    "notification_pk": obj.pk,
-                    "parent_lookup_project__slug": project_slug,
-                },
-            )
-
-        elif content_type_name == "organization":
-            url = "organizations-notifications-detail"
-            path = reverse(
-                url,
-                kwargs={
-                    "notification_pk": obj.pk,
-                    "parent_lookup_organization__slug": obj.attached_to.slug,
-                },
-            )
-
+        path = obj.get_absolute_url()
         return self._absolute_url(path)
 
 
@@ -505,6 +462,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     subprojects = serializers.SerializerMethodField()
     superproject = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
+    notifications = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse("projects-detail", kwargs={"project_slug": obj.slug})
@@ -569,6 +527,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
             "projects-translations-list",
             kwargs={
                 "parent_lookup_main_language_project__slug": obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_notifications(self, obj):
+        path = reverse(
+            "projects-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": obj.slug,
             },
         )
         return self._absolute_url(path)

@@ -265,7 +265,7 @@ messages = [
             Config validation error in <code>{{key}}</code>.
             Expected one of ({{choices}}), got type <code>{{value|to_class_name}}</code> (<code>{{value}}</code>).
             Double check the type of the value.
-            A string may be required (e.g. <code>"3.10"</code> insted of <code>3.10</code>)
+            A string may be required (e.g. <code>"3.10"</code> instead of <code>3.10</code>)
             """
             ).strip(),
         ),

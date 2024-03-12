@@ -19,6 +19,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.models import (
     AddonsConfig,
     Domain,
@@ -58,6 +59,9 @@ class ProjectTriggerBuildMixin:
     """
     Mixin to trigger build on form save.
 
+    We trigger a build to the default branch and the LATEST version of the project,
+    since both are related, latest is an alias of the default version.
+
     This should be replaced with signals instead of calling trigger_build
     explicitly.
     """
@@ -66,7 +70,18 @@ class ProjectTriggerBuildMixin:
         """Trigger build on commit save."""
         project = super().save(commit)
         if commit:
-            trigger_build(project=project)
+            default_branch = project.versions.filter(
+                slug=project.get_default_branch()
+            ).first()
+            if default_branch and default_branch.active:
+                trigger_build(project=project, version=default_branch)
+            latest_version = project.get_latest_version()
+            if (
+                latest_version
+                and latest_version != default_branch
+                and latest_version.active
+            ):
+                trigger_build(project=project, version=latest_version)
         return project
 
 
@@ -113,16 +128,15 @@ class ProjectPRBuildsMixin:
 
     def setup_external_builds_option(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
-        if settings.ALLOW_PRIVATE_REPOS and self.instance.remote_repository:
+        if (
+            settings.ALLOW_PRIVATE_REPOS
+            and self.instance.remote_repository
+            and not self.instance.remote_repository.private
+        ):
             self.fields["external_builds_privacy_level"].disabled = True
-            if self.instance.remote_repository.private:
-                help_text = _(
-                    "We have detected that this project is private, pull request previews are set to private."
-                )
-            else:
-                help_text = _(
-                    "We have detected that this project is public, pull request previews are set to public."
-                )
+            help_text = _(
+                "We have detected that this project is public, pull request previews are set to public."
+            )
             self.fields["external_builds_privacy_level"].help_text = help_text
 
         integrations = list(self.instance.integrations.all())
@@ -449,6 +463,17 @@ class UpdateProjectForm(
                     )
         return language
 
+    def clean_tags(self):
+        tags = self.cleaned_data.get("tags", [])
+        for tag in tags:
+            if len(tag) > 100:
+                raise forms.ValidationError(
+                    _(
+                        "Length of each tag must be less than or equal to 100 characters.",
+                    ),
+                )
+        return tags
+
 
 class ProjectRelationshipForm(forms.ModelForm):
     """Form to add/update project relationships."""
@@ -503,8 +528,12 @@ class AddonsConfigForm(forms.ModelForm):
             "project",
             "analytics_enabled",
             "doc_diff_enabled",
+            "doc_diff_root_selector",
             "external_version_warning_enabled",
             "flyout_enabled",
+            "flyout_sorting",
+            "flyout_sorting_latest_stable_at_beginning",
+            "flyout_sorting_custom_pattern",
             "hotkeys_enabled",
             "search_enabled",
             "stable_latest_version_warning_enabled",
@@ -518,6 +547,11 @@ class AddonsConfigForm(forms.ModelForm):
                 "Show a notification on non-stable and latest versions"
             ),
         }
+        widgets = {
+            "doc_diff_root_selector": forms.TextInput(
+                attrs={"placeholder": "[role=main]"}
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
@@ -528,6 +562,18 @@ class AddonsConfigForm(forms.ModelForm):
 
         kwargs["instance"] = addons
         super().__init__(*args, **kwargs)
+
+    def clean(self):
+        if (
+            self.cleaned_data["flyout_sorting"] == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
+            and not self.cleaned_data["flyout_sorting_custom_pattern"]
+        ):
+            raise forms.ValidationError(
+                _(
+                    "The flyout sorting custom pattern is required when selecting a custom pattern."
+                ),
+            )
+        return super().clean()
 
     def clean_project(self):
         return self.project
@@ -872,9 +918,9 @@ class IntegrationForm(forms.ModelForm):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
         # Alter the integration type choices to only provider webhooks
-        self.fields[
-            "integration_type"
-        ].choices = Integration.WEBHOOK_INTEGRATIONS  # yapf: disable  # noqa
+        self.fields["integration_type"].choices = (
+            Integration.WEBHOOK_INTEGRATIONS
+        )  # yapf: disable  # noqa
 
     def clean_project(self):
         return self.project

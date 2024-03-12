@@ -1352,6 +1352,7 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
+            self.assertNotIn("X-RTD-Resolver-Filename", r.headers)
 
     def test_redirect_html_to_clean_url_crossdomain(self):
         """

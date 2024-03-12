@@ -1,10 +1,10 @@
 """Forms for core app."""
 
 import structlog
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, Submit
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms.fields import CharField
 from django.utils.translation import gettext_lazy as _
 
@@ -22,15 +22,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         # Don't allow users edit someone else's user page
-        profile_fields = ["first_name", "last_name", "homepage"]
-        optout_email_fields = [
-            "optout_email_config_file_deprecation",
-            "optout_email_build_image_deprecation",
-        ]
-        fields = (
-            *profile_fields,
-            *optout_email_fields,
-        )
+        fields = ["first_name", "last_name", "homepage"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,20 +31,6 @@ class UserProfileForm(forms.ModelForm):
             self.fields["last_name"].initial = self.instance.user.last_name
         except AttributeError:
             pass
-
-        self.helper = FormHelper()
-        field_sets = [
-            Fieldset(
-                _("User settings"),
-                *self.Meta.profile_fields,
-            ),
-            Fieldset(
-                _("Email settings"),
-                *self.Meta.optout_email_fields,
-            ),
-        ]
-        self.helper.layout = Layout(*field_sets)
-        self.helper.add_input(Submit("save", _("Save")))
 
     def save(self, commit=True):
         first_name = self.cleaned_data.pop("first_name", None)
@@ -98,6 +76,96 @@ class UserAdvertisingForm(forms.ModelForm):
         fields = ["allow_ads"]
 
 
+class PrevalidatedForm(forms.Form):
+
+    """
+    Form class that allows raising form errors before form submission.
+
+    The base ``Form`` does not support validation errors while the form is
+    unbound (does not have ``data`` defined). There are cases in our UI where we
+    want to show errors and/or disabled the form before the user has a chance to
+    interact with the form -- for example, when a feature is unavailable or
+    disabled for the user or organization.
+
+    This provides the ``clean_prevalidation`` method, which acts much like the
+    ``clean`` method. Any validation errors raised in this method surface as non
+    field errors in the UI.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self._prevalidation_errors = None
+        super().__init__(*args, **kwargs)
+
+    def is_valid(self):
+        # This differs from ``Form`` in that we don't care if the form is bound
+        return not self.errors
+
+    @property
+    def is_disabled(self):
+        return self._prevalidation_errors is not None
+
+    def full_clean(self):
+        """
+        Extend full clean method with prevalidation cleaning.
+
+        Where :py:method:`forms.Form.full_clean` bails out if there is no bound
+        data on the form, this method always checks prevalidation no matter
+        what. This gives errors before submission and after submission.
+        """
+        # Always call prevalidation, ``full_clean`` bails if the form is unbound
+        self._clean_prevalidation()
+
+        super().full_clean()
+
+        # ``full_clean`` sets ``self._errors``, so we prepend prevalidation
+        # errors after calling the parent ``full_clean``
+        if self._prevalidation_errors is not None:
+            non_field_errors = []
+            non_field_errors.extend(self._prevalidation_errors)
+            non_field_errors.extend(self._errors.get(NON_FIELD_ERRORS, []))
+            self._errors[NON_FIELD_ERRORS] = non_field_errors
+
+    def _clean_prevalidation(self):
+        """
+        Catch validation errors raised by the subclassed ``clean_validation()``.
+
+        This wraps ``clean_prevalidation()`` using the same pattern that
+        :py:method:`form.Form._clean_form` wraps :py:method:`clean`. Validation
+        errors raised in the subclass method will be eventually added to the
+        form error list but :py:method:`full_clean`.
+        """
+        try:
+            self.clean_prevalidation()
+        except forms.ValidationError as validation_error:
+            self._prevalidation_errors = [validation_error]
+
+    def clean_prevalidation(self):
+        raise NotImplementedError()
+
+
+class RichValidationError(forms.ValidationError):
+
+    """
+    Show non-field form errors as titled messages.
+
+    This uses more of the FUI message specification to give a really clear,
+    concise error message to the user. Without this class, non-field validation
+    errors show at the top of the form with a title "Error", which isn't as
+    helpful to users as something like "Connected service required".
+
+    :param header str: Message header/title text
+    :param message_class str: FUI CSS class to use on the message -- "info",
+        etc. Default: "error".
+    """
+
+    def __init__(
+        self, message, code=None, params=None, header=None, message_class=None
+    ):
+        super().__init__(message, code, params)
+        self.header = header
+        self.message_class = message_class
+
+
 class FacetField(forms.MultipleChoiceField):
 
     """
@@ -116,3 +184,49 @@ class FacetField(forms.MultipleChoiceField):
         if ":" not in value:
             return False
         return True
+
+
+class SupportForm(forms.Form):
+    name = forms.CharField()
+    email = forms.EmailField()
+    explanation = forms.CharField(
+        label=_("Explanation of the issue"),
+        help_text=_("Please provide as much detail as possible."),
+        widget=forms.Textarea,
+    )
+    url = forms.URLField(
+        help_text=_("Is there a specific page this happened?"),
+        required=False,
+    )
+    attachment = forms.FileField(
+        label=_("Screenshot or additional file"),
+        help_text=_("Anything else that would help us solve this issue?"),
+    )
+    severity_level = forms.ChoiceField(
+        choices=(
+            ("low", _("Low")),
+            ("medium", _("Medium")),
+            ("high", _("High")),
+        ),
+        help_text=_("Please rate the severity of this event."),
+        required=False,
+    )
+    subject = forms.CharField(widget=forms.HiddenInput)
+
+    def __init__(self, user):
+        super().__init__()
+
+        self.fields["name"].initial = user.get_full_name
+        self.fields["email"].initial = user.email
+
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.fields["subject"].initial = "Commercial Support Request"
+        else:
+            self.fields["subject"].initial = "Community Support Request"
+
+            if not (user.gold.exists() or user.goldonce.exists()):
+                self.fields["severity_level"].disabled = True
+                self.fields["severity_level"].widget.attrs["readonly"] = True
+                self.fields["severity_level"].help_text = _(
+                    "This option is only enabled for Gold users."
+                )

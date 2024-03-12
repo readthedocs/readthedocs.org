@@ -367,9 +367,12 @@ MinIO as Django storage backend
     which is the one used in production.
 
 Serve documentation via El Proxito
-    Documentation is proxied by NGINX to El Proxito and proxied back to NGINX to be served finally.
     El Proxito is a small application put in front of the documentation to serve files
     from the Django Storage Backend.
+
+Use Cloudflare Wrangler
+    Documentation pages are proxied by NGINX to Wrangler, who executes a JavaScript worker
+    to fetch the response from El Proxito and injects HTML tags (for addons) based on HTTP headers.
 
 Search enabled by default
     Elasticsearch is properly configured and enabled by default.
