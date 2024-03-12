@@ -141,9 +141,8 @@ class AdminPermissionBase:
         and for an organization, this means the users that are on the same teams as `user`,
         including the organization owners.
         """
-        from readthedocs.organizations.models import Organization
+        from readthedocs.organizations.models import Organization, Team
         from readthedocs.projects.models import Project
-        from readthedocs.organizations.models import Team
 
         if isinstance(obj, Project):
             project_owners = obj.users.all()

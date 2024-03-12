@@ -94,7 +94,9 @@ class ListOrganizationMembers(FilterContextMixin, OrganizationMixin, ListView):
         return context
 
     def get_queryset(self):
-        return AdminPermission.members(obj=self.get_organization(), user=self.request.user)
+        return AdminPermission.members(
+            obj=self.get_organization(), user=self.request.user
+        )
 
     def get_success_url(self):
         return reverse_lazy(
