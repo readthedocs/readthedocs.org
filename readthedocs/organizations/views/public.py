@@ -8,6 +8,7 @@ from django.views.generic.base import TemplateView
 from vanilla import DetailView, GenericView, ListView
 
 from readthedocs.core.filters import FilterContextMixin
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.notifications.models import Notification
 from readthedocs.organizations.filters import (
     OrganizationProjectListFilterSet,
@@ -93,7 +94,7 @@ class ListOrganizationMembers(FilterContextMixin, OrganizationMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.get_organization().members
+        return AdminPermission.members(obj=self.get_organization(), user=self.request.user)
 
     def get_success_url(self):
         return reverse_lazy(

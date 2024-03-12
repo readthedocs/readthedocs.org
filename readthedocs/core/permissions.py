@@ -132,14 +132,32 @@ class AdminPermissionBase:
             return obj.owners.all()
 
     @classmethod
-    def members(cls, obj):
+    def members(cls, obj, user=None):
+        """
+        Return the users that are members of `obj`.
+
+        If `user` is provided, we return the members of `obj` that are visible to `user`.
+        For a project this means the users that have access to the project,
+        and for an organization, this means the users that are on the same teams as `user`,
+        including the organization owners.
+        """
         from readthedocs.organizations.models import Organization
         from readthedocs.projects.models import Project
+        from readthedocs.organizations.models import Team
 
         if isinstance(obj, Project):
-            return obj.users.all()
+            project_owners = obj.users.all()
+            if user and user not in project_owners:
+                return User.objects.none()
+            return project_owners
 
         if isinstance(obj, Organization):
+            if user:
+                teams = Team.objects.member(user, organization=obj)
+                return User.objects.filter(
+                    Q(teams__in=teams) | Q(owner_organizations=obj),
+                ).distinct()
+
             return User.objects.filter(
                 Q(teams__organization=obj) | Q(owner_organizations=obj),
             ).distinct()
