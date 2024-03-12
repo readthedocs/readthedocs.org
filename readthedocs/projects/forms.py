@@ -5,6 +5,7 @@ from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
+from allauth.socialaccount.models import SocialAccount
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -15,11 +16,13 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.forms import PrevalidatedForm, RichValidationError
 from readthedocs.core.history import SimpleHistoryModelForm
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.models import (
     AddonsConfig,
@@ -84,6 +87,12 @@ class ProjectTriggerBuildMixin:
             ):
                 trigger_build(project=project, version=latest_version)
         return project
+
+
+class ProjectBackendForm(forms.Form):
+    """Get the import backend."""
+
+    backend = forms.CharField()
 
 
 class ProjectPRBuildsMixin(PrevalidatedForm):
@@ -180,7 +189,6 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
 
 
 class ProjectFormPrevalidateMixin:
-
     """Provides shared logic between the automatic and manual create forms."""
 
     def __init__(self, *args, **kwargs):
@@ -228,6 +236,7 @@ class ProjectAutomaticForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
     def clean_prevalidation(self):
         """
         Block user from using this form for important blocking states.
+
         We know before the user gets a chance to use this form that the user
         might not have the ability to add a project into their organization.
         These errors are raised before the user submits the form.
@@ -284,14 +293,8 @@ class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
                 )
 
 
-class ProjectBackendForm(forms.Form):
-    """Get the import backend."""
-
-    backend = forms.CharField()
-
-
 class ProjectBasicsForm(ProjectForm):
-    """Form for basic project fields."""
+    """Form used when importing a project."""
 
     class Meta:
         model = Project
@@ -365,38 +368,6 @@ class ProjectBasicsForm(ProjectForm):
         )
 
 
-class ProjectExtraForm(ProjectForm):
-    """Additional project information form."""
-
-    class Meta:
-        model = Project
-        fields = (
-            "description",
-            "documentation_type",
-            "language",
-            "programming_language",
-            "tags",
-            "project_url",
-        )
-
-    description = forms.CharField(
-        required=False,
-        max_length=150,
-        widget=forms.Textarea,
-    )
-
-    def clean_tags(self):
-        tags = self.cleaned_data.get("tags", [])
-        for tag in tags:
-            if len(tag) > 100:
-                raise forms.ValidationError(
-                    _(
-                        "Length of each tag must be less than or equal to 100 characters.",
-                    ),
-                )
-        return tags
-
-
 class ProjectConfigForm(forms.Form):
     """Simple intermediate step to communicate about the .readthedocs.yaml file."""
 
@@ -406,27 +377,46 @@ class ProjectConfigForm(forms.Form):
         super().__init__(*args, **kwargs)
 
 
-class ProjectAdvancedForm(ProjectPRBuildsMixin, ProjectTriggerBuildMixin, ProjectForm):
-    """Advanced project option form."""
+class UpdateProjectForm(
+    ProjectTriggerBuildMixin,
+    ProjectBasicsForm,
+):
+    """Main project settings form."""
 
     class Meta:
         model = Project
         fields = (
-            "default_version",
+            # Basics and repo settings
+            "name",
+            "repo",
+            "repo_type",
             "default_branch",
+            "language",
+            "description",
+            # Project related settings
+            "default_version",
             "privacy_level",
-            "analytics_code",
-            "analytics_disabled",
-            "show_version_warning",
             "versioning_scheme",
             "external_builds_enabled",
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
+            "analytics_code",
+            "analytics_disabled",
+            "show_version_warning",
+            # Meta data
+            "programming_language",
+            "project_url",
+            "tags",
         )
+
+    description = forms.CharField(
+        required=False,
+        max_length=150,
+        widget=forms.Textarea,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         # Remove the nullable option from the form
         self.fields["analytics_disabled"].widget = forms.CheckboxInput()
         self.fields["analytics_disabled"].empty_value = False
@@ -480,17 +470,6 @@ class ProjectAdvancedForm(ProjectPRBuildsMixin, ProjectTriggerBuildMixin, Projec
 
         self.setup_external_builds_option()
 
-    def clean_conf_py_file(self):
-        filename = self.cleaned_data.get("conf_py_file", "").strip()
-        if filename and "conf.py" not in filename:
-            raise forms.ValidationError(
-                _(
-                    "Your configuration file is invalid, make sure it contains "
-                    "conf.py in it.",
-                ),
-            )  # yapf: disable
-        return filename
-
     def clean_readthedocs_yaml_path(self):
         """
         Validate user input to help user.
@@ -519,38 +498,13 @@ class ProjectAdvancedForm(ProjectPRBuildsMixin, ProjectTriggerBuildMixin, Projec
             return all_versions
         return None
 
-
-class UpdateProjectForm(
-    ProjectTriggerBuildMixin,
-    ProjectBasicsForm,
-    ProjectExtraForm,
-):
-    """Basic project settings form for Admin."""
-
-    class Meta:  # noqa
-        model = Project
-        fields = (
-            # Basics
-            "name",
-            "repo",
-            "repo_type",
-            # Extra
-            "description",
-            "language",
-            "programming_language",
-            "project_url",
-            "tags",
-        )
-
     def clean_language(self):
         """Ensure that language isn't already active."""
         language = self.cleaned_data["language"]
         project = self.instance
         if project:
             msg = _(
-                """
-                There is already a "{lang}" translation for the {proj} project.
-                """
+                'There is already a "{lang}" translation for the {proj} project.',
             )
             if project.translations.filter(language=language).exists():
                 raise forms.ValidationError(
@@ -624,6 +578,23 @@ class ProjectRelationshipForm(forms.ModelForm):
                 _("A subproject with this alias already exists"),
             )
         return alias
+
+
+class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
+    """Project pull requests configuration form."""
+
+    class Meta:
+        model = Project
+        fields = ["external_builds_enabled", "external_builds_privacy_level"]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+        self.setup_external_builds_option()
+
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("external_builds_privacy_level")
 
 
 class AddonsConfigForm(forms.ModelForm):
@@ -1050,23 +1021,6 @@ class ProjectAdvertisingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
-
-
-class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
-    """Project pull requests configuration form."""
-
-    class Meta:
-        model = Project
-        fields = ["external_builds_enabled", "external_builds_privacy_level"]
-
-    def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop("project", None)
-        super().__init__(*args, **kwargs)
-
-        self.setup_external_builds_option()
-
-        if not settings.ALLOW_PRIVATE_REPOS:
-            self.fields.pop("external_builds_privacy_level")
 
 
 class FeatureForm(forms.ModelForm):
