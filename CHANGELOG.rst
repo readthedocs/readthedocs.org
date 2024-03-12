@@ -1,3 +1,27 @@
+Version 10.22.0
+---------------
+
+:Date: March 12, 2024
+
+* `@agjohnson <https://github.com/agjohnson>`__: Add build detail view beta notification (`#11208 <https://github.com/readthedocs/readthedocs.org/pull/11208>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11203 <https://github.com/readthedocs/readthedocs.org/pull/11203>`__)
+* `@humitos <https://github.com/humitos>`__: Revert "Notifications: show "Maxium concurrency limit reached" as `WARNING`" (`#11202 <https://github.com/readthedocs/readthedocs.org/pull/11202>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: de-duplicate them when using APIv2 from builders (`#11197 <https://github.com/readthedocs/readthedocs.org/pull/11197>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: show "Maxium concurrency limit reached" as `WARNING` (`#11196 <https://github.com/readthedocs/readthedocs.org/pull/11196>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Allow setting Allauth provider secrets from host system (`#11194 <https://github.com/readthedocs/readthedocs.org/pull/11194>`__)
+* `@humitos <https://github.com/humitos>`__: Support: create a form to render it nicely in ext-theme (`#11193 <https://github.com/readthedocs/readthedocs.org/pull/11193>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: Update Google SSO docs (`#11191 <https://github.com/readthedocs/readthedocs.org/pull/11191>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: fix `choices` rendering for `INVALID_CHOICE` (`#11190 <https://github.com/readthedocs/readthedocs.org/pull/11190>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.21.0 (`#11185 <https://github.com/readthedocs/readthedocs.org/pull/11185>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: force PR previews to match repo only if the repo is public (`#11184 <https://github.com/readthedocs/readthedocs.org/pull/11184>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow users to define `root_selector` from the WebUI (`#11181 <https://github.com/readthedocs/readthedocs.org/pull/11181>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Init path to ensure it exists (`#11178 <https://github.com/readthedocs/readthedocs.org/pull/11178>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: build both default and latest version when saving the project form (`#11177 <https://github.com/readthedocs/readthedocs.org/pull/11177>`__)
+* `@humitos <https://github.com/humitos>`__: Build: show the YAML config file before validating it (`#11175 <https://github.com/readthedocs/readthedocs.org/pull/11175>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow override SOCIALACCOUNT_PROVIDERS from ops (`#11165 <https://github.com/readthedocs/readthedocs.org/pull/11165>`__)
+* `@humitos <https://github.com/humitos>`__: Lint: run `black` against all our Python files (`#11145 <https://github.com/readthedocs/readthedocs.org/pull/11145>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: sorting algorithm for versions customizable on flyout (`#11069 <https://github.com/readthedocs/readthedocs.org/pull/11069>`__)
+
 Version 10.21.0
 ---------------
 
