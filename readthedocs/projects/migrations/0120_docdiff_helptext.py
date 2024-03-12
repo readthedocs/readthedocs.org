@@ -7,7 +7,7 @@ from django_safemigrate import Safe
 class Migration(migrations.Migration):
     safe = Safe.before_deploy
     dependencies = [
-        ("projects", "0118_addons_flyout_sorting"),
+        ("projects", "0119_alter_addonsconfig_flyout_sorting_custom_pattern_and_more"),
     ]
 
     operations = [
