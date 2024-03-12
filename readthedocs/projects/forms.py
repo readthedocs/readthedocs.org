@@ -142,29 +142,23 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
 
     def clean_prevalidation(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
-        super().clean_prevalidation()
-
         integrations = list(self.instance.integrations.all())
         has_supported_integration = self.has_supported_integration(integrations)
         can_build_external_versions = self.can_build_external_versions(integrations)
 
-        url = reverse("projects_integrations", args=[self.instance.slug])
-        unsupported_msg = _(
-            "To build from pull requests you need a "
-            f'GitHub or GitLab <a href="{url}">integration</a>.'
-        )
-
         # External builds are supported for this project,
         # don't disable the option.
         if has_supported_integration and can_build_external_versions:
-            raise RichValidationError(
-                unsupported_msg,
-                header=_("Pull Request builds not supported"),
-            )
+            return
 
         msg = None
+        url = reverse("projects_integrations", args=[self.instance.slug])
+
         if not has_supported_integration:
-            msg = unsupported_msg
+            msg = _(
+                "To build from pull requests you need a "
+                f'GitHub or GitLab <a href="{url}">integration</a>.'
+            )
         if has_supported_integration and not can_build_external_versions:
             # If there is only one integration, link directly to it.
             if len(integrations) == 1:
@@ -179,9 +173,115 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
             )
 
         if msg:
-            field = self.fields["external_builds_enabled"]
-            field.disabled = True
-            field.help_text = f"{msg} {field.help_text}"
+            raise RichValidationError(
+                msg,
+                header=_("Pull Request builds not supported"),
+            )
+
+
+class ProjectFormPrevalidateMixin:
+
+    """Provides shared logic between the automatic and manual create forms."""
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+    def clean_prevalidation(self):
+        # Shared conditionals between automatic and manual forms
+        self.user_has_connected_account = SocialAccount.objects.filter(
+            user=self.user,
+        ).exists()
+        self.user_is_nonowner_with_sso = None
+        self.user_missing_admin_permission = None
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            # TODO there should be some way to initially select the organization
+            # and maybe the team too. It's mostly safe to automatically select
+            # the first organization, but explicit would be better. Reusing the
+            # organization selection UI works, we only really need a query param
+            # here.
+            self.user_is_nonowner_with_sso = all(
+                [
+                    AdminPermission.has_sso_enabled(self.user),
+                    AdminPermission.organizations(
+                        user=self.user,
+                        owner=False,
+                    ).exists(),
+                ]
+            )
+
+            # TODO this logic should be possible from AdminPermission
+            # AdminPermssion.is_admin only inspects organization owners, so the
+            # additional team check is necessary
+            self.user_has_admin_permission = any(
+                [
+                    AdminPermission.organizations(
+                        user=self.user,
+                        owner=True,
+                    ).exists(),
+                    Team.objects.admin(self.user).exists(),
+                ]
+            )
+
+
+class ProjectAutomaticForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
+    def clean_prevalidation(self):
+        """
+        Block user from using this form for important blocking states.
+        We know before the user gets a chance to use this form that the user
+        might not have the ability to add a project into their organization.
+        These errors are raised before the user submits the form.
+        """
+        super().clean_prevalidation()
+        if not self.user_has_connected_account:
+            url = reverse("socialaccount_connections")
+            raise RichValidationError(
+                _(
+                    f"You must first <a href='{url}'>add a connected service "
+                    f"to your account</a> to enable automatic configuration of "
+                    f"repositories."
+                ),
+                header=_("No connected services found"),
+            )
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            if self.user_is_nonowner_with_sso:
+                raise RichValidationError(
+                    _(
+                        "Only organization owners may create new projects "
+                        "when single sign-on is enabled."
+                    ),
+                    header=_("Organization single sign-on enabled"),
+                )
+            if not self.user_has_admin_permission:
+                raise RichValidationError(
+                    _(
+                        "You must be on a team with admin permissions "
+                        "in order to add a new project to your organization."
+                    ),
+                    header=_("Admin permission required"),
+                )
+
+
+class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
+    def clean_prevalidation(self):
+        super().clean_prevalidation()
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            if self.user_is_nonowner_with_sso:
+                raise RichValidationError(
+                    _(
+                        "Projects cannot be manually configured when "
+                        "single sign-on is enabled for your organization."
+                    ),
+                    header=_("Organization single sign-on enabled"),
+                )
+            if not self.user_has_admin_permission:
+                raise RichValidationError(
+                    _(
+                        "You must be on a team with admin permissions "
+                        "in order to add a new project to your organization."
+                    ),
+                    header=_("Admin permission required"),
+                )
 
 
 class ProjectBackendForm(forms.Form):
