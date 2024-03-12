@@ -22,6 +22,7 @@ from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
+from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.models import (
     AddonsConfig,
     Domain,
@@ -63,6 +64,9 @@ class ProjectTriggerBuildMixin:
     """
     Mixin to trigger build on form save.
 
+    We trigger a build to the default branch and the LATEST version of the project,
+    since both are related, latest is an alias of the default version.
+
     This should be replaced with signals instead of calling trigger_build
     explicitly.
     """
@@ -71,7 +75,18 @@ class ProjectTriggerBuildMixin:
         """Trigger build on commit save."""
         project = super().save(commit)
         if commit:
-            trigger_build(project=project)
+            default_branch = project.versions.filter(
+                slug=project.get_default_branch()
+            ).first()
+            if default_branch and default_branch.active:
+                trigger_build(project=project, version=default_branch)
+            latest_version = project.get_latest_version()
+            if (
+                latest_version
+                and latest_version != default_branch
+                and latest_version.active
+            ):
+                trigger_build(project=project, version=latest_version)
         return project
 
 
@@ -190,7 +205,7 @@ class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
 
 class ProjectBasicsForm(ProjectForm):
 
-    """Form for basic project fields."""
+    """Form used when importing a project."""
 
     class Meta:
         model = Project
@@ -264,39 +279,6 @@ class ProjectBasicsForm(ProjectForm):
         )
 
 
-class ProjectExtraForm(ProjectForm):
-
-    """Additional project information form."""
-
-    class Meta:
-        model = Project
-        fields = (
-            "description",
-            "documentation_type",
-            "language",
-            "programming_language",
-            "tags",
-            "project_url",
-        )
-
-    description = forms.CharField(
-        required=False,
-        max_length=150,
-        widget=forms.Textarea,
-    )
-
-    def clean_tags(self):
-        tags = self.cleaned_data.get("tags", [])
-        for tag in tags:
-            if len(tag) > 100:
-                raise forms.ValidationError(
-                    _(
-                        "Length of each tag must be less than or equal to 100 characters.",
-                    ),
-                )
-        return tags
-
-
 class ProjectConfigForm(forms.Form):
 
     """Simple intermediate step to communicate about the .readthedocs.yaml file."""
@@ -307,28 +289,47 @@ class ProjectConfigForm(forms.Form):
         super().__init__(*args, **kwargs)
 
 
-class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
+class UpdateProjectForm(
+    ProjectTriggerBuildMixin,
+    ProjectBasicsForm,
+):
 
-    """Advanced project option form."""
+    """Main project settings form."""
 
     class Meta:
         model = Project
         fields = (
-            "default_version",
+            # Basics and repo settings
+            "name",
+            "repo",
+            "repo_type",
             "default_branch",
+            "language",
+            "description",
+            # Project related settings
+            "default_version",
             "privacy_level",
-            "analytics_code",
-            "analytics_disabled",
-            "show_version_warning",
             "versioning_scheme",
             "external_builds_enabled",
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
+            "analytics_code",
+            "analytics_disabled",
+            "show_version_warning",
+            # Meta data
+            "programming_language",
+            "project_url",
+            "tags",
         )
+
+    description = forms.CharField(
+        required=False,
+        max_length=150,
+        widget=forms.Textarea,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         # Remove the nullable option from the form
         self.fields["analytics_disabled"].widget = forms.CheckboxInput()
         self.fields["analytics_disabled"].empty_value = False
@@ -384,16 +385,15 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     def setup_external_builds_option(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
-        if settings.ALLOW_PRIVATE_REPOS and self.instance.remote_repository:
+        if (
+            settings.ALLOW_PRIVATE_REPOS
+            and self.instance.remote_repository
+            and not self.instance.remote_repository.private
+        ):
             self.fields["external_builds_privacy_level"].disabled = True
-            if self.instance.remote_repository.private:
-                help_text = _(
-                    "We have detected that this project is private, pull request previews are set to private."
-                )
-            else:
-                help_text = _(
-                    "We have detected that this project is public, pull request previews are set to public."
-                )
+            help_text = _(
+                "We have detected that this project is public, pull request previews are set to public."
+            )
             self.fields["external_builds_privacy_level"].help_text = help_text
 
         integrations = list(self.instance.integrations.all())
@@ -491,30 +491,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             return all_versions
         return None
 
-
-class UpdateProjectForm(
-    ProjectTriggerBuildMixin,
-    ProjectBasicsForm,
-    ProjectExtraForm,
-):
-
-    """Basic project settings form for Admin."""
-
-    class Meta:  # noqa
-        model = Project
-        fields = (
-            # Basics
-            "name",
-            "repo",
-            "repo_type",
-            # Extra
-            "description",
-            "language",
-            "programming_language",
-            "project_url",
-            "tags",
-        )
-
     def clean_language(self):
         """Ensure that language isn't already active."""
         language = self.cleaned_data["language"]
@@ -543,6 +519,17 @@ class UpdateProjectForm(
                         msg.format(lang=language, proj=main_project.slug),
                     )
         return language
+
+    def clean_tags(self):
+        tags = self.cleaned_data.get("tags", [])
+        for tag in tags:
+            if len(tag) > 100:
+                raise forms.ValidationError(
+                    _(
+                        "Length of each tag must be less than or equal to 100 characters.",
+                    ),
+                )
+        return tags
 
 
 class ProjectRelationshipForm(forms.ModelForm):
@@ -600,8 +587,12 @@ class AddonsConfigForm(forms.ModelForm):
             "project",
             "analytics_enabled",
             "doc_diff_enabled",
+            "doc_diff_root_selector",
             "external_version_warning_enabled",
             "flyout_enabled",
+            "flyout_sorting",
+            "flyout_sorting_latest_stable_at_beginning",
+            "flyout_sorting_custom_pattern",
             "hotkeys_enabled",
             "search_enabled",
             "stable_latest_version_warning_enabled",
@@ -615,6 +606,11 @@ class AddonsConfigForm(forms.ModelForm):
                 "Show a notification on non-stable and latest versions"
             ),
         }
+        widgets = {
+            "doc_diff_root_selector": forms.TextInput(
+                attrs={"placeholder": "[role=main]"}
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
@@ -625,6 +621,18 @@ class AddonsConfigForm(forms.ModelForm):
 
         kwargs["instance"] = addons
         super().__init__(*args, **kwargs)
+
+    def clean(self):
+        if (
+            self.cleaned_data["flyout_sorting"] == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
+            and not self.cleaned_data["flyout_sorting_custom_pattern"]
+        ):
+            raise forms.ValidationError(
+                _(
+                    "The flyout sorting custom pattern is required when selecting a custom pattern."
+                ),
+            )
+        return super().clean()
 
     def clean_project(self):
         return self.project

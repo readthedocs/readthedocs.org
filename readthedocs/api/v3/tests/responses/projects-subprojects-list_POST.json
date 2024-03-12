@@ -9,6 +9,7 @@
             "_self": "https://readthedocs.org/api/v3/projects/new-project/",
             "builds": "https://readthedocs.org/api/v3/projects/new-project/builds/",
             "environmentvariables": "https://readthedocs.org/api/v3/projects/new-project/environmentvariables/",
+            "notifications": "https://readthedocs.org/api/v3/projects/new-project/notifications/",
             "redirects": "https://readthedocs.org/api/v3/projects/new-project/redirects/",
             "subprojects": "https://readthedocs.org/api/v3/projects/new-project/subprojects/",
             "superproject": "https://readthedocs.org/api/v3/projects/new-project/superproject/",

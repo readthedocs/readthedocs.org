@@ -106,7 +106,9 @@ class SubscriptionViewTests(TestCase):
         return stripe_subscription
 
     def test_active_subscription(self):
-        resp = self.client.get(reverse('subscription_detail', args=[self.organization.slug]))
+        resp = self.client.get(
+            reverse("subscription_detail", args=[self.organization.slug])
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context["stripe_subscription"], self.stripe_subscription)
         self.assertContains(resp, "active")
@@ -130,24 +132,26 @@ class SubscriptionViewTests(TestCase):
         self.assertContains(resp, "active")
         self.assertContains(resp, "Extra products:")
         # The subscribe form isn't shown, but the manage susbcription button is.
-        self.assertContains(resp, 'Manage Subscription')
-        self.assertNotContains(resp, 'Create Subscription')
+        self.assertContains(resp, "Manage Subscription")
+        self.assertNotContains(resp, "Create Subscription")
 
-    @requests_mock.Mocker(kw='mock_request')
+    @requests_mock.Mocker(kw="mock_request")
     def test_manage_subscription(self, mock_request):
         payload = {
-            'url': 'https://billing.stripe.com/session/a1b2c3',
+            "url": "https://billing.stripe.com/session/a1b2c3",
         }
-        mock_request.post('https://api.stripe.com/v1/billing_portal/sessions', json=payload)
+        mock_request.post(
+            "https://api.stripe.com/v1/billing_portal/sessions", json=payload
+        )
         response = self.client.post(
             reverse(
-                'stripe_customer_portal',
-                kwargs={'slug': self.organization.slug},
+                "stripe_customer_portal",
+                kwargs={"slug": self.organization.slug},
             ),
         )
         self.assertRedirects(
             response,
-            payload.get('url'),
+            payload.get("url"),
             fetch_redirect_response=False,
         )
 
@@ -192,14 +196,16 @@ class SubscriptionViewTests(TestCase):
         self.organization.stripe_subscription = None
         self.organization.save()
         self.organization.refresh_from_db()
-        self.assertFalse(hasattr(self.organization, 'subscription'))
+        self.assertFalse(hasattr(self.organization, "subscription"))
         self.assertIsNone(self.organization.stripe_customer)
         self.assertIsNone(self.organization.stripe_subscription)
 
-        resp = self.client.get(reverse('subscription_detail', args=[self.organization.slug]))
+        resp = self.client.get(
+            reverse("subscription_detail", args=[self.organization.slug])
+        )
         self.assertEqual(resp.status_code, 200)
         self.organization.refresh_from_db()
-        self.assertEqual(self.organization.stripe_id, 'cus_a1b2c3')
+        self.assertEqual(self.organization.stripe_id, "cus_a1b2c3")
         self.assertEqual(self.organization.stripe_customer, stripe_customer)
         self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
         customer_create_mock.assert_called_once()
@@ -207,9 +213,11 @@ class SubscriptionViewTests(TestCase):
     def test_user_with_canceled_subscription(self):
         self.stripe_subscription.status = SubscriptionStatus.canceled
         self.stripe_subscription.save()
-        resp = self.client.get(reverse('subscription_detail', args=[self.organization.slug]))
+        resp = self.client.get(
+            reverse("subscription_detail", args=[self.organization.slug])
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context["stripe_subscription"], self.stripe_subscription)
         # The Manage Subscription form isn't shown, but the Subscribe is.
-        self.assertNotContains(resp, 'Manage Subscription')
-        self.assertContains(resp, 'Create Subscription')
+        self.assertNotContains(resp, "Manage Subscription")
+        self.assertContains(resp, "Create Subscription")

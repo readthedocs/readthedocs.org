@@ -28,6 +28,22 @@ $(document).ready(function () {
 {% endblock %}
 
 {% block content %}
+  {% block build_detail_beta %}
+    {% comment %}
+      Temporary notification to point to the beta dashboard, url_beta comes from the view
+    {% endcomment %}
+    {% if url_switch_dashboard %}
+      <div class="notifications">
+        <p class="notification notification-20">
+          {% blocktrans trimmed with url=url_switch_dashboard %}
+            Our new beta dashboard is now available for testing!
+            <a href="{{ url }}">Try viewing this build on the new dashboard</a>.
+          {% endblocktrans %}
+        </p>
+      </div>
+    {% endif %}
+  {% endblock build_detail_beta %}
+
   <div class="build build-detail" id="build-detail">
 
     {% if build.state != "finished" and build.state != "cancelled" and request.user|is_admin:project %}
@@ -154,10 +170,10 @@ $(document).ready(function () {
       {% if not build.success and "setup.py install" in build.commands.last.output %}
         <div class="build-ideas">
           <p>
-            {% url 'projects_advanced' build.project.slug as advanced_url %}
+            {% url 'projects_edit' build.project.slug as project_settings_url %}
             {% blocktrans trimmed %}
               Don't want <em>setup.py install</em> called?
-              Change the <strong>Install Project</strong> setting in your <a href="{{ advanced_url }}">advanced settings</a>.
+              Change the <strong>Install Project</strong> setting in your <a href="{{ project_settings_url }}">project settings</a>.
             {% endblocktrans %}
           </p>
         </div>

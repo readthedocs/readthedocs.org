@@ -12,6 +12,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import TemplateView, View
 
+from readthedocs.core.forms import SupportForm
 from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
 
 log = structlog.get_logger(__name__)
@@ -69,12 +70,17 @@ class HomepageView(TemplateView):
 
 
 class SupportView(PrivateViewMixin, TemplateView):
+    form_class = SupportForm
     template_name = "support/index.html"
 
     def get_context_data(self, **kwargs):
         """Pass along endpoint for support form."""
         context = super().get_context_data(**kwargs)
         context["SUPPORT_FORM_ENDPOINT"] = settings.SUPPORT_FORM_ENDPOINT
+
+        if settings.RTD_EXT_THEME_ENABLED:
+            context["form"] = self.form_class(self.request.user)
+
         return context
 
 

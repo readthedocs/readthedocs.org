@@ -1,9 +1,8 @@
 """Forms for core app."""
 
 import structlog
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, Submit
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms.fields import CharField
@@ -23,15 +22,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         # Don't allow users edit someone else's user page
-        profile_fields = ["first_name", "last_name", "homepage"]
-        optout_email_fields = [
-            "optout_email_config_file_deprecation",
-            "optout_email_build_image_deprecation",
-        ]
-        fields = (
-            *profile_fields,
-            *optout_email_fields,
-        )
+        fields = ["first_name", "last_name", "homepage"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,20 +31,6 @@ class UserProfileForm(forms.ModelForm):
             self.fields["last_name"].initial = self.instance.user.last_name
         except AttributeError:
             pass
-
-        self.helper = FormHelper()
-        field_sets = [
-            Fieldset(
-                _("User settings"),
-                *self.Meta.profile_fields,
-            ),
-            Fieldset(
-                _("Email settings"),
-                *self.Meta.optout_email_fields,
-            ),
-        ]
-        self.helper.layout = Layout(*field_sets)
-        self.helper.add_input(Submit("save", _("Save")))
 
     def save(self, commit=True):
         first_name = self.cleaned_data.pop("first_name", None)
@@ -207,3 +184,49 @@ class FacetField(forms.MultipleChoiceField):
         if ":" not in value:
             return False
         return True
+
+
+class SupportForm(forms.Form):
+    name = forms.CharField()
+    email = forms.EmailField()
+    explanation = forms.CharField(
+        label=_("Explanation of the issue"),
+        help_text=_("Please provide as much detail as possible."),
+        widget=forms.Textarea,
+    )
+    url = forms.URLField(
+        help_text=_("Is there a specific page this happened?"),
+        required=False,
+    )
+    attachment = forms.FileField(
+        label=_("Screenshot or additional file"),
+        help_text=_("Anything else that would help us solve this issue?"),
+    )
+    severity_level = forms.ChoiceField(
+        choices=(
+            ("low", _("Low")),
+            ("medium", _("Medium")),
+            ("high", _("High")),
+        ),
+        help_text=_("Please rate the severity of this event."),
+        required=False,
+    )
+    subject = forms.CharField(widget=forms.HiddenInput)
+
+    def __init__(self, user):
+        super().__init__()
+
+        self.fields["name"].initial = user.get_full_name
+        self.fields["email"].initial = user.email
+
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.fields["subject"].initial = "Commercial Support Request"
+        else:
+            self.fields["subject"].initial = "Community Support Request"
+
+            if not (user.gold.exists() or user.goldonce.exists()):
+                self.fields["severity_level"].disabled = True
+                self.fields["severity_level"].widget.attrs["readonly"] = True
+                self.fields["severity_level"].help_text = _(
+                    "This option is only enabled for Gold users."
+                )

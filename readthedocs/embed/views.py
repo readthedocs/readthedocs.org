@@ -25,12 +25,11 @@ log = structlog.get_logger(__name__)
 def escape_selector(selector):
     """Escape special characters from the section id."""
     regex = re.compile(r'(!|"|#|\$|%|\'|\(|\)|\*|\+|\,|\.|\/|\:|\;|\?|@)')
-    ret = re.sub(regex, r'\\\1', selector)
+    ret = re.sub(regex, r"\\\1", selector)
     return ret
 
 
 class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
-
     # pylint: disable=line-too-long
 
     """
@@ -72,10 +71,10 @@ class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         project = self._get_project()
         version = self._get_version()
 
-        url = request.GET.get('url')
-        path = request.GET.get('path', '')
-        doc = request.GET.get('doc')
-        section = request.GET.get('section')
+        url = request.GET.get("url")
+        path = request.GET.get("path", "")
+        doc = request.GET.get("doc")
+        section = request.GET.get("section")
 
         if url:
             unresolved = self.unresolved_url
@@ -84,18 +83,18 @@ class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         elif not path and not doc:
             return Response(
                 {
-                    'error': (
-                        'Invalid Arguments. '
+                    "error": (
+                        "Invalid Arguments. "
                         'Please provide "url" or "section" and "path" GET arguments.'
                     )
                 },
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         # Generate the docname from path
         # by removing the ``.html`` extension and trailing ``/``.
         if path:
-            doc = re.sub(r'(.+)\.html$', r'\1', path.strip('/'))
+            doc = re.sub(r"(.+)\.html$", r"\1", path.strip("/"))
 
         response = do_embed(
             project=project,
@@ -109,16 +108,16 @@ class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         if not response:
             return Response(
                 {
-                    'error': (
+                    "error": (
                         "Can't find content for section: "
                         f"doc={doc} path={path} section={section}"
                     )
                 },
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         log.info(
-            'EmbedAPI successful response.',
+            "EmbedAPI successful response.",
             project_slug=project.slug,
             version_slug=version.slug,
             doc=doc,
@@ -165,50 +164,47 @@ def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
         return None
 
     return {
-        'content': content,
-        'headers': headers,
-        'url': url,
-        'meta': {
-            'project': project.slug,
-            'version': version.slug,
-            'doc': doc,
-            'section': section,
+        "content": content,
+        "headers": headers,
+        "url": url,
+        "meta": {
+            "project": project.slug,
+            "version": version.slug,
+            "doc": doc,
+            "section": section,
         },
     }
 
 
 def _get_doc_content(project, version, doc):
     storage_path = project.get_storage_path(
-        'json',
+        "json",
         version_slug=version.slug,
         include_file=False,
         version_type=version.type,
     )
     file_path = build_media_storage.join(
         storage_path,
-        f'{doc}.fjson'.lstrip('/'),
+        f"{doc}.fjson".lstrip("/"),
     )
     try:
         with build_media_storage.open(file_path) as file:
             return json.load(file)
     except Exception:  # noqa
-        log.warning('Unable to read file.', file_path=file_path)
+        log.warning("Unable to read file.", file_path=file_path)
 
     return None
 
 
 def parse_sphinx(content, section, url):
     """Get the embed content for the section."""
-    body = content.get('body')
-    toc = content.get('toc')
+    body = content.get("body")
+    toc = content.get("toc")
 
     if not content or not body or not toc:
         return (None, None, section)
 
-    headers = [
-        recurse_while_none(element)
-        for element in PQ(toc)('a')
-    ]
+    headers = [recurse_while_none(element) for element in PQ(toc)("a")]
 
     if not section and headers:
         # If no section is sent, return the content of the first one
@@ -226,19 +222,19 @@ def parse_sphinx(content, section, url):
         escaped_section,
         slugify(escaped_section),
         make_id(escaped_section),
-        f'module-{escaped_section}',
+        f"module-{escaped_section}",
     ]
     query_result = []
     for element_id in elements_id:
         if not element_id:
             continue
         try:
-            query_result = body_obj(f'#{element_id}')
+            query_result = body_obj(f"#{element_id}")
             if query_result:
                 break
         except Exception:  # noqa
             log.info(
-                'Failed to query section.',
+                "Failed to query section.",
                 url=url,
                 element_id=element_id,
             )
@@ -248,9 +244,9 @@ def parse_sphinx(content, section, url):
         query_result = body_obj(selector).parent()
 
     # Handle ``dt`` special cases
-    if len(query_result) == 1 and query_result[0].tag == 'dt':
+    if len(query_result) == 1 and query_result[0].tag == "dt":
         parent = query_result.parent()
-        if 'glossary' in parent.attr('class'):
+        if "glossary" in parent.attr("class"):
             # Sphinx HTML structure for term glossary puts the ``id`` in the
             # ``dt`` element with the title of the term. In this case, we
             # need to return the next sibling which contains the definition
@@ -263,7 +259,7 @@ def parse_sphinx(content, section, url):
             # ...
             # </dl>
             query_result = query_result.next()
-        elif 'citation' in parent.attr('class'):
+        elif "citation" in parent.attr("class"):
             # Sphinx HTML structure for sphinxcontrib-bibtex puts the ``id`` in the
             # ``dt`` element with the title of the cite. In this case, we
             # need to return the next sibling which contains the cite itself.
@@ -292,7 +288,7 @@ def parse_sphinx(content, section, url):
 
     def dump(obj):
         """Handle API-based doc HTML."""
-        if obj[0].tag in ['span', 'h2']:
+        if obj[0].tag in ["span", "h2"]:
             return obj.parent().outerHtml()
         return obj.outerHtml()
 

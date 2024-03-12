@@ -15,7 +15,6 @@
     <div class="navigable">
       <ul>
         <li class="{% block project-edit-active %}{% endblock %}"><a href="{% url "projects_edit" project.slug %}">{% trans "Settings" %} </a></li>
-        <li class="{% block project-advanced-active %}{% endblock %}"><a href="{% url "projects_advanced" project.slug %}">{% trans "Advanced Settings" %} </a></li>
         <!-- Add a link to the dashboard versions page so users can find it -->
         <li><a href="{% url "project_version_list" project.slug %}">{% trans "Edit Versions" %}</a></li>
         <li class="{% block project-domains-active %}{% endblock %}"><a href="{% url "projects_domains" project.slug %}">{% trans "Domains" %}</a></li>

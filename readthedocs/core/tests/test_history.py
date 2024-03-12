@@ -23,7 +23,9 @@ class TestHistoricalModels(TestCase):
                 "name": "Changed!",
                 "repo": "https://github.com/readthedocs/readthedocs",
                 "repo_type": self.project.repo_type,
+                "default_version": self.project.default_version,
                 "language": self.project.language,
+                "versioning_scheme": self.project.versioning_scheme,
             },
             headers={"user-agent": "Firefox"},
         )

@@ -17,7 +17,6 @@ from readthedocs.notifications.exceptions import NotificationBaseException
 
 
 class BuildBaseException(NotificationBaseException):
-
     default_message = _("Build user exception")
 
 
@@ -51,6 +50,7 @@ class BuildUserError(BuildBaseException):
     BUILD_COMMANDS_IN_BETA = "build:user:build-commands-config-key-in-beta"
     BUILD_TIME_OUT = "build:user:time-out"
     BUILD_EXCESSIVE_MEMORY = "build:user:excessive-memory"
+    VCS_DEPRECATED = "build:vcs:deprecated"
 
 
 class BuildMaxConcurrencyError(BuildUserError):

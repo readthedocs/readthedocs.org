@@ -1,7 +1,7 @@
 .. _Environment Variables:
 
-Understanding environment variables
-===================================
+Environment variable overview
+=============================
 
 Read the Docs allows you to define your own environment variables to be used in the build process.
 It also defines a set of :doc:`default environment variables </reference/environment-variables>` with information about your build.

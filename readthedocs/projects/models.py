@@ -61,11 +61,12 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
+    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+    ADDONS_FLYOUT_SORTING_CHOICES,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
-    PRIVATE,
     PUBLIC,
 )
 
@@ -172,7 +173,12 @@ class AddonsConfig(TimeStampedModel):
     doc_diff_enabled = models.BooleanField(default=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(null=True, blank=True, max_length=128)
+    doc_diff_root_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector for the main content of the page",
+    )
 
     # External version warning
     external_version_warning_enabled = models.BooleanField(default=True)
@@ -182,6 +188,23 @@ class AddonsConfig(TimeStampedModel):
 
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
+    flyout_sorting = models.CharField(
+        choices=ADDONS_FLYOUT_SORTING_CHOICES,
+        default=ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+        max_length=64,
+    )
+    flyout_sorting_custom_pattern = models.CharField(
+        max_length=32,
+        default=None,
+        null=True,
+        blank=True,
+        help_text="Sorting pattern supported by BumpVer "
+        '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
+    )
+    flyout_sorting_latest_stable_at_beginning = models.BooleanField(
+        default=True,
+        help_text="Show <code>latest</code> and <code>stable</code> at the beginning",
+    )
 
     # Hotkeys
     hotkeys_enabled = models.BooleanField(default=True)
@@ -569,9 +592,11 @@ class Project(models.Model):
                     _("Model must have slug")
                 )
 
-        if self.remote_repository:
-            privacy_level = PRIVATE if self.remote_repository.private else PUBLIC
-            self.external_builds_privacy_level = privacy_level
+        # If the project is linked to a remote repository,
+        # and the repository is public, we force the privacy level of
+        # pull requests previews to be public, see GHSA-pw32-ffxw-68rh.
+        if self.remote_repository and not self.remote_repository.private:
+            self.external_builds_privacy_level = PUBLIC
 
         super().save(*args, **kwargs)
 
@@ -956,8 +981,8 @@ class Project(models.Model):
         """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
         service = self.git_service_class()
         if service:
-            provider = allauth_registry.by_id(service.adapter.provider_id)
-            return provider.name
+            provider_class = allauth_registry.get_class(service.adapter.provider_id)
+            return provider_class.name
         return None
 
     def find(self, filename, version):
