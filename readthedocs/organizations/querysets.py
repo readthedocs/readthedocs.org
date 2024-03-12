@@ -25,7 +25,7 @@ class BaseOrganizationQuerySet(models.QuerySet):
     def for_admin_user(self, user):
         return self.filter(owners__in=[user]).distinct()
 
-    def created_days_ago(self, days, field='pub_date'):
+    def created_days_ago(self, days, field="pub_date"):
         """
         Filter organizations by creation date.
 
@@ -34,9 +34,9 @@ class BaseOrganizationQuerySet(models.QuerySet):
         """
         when = timezone.now() - timedelta(days=days)
         query_filter = {}
-        query_filter[field + '__year'] = when.year
-        query_filter[field + '__month'] = when.month
-        query_filter[field + '__day'] = when.day
+        query_filter[field + "__year"] = when.year
+        query_filter[field + "__month"] = when.month
+        query_filter[field + "__day"] = when.day
         return self.filter(**query_filter)
 
     def subscription_trial_plan_ended(self):
@@ -133,7 +133,6 @@ class BaseOrganizationQuerySet(models.QuerySet):
             artifacts_cleaned=False,
         )
 
-
     def single_owner(self, user):
         """Returns organizations where `user` is the only owner."""
         return self.annotate(count_owners=Count("owners")).filter(
@@ -143,5 +142,4 @@ class BaseOrganizationQuerySet(models.QuerySet):
 
 
 class OrganizationQuerySet(SettingsOverrideObject):
-
     _default_class = BaseOrganizationQuerySet

@@ -22,7 +22,6 @@ VersionData = namedtuple("VersionData", ["slug", "docs_url"])
 
 
 class ProjectHighlightSerializer(serializers.Serializer):
-
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
@@ -38,7 +37,6 @@ class ProjectHighlightSerializer(serializers.Serializer):
 
 
 class ProjectSearchSerializer(serializers.Serializer):
-
     type = serializers.CharField(default="project", source=None, read_only=True)
     name = serializers.CharField()
     slug = serializers.CharField()
@@ -48,7 +46,6 @@ class ProjectSearchSerializer(serializers.Serializer):
 
 
 class PageHighlightSerializer(serializers.Serializer):
-
     title = serializers.SerializerMethodField()
 
     def get_title(self, obj):
@@ -167,7 +164,6 @@ class PageSearchSerializer(serializers.Serializer):
 
 
 class SectionHighlightSerializer(serializers.Serializer):
-
     title = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()
 
@@ -179,7 +175,6 @@ class SectionHighlightSerializer(serializers.Serializer):
 
 
 class SectionSearchSerializer(serializers.Serializer):
-
     type = serializers.CharField(default="section", source=None, read_only=True)
     id = serializers.CharField()
     title = serializers.CharField()

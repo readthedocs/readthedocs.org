@@ -37,11 +37,8 @@ class DetailSubscription(OrganizationMixin, DetailView):
         super().get(request, *args, **kwargs)
         # The query argument ``upgraded=true`` is used as a the callback
         # URL for stripe checkout, see `self.redirect_to_checkout`.
-        if request.GET.get('upgraded') == 'true':
-            messages.success(
-                self.request,
-                _('Your plan has been upgraded!')
-            )
+        if request.GET.get("upgraded") == "true":
+            messages.success(self.request, _("Your plan has been upgraded!"))
 
         form = self.get_form()
         context = self.get_context_data(form=form)
@@ -77,27 +74,29 @@ class DetailSubscription(OrganizationMixin, DetailView):
             stripe_customer = get_or_create_stripe_customer(organization)
             checkout_session = stripe.checkout.Session.create(
                 customer=stripe_customer.id,
-                payment_method_types=['card'],
+                payment_method_types=["card"],
                 line_items=[
                     {
                         "price": stripe_price.id,
                         "quantity": 1,
                     }
                 ],
-                mode='subscription',
-                success_url=url + '?upgraded=true',
+                mode="subscription",
+                success_url=url + "?upgraded=true",
                 cancel_url=url,
             )
             return HttpResponseRedirect(checkout_session.url)
         except Exception:
             log.exception(
-                'Error while creating a Stripe checkout session.',
+                "Error while creating a Stripe checkout session.",
                 organization_slug=organization.slug,
                 price=stripe_price.id,
             )
             messages.error(
                 self.request,
-                _('There was an error connecting to Stripe, please try again in a few minutes.'),
+                _(
+                    "There was an error connecting to Stripe, please try again in a few minutes."
+                ),
             )
             return HttpResponseRedirect(self.get_success_url())
 
@@ -157,7 +156,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
 
     def get_success_url(self):
         return reverse(
-            'subscription_detail',
+            "subscription_detail",
             args=[self.get_organization().slug],
         )
 
@@ -166,11 +165,11 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
 
     """Create a stripe billing portal session for the user to manage their subscription."""
 
-    http_method_names = ['post']
+    http_method_names = ["post"]
 
     def get_success_url(self):
         return reverse(
-            'subscription_detail',
+            "subscription_detail",
             args=[self.get_organization().slug],
         )
 
@@ -187,12 +186,14 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
             return HttpResponseRedirect(billing_portal.url)
         except:  # noqa
             log.exception(
-                'There was an error connecting to Stripe to create the billing portal session.',
+                "There was an error connecting to Stripe to create the billing portal session.",
                 stripe_customer=stripe_customer.id,
                 organization_slug=organization.slug,
             )
             messages.error(
                 request,
-                _('There was an error connecting to Stripe, please try again in a few minutes'),
+                _(
+                    "There was an error connecting to Stripe, please try again in a few minutes"
+                ),
             )
             return HttpResponseRedirect(self.get_success_url())
