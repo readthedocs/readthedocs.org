@@ -168,8 +168,26 @@ class BuildDetail(BuildBase, DetailView):
         context["project"] = self.project
 
         build = self.get_object()
-        context["notifications"] = build.notifications.all()
 
+        # Temporary notification to point to the new dashboard.
+        #
+        # To support readthedocs.com, we have to point to the login view. We
+        # can't point directly to the build view on the new dashboard as this
+        # will give the users a 404 because they aren't logged in.
+        #
+        # On community, we _don't want this_ as this requires the user to have
+        # a login to view the new dashboard.
+        if not settings.RTD_EXT_THEME_ENABLED:
+            url_build = build.get_absolute_url()
+            # Point to the login view with the build as ?next. We are expecting
+            # users to have accounts to view this.
+            if settings.RTD_ALLOW_ORGANIZATIONS:
+                url_build = reverse("account_login") + f"?next={url_build}"
+            context[
+                "url_beta"
+            ] = f"https://beta.{settings.PRODUCTION_DOMAIN}{url_build}"
+
+        context["notifications"] = build.notifications.all()
         if not build.notifications.filter(
             message_id=BuildAppError.GENERIC_WITH_BUILD_ID
         ).exists():
