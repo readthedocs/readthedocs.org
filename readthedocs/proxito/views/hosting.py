@@ -23,7 +23,19 @@ from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import (
+    ADDONS_FLYOUT_SORTING_CALVER,
+    ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
+    ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
+)
 from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.version_handling import (
+    comparable_version,
+    sort_versions_calver,
+    sort_versions_custom_pattern,
+    sort_versions_python_packaging,
+)
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -256,6 +268,10 @@ class AddonsResponse:
         version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
 
+        # Automatically create an AddonsConfig with the default values for
+        # projects that don't have one already
+        AddonsConfig.objects.get_or_create(project=project)
+
         if project.supports_multiple_versions:
             versions_active_built_not_hidden = (
                 Version.internal.public(
@@ -268,6 +284,36 @@ class AddonsResponse:
                 .only("slug", "type")
                 .order_by("slug")
             )
+
+            if (
+                project.addons.flyout_sorting
+                == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
+            ):
+                versions_active_built_not_hidden = sorted(
+                    versions_active_built_not_hidden,
+                    key=lambda version: comparable_version(
+                        version.verbose_name,
+                        repo_type=project.repo_type,
+                    ),
+                )
+            elif (
+                project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
+            ):
+                versions_active_built_not_hidden = sort_versions_python_packaging(
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                )
+            elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
+                versions_active_built_not_hidden = sort_versions_calver(
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                )
+            elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN:
+                versions_active_built_not_hidden = sort_versions_custom_pattern(
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_custom_pattern,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                )
 
         if version:
             version_downloads = version.get_downloads(pretty=True).items()
@@ -282,10 +328,6 @@ class AddonsResponse:
             # Example: a project with Russian and Spanish translations will be showns as:
             #     en (original), es, ru
             project_translations = itertools.chain([main_project], project_translations)
-
-        # Automatically create an AddonsConfig with the default values for
-        # projects that don't have one already
-        AddonsConfig.objects.get_or_create(project=project)
 
         data = {
             "api_version": "0",
@@ -335,9 +377,9 @@ class AddonsResponse:
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
-                    "versions": list(
-                        versions_active_built_not_hidden.values_list("slug", flat=True)
-                    ),
+                    "versions": [
+                        version_.slug for version_ in versions_active_built_not_hidden
+                    ],
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
