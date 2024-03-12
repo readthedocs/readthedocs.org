@@ -587,6 +587,7 @@ class AddonsConfigForm(forms.ModelForm):
             "project",
             "analytics_enabled",
             "doc_diff_enabled",
+            "doc_diff_root_selector",
             "external_version_warning_enabled",
             "flyout_enabled",
             "flyout_sorting",
@@ -603,6 +604,11 @@ class AddonsConfigForm(forms.ModelForm):
             ),
             "stable_latest_version_warning_enabled": _(
                 "Show a notification on non-stable and latest versions"
+            ),
+        }
+        widgets = {
+            "doc_diff_root_selector": forms.TextInput(
+                attrs={"placeholder": "[role=main]"}
             ),
         }
 

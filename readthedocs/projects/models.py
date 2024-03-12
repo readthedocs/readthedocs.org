@@ -173,7 +173,12 @@ class AddonsConfig(TimeStampedModel):
     doc_diff_enabled = models.BooleanField(default=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(null=True, blank=True, max_length=128)
+    doc_diff_root_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector for the main content of the page",
+    )
 
     # External version warning
     external_version_warning_enabled = models.BooleanField(default=True)

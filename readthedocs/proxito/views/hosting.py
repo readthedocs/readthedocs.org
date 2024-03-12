@@ -485,7 +485,7 @@ class AddonsResponse:
                         )
                         if filename
                         else None,
-                        "root_selector": "[role=main]",
+                        "root_selector": project.addons.doc_diff_root_selector,
                         "inject_styles": True,
                         # NOTE: `base_host` and `base_page` are not required, since
                         # we are constructing the `base_url` in the backend instead
