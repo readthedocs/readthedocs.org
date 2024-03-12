@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.forms import PrevalidatedForm, RichValidationError
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -85,7 +86,7 @@ class ProjectTriggerBuildMixin:
         return project
 
 
-class ProjectPRBuildsMixin:
+class ProjectPRBuildsMixin(PrevalidatedForm):
     """
     Mixin that provides a method to setup the external builds option.
 
@@ -139,22 +140,31 @@ class ProjectPRBuildsMixin:
             )
             self.fields["external_builds_privacy_level"].help_text = help_text
 
+    def clean_prevalidation(self):
+        """Disable the external builds option if the project doesn't meet the requirements."""
+        super().clean_prevalidation()
+
         integrations = list(self.instance.integrations.all())
         has_supported_integration = self.has_supported_integration(integrations)
         can_build_external_versions = self.can_build_external_versions(integrations)
 
+        url = reverse("projects_integrations", args=[self.instance.slug])
+        unsupported_msg = _(
+            "To build from pull requests you need a "
+            f'GitHub or GitLab <a href="{url}">integration</a>.'
+        )
+
         # External builds are supported for this project,
         # don't disable the option.
         if has_supported_integration and can_build_external_versions:
-            return
+            raise RichValidationError(
+                unsupported_msg,
+                header=_("Pull Request builds not supported"),
+            )
 
         msg = None
-        url = reverse("projects_integrations", args=[self.instance.slug])
         if not has_supported_integration:
-            msg = _(
-                "To build from pull requests you need a "
-                f'GitHub or GitLab <a href="{url}">integration</a>.'
-            )
+            msg = unsupported_msg
         if has_supported_integration and not can_build_external_versions:
             # If there is only one integration, link directly to it.
             if len(integrations) == 1:
