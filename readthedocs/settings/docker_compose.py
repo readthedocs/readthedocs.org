@@ -208,6 +208,22 @@ class DockerBaseSettings(CommunityBaseSettings):
     STRIPE_TEST_SECRET_KEY = STRIPE_SECRET
     DJSTRIPE_WEBHOOK_SECRET = os.environ.get("RTD_DJSTRIPE_WEBHOOK_SECRET")
 
+    @property
+    def SOCIALACCOUNT_PROVIDERS(self):
+        """Allow settings social account settigs from the host system."""
+        providers = self._SOCIALACCOUNT_PROVIDERS
+        for provider in providers.keys():
+            try:
+                for setting in ["client_id", "secret"]:
+                    value = os.environ.get(
+                        f"RTD_SOCIALACCOUNT_PROVIDERS_{provider.upper()}_{setting.upper()}"
+                    )
+                    if value is not None:
+                        providers[provider]['APPS'][0][setting] = value
+            except KeyError:
+                pass
+        return providers
+
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"
     BUILD_COLD_STORAGE_URL = "http://storage:9000/builds"
