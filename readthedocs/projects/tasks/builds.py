@@ -447,10 +447,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self._reset_build()
 
     def _reset_build(self):
-        # Reset build only if it has some commands already.
-        if self.data.build.get("commands"):
-            log.info("Resetting build.")
-            self.data.api_client.build(self.data.build["id"]).reset.post()
+        # Always reset the build before starting.
+        # We used to only reset it when it has at least one command executed already.
+        # However, with the introduction of the new notification system,
+        # it could have a notification attached (e.g. Max concurrency build)
+        # that needs to be removed from the build.
+        # See https://github.com/readthedocs/readthedocs.org/issues/11131
+        log.info("Resetting build.")
+        self.data.api_client.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """
