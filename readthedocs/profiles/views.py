@@ -120,8 +120,9 @@ class ProfileDetail(DetailView):
         if request_user == user:
             return user
 
+        # Don't allow members to see another user profile it they don't share the same team.
         for org in Organization.objects.for_user(request_user):
-            if AdminPermission.is_member(user=user, obj=org):
+            if user in AdminPermission.members(obj=org, user=request_user):
                 return user
         raise Http404()
 
