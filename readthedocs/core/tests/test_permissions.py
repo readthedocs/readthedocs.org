@@ -1,15 +1,15 @@
-from django.test import TestCase, override_settings
-from readthedocs.core.permissions import AdminPermission
-from django_dynamic_fixture import get
-from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
-from readthedocs.projects.models import Project
-from readthedocs.organizations.models import Organization, Team
 from django.contrib.auth.models import User
+from django.test import TestCase, override_settings
+from django_dynamic_fixture import get
+
+from readthedocs.core.permissions import AdminPermission
+from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
+from readthedocs.organizations.models import Organization, Team
+from readthedocs.projects.models import Project
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class TestPermissionsWithOrganizations(TestCase):
-
     def setUp(self):
         self.owner = get(User)
         self.project = get(Project)
