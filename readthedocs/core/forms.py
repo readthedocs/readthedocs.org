@@ -195,12 +195,14 @@ class SupportForm(forms.Form):
         widget=forms.Textarea,
     )
     url = forms.URLField(
+        label=_("URL"),
         help_text=_("Is there a specific page this happened?"),
         required=False,
     )
     attachment = forms.FileField(
         label=_("Screenshot or additional file"),
         help_text=_("Anything else that would help us solve this issue?"),
+        required=False,
     )
     severity_level = forms.ChoiceField(
         choices=(
