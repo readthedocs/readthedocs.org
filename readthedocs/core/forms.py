@@ -189,7 +189,7 @@ class FacetField(forms.MultipleChoiceField):
 class SupportForm(forms.Form):
     name = forms.CharField()
     email = forms.EmailField()
-    explanation = forms.CharField(
+    body = forms.CharField(
         label=_("Explanation of the issue"),
         help_text=_("Please provide as much detail as possible."),
         widget=forms.Textarea,
