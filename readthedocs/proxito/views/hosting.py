@@ -195,10 +195,7 @@ class NoLinksMixin:
 
     """Mixin to remove conflicting fields from serializers."""
 
-    FIELDS_TO_REMOVE = (
-        "_links",
-        "urls",
-    )
+    FIELDS_TO_REMOVE = ("_links",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -213,8 +210,8 @@ class NoLinksMixin:
 
 # NOTE: the following serializers are required only to remove some fields we
 # can't expose yet in this API endpoint because it's running under El Proxito
-# which cannot resolve some dashboard URLs because they are not defined on El
-# Proxito.
+# which cannot resolve URLs pointing to the APIv3 because they are not defined
+# on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):

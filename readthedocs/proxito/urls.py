@@ -36,6 +36,7 @@ pip.rtd.io/_/api/*
 from django.conf import settings
 from django.urls import include, path, re_path
 from django.views import defaults
+from django.views.generic import TemplateView
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core.views import HealthCheckView
@@ -151,7 +152,52 @@ docs_urls = [
     re_path(r"^(?P<path>.*)$", ServeDocs.as_view(), name="docs_detail"),
 ]
 
-urlpatterns = health_check_urls + proxied_urls + core_urls + docs_urls
+
+# Declare dummy "dashboard URLs" in El Proxito to be able to ``reverse()`` them
+# from API ``/_/addons/`` endpoint. Mainly for the the ``*.urls`` fields. We
+# cannot resolve ``*._links`` fields properly yet, but they are not required at
+# this point. We can come back later here if we need them.
+# See https://github.com/readthedocs/readthedocs-ops/issues/1323
+dummy_dashboard_urls = [
+    # /dashboard/<project_slug>/
+    re_path(
+        r"^(?P<project_slug>{project_slug})/$".format(**pattern_opts),
+        TemplateView.as_view(template_name="proxied_view.html"),
+        name="projects_detail",
+    ),
+    # /dashboard/<project_slug>/builds/
+    re_path(
+        (r"^(?P<project_slug>{project_slug})/builds/$".format(**pattern_opts)),
+        TemplateView.as_view(template_name="proxied_view.html"),
+        name="builds_project_list",
+    ),
+    # /dashboard/<project_slug>/versions/
+    re_path(
+        r"^(?P<project_slug>{project_slug})/versions/$".format(**pattern_opts),
+        TemplateView.as_view(template_name="proxied_view.html"),
+        name="project_version_list",
+    ),
+    # /dashboard/<project_slug>/builds/<build_id>/
+    re_path(
+        (
+            r"^(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$".format(
+                **pattern_opts
+            )
+        ),
+        TemplateView.as_view(template_name="proxied_view.html"),
+        name="builds_detail",
+    ),
+    # /dashboard/<project_slug>/version/<version_slug>/
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$",
+        TemplateView.as_view(template_name="proxied_view.html"),
+        name="project_version_detail",
+    ),
+]
+
+urlpatterns = (
+    health_check_urls + proxied_urls + core_urls + docs_urls + dummy_dashboard_urls
+)
 
 # Use Django default error handlers to make things simpler
 handler404 = proxito_404_page_handler
