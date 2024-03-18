@@ -881,6 +881,9 @@ class CommunityBaseSettings(Settings):
         "PAGE_SIZE": 10,
         "TEST_REQUEST_DEFAULT_FORMAT": "json",
     }
+    REST_FLEX_FIELDS = {
+        "RECURSIVE_EXPANSION_PERMITTED": False,
+    }
 
     SILENCED_SYSTEM_CHECKS = ["fields.W342"]
 
