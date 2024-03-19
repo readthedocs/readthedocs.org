@@ -1,3 +1,17 @@
+Version 10.23.0
+---------------
+
+:Date: March 19, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11224 <https://github.com/readthedocs/readthedocs.org/pull/11224>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix bugs with support form (`#11222 <https://github.com/readthedocs/readthedocs.org/pull/11222>`__)
+* `@zliang-akamai <https://github.com/zliang-akamai>`__: Fix Read the Docs config file name in notifications (`#11221 <https://github.com/readthedocs/readthedocs.org/pull/11221>`__)
+* `@humitos <https://github.com/humitos>`__: Build: always reset the build before building (`#11213 <https://github.com/readthedocs/readthedocs.org/pull/11213>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.22.0 (`#11211 <https://github.com/readthedocs/readthedocs.org/pull/11211>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add build detail view beta notification (`#11208 <https://github.com/readthedocs/readthedocs.org/pull/11208>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow users to define `root_selector` from the WebUI (`#11181 <https://github.com/readthedocs/readthedocs.org/pull/11181>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: sorting algorithm for versions customizable on flyout (`#11069 <https://github.com/readthedocs/readthedocs.org/pull/11069>`__)
+
 Version 10.22.0
 ---------------
 
