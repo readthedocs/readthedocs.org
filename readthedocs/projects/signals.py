@@ -1,6 +1,5 @@
 """Project signals."""
 
-import datetime
 
 import django.dispatch
 import structlog
@@ -28,24 +27,21 @@ files_changed = django.dispatch.Signal()
 @receiver(post_save, sender=Version)
 def enable_addons_on_new_mkdocs_projects(instance, *args, **kwargs):
     """
-    Enable Addons on projects created after 2024-04-01.
+    Enable Addons on MkDocs projects.
 
     We removed all the `mkdocs.yml` manipulation that set the theme to `readthedocs` if
     undefined and injects JS and CSS files to show the old flyout.
 
-    Now, we are enabling addons by default on this projects to move forward
-    with this idea of removing the magic executed on behalves the users and
+    Now, we are enabling addons by default on MkDocs projects to move forward
+    with the idea of removing the magic executed on behalves the users and
     promote addons more.
 
     Reference https://github.com/readthedocs/addons/issues/72#issuecomment-1926647293
     """
+    version = instance
     project = instance.project
 
-    if (
-        project.pub_date
-        > datetime.datetime(2023, 4, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
-        and instance.documentation_type == MKDOCS
-    ):
+    if version.documentation_type == MKDOCS:
         config, created = AddonsConfig.objects.get_or_create(project=project)
         if created:
             log.info(
