@@ -36,10 +36,9 @@ pip.rtd.io/_/api/*
 from django.conf import settings
 from django.urls import include, path, re_path
 from django.views import defaults
-from django.views.generic import TemplateView
 
 from readthedocs.constants import pattern_opts
-from readthedocs.core.views import HealthCheckView
+from readthedocs.core.views import HealthCheckView, TeapotView
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.hosting import ReadTheDocsConfigJson
 from readthedocs.proxito.views.serve import (
@@ -162,19 +161,19 @@ dummy_dashboard_urls = [
     # /dashboard/<project_slug>/
     re_path(
         r"^(?P<project_slug>{project_slug})/$".format(**pattern_opts),
-        TemplateView.as_view(template_name="proxied_view.html"),
+        TeapotView.as_view(),
         name="projects_detail",
     ),
     # /dashboard/<project_slug>/builds/
     re_path(
         (r"^(?P<project_slug>{project_slug})/builds/$".format(**pattern_opts)),
-        TemplateView.as_view(template_name="proxied_view.html"),
+        TeapotView.as_view(),
         name="builds_project_list",
     ),
     # /dashboard/<project_slug>/versions/
     re_path(
         r"^(?P<project_slug>{project_slug})/versions/$".format(**pattern_opts),
-        TemplateView.as_view(template_name="proxied_view.html"),
+        TeapotView.as_view(),
         name="project_version_list",
     ),
     # /dashboard/<project_slug>/builds/<build_id>/
@@ -184,13 +183,13 @@ dummy_dashboard_urls = [
                 **pattern_opts
             )
         ),
-        TemplateView.as_view(template_name="proxied_view.html"),
+        TeapotView.as_view(),
         name="builds_detail",
     ),
     # /dashboard/<project_slug>/version/<version_slug>/
     re_path(
         r"^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$",
-        TemplateView.as_view(template_name="proxied_view.html"),
+        TeapotView.as_view(),
         name="project_version_detail",
     ),
 ]
