@@ -61,6 +61,8 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
+    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+    ADDONS_FLYOUT_SORTING_CHOICES,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -171,7 +173,12 @@ class AddonsConfig(TimeStampedModel):
     doc_diff_enabled = models.BooleanField(default=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(null=True, blank=True, max_length=128)
+    doc_diff_root_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector for the main content of the page",
+    )
 
     # External version warning
     external_version_warning_enabled = models.BooleanField(default=True)
@@ -181,6 +188,23 @@ class AddonsConfig(TimeStampedModel):
 
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
+    flyout_sorting = models.CharField(
+        choices=ADDONS_FLYOUT_SORTING_CHOICES,
+        default=ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+        max_length=64,
+    )
+    flyout_sorting_custom_pattern = models.CharField(
+        max_length=32,
+        default=None,
+        null=True,
+        blank=True,
+        help_text="Sorting pattern supported by BumpVer "
+        '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
+    )
+    flyout_sorting_latest_stable_at_beginning = models.BooleanField(
+        default=True,
+        help_text="Show <code>latest</code> and <code>stable</code> at the beginning",
+    )
 
     # Hotkeys
     hotkeys_enabled = models.BooleanField(default=True)
