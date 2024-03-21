@@ -2,6 +2,7 @@
     "active_versions": [
         {
             "active": true,
+            "aliases": [],
             "hidden": false,
             "built": true,
             "downloads": {

@@ -46,6 +46,23 @@
   "versions": {
     "current": {
       "active": true,
+      "aliases": [
+        {
+          "active": false,
+          "built": false,
+          "hidden": false,
+          "identifier": "",
+          "privacy_level": null,
+          "ref": "",
+          "slug": "",
+          "type": null,
+          "urls": {
+            "dashboard": {},
+            "vcs": ""
+          },
+          "verbose_name": ""
+        }
+      ],
       "hidden": false,
       "built": true,
       "downloads": {},
@@ -63,7 +80,45 @@
         "vcs": "https://github.com/readthedocs/project/tree/master/"
       },
       "verbose_name": "latest"
-    }
+    },
+    "latest": {
+      "active": true,
+      "aliases": [
+        {
+          "active": false,
+          "built": false,
+          "hidden": false,
+          "identifier": "",
+          "privacy_level": null,
+          "ref": "",
+          "slug": "",
+          "type": null,
+          "urls": {
+            "dashboard": {},
+            "vcs": ""
+          },
+          "verbose_name": ""
+        }
+      ],
+      "hidden": false,
+      "built": true,
+      "downloads": {},
+      "id": 1,
+      "identifier": "a1b2c3",
+      "privacy_level": "public",
+      "ref": null,
+      "slug": "latest",
+      "type": "tag",
+      "urls": {
+        "dashboard": {
+          "edit": "https://readthedocs.org/project/version/latest/edit/"
+        },
+        "documentation": "https://project.dev.readthedocs.io/en/latest/",
+        "vcs": "https://github.com/readthedocs/project/tree/master/"
+      },
+      "verbose_name": "latest"
+    },
+    "stable": null
   },
   "builds": {
     "current": {

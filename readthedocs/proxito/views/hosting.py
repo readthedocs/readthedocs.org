@@ -227,7 +227,8 @@ class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
 
 
 class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, version_serializer=VersionSerializerNoLinks, **kwargs)
 
 
 class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):

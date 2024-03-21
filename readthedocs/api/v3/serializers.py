@@ -357,6 +357,15 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
         expandable_fields = {"last_build": (BuildSerializer,)}
 
+    def __init__(self, *args, version_serializer=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Allow passing a specific serializer when initializing it.
+        # This is required to pass ``VersionSerializerNoLinks`` from the addons API.
+        self.version_serializer = VersionSerializer
+        if version_serializer:
+            self.version_serializer = version_serializer
+
     def get_downloads(self, obj):
         downloads = obj.get_downloads()
         data = {}
@@ -377,7 +386,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
                 alias_version = obj.project.get_original_stable_version()
             if obj.slug == LATEST:
                 alias_version = obj.project.get_original_latest_version()
-            return [VersionSerializer(alias_version).data]
+            return [self.version_serializer(alias_version).data]
         return []
 
 

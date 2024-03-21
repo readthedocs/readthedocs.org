@@ -83,6 +83,7 @@
     "triggered": true,
     "version": {
         "active": true,
+        "aliases": [],
         "hidden": false,
         "built": true,
         "downloads": {
