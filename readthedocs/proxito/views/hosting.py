@@ -124,12 +124,20 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
         else:
             project = Project.objects.filter(slug=project_slug).first()
-            version = Version.objects.filter(slug=version_slug, project=project).first()
+            version = (
+                Version.objects.filter(slug=version_slug, project=project)
+                .select_related("project")
+                .first()
+            )
             if version:
-                build = version.builds.filter(
-                    success=True,
-                    state=BUILD_STATE_FINISHED,
-                ).first()
+                build = (
+                    version.builds.filter(
+                        success=True,
+                        state=BUILD_STATE_FINISHED,
+                    )
+                    .select_related("project", "version")
+                    .first()
+                )
 
         return project, version, build, filename
 
@@ -195,10 +203,7 @@ class NoLinksMixin:
 
     """Mixin to remove conflicting fields from serializers."""
 
-    FIELDS_TO_REMOVE = (
-        "_links",
-        "urls",
-    )
+    FIELDS_TO_REMOVE = ("_links",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -213,8 +218,8 @@ class NoLinksMixin:
 
 # NOTE: the following serializers are required only to remove some fields we
 # can't expose yet in this API endpoint because it's running under El Proxito
-# which cannot resolve some dashboard URLs because they are not defined on El
-# Proxito.
+# which cannot resolve URLs pointing to the APIv3 because they are not defined
+# on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
