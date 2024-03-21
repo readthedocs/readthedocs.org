@@ -208,6 +208,11 @@ class BuildEnvironmentMocker:
             status_code=201,
         )
 
+        self.requestsmock.post(
+            f"{settings.SLUMBER_API_HOST}/api/v2/build/{self.build.pk}/reset/",
+            status_code=201,
+        )
+
         self.requestsmock.get(
             f"{settings.SLUMBER_API_HOST}/api/v2/build/concurrent/?project__slug={self.project.slug}",
             json=lambda request, context: {
