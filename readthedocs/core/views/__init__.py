@@ -89,7 +89,7 @@ class TeapotView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        return self.render_to_response(context, status=403)
+        return self.render_to_response(context, status=418)
 
 
 def server_error_500(request, template_name="500.html"):
