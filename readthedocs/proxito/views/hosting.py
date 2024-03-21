@@ -23,7 +23,19 @@ from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import (
+    ADDONS_FLYOUT_SORTING_CALVER,
+    ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
+    ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
+)
 from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.version_handling import (
+    comparable_version,
+    sort_versions_calver,
+    sort_versions_custom_pattern,
+    sort_versions_python_packaging,
+)
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -112,12 +124,20 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
         else:
             project = Project.objects.filter(slug=project_slug).first()
-            version = Version.objects.filter(slug=version_slug, project=project).first()
+            version = (
+                Version.objects.filter(slug=version_slug, project=project)
+                .select_related("project")
+                .first()
+            )
             if version:
-                build = version.builds.filter(
-                    success=True,
-                    state=BUILD_STATE_FINISHED,
-                ).first()
+                build = (
+                    version.builds.filter(
+                        success=True,
+                        state=BUILD_STATE_FINISHED,
+                    )
+                    .select_related("project", "version")
+                    .first()
+                )
 
         return project, version, build, filename
 
@@ -183,10 +203,7 @@ class NoLinksMixin:
 
     """Mixin to remove conflicting fields from serializers."""
 
-    FIELDS_TO_REMOVE = (
-        "_links",
-        "urls",
-    )
+    FIELDS_TO_REMOVE = ("_links",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -201,8 +218,8 @@ class NoLinksMixin:
 
 # NOTE: the following serializers are required only to remove some fields we
 # can't expose yet in this API endpoint because it's running under El Proxito
-# which cannot resolve some dashboard URLs because they are not defined on El
-# Proxito.
+# which cannot resolve URLs pointing to the APIv3 because they are not defined
+# on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
@@ -259,6 +276,10 @@ class AddonsResponse:
         stable_version = project.versions.filter(slug=STABLE).first()
         latest_version = project.versions.filter(slug=LATEST).first()
 
+        # Automatically create an AddonsConfig with the default values for
+        # projects that don't have one already
+        AddonsConfig.objects.get_or_create(project=project)
+
         if project.supports_multiple_versions:
             versions_active_built_not_hidden = (
                 Version.internal.public(
@@ -271,6 +292,36 @@ class AddonsResponse:
                 .only("slug", "type")
                 .order_by("slug")
             )
+
+            if (
+                project.addons.flyout_sorting
+                == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
+            ):
+                versions_active_built_not_hidden = sorted(
+                    versions_active_built_not_hidden,
+                    key=lambda version: comparable_version(
+                        version.verbose_name,
+                        repo_type=project.repo_type,
+                    ),
+                )
+            elif (
+                project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
+            ):
+                versions_active_built_not_hidden = sort_versions_python_packaging(
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                )
+            elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
+                versions_active_built_not_hidden = sort_versions_calver(
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                )
+            elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN:
+                versions_active_built_not_hidden = sort_versions_custom_pattern(
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_custom_pattern,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                )
 
         if version:
             version_downloads = version.get_downloads(pretty=True).items()
@@ -285,10 +336,6 @@ class AddonsResponse:
             # Example: a project with Russian and Spanish translations will be showns as:
             #     en (original), es, ru
             project_translations = itertools.chain([main_project], project_translations)
-
-        # Automatically create an AddonsConfig with the default values for
-        # projects that don't have one already
-        AddonsConfig.objects.get_or_create(project=project)
 
         data = {
             "api_version": "0",
@@ -344,9 +391,9 @@ class AddonsResponse:
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
-                    "versions": list(
-                        versions_active_built_not_hidden.values_list("slug", flat=True)
-                    ),
+                    "versions": [
+                        version_.slug for version_ in versions_active_built_not_hidden
+                    ],
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
@@ -452,7 +499,7 @@ class AddonsResponse:
                         )
                         if filename
                         else None,
-                        "root_selector": "[role=main]",
+                        "root_selector": project.addons.doc_diff_root_selector,
                         "inject_styles": True,
                         # NOTE: `base_host` and `base_page` are not required, since
                         # we are constructing the `base_url` in the backend instead

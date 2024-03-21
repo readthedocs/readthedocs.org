@@ -84,6 +84,14 @@ class SupportView(PrivateViewMixin, TemplateView):
         return context
 
 
+class TeapotView(TemplateView):
+    template_name = "core/teapot.html"
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context, status=418)
+
+
 def server_error_500(request, template_name="500.html"):
     """A simple 500 handler so we get media."""
     r = render(request, template_name)

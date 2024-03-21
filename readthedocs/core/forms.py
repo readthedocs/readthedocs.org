@@ -189,18 +189,20 @@ class FacetField(forms.MultipleChoiceField):
 class SupportForm(forms.Form):
     name = forms.CharField()
     email = forms.EmailField()
-    explanation = forms.CharField(
+    body = forms.CharField(
         label=_("Explanation of the issue"),
         help_text=_("Please provide as much detail as possible."),
         widget=forms.Textarea,
     )
     url = forms.URLField(
+        label=_("URL"),
         help_text=_("Is there a specific page this happened?"),
         required=False,
     )
     attachment = forms.FileField(
         label=_("Screenshot or additional file"),
         help_text=_("Anything else that would help us solve this issue?"),
+        required=False,
     )
     severity_level = forms.ChoiceField(
         choices=(
