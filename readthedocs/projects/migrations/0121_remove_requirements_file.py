@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy
 
     dependencies = [
-        ("projects", "0120_docdiff_helptext.py"),
+        ("projects", "0120_docdiff_helptext"),
     ]
 
     operations = [
