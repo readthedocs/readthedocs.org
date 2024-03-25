@@ -300,7 +300,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     # Do not send notifications on failure builds for these exceptions.
     exceptions_without_notifications = (
         BuildCancelled.CANCELLED_BY_USER,
-        BuildUserError.SKIPPED_EXIT_CODE_183,
+        BuildCancelled.SKIPPED_EXIT_CODE_183,
         BuildAppError.BUILDS_DISABLED,
         BuildMaxConcurrencyError.LIMIT_REACHED,
     )
@@ -541,7 +541,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type = self.data.version.type
 
             status = BUILD_STATUS_FAILURE
-            if message_id == BuildUserError.SKIPPED_EXIT_CODE_183:
+            if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
                 # The build was skipped by returning the magic exit code,
                 # marked as CANCELLED, but communicated to GitHub as successful.
                 # This is because the PR has to be available for merging when the build
