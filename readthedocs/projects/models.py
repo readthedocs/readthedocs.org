@@ -1832,6 +1832,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
     HEADERS_CHOICES = (
         ("access_control_allow_origin", "Access-Control-Allow-Origin"),
         ("access_control_allow_headers", "Access-Control-Allow-Headers"),
+        ("access_control_expose_headers", "Access-Control-Expose-Headers"),
         ("content_security_policy", "Content-Security-Policy"),
         ("feature_policy", "Feature-Policy"),
         ("permissions_policy", "Permissions-Policy"),
