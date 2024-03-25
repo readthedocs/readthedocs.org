@@ -1,10 +1,8 @@
-import structlog
-
 import markdown
+import structlog
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template import Context, Engine
-
 
 log = structlog.get_logger(__name__)
 
