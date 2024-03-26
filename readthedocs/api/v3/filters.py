@@ -62,9 +62,9 @@ class BuildFilter(filters.FilterSet):
 class NotificationFilter(filters.FilterSet):
     class Meta:
         model = Notification
-        fields = [
-            "state",
-        ]
+        fields = {
+            "state": ["in", "exact"],
+        }
 
 
 class RemoteRepositoryFilter(filters.FilterSet):
