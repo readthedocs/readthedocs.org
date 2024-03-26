@@ -234,7 +234,7 @@ Once you have done changes in your documentation, you may want to make these add
 
    .. prompt:: bash $
 
-      tx push --sources
+      tx push --source
 
 
 Build documentation from up to date translation
