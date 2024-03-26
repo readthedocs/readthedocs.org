@@ -1,9 +1,9 @@
 import datetime
 import json
 
-from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from readthedocs.oauth.tasks import sync_remote_repositories
 

@@ -1,6 +1,6 @@
-import structlog
 from functools import partial
 
+import structlog
 from django import forms
 from django.db import models
 from django.utils.translation import gettext_lazy as _

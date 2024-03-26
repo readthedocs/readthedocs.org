@@ -1,13 +1,10 @@
+import django_dynamic_fixture as fixture
+from allauth.socialaccount.models import SocialAccount
 from django.urls import reverse
 
-from allauth.socialaccount.models import SocialAccount
-import django_dynamic_fixture as fixture
-
 from readthedocs.oauth.constants import GITHUB
-from readthedocs.oauth.models import (
-    RemoteOrganization,
-    RemoteOrganizationRelation,
-)
+from readthedocs.oauth.models import RemoteOrganization, RemoteOrganizationRelation
+
 from .mixins import APIEndpointMixin
 
 
