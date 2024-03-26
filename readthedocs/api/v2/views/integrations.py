@@ -40,6 +40,7 @@ GITHUB_PULL_REQUEST_OPENED = "opened"
 GITHUB_PULL_REQUEST_CLOSED = "closed"
 GITHUB_PULL_REQUEST_REOPENED = "reopened"
 GITHUB_PULL_REQUEST_SYNC = "synchronize"
+GITHUB_PULL_REQUEST_LABELED = "labeled"
 GITHUB_CREATE = "create"
 GITHUB_DELETE = "delete"
 GITLAB_MERGE_REQUEST = "merge_request"
@@ -480,6 +481,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 GITHUB_PULL_REQUEST_OPENED,
                 GITHUB_PULL_REQUEST_REOPENED,
                 GITHUB_PULL_REQUEST_SYNC,
+                GITHUB_PULL_REQUEST_LABELED,
             ]:
                 # Trigger a build when PR is opened/reopened/sync
                 return self.get_external_version_response(self.project)
