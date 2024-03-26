@@ -18,7 +18,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST, STABLE
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
@@ -346,15 +346,17 @@ class AddonsResponse:
             ),
             "projects": {
                 "current": ProjectSerializerNoLinks(project).data,
+                "translations": ProjectSerializerNoLinks(
+                    project_translations,
+                    many=True,
+                ).data,
             },
             "versions": {
                 "current": VersionSerializerNoLinks(version).data if version else None,
-                "stable": VersionSerializerNoLinks(stable_version).data
-                if stable_version
-                else None,
-                "latest": VersionSerializerNoLinks(latest_version).data
-                if latest_version
-                else None,
+                "active": VersionSerializerNoLinks(
+                    versions_active_built_not_hidden,
+                    many=True,
+                ).data,
             },
             "builds": {
                 "current": BuildSerializerNoLinks(build).data if build else None,
@@ -392,45 +394,9 @@ class AddonsResponse:
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
-                    "versions": [
-                        version_.slug for version_ in versions_active_built_not_hidden
-                    ],
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
-                    "translations": [
-                        {
-                            # TODO: name this field "display_name"
-                            "slug": translation.language,
-                            "url": resolver.resolve(
-                                project=project,
-                                version_slug=version.slug,
-                                language=translation.language,
-                                external=version.type == EXTERNAL,
-                            ),
-                        }
-                        for translation in project_translations
-                    ],
-                    "versions": [
-                        {
-                            # TODO: name this field "display_name"
-                            "slug": version_.slug,
-                            "url": resolver.resolve(
-                                project=project,
-                                version_slug=version_.slug,
-                                external=version_.type == EXTERNAL,
-                            ),
-                        }
-                        for version_ in versions_active_built_not_hidden
-                    ],
-                    "downloads": [
-                        {
-                            # TODO: name this field "display_name"
-                            "name": name,
-                            "url": url_,
-                        }
-                        for name, url_ in version_downloads
-                    ],
                     # TODO: find a way to get this data in a reliably way.
                     # We don't have a simple way to map a URL to a file in the repository.
                     # This feature may be deprecated/removed in this implementation since it relies
