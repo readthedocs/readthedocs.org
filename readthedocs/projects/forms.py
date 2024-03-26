@@ -1,4 +1,5 @@
 """Project forms."""
+
 import json
 from random import choice
 from re import fullmatch
@@ -38,7 +39,6 @@ from readthedocs.redirects.models import Redirect
 
 
 class ProjectForm(SimpleHistoryModelForm):
-
     """
     Project form.
 
@@ -60,7 +60,6 @@ class ProjectForm(SimpleHistoryModelForm):
 
 
 class ProjectTriggerBuildMixin:
-
     """
     Mixin to trigger build on form save.
 
@@ -91,14 +90,105 @@ class ProjectTriggerBuildMixin:
 
 
 class ProjectBackendForm(forms.Form):
-
     """Get the import backend."""
 
     backend = forms.CharField()
 
 
-class ProjectFormPrevalidateMixin:
+class ProjectPRBuildsMixin(PrevalidatedForm):
+    """
+    Mixin that provides a method to setup the external builds option.
 
+    TODO: Remove this once we migrate to the new dashboard,
+    and we don't need to support the old project settings form.
+    """
+
+    def has_supported_integration(self, integrations):
+        supported_types = {Integration.GITHUB_WEBHOOK, Integration.GITLAB_WEBHOOK}
+        for integration in integrations:
+            if integration.integration_type in supported_types:
+                return True
+        return False
+
+    def can_build_external_versions(self, integrations):
+        """
+        Check if external versions can be enabled for this project.
+
+        A project can build external versions if:
+
+        - They are using GitHub or GitLab.
+        - The repository's webhook is setup to send pull request events.
+
+        If the integration's provider data isn't set,
+        it could mean that the user created the integration manually,
+        and doesn't have an account connected.
+        So we don't know for sure if the webhook is sending pull request events.
+        """
+        for integration in integrations:
+            provider_data = integration.provider_data
+            if integration.integration_type == Integration.GITHUB_WEBHOOK and (
+                not provider_data or "pull_request" in provider_data.get("events", [])
+            ):
+                return True
+            if integration.integration_type == Integration.GITLAB_WEBHOOK and (
+                not provider_data or provider_data.get("merge_requests_events")
+            ):
+                return True
+        return False
+
+    def setup_external_builds_option(self):
+        """Disable the external builds option if the project doesn't meet the requirements."""
+        if (
+            settings.ALLOW_PRIVATE_REPOS
+            and self.instance.remote_repository
+            and not self.instance.remote_repository.private
+        ):
+            self.fields["external_builds_privacy_level"].disabled = True
+            help_text = _(
+                "We have detected that this project is public, pull request previews are set to public."
+            )
+            self.fields["external_builds_privacy_level"].help_text = help_text
+
+    def clean_prevalidation(self):
+        """Disable the external builds option if the project doesn't meet the requirements."""
+        integrations = list(self.instance.integrations.all())
+        has_supported_integration = self.has_supported_integration(integrations)
+        can_build_external_versions = self.can_build_external_versions(integrations)
+
+        # External builds are supported for this project,
+        # don't disable the option.
+        if has_supported_integration and can_build_external_versions:
+            return
+
+        msg = None
+        url = reverse("projects_integrations", args=[self.instance.slug])
+
+        if not has_supported_integration:
+            msg = _(
+                "To build from pull requests you need a "
+                f'GitHub or GitLab <a href="{url}">integration</a>.'
+            )
+        if has_supported_integration and not can_build_external_versions:
+            # If there is only one integration, link directly to it.
+            if len(integrations) == 1:
+                url = reverse(
+                    "projects_integrations_detail",
+                    args=[self.instance.slug, integrations[0].pk],
+                )
+            msg = _(
+                "To build from pull requests your repository's webhook "
+                "needs to send pull request events. "
+                f'Try to <a href="{url}">resync your integration</a>.'
+            )
+
+        if msg:
+            raise RichValidationError(
+                msg,
+                header=_("Pull Request builds not supported"),
+            )
+
+
+class ProjectFormPrevalidateMixin:
     """Provides shared logic between the automatic and manual create forms."""
 
     def __init__(self, *args, **kwargs):
@@ -204,7 +294,6 @@ class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
 
 
 class ProjectBasicsForm(ProjectForm):
-
     """Form used when importing a project."""
 
     class Meta:
@@ -280,7 +369,6 @@ class ProjectBasicsForm(ProjectForm):
 
 
 class ProjectConfigForm(forms.Form):
-
     """Simple intermediate step to communicate about the .readthedocs.yaml file."""
 
     def __init__(self, *args, **kwargs):
@@ -293,7 +381,6 @@ class UpdateProjectForm(
     ProjectTriggerBuildMixin,
     ProjectBasicsForm,
 ):
-
     """Main project settings form."""
 
     class Meta:
@@ -383,86 +470,6 @@ class UpdateProjectForm(
 
         self.setup_external_builds_option()
 
-    def setup_external_builds_option(self):
-        """Disable the external builds option if the project doesn't meet the requirements."""
-        if (
-            settings.ALLOW_PRIVATE_REPOS
-            and self.instance.remote_repository
-            and not self.instance.remote_repository.private
-        ):
-            self.fields["external_builds_privacy_level"].disabled = True
-            help_text = _(
-                "We have detected that this project is public, pull request previews are set to public."
-            )
-            self.fields["external_builds_privacy_level"].help_text = help_text
-
-        integrations = list(self.instance.integrations.all())
-        has_supported_integration = self.has_supported_integration(integrations)
-        can_build_external_versions = self.can_build_external_versions(integrations)
-
-        # External builds are supported for this project,
-        # don't disable the option.
-        if has_supported_integration and can_build_external_versions:
-            return
-
-        msg = None
-        url = reverse("projects_integrations", args=[self.instance.slug])
-        if not has_supported_integration:
-            msg = _(
-                "To build from pull requests you need a "
-                f'GitHub or GitLab <a href="{url}">integration</a>.'
-            )
-        if has_supported_integration and not can_build_external_versions:
-            # If there is only one integration, link directly to it.
-            if len(integrations) == 1:
-                url = reverse(
-                    "projects_integrations_detail",
-                    args=[self.instance.slug, integrations[0].pk],
-                )
-            msg = _(
-                "To build from pull requests your repository's webhook "
-                "needs to send pull request events. "
-                f'Try to <a href="{url}">resync your integration</a>.'
-            )
-
-        if msg:
-            field = self.fields["external_builds_enabled"]
-            field.disabled = True
-            field.help_text = f"{msg} {field.help_text}"
-
-    def has_supported_integration(self, integrations):
-        supported_types = {Integration.GITHUB_WEBHOOK, Integration.GITLAB_WEBHOOK}
-        for integration in integrations:
-            if integration.integration_type in supported_types:
-                return True
-        return False
-
-    def can_build_external_versions(self, integrations):
-        """
-        Check if external versions can be enabled for this project.
-
-        A project can build external versions if:
-
-        - They are using GitHub or GitLab.
-        - The repository's webhook is setup to send pull request events.
-
-        If the integration's provider data isn't set,
-        it could mean that the user created the integration manually,
-        and doesn't have an account connected.
-        So we don't know for sure if the webhook is sending pull request events.
-        """
-        for integration in integrations:
-            provider_data = integration.provider_data
-            if integration.integration_type == Integration.GITHUB_WEBHOOK and (
-                not provider_data or "pull_request" in provider_data.get("events", [])
-            ):
-                return True
-            if integration.integration_type == Integration.GITLAB_WEBHOOK and (
-                not provider_data or provider_data.get("merge_requests_events")
-            ):
-                return True
-        return False
-
     def clean_readthedocs_yaml_path(self):
         """
         Validate user input to help user.
@@ -533,7 +540,6 @@ class UpdateProjectForm(
 
 
 class ProjectRelationshipForm(forms.ModelForm):
-
     """Form to add/update project relationships."""
 
     parent = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -574,8 +580,24 @@ class ProjectRelationshipForm(forms.ModelForm):
         return alias
 
 
-class AddonsConfigForm(forms.ModelForm):
+class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
+    """Project pull requests configuration form."""
 
+    class Meta:
+        model = Project
+        fields = ["external_builds_enabled", "external_builds_privacy_level"]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+        self.setup_external_builds_option()
+
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("external_builds_privacy_level")
+
+
+class AddonsConfigForm(forms.ModelForm):
     """Form to opt-in into new beta addons."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -639,7 +661,6 @@ class AddonsConfigForm(forms.ModelForm):
 
 
 class UserForm(forms.Form):
-
     """Project owners form."""
 
     username_or_email = forms.CharField(label=_("Email address or username"))
@@ -676,7 +697,6 @@ class UserForm(forms.Form):
 
 
 class EmailHookForm(forms.Form):
-
     """Project email notification form."""
 
     email = forms.EmailField()
@@ -698,7 +718,6 @@ class EmailHookForm(forms.Form):
 
 
 class WebHookForm(forms.ModelForm):
-
     """Webhook form."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -752,7 +771,6 @@ class WebHookForm(forms.ModelForm):
 
 
 class TranslationBaseForm(forms.Form):
-
     """Project translation form."""
 
     project = forms.ChoiceField()
@@ -858,7 +876,6 @@ class TranslationForm(SettingsOverrideObject):
 
 
 class RedirectForm(forms.ModelForm):
-
     """Form for project redirects."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False, disabled=True)
@@ -894,7 +911,6 @@ class RedirectForm(forms.ModelForm):
 
 
 class DomainForm(forms.ModelForm):
-
     """Form to configure a custom domain name for a project."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -964,7 +980,6 @@ class DomainForm(forms.ModelForm):
 
 
 class IntegrationForm(forms.ModelForm):
-
     """
     Form to add an integration.
 
@@ -984,9 +999,9 @@ class IntegrationForm(forms.ModelForm):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
         # Alter the integration type choices to only provider webhooks
-        self.fields[
-            "integration_type"
-        ].choices = Integration.WEBHOOK_INTEGRATIONS  # yapf: disable  # noqa
+        self.fields["integration_type"].choices = (
+            Integration.WEBHOOK_INTEGRATIONS
+        )  # yapf: disable  # noqa
 
     def clean_project(self):
         return self.project
@@ -997,7 +1012,6 @@ class IntegrationForm(forms.ModelForm):
 
 
 class ProjectAdvertisingForm(forms.ModelForm):
-
     """Project promotion opt-out form."""
 
     class Meta:
@@ -1010,7 +1024,6 @@ class ProjectAdvertisingForm(forms.ModelForm):
 
 
 class FeatureForm(forms.ModelForm):
-
     """
     Project feature form for dynamic admin choices.
 
@@ -1031,7 +1044,6 @@ class FeatureForm(forms.ModelForm):
 
 
 class EnvironmentVariableForm(forms.ModelForm):
-
     """
     Form to add an EnvironmentVariable to a Project.
 

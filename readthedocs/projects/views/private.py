@@ -1,4 +1,5 @@
 """Project views for authenticated users."""
+
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -58,6 +59,7 @@ from readthedocs.projects.forms import (
     ProjectBasicsForm,
     ProjectConfigForm,
     ProjectManualForm,
+    ProjectPullRequestForm,
     ProjectRelationshipForm,
     RedirectForm,
     TranslationForm,
@@ -93,7 +95,6 @@ log = structlog.get_logger(__name__)
 
 
 class ProjectDashboard(PrivateViewMixin, ListView):
-
     """Project dashboard."""
 
     model = Project
@@ -147,7 +148,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
 
 class ProjectMixin(PrivateViewMixin):
-
     """Common pieces for model views of Project."""
 
     model = Project
@@ -251,7 +251,6 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
 
 
 class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
-
     """
     Project import wizard.
 
@@ -323,7 +322,6 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
 
 
 class ImportView(PrivateViewMixin, TemplateView):
-
     """
     On GET, show the source an import view, on POST, mock out a wizard.
 
@@ -493,7 +491,6 @@ class ProjectNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
-
     """Project notification view and form view."""
 
     template_name = "projects/project_notifications.html"
@@ -623,7 +620,6 @@ class ProjectTranslationsMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class ProjectTranslationsListAndCreate(ProjectTranslationsMixin, FormView):
-
     """Project translations view and form view."""
 
     form_class = TranslationForm
@@ -664,7 +660,6 @@ class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
 
 
 class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
-
     """Project redirects view and form view."""
 
     form_class = RedirectForm
@@ -696,7 +691,6 @@ class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
 
 
 class ProjectRedirectsInsert(ProjectRedirectsMixin, GenericModelView):
-
     """
     Insert a redirect in a specific position.
 
@@ -789,7 +783,6 @@ class DomainDelete(DomainMixin, DeleteView):
 
 
 class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
-
     """Project external service mixin for listing webhook objects."""
 
     model = Integration
@@ -874,7 +867,6 @@ class IntegrationExchangeDetail(IntegrationMixin, DetailView):
 
 
 class IntegrationWebhookSync(IntegrationMixin, GenericView):
-
     """
     Resync a project webhook.
 
@@ -915,7 +907,6 @@ class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):
 
 
 class EnvironmentVariableMixin(ProjectAdminMixin, PrivateViewMixin):
-
     """Environment Variables to be added when building the Project."""
 
     model = EnvironmentVariable
@@ -1173,3 +1164,18 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     def _get_feature(self, project):
         return get_feature(project, feature_type=self.feature_type)
+
+
+class ProjectPullRequestsUpdate(PrivateViewMixin, UpdateView):
+    model = Project
+    form_class = ProjectPullRequestForm
+    success_message = _("Pull request settings have been updated")
+    template_name = "projects/pull_requests_form.html"
+    lookup_url_kwarg = "project_slug"
+    lookup_field = "slug"
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
+
+    def get_success_url(self):
+        return reverse("projects_pull_requests", args=[self.object.slug])
