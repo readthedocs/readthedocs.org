@@ -12,15 +12,21 @@ so that you can focus on content.
    :local:
    :depth: 3
 
-Use a ``.readthedocs.yaml`` configuration file
-----------------------------------------------
+.. note::
+   This page explains how to pin the versions that correctly build your project.
+   The versions used in this page are just for illustrative purpose.
+   They are not the latest nor the recommended versions.
+   It is up to you to find those versions.
 
-We recommend using a :doc:`configuration file </config-file/v2>` to manage your documentation.
-Our config file *provides you per version settings*,
-and *those settings live in your Git repository*.
+Before reading this page, be sure to read the doc about the :doc:`configuration file </config-file/index>` (``.readthedocs.yaml``).
+This file controls how you documentation is build so it plays a crucial role for reproducible builds.
 
-This allows you to validate changes using :doc:`pull requests </pull-requests>`,
-and ensures that all your versions can be rebuilt from a reproducible configuration.
+Pin the tools version
+---------------------
+
+The configuration file is used to set the versions of the main tools used to build your project.
+For instance, you can require a specific version of Python.
+See the ``build.tools`` key in the documentation.
 
 Use a requirements file for Python dependencies
 -----------------------------------------------
