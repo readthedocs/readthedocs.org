@@ -206,7 +206,7 @@ If you now click on :guilabel:`View docs`, you will see your documentation live!
 
    If you don't see the ad, you might be using an ad blocker.
    Our EthicalAds network respects your privacy, doesn't target you,
-   and tries to be as unobstrusive as possible,
+   and tries to be as unobtrusive as possible,
    so we would like to kindly ask you to :doc:`not block us </advertising/ad-blocking>` |:heart:|
 
 Basic configuration changes

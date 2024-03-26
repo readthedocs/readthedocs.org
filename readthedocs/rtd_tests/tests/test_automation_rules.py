@@ -400,7 +400,7 @@ class TestAutomationRuleManager:
         assert self.project.automation_rules.count() == 2
         assert rule.priority == 0
 
-        # Adding a rule with a not secuencial priority
+        # Adding a rule with a not sequential priority
         rule = get(
             RegexAutomationRule,
             description="Third rule",

@@ -86,7 +86,7 @@ No new builds are started when I open a pull request
 Build status is not being reported to your Git provider
    If opening a pull request does start a new build, but the build status is not
    being updated with your Git provider, then your connected account may have out
-   dated or insufficient permisisons.
+   dated or insufficient permissions.
 
    Make sure that you have granted access to the Read the Docs `OAuth App`_ for
    your personal or organization GitHub account. You can also try reconnecting

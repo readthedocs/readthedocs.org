@@ -386,7 +386,7 @@ We can do this in three ways:
   We could limit the number of redirects that can be created with query arguments,
   or the number of redirects in general.
 
-We hava had only one user requesting this feature,
+We have had only one user requesting this feature,
 so this is not a priority.
 
 Migration

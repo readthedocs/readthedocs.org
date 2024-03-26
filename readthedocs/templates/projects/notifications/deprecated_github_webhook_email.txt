@@ -9,7 +9,7 @@ you will need to add a new webhook on your GitHub repository.
 You can either connect your GitHub account and configure a GitHub webhook integration,
 or you can add a generic webhook integration.
 
-You can find more information on our webhook intergrations in our documentation, at:
+You can find more information on our webhook integrations in our documentation, at:
 
 https://docs.readthedocs.io/page/webhooks.html#webhook-github-services
 {% endblock %}

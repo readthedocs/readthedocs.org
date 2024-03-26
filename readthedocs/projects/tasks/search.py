@@ -208,7 +208,7 @@ def _create_imported_files_and_search_index(
 
     # We first index the files in ES, and then save the objects in the DB.
     # This is because saving the objects in the DB will give them an id,
-    # and we neeed this id to be `None` when indexing the objects in ES.
+    # and we needed this id to be `None` when indexing the objects in ES.
     # ES will generate a unique id for each document.
     if html_files_to_index:
         index_objects(

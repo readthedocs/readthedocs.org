@@ -98,7 +98,7 @@ Why attach tokens to users?
 ---------------------------
 
 Attaching tokens to users will ease the implementation,
-since we can re-use the code from knox package.
+since we can reuse the code from knox package.
 
 Attaching tokens to projects only is possible,
 but it will require to manage the authentication manually.
@@ -108,7 +108,7 @@ An alternative is to use the DRF API key package, which doesn't require a user,
 but then if we wanted to extend this functionality to our normal APIs, we will have
 to implement the authentication manually.
 
-Kepping backwards compatibility
+Keeping backwards compatibility
 -------------------------------
 
 Access to write API V2 is restricted to superusers,
@@ -161,7 +161,7 @@ since it also handles authentication).
 Decision
 --------
 
-Due to the fact that the required featues from knox are not released yet,
+Due to the fact that the required features from knox are not released yet,
 we have decided to use DRF API key instead.
 
 Future work
