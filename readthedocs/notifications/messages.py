@@ -150,7 +150,7 @@ BUILD_MESSAGES = [
         type=ERROR,
     ),
     Message(
-        id=BuildUserError.SKIPPED_EXIT_CODE_183,
+        id=BuildCancelled.SKIPPED_EXIT_CODE_183,
         header=_("Build skipped."),
         body=_(
             textwrap.dedent(
