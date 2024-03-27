@@ -614,34 +614,35 @@ class WebHookExchangeDetail(WebHookMixin, DetailView):
 
 
 class ProjectTranslationsMixin(ProjectAdminMixin, PrivateViewMixin):
+    form_class = TranslationForm
+
     def get_success_url(self):
         return reverse(
             "projects_translations",
             args=[self.get_project().slug],
         )
 
-
-class ProjectTranslationsListAndCreate(ProjectTranslationsMixin, FormView):
-
-    """Project translations view and form view."""
-
-    form_class = TranslationForm
-    template_name = "projects/project_translations.html"
-
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(self.get_success_url())
-
     def get_form(self, data=None, files=None, **kwargs):
         kwargs["parent"] = self.get_project()
         kwargs["user"] = self.request.user
         return self.form_class(data, files, **kwargs)
+
+
+class ProjectTranslationsList(ProjectTranslationsMixin, FormView):
+
+    """Project translations view and form view."""
+
+    template_name = "projects/project_translations.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
         context["lang_projects"] = project.translations.all()
         return context
+
+
+class ProjectTranslationsCreate(ProjectTranslationsMixin, CreateView):
+    template_name = "projects/project_translations_form.html"
 
 
 class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
