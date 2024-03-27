@@ -2,6 +2,7 @@
   "api_version": "0",
   "comment": "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!",
   "projects": {
+    "translations": [],
     "current": {
       "created": "2019-04-29T10:00:00Z",
       "default_branch": "master",
@@ -46,6 +47,7 @@
   "versions": {
     "current": {
       "active": true,
+      "aliases": [],
       "hidden": false,
       "built": true,
       "downloads": {},
@@ -63,7 +65,30 @@
         "vcs": "https://github.com/readthedocs/project/tree/master/"
       },
       "verbose_name": "latest"
-    }
+    },
+    "active": [
+      {
+        "active": true,
+        "aliases": [],
+        "built": true,
+        "downloads": {},
+        "hidden": false,
+        "id": 1,
+        "identifier": "a1b2c3",
+        "privacy_level": "public",
+        "ref": null,
+        "slug": "latest",
+        "type": "tag",
+        "urls": {
+          "dashboard": {
+            "edit": "https://readthedocs.org/project/version/latest/edit/"
+          },
+          "documentation": "https://project.dev.readthedocs.io/en/latest/",
+          "vcs": "https://github.com/readthedocs/project/tree/master/"
+        },
+        "verbose_name": "latest"
+      }
+    ]
   },
   "builds": {
     "current": {
@@ -115,8 +140,7 @@
       }
     },
     "non_latest_version_warning": {
-      "enabled": true,
-      "versions": ["latest"]
+      "enabled": true
     },
     "doc_diff": {
       "enabled": true,
@@ -128,9 +152,7 @@
     },
     "flyout": {
       "enabled": true,
-      "translations": [],
-      "versions": [{ "slug": "latest", "url": "https://project.dev.readthedocs.io/en/latest/" }],
-      "downloads": []
+      "sorted_versions": []
     },
     "search": {
       "enabled": true,

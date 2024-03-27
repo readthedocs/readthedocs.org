@@ -1,6 +1,5 @@
 """Views for hosting features."""
 
-import itertools
 from functools import lru_cache
 
 import packaging
@@ -18,7 +17,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
@@ -107,10 +106,14 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 # This query should use a particular index:
                 # ``builds_build_version_id_state_date_success_12dfb214_idx``.
                 # Otherwise, if the index is not used, the query gets too slow.
-                build = version.builds.filter(
-                    success=True,
-                    state=BUILD_STATE_FINISHED,
-                ).first()
+                build = (
+                    version.builds.filter(
+                        success=True,
+                        state=BUILD_STATE_FINISHED,
+                    )
+                    .select_related("project", "version")
+                    .first()
+                )
 
             except UnresolverError as exc:
                 # If an exception is raised and there is a ``project`` in the
@@ -123,7 +126,11 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                     raise Http404() from exc
 
         else:
-            project = Project.objects.filter(slug=project_slug).first()
+            project = (
+                Project.objects.filter(slug=project_slug)
+                # .select_related("main_language_project")
+                .first()
+            )
             version = (
                 Version.objects.filter(slug=version_slug, project=project)
                 .select_related("project")
@@ -227,7 +234,13 @@ class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
 
 
 class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            resolver=Resolver(),
+            version_serializer=VersionSerializerNoLinks,
+            **kwargs,
+        )
 
 
 class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
@@ -270,8 +283,8 @@ class AddonsResponse:
         (Project, Version, Build, etc).
         """
         resolver = Resolver()
-        version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
+        sorted_versions_active_built_not_hidden = Version.objects.none()
 
         # Automatically create an AddonsConfig with the default values for
         # projects that don't have one already
@@ -286,7 +299,7 @@ class AddonsResponse:
                     user=user,
                 )
                 .exclude(hidden=True)
-                .only("slug", "type")
+                .select_related("project")
                 .order_by("slug")
             )
 
@@ -294,7 +307,7 @@ class AddonsResponse:
                 project.addons.flyout_sorting
                 == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
             ):
-                versions_active_built_not_hidden = sorted(
+                sorted_versions_active_built_not_hidden = sorted(
                     versions_active_built_not_hidden,
                     key=lambda version: comparable_version(
                         version.verbose_name,
@@ -304,35 +317,26 @@ class AddonsResponse:
             elif (
                 project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
             ):
-                versions_active_built_not_hidden = sort_versions_python_packaging(
-                    versions_active_built_not_hidden,
-                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                sorted_versions_active_built_not_hidden = (
+                    sort_versions_python_packaging(
+                        versions_active_built_not_hidden,
+                        project.addons.flyout_sorting_latest_stable_at_beginning,
+                    )
                 )
             elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
-                versions_active_built_not_hidden = sort_versions_calver(
+                sorted_versions_active_built_not_hidden = sort_versions_calver(
                     versions_active_built_not_hidden,
                     project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
             elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN:
-                versions_active_built_not_hidden = sort_versions_custom_pattern(
+                sorted_versions_active_built_not_hidden = sort_versions_custom_pattern(
                     versions_active_built_not_hidden,
                     project.addons.flyout_sorting_custom_pattern,
                     project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
 
-        if version:
-            version_downloads = version.get_downloads(pretty=True).items()
-
         main_project = project.main_language_project or project
-        project_translations = (
-            main_project.translations.all().only("language").order_by("language")
-        )
-        if project_translations.exists():
-            # Always prefix the list of translations with the main project's language,
-            # when there are translations present.
-            # Example: a project with Russian and Spanish translations will be showns as:
-            #     en (original), es, ru
-            project_translations = itertools.chain([main_project], project_translations)
+        project_translations = main_project.translations.all().order_by("language")
 
         data = {
             "api_version": "0",
@@ -342,9 +346,17 @@ class AddonsResponse:
             ),
             "projects": {
                 "current": ProjectSerializerNoLinks(project).data,
+                "translations": ProjectSerializerNoLinks(
+                    project_translations,
+                    many=True,
+                ).data,
             },
             "versions": {
                 "current": VersionSerializerNoLinks(version).data if version else None,
+                "active": VersionSerializerNoLinks(
+                    versions_active_built_not_hidden,
+                    many=True,
+                ).data,
             },
             "builds": {
                 "current": BuildSerializerNoLinks(build).data if build else None,
@@ -382,45 +394,12 @@ class AddonsResponse:
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
-                    "versions": [
-                        version_.slug for version_ in versions_active_built_not_hidden
-                    ],
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
-                    "translations": [
-                        {
-                            # TODO: name this field "display_name"
-                            "slug": translation.language,
-                            "url": resolver.resolve(
-                                project=project,
-                                version_slug=version.slug,
-                                language=translation.language,
-                                external=version.type == EXTERNAL,
-                            ),
-                        }
-                        for translation in project_translations
-                    ],
-                    "versions": [
-                        {
-                            # TODO: name this field "display_name"
-                            "slug": version_.slug,
-                            "url": resolver.resolve(
-                                project=project,
-                                version_slug=version_.slug,
-                                external=version_.type == EXTERNAL,
-                            ),
-                        }
-                        for version_ in versions_active_built_not_hidden
-                    ],
-                    "downloads": [
-                        {
-                            # TODO: name this field "display_name"
-                            "name": name,
-                            "url": url_,
-                        }
-                        for name, url_ in version_downloads
-                    ],
+                    "sorted_versions": [
+                        v.slug for v in sorted_versions_active_built_not_hidden
+                    ]
                     # TODO: find a way to get this data in a reliably way.
                     # We don't have a simple way to map a URL to a file in the repository.
                     # This feature may be deprecated/removed in this implementation since it relies

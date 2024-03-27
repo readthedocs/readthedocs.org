@@ -556,6 +556,7 @@ Version detail
             "ref": "19.0.2",
             "built": true,
             "active": true,
+            "aliases": [{VERSION}],
             "hidden": false,
             "type": "tag",
             "last_build": "{BUILD}",
