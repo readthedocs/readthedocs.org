@@ -157,7 +157,7 @@ class TestProjectUsersViews(TestCase):
         )
 
     def test_invite_by_username(self):
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
@@ -176,7 +176,7 @@ class TestProjectUsersViews(TestCase):
         self.assertEqual(invitation.to_email, None)
 
     def test_invite_by_email(self):
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
@@ -196,7 +196,7 @@ class TestProjectUsersViews(TestCase):
 
     def test_invite_existing_maintainer_by_username(self):
         self.project.users.add(self.another_user)
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
@@ -212,7 +212,7 @@ class TestProjectUsersViews(TestCase):
 
     def test_invite_existing_maintainer_by_email(self):
         self.project.users.add(self.another_user)
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
@@ -227,7 +227,7 @@ class TestProjectUsersViews(TestCase):
         self.assertFalse(Invitation.objects.for_object(self.project).exists())
 
     def test_invite_unknown_user(self):
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
