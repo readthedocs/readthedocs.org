@@ -40,8 +40,9 @@ from readthedocs.projects.views.private import (
     ProjectTranslationsDelete,
     ProjectTranslationsListAndCreate,
     ProjectUpdate,
-    ProjectUsersCreateList,
+    ProjectUsersCreate,
     ProjectUsersDelete,
+    ProjectUsersList,
     ProjectVersionCreate,
     ProjectVersionDeleteHTML,
     ProjectVersionDetail,
@@ -105,8 +106,13 @@ urlpatterns = [
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/users/$",
-        ProjectUsersCreateList.as_view(),
+        ProjectUsersList.as_view(),
         name="projects_users",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/users/create/$",
+        ProjectUsersCreate.as_view(),
+        name="projects_users_create",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/users/delete/$",

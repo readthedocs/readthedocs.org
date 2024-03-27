@@ -436,29 +436,31 @@ class ProjectUsersMixin(ProjectAdminMixin, PrivateViewMixin):
         return self.get_queryset().count() <= 1
 
 
-class ProjectUsersCreateList(SuccessMessageMixin, ProjectUsersMixin, FormView):
+class ProjectUsersList(SuccessMessageMixin, ProjectUsersMixin, TemplateView):
     template_name = "projects/project_users.html"
-    success_message = _("Invitation sent")
-
-    def form_valid(self, form):
-        # Manually calling to save, since this isn't a ModelFormView.
-        form.save()
-        return super().form_valid(form)
 
     def _get_invitations(self):
         return Invitation.objects.for_object(self.get_project())
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["request"] = self.request
-        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["users"] = self.get_queryset()
         context["invitations"] = self._get_invitations()
         context["is_last_user"] = self._is_last_user()
+        context["form"] = self.form_class()
         return context
+
+
+class ProjectUsersCreate(SuccessMessageMixin, ProjectUsersMixin, CreateView):
+    success_message = _("Invitation sent")
+    template_name = "projects/project_users_form.html"
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["request"] = self.request
+        return super().get_form(data, files, **kwargs)
 
 
 class ProjectUsersDelete(ProjectUsersMixin, GenericView):
