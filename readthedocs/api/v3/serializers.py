@@ -453,7 +453,10 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     """Serializer with all the user-facing URLs under Read the Docs."""
 
+    # TODO: considering passing a shared `Resolver` instance to `Project.get_docs_url` here.
+    # It's useful when resolving translation documentation URLs from Addons API.
     documentation = serializers.CharField(source="get_docs_url")
+
     home = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
     versions = serializers.SerializerMethodField()
