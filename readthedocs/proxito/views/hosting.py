@@ -126,7 +126,11 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                     raise Http404() from exc
 
         else:
-            project = Project.objects.filter(slug=project_slug).first()
+            project = (
+                Project.objects.filter(slug=project_slug)
+                # .select_related("main_language_project")
+                .first()
+            )
             version = (
                 Version.objects.filter(slug=version_slug, project=project)
                 .select_related("project")
@@ -274,7 +278,6 @@ class AddonsResponse:
         (Project, Version, Build, etc).
         """
         resolver = Resolver()
-        version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
 
         # Automatically create an AddonsConfig with the default values for
@@ -323,9 +326,6 @@ class AddonsResponse:
                     project.addons.flyout_sorting_custom_pattern,
                     project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
-
-        if version:
-            version_downloads = version.get_downloads(pretty=True).items()
 
         main_project = project.main_language_project or project
         project_translations = main_project.translations.all().order_by("language")

@@ -687,8 +687,8 @@ class TestReadTheDocsConfigJson(TestCase):
         # understand how much this number varies depending on the changes we do.
 
         # Create many versions for this project.
-        # These versions will call `resolver.resolve` to generate the URL returned for the flyout.
-        # No matter how big the number of versions is, the amount of queries should stay the same.
+        # These versions will call `resolver.resolve` to generate the URL returned for
+        # `projects.translations` and `versions.active` fields.
         for i in range(35):
             name = f"public-built-{i}"
             fixture.get(
