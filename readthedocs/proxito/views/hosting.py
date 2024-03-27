@@ -1,6 +1,5 @@
 """Views for hosting features."""
 
-import itertools
 from functools import lru_cache
 
 import packaging
@@ -18,7 +17,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST, STABLE
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
@@ -107,10 +106,14 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 # This query should use a particular index:
                 # ``builds_build_version_id_state_date_success_12dfb214_idx``.
                 # Otherwise, if the index is not used, the query gets too slow.
-                build = version.builds.filter(
-                    success=True,
-                    state=BUILD_STATE_FINISHED,
-                ).first()
+                build = (
+                    version.builds.filter(
+                        success=True,
+                        state=BUILD_STATE_FINISHED,
+                    )
+                    .select_related("project", "version")
+                    .first()
+                )
 
             except UnresolverError as exc:
                 # If an exception is raised and there is a ``project`` in the
@@ -274,9 +277,6 @@ class AddonsResponse:
         version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
 
-        stable_version = project.versions.filter(slug=STABLE).first()
-        latest_version = project.versions.filter(slug=LATEST).first()
-
         # Automatically create an AddonsConfig with the default values for
         # projects that don't have one already
         AddonsConfig.objects.get_or_create(project=project)
@@ -290,7 +290,7 @@ class AddonsResponse:
                     user=user,
                 )
                 .exclude(hidden=True)
-                .only("slug", "type")
+                .select_related("project")
                 .order_by("slug")
             )
 
@@ -328,15 +328,7 @@ class AddonsResponse:
             version_downloads = version.get_downloads(pretty=True).items()
 
         main_project = project.main_language_project or project
-        project_translations = (
-            main_project.translations.all().only("language").order_by("language")
-        )
-        if project_translations.exists():
-            # Always prefix the list of translations with the main project's language,
-            # when there are translations present.
-            # Example: a project with Russian and Spanish translations will be showns as:
-            #     en (original), es, ru
-            project_translations = itertools.chain([main_project], project_translations)
+        project_translations = main_project.translations.all().order_by("language")
 
         data = {
             "api_version": "0",
