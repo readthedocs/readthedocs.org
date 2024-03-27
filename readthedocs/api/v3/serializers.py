@@ -323,7 +323,8 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     dashboard = VersionDashboardURLsSerializer(source="*")
 
     def get_documentation(self, obj):
-        return Resolver().resolve_version(
+        resolver = getattr(self.parent, "resolver", Resolver())
+        return resolver.resolve_version(
             project=obj.project,
             version=obj,
         )
@@ -357,8 +358,13 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
         expandable_fields = {"last_build": (BuildSerializer,)}
 
-    def __init__(self, *args, version_serializer=None, **kwargs):
+    def __init__(self, *args, resolver=None, version_serializer=None, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Use a shared resolver for VersionURLsSerializer to reduce the amount of DB queries
+        # while resolving version URLs.
+        if resolver:
+            self.resolver = resolver
 
         # Allow passing a specific serializer when initializing it.
         # This is required to pass ``VersionSerializerNoLinks`` from the addons API.
