@@ -392,7 +392,8 @@ class VersionSerializer(FlexFieldsModelSerializer):
                 alias_version = obj.project.get_original_stable_version()
             if obj.slug == LATEST:
                 alias_version = obj.project.get_original_latest_version()
-            return [self.version_serializer(alias_version).data]
+            if alias_version and alias_version.active:
+                return [self.version_serializer(alias_version).data]
         return []
 
 

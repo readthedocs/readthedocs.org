@@ -2,6 +2,7 @@
   "api_version": "0",
   "comment": "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!",
   "projects": {
+    "translations": [],
     "current": {
       "created": "2019-04-29T10:00:00Z",
       "default_branch": "master",
@@ -46,23 +47,7 @@
   "versions": {
     "current": {
       "active": true,
-      "aliases": [
-        {
-          "active": false,
-          "built": false,
-          "hidden": false,
-          "identifier": "",
-          "privacy_level": null,
-          "ref": "",
-          "slug": "",
-          "type": null,
-          "urls": {
-            "dashboard": {},
-            "vcs": ""
-          },
-          "verbose_name": ""
-        }
-      ],
+      "aliases": [],
       "hidden": false,
       "built": true,
       "downloads": {},
@@ -81,44 +66,29 @@
       },
       "verbose_name": "latest"
     },
-    "latest": {
-      "active": true,
-      "aliases": [
-        {
-          "active": false,
-          "built": false,
-          "hidden": false,
-          "identifier": "",
-          "privacy_level": null,
-          "ref": "",
-          "slug": "",
-          "type": null,
-          "urls": {
-            "dashboard": {},
-            "vcs": ""
+    "active": [
+      {
+        "active": true,
+        "aliases": [],
+        "built": true,
+        "downloads": {},
+        "hidden": false,
+        "id": 1,
+        "identifier": "a1b2c3",
+        "privacy_level": "public",
+        "ref": null,
+        "slug": "latest",
+        "type": "tag",
+        "urls": {
+          "dashboard": {
+            "edit": "https://readthedocs.org/project/version/latest/edit/"
           },
-          "verbose_name": ""
-        }
-      ],
-      "hidden": false,
-      "built": true,
-      "downloads": {},
-      "id": 1,
-      "identifier": "a1b2c3",
-      "privacy_level": "public",
-      "ref": null,
-      "slug": "latest",
-      "type": "tag",
-      "urls": {
-        "dashboard": {
-          "edit": "https://readthedocs.org/project/version/latest/edit/"
+          "documentation": "https://project.dev.readthedocs.io/en/latest/",
+          "vcs": "https://github.com/readthedocs/project/tree/master/"
         },
-        "documentation": "https://project.dev.readthedocs.io/en/latest/",
-        "vcs": "https://github.com/readthedocs/project/tree/master/"
-      },
-      "verbose_name": "latest"
-    },
-    "stable": null
+        "verbose_name": "latest"
+      }
+    ]
   },
   "builds": {
     "current": {
@@ -170,8 +140,7 @@
       }
     },
     "non_latest_version_warning": {
-      "enabled": true,
-      "versions": ["latest"]
+      "enabled": true
     },
     "doc_diff": {
       "enabled": true,
@@ -183,9 +152,7 @@
     },
     "flyout": {
       "enabled": true,
-      "translations": [],
-      "versions": [{ "slug": "latest", "url": "https://project.dev.readthedocs.io/en/latest/" }],
-      "downloads": []
+      "sorted_versions": []
     },
     "search": {
       "enabled": true,

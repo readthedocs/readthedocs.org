@@ -284,6 +284,7 @@ class AddonsResponse:
         """
         resolver = Resolver()
         versions_active_built_not_hidden = Version.objects.none()
+        sorted_versions_active_built_not_hidden = Version.objects.none()
 
         # Automatically create an AddonsConfig with the default values for
         # projects that don't have one already
@@ -306,7 +307,7 @@ class AddonsResponse:
                 project.addons.flyout_sorting
                 == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
             ):
-                versions_active_built_not_hidden = sorted(
+                sorted_versions_active_built_not_hidden = sorted(
                     versions_active_built_not_hidden,
                     key=lambda version: comparable_version(
                         version.verbose_name,
@@ -316,17 +317,19 @@ class AddonsResponse:
             elif (
                 project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
             ):
-                versions_active_built_not_hidden = sort_versions_python_packaging(
-                    versions_active_built_not_hidden,
-                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                sorted_versions_active_built_not_hidden = (
+                    sort_versions_python_packaging(
+                        versions_active_built_not_hidden,
+                        project.addons.flyout_sorting_latest_stable_at_beginning,
+                    )
                 )
             elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
-                versions_active_built_not_hidden = sort_versions_calver(
+                sorted_versions_active_built_not_hidden = sort_versions_calver(
                     versions_active_built_not_hidden,
                     project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
             elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN:
-                versions_active_built_not_hidden = sort_versions_custom_pattern(
+                sorted_versions_active_built_not_hidden = sort_versions_custom_pattern(
                     versions_active_built_not_hidden,
                     project.addons.flyout_sorting_custom_pattern,
                     project.addons.flyout_sorting_latest_stable_at_beginning,
@@ -394,6 +397,9 @@ class AddonsResponse:
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
+                    "sorted_versions": [
+                        v.slug for v in sorted_versions_active_built_not_hidden
+                    ]
                     # TODO: find a way to get this data in a reliably way.
                     # We don't have a simple way to map a URL to a file in the repository.
                     # This feature may be deprecated/removed in this implementation since it relies
