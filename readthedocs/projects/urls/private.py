@@ -30,6 +30,7 @@ from readthedocs.projects.views.private import (
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectDelete,
+    ProjectEmailNotificationsCreate,
     ProjectNotifications,
     ProjectNotificationsDelete,
     ProjectRedirectsCreate,
@@ -123,6 +124,11 @@ urlpatterns = [
         r"^(?P<project_slug>[-\w]+)/notifications/$",
         ProjectNotifications.as_view(),
         name="projects_notifications",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/notifications/create/$",
+        ProjectEmailNotificationsCreate.as_view(),
+        name="projects_notifications_create",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/notifications/delete/$",

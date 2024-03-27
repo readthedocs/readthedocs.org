@@ -447,6 +447,7 @@ class ProjectUsersList(SuccessMessageMixin, ProjectUsersMixin, TemplateView):
         context["users"] = self.get_queryset()
         context["invitations"] = self._get_invitations()
         context["is_last_user"] = self._is_last_user()
+        # TODO: delete once we no longer need the form in the list view.
         context["form"] = self.form_class()
         return context
 
@@ -487,6 +488,8 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
 
 
 class ProjectNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
+    form_class = EmailHookForm
+
     def get_success_url(self):
         return reverse(
             "projects_notifications",
@@ -499,21 +502,6 @@ class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
     """Project notification view and form view."""
 
     template_name = "projects/project_notifications.html"
-    email_form = EmailHookForm
-
-    def get_email_form(self):
-        project = self.get_project()
-        return self.email_form(
-            self.request.POST or None,
-            project=project,
-        )
-
-    def post(self, request, *args, **kwargs):
-        if "email" in request.POST:
-            email_form = self.get_email_form()
-            if email_form.is_valid():
-                email_form.save()
-        return HttpResponseRedirect(self.get_success_url())
 
     def _has_old_webhooks(self):
         """
@@ -533,12 +521,21 @@ class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
         emails = project.emailhook_notifications.all()
         context.update(
             {
-                "email_form": self.get_email_form(),
+                # TODO: delete once we no longer need the form in the list view.
+                "email_form": self.form_class(project=project),
                 "emails": emails,
                 "has_old_webhooks": self._has_old_webhooks(),
             },
         )
         return context
+
+
+class ProjectEmailNotificationsCreate(ProjectNotificationsMixin, CreateView):
+    template_name = "projects/project_notifications_form.html"
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["project"] = self.get_project()
+        return super().get_form(data, files, **kwargs)
 
 
 class ProjectNotificationsDelete(ProjectNotificationsMixin, GenericView):
