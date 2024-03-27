@@ -208,7 +208,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         expected = ["latest", "public-built"]
-        assert r.json()["addons"]["non_latest_version_warning"]["versions"] == expected
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
 
     def test_flyout_versions(self):
         fixture.get(
@@ -263,14 +263,17 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
 
-        expected = [
-            {"slug": "latest", "url": "https://project.dev.readthedocs.io/en/latest/"},
-            {
-                "slug": "public-built",
-                "url": "https://project.dev.readthedocs.io/en/public-built/",
-            },
-        ]
-        assert r.json()["addons"]["flyout"]["versions"] == expected
+        assert len(r.json()["versions"]["active"]) == 2
+        assert r.json()["versions"]["active"][0]["slug"] == "latest"
+        assert (
+            r.json()["versions"]["active"][0]["urls"]["documentation"]
+            == "https://project.dev.readthedocs.io/en/latest/"
+        )
+        assert r.json()["versions"]["active"][1]["slug"] == "public-built"
+        assert (
+            r.json()["versions"]["active"][1]["urls"]["documentation"]
+            == "https://project.dev.readthedocs.io/en/public-built/"
+        )
 
     def test_flyout_translations(self):
         fixture.get(
@@ -294,11 +297,13 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
 
-        expected = [
-            {"slug": "en", "url": "https://project.dev.readthedocs.io/en/latest/"},
-            {"slug": "ja", "url": "https://project.dev.readthedocs.io/ja/latest/"},
-        ]
-        assert r.json()["addons"]["flyout"]["translations"] == expected
+        assert len(r.json()["projects"]["translations"]) == 1
+        assert r.json()["projects"]["translations"][0]["slug"] == "translation"
+        assert r.json()["projects"]["translations"][0]["language"]["code"] == "ja"
+        assert (
+            r.json()["projects"]["translations"][0]["urls"]["documentation"]
+            == "https://project.dev.readthedocs.io/ja/latest/"
+        )
 
     def test_flyout_downloads(self):
         fixture.get(
@@ -328,21 +333,12 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
 
-        expected = [
-            {
-                "name": "PDF",
-                "url": "//project.dev.readthedocs.io/_/downloads/en/offline/pdf/",
-            },
-            {
-                "name": "HTML",
-                "url": "//project.dev.readthedocs.io/_/downloads/en/offline/htmlzip/",
-            },
-            {
-                "name": "Epub",
-                "url": "//project.dev.readthedocs.io/_/downloads/en/offline/epub/",
-            },
-        ]
-        assert r.json()["addons"]["flyout"]["downloads"] == expected
+        expected = {
+            "pdf": "https://project.dev.readthedocs.io/_/downloads/en/offline/pdf/",
+            "htmlzip": "https://project.dev.readthedocs.io/_/downloads/en/offline/htmlzip/",
+            "epub": "https://project.dev.readthedocs.io/_/downloads/en/offline/epub/",
+        }
+        assert r.json()["versions"]["current"]["downloads"] == expected
 
     def test_flyout_single_version_project(self):
         self.version.has_pdf = True
@@ -368,23 +364,14 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         expected = []
-        assert r.json()["addons"]["flyout"]["versions"] == expected
+        assert r.json()["versions"]["active"] == expected
 
-        expected = [
-            {
-                "name": "PDF",
-                "url": "//project.dev.readthedocs.io/_/downloads/en/latest/pdf/",
-            },
-            {
-                "name": "HTML",
-                "url": "//project.dev.readthedocs.io/_/downloads/en/latest/htmlzip/",
-            },
-            {
-                "name": "Epub",
-                "url": "//project.dev.readthedocs.io/_/downloads/en/latest/epub/",
-            },
-        ]
-        assert r.json()["addons"]["flyout"]["downloads"] == expected
+        expected = {
+            "pdf": "https://project.dev.readthedocs.io/_/downloads/en/latest/pdf/",
+            "htmlzip": "https://project.dev.readthedocs.io/_/downloads/en/latest/htmlzip/",
+            "epub": "https://project.dev.readthedocs.io/_/downloads/en/latest/epub/",
+        }
+        assert r.json()["versions"]["current"]["downloads"] == expected
 
     def test_builds_current_is_latest_one(self):
         # Create 10 successful build objects
@@ -547,33 +534,30 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
 
-        expected_versions = [
-            {
-                "slug": "latest",
-                "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
-            },
-            {
-                "slug": "v1",
-                "url": "https://project.dev.readthedocs.io/projects/subproject/en/v1/",
-            },
-            {
-                "slug": "v2.3",
-                "url": "https://project.dev.readthedocs.io/projects/subproject/en/v2.3/",
-            },
-        ]
-        assert r.json()["addons"]["flyout"]["versions"] == expected_versions
+        assert len(r.json()["versions"]["active"]) == 3
+        assert r.json()["versions"]["active"][0]["slug"] == "latest"
+        assert (
+            r.json()["versions"]["active"][0]["urls"]["documentation"]
+            == "https://project.dev.readthedocs.io/projects/subproject/en/latest/"
+        )
+        assert r.json()["versions"]["active"][1]["slug"] == "v1"
+        assert (
+            r.json()["versions"]["active"][1]["urls"]["documentation"]
+            == "https://project.dev.readthedocs.io/projects/subproject/en/v1/"
+        )
+        assert r.json()["versions"]["active"][2]["slug"] == "v2.3"
+        assert (
+            r.json()["versions"]["active"][2]["urls"]["documentation"]
+            == "https://project.dev.readthedocs.io/projects/subproject/en/v2.3/"
+        )
 
-        expected_translations = [
-            {
-                "slug": "en",
-                "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
-            },
-            {
-                "slug": "es",
-                "url": "https://project.dev.readthedocs.io/projects/subproject/es/latest/",
-            },
-        ]
-        assert r.json()["addons"]["flyout"]["translations"] == expected_translations
+        assert len(r.json()["projects"]["translations"]) == 1
+        assert r.json()["projects"]["translations"][0]["slug"] == "translation"
+        assert r.json()["projects"]["translations"][0]["language"]["code"] == "es"
+        assert (
+            r.json()["projects"]["translations"][0]["urls"]["documentation"]
+            == "https://project.dev.readthedocs.io/projects/subproject/es/latest/"
+        )
 
     def test_send_project_not_version_slugs(self):
         r = self.client.get(
@@ -673,13 +657,12 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         )
         assert r.status_code == 200
-        expected_versions = [
-            {
-                "url": "https://docs.example.com/en/latest/",
-                "slug": "latest",
-            },
-        ]
-        assert r.json()["addons"]["flyout"]["versions"] == expected_versions
+        assert len(r.json()["versions"]["active"]) == 1
+        assert r.json()["versions"]["active"][0]["slug"] == "latest"
+        assert (
+            r.json()["versions"]["active"][0]["urls"]["documentation"]
+            == "https://docs.example.com/en/latest/"
+        )
 
     def test_number_of_queries_project_version_slug(self):
         # The number of queries should not increase too much, even if we change
