@@ -435,8 +435,14 @@ class ProjectUsersMixin(ProjectAdminMixin, PrivateViewMixin):
     def _is_last_user(self):
         return self.get_queryset().count() <= 1
 
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["request"] = self.request
+        return super().get_form(data, files, **kwargs)
 
-class ProjectUsersList(SuccessMessageMixin, ProjectUsersMixin, TemplateView):
+
+class ProjectUsersList(SuccessMessageMixin, ProjectUsersMixin, FormView):
+    # We only use this to display the form in the list view.
+    http_method_names = ["get"]
     template_name = "projects/project_users.html"
 
     def _get_invitations(self):
@@ -447,21 +453,12 @@ class ProjectUsersList(SuccessMessageMixin, ProjectUsersMixin, TemplateView):
         context["users"] = self.get_queryset()
         context["invitations"] = self._get_invitations()
         context["is_last_user"] = self._is_last_user()
-        # TODO: delete once we no longer need the form in the list view.
-        context["form"] = self.form_class()
         return context
 
 
 class ProjectUsersCreate(SuccessMessageMixin, ProjectUsersMixin, CreateView):
     success_message = _("Invitation sent")
     template_name = "projects/project_users_form.html"
-
-    def form_invalid(self, form):
-        return super().form_invalid(form)
-
-    def get_form(self, data=None, files=None, **kwargs):
-        kwargs["request"] = self.request
-        return super().get_form(data, files, **kwargs)
 
 
 class ProjectUsersDelete(ProjectUsersMixin, GenericView):
@@ -632,6 +629,8 @@ class ProjectTranslationsList(ProjectTranslationsMixin, FormView):
 
     """Project translations view and form view."""
 
+    # We only use this to display the form in the list view.
+    http_method_names = ["get"]
     template_name = "projects/project_translations.html"
 
     def get_context_data(self, **kwargs):
