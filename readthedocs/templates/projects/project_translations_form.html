@@ -2,14 +2,14 @@
 
 {% load i18n %}
 
-{% block title %}{% trans "Edit Translations" %}{% endblock %}
+{% block title %}{% trans "Add Translation" %}{% endblock %}
 
 {% block nav-dashboard %} class="active"{% endblock %}
 
 {% block editing-option-edit-translations %}class="active"{% endblock %}
 
 {% block project-translations-active %}active{% endblock %}
-{% block project_edit_content_header %}{% trans "Translations" %}{% endblock %}
+{% block project_edit_content_header %}{% trans "Add Translation" %}{% endblock %}
 
 {% block project_edit_content %}
   <p class="help_text">
@@ -40,41 +40,7 @@
       {% endblocktrans %}
     </a>
   {% else %}
-    <h3> {% trans "Existing Translations" %} </h3>
-    <div class="module-translation">
-      <div class="module-list">
-        <div class="module-list-wrapper">
-          <ul>
-            {% for lang_project in lang_projects %}
-              <li class="module-item">
-                <a class="module-item-title" href="{{ lang_project.get_absolute_url }}">
-                  {{ lang_project.name }} ({{ lang_project.get_language_display }})
-                </a>
-                <ul class="module-item-menu">
-                  <li>
-                    <form method="post" action="{% url "projects_translations_delete" project.slug lang_project.slug %}">
-                      {% csrf_token %}
-                      <input type="submit" value="{% trans 'Remove' %}">
-                    </form>
-                  </li>
-                </ul>
-              </li>
-            {% empty %}
-              <li class="module-item">
-                <p class="quiet">
-                  {% trans 'No translations are currently configured' %}
-                </p>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
-    <p>
-      {% trans "Choose which project you would like to add as a translation." %}
-    </p>
-    <form method="post" action="{% url "projects_translations_create" project.slug %}">
-      {% csrf_token %}
+    <form method="post" action=".">{% csrf_token %}
       {{ form.as_p }}
       <input type="submit" value="{% trans "Add" %}">
     </form>

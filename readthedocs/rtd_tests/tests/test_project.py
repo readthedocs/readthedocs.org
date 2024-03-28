@@ -315,11 +315,11 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         )
 
         self.client.login(username=user_a.username, password="test")
-        self.client.post(
-            reverse("projects_translations", args=[project_a.slug]),
+        r = self.client.post(
+            reverse("projects_translations_create", args=[project_a.slug]),
             data={"project": project_b.slug},
         )
-
+        self.assertEqual(r.status_code, 302)
         self.assertEqual(project_a.translations.first(), project_b)
         project_b.refresh_from_db()
         self.assertEqual(project_b.main_language_project, project_a)
@@ -344,11 +344,11 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         )
 
         self.client.login(username=user_a.username, password="test")
-        self.client.post(
-            reverse("projects_translations", args=[project_a.slug]),
+        r = self.client.post(
+            reverse("projects_translations_create", args=[project_a.slug]),
             data={"project": project_b.slug},
         )
-
+        self.assertEqual(r.status_code, 302)
         self.assertEqual(project_a.translations.first(), project_b)
 
     def test_user_can_not_add_other_user_project_as_translation(self):
@@ -372,9 +372,10 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         # User A try to add project B as translation of project A
         self.client.login(username=user_a.username, password="test")
         resp = self.client.post(
-            reverse("projects_translations", args=[project_a.slug]),
+            reverse("projects_translations_create", args=[project_a.slug]),
             data={"project": project_b.slug},
         )
+        self.assertEqual(resp.status_code, 200)
 
         self.assertContains(resp, "Select a valid choice")
         self.assertEqual(project_a.translations.count(), 0)
