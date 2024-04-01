@@ -4,11 +4,11 @@ import os
 
 import pytz
 import structlog
+from django.conf import settings
 
 from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
-from django.conf import settings
 
 log = structlog.get_logger(__name__)
 
