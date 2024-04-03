@@ -126,9 +126,9 @@ class ErrorView(TemplateView):
             return [
                 f"{self.base_path}/{code}.html" for code in [status_code, generic_code]
             ]
-        else:
-            # All errors are top level templates and there is no fallback
-            return f"{status_code}.html"
+        # TODO the legacy dashboard has top level path errors, as is the
+        # default. This can be removed later.
+        return f"{status_code}.html"
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
