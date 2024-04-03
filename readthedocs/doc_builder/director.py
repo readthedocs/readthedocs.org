@@ -590,7 +590,7 @@ class BuildDirector:
                 ]
             ):
                 # We cap setuptools to avoid breakage of projects
-                # relying on setup.py invokations,
+                # relying on setup.py invocations,
                 # see https://github.com/readthedocs/readthedocs.org/issues/8659
                 setuptools_version = (
                     "setuptools<58.3.0"

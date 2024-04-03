@@ -892,7 +892,7 @@ class Build(models.Model):
         """
         # TODO: now that we are using a proper JSONField here, we could
         # probably change this field to be a ForeignKey to avoid repeating the
-        # config file over and over again and re-use them to save db data as
+        # config file over and over again and reuse them to save db data as
         # well
         if self._config and self.CONFIG_KEY in self._config:
             return (
@@ -1116,7 +1116,7 @@ class BuildCommandResultMixin:
     Mixin for common command result methods/properties.
 
     Shared methods between the database model :py:class:`BuildCommandResult` and
-    non-model respresentations of build command results from the API
+    non-model representations of build command results from the API
     """
 
     @property

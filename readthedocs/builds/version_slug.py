@@ -112,7 +112,7 @@ class VersionSlugField(models.CharField):
             space_replacement="-",
         )
 
-        # Remove first character wile it's an invalid character for the
+        # Remove first character while it's an invalid character for the
         # beginning of the slug
         slugified = slugified.lstrip(self.ok_chars)
 

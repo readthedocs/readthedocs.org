@@ -52,7 +52,7 @@ class BaseSphinx(BaseBuilder):
         # `absolute_host_output_dir` because it's not defined in the host. So,
         # we have to re-calculate its value. We will remove this limitation
         # when we execute the whole building from inside the Docker container
-        # (instead behing a hybrid as it is now)
+        # (instead being a hybrid as it is now)
         #
         # We need to have two different paths that point to the exact same
         # directory. How is that? The directory is mounted into a different
@@ -103,7 +103,7 @@ class BaseSphinx(BaseBuilder):
             #
             # IMO, if there are multiple config files,
             # the build should fail immediately communicating this to the user.
-            # This can be achived by unhandle the exception here
+            # This can be achieved by unhandle the exception here
             # and leaving `on_failure` Celery handle to deal with it.
             #
             # In case there is no config file, we should continue the build

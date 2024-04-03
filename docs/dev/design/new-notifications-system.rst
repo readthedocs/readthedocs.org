@@ -34,7 +34,7 @@ Goals
 * Ability to add non-error notifications from the build process
 * Add extra metadata associated to the notification: icon, header, body, etc
 * Support different types of notifications (e.g. error, warning, note, tip)
-* Re-use the new notification system for product updates (e.g. new features, deprecated config keys)
+* Reuse the new notification system for product updates (e.g. new features, deprecated config keys)
 * Message content lives on Python classes that can be translated and formatted with objects (e.g. Build, Project)
 * Message could have richer content (e.g. HTML code) to generate links and emphasis
 * Notifications have trackable state (e.g. unread (default)=never shown, read=shown, dismissed=don't show again, cancelled=auto-removed after user action)
@@ -43,7 +43,7 @@ Goals
 * Notifications can be attached to Project, Organization, Build and User models
 * Specific notifications can be shown under the user's bell icon
 * Easy way to cleanup notification on status changes (e.g. subscription failure notification is auto-deleted after CC updated)
-* Notifications attached to Organization/Project dissappear for all the users once they are dismissed by anyone
+* Notifications attached to Organization/Project disappear for all the users once they are dismissed by anyone
 
 
 Non-goals
@@ -88,7 +88,7 @@ This section shows all the classes and models involved for the notification syst
 .. note:: Accessing the database from the build process
 
     Builders doesn't have access to the database due to security reasons.
-    We had solved this limitation by creating an API endpoint the builder hits once they need to interact with the databse to get a ``Project``, ``Version`` and ``Build`` resources, create a ``BuildCommand`` resource, etc.
+    We had solved this limitation by creating an API endpoint the builder hits once they need to interact with the database to get a ``Project``, ``Version`` and ``Build`` resources, create a ``BuildCommand`` resource, etc.
 
     Besides, the build process is capable to trigger Celery tasks that are useful for managing more complex logic
     that also require accessing from and writing to the database.
@@ -116,7 +116,7 @@ and some helper logic to return in the API response.
             body = str
             icon = str
             icon_style = str(SOLID, DUOTONE)
-            type = str(ERROR, WARINIG, NOTE, TIP)
+            type = str(ERROR, WARNING, NOTE, TIP)
 
         def get_display_icon(self):
             if self.icon:
@@ -201,7 +201,7 @@ It contains an identifier (``message_id``) pointing to one of the messages defin
         message_id = models.CharField(max_length=128)
 
         # UNREAD: the notification was not shown to the user
-        # READ: the notifiation was shown
+        # READ: the notification was shown
         # DISMISSED: the notification was shown and the user dismissed it
         # CANCELLED: removed automatically because the user has done the action required (e.g. paid the subscription)
         state = models.CharField(
@@ -210,7 +210,7 @@ It contains an identifier (``message_id``) pointing to one of the messages defin
             db_index=True,
         )
 
-        # Makes the notification imposible to dismiss (useful for Build notifications)
+        # Makes the notification impossible to dismiss (useful for Build notifications)
         dismissable = models.BooleanField(default=False)
 
         # Show the notification under the bell icon for the user
