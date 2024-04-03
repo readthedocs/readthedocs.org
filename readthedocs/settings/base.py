@@ -287,6 +287,7 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket",
             "allauth.socialaccount.providers.bitbucket_oauth2",
+            "allauth.socialaccount.providers.saml",
             "cacheops",
         ]
         if ext:

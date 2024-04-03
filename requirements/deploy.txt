@@ -124,7 +124,7 @@ django==4.2.11
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth==0.57.2
+django-allauth[saml]==0.57.2
     # via -r requirements/pip.txt
 django-annoying==0.10.6
     # via -r requirements/pip.txt
@@ -225,6 +225,10 @@ idna==3.6
     #   requests
 ipython==8.22.2
     # via -r requirements/deploy.in
+isodate==0.6.1
+    # via
+    #   -r requirements/pip.txt
+    #   python3-saml
 jedi==0.19.1
     # via ipython
 jmespath==1.0.1
@@ -252,6 +256,8 @@ lxml==5.1.1
     # via
     #   -r requirements/pip.txt
     #   pyquery
+    #   python3-saml
+    #   xmlsec
 markdown==3.6
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.6
@@ -318,6 +324,10 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
+python3-saml==1.16.0
+    # via
+    #   -r requirements/pip.txt
+    #   django-allauth
 pytz==2024.1
     # via
     #   -r requirements/pip.txt
@@ -361,6 +371,7 @@ six==1.16.0
     #   asttokens
     #   django-annoying
     #   django-elasticsearch-dsl
+    #   isodate
     #   python-dateutil
     #   unicode-slugify
 slumber==0.7.1
@@ -439,3 +450,7 @@ websocket-client==1.7.0
     # via
     #   -r requirements/pip.txt
     #   docker
+xmlsec==1.3.13
+    # via
+    #   -r requirements/pip.txt
+    #   python3-saml

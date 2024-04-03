@@ -84,7 +84,7 @@ tzdata
 
 # 0.58.0 refactored the built-in templates,
 # we need to check if we need to update our custom templates.
-django-allauth==0.57.2
+django-allauth[saml]==0.57.2
 
 requests-oauthlib
 
