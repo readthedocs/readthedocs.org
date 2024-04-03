@@ -139,7 +139,7 @@ class SmartResolverPathTests(ResolverBase):
         self.assertEqual(url, "/en/latest/")
 
     def test_resolver_subproject_subdomain(self):
-        url = resolver.resolve_path(project=self.subproject, filename="index.html")
+        url = Resolver().resolve_path(project=self.subproject, filename="index.html")
         self.assertEqual(url, "/projects/sub/ja/latest/index.html")
 
     def test_resolver_subproject_single_version(self):
@@ -483,7 +483,7 @@ class ResolverTests(ResolverBase):
         relation = self.pip.subprojects.first()
         relation.alias = "sub_alias"
         relation.save()
-        url = resolver.resolve(project=self.subproject)
+        url = Resolver().resolve(project=self.subproject)
         self.assertEqual(
             url,
             "http://pip.readthedocs.org/projects/sub_alias/ja/latest/",
@@ -928,18 +928,18 @@ class TestResolverWithCustomPrefixes(ResolverBase):
         self.pip.custom_subproject_prefix = "/"
         self.pip.save()
 
-        url = resolver.resolve(self.subproject)
+        url = Resolver().resolve(self.subproject)
         self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/latest/")
 
-        url = resolver.resolve(
+        url = Resolver().resolve(
             self.subproject, version_slug=self.subproject_version.slug
         )
         self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/latest/")
 
-        url = resolver.resolve(self.subproject, version_slug="stable")
+        url = Resolver().resolve(self.subproject, version_slug="stable")
         self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/stable/")
 
-        url = resolver.resolve(
+        url = Resolver().resolve(
             self.subproject,
             version_slug=self.subproject_version.slug,
             filename="/api/index.html",
