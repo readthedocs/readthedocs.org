@@ -291,7 +291,9 @@ class AddonsResponse:
         """
         resolver = Resolver()
         versions_active_built_not_hidden = Version.objects.none()
-        sorted_versions_active_built_not_hidden = Version.objects.none()
+        sorted_versions_active_built_not_hidden = (
+            versions_active_built_not_hidden
+        ) = Version.objects.none()
 
         # Automatically create an AddonsConfig with the default values for
         # projects that don't have one already
@@ -309,6 +311,7 @@ class AddonsResponse:
                 .select_related("project")
                 .order_by("slug")
             )
+            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
 
             if (
                 project.addons.flyout_sorting
@@ -347,10 +350,6 @@ class AddonsResponse:
 
         data = {
             "api_version": "0",
-            "comment": (
-                "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
-                " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
-            ),
             "projects": {
                 "current": ProjectSerializerNoLinks(
                     project,
@@ -417,9 +416,6 @@ class AddonsResponse:
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
-                    "sorted_versions": [
-                        v.slug for v in sorted_versions_active_built_not_hidden
-                    ]
                     # TODO: find a way to get this data in a reliably way.
                     # We don't have a simple way to map a URL to a file in the repository.
                     # This feature may be deprecated/removed in this implementation since it relies
@@ -439,9 +435,6 @@ class AddonsResponse:
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,
-                    "project": project.slug,
-                    "version": version.slug if version else None,
-                    "api_endpoint": "/_/api/v3/search/",
                     # TODO: figure it out where this data comes from
                     "filters": [
                         [

@@ -367,9 +367,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
         # Allow passing a specific serializer when initializing it.
         # This is required to pass ``VersionSerializerNoLinks`` from the addons API.
-        self.version_serializer = VersionSerializer
-        if version_serializer:
-            self.version_serializer = version_serializer
+        self.version_serializer = version_serializer or VersionSerializer
 
     def get_downloads(self, obj):
         downloads = obj.get_downloads()
@@ -477,7 +475,7 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return self._absolute_url(path)
 
     def get_documentation(self, obj):
-        version_slug = getattr(self.parent, "version_slug")
+        version_slug = getattr(self.parent, "version_slug", None)
         resolver = getattr(self.parent, "resolver", Resolver())
         return obj.get_docs_url(version_slug=version_slug, resolver=resolver)
 

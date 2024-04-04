@@ -13,6 +13,7 @@ from django.utils import timezone
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import (
+    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
@@ -46,6 +47,7 @@ class TestReadTheDocsConfigJson(TestCase):
             users=[self.user],
             main_language_project=None,
             project_url="http://project.com",
+            versioning_scheme=MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
         )
 
         for tag in ("tag", "project", "test"):

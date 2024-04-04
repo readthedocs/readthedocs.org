@@ -1,6 +1,5 @@
 {
   "api_version": "0",
-  "comment": "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!",
   "projects": {
     "translations": [],
     "current": {
@@ -35,7 +34,8 @@
         "builds": "https://readthedocs.org/project/builds/",
         "documentation": "https://project.dev.readthedocs.io/en/latest/",
         "home": "https://readthedocs.org/project/",
-        "versions": "https://readthedocs.org/project/versions/"
+        "versions": "https://readthedocs.org/project/versions/",
+        "downloads": "https://readthedocs.org/project/downloads/"
       },
       "users": [
         {
@@ -151,18 +151,14 @@
       "base_page": ""
     },
     "flyout": {
-      "enabled": true,
-      "sorted_versions": []
+      "enabled": true
     },
     "search": {
       "enabled": true,
-      "api_endpoint": "/_/api/v3/search/",
       "default_filter": "project:project/latest",
       "filters": [
         ["Include subprojects", "subprojects:project/latest"]
-      ],
-      "project": "project",
-      "version": "latest"
+      ]
     }
   }
 }
