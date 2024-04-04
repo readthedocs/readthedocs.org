@@ -355,10 +355,12 @@ class AddonsResponse:
                 "current": ProjectSerializerNoLinks(
                     project,
                     resolver=resolver,
+                    version_slug=version.slug if version else None,
                 ).data,
                 "translations": ProjectSerializerNoLinks(
                     project_translations,
                     resolver=resolver,
+                    version_slug=version.slug if version else None,
                     many=True,
                 ).data,
             },

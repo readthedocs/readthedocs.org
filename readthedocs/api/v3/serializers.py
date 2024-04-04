@@ -803,6 +803,9 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         }
 
     def __init__(self, *args, **kwargs):
+        # Receive a `Version.slug` here to build URLs properly
+        self.version_slug = kwargs.pop("version_slug", None)
+
         # Use a shared resolver to reduce the amount of DB queries while
         # resolving version URLs.
         self.resolver = kwargs.pop("resolver", Resolver())
