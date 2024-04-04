@@ -461,6 +461,7 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     home = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
     versions = serializers.SerializerMethodField()
+    downloads = serializers.SerializerMethodField()
 
     def get_home(self, obj):
         path = reverse("projects_detail", kwargs={"project_slug": obj.slug})
@@ -472,6 +473,10 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     def get_versions(self, obj):
         path = reverse("project_version_list", kwargs={"project_slug": obj.slug})
+        return self._absolute_url(path)
+
+    def get_downloads(self, obj):
+        path = reverse("project_downloads", kwargs={"project_slug": obj.slug})
         return self._absolute_url(path)
 
 

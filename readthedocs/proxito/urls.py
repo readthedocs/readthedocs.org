@@ -176,6 +176,12 @@ dummy_dashboard_urls = [
         TeapotView.as_view(),
         name="project_version_list",
     ),
+    # /dashboard/<project_slug>/downloads/
+    re_path(
+        (r"^(?P<project_slug>{project_slug})/downloads/$".format(**pattern_opts)),
+        TeapotView.as_view(),
+        name="project_downloads",
+    ),
     # /dashboard/<project_slug>/builds/<build_id>/
     re_path(
         (

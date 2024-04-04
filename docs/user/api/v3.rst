@@ -258,7 +258,10 @@ Project details
             "translation_of": null,
             "urls": {
                 "documentation": "http://pip.pypa.io/en/stable/",
-                "home": "https://pip.pypa.io/"
+                "home": "https://readthedocs.org/projects/pip/",
+                "downloads": "https://readthedocs.org/projects/pip/downloads/",
+                "builds": "https://readthedocs.org/projects/pip/builds/",
+                "versions": "https://readthedocs.org/projects/pip/versions/",
             },
             "tags": [
                 "distutils",
