@@ -361,10 +361,9 @@ class VersionSerializer(FlexFieldsModelSerializer):
     def __init__(self, *args, resolver=None, version_serializer=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Use a shared resolver for VersionURLsSerializer to reduce the amount of DB queries
-        # while resolving version URLs.
-        if resolver:
-            self.resolver = resolver
+        # Use a shared resolver to reduce the amount of DB queries while
+        # resolving version URLs.
+        self.resolver = kwargs.pop("resolver", Resolver())
 
         # Allow passing a specific serializer when initializing it.
         # This is required to pass ``VersionSerializerNoLinks`` from the addons API.
@@ -454,9 +453,7 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     """Serializer with all the user-facing URLs under Read the Docs."""
 
-    # TODO: considering passing a shared `Resolver` instance to `Project.get_docs_url` here.
-    # It's useful when resolving translation documentation URLs from Addons API.
-    documentation = serializers.CharField(source="get_docs_url")
+    documentation = serializers.SerializerMethodField()
 
     home = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
@@ -478,6 +475,11 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     def get_downloads(self, obj):
         path = reverse("project_downloads", kwargs={"project_slug": obj.slug})
         return self._absolute_url(path)
+
+    def get_documentation(self, obj):
+        version_slug = getattr(self.parent, "version_slug")
+        resolver = getattr(self.parent, "resolver", Resolver())
+        return obj.get_docs_url(version_slug=version_slug, resolver=resolver)
 
 
 class RepositorySerializer(serializers.Serializer):
@@ -801,6 +803,10 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         }
 
     def __init__(self, *args, **kwargs):
+        # Use a shared resolver to reduce the amount of DB queries while
+        # resolving version URLs.
+        self.resolver = kwargs.pop("resolver", Resolver())
+
         super().__init__(*args, **kwargs)
         # When using organizations, projects don't have the concept of users.
         # But we have organization.owners.

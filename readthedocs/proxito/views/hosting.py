@@ -230,14 +230,21 @@ class NoLinksMixin:
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
-    pass
+    def __init__(self, *args, **kwargs):
+        resolver = kwargs.pop("resolver", Resolver())
+        super().__init__(
+            *args,
+            resolver=resolver,
+            **kwargs,
+        )
 
 
 class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
     def __init__(self, *args, **kwargs):
+        resolver = kwargs.pop("resolver", Resolver())
         super().__init__(
             *args,
-            resolver=Resolver(),
+            resolver=resolver,
             version_serializer=VersionSerializerNoLinks,
             **kwargs,
         )
@@ -345,16 +352,27 @@ class AddonsResponse:
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
             ),
             "projects": {
-                "current": ProjectSerializerNoLinks(project).data,
+                "current": ProjectSerializerNoLinks(
+                    project,
+                    resolver=resolver,
+                ).data,
                 "translations": ProjectSerializerNoLinks(
                     project_translations,
+                    resolver=resolver,
                     many=True,
                 ).data,
             },
             "versions": {
-                "current": VersionSerializerNoLinks(version).data if version else None,
+                "current": VersionSerializerNoLinks(
+                    version,
+                    resolver=resolver,
+                ).data
+                if version
+                else None,
+                # These are "sorted active, built, not hidden versions"
                 "active": VersionSerializerNoLinks(
-                    versions_active_built_not_hidden,
+                    sorted_versions_active_built_not_hidden,
+                    resolver=resolver,
                     many=True,
                 ).data,
             },
