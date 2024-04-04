@@ -130,7 +130,7 @@ class ErrorView(TemplateView):
         # default. This can be removed later.
         return f"{status_code}.html"
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         status_code = self.get_status_code()
         return self.render_to_response(
