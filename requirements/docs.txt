@@ -18,7 +18,7 @@ click==8.1.7
     # via sphinx-intl
 colorama==0.4.6
     # via sphinx-autobuild
-contourpy==1.2.0
+contourpy==1.2.1
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
@@ -29,7 +29,7 @@ docutils==0.20.1
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.50.0
+fonttools==4.51.0
     # via matplotlib
 idna==3.6
     # via requests
@@ -49,7 +49,7 @@ markdown-it-py==3.0.0
     #   myst-parser
 markupsafe==2.1.5
     # via jinja2
-matplotlib==3.8.3
+matplotlib==3.8.4
     # via -r requirements/docs.in
 mdit-py-plugins==0.4.0
     # via myst-parser
@@ -67,7 +67,7 @@ packaging==24.0
     #   sphinx
 pbr==6.0.0
     # via sphinxcontrib-video
-pillow==10.2.0
+pillow==10.3.0
     # via matplotlib
 pygments==2.17.2
     # via
