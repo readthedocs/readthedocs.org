@@ -1,3 +1,4 @@
 {
-    "error": "The version specified in 'api-version' is currently not supported"
+    "api_version": "1",
+    "comment": "Undefined yet. Use v0 for now"
 }

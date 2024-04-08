@@ -39,7 +39,7 @@ from readthedocs.projects.version_handling import (
 log = structlog.get_logger(__name__)  # noqa
 
 
-ADDONS_VERSIONS_SUPPORTED = (0, 1)
+ADDONS_VERSIONS_SUPPORTED = (1, 2)
 
 
 class ClientError(Exception):
@@ -271,13 +271,13 @@ class AddonsResponse:
         It will evaluate the ``addons_version`` passed and decide which is the
         best JSON structure for that particular version.
         """
-        if addons_version.major == 0:
-            return self._v0(project, version, build, filename, url, user)
-
         if addons_version.major == 1:
             return self._v1(project, version, build, filename, url, user)
 
-    def _v0(self, project, version, build, filename, url, user):
+        if addons_version.major == 2:
+            return self._v2(project, version, build, filename, url, user)
+
+    def _v1(self, project, version, build, filename, url, user):
         """
         Initial JSON data structure consumed by the JavaScript client.
 
@@ -346,10 +346,17 @@ class AddonsResponse:
                 )
 
         main_project = project.main_language_project or project
+        # TODO: do we want to include the current language in this response?
+        # Should we call this field `languages` instead?
+        # Including it will make the front just to render this list, but it will need to check for `len(language) > 1` instead of `> 0`
+        # Returning it here allows the backend to manage the sorting as well.
+        # project_translations = (
+        #     Project.objects.filter(slug=project.slug) | main_project.translations.all()
+        # ).order_by("language")
         project_translations = main_project.translations.all().order_by("language")
 
         data = {
-            "api_version": "0",
+            "api_version": "1",
             "projects": {
                 "current": ProjectSerializerNoLinks(
                     project,
@@ -525,10 +532,10 @@ class AddonsResponse:
 
         return data
 
-    def _v1(self, project, version, build, filename, url, user):
+    def _v2(self, project, version, build, filename, url, user):
         return {
-            "api_version": "1",
-            "comment": "Undefined yet. Use v0 for now",
+            "api_version": "2",
+            "comment": "Undefined yet. Use v1 for now",
         }
 
 

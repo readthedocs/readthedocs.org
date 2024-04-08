@@ -83,23 +83,6 @@ class TestReadTheDocsConfigJson(TestCase):
         obj["builds"]["current"]["finished"] = "2019-04-29T10:01:00Z"
         return obj
 
-    def test_get_config_v0(self):
-        r = self.client.get(
-            reverse("proxito_readthedocs_docs_addons"),
-            {
-                "url": "https://project.dev.readthedocs.io/en/latest/",
-                "api-version": "0.1.0",
-            },
-            secure=True,
-            headers={
-                "host": "project.dev.readthedocs.io",
-            },
-        )
-        assert r.status_code == 200
-        assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
-            "v0"
-        )
-
     def test_get_config_v1(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -113,9 +96,11 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         )
         assert r.status_code == 200
-        assert r.json() == self._get_response_dict("v1")
+        assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
+            "v1"
+        )
 
-    def test_get_config_unsupported_version(self):
+    def test_get_config_v2(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
             {
@@ -127,8 +112,23 @@ class TestReadTheDocsConfigJson(TestCase):
                 "host": "project.dev.readthedocs.io",
             },
         )
-        assert r.status_code == 400
+        assert r.status_code == 200
         assert r.json() == self._get_response_dict("v2")
+
+    def test_get_config_unsupported_version(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "api-version": "3.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 400
+        assert r.json() == self._get_response_dict("v3")
 
     def test_disabled_addons_via_addons_config(self):
         addons = fixture.get(
@@ -150,7 +150,7 @@ class TestReadTheDocsConfigJson(TestCase):
             {
                 "url": "https://project.dev.readthedocs.io/en/latest/",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -200,7 +200,7 @@ class TestReadTheDocsConfigJson(TestCase):
             {
                 "url": "https://project.dev.readthedocs.io/en/latest/",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -256,7 +256,7 @@ class TestReadTheDocsConfigJson(TestCase):
             {
                 "url": "https://project.dev.readthedocs.io/en/latest/",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -290,7 +290,7 @@ class TestReadTheDocsConfigJson(TestCase):
             {
                 "url": "https://project.dev.readthedocs.io/en/latest/",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -326,7 +326,7 @@ class TestReadTheDocsConfigJson(TestCase):
             {
                 "url": "https://project.dev.readthedocs.io/en/offline/",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -356,7 +356,7 @@ class TestReadTheDocsConfigJson(TestCase):
             {
                 "url": "https://project.dev.readthedocs.io/",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -407,7 +407,7 @@ class TestReadTheDocsConfigJson(TestCase):
             {
                 "url": "https://project.dev.readthedocs.io/en/latest/",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -452,7 +452,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 "project-slug": "project",
                 "version-slug": "latest",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -479,7 +479,7 @@ class TestReadTheDocsConfigJson(TestCase):
             {
                 "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -527,7 +527,7 @@ class TestReadTheDocsConfigJson(TestCase):
             {
                 "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
                 "client-version": "0.6.0",
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
             },
             secure=True,
             headers={
@@ -565,7 +565,7 @@ class TestReadTheDocsConfigJson(TestCase):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
             {
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
                 "client-version": "0.6.0",
                 "project-slug": self.project.slug,
             },
@@ -583,7 +583,7 @@ class TestReadTheDocsConfigJson(TestCase):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
             {
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
                 "client-version": "0.6.0",
                 "version-slug": self.version.slug,
             },
@@ -601,7 +601,7 @@ class TestReadTheDocsConfigJson(TestCase):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
             {
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
                 "client-version": "0.6.0",
                 "project-slug": self.project.slug,
                 "version-slug": self.version.slug,
@@ -612,7 +612,7 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         )
         assert r.status_code == 200
-        expected_response = self._get_response_dict("v0")
+        expected_response = self._get_response_dict("v1")
         # Remove `addons.doc_diff` from the response because it's not present when `url=` is not sent
         expected_response["addons"].pop("doc_diff")
 
@@ -622,7 +622,7 @@ class TestReadTheDocsConfigJson(TestCase):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
             {
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
                 "client-version": "0.6.0",
                 "url": "https://project.dev.readthedocs.io/en/latest/",
                 # When sending `url=`, slugs are ignored
@@ -636,7 +636,7 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
         assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
-            "v0"
+            "v1"
         )
 
     def test_custom_domain_url(self):
@@ -649,7 +649,7 @@ class TestReadTheDocsConfigJson(TestCase):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
             {
-                "api-version": "0.1.0",
+                "api-version": "1.0.0",
                 "client-version": "0.6.0",
                 "url": "https://docs.example.com/en/latest/",
             },
@@ -690,7 +690,7 @@ class TestReadTheDocsConfigJson(TestCase):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
-                    "api-version": "0.1.0",
+                    "api-version": "1.0.0",
                     "client-version": "0.6.0",
                     "project-slug": "project",
                     "version-slug": "latest",
@@ -720,7 +720,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 reverse("proxito_readthedocs_docs_addons"),
                 {
                     "url": "https://project.dev.readthedocs.io/en/latest/",
-                    "api-version": "0.1.0",
+                    "api-version": "1.0.0",
                 },
                 secure=True,
                 headers={
@@ -757,7 +757,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 {
                     "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
                     "client-version": "0.6.0",
-                    "api-version": "0.1.0",
+                    "api-version": "1.0.0",
                 },
                 secure=True,
                 headers={
@@ -783,7 +783,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 {
                     "url": "https://project.dev.readthedocs.io/en/latest/",
                     "client-version": "0.6.0",
-                    "api-version": "0.1.0",
+                    "api-version": "1.0.0",
                 },
                 secure=True,
                 headers={
