@@ -346,13 +346,6 @@ class AddonsResponse:
                 )
 
         main_project = project.main_language_project or project
-        # TODO: do we want to include the current language in this response?
-        # Should we call this field `languages` instead?
-        # Including it will make the front just to render this list, but it will need to check for `len(language) > 1` instead of `> 0`
-        # Returning it here allows the backend to manage the sorting as well.
-        # project_translations = (
-        #     Project.objects.filter(slug=project.slug) | main_project.translations.all()
-        # ).order_by("language")
         project_translations = main_project.translations.all().order_by("language")
 
         data = {
