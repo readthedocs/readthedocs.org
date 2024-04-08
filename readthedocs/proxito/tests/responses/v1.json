@@ -31,11 +31,11 @@
       "tags": ["project", "tag", "test"],
       "translation_of": null,
       "urls": {
-        "builds": "https://readthedocs.org/project/builds/",
+        "builds": "https://readthedocs.org/projects/project/builds/",
         "documentation": "https://project.dev.readthedocs.io/en/latest/",
-        "home": "https://readthedocs.org/project/",
-        "versions": "https://readthedocs.org/project/versions/",
-        "downloads": "https://readthedocs.org/project/downloads/"
+        "home": "https://readthedocs.org/projects/project/",
+        "versions": "https://readthedocs.org/projects/project/versions/",
+        "downloads": "https://readthedocs.org/projects/project/downloads/"
       },
       "users": [
         {
@@ -59,7 +59,7 @@
       "type": "tag",
       "urls": {
         "dashboard": {
-          "edit": "https://readthedocs.org/project/version/latest/edit/"
+          "edit": "https://readthedocs.org/projects/project/version/latest/edit/"
         },
         "documentation": "https://project.dev.readthedocs.io/en/latest/",
         "vcs": "https://github.com/readthedocs/project/tree/master/"
@@ -81,7 +81,7 @@
         "type": "tag",
         "urls": {
           "dashboard": {
-            "edit": "https://readthedocs.org/project/version/latest/edit/"
+            "edit": "https://readthedocs.org/projects/project/version/latest/edit/"
           },
           "documentation": "https://project.dev.readthedocs.io/en/latest/",
           "vcs": "https://github.com/readthedocs/project/tree/master/"
@@ -105,9 +105,9 @@
       },
       "success": true,
       "urls": {
-        "build": "https://readthedocs.org/project/builds/1/",
-        "project": "https://readthedocs.org/project/",
-        "version": "https://readthedocs.org/project/version/latest/edit/"
+        "build": "https://readthedocs.org/projects/project/builds/1/",
+        "project": "https://readthedocs.org/projects/project/",
+        "version": "https://readthedocs.org/projects/project/version/latest/edit/"
       },
       "version": "latest"
     }
