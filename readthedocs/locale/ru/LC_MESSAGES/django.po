@@ -25,7 +25,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 10:49+0000\n"
+"POT-Creation-Date: 2024-04-09 14:51+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Roman Paltsev, 2023\n"
 "Language-Team: Russian (http://app.transifex.com/readthedocs/readthedocs/"
@@ -219,7 +219,7 @@ msgid "Log out"
 msgstr "Выйти"
 
 #: audit/models.py:91 organizations/views/private.py:147
-#: organizations/views/private.py:212 projects/views/private.py:441
+#: organizations/views/private.py:212 projects/views/private.py:460
 msgid "Invitation sent"
 msgstr "Приглашение отправлено"
 
@@ -3078,7 +3078,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:905
+#: projects/views/private.py:906
 msgid "Project has been opted out from advertisement support"
 msgstr "Проект был исключён из рекламной поддержки"
 
@@ -4674,9 +4674,12 @@ msgstr ""
 
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
-#: templates/projects/project_notifications.html:79
-#: templates/projects/project_translations.html:78
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_notifications_form.html:22
+#: templates/projects/project_translations.html:79
+#: templates/projects/project_translations_form.html:45
 #: templates/projects/project_users.html:53
+#: templates/projects/project_users_form.html:19
 msgid "Add"
 msgstr "Добавить"
 
@@ -5346,8 +5349,16 @@ msgid "New Email Notifications"
 msgstr "Новые уведомления на электронную почту"
 
 #: templates/projects/project_notifications.html:74
+#: templates/projects/project_notifications_form.html:16
 msgid "Add an email address to notify"
 msgstr "Добавить адрес e-mail для получения уведомлений"
+
+#: templates/projects/project_notifications_form.html:5
+#: templates/projects/project_notifications_form.html:12
+#, fuzzy
+#| msgid "New Email Notifications"
+msgid "Add Email Notification"
+msgstr "Новые уведомления на электронную почту"
 
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
@@ -5390,10 +5401,12 @@ msgid "Edit Translations"
 msgstr "Редактировать переводы"
 
 #: templates/projects/project_translations.html:16
+#: templates/projects/project_translations_form.html:16
 msgid "To add a translation to your project, select a project below."
 msgstr "Чтобы добавить перевод к вашему проекту, выберите проект ниже."
 
 #: templates/projects/project_translations.html:24
+#: templates/projects/project_translations_form.html:24
 #, python-format
 msgid ""
 "This project is <a href=\"%(project_settings_url)s\">configured</a> with a "
@@ -5401,6 +5414,7 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_translations.html:30
+#: templates/projects/project_translations_form.html:30
 #, python-format
 msgid ""
 "This project is already configured as the <code>%(language)s</code> "
@@ -5410,6 +5424,7 @@ msgstr ""
 "<code>%(language)s</code>. Вложенные переводы не поддерживаются."
 
 #: templates/projects/project_translations.html:38
+#: templates/projects/project_translations_form.html:38
 #, python-format
 msgid "View translations of \"%(main_project)s\"."
 msgstr "Показать переводы %(main_project)s"
@@ -5426,11 +5441,19 @@ msgstr ""
 msgid "Choose which project you would like to add as a translation."
 msgstr "Выберите, который из проектов вы хотите добавить в качестве перевода."
 
+#: templates/projects/project_translations_form.html:5
+#: templates/projects/project_translations_form.html:12
+#, fuzzy
+#| msgid "Translations"
+msgid "Add Translation"
+msgstr "Переводы"
+
 #: templates/projects/project_users.html:6
 msgid "Edit Maintainers"
 msgstr "Редактировать кураторов"
 
 #: templates/projects/project_users.html:13
+#: templates/projects/project_users_form.html:12
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
@@ -5441,6 +5464,13 @@ msgstr ""
 #: templates/projects/project_users.html:49
 msgid "Add maintainer"
 msgstr ""
+
+#: templates/projects/project_users_form.html:5
+#: templates/projects/project_users_form.html:8
+#, fuzzy
+#| msgid "Edit Maintainers"
+msgid "Add Maintainer"
+msgstr "Редактировать кураторов"
 
 #: templates/projects/project_version_detail.html:16
 #, python-format
@@ -5684,15 +5714,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#~ msgid "Requirements file"
-#~ msgstr "Файл с описанием требований, англ. requirements"
-
-#~ msgid ""
-#~ "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
-#~ "files\">pip requirements file</a> needed to build your documentation. "
-#~ "Path from the root of your project."
-#~ msgstr ""
-#~ "<a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
-#~ "files\">Файл всех зависимостей pip</a>, необходимых для сборки вашей "
-#~ "документации. Находится в корневой папке проекта."

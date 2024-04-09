@@ -1,3 +1,18 @@
+Version 10.23.2
+---------------
+
+:Date: April 09, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11267 <https://github.com/readthedocs/readthedocs.org/pull/11267>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: fix root redirect (/ -> <anything>) (`#11265 <https://github.com/readthedocs/readthedocs.org/pull/11265>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't enforce brownouts on tests (`#11259 <https://github.com/readthedocs/readthedocs.org/pull/11259>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11251 <https://github.com/readthedocs/readthedocs.org/pull/11251>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add create views (`#11246 <https://github.com/readthedocs/readthedocs.org/pull/11246>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.23.1 (`#11244 <https://github.com/readthedocs/readthedocs.org/pull/11244>`__)
+* `@humitos <https://github.com/humitos>`__: HTTPheader: add another option (`#11241 <https://github.com/readthedocs/readthedocs.org/pull/11241>`__)
+* `@humitos <https://github.com/humitos>`__: Build: mark build as CANCELLED when command exits with 183 (`#11240 <https://github.com/readthedocs/readthedocs.org/pull/11240>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: take into account the user when listing members (`#11212 <https://github.com/readthedocs/readthedocs.org/pull/11212>`__)
+
 Version 10.23.1
 ---------------
 

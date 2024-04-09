@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 10:49+0000\n"
+"POT-Creation-Date: 2024-04-09 14:51+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>, 2023\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/readthedocs/"
@@ -211,7 +211,7 @@ msgid "Log out"
 msgstr ""
 
 #: audit/models.py:91 organizations/views/private.py:147
-#: organizations/views/private.py:212 projects/views/private.py:441
+#: organizations/views/private.py:212 projects/views/private.py:460
 msgid "Invitation sent"
 msgstr "邀請已送出"
 
@@ -3046,7 +3046,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:905
+#: projects/views/private.py:906
 msgid "Project has been opted out from advertisement support"
 msgstr "專案已選擇退出廣告支援"
 
@@ -4575,9 +4575,12 @@ msgstr ""
 
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
-#: templates/projects/project_notifications.html:79
-#: templates/projects/project_translations.html:78
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_notifications_form.html:22
+#: templates/projects/project_translations.html:79
+#: templates/projects/project_translations_form.html:45
 #: templates/projects/project_users.html:53
+#: templates/projects/project_users_form.html:19
 msgid "Add"
 msgstr "新增"
 
@@ -5226,8 +5229,16 @@ msgid "New Email Notifications"
 msgstr "新的電子信箱通知"
 
 #: templates/projects/project_notifications.html:74
+#: templates/projects/project_notifications_form.html:16
 msgid "Add an email address to notify"
 msgstr "新增一個接收通知的電子信箱"
+
+#: templates/projects/project_notifications_form.html:5
+#: templates/projects/project_notifications_form.html:12
+#, fuzzy
+#| msgid "New Email Notifications"
+msgid "Add Email Notification"
+msgstr "新的電子信箱通知"
 
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
@@ -5270,10 +5281,12 @@ msgid "Edit Translations"
 msgstr "編輯翻譯"
 
 #: templates/projects/project_translations.html:16
+#: templates/projects/project_translations_form.html:16
 msgid "To add a translation to your project, select a project below."
 msgstr ""
 
 #: templates/projects/project_translations.html:24
+#: templates/projects/project_translations_form.html:24
 #, python-format
 msgid ""
 "This project is <a href=\"%(project_settings_url)s\">configured</a> with a "
@@ -5281,6 +5294,7 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_translations.html:30
+#: templates/projects/project_translations_form.html:30
 #, python-format
 msgid ""
 "This project is already configured as the <code>%(language)s</code> "
@@ -5288,6 +5302,7 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_translations.html:38
+#: templates/projects/project_translations_form.html:38
 #, python-format
 msgid "View translations of \"%(main_project)s\"."
 msgstr ""
@@ -5304,11 +5319,19 @@ msgstr ""
 msgid "Choose which project you would like to add as a translation."
 msgstr "請選擇要新增翻譯的專案。"
 
+#: templates/projects/project_translations_form.html:5
+#: templates/projects/project_translations_form.html:12
+#, fuzzy
+#| msgid "Translations"
+msgid "Add Translation"
+msgstr "翻譯"
+
 #: templates/projects/project_users.html:6
 msgid "Edit Maintainers"
 msgstr "編輯維護者"
 
 #: templates/projects/project_users.html:13
+#: templates/projects/project_users_form.html:12
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
@@ -5317,6 +5340,13 @@ msgstr ""
 
 #: templates/projects/project_users.html:49
 msgid "Add maintainer"
+msgstr "新增維護者"
+
+#: templates/projects/project_users_form.html:5
+#: templates/projects/project_users_form.html:8
+#, fuzzy
+#| msgid "Add maintainer"
+msgid "Add Maintainer"
 msgstr "新增維護者"
 
 #: templates/projects/project_version_detail.html:16
@@ -5548,14 +5578,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#~ msgid "Requirements file"
-#~ msgstr "Requirements 檔案"
-
-#~ msgid ""
-#~ "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
-#~ "files\">pip requirements file</a> needed to build your documentation. "
-#~ "Path from the root of your project."
-#~ msgstr ""
-#~ "建置文件需要的<a href=\"https://pip.pypa.io/en/latest/user_guide."
-#~ "html#requirements-files\">pip requirement 檔案</a>。路徑相對於專案根目錄。"
