@@ -13,9 +13,11 @@ class SSOIntegration(models.Model):
 
     PROVIDER_ALLAUTH = "allauth"
     PROVIDER_EMAIL = "email"
+    PROVIDER_SAML = "saml"
     PROVIDER_CHOICES = (
         (PROVIDER_ALLAUTH, "AllAuth"),
         (PROVIDER_EMAIL, "Email"),
+        (PROVIDER_SAML, "SAML"),
     )
 
     name = models.CharField(
@@ -36,6 +38,15 @@ class SSOIntegration(models.Model):
         choices=PROVIDER_CHOICES,
         max_length=32,
     )
+
+    saml_app = models.OneToOneField(
+        "socialaccount.SocialApp",
+        related_name="sso_integration",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
     domains = models.ManyToManyField(
         "sso.SSODomain",
         related_name="ssointegrations",
