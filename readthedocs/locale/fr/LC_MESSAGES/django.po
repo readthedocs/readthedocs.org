@@ -41,7 +41,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 10:49+0000\n"
+"POT-Creation-Date: 2024-04-09 14:51+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Jérémie Tarot <silopolis@gmail.com>, 2022-2023\n"
 "Language-Team: French (http://app.transifex.com/readthedocs/readthedocs/"
@@ -235,7 +235,7 @@ msgid "Log out"
 msgstr "Se déconnecter"
 
 #: audit/models.py:91 organizations/views/private.py:147
-#: organizations/views/private.py:212 projects/views/private.py:441
+#: organizations/views/private.py:212 projects/views/private.py:460
 msgid "Invitation sent"
 msgstr "L'invitation est envoyée"
 
@@ -3202,7 +3202,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr "{username} est le dernier propriétaire, il ne peut pas être supprimé"
 
-#: projects/views/private.py:905
+#: projects/views/private.py:906
 msgid "Project has been opted out from advertisement support"
 msgstr "Le projet à été retiré du programme de support publicitaire"
 
@@ -4876,9 +4876,12 @@ msgstr "Ajouter un nouveau domaine"
 
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
-#: templates/projects/project_notifications.html:79
-#: templates/projects/project_translations.html:78
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_notifications_form.html:22
+#: templates/projects/project_translations.html:79
+#: templates/projects/project_translations_form.html:45
 #: templates/projects/project_users.html:53
+#: templates/projects/project_users_form.html:19
 msgid "Add"
 msgstr "Ajouter"
 
@@ -5626,8 +5629,16 @@ msgid "New Email Notifications"
 msgstr "Nouvelles notifications e-mail"
 
 #: templates/projects/project_notifications.html:74
+#: templates/projects/project_notifications_form.html:16
 msgid "Add an email address to notify"
 msgstr "Ajouter une adresse e-mail de notification"
+
+#: templates/projects/project_notifications_form.html:5
+#: templates/projects/project_notifications_form.html:12
+#, fuzzy
+#| msgid "Email Notifications"
+msgid "Add Email Notification"
+msgstr "Notifications par e-mail"
 
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
@@ -5675,12 +5686,14 @@ msgid "Edit Translations"
 msgstr "Modifier les traductions"
 
 #: templates/projects/project_translations.html:16
+#: templates/projects/project_translations_form.html:16
 msgid "To add a translation to your project, select a project below."
 msgstr ""
 "Pour ajouter une traduction à votre projet, sélectionnez un projet ci-"
 "dessous."
 
 #: templates/projects/project_translations.html:24
+#: templates/projects/project_translations_form.html:24
 #, python-format
 msgid ""
 "This project is <a href=\"%(project_settings_url)s\">configured</a> with a "
@@ -5688,6 +5701,7 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_translations.html:30
+#: templates/projects/project_translations_form.html:30
 #, python-format
 msgid ""
 "This project is already configured as the <code>%(language)s</code> "
@@ -5698,6 +5712,7 @@ msgstr ""
 "supportées."
 
 #: templates/projects/project_translations.html:38
+#: templates/projects/project_translations_form.html:38
 #, python-format
 msgid "View translations of \"%(main_project)s\"."
 msgstr "Voir les traductions de \"%(main_project)s\"."
@@ -5714,11 +5729,19 @@ msgstr "Aucune traduction n'est actuellement configurée"
 msgid "Choose which project you would like to add as a translation."
 msgstr "Choisissez quel projet vous souhaitez ajouter en tant que traduction."
 
+#: templates/projects/project_translations_form.html:5
+#: templates/projects/project_translations_form.html:12
+#, fuzzy
+#| msgid "Translations"
+msgid "Add Translation"
+msgstr "Traductions"
+
 #: templates/projects/project_users.html:6
 msgid "Edit Maintainers"
 msgstr "Modifier les mainteneurs"
 
 #: templates/projects/project_users.html:13
+#: templates/projects/project_users_form.html:12
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
@@ -5728,6 +5751,13 @@ msgstr ""
 
 #: templates/projects/project_users.html:49
 msgid "Add maintainer"
+msgstr "Ajouter un mainteneur"
+
+#: templates/projects/project_users_form.html:5
+#: templates/projects/project_users_form.html:8
+#, fuzzy
+#| msgid "Add maintainer"
+msgid "Add Maintainer"
 msgstr "Ajouter un mainteneur"
 
 #: templates/projects/project_version_detail.html:16
@@ -6006,15 +6036,3 @@ msgstr ""
 "fournisseur Git afin de supprimer la connexion OAuth de Read the Docs. Sur "
 "GitHub, celle-ci se trouve dans <code>Paramètres > Applications > "
 "Applications OAuth Autorisées</code>."
-
-#~ msgid "Requirements file"
-#~ msgstr "Fichier des prérequis"
-
-#~ msgid ""
-#~ "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
-#~ "files\">pip requirements file</a> needed to build your documentation. "
-#~ "Path from the root of your project."
-#~ msgstr ""
-#~ "Un <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
-#~ "files\">fichier de \"requirements\" pip</a> est requis pour compiler "
-#~ "votre projet. Le chemin depuis la racine de votre projet."

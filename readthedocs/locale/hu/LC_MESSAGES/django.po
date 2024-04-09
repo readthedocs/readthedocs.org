@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-26 10:49+0000\n"
+"POT-Creation-Date: 2024-04-09 14:51+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Laszlo Matusek <lmatusek@gmail.com>, 2021\n"
 "Language-Team: Hungarian (http://app.transifex.com/readthedocs/readthedocs/"
@@ -201,7 +201,7 @@ msgid "Log out"
 msgstr ""
 
 #: audit/models.py:91 organizations/views/private.py:147
-#: organizations/views/private.py:212 projects/views/private.py:441
+#: organizations/views/private.py:212 projects/views/private.py:460
 msgid "Invitation sent"
 msgstr ""
 
@@ -3044,7 +3044,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:905
+#: projects/views/private.py:906
 msgid "Project has been opted out from advertisement support"
 msgstr "A projektet kivonták a reklámtámogatásból"
 
@@ -4601,9 +4601,12 @@ msgstr ""
 
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
-#: templates/projects/project_notifications.html:79
-#: templates/projects/project_translations.html:78
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_notifications_form.html:22
+#: templates/projects/project_translations.html:79
+#: templates/projects/project_translations_form.html:45
 #: templates/projects/project_users.html:53
+#: templates/projects/project_users_form.html:19
 msgid "Add"
 msgstr ""
 
@@ -5249,7 +5252,13 @@ msgid "New Email Notifications"
 msgstr ""
 
 #: templates/projects/project_notifications.html:74
+#: templates/projects/project_notifications_form.html:16
 msgid "Add an email address to notify"
+msgstr ""
+
+#: templates/projects/project_notifications_form.html:5
+#: templates/projects/project_notifications_form.html:12
+msgid "Add Email Notification"
 msgstr ""
 
 #: templates/projects/project_resync_webhook.html:12
@@ -5293,10 +5302,12 @@ msgid "Edit Translations"
 msgstr ""
 
 #: templates/projects/project_translations.html:16
+#: templates/projects/project_translations_form.html:16
 msgid "To add a translation to your project, select a project below."
 msgstr ""
 
 #: templates/projects/project_translations.html:24
+#: templates/projects/project_translations_form.html:24
 #, python-format
 msgid ""
 "This project is <a href=\"%(project_settings_url)s\">configured</a> with a "
@@ -5304,6 +5315,7 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_translations.html:30
+#: templates/projects/project_translations_form.html:30
 #, python-format
 msgid ""
 "This project is already configured as the <code>%(language)s</code> "
@@ -5311,6 +5323,7 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_translations.html:38
+#: templates/projects/project_translations_form.html:38
 #, python-format
 msgid "View translations of \"%(main_project)s\"."
 msgstr ""
@@ -5327,11 +5340,19 @@ msgstr ""
 msgid "Choose which project you would like to add as a translation."
 msgstr ""
 
+#: templates/projects/project_translations_form.html:5
+#: templates/projects/project_translations_form.html:12
+#, fuzzy
+#| msgid "Translations"
+msgid "Add Translation"
+msgstr "Fordítások"
+
 #: templates/projects/project_users.html:6
 msgid "Edit Maintainers"
 msgstr ""
 
 #: templates/projects/project_users.html:13
+#: templates/projects/project_users_form.html:12
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
@@ -5340,6 +5361,13 @@ msgstr ""
 #: templates/projects/project_users.html:49
 msgid "Add maintainer"
 msgstr ""
+
+#: templates/projects/project_users_form.html:5
+#: templates/projects/project_users_form.html:8
+#, fuzzy
+#| msgid "Maintainers"
+msgid "Add Maintainer"
+msgstr "Karbantartók"
 
 #: templates/projects/project_version_detail.html:16
 #, python-format
@@ -5570,15 +5598,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#~ msgid "Requirements file"
-#~ msgstr "Követelmény fájl"
-
-#~ msgid ""
-#~ "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
-#~ "files\">pip requirements file</a> needed to build your documentation. "
-#~ "Path from the root of your project."
-#~ msgstr ""
-#~ "Egy <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
-#~ "files\">pip követelmény fájl</a> szükséges a dokumentáció felépítéséhez. "
-#~ "Útvonal a projekt gyökerétől."
