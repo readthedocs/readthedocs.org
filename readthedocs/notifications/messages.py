@@ -381,7 +381,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
             <strong>The <code>build.commands</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
-            Read more at <a href=""https://docs.readthedocs.io/page/build-customization.html#override-the-build-process">our documentation</a> to find out its limitations and potential issues.
+            Read more at <a href="https://docs.readthedocs.io/page/build-customization.html#override-the-build-process">our documentation</a> to find out its limitations and potential issues.
             """
             ).strip(),
         ),
