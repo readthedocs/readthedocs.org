@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.79
+boto3==1.34.84
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.79
+botocore==1.34.84
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -188,7 +188,7 @@ djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
 docker==6.1.2
     # via -r requirements/pip.txt
-docutils==0.20.1
+docutils==0.21.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -212,7 +212,7 @@ elasticsearch-dsl==8.13.0
     #   django-elasticsearch-dsl
 exceptiongroup==1.2.0
     # via pytest
-filelock==3.13.3
+filelock==3.13.4
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -222,7 +222,7 @@ funcy==2.0
     #   django-cacheops
 gunicorn==21.2.0
     # via -r requirements/pip.txt
-idna==3.6
+idna==3.7
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -241,7 +241,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.3.6
+kombu==5.3.7
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -385,7 +385,7 @@ slumber==0.7.1
     # via -r requirements/pip.txt
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.2.6
+sphinx==3.5.3
     # via -r requirements/testing.in
 sphinxcontrib-applehelp==1.0.8
     # via sphinx
@@ -399,7 +399,7 @@ sphinxcontrib-qthelp==1.0.7
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.10
     # via sphinx
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   -r requirements/pip.txt
     #   django
@@ -467,3 +467,6 @@ websocket-client==1.7.0
     #   docker
 yamale==2.2.0
     # via -r requirements/testing.in
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

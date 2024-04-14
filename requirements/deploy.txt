@@ -23,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.79
+boto3==1.34.84
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.79
+botocore==1.34.84
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -185,7 +185,7 @@ djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
 docker==6.1.2
     # via -r requirements/pip.txt
-docutils==0.20.1
+docutils==0.21.1
     # via -r requirements/pip.txt
 dparse==0.6.3
     # via -r requirements/pip.txt
@@ -209,7 +209,7 @@ exceptiongroup==1.2.0
     # via ipython
 executing==2.0.1
     # via stack-data
-filelock==3.13.3
+filelock==3.13.4
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -219,7 +219,7 @@ funcy==2.0
     #   django-cacheops
 gunicorn==21.2.0
     # via -r requirements/pip.txt
-idna==3.6
+idna==3.7
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -236,7 +236,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.3.6
+kombu==5.3.7
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -353,7 +353,7 @@ s3transfer==0.10.1
     #   boto3
 selectolax==0.3.21
     # via -r requirements/pip.txt
-sentry-sdk==1.44.1
+sentry-sdk==1.45.0
     # via structlog-sentry
 six==1.16.0
     # via
@@ -365,7 +365,7 @@ six==1.16.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.txt
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   -r requirements/pip.txt
     #   django
