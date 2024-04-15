@@ -24,11 +24,7 @@ from .mixins import OverrideHostnameMixin, S3PrivateBucketMixin
 class S3BuildMediaStorageMixin(BuildMediaStorageMixin, S3Boto3Storage):
     @cached_property
     def _rclone(self):
-        provider = "AWS"
-        # If a custom endpoint URL is given and
-        # we are running in DEBUG mode, use minio as provider.
-        if self.endpoint_url and settings.DEBUG:
-            provider = "minio"
+        provider = settings.S3_PROVIDER
 
         return RCloneS3Remote(
             bucket_name=self.bucket_name,
