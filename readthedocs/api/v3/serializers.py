@@ -384,7 +384,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
         return data
 
     def get_aliases(self, obj):
-        if obj.slug in (STABLE, LATEST):
+        if obj.machine and obj.slug in (STABLE, LATEST):
             if obj.slug == STABLE:
                 alias_version = obj.project.get_original_stable_version()
             if obj.slug == LATEST:

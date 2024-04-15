@@ -126,11 +126,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                     raise Http404() from exc
 
         else:
-            project = (
-                Project.objects.filter(slug=project_slug)
-                # .select_related("main_language_project")
-                .first()
-            )
+            project = Project.objects.filter(slug=project_slug).first()
             version = (
                 Version.objects.filter(slug=version_slug, project=project)
                 .select_related("project")
