@@ -267,6 +267,7 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
         super().setUp()
         self.owner = get(User, username="owner")
         self.team_mate = get(User, username="teammate")
+        self.member_from_another_team = get(User, username="member_from_another_team")
         self.org = get(Organization, owners=[self.owner])
 
         self.team = get(
@@ -295,6 +296,10 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
             self.team_mate,
             self.team2,
         )
+        self.org.add_member(
+            self.member_from_another_team,
+            self.team2,
+        )
 
         self.another_owner = get(User, username="another_owner")
         self.another_user = get(User, username="another_user")
@@ -320,10 +325,14 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
         self.assertEqual(resp.status_code, 200)
 
     def test_unrelated_user_can_not_see_the_profile(self):
-        self.client.force_login(self.another_user)
         url = reverse(
             "profiles_profile_detail", kwargs={"username": self.user.username}
         )
+        self.client.force_login(self.another_user)
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
+
+        self.client.force_login(self.member_from_another_team)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 404)
 
@@ -332,14 +341,25 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
         self.assertEqual(resp.status_code, 404)
 
     def test_related_user_can_see_the_profile(self):
-        self.client.force_login(self.owner)
         url = reverse(
             "profiles_profile_detail", kwargs={"username": self.user.username}
         )
+        self.client.force_login(self.owner)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
 
         self.client.force_login(self.team_mate)
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+        url = reverse(
+            "profiles_profile_detail", kwargs={"username": self.owner.username}
+        )
+        self.client.force_login(self.user)
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+        self.client.force_login(self.member_from_another_team)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
 

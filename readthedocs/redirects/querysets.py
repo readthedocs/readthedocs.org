@@ -60,8 +60,10 @@ class RedirectQuerySet(models.QuerySet):
 
         # Useful to allow redirects to match paths with or without trailling slash.
         # For example, ``/docs`` will match ``/docs/`` and ``/docs``.
-        filename_without_trailling_slash = normalized_filename.rstrip("/")
-        path_without_trailling_slash = normalized_path.rstrip("/")
+        filename_without_trailling_slash = self._strip_trailling_slash(
+            normalized_filename
+        )
+        path_without_trailling_slash = self._strip_trailling_slash(normalized_path)
 
         # Add extra fields with the ``filename`` and ``path`` to perform a
         # filter at db level instead with Python.
@@ -154,3 +156,10 @@ class RedirectQuerySet(models.QuerySet):
         normalized_path = parsed_path._replace(query="").geturl()
         normalized_path = "/" + normalized_path.lstrip("/")
         return normalized_path
+
+    def _strip_trailling_slash(self, path):
+        """Stripe the trailling slash from the path, making sure the root path is always ``/``."""
+        path = path.rstrip("/")
+        if path == "":
+            return "/"
+        return path

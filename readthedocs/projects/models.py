@@ -325,20 +325,6 @@ class Project(models.Model):
             "to use the default value for your VCS.",
         ),
     )
-    requirements_file = models.CharField(
-        _("Requirements file"),
-        max_length=255,
-        default=None,
-        null=True,
-        blank=True,
-        help_text=_(
-            "A <a "
-            'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
-            "pip requirements file</a> needed to build your documentation. "
-            "Path from the root of your project.",
-        ),
-    )
-
     custom_prefix = models.CharField(
         _("Custom path prefix"),
         max_length=255,
@@ -1846,6 +1832,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
     HEADERS_CHOICES = (
         ("access_control_allow_origin", "Access-Control-Allow-Origin"),
         ("access_control_allow_headers", "Access-Control-Allow-Headers"),
+        ("access_control_expose_headers", "Access-Control-Expose-Headers"),
         ("content_security_policy", "Content-Security-Policy"),
         ("feature_policy", "Feature-Policy"),
         ("permissions_policy", "Permissions-Policy"),
