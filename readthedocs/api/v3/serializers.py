@@ -11,6 +11,7 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
@@ -322,13 +323,15 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     dashboard = VersionDashboardURLsSerializer(source="*")
 
     def get_documentation(self, obj):
-        return Resolver().resolve_version(
+        resolver = getattr(self.parent, "resolver", Resolver())
+        return resolver.resolve_version(
             project=obj.project,
             version=obj,
         )
 
 
 class VersionSerializer(FlexFieldsModelSerializer):
+    aliases = serializers.SerializerMethodField()
     ref = serializers.CharField()
     downloads = serializers.SerializerMethodField()
     urls = VersionURLsSerializer(source="*")
@@ -337,6 +340,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Version
         fields = [
+            "aliases",
             "id",
             "slug",
             "verbose_name",
@@ -354,6 +358,17 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
         expandable_fields = {"last_build": (BuildSerializer,)}
 
+    def __init__(self, *args, resolver=None, version_serializer=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Use a shared resolver to reduce the amount of DB queries while
+        # resolving version URLs.
+        self.resolver = kwargs.pop("resolver", Resolver())
+
+        # Allow passing a specific serializer when initializing it.
+        # This is required to pass ``VersionSerializerNoLinks`` from the addons API.
+        self.version_serializer = version_serializer or VersionSerializer
+
     def get_downloads(self, obj):
         downloads = obj.get_downloads()
         data = {}
@@ -367,6 +382,16 @@ class VersionSerializer(FlexFieldsModelSerializer):
                 data[k] = ("http:" if settings.DEBUG else "https:") + v
 
         return data
+
+    def get_aliases(self, obj):
+        if obj.machine and obj.slug in (STABLE, LATEST):
+            if obj.slug == STABLE:
+                alias_version = obj.project.get_original_stable_version()
+            if obj.slug == LATEST:
+                alias_version = obj.project.get_original_latest_version()
+            if alias_version and alias_version.active:
+                return [self.version_serializer(alias_version).data]
+        return []
 
 
 class VersionUpdateSerializer(serializers.ModelSerializer):
@@ -426,10 +451,12 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     """Serializer with all the user-facing URLs under Read the Docs."""
 
-    documentation = serializers.CharField(source="get_docs_url")
+    documentation = serializers.SerializerMethodField()
+
     home = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
     versions = serializers.SerializerMethodField()
+    downloads = serializers.SerializerMethodField()
 
     def get_home(self, obj):
         path = reverse("projects_detail", kwargs={"project_slug": obj.slug})
@@ -442,6 +469,15 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     def get_versions(self, obj):
         path = reverse("project_version_list", kwargs={"project_slug": obj.slug})
         return self._absolute_url(path)
+
+    def get_downloads(self, obj):
+        path = reverse("project_downloads", kwargs={"project_slug": obj.slug})
+        return self._absolute_url(path)
+
+    def get_documentation(self, obj):
+        version_slug = getattr(self.parent, "version_slug", None)
+        resolver = getattr(self.parent, "resolver", Resolver())
+        return obj.get_docs_url(version_slug=version_slug, resolver=resolver)
 
 
 class RepositorySerializer(serializers.Serializer):
@@ -765,6 +801,13 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         }
 
     def __init__(self, *args, **kwargs):
+        # Receive a `Version.slug` here to build URLs properly
+        self.version_slug = kwargs.pop("version_slug", None)
+
+        # Use a shared resolver to reduce the amount of DB queries while
+        # resolving version URLs.
+        self.resolver = kwargs.pop("resolver", Resolver())
+
         super().__init__(*args, **kwargs)
         # When using organizations, projects don't have the concept of users.
         # But we have organization.owners.
