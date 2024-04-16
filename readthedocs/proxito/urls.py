@@ -158,37 +158,47 @@ docs_urls = [
 # this point. We can come back later here if we need them.
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
 dummy_dashboard_urls = [
-    # /dashboard/<project_slug>/
+    # /projects/<project_slug>/
     re_path(
-        r"^(?P<project_slug>{project_slug})/$".format(**pattern_opts),
+        r"^projects/(?P<project_slug>{project_slug})/$".format(**pattern_opts),
         TeapotView.as_view(),
         name="projects_detail",
     ),
-    # /dashboard/<project_slug>/builds/
+    # /projects/<project_slug>/builds/
     re_path(
-        (r"^(?P<project_slug>{project_slug})/builds/$".format(**pattern_opts)),
+        (r"^projects/(?P<project_slug>{project_slug})/builds/$".format(**pattern_opts)),
         TeapotView.as_view(),
         name="builds_project_list",
     ),
-    # /dashboard/<project_slug>/versions/
+    # /projects/<project_slug>/versions/
     re_path(
-        r"^(?P<project_slug>{project_slug})/versions/$".format(**pattern_opts),
+        r"^projects/(?P<project_slug>{project_slug})/versions/$".format(**pattern_opts),
         TeapotView.as_view(),
         name="project_version_list",
     ),
-    # /dashboard/<project_slug>/builds/<build_id>/
+    # /projects/<project_slug>/downloads/
     re_path(
         (
-            r"^(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$".format(
+            r"^projects/(?P<project_slug>{project_slug})/downloads/$".format(
+                **pattern_opts
+            )
+        ),
+        TeapotView.as_view(),
+        name="project_downloads",
+    ),
+    # /projects/<project_slug>/builds/<build_id>/
+    re_path(
+        (
+            r"^projects/(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$".format(
                 **pattern_opts
             )
         ),
         TeapotView.as_view(),
         name="builds_detail",
     ),
-    # /dashboard/<project_slug>/version/<version_slug>/
+    # /projects/<project_slug>/version/<version_slug>/
     re_path(
-        r"^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$",
+        r"^projects/(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$",
         TeapotView.as_view(),
         name="project_version_detail",
     ),

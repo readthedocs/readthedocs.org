@@ -635,13 +635,21 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse("projects_detail", args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug=None, external=False):
+    def get_docs_url(
+        self,
+        version_slug=None,
+        lang_slug=None,
+        external=False,
+        resolver=None,
+    ):
         """
         Return a URL for the docs.
 
-        ``external`` defaults False because we only link external versions in very specific places
+        ``external`` defaults False because we only link external versions in very specific places.
+        ``resolver`` is used to "share a resolver" between the same request.
         """
-        return Resolver().resolve(
+        resolver = resolver or Resolver()
+        return resolver.resolve(
             project=self,
             version_slug=version_slug,
             language=lang_slug,
@@ -1877,7 +1885,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
@@ -1908,10 +1915,6 @@ class Feature(models.Model):
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
-        (
-            MKDOCS_THEME_RTD,
-            _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
-        ),
         (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),

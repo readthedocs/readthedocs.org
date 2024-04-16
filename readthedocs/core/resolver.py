@@ -273,6 +273,7 @@ class Resolver:
         path = project.subproject_prefix
         return urlunparse((protocol, domain, path, "", "", ""))
 
+    @lru_cache(maxsize=1)
     def _get_canonical_project(self, project):
         """
         Get the parent project and subproject relationship from the canonical project of `project`.
@@ -346,6 +347,7 @@ class Resolver:
         subdomain_slug = project.slug.replace("_", "-")
         return "{}.{}".format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
+    @lru_cache(maxsize=1)
     def _is_external(self, project, version_slug):
         type_ = (
             project.versions.values_list("type", flat=True)
