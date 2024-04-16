@@ -108,9 +108,6 @@ class BuildEnvironmentMocker:
             "readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf",
         )
 
-        # self.patches['builder.html.mkdocs.yaml_dump_safely'] = mock.patch(
-        #     'readthedocs.doc_builder.backends.mkdocs.yaml_dump_safely',
-        # )
         # self.patches['builder.html.mkdocs.open'] = mock.patch(
         #     'readthedocs.doc_builder.backends.mkdocs.builtins.open',
         #     mock.mock_open(read_data='file content'),
