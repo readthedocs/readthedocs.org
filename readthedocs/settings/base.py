@@ -1047,3 +1047,5 @@ class CommunityBaseSettings(Settings):
             "timeout": CACHEOPS_TIMEOUT,
         },
     }
+
+    S3_PROVIDER = "AWS"
