@@ -635,13 +635,21 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse("projects_detail", args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug=None, external=False):
+    def get_docs_url(
+        self,
+        version_slug=None,
+        lang_slug=None,
+        external=False,
+        resolver=None,
+    ):
         """
         Return a URL for the docs.
 
-        ``external`` defaults False because we only link external versions in very specific places
+        ``external`` defaults False because we only link external versions in very specific places.
+        ``resolver`` is used to "share a resolver" between the same request.
         """
-        return Resolver().resolve(
+        resolver = resolver or Resolver()
+        return resolver.resolve(
             project=self,
             version_slug=version_slug,
             language=lang_slug,
