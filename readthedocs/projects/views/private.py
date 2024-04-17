@@ -40,6 +40,7 @@ from readthedocs.builds.models import (
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
@@ -112,6 +113,28 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             context["project_list"] = filter.qs
             # Alternatively, dynamically override super()-derived `project_list` context_data
             # context[self.get_context_object_name(filter.qs)] = filter.qs
+
+            projects = AdminPermission.projects(user=self.request.user, admin=True)
+            if (timezone.now() - self.request.user.date_joined).days < 30:
+                context[
+                    "promotion"
+                ] = "includes/elements/promotions/example-projects.html"
+            elif (
+                projects.exists()
+                and not projects.filter(external_builds_enabled=True).exists()
+            ):
+                context[
+                    "promotion"
+                ] = "includes/elements/promotions/pull-request-previews.html"
+            elif (
+                projects.exists()
+                and not projects.filter(addons__analytics_enabled=True).exists()
+            ):
+                context[
+                    "promotion"
+                ] = "includes/elements/promotions/traffic-analytics.html"
+            else:
+                context["promotion"] = "includes/elements/promotions/security-logs.html"
 
         return context
 
