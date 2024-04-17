@@ -1,3 +1,15 @@
+Version 10.24.0
+---------------
+
+:Date: April 16, 2024
+
+* `@hoyes <https://github.com/hoyes>`__: Dev: Allow Minio to be used without debug mode (`#11272 <https://github.com/readthedocs/readthedocs.org/pull/11272>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.23.2 (`#11269 <https://github.com/readthedocs/readthedocs.org/pull/11269>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: typo in message (`#11268 <https://github.com/readthedocs/readthedocs.org/pull/11268>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add error view for error handling and error view testing (`#11263 <https://github.com/readthedocs/readthedocs.org/pull/11263>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `append_conf` _magic_ from MkDocs (`#11206 <https://github.com/readthedocs/readthedocs.org/pull/11206>`__)
+* `@humitos <https://github.com/humitos>`__: APIv3: add more generic fields (`#11205 <https://github.com/readthedocs/readthedocs.org/pull/11205>`__)
+
 Version 10.23.2
 ---------------
 
