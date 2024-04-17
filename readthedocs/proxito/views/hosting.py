@@ -367,7 +367,7 @@ class AddonsResponse:
                 if version
                 else None,
                 # These are "sorted active, built, not hidden versions"
-                "active": VersionSerializerNoLinks(
+                "actives": VersionSerializerNoLinks(
                     sorted_versions_active_built_not_hidden,
                     resolver=resolver,
                     many=True,
