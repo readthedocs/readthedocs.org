@@ -33,6 +33,7 @@ How-to guides: security and access
 
    Single Sign-On (SSO) with GitHub, GitLab, or Bitbucket </guides/setup-single-sign-on-github-gitlab-bitbucket>
    Single Sign-On (SSO) with Google Workspace </guides/setup-single-sign-on-google-email>
+   Single Sign-On (SSO) with SAML </guides/set-up-single-sign-on-saml>
    Managing Read the Docs teams </guides/manage-read-the-docs-teams>
    Manually importing private repositories </guides/importing-private-repositories>
    Using private Git submodules </guides/private-submodules>
