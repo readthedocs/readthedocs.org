@@ -39,18 +39,11 @@ In order to enable SSO with Okta, you need to create a new SAML application in y
 
 6. Optionally you can add the following "attribute statements" to be used when creating a new user:
 
-   * Name:
-      ``user.firstName``
-     Format:
-       ``Basic``
-     Value:
-       ``user.firstName``
-   * Name:
-       ``user.lastName``
-     Format:
-      ``Basic``
-     Value:
-       ``user.lastName``
+   .. csv-table::
+      :header: "Name", "Format", "Value"
+
+      "user.firstName", "Basic", "user.firstName"
+      "user.lastName", "Basic", "user.lastName"
 
 7. Click :guilabel:`Next`.
 8. Select ``This is an internal app that we have created``.
