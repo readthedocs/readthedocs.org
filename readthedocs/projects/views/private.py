@@ -115,26 +115,23 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             # context[self.get_context_object_name(filter.qs)] = filter.qs
 
             projects = AdminPermission.projects(user=self.request.user, admin=True)
-            if (timezone.now() - self.request.user.date_joined).days < 30:
-                context[
-                    "promotion"
-                ] = "includes/elements/promotions/example-projects.html"
+            n_projects = projects.count()
+            if n_projects < 3 and (timezone.now() - projects.first().pub_date) < 7:
+                template_name = "example-projects.html"
             elif (
-                projects.exists()
+                n_projects
                 and not projects.filter(external_builds_enabled=True).exists()
             ):
-                context[
-                    "promotion"
-                ] = "includes/elements/promotions/pull-request-previews.html"
+                template_name = "pull-request-previews.html"
             elif (
-                projects.exists()
+                n_projects
                 and not projects.filter(addons__analytics_enabled=True).exists()
             ):
-                context[
-                    "promotion"
-                ] = "includes/elements/promotions/traffic-analytics.html"
+                template_name = "traffic-analytics.html"
             else:
-                context["promotion"] = "includes/elements/promotions/security-logs.html"
+                context["promotion"] = "security-logs.html"
+
+        context["promotion"] = f"includes/elements/promotions/{template_name}"
 
         return context
 
