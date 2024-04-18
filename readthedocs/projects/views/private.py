@@ -131,7 +131,7 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             else:
                 context["promotion"] = "security-logs.html"
 
-        context["promotion"] = f"includes/elements/promotions/{template_name}"
+        context["promotion"] = f"projects/partials/dashboard/{template_name}"
 
         return context
 
