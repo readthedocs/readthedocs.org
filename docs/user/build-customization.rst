@@ -356,6 +356,37 @@ Take a look at the following example:
      configuration: docs/conf.py
 
 
+Install dependencies with ``uv``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Projects managed with `uv <https://github.com/astral-sh/uv/>`__,
+can use the ``post_create_environment`` user-defined job to use ``uv`` for installing Python dependencies.
+Take a look at the following example:
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.10"
+     jobs:
+       post_create_environment:
+         # Install uv
+         - pip install uv
+       post_install:
+         # Install dependencies with 'docs' dependency group
+         # VIRTUAL_ENV needs to be set manually for now.
+         # See https://github.com/readthedocs/readthedocs.org/pull/11152/
+         - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH uv pip install .[docs]
+
+   sphinx:
+     configuration: docs/conf.py
+
+
 Update Conda version
 ^^^^^^^^^^^^^^^^^^^^
 
