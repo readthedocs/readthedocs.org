@@ -37,11 +37,12 @@ In order to enable SSO with Okta, you need to create a new SAML application in y
    * :guilabel:`Name ID format`: ``EmailAddress``
    * Leave the rest of the fields as default.
 
-6. Optionally you can add the following "attribute statements" to be used when creating a new user:
+6. Add the following "attribute statements" to be used when creating a new user:
 
    .. csv-table::
       :header: "Name", "Format", "Value"
 
+      "user.id", "Basic", "user.id"
       "user.firstName", "Basic", "user.firstName"
       "user.lastName", "Basic", "user.lastName"
 
