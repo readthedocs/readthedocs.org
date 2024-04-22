@@ -31,8 +31,8 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         response = response.json()
         self.assertEqual(len(response["results"]), 2)
-        self.assertEqual(response["results"][0]["slug"], "v1.0")
-        self.assertEqual(response["results"][1]["slug"], "latest")
+        self.assertEqual(response["results"][0]["slug"], "latest")
+        self.assertEqual(response["results"][1]["slug"], "v1.0")
 
     def test_others_projects_versions_list(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
