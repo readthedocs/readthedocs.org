@@ -116,7 +116,7 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
             projects = AdminPermission.projects(user=self.request.user, admin=True)
             n_projects = projects.count()
-            if n_projects < 3 and (timezone.now() - projects.first().pub_date) < 7:
+            if n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7:
                 template_name = "example-projects.html"
             elif (
                 n_projects
@@ -131,7 +131,7 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             else:
                 context["promotion"] = "security-logs.html"
 
-        context["promotion"] = f"projects/partials/dashboard/{template_name}"
+            context["promotion"] = f"projects/partials/dashboard/{template_name}"
 
         return context
 
