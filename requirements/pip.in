@@ -7,12 +7,17 @@ django-extensions
 django-polymorphic
 django-autoslug
 
+# NOTE: we cannot use ``psycopg`` (3.x), even if it's supported by Django 4.2
+# because New Relic agent is not sending the data of the database to their servers.
+psycopg2
+
 # 3.1.0 includes changes that require running `makemigrations`
 # https://django-simple-history.readthedocs.io/en/latest/#changes
 django-simple-history==3.0.0
 
 djangorestframework
 djangorestframework-api-key
+rest-framework-generic-relations
 
 # Embed v1 still uses docutils.
 # Remove this dependency once we deprecate this API.
@@ -30,6 +35,8 @@ django-vanilla-views
 # JSONField. We should probably squash these migrations and remove this
 # dependency as well.
 jsonfield
+
+django-safemigrate
 
 requests
 requests-toolbelt
@@ -67,6 +74,7 @@ redis
 # TypeError: MyException.__init__() missing 1 required positional argument: 'b'
 # >>>
 celery==5.2.7
+django-celery-beat
 
 # Docker images need a dependency explicity marked for tzdata in order to have
 # necessary timezone data.
@@ -74,19 +82,17 @@ celery==5.2.7
 # TODO: remove this dependency once we upgrade Celery. It should auto-install it.
 tzdata
 
-# 0.52.0 requires creating a new email template:
-#  templates/account/email/acccount_already_exists_message.html
-# See https://github.com/readthedocs/readthedocs.org/pull/9853#discussion_r1060496492
-django-allauth==0.51.0
+# 0.58.0 refactored the built-in templates,
+# we need to check if we need to update our custom templates.
+django-allauth==0.57.2
 
 requests-oauthlib
 
-GitPython
-
 # Search
-elasticsearch<8.0
-elasticsearch-dsl<8.0
-django-elasticsearch-dsl<8.0
+elasticsearch~=8.0
+elasticsearch-dsl~=8.0
+django-elasticsearch-dsl~=8.0
+
 selectolax
 
 # embed
@@ -133,7 +139,6 @@ django-crispy-forms<2
 docker==6.1.2
 
 django-annoying
-django-messages-extends
 djangorestframework-jsonp
 django-taggit
 dj-pagination
@@ -158,11 +163,20 @@ django-csp
 
 # Upgrading to 3.x requires some extra work
 # https://django-structlog.readthedocs.io/en/latest/upgrade_guide.html#upgrading-to-3-0
+# NOTE: that django-structlog is in version 6.x now,
+# so we should probably consider migrating to avoid incompatibility issues.
 django-structlog==2.2.0
+# Pining due to a Sentry error we started getting
+# https://read-the-docs.sentry.io/issues/4678167578/events/2d9d348729874d67b120b153908ca54c/
+django-ipware<6.0.0
 
-structlog
+# https://github.com/readthedocs/readthedocs.org/issues/10990
+structlog==23.2.0
 dparse
 
 gunicorn
 
 django-cacheops
+
+# Used by Addons for sorting patterns
+bumpver

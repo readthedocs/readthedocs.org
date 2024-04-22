@@ -1,3 +1,5 @@
+.. TODO: Update the images to the new flyout design, and update to include Addons
+
 Flyout menu
 ===========
 
@@ -35,6 +37,15 @@ Open
 
 Information for theme authors
 -----------------------------
+
+.. warning::
+
+   *This is currently deprecated* in favor of the new Read the Docs Addons approach.
+   We are working on an idea that exposes all the required data to build the flyout menu via a JavaScript ``CustomEvent``.
+   Take a look at an example of this approach at https://github.com/readthedocs/sphinx_rtd_theme/pull/1526.
+
+   We are looking for feedback on this approach before making it public.
+   Please, comment on that PR or the linked issue from its description letting us know if it would cover your use case.
 
 People who are making custom documentation themes often want to specify where the flyout is injected,
 and also what it looks like.

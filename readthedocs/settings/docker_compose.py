@@ -8,14 +8,13 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     """Settings for local development with Docker"""
 
-    DEBUG = bool(os.environ.get("RTD_DJANGO_DEBUG", True))
+    DEBUG = bool(os.environ.get("RTD_DJANGO_DEBUG", False))
 
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
     RTD_DOCKER_COMPOSE_VOLUME = "community_build-user-builds"
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     DOCKER_LIMITS = {"memory": "1g", "time": 900}
-    USE_SUBDOMAIN = True
 
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
@@ -24,6 +23,14 @@ class DockerBaseSettings(CommunityBaseSettings):
     SLUMBER_API_HOST = "http://web:8000"
 
     RTD_EXTERNAL_VERSION_DOMAIN = "build.devthedocs.org"
+
+    # When using ngrok + HTTPS, forms are blocked because the schema from the final URL
+    # doesn't match the one from the origin header.
+    # Previously only the host was checked, this was changed in 4.0:
+    # https://docs.djangoproject.com/en/4.2/releases/4.0/#csrf
+    #
+    # Reference: https://docs.djangoproject.com/en/4.2/ref/settings/#secure-proxy-ssl-header
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
     STATIC_URL = "/static/"
 
@@ -76,10 +83,10 @@ class DockerBaseSettings(CommunityBaseSettings):
         domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
         domains.extend(
             [
-                r".*\.readthedocs\.io",
-                r".*\.org\.readthedocs\.build",
-                r".*\.readthedocs-hosted\.com",
-                r".*\.com\.readthedocs\.build",
+                r"^.*\.readthedocs\.io$",
+                r"^.*\.org\.readthedocs\.build$",
+                r"^.*\.readthedocs-hosted\.com$",
+                r"^.*\.com\.readthedocs\.build$",
             ]
         )
         return domains
@@ -189,12 +196,34 @@ class DockerBaseSettings(CommunityBaseSettings):
     S3_STATIC_STORAGE_BUCKET = "static"
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
     S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
+    S3_PROVIDER = "minio"
 
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False
     AWS_S3_USE_SSL = False
     AWS_S3_ENDPOINT_URL = "http://storage:9000/"
     AWS_QUERYSTRING_AUTH = False
+
+    STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET", "sk_test_x")
+    STRIPE_PUBLISHABLE = os.environ.get("RTD_STRIPE_PUBLISHABLE")
+    STRIPE_TEST_SECRET_KEY = STRIPE_SECRET
+    DJSTRIPE_WEBHOOK_SECRET = os.environ.get("RTD_DJSTRIPE_WEBHOOK_SECRET")
+
+    @property
+    def SOCIALACCOUNT_PROVIDERS(self):
+        """Allow settings social account settigs from the host system."""
+        providers = self._SOCIALACCOUNT_PROVIDERS
+        for provider in providers.keys():
+            try:
+                for setting in ["client_id", "secret"]:
+                    value = os.environ.get(
+                        f"RTD_SOCIALACCOUNT_PROVIDERS_{provider.upper()}_{setting.upper()}"
+                    )
+                    if value is not None:
+                        providers[provider]['APPS'][0][setting] = value
+            except KeyError:
+                pass
+        return providers
 
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"
@@ -208,9 +237,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Remove the checks on the number of fields being submitted
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
-
-    # This allows us to have CORS work well in dev
-    CORS_ORIGIN_ALLOW_ALL = True
+    SUPPORT_EMAIL = "support@example.com"
 
 
 DockerBaseSettings.load_settings(__name__)

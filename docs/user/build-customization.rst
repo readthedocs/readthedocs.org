@@ -88,7 +88,8 @@ we recommend you use them as a starting point.
 Unshallow git clone
 ^^^^^^^^^^^^^^^^^^^
 
-Read the Docs does not perform a full clone on ``checkout`` job to reduce network data and speed up the build process.
+Read the Docs does not perform a full clone in the ``checkout`` job in order to reduce network data and speed up the build process.
+Instead, it performs a `shallow clone <https://git-scm.com/docs/shallow>`_ and only fetches the branch or tag that you are building documentation for.
 Because of this, extensions that depend on the full Git history will fail.
 To avoid this, it's possible to unshallow the :program:`git clone`:
 
@@ -103,6 +104,22 @@ To avoid this, it's possible to unshallow the :program:`git clone`:
      jobs:
        post_checkout:
          - git fetch --unshallow || true
+
+If your build also relies on the contents of other branches, it may also be necessary to re-configure git to fetch these:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-20.04"
+     tools:
+       python: "3.10"
+     jobs:
+       post_checkout:
+         - git fetch --unshallow || true
+         - git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' || true
+         - git fetch --all --tags || true
 
 
 Cancel build based on a condition
@@ -136,7 +153,7 @@ Here is an example that cancels builds from pull requests when there are no chan
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.11"
+       python: "3.12"
      jobs:
        post_checkout:
          # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
@@ -161,7 +178,7 @@ This other example shows how to cancel a build if the commit message contains ``
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.11"
+       python: "3.12"
      jobs:
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",
@@ -328,12 +345,43 @@ Take a look at the following example:
          # Install poetry
          # https://python-poetry.org/docs/#installing-manually
          - pip install poetry
-         # Tell poetry to not use a virtual environment
-         - poetry config virtualenvs.create false
        post_install:
          # Install dependencies with 'docs' dependency group
          # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
-         - poetry install --with docs
+         # VIRTUAL_ENV needs to be set manually for now.
+         # See https://github.com/readthedocs/readthedocs.org/pull/11152/
+         - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
+
+   sphinx:
+     configuration: docs/conf.py
+
+
+Install dependencies with ``uv``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Projects managed with `uv <https://github.com/astral-sh/uv/>`__,
+can use the ``post_create_environment`` user-defined job to use ``uv`` for installing Python dependencies.
+Take a look at the following example:
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.10"
+     jobs:
+       post_create_environment:
+         # Install uv
+         - pip install uv
+       post_install:
+         # Install dependencies with 'docs' dependency group
+         # VIRTUAL_ENV needs to be set manually for now.
+         # See https://github.com/readthedocs/readthedocs.org/pull/11152/
+         - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH uv pip install .[docs]
 
    sphinx:
      configuration: docs/conf.py
@@ -373,9 +421,8 @@ Override the build process
 .. warning::
 
    This feature is in *beta* and could change without warning.
-   It does not yet support some of the Read the Docs' features like the :term:`flyout menu`.
-   We do our best to not break existing configurations,
-   but use this feature at your own risk.
+   We are currently testing :ref:`the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`
+   on projects using ``build.commands`` configuration key.
 
 If your project requires full control of the build process,
 and :ref:`extending the build process <build-customization:extend the build process>` is not enough,
@@ -464,3 +511,22 @@ These projects can be built using a configuration file like this:
      commands:
        - mkdir --parents $READTHEDOCS_OUTPUT/html/
        - cp --recursive docs/* $READTHEDOCS_OUTPUT/html/
+
+Asciidoc
+^^^^^^^^
+
+`Asciidoctor <https://asciidoctor.org/>`__ is a fast processor for converting and generating documentation from AsciiDoc source.
+The Asciidoctor toolchain includes `Asciidoctor.js <https://docs.asciidoctor.org/asciidoctor.js/latest/>`__ which you can use with custom build commands.
+Here is an example configuration file:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       nodejs: "20"
+     commands:
+       - npm install -g asciidoctor
+       - asciidoctor -D $READTHEDOCS_OUTPUT/html index.asciidoc

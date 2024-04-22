@@ -1,7 +1,10 @@
 # Packages required to build docs, independent of application dependencies
 
 sphinx
-sphinx_rtd_theme
+
+matplotlib  # opengraph social cards
+
+sphinx_rtd_theme==2.0.0rc2
 sphinx-tabs
 sphinx-intl
 sphinx-design

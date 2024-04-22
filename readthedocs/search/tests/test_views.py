@@ -260,11 +260,11 @@ class TestPageSearch:
         # There are two results,
         # one from each version of the "kuma" project.
         assert len(results) == 2
-        assert results[0]["version"] == {"slug": "stable"}
-        assert results[1]["version"] == {"slug": "latest"}
+        assert results[0]["version"] == {"slug": "latest"}
+        assert results[1]["version"] == {"slug": "stable"}
         for result in results:
             assert result["project"] == {"alias": None, "slug": "kuma"}
-            assert result["domain"] == "http://readthedocs.org"
+            assert result["domain"] == "http://kuma.readthedocs.io"
             assert result["path"].endswith("/documentation.html")
 
         blocks = results[0]["blocks"]
@@ -306,9 +306,6 @@ class TestPageSearch:
         reason="Versions are not showing correctly! Fixme while rewrite!"
     )
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
-        # override the settings to index all versions
-        settings.INDEX_ONLY_LATEST = False
-
         project = all_projects[0]
         # Create some versions of the project
         versions = [get(Version, project=project) for _ in range(3)]

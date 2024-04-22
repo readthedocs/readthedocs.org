@@ -5,7 +5,7 @@ from django.core.cache import cache
 from django.urls import reverse
 from packaging.version import Version
 
-from .utils import srcdir
+from .utils import get_anchor_link_title, srcdir
 
 
 @pytest.mark.django_db
@@ -13,9 +13,8 @@ from .utils import srcdir
 class TestEmbedAPIv3ExternalPages:
     @pytest.fixture(autouse=True)
     def setup_method(self, settings):
-        settings.USE_SUBDOMAIN = True
         settings.PUBLIC_DOMAIN = "readthedocs.io"
-        settings.RTD_EMBED_API_EXTERNAL_DOMAINS = ["docs.project.com"]
+        settings.RTD_EMBED_API_EXTERNAL_DOMAINS = [r"^docs\.project\.com$"]
 
         self.api_url = reverse("embed_api_v3")
 
@@ -36,11 +35,7 @@ class TestEmbedAPIv3ExternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
-        # https://github.com/sphinx-doc/sphinx/commit/bc635627d32b52e8e1381f23cddecf26429db1ae
-        if sphinx.version_info < (5, 0, 0):
-            title = "Permalink to this headline"
-        else:
-            title = "Permalink to this heading"
+        title = get_anchor_link_title("heading")
 
         # The output is different because docutils is outputting this,
         # and we're not sanitizing it, but just passing it through.
@@ -70,11 +65,7 @@ class TestEmbedAPIv3ExternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
-        # https://github.com/sphinx-doc/sphinx/commit/bc635627d32b52e8e1381f23cddecf26429db1ae
-        if sphinx.version_info < (5, 0, 0):
-            title = "Permalink to this headline"
-        else:
-            title = "Permalink to this heading"
+        title = get_anchor_link_title("heading")
 
         if Version(docutils.__version__) >= Version("0.17"):
             content = f'<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>'
@@ -102,12 +93,14 @@ class TestEmbedAPIv3ExternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
+        title = get_anchor_link_title("definition")
+
         if sphinx.version_info < (3, 5, 0):
-            content = '<dt id="confval-config1">\n<code class="sig-name descname">config1</code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+            content = f'<dt id="confval-config1">\n<code class="sig-name descname">config1</code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>'
         elif sphinx.version_info[:2] == (3, 5):
-            content = '<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+            content = f'<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>'
         else:
-            content = '<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+            content = f'<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>'
 
         assert response.json() == {
             "url": "https://docs.project.com/configuration.html#confval-config1",
@@ -131,12 +124,14 @@ class TestEmbedAPIv3ExternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
+        title = get_anchor_link_title("definition")
+
         if sphinx.version_info < (3, 5, 0):
-            content = '<dt id="confval-config1">\n<code class="sig-name descname">config1</code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+            content = f'<dt id="confval-config1">\n<code class="sig-name descname">config1</code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>'
         elif sphinx.version_info[:2] == (3, 5):
-            content = '<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+            content = f'<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>'
         else:
-            content = '<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+            content = f'<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>'
 
         assert response.json() == {
             "url": "https://docs.project.com/configuration.html#confval-config1",
@@ -154,13 +149,13 @@ class TestEmbedAPIv3ExternalPages:
         assert response.status_code == 200
 
         if sphinx.version_info < (3, 0, 0):  # <3.0
-            content = '<dl class="confval">\n<dt id="confval-config1">\n<code class="sig-name descname">config1</code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
+            content = f'<dl class="confval">\n<dt id="confval-config1">\n<code class="sig-name descname">config1</code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
         elif sphinx.version_info[:2] == (3, 5):
-            content = '<dl class="std confval">\n<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
+            content = f'<dl class="std confval">\n<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
         elif sphinx.version_info < (4, 0, 0):  # >3.0,=!3.5.x,<4.0
-            content = '<dl class="std confval">\n<dt id="confval-config1">\n<code class="sig-name descname">config1</code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
+            content = f'<dl class="std confval">\n<dt id="confval-config1">\n<code class="sig-name descname">config1</code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
         else:  # >=4.0
-            content = '<dl class="std confval">\n<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
+            content = f'<dl class="std confval">\n<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="{title}">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
 
         assert response.json() == {
             "url": "https://docs.project.com/configuration.html#confval-config1",
@@ -232,8 +227,10 @@ class TestEmbedAPIv3ExternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
+        title = get_anchor_link_title("term")
+
         if sphinx.version_info >= (3, 5, 0):
-            content = f'<dt id="{fragment}">Read the Docs<a class="headerlink" href="https://docs.project.com/glossary.html#{fragment}" title="Permalink to this term">¶</a></dt>'
+            content = f'<dt id="{fragment}">Read the Docs<a class="headerlink" href="https://docs.project.com/glossary.html#{fragment}" title="{title}">¶</a></dt>'
         else:
             content = f'<dt id="{fragment}">Read the Docs</dt>'
 
@@ -258,7 +255,7 @@ class TestEmbedAPIv3ExternalPages:
             classes = "glossary simple"
 
         if sphinx.version_info >= (3, 5, 0):
-            content = f'<dl class="{classes}">\n\n<dt id="{fragment}">Read the Docs<a class="headerlink" href="https://docs.project.com/glossary.html#{fragment}" title="Permalink to this term">¶</a></dt><dd><p>Best company ever.</p>\n</dd>\n</dl>'
+            content = f'<dl class="{classes}">\n\n<dt id="{fragment}">Read the Docs<a class="headerlink" href="https://docs.project.com/glossary.html#{fragment}" title="{title}">¶</a></dt><dd><p>Best company ever.</p>\n</dd>\n</dl>'
         else:
             content = f'<dl class="{classes}">\n\n<dt id="{fragment}">Read the Docs</dt><dd><p>Best company ever.</p>\n</dd>\n</dl>'
 
@@ -302,11 +299,7 @@ class TestEmbedAPIv3ExternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
-        # https://github.com/sphinx-doc/sphinx/commit/bc635627d32b52e8e1381f23cddecf26429db1ae
-        if sphinx.version_info < (5, 0, 0):
-            title = "Permalink to this headline"
-        else:
-            title = "Permalink to this heading"
+        title = get_anchor_link_title("heading")
 
         # Note the difference between `<section>` and `<div class="section">`
         if Version(docutils.__version__) >= Version("0.17"):

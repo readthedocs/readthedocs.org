@@ -11,9 +11,13 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.messages import registry
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
@@ -26,8 +30,9 @@ from readthedocs.projects.models import (
     Project,
     ProjectRelationship,
 )
-from readthedocs.redirects.models import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
+from readthedocs.redirects.validators import validate_redirect
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -58,10 +63,19 @@ class BuildCreateSerializer(serializers.ModelSerializer):
         fields = []
 
 
+class NotificationLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = obj.get_absolute_url()
+        return self._absolute_url(path)
+
+
 class BuildLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
     project = serializers.SerializerMethodField()
+    notifications = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse(
@@ -90,6 +104,16 @@ class BuildLinksSerializer(BaseLinksSerializer):
             "projects-detail",
             kwargs={
                 "project_slug": obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_notifications(self, obj):
+        path = reverse(
+            "projects-builds-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": obj.project.slug,
+                "parent_lookup_build__id": obj.pk,
             },
         )
         return self._absolute_url(path)
@@ -188,6 +212,62 @@ class BuildSerializer(FlexFieldsModelSerializer):
         return None
 
 
+class NotificationMessageSerializer(serializers.Serializer):
+    id = serializers.SlugField()
+    header = serializers.CharField(source="get_rendered_header")
+    body = serializers.CharField(source="get_rendered_body")
+    type = serializers.CharField()
+    icon_classes = serializers.CharField(source="get_display_icon_classes")
+
+    class Meta:
+        fields = [
+            "id",
+            "header",
+            "body",
+            "type",
+            "icon_classes",
+        ]
+
+
+class NotificationCreateSerializer(serializers.ModelSerializer):
+    message_id = serializers.ChoiceField(
+        choices=sorted([(key, key) for key in registry.messages])
+    )
+
+    class Meta:
+        model = Notification
+        fields = [
+            "message_id",
+            "dismissable",
+            "news",
+            "state",
+        ]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    message = NotificationMessageSerializer(source="get_message", read_only=True)
+    attached_to_content_type = serializers.SerializerMethodField()
+    _links = NotificationLinksSerializer(source="*", read_only=True)
+    attached_to_id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = [
+            "id",
+            "state",
+            "dismissable",
+            "news",
+            "attached_to_content_type",
+            "attached_to_id",
+            "message",
+            "_links",
+        ]
+        read_only_fields = ["dismissable", "news"]
+
+    def get_attached_to_content_type(self, obj):
+        return obj.attached_to_content_type.name
+
+
 class VersionLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
@@ -243,12 +323,15 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     dashboard = VersionDashboardURLsSerializer(source="*")
 
     def get_documentation(self, obj):
-        return obj.project.get_docs_url(
-            version_slug=obj.slug,
+        resolver = getattr(self.parent, "resolver", Resolver())
+        return resolver.resolve_version(
+            project=obj.project,
+            version=obj,
         )
 
 
 class VersionSerializer(FlexFieldsModelSerializer):
+    aliases = serializers.SerializerMethodField()
     ref = serializers.CharField()
     downloads = serializers.SerializerMethodField()
     urls = VersionURLsSerializer(source="*")
@@ -257,6 +340,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Version
         fields = [
+            "aliases",
             "id",
             "slug",
             "verbose_name",
@@ -274,6 +358,17 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
         expandable_fields = {"last_build": (BuildSerializer,)}
 
+    def __init__(self, *args, resolver=None, version_serializer=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Use a shared resolver to reduce the amount of DB queries while
+        # resolving version URLs.
+        self.resolver = kwargs.pop("resolver", Resolver())
+
+        # Allow passing a specific serializer when initializing it.
+        # This is required to pass ``VersionSerializerNoLinks`` from the addons API.
+        self.version_serializer = version_serializer or VersionSerializer
+
     def get_downloads(self, obj):
         downloads = obj.get_downloads()
         data = {}
@@ -287,6 +382,16 @@ class VersionSerializer(FlexFieldsModelSerializer):
                 data[k] = ("http:" if settings.DEBUG else "https:") + v
 
         return data
+
+    def get_aliases(self, obj):
+        if obj.machine and obj.slug in (STABLE, LATEST):
+            if obj.slug == STABLE:
+                alias_version = obj.project.get_original_stable_version()
+            if obj.slug == LATEST:
+                alias_version = obj.project.get_original_latest_version()
+            if alias_version and alias_version.active:
+                return [self.version_serializer(alias_version).data]
+        return []
 
 
 class VersionUpdateSerializer(serializers.ModelSerializer):
@@ -346,10 +451,12 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     """Serializer with all the user-facing URLs under Read the Docs."""
 
-    documentation = serializers.CharField(source="get_docs_url")
+    documentation = serializers.SerializerMethodField()
+
     home = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
     versions = serializers.SerializerMethodField()
+    downloads = serializers.SerializerMethodField()
 
     def get_home(self, obj):
         path = reverse("projects_detail", kwargs={"project_slug": obj.slug})
@@ -362,6 +469,15 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     def get_versions(self, obj):
         path = reverse("project_version_list", kwargs={"project_slug": obj.slug})
         return self._absolute_url(path)
+
+    def get_downloads(self, obj):
+        path = reverse("project_downloads", kwargs={"project_slug": obj.slug})
+        return self._absolute_url(path)
+
+    def get_documentation(self, obj):
+        version_slug = getattr(self.parent, "version_slug", None)
+        resolver = getattr(self.parent, "resolver", Resolver())
+        return obj.get_docs_url(version_slug=version_slug, resolver=resolver)
 
 
 class RepositorySerializer(serializers.Serializer):
@@ -382,6 +498,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     subprojects = serializers.SerializerMethodField()
     superproject = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
+    notifications = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse("projects-detail", kwargs={"project_slug": obj.slug})
@@ -446,6 +563,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
             "projects-translations-list",
             kwargs={
                 "parent_lookup_main_language_project__slug": obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_notifications(self, obj):
+        path = reverse(
+            "projects-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": obj.slug,
             },
         )
         return self._absolute_url(path)
@@ -568,7 +694,7 @@ class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             "analytics_code",
             "analytics_disabled",
             "show_version_warning",
-            "single_version",
+            "versioning_scheme",
             "external_builds_enabled",
             "privacy_level",
             "external_builds_privacy_level",
@@ -610,6 +736,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     default_branch = serializers.CharField(source="get_default_branch")
     tags = serializers.StringRelatedField(many=True)
     users = UserSerializer(many=True)
+    single_version = serializers.BooleanField(source="is_single_version")
 
     _links = ProjectLinksSerializer(source="*")
 
@@ -638,6 +765,10 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             "tags",
             "privacy_level",
             "external_builds_privacy_level",
+            "versioning_scheme",
+            # Kept for backwards compatibility,
+            # versioning_scheme should be used instead.
+            "single_version",
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
             # 'active_versions',
@@ -670,6 +801,13 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         }
 
     def __init__(self, *args, **kwargs):
+        # Receive a `Version.slug` here to build URLs properly
+        self.version_slug = kwargs.pop("version_slug", None)
+
+        # Use a shared resolver to reduce the amount of DB queries while
+        # resolving version URLs.
+        self.resolver = kwargs.pop("resolver", Resolver())
+
         super().__init__(*args, **kwargs)
         # When using organizations, projects don't have the concept of users.
         # But we have organization.owners.
@@ -844,8 +982,69 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "type",
             "from_url",
             "to_url",
+            "force",
+            "enabled",
+            "description",
+            "http_status",
+            "position",
             "_links",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Allow using the old redirect types, so we can raise the proper error in ``validate_type`.
+        self._removed_redirects = [
+            ("prefix", "Removed, use an `exact` redirect instead."),
+            ("sphinx_html", "Renamed, use `clean_url_to_html` instead."),
+            ("sphinx_htmldir", "Renamed, use `html_to_clean_url` instead."),
+        ]
+        self.fields["type"].choices = (
+            list(REDIRECT_TYPE_CHOICES) + self._removed_redirects
+        )
+
+    def validate_type(self, value):
+        blog_link = "https://blog.readthedocs.com/new-improvements-to-redirects/"
+        if value == "prefix":
+            raise serializers.ValidationError(
+                _(
+                    f"Prefix redirects have been removed. Please use an exact redirect `/prefix/*` instead. See {blog_link}."
+                )
+            )
+        if value == "sphinx_html":
+            raise serializers.ValidationError(
+                _(
+                    f"sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
+                )
+            )
+        if value == "sphinx_htmldir":
+            raise serializers.ValidationError(
+                _(
+                    f"sphinx_htmldir redirect has been renamed to html_to_clean_url. See {blog_link}."
+                )
+            )
+        return value
+
+    def create(self, validated_data):
+        validate_redirect(
+            project=validated_data["project"],
+            pk=None,
+            redirect_type=validated_data["redirect_type"],
+            from_url=validated_data.get("from_url", ""),
+            to_url=validated_data.get("to_url", ""),
+            error_class=serializers.ValidationError,
+        )
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validate_redirect(
+            project=instance.project,
+            pk=instance.pk,
+            redirect_type=validated_data["redirect_type"],
+            from_url=validated_data.get("from_url", ""),
+            to_url=validated_data.get("to_url", ""),
+            error_class=serializers.ValidationError,
+        )
+        return super().update(instance, validated_data)
 
 
 class RedirectCreateSerializer(RedirectSerializerBase):
@@ -914,6 +1113,7 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
 class OrganizationLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     projects = serializers.SerializerMethodField()
+    notifications = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse(
@@ -929,6 +1129,15 @@ class OrganizationLinksSerializer(BaseLinksSerializer):
             "organizations-projects-list",
             kwargs={
                 "parent_lookup_organizations__slug": obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_notifications(self, obj):
+        path = reverse(
+            "organizations-notifications-list",
+            kwargs={
+                "parent_lookup_organization__slug": obj.slug,
             },
         )
         return self._absolute_url(path)

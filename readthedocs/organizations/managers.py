@@ -63,7 +63,9 @@ class TeamMemberManager(models.Manager):
         members (invites) last.
         """
         return (
-            self.get_queryset().annotate(
-                null_member=models.Count('member'),
-            ).order_by('-null_member', 'member')
+            self.get_queryset()
+            .annotate(
+                null_member=models.Count("member"),
+            )
+            .order_by("-null_member", "member")
         )

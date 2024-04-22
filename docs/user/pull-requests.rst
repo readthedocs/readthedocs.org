@@ -1,5 +1,5 @@
-Preview documentation from pull requests
-========================================
+Pull request previews
+=====================
 
 Your project can be configured to build and host documentation for every new
 pull request. Previewing changes during review makes it
@@ -34,3 +34,30 @@ Warning banner
 
     :doc:`/guides/pull-requests`
         A guide to configuring pull request builds on Read the Docs.
+
+Security
+--------
+
+If pull request previews are enabled for your project,
+anyone who can open a pull request on your repository will be able to trigger a build of your documentation.
+For this reason, pull request previews are served from a different domain than your main documentation
+(``org.readthedocs.build`` and ``com.readthedocs.build``).
+
+Builds from pull requests have access to environment variables that are marked as *Public* only,
+if you have environment variables with private information, make sure they aren't marked as *Public*.
+See :ref:`environment-variables:Environment variables and build process` for more information.
+
+On |com_brand| you can set pull request previews to be private or public,
+If you didn’t import your project manually and your repository is public,
+the privacy level of pull request previews will be set to *Public*.
+Public pull request previews are available to anyone with the link to the preview,
+while private previews are only available to users with access to the Read the Docs project.
+
+.. warning::
+
+   If you set the privacy level of pull request previews to *Private*,
+   make sure that only trusted users can open pull requests in your repository.
+
+   Setting pull request previews to private on a public repository can allow a malicious user
+   to access read-only APIs using the user's session that is reading the pull request preview.
+   Similar to `GHSA-pw32-ffxw-68rh <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-pw32-ffxw-68rh>`__.

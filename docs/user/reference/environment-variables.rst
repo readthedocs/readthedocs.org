@@ -1,5 +1,5 @@
-Environment variables
-=====================
+Environment variable reference
+==============================
 
 All :doc:`build processes </builds>` have the following environment variables automatically defined and available for each build step:
 

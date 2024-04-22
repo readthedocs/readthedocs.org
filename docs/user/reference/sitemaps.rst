@@ -34,8 +34,14 @@ sorted by `semantic versioning`_.
 Custom ``sitemap.xml``
 ----------------------
 
-If you need a custom sitemap,
-please let us know by contacting :doc:`/support`.
+You can control the sitemap that is used via the ``robots.txt`` file.
+Our :doc:`/reference/robots` allows you to host a custom version of this file.
+
+An example would look like::
+
+  User-agent: *
+  Allow: /
+
+  Sitemap: https://docs.example.com/en/stable/sitemap.xml
 
 .. _semantic versioning: https://semver.org/
-.. _GitHub issue #5391: https://github.com/readthedocs/readthedocs.org/issues/5391

@@ -15,11 +15,10 @@ Read the Docs supports two tools to build your documentation:
 In order to provide :doc:`several features </reference/features>`,
 Read the Docs injects or modifies some content while building your docs.
 
-In particular, if you don't specify the dependencies of your project,
-we install some of them on your behalf.
-In the past we used to pin these dependencies to a specific version and update them after some time,
+In the past we used to install several dependencies to a specific version and update them after some time,
 but doing so would break some builds and make it more difficult for new projects to use new versions.
-For this reason, we are now installing their latest version by default.
+For this reason, we are now installing just the minimal required dependencies using their latest version by default.
+You can see the full list of historical dependencies and advice for migrating in our `blog post <https://blog.readthedocs.com/defaulting-latest-build-tools/>`__ announcing this change.
 
 .. note::
 
@@ -36,46 +35,16 @@ Python
 These are the dependencies that are installed by default when using a Python environment:
 
 Sphinx:
-  Projects created before Oct 20, 2020 use ``1.8.x``.
-  New projects use the latest version.
+  Latest version by default.
 
 Mkdocs:
-  Projects created before April 3, 2019 (April 23, 2019 for :doc:`/commercial/index`) use ``0.17.3``.
-  New projects use the latest version.
-
-sphinx-rtd-theme:
-  Projects created before October 20, 2020 (January 21, 2021 for :doc:`/commercial/index`) use ``0.4.3``.
-  New projects use the latest version.
-  Projects created after August 7, 2023 won't install this dependency by default.
+  Latest version by default.
 
 pip:
   Latest version by default.
 
 setuptools:
-  Projects using ``setup.py install`` as installation method use ``58.2.0`` or older.
-  All other projects use the latest version.
-  Projects created after August 7, 2023 will always use the latest version.
-
-mock:
-  ``1.0.1``.
-  Projects created after August 7, 2023 won't install this dependency by default.
-
-
-pillow:
-  ``5.4.1`` when using Python 2.7, 3.4, 3.5, 3.6, 3.7. Otherwise, its latest version.
-  Projects created after August 7, 2023 won't install this dependency by default.
-
-alabaster:
-  ``0.7.x``.
-  Projects created after August 7, 2023 won't install this dependency by default.
-
-commonmark:
-  ``0.8.1``.
-  Projects created after August 7, 2023 won't install this dependency by default.
-
-recommonmark:
-  ``0.5.0``.
-  Projects created after August 7, 2023 won't install this dependency by default.
+  Latest version by default.
 
 Conda
 ~~~~~

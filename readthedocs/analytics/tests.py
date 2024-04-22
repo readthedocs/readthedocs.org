@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
@@ -99,7 +100,9 @@ class UtilsTests(TestCase):
 
 
 @pytest.mark.proxito
-@override_settings(PUBLIC_DOMAIN="readthedocs.io")
+@override_settings(
+    PUBLIC_DOMAIN="readthedocs.io", RTD_EXTERNAL_VERSION_DOMAIN="readthedocs.build"
+)
 class AnalyticsPageViewsTests(TestCase):
     def setUp(self):
         self.project = get(
@@ -190,3 +193,17 @@ class AnalyticsPageViewsTests(TestCase):
             assert (
                 PageView.objects.all().order_by("-date").first().view_count == 1
             ), f"'{self.absolute_uri}' has 1 view tomorrow"
+
+    def test_dont_track_external_domains(self):
+        self.assertEqual(PageView.objects.all().count(), 0)
+        get(
+            Version,
+            slug="123",
+            type=EXTERNAL,
+            built=True,
+            active=True,
+        )
+        host = f"{self.project.slug}--123.readthedocs.build"
+        r = self.client.get(self.url, headers={"host": host})
+        self.assertEqual(r.status_code, 204)
+        self.assertEqual(PageView.objects.all().count(), 0)

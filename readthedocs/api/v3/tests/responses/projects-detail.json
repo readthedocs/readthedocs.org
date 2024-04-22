@@ -2,6 +2,7 @@
     "active_versions": [
         {
             "active": true,
+            "aliases": [],
             "hidden": false,
             "built": true,
             "downloads": {
@@ -23,6 +24,7 @@
                 "id": 1,
                 "_links": {
                     "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/",
+                    "notifications": "https://readthedocs.org/api/v3/projects/project/builds/1/notifications/",
                     "project": "https://readthedocs.org/api/v3/projects/project/",
                     "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
                 },
@@ -70,6 +72,7 @@
         "_self": "https://readthedocs.org/api/v3/projects/project/",
         "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
         "environmentvariables": "https://readthedocs.org/api/v3/projects/project/environmentvariables/",
+        "notifications": "https://readthedocs.org/api/v3/projects/project/notifications/",
         "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
         "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
         "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
@@ -98,6 +101,7 @@
     "urls": {
         "builds": "https://readthedocs.org/projects/project/builds/",
         "documentation": "http://project.readthedocs.io/en/latest/",
+        "downloads": "https://readthedocs.org/projects/project/downloads/",
         "home": "https://readthedocs.org/projects/project/",
         "versions": "https://readthedocs.org/projects/project/versions/"
     },
@@ -107,5 +111,7 @@
         }
     ],
     "privacy_level": "public",
-    "external_builds_privacy_level": "public"
+    "external_builds_privacy_level": "public",
+    "single_version": false,
+    "versioning_scheme": "multiple_versions_with_translations"
 }

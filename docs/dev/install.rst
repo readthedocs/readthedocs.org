@@ -346,7 +346,7 @@ Docker for builds
 
 Serve documentation under a subdomain
     There are a number of resolution bugs and cross-domain behavior that can
-    only be caught by using `USE_SUBDOMAIN` setting.
+    only be caught by using a ``PUBLIC_DOMAIN`` setting different from the ``PRODUCTION_DOMAIN`` setting.
 
 PostgreSQL as a database
     It is recommended that Postgres be used as the default database whenever
@@ -367,9 +367,12 @@ MinIO as Django storage backend
     which is the one used in production.
 
 Serve documentation via El Proxito
-    Documentation is proxied by NGINX to El Proxito and proxied back to NGINX to be served finally.
     El Proxito is a small application put in front of the documentation to serve files
     from the Django Storage Backend.
+
+Use Cloudflare Wrangler
+    Documentation pages are proxied by NGINX to Wrangler, who executes a JavaScript worker
+    to fetch the response from El Proxito and injects HTML tags (for addons) based on HTTP headers.
 
 Search enabled by default
     Elasticsearch is properly configured and enabled by default.

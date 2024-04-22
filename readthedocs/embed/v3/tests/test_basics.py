@@ -9,9 +9,8 @@ from django.urls import reverse
 class TestEmbedAPIv3Basics:
     @pytest.fixture(autouse=True)
     def setup_method(self, settings):
-        settings.USE_SUBDOMAIN = True
         settings.PUBLIC_DOMAIN = "readthedocs.io"
-        settings.RTD_EMBED_API_EXTERNAL_DOMAINS = ["docs.project.com"]
+        settings.RTD_EMBED_API_EXTERNAL_DOMAINS = [r"^docs\.project\.com$"]
 
         self.api_url = reverse("embed_api_v3")
 

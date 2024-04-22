@@ -6,15 +6,20 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import re
-import sys
 from urllib.parse import urlparse
 
 import structlog
+from corsheaders.middleware import (
+    ACCESS_CONTROL_ALLOW_METHODS,
+    ACCESS_CONTROL_ALLOW_ORIGIN,
+)
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
+from django.http.response import BadHeaderError, ResponseHeaders
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.html import escape
 
 from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
@@ -26,7 +31,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -101,7 +106,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                         http_header=http_header.name,
                         domain=domain.domain,
                     )
-                log.info(
+                log.debug(
                     "Adding custom response HTTP header.",
                     http_header=http_header.name,
                     domain=domain.domain,
@@ -195,21 +200,17 @@ class ProxitoMiddleware(MiddlewareMixin):
     def process_request(self, request):  # noqa
         # Initialize our custom request attributes.
         request.unresolved_domain = None
+        request.unresolved_url = None
 
         skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
-        if (
-            skip
-            or not settings.USE_SUBDOMAIN
-            or "localhost" in request.get_host()
-            or "testserver" in request.get_host()
-        ):
+        if skip:
             log.debug("Not processing Proxito middleware")
             return None
 
         try:
             unresolved_domain = unresolver.unresolve_domain_from_request(request)
         except SuspiciousHostnameError as exc:
-            log.warning("Weird variation on our hostname.", domain=exc.domain)
+            log.debug("Weird variation on our hostname.", domain=exc.domain)
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
                 http_status=400,
@@ -264,41 +265,79 @@ class ProxitoMiddleware(MiddlewareMixin):
             project_slug=project.slug,
         )
 
-        # This is hacky because Django wants a module for the URLConf,
-        # instead of also accepting string
-        if project.urlconf and not project.has_feature(
-            Feature.USE_UNRESOLVER_WITH_PROXITO
-        ):
-            # Stop Django from caching URLs
-            # https://github.com/django/django/blob/7cf7d74/django/urls/resolvers.py#L65-L69  # noqa
-            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
-            url_key = f"readthedocs.urls.fake.{project.slug}.{project_timestamp}"
-
-            log.info(
-                "Setting URLConf",
-                project_slug=project.slug,
-                url_key=url_key,
-                urlconf=project.urlconf,
-            )
-            if url_key not in sys.modules:
-                sys.modules[url_key] = project.proxito_urlconf
-            request.urlconf = url_key
-
         return None
 
     def add_hosting_integrations_headers(self, request, response):
+        """
+        Add HTTP headers to communicate to Cloudflare Workers.
+
+        We have configured Cloudflare Workers to inject the addons and remove
+        the old flyout integration based on HTTP headers.
+        This method uses two different headers for these purposes:
+
+        - ``X-RTD-Hosting-Integrations``: inject ``readthedocs-addons.js`` to enable addons.
+          Enabled by default on projects using ``build.commands``.
+        - ``X-RTD-Force-Addons``: inject ``readthedocs-addons.js``
+          and remove old flyout integration (via ``readthedocs-doc-embed.js``).
+          Enabled only on projects that opted-in via the admin settings.
+
+        Note these headers will not be required anymore eventually
+        since all the project will be using the new addons once we fully roll them out.
+        """
         addons = False
         project_slug = getattr(request, "path_project_slug", "")
         version_slug = getattr(request, "path_version_slug", "")
 
-        if project_slug and version_slug:
-            addons = Version.objects.filter(
-                project__slug=project_slug,
-                slug=version_slug,
-                addons=True,
+        if project_slug:
+            force_addons = Project.objects.filter(
+                slug=project_slug,
+                addons__enabled=True,
             ).exists()
+            if force_addons:
+                response["X-RTD-Force-Addons"] = "true"
+                return
+
+            if version_slug:
+                addons = Version.objects.filter(
+                    project__slug=project_slug,
+                    slug=version_slug,
+                    addons=True,
+                ).exists()
+
             if addons:
                 response["X-RTD-Hosting-Integrations"] = "true"
+
+    def add_cors_headers(self, request, response):
+        """
+        Add CORS headers only to files from docs.
+
+        DocDiff addons requires making a request from
+        ``RTD_EXTERNAL_VERSION_DOMAIN`` to ``PUBLIC_DOMAIN`` to be able to
+        compare both DOMs and show the visual differences.
+
+        This request needs ``Access-Control-Allow-Origin`` HTTP headers to be
+        accepted by browsers. However, we cannot allow passing credentials,
+        since we don't want cross-origin requests to be able to access
+        private versions.
+
+        We set this header to `*`, we don't care about the origin of the request.
+        And we don't have the need nor want to allow passing credentials from
+        cross-origin requests.
+
+        See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin.
+        """
+        # TODO: se should add these headers to files from docs only,
+        # proxied APIs and other endpoints should not have CORS headers.
+        # These attributes aren't currently set for proxied APIs, but we shuold
+        # find a better way to do this.
+        project_slug = getattr(request, "path_project_slug", "")
+        version_slug = getattr(request, "path_version_slug", "")
+
+        if project_slug and version_slug:
+            response.headers[ACCESS_CONTROL_ALLOW_ORIGIN] = "*"
+            response.headers[ACCESS_CONTROL_ALLOW_METHODS] = "HEAD, OPTIONS, GET"
+
+        return response
 
     def _get_https_redirect(self, request):
         """
@@ -331,10 +370,33 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         return None
 
+    def add_resolver_headers(self, request, response):
+        if request.unresolved_url is not None:
+            # TODO: add more ``X-RTD-Resolver-*`` headers
+            header_value = escape(request.unresolved_url.filename)
+            try:
+                # Use Django internals to validate the header's value before injecting it.
+                ResponseHeaders({})._convert_to_charset(
+                    header_value,
+                    "latin-1",
+                    mime_encode=True,
+                )
+
+                response["X-RTD-Resolver-Filename"] = header_value
+            except BadHeaderError:
+                # Skip adding the header because it fails validation
+                log.info(
+                    "Skip adding X-RTD-Resolver-Filename header due to invalid value.",
+                    filename=request.unresolved_url.filename,
+                    value=header_value,
+                )
+
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
         self.add_cache_headers(request, response)
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         self.add_hosting_integrations_headers(request, response)
+        self.add_resolver_headers(request, response)
+        self.add_cors_headers(request, response)
         return response

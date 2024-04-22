@@ -1,34 +1,21 @@
-
 """Mercurial-related utilities."""
+from django.conf import settings
+
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from readthedocs.vcs_support.base import BaseVCS, Deprecated, VCSVersion
 
 
-class Backend(BaseVCS):
+class Backend(Deprecated, BaseVCS):
 
     """Mercurial VCS backend."""
 
     supports_tags = True
     supports_branches = True
-    fallback_branch = 'default'
+    fallback_branch = "default"
 
     def update(self):
         super().update()
-        if self.repo_exists():
-            return self.pull()
         return self.clone()
-
-    def repo_exists(self):
-        try:
-            code, _, _ = self.run('hg', 'status', record=False)
-            return code == 0
-        except RepositoryError:
-            return False
-
-    def pull(self):
-        self.run('hg', 'pull')
-        code, stdout, stderr = self.run('hg', 'update', '--clean')
-        return code, stdout, stderr
 
     def clone(self):
         self.make_clean_working_dir()
@@ -43,15 +30,18 @@ class Backend(BaseVCS):
             )
             return output
         except RepositoryError:
-            raise RepositoryError(RepositoryError.CLONE_ERROR())
+            message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_NOT_ALLOWED
+            if settings.ALLOW_PRIVATE_REPOS:
+                message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED
+            raise RepositoryError(message_id=message_id)
 
     @property
     def branches(self):
         try:
             _, stdout, _ = self.run(
-                'hg',
-                'branches',
-                '--quiet',
+                "hg",
+                "branches",
+                "--quiet",
                 record_as_success=True,
             )
             return self.parse_branches(stdout)
@@ -78,7 +68,7 @@ class Backend(BaseVCS):
     @property
     def tags(self):
         try:
-            _, stdout, _ = self.run('hg', 'tags', record_as_success=True)
+            _, stdout, _ = self.run("hg", "tags", record_as_success=True)
             return self.parse_tags(stdout)
         except RepositoryError:
             # error (or no tags found)
@@ -108,31 +98,34 @@ class Backend(BaseVCS):
             if len(row) != 2:
                 continue
             name, commit = row
-            if name == 'tip':
+            if name == "tip":
                 continue
-            _, commit_hash = commit.split(':')
+            _, commit_hash = commit.split(":")
             vcs_tags.append(VCSVersion(self, commit_hash, name))
         return vcs_tags
 
     @property
     def commit(self):
-        _, stdout = self.run('hg', 'identify', '--id')[:2]
+        _, stdout = self.run("hg", "identify", "--id")[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):
         super().checkout()
         if not identifier:
-            identifier = 'tip'
+            identifier = "tip"
 
         try:
             code, stdout, stderr = self.run(
-                'hg',
-                'update',
-                '--clean',
+                "hg",
+                "update",
+                "--clean",
                 identifier,
             )
             return code, stdout, stderr
         except RepositoryError:
             raise RepositoryError(
-                RepositoryError.FAILED_TO_CHECKOUT.format(identifier),
+                message_id=RepositoryError.FAILED_TO_CHECKOUT,
+                format_values={
+                    "identifier": identifier,
+                },
             )

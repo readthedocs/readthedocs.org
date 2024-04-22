@@ -38,7 +38,7 @@ from django.urls import include, path, re_path
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.core.views import HealthCheckView
+from readthedocs.core.views import HealthCheckView, TeapotView
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.hosting import ReadTheDocsConfigJson
 from readthedocs.proxito.views.serve import (
@@ -50,7 +50,7 @@ from readthedocs.proxito.views.serve import (
     ServeSitemapXML,
     ServeStaticFiles,
 )
-from readthedocs.proxito.views.utils import fast_404, proxito_404_page_handler
+from readthedocs.proxito.views.utils import proxito_404_page_handler
 
 DOC_PATH_PREFIX = getattr(settings, "DOC_PATH_PREFIX", "")
 
@@ -157,54 +157,65 @@ docs_urls = [
         ServePageRedirect.as_view(),
         name="redirect_page_with_filename",
     ),
-    # (Sub)project w/ translation and versions
+    re_path(r"^(?P<path>.*)$", ServeDocs.as_view(), name="docs_detail"),
+]
+
+
+# Declare dummy "dashboard URLs" in El Proxito to be able to ``reverse()`` them
+# from API ``/_/addons/`` endpoint. Mainly for the the ``*.urls`` fields. We
+# cannot resolve ``*._links`` fields properly yet, but they are not required at
+# this point. We can come back later here if we need them.
+# See https://github.com/readthedocs/readthedocs-ops/issues/1323
+dummy_dashboard_urls = [
+    # /projects/<project_slug>/
     re_path(
-        (
-            r"^(?:projects/(?P<subproject_slug>{project_slug})/)?"
-            r"(?P<lang_slug>{lang_slug})/"
-            r"(?P<version_slug>{version_slug})/"
-            r"(?P<filename>{filename_slug})$".format(**pattern_opts)
-        ),
-        ServeDocs.as_view(),
-        name="docs_detail",
+        r"^projects/(?P<project_slug>{project_slug})/$".format(**pattern_opts),
+        TeapotView.as_view(),
+        name="projects_detail",
     ),
-    # Hack /en/latest so it redirects properly
-    # We don't want to serve the docs here,
-    # because it's at a different level of serving so relative links break.
+    # /projects/<project_slug>/builds/
     re_path(
-        (
-            r"^(?:projects/(?P<subproject_slug>{project_slug})/)?"
-            r"(?P<lang_slug>{lang_slug})/"
-            r"(?P<version_slug>{version_slug})$".format(**pattern_opts)
-        ),
-        fast_404,
-        name="docs_detail_directory_indexing",
+        (r"^projects/(?P<project_slug>{project_slug})/builds/$".format(**pattern_opts)),
+        TeapotView.as_view(),
+        name="builds_project_list",
     ),
-    # # TODO: Support this?
-    # # (Sub)project translation and single version
-    # re_path(
-    #     (
-    #         r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
-    #         r'(?P<lang_slug>{lang_slug})/'
-    #         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
-    #     ),
-    #     serve_docs,
-    #     name='docs_detail',
-    # ),
-    # (Sub)project single version
+    # /projects/<project_slug>/versions/
+    re_path(
+        r"^projects/(?P<project_slug>{project_slug})/versions/$".format(**pattern_opts),
+        TeapotView.as_view(),
+        name="project_version_list",
+    ),
+    # /projects/<project_slug>/downloads/
     re_path(
         (
-            # subproject_slash variable at the end of this regex is for ``/projects/subproject``
-            # so that it will get captured here and redirect properly.
-            r"^(?:projects/(?P<subproject_slug>{project_slug})(?P<subproject_slash>/?))?"
-            r"(?P<filename>{filename_slug})$".format(**pattern_opts)
+            r"^projects/(?P<project_slug>{project_slug})/downloads/$".format(
+                **pattern_opts
+            )
         ),
-        ServeDocs.as_view(),
-        name="docs_detail_singleversion_subproject",
+        TeapotView.as_view(),
+        name="project_downloads",
+    ),
+    # /projects/<project_slug>/builds/<build_id>/
+    re_path(
+        (
+            r"^projects/(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$".format(
+                **pattern_opts
+            )
+        ),
+        TeapotView.as_view(),
+        name="builds_detail",
+    ),
+    # /projects/<project_slug>/version/<version_slug>/
+    re_path(
+        r"^projects/(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$",
+        TeapotView.as_view(),
+        name="project_version_detail",
     ),
 ]
 
-urlpatterns = health_check_urls + proxied_urls + core_urls + docs_urls
+urlpatterns = (
+    health_check_urls + proxied_urls + core_urls + docs_urls + dummy_dashboard_urls
+)
 
 # Use Django default error handlers to make things simpler
 handler404 = proxito_404_page_handler

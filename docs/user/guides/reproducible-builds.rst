@@ -38,7 +38,7 @@ A configuration file with explicit dependencies looks like this:
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.11"
+       python: "3.12"
 
    # Build from the docs/ directory with Sphinx
    sphinx:

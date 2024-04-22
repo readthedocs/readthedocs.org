@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.deconstruct import deconstructible
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.projects.constants import LANGUAGES
@@ -79,27 +79,7 @@ class RepositoryURLValidator:
         raise ValidationError(_("Invalid scheme for URL"))
 
 
-class SubmoduleURLValidator(RepositoryURLValidator):
-
-    """
-    A URL validator for repository submodules.
-
-    If a repository has a relative submodule, the URL path is effectively the
-    supermodule's remote ``origin`` URL with the relative path applied.
-
-    From the git docs::
-
-        ``<repository>`` is the URL of the new submodule's origin repository.
-        This may be either an absolute URL, or (if it begins with ``./`` or
-        ``../``), the location relative to the superproject's default remote
-        repository
-    """
-
-    disallow_relative_url = False
-
-
 validate_repository_url = RepositoryURLValidator()
-validate_submodule_url = SubmoduleURLValidator()
 
 
 def validate_build_config_file(path):
@@ -134,11 +114,12 @@ def validate_build_config_file(path):
         )
     if any(ch in path for ch in invalid_characters):
         raise ValidationError(
-            mark_safe(
+            format_html(
                 _(
                     "Found invalid character. Avoid these characters: "
                     "<code>{invalid_characters}</code>"
-                ).format(invalid_characters=invalid_characters),
+                ),
+                invalid_characters=invalid_characters,
             ),
             code="path_invalid",
         )
@@ -148,19 +129,17 @@ def validate_build_config_file(path):
     )
     if not is_valid and len(valid_filenames) == 1:
         raise ValidationError(
-            mark_safe(
-                _("The only allowed filename is <code>{filename}</code>.").format(
-                    filename=valid_filenames[0]
-                ),
+            format_html(
+                _("The only allowed filename is <code>{filename}</code>."),
+                filename=valid_filenames[0],
             ),
             code="path_invalid",
         )
     if not is_valid:
         raise ValidationError(
-            mark_safe(
-                _("The only allowed filenames are <code>{filenames}</code>.").format(
-                    filenames=", ".join(valid_filenames)
-                ),
+            format_html(
+                _("The only allowed filenames are <code>{filenames}</code>."),
+                filenames=", ".join(valid_filenames),
             ),
             code="path_invalid",
         )
@@ -220,9 +199,8 @@ def validate_custom_subproject_prefix(project, prefix):
     # If the custom project prefix and subproject prefix overlap,
     # we need to check that the first non-overlapping component isn't a valid language.
     # Since this will result in an ambiguous path that can't be resolved as a subproject.
-    # This check is only needed if the project is a multiversion project,
-    # a single version project will resolve the subproject correctly.
-    if not project.single_version and prefix.startswith(project_prefix):
+    # This check is only needed if the project supports translations.
+    if project.supports_translations and prefix.startswith(project_prefix):
         first_component = prefix.removeprefix(project_prefix).split("/")[0]
         valid_languages = [language[0] for language in LANGUAGES]
         if first_component in valid_languages:

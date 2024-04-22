@@ -1,3 +1,4 @@
 {
-    "error": "The version specified in 'X-RTD-Hosting-Integrations-Version' is currently not supported"
+    "api_version": "2",
+    "comment": "Undefined yet. Use v1 for now"
 }

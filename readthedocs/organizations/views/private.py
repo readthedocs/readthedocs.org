@@ -13,6 +13,7 @@ from vanilla import CreateView, DeleteView, FormView, ListView, UpdateView
 
 from readthedocs.audit.filters import OrganizationSecurityLogFilter
 from readthedocs.audit.models import AuditLog
+from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.invitations.models import Invitation
@@ -39,13 +40,13 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
 
     """View to create an organization after the user has signed up."""
 
-    template_name = 'organizations/organization_create.html'
+    template_name = "organizations/organization_create.html"
     form_class = OrganizationSignupForm
 
     def get_form(self, data=None, files=None, **kwargs):
         """Add request user as default billing address email."""
-        kwargs['initial'] = {'email': self.request.user.email}
-        kwargs['user'] = self.request.user
+        kwargs["initial"] = {"email": self.request.user.email}
+        kwargs["user"] = self.request.user
         return super().get_form(data=data, files=files, **kwargs)
 
     def get_success_url(self):
@@ -59,14 +60,19 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
             redirects to Organization's Edit page.
         """
         return reverse_lazy(
-            'organization_detail',
+            "organization_detail",
             args=[self.object.slug],
         )
 
 
-class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
-    template_name = 'organizations/organization_list.html'
+class ListOrganization(
+    FilterContextMixin, PrivateViewMixin, OrganizationView, ListView
+):
+    template_name = "organizations/organization_list.html"
     admin_only = False
+
+    filterset_class = OrganizationListFilterSet
+    strict = True  # Return an empty queryset on filter validation errors
 
     def get_queryset(self):
         return Organization.objects.for_user(user=self.request.user)
@@ -74,11 +80,8 @@ class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = OrganizationListFilterSet(
-                self.request.GET, queryset=self.get_queryset()
-            )
-            context["filter"] = filter
-            context["organization_list"] = filter.qs
+            context["filter"] = self.get_filterset()
+            context["organization_list"] = self.get_filtered_queryset()
         return context
 
 
@@ -86,7 +89,6 @@ class ChooseOrganization(ListOrganization):
     template_name = "organizations/organization_choose.html"
 
     def get(self, request, *args, **kwargs):
-
         self.next_name = self.kwargs["next_name"]
         self.next_querystring = self.request.GET.get("next_querystring")
 
@@ -110,33 +112,33 @@ class ChooseOrganization(ListOrganization):
 
 
 class EditOrganization(
-        PrivateViewMixin,
-        UpdateChangeReasonPostView,
-        OrganizationView,
-        UpdateView,
+    PrivateViewMixin,
+    UpdateChangeReasonPostView,
+    OrganizationView,
+    UpdateView,
 ):
-    template_name = 'organizations/admin/organization_edit.html'
+    template_name = "organizations/admin/organization_edit.html"
 
 
 class DeleteOrganization(
-        PrivateViewMixin,
-        UpdateChangeReasonPostView,
-        OrganizationView,
-        DeleteView,
+    PrivateViewMixin,
+    UpdateChangeReasonPostView,
+    OrganizationView,
+    DeleteView,
 ):
-    template_name = 'organizations/admin/organization_delete.html'
+    template_name = "organizations/admin/organization_delete.html"
 
     def get_success_url(self):
-        return reverse_lazy('organization_list')
+        return reverse_lazy("organization_list")
 
 
 # Owners views
 class EditOrganizationOwners(PrivateViewMixin, OrganizationOwnerView, ListView):
-    template_name = 'organizations/admin/owners_edit.html'
+    template_name = "organizations/admin/owners_edit.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = self.form_class()
+        context["form"] = self.form_class()
         return context
 
 
@@ -151,8 +153,8 @@ class AddOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, FormView):
 
 
 class DeleteOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, DeleteView):
-    success_message = _('Owner removed')
-    http_method_names = ['post']
+    success_message = _("Owner removed")
+    http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
         if self._is_last_user():
@@ -163,18 +165,18 @@ class DeleteOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, DeleteVie
 
 # Team views
 class AddOrganizationTeam(PrivateViewMixin, OrganizationTeamView, CreateView):
-    template_name = 'organizations/team_create.html'
-    success_message = _('Team added')
+    template_name = "organizations/team_create.html"
+    success_message = _("Team added")
 
 
 class DeleteOrganizationTeam(
-        PrivateViewMixin,
-        UpdateChangeReasonPostView,
-        OrganizationTeamView,
-        DeleteView,
+    PrivateViewMixin,
+    UpdateChangeReasonPostView,
+    OrganizationTeamView,
+    DeleteView,
 ):
-    template_name = 'organizations/team_delete.html'
-    success_message = _('Team deleted')
+    template_name = "organizations/team_delete.html"
+    success_message = _("Team deleted")
 
     def post(self, request, *args, **kwargs):
         """Hack to show messages on delete."""
@@ -184,24 +186,24 @@ class DeleteOrganizationTeam(
 
     def get_success_url(self):
         return reverse_lazy(
-            'organization_team_list',
+            "organization_team_list",
             args=[self.get_organization().slug],
         )
 
 
 class EditOrganizationTeam(PrivateViewMixin, OrganizationTeamView, UpdateView):
-    template_name = 'organizations/team_edit.html'
-    success_message = _('Team updated')
+    template_name = "organizations/team_edit.html"
+    success_message = _("Team updated")
 
 
 class UpdateOrganizationTeamProject(PrivateViewMixin, OrganizationTeamView, UpdateView):
     form_class = OrganizationTeamProjectForm
-    success_message = _('Team projects updated')
-    template_name = 'organizations/team_project_edit.html'
+    success_message = _("Team projects updated")
+    template_name = "organizations/team_project_edit.html"
 
 
 class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, FormView):
-    template_name = 'organizations/team_member_create.html'
+    template_name = "organizations/team_member_create.html"
 
     def form_valid(self, form):
         # Manually calling to save, since this isn't a ModelFormView.
@@ -213,9 +215,11 @@ class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, Fo
         return super().form_valid(form)
 
 
-class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, DeleteView):
-    success_message = _('Member removed from team')
-    http_method_names = ['post']
+class DeleteOrganizationTeamMember(
+    PrivateViewMixin, OrganizationTeamMemberView, DeleteView
+):
+    success_message = _("Member removed from team")
+    http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
         """Hack to show messages on delete."""
@@ -229,11 +233,11 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
     """Display security logs related to this organization."""
 
     model = AuditLog
-    template_name = 'organizations/security_log.html'
+    template_name = "organizations/security_log.html"
     feature_type = TYPE_AUDIT_LOGS
 
     def get(self, request, *args, **kwargs):
-        download_data = request.GET.get('download', False)
+        download_data = request.GET.get("download", False)
         if download_data:
             return self._get_csv_data()
         return super().get(request, *args, **kwargs)
@@ -256,18 +260,18 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
 
         start_date = self._get_start_date()
         end_date = timezone.now().date()
-        date_filter = self.filter.form.cleaned_data.get('date')
+        date_filter = self.filter.form.cleaned_data.get("date")
         if date_filter:
             start_date = date_filter.start or start_date
             end_date = date_filter.stop or end_date
 
-        filename = 'readthedocs_organization_security_logs_{organization}_{start}_{end}.csv'.format(
+        filename = "readthedocs_organization_security_logs_{organization}_{start}_{end}.csv".format(
             organization=organization.slug,
-            start=timezone.datetime.strftime(start_date, '%Y-%m-%d'),
-            end=timezone.datetime.strftime(end_date, '%Y-%m-%d'),
+            start=timezone.datetime.strftime(start_date, "%Y-%m-%d"),
+            end=timezone.datetime.strftime(end_date, "%Y-%m-%d"),
         )
         csv_data = [
-            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
+            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest]
             for date, *rest in data
         ]
         csv_data.insert(0, [header for header, _ in values])

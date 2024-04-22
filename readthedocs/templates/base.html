@@ -103,17 +103,20 @@
     <div id="content">
       <div class="wrapper">
 
+        {% comment %}
+          ``user_notifications`` comes from a Context Processor.
+          We need to use a CustomUser to have access to "user.notifications"
+          See https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-AUTH_USER_MODEL
+        {% endcomment %}
+        {% include "core/notifications.html" with notifications=user_notifications %}
+
         <!-- BEGIN notify -->
         {% block notify %}
+          {# These are regular one-time Django message attached to the request. #}
           {% if messages %}
             <ul class="notifications">
               {% for message in messages %}
-                <li class="notification notification-{{ message.level }}" {% if message.pk %}data-dismiss-url="{% url 'message_mark_read' message.pk %}{% endif %}">
-                  {% if message.pk %}
-                  <a class="notification-action" href="{% url 'message_mark_read' message.pk %}">
-                    <span class="icon close" aria-label="{% trans 'Close notification' %}"></span>
-                  </a>
-                  {% endif %}
+                <li class="notification notification-{{ message.level }}">
                   {{ message }}
                 </li>
               {% endfor %}

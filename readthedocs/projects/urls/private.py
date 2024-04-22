@@ -9,6 +9,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.projects.backends.views import ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
+    AddonsConfigUpdate,
     AutomationRuleDelete,
     AutomationRuleList,
     AutomationRuleMove,
@@ -26,21 +27,24 @@ from readthedocs.projects.views.private import (
     IntegrationExchangeDetail,
     IntegrationList,
     IntegrationWebhookSync,
-    ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectDelete,
+    ProjectEmailNotificationsCreate,
     ProjectNotifications,
     ProjectNotificationsDelete,
     ProjectRedirectsCreate,
     ProjectRedirectsDelete,
+    ProjectRedirectsInsert,
     ProjectRedirectsList,
     ProjectRedirectsUpdate,
+    ProjectTranslationsCreate,
     ProjectTranslationsDelete,
-    ProjectTranslationsListAndCreate,
+    ProjectTranslationsList,
     ProjectUpdate,
-    ProjectUsersCreateList,
+    ProjectUsersCreate,
     ProjectUsersDelete,
+    ProjectUsersList,
     ProjectVersionCreate,
     ProjectVersionDeleteHTML,
     ProjectVersionDetail,
@@ -82,7 +86,9 @@ urlpatterns = [
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/advanced/$",
-        ProjectAdvancedUpdate.as_view(),
+        login_required(
+            RedirectView.as_view(pattern_name="projects_edit", permanent=True),
+        ),
         name="projects_advanced",
     ),
     re_path(
@@ -102,8 +108,13 @@ urlpatterns = [
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/users/$",
-        ProjectUsersCreateList.as_view(),
+        ProjectUsersList.as_view(),
         name="projects_users",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/users/create/$",
+        ProjectUsersCreate.as_view(),
+        name="projects_users_create",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/users/delete/$",
@@ -116,14 +127,24 @@ urlpatterns = [
         name="projects_notifications",
     ),
     re_path(
+        r"^(?P<project_slug>[-\w]+)/notifications/create/$",
+        ProjectEmailNotificationsCreate.as_view(),
+        name="projects_notifications_create",
+    ),
+    re_path(
         r"^(?P<project_slug>[-\w]+)/notifications/delete/$",
         ProjectNotificationsDelete.as_view(),
         name="projects_notification_delete",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/translations/$",
-        ProjectTranslationsListAndCreate.as_view(),
+        ProjectTranslationsList.as_view(),
         name="projects_translations",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/translations/create/$",
+        ProjectTranslationsCreate.as_view(),
+        name="projects_translations_create",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$",  # noqa
@@ -139,6 +160,11 @@ urlpatterns = [
         r"^(?P<project_slug>[-\w]+)/redirects/create/$",
         ProjectRedirectsCreate.as_view(),
         name="projects_redirects_create",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/redirects/(?P<redirect_pk>\d+)/insert/(?P<position>\d+)/$",
+        ProjectRedirectsInsert.as_view(),
+        name="projects_redirects_insert",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/redirects/(?P<redirect_pk>[-\w]+)/edit/$",
@@ -203,6 +229,18 @@ domain_urls = [
 ]
 
 urlpatterns += domain_urls
+
+# We are allowing users to enable the new beta addons only from the new dashboard
+if settings.RTD_EXT_THEME_ENABLED:
+    addons_urls = [
+        re_path(
+            r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
+            AddonsConfigUpdate.as_view(),
+            name="projects_addons",
+        ),
+    ]
+
+    urlpatterns += addons_urls
 
 integration_urls = [
     re_path(

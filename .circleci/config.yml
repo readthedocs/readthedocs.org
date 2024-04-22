@@ -11,11 +11,14 @@ jobs:
         environment:
           TOX_POSARGS: ''
           PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=. --cov-append
-      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:8.10.2'
         name: search
         environment:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms750m -Xmx750m
+          ELASTIC_PASSWORD: password
+          # Disabled SSL for testing.
+          xpack.security.transport.ssl.enabled: 'false'
     steps:
       - checkout
       - run: git submodule sync
@@ -34,6 +37,7 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run: pip install --user 'tox<4'
+      - run: tox --version
       - run: tox -c tox.embedapi.ini
 
   checks:
@@ -45,10 +49,11 @@ jobs:
       - run: git submodule update --init
       # Recipe: https://pre-commit.com/#managing-ci-caches
       - run:
-          name: Combine pre-commit config and python versions for caching
+          name: Combine pre-commit config, python version and testing requirements for caching
           command: |
             cp common/pre-commit-config.yaml pre-commit-cache-key.txt
             python --version --version >> pre-commit-cache-key.txt
+            cat requirements/testing.txt >> pre-commit-cache-key.txt
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}

@@ -9,7 +9,7 @@ import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
@@ -29,7 +29,9 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -125,21 +127,26 @@ class ProjectDetailViewBase(
         if self.request.is_secure():
             protocol = "https"
 
-        version_slug = project.get_default_version()
+        default_version_slug = project.get_default_version()
+        default_version = project.versions.get(slug=default_version_slug)
 
         context["badge_url"] = ProjectBadgeView.get_badge_url(
             project.slug,
-            version_slug,
+            default_version_slug,
             protocol=protocol,
         )
         context["site_url"] = "{url}?badge={version}".format(
-            url=project.get_docs_url(version_slug),
-            version=version_slug,
+            url=Resolver().resolve_version(project, version=default_version),
+            version=default_version_slug,
         )
 
         context["is_project_admin"] = AdminPermission.is_admin(
             self.request.user,
             project,
+        )
+        context["notifications"] = Notification.objects.for_user(
+            self.request.user,
+            resource=project,
         )
 
         return context
@@ -361,6 +368,17 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                 project = get_object_or_404(
                     project.subprojects, alias=subproject_slug
                 ).child
+
+            # Redirect old language codes with underscores to new ones with dashes and lowercase.
+            normalized_language_code = lang_slug.lower().replace("_", "-")
+            if normalized_language_code != lang_slug:
+                if project.language != normalized_language_code:
+                    project = get_object_or_404(
+                        project.translations, language=normalized_language_code
+                    )
+                return HttpResponseRedirect(
+                    project.get_production_media_url(type_, version_slug=version_slug)
+                )
 
             if project.language != lang_slug:
                 project = get_object_or_404(project.translations, language=lang_slug)

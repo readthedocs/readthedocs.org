@@ -1,6 +1,6 @@
-import structlog
 from unittest import mock
 
+import structlog
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -48,7 +48,6 @@ class PrivacyTests(TestCase):
             default_branch="",
             project_url="http://django-kong.rtfd.org",
             default_version=LATEST,
-            python_interpreter="python",
             description="OOHHH AH AH AH KONG SMASH",
             documentation_type="sphinx",
         )
@@ -227,7 +226,6 @@ class PrivacyTests(TestCase):
     @override_settings(
         DEFAULT_PRIVACY_LEVEL="private",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_private_download_filename(self):
         self._create_kong("private", "private")
@@ -270,7 +268,6 @@ class PrivacyTests(TestCase):
     @override_settings(
         DEFAULT_PRIVACY_LEVEL="public",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_public_repo_downloading(self):
         self._create_kong("public", "public")
@@ -308,7 +305,6 @@ class PrivacyTests(TestCase):
     @override_settings(
         DEFAULT_PRIVACY_LEVEL="public",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_public_private_repo_downloading(self):
         self._create_kong("private", "private")
@@ -338,7 +334,6 @@ class PrivacyTests(TestCase):
     @override_settings(
         DEFAULT_PRIVACY_LEVEL="public",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_public_download_filename(self):
         self._create_kong("public", "public")

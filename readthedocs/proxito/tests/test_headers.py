@@ -1,10 +1,18 @@
 import django_dynamic_fixture as fixture
+from corsheaders.middleware import (
+    ACCESS_CONTROL_ALLOW_CREDENTIALS,
+    ACCESS_CONTROL_ALLOW_METHODS,
+    ACCESS_CONTROL_ALLOW_ORIGIN,
+)
 from django.test import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import LATEST
-from readthedocs.projects.models import Domain, Feature, HTTPHeader
+from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.models import Version
+from readthedocs.organizations.models import Organization
+from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.models import AddonsConfig, Domain, HTTPHeader
 
 from .base import BaseDocServing
 
@@ -12,6 +20,7 @@ from .base import BaseDocServing
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",
     PUBLIC_DOMAIN_USES_HTTPS=True,
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 class ProxitoHeaderTests(BaseDocServing):
     def test_redirect_headers(self):
@@ -42,8 +51,28 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
         self.assertEqual(r["X-RTD-Version"], "latest")
         self.assertEqual(r["X-RTD-version-Method"], "path")
+        self.assertEqual(r["X-RTD-Resolver-Filename"], "/")
         self.assertEqual(
             r["X-RTD-Path"], "/proxito/media/html/project/latest/index.html"
+        )
+
+    def test_serve_headers_with_path(self):
+        r = self.client.get(
+            "/en/latest/guides/jupyter/gallery.html",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Cache-Tag"], "project,project:latest")
+        self.assertEqual(r["X-RTD-Domain"], "project.dev.readthedocs.io")
+        self.assertEqual(r["X-RTD-Project"], "project")
+        self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
+        self.assertEqual(r["X-RTD-Version"], "latest")
+        self.assertEqual(r["X-RTD-version-Method"], "path")
+        self.assertEqual(r["X-RTD-Resolver-Filename"], "/guides/jupyter/gallery.html")
+        self.assertEqual(
+            r["X-RTD-Path"],
+            "/proxito/media/html/project/latest/guides/jupyter/gallery.html",
         )
 
     def test_subproject_serve_headers(self):
@@ -159,6 +188,141 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertIsNotNone(r.get("X-RTD-Hosting-Integrations"))
         self.assertEqual(r["X-RTD-Hosting-Integrations"], "true")
 
+    def test_force_addons_header(self):
+        fixture.get(AddonsConfig, project=self.project, enabled=True)
+
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertIsNotNone(r.get("X-RTD-Force-Addons"))
+        self.assertEqual(r["X-RTD-Force-Addons"], "true")
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_cors_headers_external_version(self):
+        get(
+            Version,
+            project=self.project,
+            slug="111",
+            active=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+
+        # Normal request
+        r = self.client.get(
+            "/en/111/",
+            secure=True,
+            headers={"host": "project--111.dev.readthedocs.build"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
+
+        # Cross-origin request
+        r = self.client.get(
+            "/en/111/",
+            secure=True,
+            headers={
+                "host": "project--111.dev.readthedocs.build",
+                "origin": "https://example.com",
+            },
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True, RTD_ALLOW_ORGANIZATIONS=True)
+    def test_cors_headers_private_version(self):
+        get(Organization, owners=[self.eric], projects=[self.project])
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+
+        self.client.force_login(self.eric)
+
+        # Normal request
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+
+        # Cross-origin request
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+                "origin": "https://example.com",
+            },
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_cors_headers_public_version(self):
+        # Normal request
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
+
+        # Cross-origin request
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+                "origin": "https://example.com",
+            },
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True, RTD_ALLOW_ORGANIZATIONS=True)
+    def test_cors_headers_public_version_with_organizations(self):
+        get(Organization, owners=[self.eric], projects=[self.project])
+
+        self.client.force_login(self.eric)
+
+        # Normal request
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
+
+        # Cross-origin request
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+                "origin": "https://example.com",
+            },
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
+
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cache_headers_public_version_with_private_projects_not_allowed(self):
         r = self.client.get(
@@ -210,15 +374,3 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["CDN-Cache-Control"], "public")
         self.assertEqual(r["Cache-Tag"], "project,project:sitemap.xml")
-
-
-class ProxitoV2HeaderTests(ProxitoHeaderTests):
-    # TODO: remove this class once the new implementation is the default.
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )

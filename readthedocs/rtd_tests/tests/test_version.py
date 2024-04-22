@@ -92,7 +92,6 @@ class TestVersionModel(VersionMixin, TestCase):
     @override_settings(
         PRODUCTION_DOMAIN="readthedocs.org",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_get_downloads(self):
         version = self.branch_version
@@ -110,7 +109,6 @@ class TestVersionModel(VersionMixin, TestCase):
     @override_settings(
         PRODUCTION_DOMAIN="readthedocs.org",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_get_downloads_subproject(self):
         version = self.subproject.versions.get(slug=LATEST)
@@ -128,7 +126,6 @@ class TestVersionModel(VersionMixin, TestCase):
     @override_settings(
         PRODUCTION_DOMAIN="readthedocs.org",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_get_downloads_translation_subproject(self):
         version = self.translation_subproject.versions.get(slug=LATEST)

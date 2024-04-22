@@ -1,17 +1,15 @@
 """Integration models for external services."""
-
 import json
 import re
 import uuid
 
-from django.contrib.contenttypes.fields import (
-    GenericForeignKey,
-    GenericRelation,
-)
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
+from django.utils.crypto import get_random_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer
@@ -20,7 +18,7 @@ from rest_framework import status
 from readthedocs.core.fields import default_token
 from readthedocs.projects.models import Project
 
-from .utils import get_secret, normalize_request_payload
+from .utils import normalize_request_payload
 
 
 class HttpExchangeManager(models.Manager):
@@ -261,7 +259,7 @@ class IntegrationQuerySet(models.QuerySet):
         return obj
 
 
-class Integration(models.Model):
+class Integration(TimeStampedModel):
 
     """Inbound webhook integration for projects."""
 
@@ -303,7 +301,6 @@ class Integration(models.Model):
         max_length=255,
         blank=True,
         null=True,
-        default=get_secret,
     )
 
     objects = IntegrationQuerySet.as_manager()
@@ -311,18 +308,15 @@ class Integration(models.Model):
     # Integration attributes
     has_sync = False
 
-    def recreate_secret(self):
-        self.secret = get_secret()
-        self.save(update_fields=["secret"])
-
-    def remove_secret(self):
-        self.secret = None
-        self.save(update_fields=["secret"])
-
     def __str__(self):
         return _("{0} for {1}").format(
             self.get_integration_type_display(), self.project.name
         )
+
+    def save(self, *args, **kwargs):
+        if not self.secret:
+            self.secret = get_random_string(length=32)
+        super().save(*args, **kwargs)
 
 
 class GitHubWebhook(Integration):

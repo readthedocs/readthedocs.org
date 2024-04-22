@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
-from readthedocs.core.resolver import resolve, resolve_path
+from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Feature, Project
 
 
@@ -25,25 +25,25 @@ class PageViewManager(models.Manager):
 
     """Manager for PageView model."""
 
-    def register_page_view(self, project, version, path, full_path, status):
+    def register_page_view(self, project, version, filename, path, status):
         """Track page view with the given parameters."""
         # TODO: remove after the migration of duplicate records has been completed.
         if project.has_feature(Feature.DISABLE_PAGEVIEWS):
             return
 
         # Normalize paths to avoid duplicates.
+        filename = "/" + filename.lstrip("/")
         path = "/" + path.lstrip("/")
-        full_path = "/" + full_path.lstrip("/")
 
         page_view, created = self.get_or_create(
             project=project,
             version=version,
-            path=path,
+            path=filename,
             date=timezone.now().date(),
             status=status,
             defaults={
                 "view_count": 1,
-                "full_path": full_path,
+                "full_path": path,
             },
         )
         if not created:
@@ -131,14 +131,15 @@ class PageView(models.Model):
         )
 
         PageViewResult = namedtuple("PageViewResult", "path, url, count")
+        resolver = Resolver()
         result = []
-        parsed_domain = urlparse(resolve(project))
+        parsed_domain = urlparse(resolver.get_domain(project))
         default_version = project.get_default_version()
         for row in queryset:
             if not per_version:
                 # If we aren't groupig by version,
                 # then always link to the default version.
-                url_path = resolve_path(
+                url_path = resolver.resolve_path(
                     project=project,
                     version_slug=default_version,
                     filename=row.path,

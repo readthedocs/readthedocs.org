@@ -3,6 +3,7 @@
         "_self": "https://readthedocs.org/api/v3/projects/test-project/",
         "builds": "https://readthedocs.org/api/v3/projects/test-project/builds/",
         "environmentvariables": "https://readthedocs.org/api/v3/projects/test-project/environmentvariables/",
+        "notifications": "https://readthedocs.org/api/v3/projects/test-project/notifications/",
         "redirects": "https://readthedocs.org/api/v3/projects/test-project/redirects/",
         "subprojects": "https://readthedocs.org/api/v3/projects/test-project/subprojects/",
         "superproject": "https://readthedocs.org/api/v3/projects/test-project/superproject/",
@@ -35,6 +36,7 @@
     "urls": {
         "builds": "https://readthedocs.org/projects/test-project/builds/",
         "documentation": "http://test-project.readthedocs.io/en/latest/",
+        "downloads": "https://readthedocs.org/projects/test-project/downloads/",
         "home": "https://readthedocs.org/projects/test-project/",
         "versions": "https://readthedocs.org/projects/test-project/versions/"
     },
@@ -44,5 +46,7 @@
         }
     ],
     "privacy_level": "public",
-    "external_builds_privacy_level": "public"
+    "external_builds_privacy_level": "public",
+    "single_version": false,
+    "versioning_scheme": "multiple_versions_with_translations"
 }

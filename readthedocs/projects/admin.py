@@ -10,12 +10,12 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.builds.models import Version
 from readthedocs.core.history import ExtraSimpleHistoryAdmin, set_change_reason
 from readthedocs.core.utils import trigger_build
-from readthedocs.notifications.views import SendNotificationView
+from readthedocs.projects.tasks.search import reindex_version
 from readthedocs.redirects.models import Redirect
-from readthedocs.search.utils import _indexing_helper
 
 from .forms import FeatureForm
 from .models import (
+    AddonsConfig,
     Domain,
     EmailHook,
     EnvironmentVariable,
@@ -28,7 +28,6 @@ from .models import (
     WebHook,
     WebHookEvent,
 )
-from .notifications import ResourceUsageNotification
 from .tag_utils import import_tags
 from .tasks.utils import clean_project_resources
 
@@ -47,16 +46,6 @@ class ReadOnlyInlineMixin:
 
     def has_delete_permission(self, request, obj=None):
         return False
-
-
-class ProjectSendNotificationView(SendNotificationView):
-    notification_classes = [
-        ResourceUsageNotification,
-    ]
-
-    def get_object_recipients(self, obj):
-        for owner in obj.users.all():
-            yield owner
 
 
 class ProjectRelationshipInline(admin.TabularInline):
@@ -259,12 +248,10 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
     )
     raw_id_fields = ("users", "main_language_project", "remote_repository")
     actions = [
-        "send_owner_email",
         "ban_owner",
         "run_spam_rule_checks",
         "build_default_version",
         "reindex_active_versions",
-        "wipe_all_versions",
         "import_tags_from_vcs",
     ]
 
@@ -276,13 +263,6 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     def feature_flags(self, obj):
         return "\n".join([str(f.get_feature_display()) for f in obj.features])
-
-    @admin.action(description="Notify project owners")
-    def send_owner_email(self, request, queryset):
-        view = ProjectSendNotificationView.as_view(
-            action_name="send_owner_email",
-        )
-        return view(request, queryset=queryset)
 
     def run_spam_rule_checks(self, request, queryset):
         """Run all the spam checks on this project."""
@@ -362,63 +342,23 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         """Reindex all active versions of the selected projects to ES."""
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
-            version_qs = Version.internal.filter(project=project)
-            active_versions = version_qs.filter(active=True)
+            versions_id_to_reindex = project.versions.for_reindex().values_list(
+                "pk", flat=True
+            )
 
-            if not active_versions.exists():
+            if not versions_id_to_reindex.exists():
                 self.message_user(
                     request,
-                    "No active versions of project {}".format(project),
+                    "No versions to be re-indexed for project {}".format(project),
                     messages.ERROR,
                 )
             else:
-                html_objs_qs = []
-                for version in active_versions.iterator():
-                    html_objs = HTMLFile.objects.filter(
-                        project=project, version=version
-                    )
-
-                    if html_objs.exists():
-                        html_objs_qs.append(html_objs)
-
-                if html_objs_qs:
-                    _indexing_helper(html_objs_qs, wipe=False)
+                for version_id in versions_id_to_reindex.iterator():
+                    reindex_version.delay(version_id)
 
                 self.message_user(
                     request,
                     "Task initiated successfully for {}".format(project),
-                    messages.SUCCESS,
-                )
-
-    # TODO: rename method to mention "indexes" on its name
-    @admin.action(description="Wipe all versions from ES")
-    def wipe_all_versions(self, request, queryset):
-        """Wipe indexes of all versions of selected projects."""
-        qs_iterator = queryset.iterator()
-        for project in qs_iterator:
-            version_qs = Version.internal.filter(project=project)
-            if not version_qs.exists():
-                self.message_user(
-                    request,
-                    "No active versions of project {}.".format(project),
-                    messages.ERROR,
-                )
-            else:
-                html_objs_qs = []
-                for version in version_qs.iterator():
-                    html_objs = HTMLFile.objects.filter(
-                        project=project, version=version
-                    )
-
-                    if html_objs.exists():
-                        html_objs_qs.append(html_objs)
-
-                if html_objs_qs:
-                    _indexing_helper(html_objs_qs, wipe=True)
-
-                self.message_user(
-                    request,
-                    "Task initiated successfully for {}.".format(project),
                     messages.SUCCESS,
                 )
 
@@ -524,6 +464,14 @@ class EnvironmentVariableAdmin(admin.ModelAdmin):
     model = EnvironmentVariable
     list_display = ("name", "value", "public", "project", "created")
     search_fields = ("name", "project__slug")
+
+
+@admin.register(AddonsConfig)
+class AddonsConfigAdmin(admin.ModelAdmin):
+    model = AddonsConfig
+    list_display = ("project", "enabled")
+    search_fields = ("project__slug",)
+    list_editable = ("enabled",)
 
 
 admin.site.register(EmailHook)

@@ -1,7 +1,9 @@
 from django.test.utils import override_settings
-from django_dynamic_fixture import get
 
-from readthedocs.projects.models import Feature
+from readthedocs.projects.constants import (
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+)
 from readthedocs.proxito.tests.base import BaseDocServing
 
 
@@ -11,15 +13,6 @@ from readthedocs.proxito.tests.base import BaseDocServing
     RTD_EXTERNAL_VERSION_DOMAIN="readthedocs.build",
 )
 class TestCustomPathPrefixes(BaseDocServing):
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )
-
     def test_custom_prefix_multi_version_project(self):
         self.project.custom_prefix = "/custom/prefix/"
         self.project.save()
@@ -90,7 +83,7 @@ class TestCustomPathPrefixes(BaseDocServing):
         )
 
     def test_custom_prefix_single_version_project(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.custom_prefix = "/custom-prefix/"
         self.project.save()
         host = "project.readthedocs.io"
@@ -116,6 +109,49 @@ class TestCustomPathPrefixes(BaseDocServing):
         )
 
         resp = self.client.get("/custom-prefix/api/index.html", headers={"host": host})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/api/index.html",
+        )
+
+    def test_custom_prefix_multiple_versions_without_translations_project(self):
+        self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+        self.project.custom_prefix = "/custom-prefix/"
+        self.project.save()
+        host = "project.readthedocs.io"
+
+        # Root redirect.
+        resp = self.client.get("/", headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"], "http://project.readthedocs.io/custom-prefix/latest/"
+        )
+
+        # Root prefix redirect.
+        resp = self.client.get("/custom-prefix/", headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"], "http://project.readthedocs.io/custom-prefix/latest/"
+        )
+
+        # Trailing slash redirect
+        resp = self.client.get("/custom-prefix/latest", headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"], "http://project.readthedocs.io/custom-prefix/latest/"
+        )
+
+        resp = self.client.get("/custom-prefix/latest/", headers={"host": host})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/index.html",
+        )
+
+        resp = self.client.get(
+            "/custom-prefix/latest/api/index.html", headers={"host": host}
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
             resp["x-accel-redirect"],

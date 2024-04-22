@@ -16,9 +16,8 @@ from .mixins import APIEndpointMixin
         [RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]
     ),
 )
-@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
+@mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
 class BuildsEndpointTests(APIEndpointMixin):
-
     def test_projects_builds_list(self):
         url = reverse(
             "projects-builds-list",
@@ -54,7 +53,7 @@ class BuildsEndpointTests(APIEndpointMixin):
 
         self.assertDictEqual(
             response.json(),
-            self._get_response_dict('projects-builds-detail'),
+            self._get_response_dict("projects-builds-detail"),
         )
 
     def test_projects_versions_builds_list_post(self):
@@ -77,8 +76,120 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.builds.count(), 2)
 
         response_json = response.json()
-        response_json['build']['created'] = '2019-04-29T14:00:00Z'
+        response_json["build"]["created"] = "2019-04-29T14:00:00Z"
         self.assertDictEqual(
             response_json,
-            self._get_response_dict('projects-versions-builds-list_POST'),
+            self._get_response_dict("projects-versions-builds-list_POST"),
         )
+
+    def test_projects_builds_notifications_list(self):
+        url = reverse(
+            "projects-builds-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "parent_lookup_build__id": self.build.pk,
+            },
+        )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict("projects-builds-notifications-list"),
+        )
+
+    def test_projects_builds_notifications_list_other_user(self):
+        url = reverse(
+            "projects-builds-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "parent_lookup_build__id": self.build.pk,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_projects_builds_notifications_list_post(self):
+        url = reverse(
+            "projects-builds-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "parent_lookup_build__id": self.build.pk,
+            },
+        )
+
+        self.client.logout()
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        self.assertEqual(self.project.builds.count(), 1)
+        response = self.client.post(url)
+
+        # We don't allow POST on this endpoint
+        self.assertEqual(response.status_code, 405)
+
+    def test_projects_builds_notifitications_detail(self):
+        url = reverse(
+            "projects-builds-notifications-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "parent_lookup_build__id": self.build.pk,
+                "notification_pk": self.notification_build.pk,
+            },
+        )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict("projects-builds-notifications-detail"),
+        )
+
+    def test_projects_builds_notifitications_detail_other_user(self):
+        url = reverse(
+            "projects-builds-notifications-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "parent_lookup_build__id": self.build.pk,
+                "notification_pk": self.notification_build.pk,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_projects_builds_notifitications_detail_post(self):
+        url = reverse(
+            "projects-builds-notifications-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "parent_lookup_build__id": self.build.pk,
+                "notification_pk": self.notification_build.pk,
+            },
+        )
+        data = {"state": "read"}
+
+        self.client.logout()
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(self.build.notifications.first().state, "read")
