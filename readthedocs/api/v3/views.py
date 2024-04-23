@@ -340,10 +340,6 @@ class VersionsViewSet(
         version.post_save(was_active=was_active)
         return result
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.order_by("slug")
-
 
 class BuildsViewSet(
     APIv3Settings,

@@ -207,7 +207,7 @@ class Version(TimeStampedModel):
 
     class Meta:
         unique_together = [("project", "slug")]
-        ordering = ["-verbose_name"]
+        ordering = ["verbose_name"]
 
     def __str__(self):
         return gettext(
