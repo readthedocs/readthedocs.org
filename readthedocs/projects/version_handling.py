@@ -179,9 +179,9 @@ def sort_versions_generic(
     """
     Sort Read the Docs versions based on ``parse_version`` function.
 
-    ``parse_version`` function is called with ``slug=`` and ``raw_pattern=`` to decide how to sort them.
+    ``parse_version`` function is called with ``slug`` and ``raw_pattern`` as arguments to decide how to sort them.
 
-    All the invalid version (raise ``exception``) are added at the end sorted alphabetically.
+    All versions that raise ``exception`` are added at the end sorted alphabetically.
     """
 
     alphabetically_sorted_version_list = sorted(
