@@ -169,70 +169,21 @@ def determine_stable_version(version_list):
     return None
 
 
-def sort_versions_python_packaging(version_list, latest_stable_at_beginning):
+def sort_versions_generic(
+    version_list,
+    exception,
+    parse_version,
+    latest_stable_at_beginning,
+    raw_pattern=None,
+):
     """
-    Sort Read the Docs versions list using ``packaging`` algorithm.
+    Sort Read the Docs versions based on ``parse_version`` function.
 
-    All the invalid version (raise ``InvalidVersion``) are added at the end
-    sorted alphabetically.
+    ``parse_version`` function is called with ``slug`` and ``raw_pattern`` as arguments to decide how to sort them.
 
-    https://pypi.org/project/packaging/
-    https://packaging.python.org/en/latest/specifications/version-specifiers/
+    All versions that raise ``exception`` are added at the end sorted alphabetically.
     """
-    alphabetically_sorted_version_list = sorted(
-        version_list,
-        key=operator.attrgetter("slug"),
-    )
 
-    initial_versions = []
-
-    valid_versions = []
-    invalid_versions = []
-    for i, version in enumerate(alphabetically_sorted_version_list):
-        if latest_stable_at_beginning:
-            if version.slug in (STABLE, LATEST):
-                # It relies on the version list sorted alphabetically first ("l" comes first than "s")
-                initial_versions.append((version, version.slug))
-                continue
-
-        try:
-            valid_versions.append((version, Version(version.slug)))
-        except InvalidVersion:
-            # When the version is invalid, we put it at the end while keeping
-            # the alphabetically sorting between the invalid ones.
-            invalid_versions.append((version, None))
-
-    all_versions = (
-        initial_versions
-        + sorted(valid_versions, key=operator.itemgetter(1), reverse=True)
-        + invalid_versions
-    )
-
-    return [item[0] for item in all_versions if item[0] is not None]
-
-
-def sort_versions_calver(version_list, latest_stable_at_beginning):
-    """
-    Sort Read the Docs versions using CalVer pattern: ``YYYY.0M.0M``.
-
-    All the invalid version are added at the end sorted alphabetically.
-    """
-    raw_pattern = "YYYY.0M.0D"
-    return sort_versions_custom_pattern(
-        version_list, raw_pattern, latest_stable_at_beginning
-    )
-
-
-def sort_versions_custom_pattern(version_list, raw_pattern, latest_stable_at_beginning):
-    """
-    Sort Read the Docs versions using a custom pattern.
-
-    All the invalid version (raise ``PatternError``) are added at the end
-    sorted alphabetically.
-
-    It uses ``Bumpver`` behinds the scenes for the parsing and sorting.
-    https://github.com/mbarkhau/bumpver
-    """
     alphabetically_sorted_version_list = sorted(
         version_list,
         key=operator.attrgetter("slug"),
@@ -252,13 +203,13 @@ def sort_versions_custom_pattern(version_list, raw_pattern, latest_stable_at_beg
             valid_versions.append(
                 (
                     version,
-                    parse_version_info(
-                        version.slug,
+                    parse_version(
+                        slug=version.slug,
                         raw_pattern=raw_pattern,
                     ),
                 )
             )
-        except PatternError:
+        except exception:
             # When the version is invalid, we put it at the end while keeping
             # the alphabetically sorting between the invalid ones.
             invalid_versions.append((version, None))
@@ -268,5 +219,63 @@ def sort_versions_custom_pattern(version_list, raw_pattern, latest_stable_at_beg
         + sorted(valid_versions, key=operator.itemgetter(1), reverse=True)
         + invalid_versions
     )
-
     return [item[0] for item in all_versions if item[0] is not None]
+
+
+def sort_versions_python_packaging(version_list, latest_stable_at_beginning):
+    """
+    Sort Read the Docs versions list using ``packaging`` algorithm.
+
+    All the invalid version (raise ``InvalidVersion``) are added at the end
+    sorted alphabetically.
+
+    https://pypi.org/project/packaging/
+    https://packaging.python.org/en/latest/specifications/version-specifiers/
+    """
+
+    def parse_version(*args, slug=None, **kwargs):
+        return Version(slug)
+
+    return sort_versions_generic(
+        version_list,
+        InvalidVersion,
+        parse_version,
+        latest_stable_at_beginning,
+    )
+
+
+def sort_versions_custom_pattern(version_list, raw_pattern, latest_stable_at_beginning):
+    """
+    Sort Read the Docs versions using a custom pattern.
+
+    All the invalid version (raise ``PatternError``) are added at the end
+    sorted alphabetically.
+
+    It uses ``Bumpver`` behinds the scenes for the parsing and sorting.
+    https://github.com/mbarkhau/bumpver
+    """
+
+    def parse_version(*args, slug=None, raw_pattern=None, **kwargs):
+        return parse_version_info(slug, raw_pattern=raw_pattern)
+
+    return sort_versions_generic(
+        version_list,
+        PatternError,
+        parse_version,
+        latest_stable_at_beginning,
+        raw_pattern,
+    )
+
+
+def sort_versions_calver(version_list, latest_stable_at_beginning):
+    """
+    Sort Read the Docs versions using CalVer pattern: ``YYYY.0M.0M``.
+
+    All the invalid version are added at the end sorted alphabetically.
+    """
+    raw_pattern = "YYYY.0M.0D"
+    return sort_versions_custom_pattern(
+        version_list,
+        raw_pattern,
+        latest_stable_at_beginning,
+    )
