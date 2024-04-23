@@ -53,6 +53,21 @@ class UsersEndpointTests(APIEndpointMixin):
             self._get_response_dict("users-notifications-list"),
         )
 
+    def test_users_notifications_list_with_email_like_username(self):
+        """Test for #11260."""
+        self.me.username = "test@example.com"
+        self.me.save()
+        url = reverse(
+            "users-notifications-list",
+            kwargs={
+                "parent_lookup_user__username": self.me.username,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
     def test_users_notifications_list_other_user(self):
         url = reverse(
             "users-notifications-list",

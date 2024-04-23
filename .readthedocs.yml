@@ -6,7 +6,9 @@ formats:
 
 sphinx:
   configuration: docs/conf.py
-  fail_on_warning: true
+
+  # Disabled due to temporary issue with Django docs
+  fail_on_warning: false
 
 python:
   install:
@@ -30,6 +32,12 @@ build:
           echo "No changes to docs/ - exiting the build.";
           exit 183;
         fi
+
+    # Install our Sphinx Theme version that uses the Addons CustomEvent to generate the integrated flyout
+    # TODO: this custom installation once a new release has been done
+    post_install:
+      - pip uninstall --yes sphinx-rtd-theme
+      - pip install git+https://github.com/readthedocs/sphinx_rtd_theme.git@humitos/addons-flyout#egg=sphinx-rtd-theme
 
 search:
   ranking:

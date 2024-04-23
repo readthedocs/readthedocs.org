@@ -1,3 +1,20 @@
+Version 10.24.1
+---------------
+
+:Date: April 23, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11294 <https://github.com/readthedocs/readthedocs.org/pull/11294>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: explain how to use `uv` to install dependencies (`#11290 <https://github.com/readthedocs/readthedocs.org/pull/11290>`__)
+* `@humitos <https://github.com/humitos>`__: Dashboard: promote features in the right bar (`#11287 <https://github.com/readthedocs/readthedocs.org/pull/11287>`__)
+* `@humitos <https://github.com/humitos>`__: Cleanup: delete `yaml_load_safely` (`#11285 <https://github.com/readthedocs/readthedocs.org/pull/11285>`__)
+* `@stsewd <https://github.com/stsewd>`__: Notifications: allow usernames with dots (`#11283 <https://github.com/readthedocs/readthedocs.org/pull/11283>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.24.0 (`#11281 <https://github.com/readthedocs/readthedocs.org/pull/11281>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use the `sphinx-rtd-theme` with support for addons integration (`#11279 <https://github.com/readthedocs/readthedocs.org/pull/11279>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: refactor sorting versions for flyout (`#11278 <https://github.com/readthedocs/readthedocs.org/pull/11278>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `append_conf` _magic_ from MkDocs (`#11206 <https://github.com/readthedocs/readthedocs.org/pull/11206>`__)
+* `@humitos <https://github.com/humitos>`__: APIv3: add more generic fields (`#11205 <https://github.com/readthedocs/readthedocs.org/pull/11205>`__)
+* `@ewdurbin <https://github.com/ewdurbin>`__: implement multiple .readthedocs.yml files per repo (`#10001 <https://github.com/readthedocs/readthedocs.org/pull/10001>`__)
+
 Version 10.24.0
 ---------------
 
