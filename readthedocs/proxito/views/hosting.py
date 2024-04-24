@@ -47,6 +47,7 @@ class ClientError(Exception):
         "The version specified in 'api-version' is currently not supported"
     )
     VERSION_INVALID = "The version specifified in 'api-version' is invalid"
+    PROJECT_NOT_FOUND = "There is no project with the 'project-slug' requested"
 
 
 class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
@@ -189,6 +190,11 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             )
 
         project, version, build, filename = self._resolve_resources()
+        if not project:
+            return JsonResponse(
+                {"error": ClientError.PROJECT_NOT_FOUND},
+                status=404,
+            )
 
         data = AddonsResponse().get(
             addons_version,
