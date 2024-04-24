@@ -19,6 +19,7 @@ from readthedocs.projects.constants import (
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
 from readthedocs.projects.models import AddonsConfig, Domain, Project
+from readthedocs.proxito.views.hosting import ClientError
 
 
 @override_settings(
@@ -665,6 +666,25 @@ class TestReadTheDocsConfigJson(TestCase):
             r.json()["versions"]["active"][0]["urls"]["documentation"]
             == "https://docs.example.com/en/latest/"
         )
+
+    def test_non_existent_project(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "1.0.0",
+                "client-version": "0.6.0",
+                "project-slug": "non-existent-project",
+                "version-slug": "latest",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 404
+        assert r.json() == {
+            "error": ClientError.PROJECT_NOT_FOUND,
+        }
 
     def test_number_of_queries_project_version_slug(self):
         # The number of queries should not increase too much, even if we change
