@@ -173,7 +173,7 @@ The path to the package, relative to the root of the project.
 
 :Key: ``path``
 :Type: ``path``
-:Required: ``false``
+:Required: ``true``
 
 The installation method.
 
