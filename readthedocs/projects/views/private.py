@@ -114,9 +114,9 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             # Alternatively, dynamically override super()-derived `project_list` context_data
             # context[self.get_context_object_name(filter.qs)] = filter.qs
 
+            template_name = None
             projects = AdminPermission.projects(user=self.request.user, admin=True)
             n_projects = projects.count()
-            template_name = "security-logs.html"
             if n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7:
                 template_name = "example-projects.html"
             elif (
@@ -129,8 +129,14 @@ class ProjectDashboard(PrivateViewMixin, ListView):
                 and not projects.filter(addons__analytics_enabled=True).exists()
             ):
                 template_name = "traffic-analytics.html"
+            elif AdminPermission.organizations(
+                user=self.request.user,
+                owner=True,
+            ).exists():
+                template_name = "security-logs.html"
 
-            context["promotion"] = f"projects/partials/dashboard/{template_name}"
+            if template_name:
+                context["promotion"] = f"projects/partials/dashboard/{template_name}"
 
         return context
 
