@@ -65,7 +65,7 @@ mdit-py-plugins==0.4.0
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-parser==2.0.0
+myst-parser==3.0.0
     # via -r requirements/docs.in
 numpy==1.26.4
     # via

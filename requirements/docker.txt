@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.88
+boto3==1.34.93
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.88
+botocore==1.34.93
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -195,7 +195,7 @@ djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
 docker==6.1.2
     # via -r requirements/pip.txt
-docutils==0.21.1
+docutils==0.21.2
     # via -r requirements/pip.txt
 dparse==0.6.3
     # via -r requirements/pip.txt
@@ -238,7 +238,7 @@ idna==3.7
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.23.0
+ipython==8.24.0
     # via ipdb
 jedi==0.19.1
     # via ipython
@@ -296,7 +296,7 @@ pdbpp==0.10.3
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
-platformdirs==4.2.0
+platformdirs==4.2.1
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -356,7 +356,7 @@ pytz==2024.1
     #   celery
 pyyaml==6.0.1
     # via -r requirements/pip.txt
-redis==5.0.3
+redis==5.0.4
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -423,7 +423,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.14.2
+tox==4.15.0
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -463,7 +463,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.25.3
+virtualenv==20.26.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -471,7 +471,7 @@ wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.7.0
+websocket-client==1.8.0
     # via
     #   -r requirements/pip.txt
     #   docker
