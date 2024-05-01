@@ -40,6 +40,7 @@ from readthedocs.builds.models import (
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
@@ -112,6 +113,30 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             context["project_list"] = filter.qs
             # Alternatively, dynamically override super()-derived `project_list` context_data
             # context[self.get_context_object_name(filter.qs)] = filter.qs
+
+            template_name = None
+            projects = AdminPermission.projects(user=self.request.user, admin=True)
+            n_projects = projects.count()
+            if n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7:
+                template_name = "example-projects.html"
+            elif (
+                n_projects
+                and not projects.filter(external_builds_enabled=True).exists()
+            ):
+                template_name = "pull-request-previews.html"
+            elif (
+                n_projects
+                and not projects.filter(addons__analytics_enabled=True).exists()
+            ):
+                template_name = "traffic-analytics.html"
+            elif AdminPermission.organizations(
+                user=self.request.user,
+                owner=True,
+            ).exists():
+                template_name = "security-logs.html"
+
+            if template_name:
+                context["promotion"] = f"projects/partials/dashboard/{template_name}"
 
         return context
 
