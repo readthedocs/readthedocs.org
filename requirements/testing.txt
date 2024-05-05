@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.88
+boto3==1.34.98
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.88
+botocore==1.34.98
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -77,13 +77,13 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.4.4
+coverage[toml]==7.5.1
     # via pytest-cov
 cron-descriptor==1.4.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==42.0.5
+cryptography==42.0.6
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -165,7 +165,7 @@ django-safemigrate==4.3
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
-django-storages[boto3]==1.14.2
+django-storages[boto3]==1.14.3
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
@@ -188,7 +188,7 @@ djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
 docker==6.1.2
     # via -r requirements/pip.txt
-docutils==0.21.1
+docutils==0.21.2
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -202,17 +202,17 @@ elastic-transport==8.13.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.13.0
+elasticsearch==8.13.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.13.0
+elasticsearch-dsl==8.13.1
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
 exceptiongroup==1.2.1
     # via pytest
-filelock==3.13.4
+filelock==3.14.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -267,7 +267,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.1
+orjson==3.10.3
     # via -r requirements/pip.txt
 packaging==24.0
     # via
@@ -278,7 +278,7 @@ packaging==24.0
     #   gunicorn
     #   pytest
     #   sphinx
-platformdirs==4.2.0
+platformdirs==4.2.1
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -294,7 +294,7 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pygments==2.17.2
+pygments==2.18.0
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -304,7 +304,7 @@ pyjwt[crypto]==2.8.0
     #   django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==8.1.1
+pytest==8.2.0
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -341,11 +341,11 @@ pyyaml==6.0.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==5.0.3
+redis==5.0.4
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-regex==2024.4.16
+regex==2024.4.28
     # via -r requirements/pip.txt
 requests==2.31.0
     # via
@@ -456,13 +456,13 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.25.3
+virtualenv==20.26.1
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.7.0
+websocket-client==1.8.0
     # via
     #   -r requirements/pip.txt
     #   docker
