@@ -17,7 +17,7 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     The locale name, or the identifier for the locale, for the project being built.
     This value comes from the project's configured language,
-    normalized to be lowercase and use a dash as a separator instead of an underscore
+    normalized to be lowercase and use a dash as a separator instead of an underscore.
 
     :Example: ``en``
     :Example: ``it``
