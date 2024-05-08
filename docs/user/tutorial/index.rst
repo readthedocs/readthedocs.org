@@ -1,61 +1,52 @@
 Read the Docs tutorial
 ======================
 
-In this tutorial you will create a documentation project on Read the Docs
-by importing a Sphinx project from a GitHub repository,
-tailor its configuration, and explore several useful features of the platform.
+In this tutorial you will learn how to host a public documentation project on Read the Docs Community. 
 
-The tutorial is aimed at people interested in learning
-how to use Read the Docs to host their documentation projects.
-You will fork a fictional software library
-similar to the one developed in the :doc:`official Sphinx tutorial <sphinx:tutorial/index>`.
-No prior experience with Sphinx is required
-and you can follow this tutorial without having done the Sphinx one.
+.. note::
 
-The only things you will need are
-a web browser, an Internet connection, and a GitHub account
-(you can `register for a free account <https://github.com/signup>`_ if you don't have one).
-You will use Read the Docs Community, which means that the project will be public.
+   Find out the `differences between Read the Docs Community and Read the Docs for Business <https://about.readthedocs.com/pricing/#/community>`_.
 
-Getting started
----------------
+In the tutorial we will:
 
-Preparing your project on GitHub
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Import a Sphinx project from a GitHub repository (no prior experience with Sphinx is required).
+2. Tailor the project's configuration.
+3. Explore other useful Read the Docs features.
 
-To start, `sign in to GitHub <https://github.com/login>`_
-and navigate to `the tutorial GitHub template <https://github.com/readthedocs/tutorial-template/>`_,
-where you will see a green :guilabel:`Use this template` button.
-Click it to open a new page that will ask you for some details:
+If you don't have a GitHub account, you'll need to `register for a free account <https://github.com/signup>`_ before you start.
 
-* Leave the default "Owner", or change it to something better for a tutorial project.
-* Introduce an appropriate "Repository name", for example ``rtd-tutorial``.
-* Make sure the project is "Public", rather than "Private".
+Preparing your repository on GitHub
+-----------------------------------
 
-After that, click on the green :guilabel:`Create repository from template` button,
-which will generate a new repository on your personal account
-(or the one of your choosing).
-This is the repository you will import on Read the Docs,
-and it contains the following files:
+#. `Sign in to GitHub <https://github.com/login>`_ and navigate to the `tutorial GitHub template <https://github.com/readthedocs/tutorial-template/>`_.
 
-``.readthedocs.yaml``
-  Read the Docs configuration file.
-  Required to setup the documentation build process.
+#. Click the green :guilabel:`Use this template` button, then click :guilabel:`Create a new Repository`. On the new page:
 
-``README.rst``
-  Basic description of the repository, you will leave it untouched.
+   Owner
+      Leave the default, or change it to something suitable for a tutorial project.
+   Repository name
+      Something memorable and appropriate, for example ``rtd-tutorial``.
+   Visibility
+      Make sure the project is "Public", rather than "Private".
+   
+#. Click the green :guilabel:`Create repository` button to create a public repository that you will use in this Read the Docs tutorial, containing  following files:
 
-``pyproject.toml``
-  Python project metadata that makes it installable.
-  Useful for automatic documentation generation from sources.
+   ``.readthedocs.yaml``
+      Read the Docs configuration file. Required.
 
-``lumache.py``
-  Source code of the fictional Python library.
+   ``README.rst``
+      Description of the repository.
 
-``docs/``
-  Directory holding all the Sphinx documentation sources,
-  including the Sphinx configuration ``docs/source/conf.py``
-  and the root document ``docs/source/index.rst`` written in reStructuredText.
+   ``pyproject.toml``
+      Python project metadata that makes it installable.
+      Useful for automatic documentation generation from sources.
+
+   ``lumache.py``
+      Source code of the fictional Python library.
+
+   ``docs/``
+      Directory holding all the fictional Python library documentation in reStructuredText, the Sphinx configuration ``docs/source/conf.py``
+      and the root document ``docs/source/index.rst``.
 
 .. figure:: /_static/images/tutorial/github-template.png
    :width: 80%
@@ -64,10 +55,10 @@ and it contains the following files:
 
    GitHub template for the tutorial
 
-Sign up for Read the Docs
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Creating a Read the Docs account
+--------------------------------
 
-To sign up for a Read the Docs account,
+To create a Read the Docs account:
 navigate to the `Sign Up page <https://readthedocs.org/accounts/signup/>`_
 and choose the option :guilabel:`Sign up with GitHub`.
 On the authorization page, click the green :guilabel:`Authorize readthedocs` button.
@@ -87,12 +78,10 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
    If you want to learn more,
    check out :ref:`guides/setup/git-repo-automatic:permissions for connected accounts`.
 
-After that, you will be redirected to Read the Docs,
-where you will need to confirm your e-mail and username.
-Clicking the :guilabel:`Sign Up »` button will create your account
-and redirect you to your :term:`dashboard`.
+After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
+and open your :term:`dashboard`.
 
-By now, you should have two email notifications:
+You should have two email notifications:
 
 * One from GitHub, telling you that "A third-party OAuth application ...
   was recently authorized to access your account". You don't need to do
@@ -100,61 +89,46 @@ By now, you should have two email notifications:
 * Another one from Read the Docs, prompting you to "verify your email
   address". Click on the link to finalize the process.
 
-Once done, your Read the Docs account is created
-and ready to import your first project.
-
-Welcome!
+After veryifyng your email address, your Read the Docs account is ready to import your first project.
 
 .. figure:: /_static/images/tutorial/rtd-empty-dashboard.png
    :width: 80%
    :align: center
    :alt: Read the Docs empty dashboard
 
-   Read the Docs empty dashboard
-
-.. note::
-
-   Our commercial site offers some extra features,
-   like support for private projects.
-   You can learn more about :doc:`our two different sites </choosing-a-site>`.
-
-First steps
------------
+   Welcome to your Read the Docs dashboard!
 
 Importing the project to Read the Docs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------
 
-To import your GitHub project to Read the Docs,
-first click on the :guilabel:`Import a Project` button on your dashboard
-(or browse to `the import page <https://readthedocs.org/dashboard/import/>`_ directly).
-You should see your GitHub account under the "Filter repositories" list on the right.
-If the list of repositories is empty, click the |:arrows_counterclockwise:| button,
-and after that all your repositories will appear on the center.
+To import your GitHub project to Read the Docs:
 
-.. figure:: /_static/images/tutorial/rtd-import-projects.gif
-   :width: 80%
-   :align: center
-   :alt: Import projects workflow
+#. Click the :guilabel:`Import a Project` button on your `dashboard <https://readthedocs.org/dashboard/>`_.
 
-   Import projects workflow
+#. Click the |:heavy_plus_sign:| button to the right of your ``rtd-tutorial`` project. If the list of repositories is empty, click the |:arrows_counterclockwise:| button.
 
-Locate your ``rtd-tutorial`` project
-(possibly clicking :guilabel:`next ››` at the bottom if you have several pages of projects),
-and then click on the |:heavy_plus_sign:| button to the right of the name.
-The next page will ask you to fill some details about your Read the Docs project:
+   .. figure:: /_static/images/tutorial/rtd-import-projects.gif
+      :width: 80%
+      :align: center
+      :alt: Import projects workflow
 
-Name
-  The name of the project. It has to be unique across all the service,
-  so it is better if you prepend your username,
-  for example ``{username}-rtd-tutorial``.
+      Import projects workflow
 
-Repository URL
-  The URL that contains the sources. Leave the automatically filled value.
+#. Enter some details about your Read the Docs project:
 
-Default branch
-  Name of the default branch of the project, leave it as ``main``.
+   Name
+      The name of the project. It has to be unique across all the service,
+      so it is better if you prepend your username,
+      for example ``{username}-rtd-tutorial``.
 
-After hitting the :guilabel:`Next` button, you will be redirected to the :term:`project home`.
+   Repository URL
+      The URL that contains the documentation source. Leave the automatically filled value.
+
+   Default branch
+      Name of the default branch of the project, leave it as ``main``.
+
+   Then click the :guilabel:`Next` button to create the poject and open the :term:`project home`.
+
 You just created your first project on Read the Docs! |:tada:|
 
 .. figure:: /_static/images/tutorial/rtd-project-home.png
@@ -165,30 +139,25 @@ You just created your first project on Read the Docs! |:tada:|
    Project home
 
 Checking the first build
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
-Read the Docs will try to build the documentation of your project
-right after you create it.
-To see the build logs,
-click on the :guilabel:`Your documentation is building` link on the :term:`project home`,
-or alternatively navigate to the "Builds" page,
-then open the one on top (the most recent one).
+Read the Docs will build your project documentation right after you create it.
 
-If the build has not finished yet by the time you open it,
-you will see a spinner next to a "Installing" or "Building" indicator,
-meaning that it is still in progress.
+To see the build logs:
 
-.. figure:: /_static/images/tutorial/rtd-first-successful-build.png
-   :width: 80%
-   :align: center
-   :alt: First successful documentation build
+#. Click the :guilabel:`Your documentation is building` link on the :term:`project home`. 
+   
+   - If the build has not finished by the time you open it, you will see a spinner next to a "Installing" or "Building" indicator, meaning that it is still in progress. 
+   - If the build has finished, you'll see a green "Build completed" indicator, the completion date, the elapsed time, and a link to the generated documentation.
 
-   First successful documentation build
+   .. figure:: /_static/images/tutorial/rtd-first-successful-build.png
+      :width: 80%
+      :align: center
+      :alt: First successful documentation build
 
-When the build finishes, you will see a green "Build completed" indicator,
-the completion date, the elapsed time,
-and a link to see the corresponding documentation.
-If you now click on :guilabel:`View docs`, you will see your documentation live!
+      First successful documentation build
+
+#. Click on :guilabel:`View docs` to see your documentation live!
 
 .. figure:: /_static/images/tutorial/rtd-first-light.png
    :width: 80%
@@ -209,111 +178,94 @@ If you now click on :guilabel:`View docs`, you will see your documentation live!
    and tries to be as unobstrusive as possible,
    so we would like to kindly ask you to :doc:`not block us </advertising/ad-blocking>` |:heart:|
 
-Basic configuration changes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configuring the project
+-----------------------
 
-You can now proceed to make some basic configuration adjustments.
-Navigate back to the :term:`project page`
-and click on the :guilabel:`⚙ Admin` button, which will open the Settings page.
+To update the project description and configure the notification settings:
 
-First of all, add the following text in the description:
+#. Navigate back to the :term:`project page` and click the :guilabel:`⚙ Admin` button,to open the Settings page.
+
+#. Update the poject description by adding the following text:
 
     Lumache (/lu'make/) is a Python library for cooks and food lovers
     that creates recipes mixing random ingredients.
 
-Then set the project homepage to ``https://world.openfoodfacts.org/``,
-and write ``food, python`` in the list of tags.
-All this information will be shown on your project home.
+#. Set the project homepage to ``https://world.openfoodfacts.org/``, and add ``food, python`` to the list of public project tags.
 
-After that, configure your email so you get a notification if the build fails.
-To do so, click on the :guilabel:`Notifications` link on the left,
-type the email where you would like to get the notification,
-and click the :guilabel:`Add` button.
-After that, your email will be shown under "Existing Notifications".
+#. To get a notification if the build fails, click the :guilabel:`Notifications` link on the left, add your email address, and click the :guilabel:`Add` button.
 
-Trigger a build from a pull request
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Triggering builds from pull requests
+------------------------------------
 
-Read the Docs allows you to :doc:`trigger builds from GitHub pull requests </pull-requests>`
-and gives you a preview of how the documentation would look like with those changes.
+Read the Docs can :doc:`trigger builds from GitHub pull requests </pull-requests>`
+and show you a preview of the documentation with those changes.
 
-To enable that functionality, first click on the :guilabel:`Settings` link on the left
-under the :guilabel:`⚙ Admin` menu, check the "Build pull requests for this project" checkbox,
-and click the :guilabel:`Save` button at the bottom of the page.
+To trigger builds from pull requests:
 
-Next, navigate to your GitHub repository, locate the file ``docs/source/index.rst``,
-and click on the |:pencil2:| icon on the top-right with the tooltip "Edit this file"
-to open a web editor (more information `on their documentation`__).
+#. Click the :guilabel:`Settings` link on the left under the :guilabel:`⚙ Admin` menu, check the "Build pull requests for this project" checkbox, and click the :guilabel:`Save` button at the bottom of the page.
 
-__  https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/editing-files-in-your-repository
+#. Make some changes to your documentation:
 
-.. figure:: /_static/images/tutorial/gh-edit.png
-   :width: 80%
-   :align: center
-   :alt: File view on GitHub before launching the editor
+   #. Navigate to your GitHub repository, locating the file ``docs/source/index.rst``, and clicking on the |:pencil2:| icon on the top-right with the tooltip "Edit this file" to open a web editor (more information `on their documentation`__).
 
-   File view on GitHub before launching the editor
+      __  https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/editing-files-in-your-repository
 
-In the editor, add the following sentence to the file:
+      .. figure:: /_static/images/tutorial/gh-edit.png
+         :width: 80%
+         :align: center
+         :alt: File view on GitHub before launching the editor
 
-.. code-block:: rst
-   :caption: docs/source/index.rst
+         File view on GitHub before launching the editor
 
-   Lumache has its documentation hosted on Read the Docs.
+   #. In the editor, add the following sentence to the file:
 
-Write an appropriate commit message,
-and choose the "Create a **new branch** for this commit and start a pull request" option,
-typing a name for the new branch.
-When you are done, click the green :guilabel:`Propose changes` button,
-which will take you to the new pull request page,
-and there click the :guilabel:`Create pull request` button below the description.
+      .. code-block:: rst
+         :caption: docs/source/index.rst
 
-.. figure:: /_static/images/tutorial/gh-pr-build.png
-   :width: 80%
-   :align: center
-   :alt: Read the Docs building the pull request from GitHub
+         Lumache hosts its documentation on Read the Docs.
 
-   Read the Docs building the pull request from GitHub
+   #. Write an appropriate commit message, choose the "Create a **new branch** for this commit and start a pull request" option. 
+   
+   #. Click the green :guilabel:`Propose changes` button to open the new pull request page, then click the :guilabel:`Create pull request` button below the description.
+
+   .. figure:: /_static/images/tutorial/gh-pr-build.png
+      :width: 80%
+      :align: center
+      :alt: Read the Docs building the pull request from GitHub
+
+      Read the Docs building the pull request from GitHub
 
 After opening the pull request, a Read the Docs check will appear
 indicating that it is building the documentation for that pull request.
-If you click on the :guilabel:`Details` link while it is building,
-you will access the build logs,
-otherwise it will take you directly to the documentation.
-When you are satisfied, you can merge the pull request!
+If you click the :guilabel:`Details` link while it is building,
+it opens the build log, after than it opens the documentation directly.
 
 Adding a configuration file
 ---------------------------
 
-The Admin tab of the :term:`project home` allows you
-to change some *global* configuration values of your project.
-In addition, you can further customize the building process
-using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`.
-This has several advantages:
+The Admin tab of the :term:`project home` has some *global* configuration settings for your project.
+
+In addition, you can customize the build process using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`, which has several advantages:
 
 - The configuration lives next to your code and documentation, tracked by version control.
-- It can be different for every version (more on versioning in the next section).
-- Some configurations are only available using the config file.
+- The configuration can be different for every version or branch of your project (more on `versioning <#versioning-documentation>`_).
+- Some configuration optionss are only available using the configuration file.
 
-This configuration file should be part of your Git repository.
-It should be located in the base folder of the repository and be named ``.readthedocs.yaml``.
+This configuration file, ``.readthedocs.yaml``, is already in your Git repository, located in the base folder of the repository. 
 
 .. TODO: We are adding a how-to that we need to include in this tutorial.
 .. Maybe by reference or maybe as full-featured content.
 
-In this section, we will show you some examples of what a configuration file should contain.
-
 .. tip::
 
-   Settings that apply to the entire project are controlled in the web dashboard,
-   while settings that are version or build specific are better in the YAML file.
+   Settings that apply to the entire project are configured in the Admin tab of the :term:`project home`, while settings that are version or build specific are better in the configuration file.
 
-Changing the Python version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. TODO there is a bit of handwaving about whether you're commiting and merging branches here, we might need to be a bit more explicit. Or at least add a mention at this level that wherever we talk about editing, we mean on main and pushing to GH.   
 
-For example, to explicitly use Python 3.8 to build your project,
-navigate to your GitHub repository, click on ``.readthedocs.yaml`` file and then in the pencil icon ✏️ to edit the file
-and change the Python version as follows:
+Using different Python versions 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To build your project with Python 3.8 instead of Python 3.10, edit the ``.readthedocs.yaml`` file and change the Python version to 3.8 like this:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -333,26 +285,26 @@ and change the Python version as follows:
    sphinx:
      configuration: docs/source/conf.py
 
-The purpose of each key is:
+The :doc:`purpose of each key </config-file/v2>` in the ``.readthedocs.yaml`` configuration file is:
 
 ``version``
-  Mandatory, specifies :doc:`version 2 of the configuration file </config-file/v2>`.
+  Required, specifies :doc:`version 2 of the configuration file </config-file/v2>`.
 
 ``build.os``
-  Required to specify the Python version,
+  Required, specifies the Docker image used to build the documentation.
   :ref:`states the name of the base image <config-file/v2:build.os>`.
 
 ``build.tools.python``
-  Declares the Python version to be used.
+  Specifies the :ref:`Python version <config-file/v2:build.tools.python>`.
 
 ``python.install.requirements``
-  Specifies the Python dependencies to install required to build the documentation.
+  Specifies what :ref:`Python dependencies <config-file/v2:python.install>` to install.
 
 After you commit these changes, go back to your project home,
 navigate to the "Builds" page, and open the new build that just started.
 You will notice that one of the lines contains ``python -mvirtualenv``:
 if you click on it, you will see the full output of the corresponding command,
-stating that it used Python 3.8.6 to create the virtual environment.
+stating that it used Python 3.8.6, the latest version of Python 3.8 to create the virtual environment.
 
 .. figure:: /_static/images/tutorial/build-python3.8.png
    :width: 80%
@@ -361,8 +313,8 @@ stating that it used Python 3.8.6 to create the virtual environment.
 
    Read the Docs build using Python 3.8
 
-Making warnings more visible
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Making build warnings more visible
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you navigate to your HTML documentation,
 you will notice that the index page looks correct
@@ -383,10 +335,10 @@ and you will see several warnings:
    WARNING: autodoc: failed to import exception 'InvalidKindError' from module 'lumache'; the following exception was raised:
    No module named 'lumache'
 
-To spot these warnings more easily and allow you to address them,
-you can add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
-For that, navigate to GitHub, locate the ``.readthedocs.yaml`` file you created earlier,
-click on the |:pencil2:| icon, and add these contents:
+To spot these warnings more easily and help you to address them,
+ add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
+
+To fail on warnings to your Read the Docs project, edit the ``.readthedocs.yaml`` file in your project add the three lines of ``sphinx`` configuration below, and commit the file:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -407,18 +359,19 @@ click on the |:pencil2:| icon, and add these contents:
      configuration: docs/source/conf.py
      fail_on_warning: true
 
-At this point, if you navigate back to your "Builds" page,
-you will see a ``Failed`` build, which is exactly the intended result:
-the Sphinx project is not properly configured yet,
-and instead of rendering an empty API page, now the build fails.
+If you navigate to your "Builds" page, you will see a ``Failed`` build, which is expected because we've configured Sphinx fail on the warnings we saw above.
 
-The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc`
-fail to import the code is because it is not installed.
-Luckily, the ``.readthedocs.yaml`` also allows you to specify
-which requirements to install.
+To learn how to fix the warnings, see `Install Python Dependencies <#installing-python-dependencies>`_.
 
-To install the library code of your project,
-go back to editing ``.readthedocs.yaml`` on GitHub and modify it as follows:
+Installing Python dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc` fail to import the `code above <#making-build-warnings-more-visible>`_, is because the ``lumache`` module is not installed.
+
+Luckily, you can specify those installation requirements in ``.readthedocs.yaml``. 
+
+To install your project dependencies and make your code available to Sphinx,
+edit ``.readthedocs.yaml``, add the ``python.install``  section and commit it:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -431,10 +384,10 @@ go back to editing ``.readthedocs.yaml`` on GitHub and modify it as follows:
        - method: pip
          path: .
 
-With this change, Read the Docs will install the Python code
+Now, Read the Docs installs the Python code
 before starting the Sphinx build, which will finish seamlessly.
 If you go now to the API page of your HTML documentation,
-you will see the ``lumache`` summary!
+you will see the ``lumache`` summary! :tada:
 
 Enabling PDF and EPUB builds
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -443,7 +396,7 @@ Sphinx can build several other formats in addition to HTML, such as PDF and EPUB
 You might want to enable these formats for your project
 so your users can read the documentation offline.
 
-To do so, add this extra content to your ``.readthedocs.yaml``:
+To do so, add the following ``formats`` to your ``.readthedocs.yaml``:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -470,7 +423,7 @@ as well as the :term:`flyout menu`.
 Versioning documentation
 ------------------------
 
-Read the Docs allows you to have :doc:`several versions of your documentation </versions>`,
+Read the Docs supports having :doc:`several versions of your documentation </versions>`,
 in the same way that you have several versions of your code.
 By default, it creates a ``latest`` version
 that points to the default branch of your version control system
