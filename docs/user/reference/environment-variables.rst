@@ -16,8 +16,8 @@ All :doc:`build processes </builds>` have the following environment variables au
 .. envvar:: READTHEDOCS_LANGUAGE
 
     The locale name, or the identifier for the locale, for the project being built.
-    This value comes from the project's configured language,
-    normalized to be lowercase and use a dash as a separator instead of an underscore.
+    This value comes from the project's configured language code,
+    which is in lowercase and use a dash as a separator.
 
     :Example: ``en``
     :Example: ``it``
