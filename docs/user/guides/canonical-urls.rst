@@ -9,7 +9,7 @@ please refer to :doc:`/guides/custom-domains`.
 Sphinx
 ~~~~~~
 
-If you are using :doc:`Sphinx </intro/getting-started-with-sphinx>`,
+If you are using :doc:`Sphinx </tools/sphinx>`,
 Read the Docs will automatically add a default value of the html_baseurl_ setting matching your canonical domain.
 
 If you are using a custom ``html_baseurl`` in your ``conf.py``,
@@ -26,7 +26,7 @@ and letting Read the Docs define it.
 MkDocs
 ~~~~~~
 
-For :doc:`MkDocs </intro/getting-started-with-mkdocs>` we do not define your canonical domain automatically,
+For :doc:`MkDocs </tools/mkdocs>` we do not define your canonical domain automatically,
 but you can use the site_url_ setting to set a similar value.
 
 In your ``mkdocs.yml``, define the following:

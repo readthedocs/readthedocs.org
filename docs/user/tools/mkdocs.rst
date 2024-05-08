@@ -15,7 +15,7 @@ It has many great features including:
 .. note::
 
     MkDocs is a great choice for building technical documentation.
-    However, Read the Docs also supports :doc:`Sphinx </intro/getting-started-with-sphinx>`,
+    However, Read the Docs also supports :doc:`Sphinx </tools/sphinx>`,
     another tool for writing and building documentation.
 
 
