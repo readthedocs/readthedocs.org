@@ -359,8 +359,8 @@ Take a look at the following example:
 Install dependencies with ``uv``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Projects managed with `uv <https://github.com/astral-sh/uv/>`__,
-can use the ``post_create_environment`` user-defined job to use ``uv`` for installing Python dependencies.
+Projects can use `uv <https://github.com/astral-sh/uv/>`__,
+to install Python dependencies, usually reducing the time taken to install compared to pip, possibly dramatically.
 Take a look at the following example:
 
 
@@ -373,19 +373,15 @@ Take a look at the following example:
      os: "ubuntu-22.04"
      tools:
        python: "3.10"
-     jobs:
-       post_create_environment:
-         # Install uv
-         - pip install uv
-       post_install:
-         # Install dependencies with 'docs' dependency group
-         # VIRTUAL_ENV needs to be set manually for now.
-         # See https://github.com/readthedocs/readthedocs.org/pull/11152/
-         - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH uv pip install .[docs]
+     commands:
+       - asdf plugin add uv
+       - asdf install uv latest
+       - asdf global uv latest
+       - uv venv
+       - uv pip install .[docs]
+       - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
 
-   sphinx:
-     configuration: docs/conf.py
-
+You can use ``-r docs/requirements.txt``, etc. instead as needed. And mkdocs would use ``.venv/bin/python -m mkdocs build --site-dir $READTHEDOCS_OUTPUT/html``.
 
 Update Conda version
 ^^^^^^^^^^^^^^^^^^^^
