@@ -381,7 +381,7 @@ Take a look at the following example:
        - uv pip install .[docs]
        - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
 
-You can use ``-r docs/requirements.txt``, etc. instead as needed. And mkdocs would use ``.venv/bin/python -m mkdocs build --site-dir $READTHEDOCS_OUTPUT/html``.
+You can use ``-r docs/requirements.txt``, etc. instead as needed. And mkdocs would use ``NO_COLOR=1 .venv/bin/mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html``.
 
 Update Conda version
 ^^^^^^^^^^^^^^^^^^^^
