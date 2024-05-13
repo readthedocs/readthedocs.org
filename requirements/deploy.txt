@@ -353,7 +353,7 @@ s3transfer==0.10.1
     #   boto3
 selectolax==0.3.21
     # via -r requirements/pip.txt
-sentry-sdk==2.1.1
+sentry-sdk==1.45.0
     # via structlog-sentry
 six==1.16.0
     # via
