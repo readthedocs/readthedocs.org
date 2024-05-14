@@ -360,7 +360,7 @@ Install dependencies with ``uv``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Projects can use `uv <https://github.com/astral-sh/uv/>`__,
-to install Python dependencies, usually reducing the time taken to install compared to pip, possibly dramatically.
+to install Python dependencies, usually reducing the time taken to install compared to pip.
 Take a look at the following example:
 
 
@@ -381,7 +381,7 @@ Take a look at the following example:
        - uv pip install .[docs]
        - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
 
-You can use ``-r docs/requirements.txt``, etc. instead as needed. And mkdocs would use ``NO_COLOR=1 .venv/bin/mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html``.
+You can use ``-r docs/requirements.txt``, etc. instead as needed. MkDocs projects could use ``NO_COLOR=1 .venv/bin/mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
 
 Update Conda version
 ^^^^^^^^^^^^^^^^^^^^
