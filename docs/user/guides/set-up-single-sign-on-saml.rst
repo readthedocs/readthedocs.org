@@ -53,7 +53,7 @@ In order to enable SSO with Okta, you need to create a new SAML application in y
 User setup
 ~~~~~~~~~~
 
-Using this setup, all users who have access to the configured Okta application will automatically join to your organization when they sign up.
+Using this setup, all users who have access to the configured Okta application will automatically join to your Read the Docs organization when they sign up.
 Existing users will not be automatically joined to the organization.
 
 You can still add outside collaborators and manage their access.
@@ -82,7 +82,7 @@ all users with email addresses from your configured domain will be required to s
 Configure team for all users to join
 ------------------------------------
 
-You can mark one or many teams that users are automatically joined when they sign up with a matching email address.
+You can mark one or more teams that users will automatically join when they sign up with a matching email address.
 Configure this option by:
 
 1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
