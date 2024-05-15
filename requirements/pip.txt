@@ -85,7 +85,7 @@ django==4.2.13
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[saml]==0.57.2
+django-allauth[saml]==0.61.1
     # via -r requirements/pip.in
 django-annoying==0.10.6
     # via -r requirements/pip.in

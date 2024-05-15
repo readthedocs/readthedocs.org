@@ -285,7 +285,8 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount",
             "allauth.socialaccount.providers.github",
             "allauth.socialaccount.providers.gitlab",
-            "allauth.socialaccount.providers.bitbucket",
+            # TODO: remove bitbucket from our DB.
+            # "allauth.socialaccount.providers.bitbucket",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "cacheops",
         ]
