@@ -85,7 +85,7 @@ django==4.2.13
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth==0.57.2
+django-allauth[saml]==0.57.2
     # via -r requirements/pip.in
 django-annoying==0.10.6
     # via -r requirements/pip.in
@@ -170,6 +170,8 @@ gunicorn==22.0.0
     # via -r requirements/pip.in
 idna==3.7
     # via requests
+isodate==0.6.1
+    # via python3-saml
 jmespath==1.0.1
     # via
     #   boto3
@@ -185,7 +187,10 @@ lexid==2021.1006
 looseversion==1.3.0
     # via bumpver
 lxml==5.2.1
-    # via pyquery
+    # via
+    #   pyquery
+    #   python3-saml
+    #   xmlsec
 markdown==3.6
     # via -r requirements/pip.in
 oauthlib==3.2.2
@@ -222,6 +227,8 @@ python-dateutil==2.9.0.post0
     #   elasticsearch-dsl
     #   python-crontab
 python3-openid==3.2.0
+    # via django-allauth
+python3-saml==1.16.0
     # via django-allauth
 pytz==2024.1
     # via
@@ -260,6 +267,7 @@ six==1.16.0
     # via
     #   django-annoying
     #   django-elasticsearch-dsl
+    #   isodate
     #   python-dateutil
     #   unicode-slugify
 slumber==0.7.1
@@ -311,6 +319,8 @@ wcwidth==0.2.13
     # via prompt-toolkit
 websocket-client==1.8.0
     # via docker
+xmlsec==1.3.13
+    # via python3-saml
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
