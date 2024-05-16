@@ -6,10 +6,9 @@
 {% for provider in socialaccount_providers %}
   {% comment %}
     - OpenID is not implemented.
-    - Bitbucket is deprecated (in favor of their new oauth implementation).
     - SAML is handled in another view, we don't want to list all SAML integrations here.
   {% endcomment %}
-  {% if provider.id != 'bitbucket' and provider.id != 'saml' %}
+  {% if provider.id != 'saml' %}
   {% if allowed_providers and provider.id in allowed_providers or not allowed_providers %}
     <li>
       <form action="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params next=next %}" method="post">

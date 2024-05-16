@@ -285,8 +285,6 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount",
             "allauth.socialaccount.providers.github",
             "allauth.socialaccount.providers.gitlab",
-            # TODO: remove bitbucket from our DB.
-            # "allauth.socialaccount.providers.bitbucket",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "cacheops",
         ]
@@ -698,12 +696,6 @@ class CommunityBaseSettings(Settings):
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
             # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org.
-        },
-        # Deprecated, we use `bitbucket_oauth2` for all new connections.
-        "bitbucket": {
-            "APPS": [
-                {"client_id": "123", "secret": "456", "key": ""},
-            ],
         },
     }
 
