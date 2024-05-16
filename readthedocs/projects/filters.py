@@ -175,7 +175,7 @@ class ProjectVersionListFilterSet(FilterSet):
     )
 
     # Attribute filter fields
-    version = CharFilter(field_name="slug", widget=HiddenInput)
+    version = CharFilter(field_name="slug", lookup_expr="icontains", widget=HiddenInput)
     privacy = ChoiceFilter(
         field_name="privacy_level",
         label=_("Privacy"),
