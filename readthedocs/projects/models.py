@@ -111,9 +111,6 @@ class ProjectRelationship(models.Model):
 
     objects = ChildRelatedProjectQuerySet.as_manager()
 
-    def __str__(self):
-        return "{} -> {}".format(self.parent, self.child)
-
     def save(self, *args, **kwargs):
         if not self.alias:
             self.alias = self.child.slug
@@ -1506,9 +1503,6 @@ class ImportedFile(models.Model):
             filename=self.path,
         )
 
-    def __str__(self):
-        return "{}: {}".format(self.name, self.project)
-
 
 class HTMLFile(ImportedFile):
 
@@ -1696,9 +1690,6 @@ class WebHook(Notification):
         )
         return digest.hexdigest()
 
-    def __str__(self):
-        return f"{self.project.slug} {self.url}"
-
 
 class Domain(TimeStampedModel):
 
@@ -1790,10 +1781,7 @@ class Domain(TimeStampedModel):
         ordering = ("-canonical", "-machine", "domain")
 
     def __str__(self):
-        return "{domain} pointed at {project}".format(
-            domain=self.domain,
-            project=self.project.name,
-        )
+        return self.domain
 
     @property
     def is_valid(self):
@@ -1864,7 +1852,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
     )
 
     def __str__(self):
-        return f"HttpHeader: {self.name} on {self.domain.domain}"
+        return self.name
 
 
 class Feature(models.Model):
@@ -2033,9 +2021,7 @@ class Feature(models.Model):
     objects = FeatureQuerySet.as_manager()
 
     def __str__(self):
-        return "{} feature".format(
-            self.get_feature_display(),
-        )
+        return self.get_feature_display()
 
     def get_feature_display(self):
         """

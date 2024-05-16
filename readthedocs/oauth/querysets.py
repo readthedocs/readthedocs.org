@@ -2,8 +2,10 @@
 
 from django.db import models
 
+from readthedocs.core.querysets import NoReprQuerySet
 
-class RelatedUserQuerySet(models.QuerySet):
+
+class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
 
     """For models with relations through :py:class:`User`."""
 

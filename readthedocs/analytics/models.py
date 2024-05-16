@@ -102,9 +102,6 @@ class PageView(models.Model):
             ),
         ]
 
-    def __str__(self):
-        return f"PageView: [{self.project.slug}] - {self.full_path or self.path} for {self.date}"
-
     @classmethod
     def top_viewed_pages(
         cls, project, since=None, limit=10, status=200, per_version=False
