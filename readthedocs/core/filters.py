@@ -1,6 +1,55 @@
 """Extended classes for django-filter."""
 
-from django_filters import ModelChoiceFilter, views
+import structlog
+from django_filters import FilterSet, ModelChoiceFilter, views
+from django_filters.fields import ModelChoiceField
+
+log = structlog.get_logger(__name__)
+
+
+class ModelFilterSet(FilterSet):
+
+    """
+    Filterset that supports empty querysets
+
+    By default, unbound filter forms result in none of the filters functioning.
+    Instead, we want filters to always work, even when there is no filter data
+    passed in from the view/request.
+    """
+
+    def __init__(self, data=None, **kwargs):
+        if data is None:
+            data = {}
+        super().__init__(data=data, **kwargs)
+
+
+class FilteredModelChoiceField(ModelChoiceField):
+
+    """
+    Choice field for tuning model choices
+
+    The underlying ModelChoiceField assumes that the model's ``__repr__`` method
+    will return the best choice label. In our modeling, ``__repr__`` is almost
+    exclusively used for debugging, so is not for user display.
+
+    :param label_attribute: Model attribute/property name used to display the
+                            choice field choice label. This is used by the
+                            internal method ``label_for_instance``.
+    :param has_search: Display dropdown as a scrolling, searchable dropdown
+                            instead of a static dropdown list.
+    """
+
+    def __init__(self, queryset, *, label_attribute=None, has_search=True, **kwargs):
+        self.label_attribute = label_attribute
+        self.has_search = has_search
+        super().__init__(queryset, **kwargs)
+
+    def label_from_instance(self, value):
+        if self.label_attribute is not None:
+            label = getattr(value, self.label_attribute, None)
+            if label is not None:
+                return label
+        return super().label_from_instance(value)
 
 
 class FilteredModelChoiceFilter(ModelChoiceFilter):
@@ -24,6 +73,8 @@ class FilteredModelChoiceFilter(ModelChoiceFilter):
                             queryset for choice population.
     :type queryset_method: str
     """
+
+    field_class = FilteredModelChoiceField
 
     def __init__(self, *args, **kwargs):
         self.queryset_method = kwargs.pop("queryset_method", None)

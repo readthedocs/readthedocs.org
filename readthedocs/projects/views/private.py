@@ -37,6 +37,7 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
+from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
@@ -93,12 +94,14 @@ from readthedocs.subscriptions.products import get_feature
 log = structlog.get_logger(__name__)
 
 
-class ProjectDashboard(PrivateViewMixin, ListView):
+class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
 
     """Project dashboard."""
 
     model = Project
     template_name = "projects/project_dashboard.html"
+
+    filterset_class = ProjectListFilterSet
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -106,11 +109,8 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         context["type"] = "file"
 
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = ProjectListFilterSet(
-                self.request.GET, queryset=self.get_queryset()
-            )
-            context["filter"] = filter
-            context["project_list"] = filter.qs
+            context["filter"] = self.get_filterset()
+            context["project_list"] = self.get_filtered_queryset()
             # Alternatively, dynamically override super()-derived `project_list` context_data
             # context[self.get_context_object_name(filter.qs)] = filter.qs
 

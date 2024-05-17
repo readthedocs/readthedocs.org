@@ -27,6 +27,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
@@ -89,6 +90,7 @@ def project_redirect(request, invalid_project_slug):
 
 
 class ProjectDetailViewBase(
+    FilterContextMixin,
     ProjectSpamMixin,
     ProjectRelationListMixin,
     BuildTriggerMixin,
@@ -100,6 +102,8 @@ class ProjectDetailViewBase(
 
     model = Project
     slug_url_kwarg = "project_slug"
+
+    filterset_class = ProjectVersionListFilterSet
 
     def get_queryset(self):
         return Project.objects.public(self.request.user)
@@ -115,12 +119,11 @@ class ProjectDetailViewBase(
         # Get filtered and sorted versions
         versions = self._get_versions(project)
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = ProjectVersionListFilterSet(
-                self.request.GET,
+            context["filter"] = self.get_filterset(
                 queryset=versions,
+                project=project,
             )
-            context["filter"] = filter
-            versions = filter.qs
+            versions = self.get_filtered_queryset()
         context["versions"] = versions
 
         protocol = "http"
