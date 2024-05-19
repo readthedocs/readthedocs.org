@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.103
+boto3==1.34.108
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.103
+botocore==1.34.108
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -267,7 +267,7 @@ looseversion==1.3.0
     # via
     #   -r requirements/pip.txt
     #   bumpver
-lxml==5.2.1
+lxml==5.2.2
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -302,7 +302,7 @@ pdbpp==0.10.3
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
-platformdirs==4.2.1
+platformdirs==4.2.2
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -370,7 +370,7 @@ redis==5.0.4
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-regex==2024.5.10
+regex==2024.5.15
     # via -r requirements/pip.txt
 requests==2.31.0
     # via
@@ -474,7 +474,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.1
+virtualenv==20.26.2
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -488,7 +488,7 @@ websocket-client==1.8.0
     #   docker
 wmctrl==0.5
     # via pdbpp
-xmlsec==1.3.13
+xmlsec==1.3.14
     # via
     #   -r requirements/pip.txt
     #   python3-saml
