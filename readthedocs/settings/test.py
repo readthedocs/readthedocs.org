@@ -24,9 +24,6 @@ class CommunityTestSettings(CommunityBaseSettings):
 
     CELERY_ALWAYS_EAGER = True
 
-    # Disable rate limits to avoid random failures in tests.
-    ACCOUNT_RATE_LIMITS = False
-
     # Skip automatic detection of Docker limits for testing
     DOCKER_LIMITS = {"memory": "200m", "time": 600}
 
