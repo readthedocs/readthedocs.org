@@ -397,7 +397,7 @@ class TestVersionCompareFooter(TestCase):
 
         base_version = self.pip.versions.get(slug="0.8.1")
         valid_data = {
-            "project": "Version 1.0.0 of Pip ({})".format(version.pk),
+            "project": "1.0.0",
             "url": "https://pip.readthedocs.io/en/1.0.0/",
             "slug": "1.0.0",
             "version": "1.0.0",
@@ -440,7 +440,7 @@ class TestVersionCompareFooter(TestCase):
             built=True,
         )
         valid_data = {
-            "project": "Version 2.0.0 of Pip ({})".format(version.pk),
+            "project": "2.0.0",
             "url": "https://pip.readthedocs.io/en/2.0.0/",
             "slug": "2.0.0",
             "version": "2.0.0",
