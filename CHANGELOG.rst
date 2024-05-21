@@ -1,3 +1,31 @@
+Version 10.25.0
+---------------
+
+:Date: May 21, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11331 <https://github.com/readthedocs/readthedocs.org/pull/11331>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Move dashboard API filter fields to model queryset filter fields (`#11330 <https://github.com/readthedocs/readthedocs.org/pull/11330>`__)
+* `@humitos <https://github.com/humitos>`__: Adapt `__str__` and `__repr__` methods for DB (`#11329 <https://github.com/readthedocs/readthedocs.org/pull/11329>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11323 <https://github.com/readthedocs/readthedocs.org/pull/11323>`__)
+* `@henryiii <https://github.com/henryiii>`__: docs: update uv instructions (`#11322 <https://github.com/readthedocs/readthedocs.org/pull/11322>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use EthicalAd implementation from addons (`#11318 <https://github.com/readthedocs/readthedocs.org/pull/11318>`__)
+* `@rffontenelle <https://github.com/rffontenelle>`__: Languages code are now normalized (`#11315 <https://github.com/readthedocs/readthedocs.org/pull/11315>`__)
+* `@stsewd <https://github.com/stsewd>`__: Addons: mark project as raw ID in admin (`#11311 <https://github.com/readthedocs/readthedocs.org/pull/11311>`__)
+* `@humitos <https://github.com/humitos>`__: Wrangler: NGINX and redirects (`#11305 <https://github.com/readthedocs/readthedocs.org/pull/11305>`__)
+* `@humitos <https://github.com/humitos>`__: Dashboard: promote "security logs" only if organization owner (`#11304 <https://github.com/readthedocs/readthedocs.org/pull/11304>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use addons search (`#11303 <https://github.com/readthedocs/readthedocs.org/pull/11303>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: return 404 when the `project` does not exist in the DB (`#11302 <https://github.com/readthedocs/readthedocs.org/pull/11302>`__)
+* `@jeffwidman <https://github.com/jeffwidman>`__: Replace non-existant `python.install.package` with `python.install.path` (`#11301 <https://github.com/readthedocs/readthedocs.org/pull/11301>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Use initial value for default dashboard template name (`#11298 <https://github.com/readthedocs/readthedocs.org/pull/11298>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Cleanup: delete `yaml_load_safely` (#11285)" (`#11297 <https://github.com/readthedocs/readthedocs.org/pull/11297>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.24.1 (`#11296 <https://github.com/readthedocs/readthedocs.org/pull/11296>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: basic docs for SAML SSO (`#11288 <https://github.com/readthedocs/readthedocs.org/pull/11288>`__)
+* `@humitos <https://github.com/humitos>`__: Dashboard: promote features in the right bar (`#11287 <https://github.com/readthedocs/readthedocs.org/pull/11287>`__)
+* `@humitos <https://github.com/humitos>`__: Cleanup: delete `yaml_load_safely` (`#11285 <https://github.com/readthedocs/readthedocs.org/pull/11285>`__)
+* `@stsewd <https://github.com/stsewd>`__: Notifications: allow usernames with dots (`#11283 <https://github.com/readthedocs/readthedocs.org/pull/11283>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: refactor sorting versions for flyout (`#11278 <https://github.com/readthedocs/readthedocs.org/pull/11278>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: add SAML integration (`#11262 <https://github.com/readthedocs/readthedocs.org/pull/11262>`__)
+
 Version 10.24.1
 ---------------
 
