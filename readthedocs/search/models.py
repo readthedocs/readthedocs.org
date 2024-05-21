@@ -5,7 +5,6 @@ from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
 from django_extensions.db.models import TimeStampedModel
 
 from readthedocs.builds.models import Version
@@ -44,7 +43,7 @@ class SearchQuery(TimeStampedModel):
         verbose_name_plural = "Search queries"
 
     def __str__(self):
-        return f"[{self.project.slug}:{self.version.slug}]: {self.query}"
+        return self.query
 
     @classmethod
     def generate_queries_count_of_one_month(cls, project_slug):

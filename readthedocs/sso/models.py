@@ -54,9 +54,7 @@ class SSOIntegration(models.Model):
     )
 
     def __str__(self):
-        if self.name:
-            return f'"{self.name}" for "{self.organization}" ({self.provider})'
-        return f"{self.organization} ({self.provider})"
+        return self.name or self.provider
 
 
 class SSODomain(models.Model):
@@ -67,4 +65,4 @@ class SSODomain(models.Model):
     )
 
     def __str__(self):
-        return f"{self.domain}"
+        return self.domain

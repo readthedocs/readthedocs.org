@@ -4,11 +4,12 @@ from django.db import models
 from django.utils import timezone
 
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.querysets import NoReprQuerySet
 
 from .constants import CANCELLED, READ, UNREAD
 
 
-class NotificationQuerySet(models.QuerySet):
+class NotificationQuerySet(NoReprQuerySet, models.QuerySet):
     def add(self, *args, **kwargs):
         """
         Create a notification without duplicating it.
