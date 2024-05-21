@@ -44,6 +44,21 @@ permissions are managed by the :ref:`internal Read the Docs's teams <commercial/
 This feature is only available on the **Pro plan** and above.
 Learn how to configure this SSO method with our :doc:`/guides/setup-single-sign-on-google-email`.
 
+SSO with SAML
+-------------
+
+.. note::
+
+   This feature is in beta, and will be available for **Enterprise** plans only.
+   Contact :doc:`support </support>` to enable this feature for your organization.
+
+   **At the moment only Okta is supported as a SAML identity provider.**
+
+This feature allows you to easily manage access to users that are part of your identity provider.
+As SAML doesn't provide information about which projects a user has access to,
+permissions are managed by the :ref:`internal Read the Docs's teams <commercial/organizations:Team Types>` authorization system.
+Learn how to configure this SSO method with our :doc:`guide </guides/set-up-single-sign-on-saml>`.
+
 Requesting additional providers
 -------------------------------
 

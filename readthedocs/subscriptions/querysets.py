@@ -10,8 +10,10 @@ from django.db import models
 from django.utils import timezone
 from djstripe.enums import SubscriptionStatus
 
+from readthedocs.core.querysets import NoReprQuerySet
 
-class StripeSubscriptionQueryset(models.QuerySet):
+
+class StripeSubscriptionQueryset(NoReprQuerySet, models.QuerySet):
 
     """Manager for the djstripe Subscription model."""
 

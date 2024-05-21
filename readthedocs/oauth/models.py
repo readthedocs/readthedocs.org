@@ -61,7 +61,7 @@ class RemoteOrganization(TimeStampedModel):
         db_table = "oauth_remoteorganization_2020"
 
     def __str__(self):
-        return "Remote organization: {name}".format(name=self.slug)
+        return self.slug
 
     def get_remote_organization_relation(self, user, social_account):
         """Return RemoteOrganizationRelation object for the remote organization."""
@@ -95,9 +95,6 @@ class RemoteOrganizationRelation(TimeStampedModel):
             "remote_organization",
             "account",
         )
-
-    def __str__(self):
-        return f"{self.user.username} <-> {self.remote_organization.name}"
 
 
 class RemoteRepository(TimeStampedModel):
@@ -189,7 +186,7 @@ class RemoteRepository(TimeStampedModel):
         db_table = "oauth_remoterepository_2020"
 
     def __str__(self):
-        return "Remote repository: {}".format(self.html_url)
+        return self.html_url
 
     def matches(self, user):
         """Existing projects connected to this RemoteRepository."""
@@ -250,6 +247,3 @@ class RemoteRepositoryRelation(TimeStampedModel):
             "remote_repository",
             "account",
         )
-
-    def __str__(self):
-        return f"{self.user.username} <-> {self.remote_repository.full_name}"
