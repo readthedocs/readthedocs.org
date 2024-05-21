@@ -1,20 +1,21 @@
 """Filters used in project dashboard."""
 
 import structlog
-from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
-from django_filters import CharFilter, ChoiceFilter, FilterSet
+from django_filters import ChoiceFilter
 
 from readthedocs.builds.constants import (
     BUILD_FINAL_STATES,
     BUILD_STATE_FINISHED,
     EXTERNAL,
 )
+from readthedocs.builds.models import Version
+from readthedocs.core.filters import FilteredModelChoiceFilter, ModelFilterSet
 
 log = structlog.get_logger(__name__)
 
 
-class BuildListFilter(FilterSet):
+class BuildListFilter(ModelFilterSet):
 
     """Project build list dashboard filter."""
 
@@ -36,7 +37,13 @@ class BuildListFilter(FilterSet):
     )
 
     # Attribute filter fields
-    version = CharFilter(field_name="version__slug", widget=HiddenInput)
+    version__slug = FilteredModelChoiceFilter(
+        label=_("Version"),
+        empty_label=_("All versions"),
+        to_field_name="slug",
+        queryset_method="get_version_queryset",
+        method="get_version",
+    )
     state = ChoiceFilter(
         label=_("State"),
         choices=STATE_CHOICES,
@@ -49,6 +56,22 @@ class BuildListFilter(FilterSet):
         empty_label=_("Any"),
         method="get_version_type",
     )
+
+    def __init__(self, *args, project=None, **kwargs):
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+    def get_version(self, queryset, _, version):
+        return queryset.filter(version__slug=version.slug)
+
+    def get_version_queryset(self):
+        # Copied from the version listing view. We need this here as this is
+        # what allows the build version list to populate. Otherwise the
+        # ``all()`` queryset method is used.
+        return Version.internal.public(
+            user=self.request.user,
+            project=self.project,
+        )
 
     def get_state(self, queryset, _, value):
         if value == self.STATE_ACTIVE:
