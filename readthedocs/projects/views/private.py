@@ -37,6 +37,7 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
+from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
@@ -93,12 +94,14 @@ from readthedocs.subscriptions.products import get_feature
 log = structlog.get_logger(__name__)
 
 
-class ProjectDashboard(PrivateViewMixin, ListView):
+class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
 
     """Project dashboard."""
 
     model = Project
     template_name = "projects/project_dashboard.html"
+
+    filterset_class = ProjectListFilterSet
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -106,17 +109,14 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         context["type"] = "file"
 
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = ProjectListFilterSet(
-                self.request.GET, queryset=self.get_queryset()
-            )
-            context["filter"] = filter
-            context["project_list"] = filter.qs
+            context["filter"] = self.get_filterset()
+            context["project_list"] = self.get_filtered_queryset()
             # Alternatively, dynamically override super()-derived `project_list` context_data
             # context[self.get_context_object_name(filter.qs)] = filter.qs
 
+            template_name = None
             projects = AdminPermission.projects(user=self.request.user, admin=True)
             n_projects = projects.count()
-            template_name = "security-logs.html"
             if n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7:
                 template_name = "example-projects.html"
             elif (
@@ -129,8 +129,14 @@ class ProjectDashboard(PrivateViewMixin, ListView):
                 and not projects.filter(addons__analytics_enabled=True).exists()
             ):
                 template_name = "traffic-analytics.html"
+            elif AdminPermission.organizations(
+                user=self.request.user,
+                owner=True,
+            ).exists():
+                template_name = "security-logs.html"
 
-            context["promotion"] = f"projects/partials/dashboard/{template_name}"
+            if template_name:
+                context["promotion"] = f"projects/partials/dashboard/{template_name}"
 
         return context
 

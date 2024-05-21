@@ -8,11 +8,12 @@ from django.db.models import Count, Q
 from django.utils import timezone
 from djstripe.enums import InvoiceStatus, SubscriptionStatus
 
+from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.subscriptions.constants import DISABLE_AFTER_DAYS
 
 
-class BaseOrganizationQuerySet(models.QuerySet):
+class BaseOrganizationQuerySet(NoReprQuerySet, models.QuerySet):
 
     """Organizations queryset."""
 

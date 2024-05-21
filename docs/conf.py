@@ -24,7 +24,6 @@ extensions = [
     "notfound.extension",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx_search.extension",
     "sphinx_tabs.tabs",
     "sphinx-prompt",
     "sphinx.ext.autodoc",
@@ -77,7 +76,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "10.24.1"
+version = "10.25.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
