@@ -10,7 +10,7 @@ log = structlog.get_logger(__name__)
 class ModelFilterSet(FilterSet):
 
     """
-    Filterset that supports empty querysets
+    Filterset that supports empty querysets.
 
     By default, unbound filter forms result in none of the filters functioning.
     Instead, we want filters to always work, even when there is no filter data
@@ -26,7 +26,7 @@ class ModelFilterSet(FilterSet):
 class FilteredModelChoiceField(ModelChoiceField):
 
     """
-    Choice field for tuning model choices
+    Choice field for tuning model choices.
 
     The underlying ModelChoiceField assumes that the model's ``__repr__`` method
     will return the best choice label. In our modeling, ``__repr__`` is almost
@@ -44,12 +44,12 @@ class FilteredModelChoiceField(ModelChoiceField):
         self.has_search = has_search
         super().__init__(queryset, **kwargs)
 
-    def label_from_instance(self, value):
+    def label_from_instance(self, obj):
         if self.label_attribute is not None:
-            label = getattr(value, self.label_attribute, None)
+            label = getattr(obj, self.label_attribute, None)
             if label is not None:
                 return label
-        return super().label_from_instance(value)
+        return super().label_from_instance(obj)
 
 
 class FilteredModelChoiceFilter(ModelChoiceFilter):
