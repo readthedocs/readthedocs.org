@@ -430,22 +430,22 @@ that points to the default branch of your version control system
 (``main`` in the case of this tutorial),
 and that's why the URLs of your HTML documentation contain the string ``/latest/``.
 
-Creating a new version
-~~~~~~~~~~~~~~~~~~~~~~
+Creating a new version of your documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's say you want to create a ``1.0`` version of your code,
-with a corresponding ``1.0`` version of the documentation.
-For that, first navigate to your GitHub repository, click on the branch selector,
-type ``1.0.x``, and click on "Create branch: 1.0.x from 'main'"
-(more information `on their documentation`__).
+Read the Docs automatically creates documentation versions from GitHub branches and tags that :ref:`follows some rules <versions:how we envision versions working>` about looking like version numbers, such as ``1.0``, ``2.0.3`` or ``4.x``.
+
+To create version ``1.0`` of your code, and consequently of your documentation:
+
+#. Navigate to your GitHub repository, click the branch selector, type ``1.0.x``, and click "Create branch: 1.0.x from 'main'" (more information `in the GitHub documentation`__).
+
+#. Check that now have version ``1.0.x`` in your :term:`project home`, click on the :guilabel:`Versions` button, and under "Active Versions" you will see two entries:
+
+  - The ``latest`` version, pointing to the ``main`` branch.
+  - A new ``stable`` version, pointing to the ``origin/1.0.x`` branch.
 
 __ https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
 
-Next, go to your :term:`project home`, click on the :guilabel:`Versions` button,
-and under "Active Versions" you will see two entries:
-
-- The ``latest`` version, pointing to the ``main`` branch.
-- A new ``stable`` version, pointing to the ``origin/1.0.x`` branch.
 
 .. figure:: /_static/images/tutorial/active-versions.png
    :width: 80%
@@ -454,30 +454,18 @@ and under "Active Versions" you will see two entries:
 
    List of active versions of the project
 
-Right after you created your branch,
-Read the Docs created a new special version called ``stable`` pointing to it,
-and started building it. When the build finishes,
-the ``stable`` version will be listed in the :term:`flyout menu`
-and your readers will be able to choose it.
+When you created your branch,
+Read the Docs created a new special version called ``stable`` pointing to it. When it's built it will be listed in the :term:`flyout menu`.
 
-.. note::
+Setting stable as the default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   Read the Docs :ref:`follows some rules <versions:how we envision versions working>`
-   to decide whether to create a ``stable`` version pointing to your new branch or tag.
-   To simplify, it will check if the name resembles a version number
-   like ``1.0``, ``2.0.3`` or ``4.x``.
-
-Now you might want to set ``stable`` as the *default version*,
+To set ``stable`` as the *default version*,
 rather than ``latest``,
 so that users see the ``stable`` documentation
-when they visit the :term:`root URL` of your documentation
-(while still being able to change the version in the flyout menu).
+when they visit the :term:`root URL` of your documentation:
 
-For that, go to the :guilabel:`Settings` link
-under the :guilabel:`⚙ Admin` menu of your project home,
-choose ``stable`` in the "Default version*" dropdown,
-and hit :guilabel:`Save` at the bottom.
-Done!
+#. In the the :guilabel:`⚙ Admin` menu of your project home, go to the :guilabel:`Settings` link, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
 
 Modifying versions
 ~~~~~~~~~~~~~~~~~~
@@ -494,20 +482,15 @@ version, which will always point to the ``1.0.x`` branch of your repository.
 
    List of inactive versions of the project
 
-Let's activate the ``1.0.x`` version.
-For that, go to the "Versions" on your :term:`project home`,
-locate ``1.0.x`` under "Activate a version",
-and click on the :guilabel:`Activate` button.
-This will take you to a new page with two checkboxes,
-"Active" and "Hidden". Check only "Active",
-and click :guilabel:`Save`.
+To activate the ``1.0.x`` version:
 
-After you do this, ``1.0.x`` will appear on the "Active Versions" section,
-and a new build will be triggered for it.
+#. On your :term:`project home`, go to the "Versions", locate ``1.0.x`` under "Activate a version", and click the :guilabel:`Activate` button.
+
+#. On the "Activate" page with "Active" and "Hidden" checkboxes, check only "Active" and click :guilabel:`Save`.
 
 .. note::
 
-   You can read more about :ref:`hidden versions <versions:hidden>`
+   Read more about :ref:`hidden versions <versions:hidden>`
    in our documentation.
 
 .. "Show a warning for old versions" feature is not available anymore.
@@ -545,32 +528,31 @@ and a new build will be triggered for it.
 
       Warning for old versions
 
-Getting insights from your projects
------------------------------------
+Getting project insights
+------------------------
 
 Once your project is up and running, you will probably want to understand
 how readers are using your documentation, addressing some common questions like:
 
-- what pages are the most visited pages?
-- what search terms are the most frequently used?
-- are readers finding what they look for?
+- what are the most visited pages?
+- what are the most frequently used search terms?
+- are readers finding what they are looking for?
 
-Read the Docs offers you some analytics tools to find out the answers.
+Read the Docs has traffic and search analytics tools to help you find answers to these questions.
 
-Browsing traffic analytics
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Understanding traffic analytics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Traffic Analytics view gives you a simple overview of how your readers browse your documentation. It respects visitor privacy by not storing identifying information about your them.
 
 The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
 plus a visualization of the daily views during that period.
-To generate some artificial views on your newly created project,
-you can first click around the different pages of your project,
-which will be accounted immediately for the current day statistics.
 
 To see the Traffic Analytics view, go back the :term:`project page` again,
-click on the :guilabel:`⚙ Admin` button,
-and then click on the :guilabel:`Traffic Analytics` section.
+click the :guilabel:`⚙ Admin` button,
+and then click the :guilabel:`Traffic Analytics` section.
 You will see the list of pages in descending order of visits,
-as well as a plot similar to the one below.
+and a similar visualization to this one:
 
 .. figure:: /_static/images/tutorial/traffic-analytics-plot.png
    :width: 80%
@@ -579,32 +561,24 @@ as well as a plot similar to the one below.
 
    Traffic Analytics plot
 
+You can also download this data in :abbr:`CSV (Comma-Separated Values)`  format for closer inspection. 
+To do that, scroll to the bottom of the page
+and click the :guilabel:`Download all data` button.
+
 .. note::
 
-   The Traffic Analytics view explained above gives you a simple overview
-   of how your readers browse your documentation. It has the advantage that
-   it stores no identifying information about your visitors,
-   and therefore it respects their privacy.
-   However, you might want to get more detailed data by
+   You can get more detailed traffic data by 
    :ref:`enabling Google Analytics <analytics:Enabling Google Analytics on your Project>`.
-   Notice though that we take some extra measures to :ref:`respect user
+   Notice though that Read the Docs takes extra measures to :ref:`respect user
    privacy <advertising/advertising-details:analytics>`
    when they visit projects that have Google Analytics enabled,
-   and this might reduce the number of visits counted.
+   which might reduce the number of visits counted.
 
-Finally, you can also download this data for closer inspection.
-To do that, scroll to the bottom of the page
-and click on the :guilabel:`Download all data` button.
-That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
-that you can process any way you want.
+Understanding search analytics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Browsing search analytics
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Apart from traffic analytics, Read the Docs also offers the possibility
-to inspect :doc:`what search terms your readers use </guides/search-analytics>`
-on your documentation.
-This can inform decisions on what areas to reinforce,
+As well as traffic analytics, Read the Docs shows :doc:`what terms your readers are searching for </guides/search-analytics>`.
+This can inform decisions on what areas to focus on,
 or what parts of your project are less understood or more difficult to find.
 
 To generate some artificial search statistics on the project,
@@ -613,7 +587,7 @@ type ``ingredients``, and press the :kbd:`Enter` key.
 You will be redirected to the search results page, which will show two entries.
 
 Next, go back to the :guilabel:`⚙ Admin` section of your project page,
-and then click on the :guilabel:`Search Analytics` section.
+and then click the :guilabel:`Search Analytics` section.
 You will see a table with the most searched queries
 (including the ``ingredients`` one you just typed),
 how many results did each query return, and how many times it was searched.
@@ -633,30 +607,28 @@ by clicking on the :guilabel:`Download all data` button.
 Where to go from here
 ---------------------
 
-This is the end of the tutorial. You started by forking a GitHub repository
-and importing it on Read the Docs, building its HTML documentation,
-and then went through a series of steps to customize the build process,
-tweak the project configuration, and add new versions.
+This is the end of the tutorial. You have
 
-Here you have some resources to continue learning about documentation
+#. Forked a GitHub repository,
+#. connected it to Read the Docs, 
+#. built its HTML documentation,
+#. customized the build process,
+#. added new versions,
+#. browsed the project analytics.
+
+Nice work! 
+
+Here are some resources to help you continue learning about documentation
 and Read the Docs:
 
-- You can learn more about the functionality of the platform
-  by going over our :doc:`features </reference/features>` page.
-- To make the most of the documentation generators that are supported,
-  you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
-  or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
-- Display example projects and read the source code in :doc:`/examples`.
-- Whether you are a documentation author, a project administrator, a developer, or a designer,
-  you can follow our how-to guides that cover specific tasks,
-  available under :doc:`/guides/index`.
-- For private project support and other enterprise features,
-  you can use :doc:`our commercial service </commercial/index>`
-  (and if in doubt, check out :doc:`/choosing-a-site`).
-- Do you want to join a global community of fellow `documentarians <writethedocs:documentarians>`?
-  Check out `Write the Docs <https://www.writethedocs.org/>`_ and
+- Learn more about the platform :doc:`features </reference/features>`.
+- Learn about other supported documentation generators in the :doc:`Sphinx tutorial <sphinx:tutorial/index>` or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
+- See a list of Read the Docs :doc:`/examples`.
+- Learn how to do specific tasks in the :doc:`/guides/index`.
+- Learn about private project support and other enterprise features
+  in :doc:`our commercial service </commercial/index>` and :doc:`/choosing-a-site` guide.
+- Join a global community of fellow `documentarians <writethedocs:documentarians>` in `Write the Docs <https://www.writethedocs.org/>`_ and
   :doc:`its Slack workspace <writethedocs:slack>`.
-- Do you want to contribute to Read the Docs?
-  We greatly appreciate it! Check out :doc:`rtd-dev:contribute`.
+- Contribute to Read the Docs in :doc:`rtd-dev:contribute`, we appreciate it!
 
 Happy documenting!
