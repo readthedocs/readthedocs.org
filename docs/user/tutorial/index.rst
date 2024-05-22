@@ -255,7 +255,7 @@ Build process configuration settings are in ``.readthedocs.yaml`` :doc:`configur
 Using different Python versions 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build your project with Python 3.8 instead of Python 3.10, edit the ``.readthedocs.yaml`` file and change the Python version to 3.8 like this:
+To build your project with Python 3.8 instead of the latest Python version, edit the ``.readthedocs.yaml`` file and change the Python version to 3.8 like this:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
