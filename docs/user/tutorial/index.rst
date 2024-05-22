@@ -597,14 +597,14 @@ by clicking on the :guilabel:`Download all data` button.
 Where to go from here
 ---------------------
 
-This is the end of the tutorial. You have
+This is the end of the tutorial. You have accomplished a lot:
 
-#. Forked a GitHub repository,
-#. connected it to Read the Docs, 
-#. built its HTML documentation,
-#. customized the build process,
-#. added new versions,
-#. browsed the project analytics.
+#. Forked a GitHub repository.
+#. Connected it to Read the Docs.
+#. Built its HTML documentation.
+#. Customized the build process.
+#. Added new documentation versions.
+#. Browsed the project analytics.
 
 Nice work! 
 
