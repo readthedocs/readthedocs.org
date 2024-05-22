@@ -42,7 +42,7 @@ Billing information
 
 We provide both monthly and annual subscriptions for all plans.
 Annual plans are given a 2 month discount compared to monthly billing.
-We support credit card billing for our Basic, Advanced and Pro plans.
+We support credit card billing for all plans.
 Pro and Enterprise plans can use invoice-based and PO billing for annual subscriptions.
 
 .. tip::
