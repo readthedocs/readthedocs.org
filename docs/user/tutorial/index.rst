@@ -245,20 +245,10 @@ Adding a configuration file
 
 The Admin tab of the :term:`project home` has some *global* configuration settings for your project.
 
-In addition, you can customize the build process using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`, which has several advantages:
-
-- The configuration lives next to your code and documentation, tracked by version control.
-- The configuration can be different for every version or branch of your project (more on `versioning <#versioning-documentation>`_).
-- Some configuration optionss are only available using the configuration file.
-
-This configuration file, ``.readthedocs.yaml``, is already in your Git repository, located in the base folder of the repository. 
+Build process configuration settings are in ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`, in your Git repository, which means it can be different for every version or branch of your project (more on `versioning <#versioning-documentation>`_).
 
 .. TODO: We are adding a how-to that we need to include in this tutorial.
 .. Maybe by reference or maybe as full-featured content.
-
-.. tip::
-
-   Settings that apply to the entire project are configured in the Admin tab of the :term:`project home`, while settings that are version or build specific are configured in the configuration file.
 
 .. TODO there is a bit of handwaving about whether you're commiting and merging branches here, we might need to be a bit more explicit. Or at least add a mention at this level that wherever we talk about editing, we mean on main and pushing to GH.   
 
