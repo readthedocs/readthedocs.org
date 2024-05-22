@@ -79,7 +79,7 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
    check out :ref:`guides/setup/git-repo-automatic:permissions for connected accounts`.
 
 After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
-and open your :term:`dashboard`.
+open your :term:`dashboard`.
 
 You should have two email notifications:
 
@@ -89,7 +89,7 @@ You should have two email notifications:
 * Another one from Read the Docs, prompting you to "verify your email
   address". Click on the link to finalize the process.
 
-After veryifyng your email address, your Read the Docs account is ready to import your first project.
+After verifying your email address, your Read the Docs account will be ready to create your first project.
 
 .. figure:: /_static/images/tutorial/rtd-empty-dashboard.png
    :width: 80%
@@ -185,14 +185,14 @@ To update the project description and configure the notification settings:
 
 #. Navigate back to the :term:`project page` and click the :guilabel:`⚙ Admin` button,to open the Settings page.
 
-#. Update the poject description by adding the following text:
+#. Update the project description by adding the following text:
 
     Lumache (/lu'make/) is a Python library for cooks and food lovers
     that creates recipes mixing random ingredients.
 
 #. Set the project homepage to ``https://world.openfoodfacts.org/``, and add ``food, python`` to the list of public project tags.
 
-#. To get a notification if the build fails, click the :guilabel:`Notifications` link on the left, add your email address, and click the :guilabel:`Add` button.
+#. To get a notification if the build fails, click the :guilabel:`Email Notifications` link on the left, add your email address, and click the :guilabel:`Add` button.
 
 Triggering builds from pull requests
 ------------------------------------
@@ -237,8 +237,8 @@ To trigger builds from pull requests:
 
 After opening the pull request, a Read the Docs check will appear
 indicating that it is building the documentation for that pull request.
-If you click the :guilabel:`Details` link while it is building,
-it opens the build log, after than it opens the documentation directly.
+If you click the :guilabel:`Details` link while your project is building
+the build log will be opened. After building this link opens the documentation directly.
 
 Adding a configuration file
 ---------------------------
@@ -258,7 +258,7 @@ This configuration file, ``.readthedocs.yaml``, is already in your Git repositor
 
 .. tip::
 
-   Settings that apply to the entire project are configured in the Admin tab of the :term:`project home`, while settings that are version or build specific are better in the configuration file.
+   Settings that apply to the entire project are configured in the Admin tab of the :term:`project home`, while settings that are version or build specific are configured in the configuration file.
 
 .. TODO there is a bit of handwaving about whether you're commiting and merging branches here, we might need to be a bit more explicit. Or at least add a mention at this level that wherever we talk about editing, we mean on main and pushing to GH.   
 
@@ -304,7 +304,7 @@ After you commit these changes, go back to your project home,
 navigate to the "Builds" page, and open the new build that just started.
 You will notice that one of the lines contains ``python -mvirtualenv``:
 if you click on it, you will see the full output of the corresponding command,
-stating that it used Python 3.8.6, the latest version of Python 3.8 to create the virtual environment.
+stating that it used Python 3.8.6, the latest version of Python 3.8, to create the virtual environment.
 
 .. figure:: /_static/images/tutorial/build-python3.8.png
    :width: 80%
@@ -338,7 +338,7 @@ and you will see several warnings:
 To spot these warnings more easily and help you to address them,
  add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
 
-To fail on warnings to your Read the Docs project, edit the ``.readthedocs.yaml`` file in your project add the three lines of ``sphinx`` configuration below, and commit the file:
+To fail on warnings to your Read the Docs project, edit the ``.readthedocs.yaml`` file in your project, add the three lines of ``sphinx`` configuration below, and commit the file:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -359,7 +359,7 @@ To fail on warnings to your Read the Docs project, edit the ``.readthedocs.yaml`
      configuration: docs/source/conf.py
      fail_on_warning: true
 
-If you navigate to your "Builds" page, you will see a ``Failed`` build, which is expected because we've configured Sphinx fail on the warnings we saw above.
+If you navigate to your "Builds" page, you will see a ``Failed`` build, which is expected because we've configured Sphinx to fail on warnings and several warnings were encountered during the build.
 
 To learn how to fix the warnings, see `Install Python Dependencies <#installing-python-dependencies>`_.
 
@@ -368,7 +368,7 @@ Installing Python dependencies
 
 The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc` fail to import the `code above <#making-build-warnings-more-visible>`_, is because the ``lumache`` module is not installed.
 
-Luckily, you can specify those installation requirements in ``.readthedocs.yaml``. 
+You will need to specify those installation requirements in ``.readthedocs.yaml``. 
 
 To install your project dependencies and make your code available to Sphinx,
 edit ``.readthedocs.yaml``, add the ``python.install``  section and commit it:
