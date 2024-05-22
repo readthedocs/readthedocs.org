@@ -7,7 +7,7 @@ We're happy to assist with any questions or problems you have using either of ou
 .. note::
    Read the Docs does not offer support for questions or problems with documentation tools or content.
    If you have a question or problem using a particular documentation tool,
-   you should refer to `external resources <External resources>`_ for help instead.
+   you should refer to :ref:`external resources <support:External resources>` for help instead.
 
 Some examples of requests that we support are:
 
