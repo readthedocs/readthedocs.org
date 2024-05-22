@@ -356,7 +356,7 @@ To learn how to fix these warnings, see the next section.
 Installing Python dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc` fail to import the `code above <#making-build-warnings-more-visible>`_, is because the ``lumache`` module is not installed.
+The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc` fail to import the :ref:`tutorial/index:making build warnings more visible`, is because the ``lumache`` module is not installed.
 
 You will need to specify those installation requirements in ``.readthedocs.yaml``. 
 
