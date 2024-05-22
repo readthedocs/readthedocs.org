@@ -90,10 +90,6 @@ cssselect==1.2.0
     #   pyquery
 decorator==5.1.1
     # via ipython
-defusedxml==0.7.1
-    # via
-    #   -r requirements/pip.txt
-    #   python3-openid
 distlib==0.3.8
     # via
     #   -r requirements/pip.txt
@@ -124,7 +120,7 @@ django==4.2.13
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[saml]==0.57.2
+django-allauth[saml,socialaccount]==0.63.1
     # via -r requirements/pip.txt
 django-annoying==0.10.6
     # via -r requirements/pip.txt
@@ -320,10 +316,6 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   elasticsearch-dsl
     #   python-crontab
-python3-openid==3.2.0
-    # via
-    #   -r requirements/pip.txt
-    #   django-allauth
 python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt

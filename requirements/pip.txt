@@ -55,8 +55,6 @@ cryptography==42.0.7
     # via pyjwt
 cssselect==1.2.0
     # via pyquery
-defusedxml==0.7.1
-    # via python3-openid
 distlib==0.3.8
     # via virtualenv
 dj-pagination==2.5.0
@@ -85,7 +83,7 @@ django==4.2.13
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[saml]==0.57.2
+django-allauth[saml,socialaccount]==0.63.1
     # via -r requirements/pip.in
 django-annoying==0.10.6
     # via -r requirements/pip.in
@@ -226,8 +224,6 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   elasticsearch-dsl
     #   python-crontab
-python3-openid==3.2.0
-    # via django-allauth
 python3-saml==1.16.0
     # via django-allauth
 pytz==2024.1
