@@ -351,7 +351,7 @@ To fail on warnings to your Read the Docs project, edit the ``.readthedocs.yaml`
 
 If you navigate to your "Builds" page, you will see a ``Failed`` build, which is expected because we've configured Sphinx to fail on warnings and several warnings were encountered during the build.
 
-To learn how to fix the warnings, see `Install Python Dependencies <#installing-python-dependencies>`_.
+To learn how to fix the warnings, see :ref:`Installing Python Dependencies`
 
 Installing Python dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
