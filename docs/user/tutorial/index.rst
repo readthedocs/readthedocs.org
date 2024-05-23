@@ -318,7 +318,7 @@ and you will see several warnings:
    No module named 'lumache'
 
 To spot these warnings more easily and help you to address them,
- add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
+add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
 
 To fail on warnings to your Read the Docs project, edit the ``.readthedocs.yaml`` file in your project, add the three lines of ``sphinx`` configuration below, and commit the file:
 
