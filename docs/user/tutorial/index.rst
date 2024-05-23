@@ -81,15 +81,7 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
 open your :term:`dashboard`.
 
-You should have two email notifications:
-
-* One from GitHub, telling you that "A third-party OAuth application ...
-  was recently authorized to access your account". You don't need to do
-  anything about it.
-* Another one from Read the Docs, prompting you to "verify your email
-  address". Click on the link to finalize the process.
-
-After verifying your email address, your Read the Docs account will be ready to create your first project.
+When you have clicked the link in your emaill from Read the Docs to "verify your email address" and finalize the process, your Read the Docs account will be ready to create your first project.
 
 .. figure:: /_static/images/tutorial/rtd-empty-dashboard.png
    :width: 80%
