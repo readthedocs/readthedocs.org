@@ -117,7 +117,7 @@ To import your GitHub project to Read the Docs:
 #. Enter some details about your Read the Docs project:
 
    Name
-      The name of the project. It has to be unique across all the service,
+      The name of the project, used to create a unique subdomain for each project.
       so it is better if you prepend your username,
       for example ``{username}-rtd-tutorial``.
 
