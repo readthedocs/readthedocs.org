@@ -662,6 +662,7 @@ class CommunityBaseSettings(Settings):
     # Make email verification mandatory.
     # Users won't be able to login until they verify the email address.
     ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+    ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
     ACCOUNT_AUTHENTICATION_METHOD = "username_email"
     ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
