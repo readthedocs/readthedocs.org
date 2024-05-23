@@ -421,7 +421,7 @@ To create version ``1.0`` of your code, and consequently of your documentation:
 
 #. Navigate to your GitHub repository, click the branch selector, type ``1.0.x``, and click "Create branch: 1.0.x from 'main'" (more information `in the GitHub documentation`__).
 
-#. Check that now have version ``1.0.x`` in your :term:`project home`, click on the :guilabel:`Versions` button, and under "Active Versions" you will see two entries:
+#. Check that you now have version ``1.0.x`` in your :term:`project home`, click on the :guilabel:`Versions` button, and under "Active Versions" you will see two entries:
 
   - The ``latest`` version, pointing to the ``main`` branch.
   - A new ``stable`` version, pointing to the ``origin/1.0.x`` branch.
