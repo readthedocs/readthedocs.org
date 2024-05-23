@@ -234,7 +234,7 @@ class ProjectVersionListFilterSet(ModelFilterSet):
         # This query is passed in at instantiation
         return self.queryset
 
-    def get_visibility(self, queryset, *, value):
+    def get_visibility(self, queryset, field_name, value):
         if value == self.VISIBILITY_HIDDEN:
             return queryset.filter(hidden=True)
         if value == self.VISIBILITY_VISIBLE:
