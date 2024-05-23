@@ -41,6 +41,7 @@ from readthedocs.proxito.views.mixins import (
     ServeRedirectMixin,
     StorageFileNotFound,
 )
+from readthedocs.proxito.views.utils import allow_readme_html_at_root_url
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
@@ -641,12 +642,16 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         - /en/latest/foo -> /en/latest/foo/README.html
         - /en/latest/foo/ -> /en/latest/foo/README.html
         """
-        tryfiles = ["index.html", "README.html"]
-        # If the path ends with `/`, we already tried to serve
-        # the `/index.html` file, so we only need to test for
-        # the `/README.html` file.
-        if full_path.endswith("/"):
-            tryfiles = ["README.html"]
+
+        if allow_readme_html_at_root_url():
+            tryfiles = ["index.html", "README.html"]
+            # If the path ends with `/`, we already tried to serve
+            # the `/index.html` file, so we only need to test for
+            # the `/README.html` file.
+            if full_path.endswith("/"):
+                tryfiles = ["README.html"]
+        else:
+            tryfiles = ["index.html"]
 
         tryfiles = [
             (filename.rstrip("/") + f"/{tryfile}").lstrip("/") for tryfile in tryfiles
@@ -664,7 +669,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             log.info("Redirecting to index file.", tryfile=tryfile)
             # Use urlparse so that we maintain GET args in our redirect
             parts = urlparse(full_path)
-            if tryfile.endswith("README.html"):
+            if allow_readme_html_at_root_url() and tryfile.endswith("README.html"):
                 new_path = parts.path.rstrip("/") + "/README.html"
             else:
                 new_path = parts.path.rstrip("/") + "/"
