@@ -1,7 +1,7 @@
 Read the Docs tutorial
 ======================
 
-In this tutorial you will learn how to host a public documentation project on Read the Docs Community. 
+In this tutorial you will learn how to host a public documentation project on Read the Docs Community.
 
 .. note::
 
@@ -28,7 +28,7 @@ Preparing your repository on GitHub
       Something memorable and appropriate, for example ``rtd-tutorial``.
    Visibility
       Make sure the project is "Public", rather than "Private".
-   
+
 #. Click the green :guilabel:`Create repository` button to create a public repository that you will use in this Read the Docs tutorial, containing  following files:
 
    ``.readthedocs.yaml``
@@ -145,9 +145,9 @@ Read the Docs will build your project documentation right after you create it.
 
 To see the build logs:
 
-#. Click the :guilabel:`Your documentation is building` link on the :term:`project home`. 
-   
-   - If the build has not finished by the time you open it, you will see a spinner next to a "Installing" or "Building" indicator, meaning that it is still in progress. 
+#. Click the :guilabel:`Your documentation is building` link on the :term:`project home`.
+
+   - If the build has not finished by the time you open it, you will see a spinner next to a "Installing" or "Building" indicator, meaning that it is still in progress.
    - If the build has finished, you'll see a green "Build completed" indicator, the completion date, the elapsed time, and a link to the generated documentation.
 
    .. figure:: /_static/images/tutorial/rtd-first-successful-build.png
@@ -224,8 +224,8 @@ To trigger builds from pull requests:
 
          Lumache hosts its documentation on Read the Docs.
 
-   #. Write an appropriate commit message, choose the "Create a **new branch** for this commit and start a pull request" option. 
-   
+   #. Write an appropriate commit message, choose the "Create a **new branch** for this commit and start a pull request" option.
+
    #. Click the green :guilabel:`Propose changes` button to open the new pull request page, then click the :guilabel:`Create pull request` button below the description.
 
    .. figure:: /_static/images/tutorial/gh-pr-build.png
@@ -250,9 +250,9 @@ Build process configuration settings are in ``.readthedocs.yaml`` :doc:`configur
 .. TODO: We are adding a how-to that we need to include in this tutorial.
 .. Maybe by reference or maybe as full-featured content.
 
-.. TODO there is a bit of handwaving about whether you're commiting and merging branches here, we might need to be a bit more explicit. Or at least add a mention at this level that wherever we talk about editing, we mean on main and pushing to GH.   
+.. TODO there is a bit of handwaving about whether you're commiting and merging branches here, we might need to be a bit more explicit. Or at least add a mention at this level that wherever we talk about editing, we mean on main and pushing to GH.
 
-Using different Python versions 
+Using different Python versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To build your project with Python 3.8 instead of the latest Python version, edit the ``.readthedocs.yaml`` file and change the Python version to 3.8 like this:
@@ -358,7 +358,7 @@ Installing Python dependencies
 
 The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc` fail to import the :ref:`tutorial/index:making build warnings more visible`, is because the ``lumache`` module is not installed.
 
-You will need to specify those installation requirements in ``.readthedocs.yaml``. 
+You will need to specify those installation requirements in ``.readthedocs.yaml``.
 
 To install your project dependencies and make your code available to Sphinx,
 edit ``.readthedocs.yaml``, add the ``python.install``  section and commit it:
@@ -551,13 +551,13 @@ and a similar visualization to this one:
 
    Traffic Analytics plot
 
-You can also download this data in :abbr:`CSV (Comma-Separated Values)`  format for closer inspection. 
+You can also download this data in :abbr:`CSV (Comma-Separated Values)`  format for closer inspection.
 To do that, scroll to the bottom of the page
 and click the :guilabel:`Download all data` button.
 
 .. note::
 
-   You can get more detailed traffic data by 
+   You can get more detailed traffic data by
    :ref:`enabling Google Analytics <analytics:Enabling Google Analytics on your Project>`.
    Notice though that Read the Docs takes extra measures to :ref:`respect user
    privacy <advertising/advertising-details:analytics>`
@@ -606,7 +606,7 @@ This is the end of the tutorial. You have accomplished a lot:
 #. Added new documentation versions.
 #. Browsed the project analytics.
 
-Nice work! 
+Nice work!
 
 Here are some resources to help you continue learning about documentation
 and Read the Docs:
