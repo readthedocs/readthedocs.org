@@ -122,11 +122,14 @@ class AdminPermissionBase:
 
     @classmethod
     def admins(cls, obj):
-        from readthedocs.organizations.models import Organization
+        from readthedocs.organizations.models import Organization, Team
         from readthedocs.projects.models import Project
 
         if isinstance(obj, Project):
             return obj.users.all()
+
+        if isinstance(obj, Team):
+            return obj.organization.owners.all()
 
         if isinstance(obj, Organization):
             return obj.owners.all()
