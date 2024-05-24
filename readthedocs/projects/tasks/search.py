@@ -6,7 +6,7 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.projects.signals import files_changed
-from readthedocs.proxito.views.utils import allow_readme_html_at_root_url
+from readthedocs.proxito.views.utils import allow_readme_html_as_index
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.utils import index_objects, remove_indexed_files
 from readthedocs.storage import build_media_storage
@@ -204,7 +204,7 @@ def _create_imported_files_and_search_index(
 
             # Create the imported file only if it's a top-level 404 file,
             # or if it's an index file. We don't need to keep track of all files.
-            if allow_readme_html_at_root_url():
+            if allow_readme_html_as_index():
                 tryfiles = ["index.html", "README.html"]
             else:
                 tryfiles = ["index.html"]

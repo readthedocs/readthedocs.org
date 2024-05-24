@@ -62,7 +62,7 @@ def proxito_404_page_handler(
     return r
 
 
-def allow_readme_html_at_root_url():
+def allow_readme_html_as_index():
     tzinfo = pytz.timezone("America/Los_Angeles")
     now = datetime.datetime.now(tz=tzinfo)
 
