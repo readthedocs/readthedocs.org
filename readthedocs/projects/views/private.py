@@ -117,7 +117,9 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
             template_name = None
             projects = AdminPermission.projects(user=self.request.user, admin=True)
             n_projects = projects.count()
-            if n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7:
+            if n_projects == 0 or (
+                n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
+            ):
                 template_name = "example-projects.html"
             elif (
                 n_projects
