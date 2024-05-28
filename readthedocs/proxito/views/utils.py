@@ -63,6 +63,9 @@ def proxito_404_page_handler(
 
 
 def allow_readme_html_as_index():
+    if not settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
+        return True
+
     tzinfo = pytz.timezone("America/Los_Angeles")
     now = datetime.datetime.now(tz=tzinfo)
 
@@ -77,5 +80,5 @@ def allow_readme_html_as_index():
         datetime.datetime(2024, 6, 24, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 6, 26, 0, 0, 0, tzinfo=tzinfo),
         # Deprecated after July 1st
         datetime.datetime(2024, 7, 1, 0, 0, 0, tzinfo=tzinfo) < now,
-    ]) and settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS
+    ])
     # fmt: on
