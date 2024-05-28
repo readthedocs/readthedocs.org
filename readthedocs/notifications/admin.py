@@ -7,6 +7,8 @@ from readthedocs.notifications.models import Notification
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
+    search_fields = ("message_id",)
+    list_filter = ("state",)
     list_display = (
         "id",
         "message_id",
