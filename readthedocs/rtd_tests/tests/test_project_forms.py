@@ -1,6 +1,7 @@
 from unittest import mock
 
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import TestCase
@@ -501,7 +502,9 @@ class TestProjectPrevalidationForms(TestCase):
         # User with connection
         # User without connection
         self.user_github = get(User)
-        self.social_github = get(SocialAccount, user=self.user_github)
+        self.social_github = get(
+            SocialAccount, user=self.user_github, provider=GitHubProvider.id
+        )
         self.user_email = get(User)
 
     def test_form_prevalidation_email_user(self):
@@ -537,11 +540,17 @@ class TestProjectPrevalidationForms(TestCase):
 class TestProjectPrevalidationFormsWithOrganizations(TestCase):
     def setUp(self):
         self.user_owner = get(User)
-        self.social_owner = get(SocialAccount, user=self.user_owner)
+        self.social_owner = get(
+            SocialAccount, user=self.user_owner, provider=GitHubProvider.id
+        )
         self.user_admin = get(User)
-        self.social_admin = get(SocialAccount, user=self.user_admin)
+        self.social_admin = get(
+            SocialAccount, user=self.user_admin, provider=GitHubProvider.id
+        )
         self.user_readonly = get(User)
-        self.social_readonly = get(SocialAccount, user=self.user_readonly)
+        self.social_readonly = get(
+            SocialAccount, user=self.user_readonly, provider=GitHubProvider.id
+        )
 
         self.organization = get(
             Organization,

@@ -2,7 +2,7 @@
 
 -r pip.txt
 
-sphinx
+sphinx[test]
 django-dynamic-fixture
 pytest
 pytest-custom-exit-code
