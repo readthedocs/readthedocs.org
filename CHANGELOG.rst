@@ -1,3 +1,38 @@
+Version 10.26.0
+---------------
+
+:Date: May 28, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11357 <https://github.com/readthedocs/readthedocs.org/pull/11357>`__)
+* `@stsewd <https://github.com/stsewd>`__: Beta: fix dashboard when user doesn't have projects (`#11352 <https://github.com/readthedocs/readthedocs.org/pull/11352>`__)
+* `@humitos <https://github.com/humitos>`__: Dashboard: use `app.` domain instead of `beta.` (`#11349 <https://github.com/readthedocs/readthedocs.org/pull/11349>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix small docs display issue on tutorial (`#11347 <https://github.com/readthedocs/readthedocs.org/pull/11347>`__)
+* `@stsewd <https://github.com/stsewd>`__: allauth: login after email confirmation (`#11346 <https://github.com/readthedocs/readthedocs.org/pull/11346>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: set provider explicitly (`#11342 <https://github.com/readthedocs/readthedocs.org/pull/11342>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: fix external resources link on support page (`#11340 <https://github.com/readthedocs/readthedocs.org/pull/11340>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: user `builder` instead of `instance` as argument (`#11337 <https://github.com/readthedocs/readthedocs.org/pull/11337>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: PO only allowed on annual Pro/Enterprise plans (`#11335 <https://github.com/readthedocs/readthedocs.org/pull/11335>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.25.0 (`#11334 <https://github.com/readthedocs/readthedocs.org/pull/11334>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Move dashboard API filter fields to model queryset filter fields (`#11330 <https://github.com/readthedocs/readthedocs.org/pull/11330>`__)
+* `@humitos <https://github.com/humitos>`__: Adapt `__str__` and `__repr__` methods for DB (`#11329 <https://github.com/readthedocs/readthedocs.org/pull/11329>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update allauth (`#11327 <https://github.com/readthedocs/readthedocs.org/pull/11327>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use EthicalAd implementation from addons (`#11318 <https://github.com/readthedocs/readthedocs.org/pull/11318>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Tighten up and refactor the tutorial WIP (`#11316 <https://github.com/readthedocs/readthedocs.org/pull/11316>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: take into account the user when listing members (`#11212 <https://github.com/readthedocs/readthedocs.org/pull/11212>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Allow setting Allauth provider secrets from host system (`#11194 <https://github.com/readthedocs/readthedocs.org/pull/11194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow override SOCIALACCOUNT_PROVIDERS from ops (`#11165 <https://github.com/readthedocs/readthedocs.org/pull/11165>`__)
+* `@humitos <https://github.com/humitos>`__: Lint: run `black` against all our Python files (`#11145 <https://github.com/readthedocs/readthedocs.org/pull/11145>`__)
+* `@taylorhummon <https://github.com/taylorhummon>`__: fix highlighting of "fail_on_warning: true" in tutorial (`#11144 <https://github.com/readthedocs/readthedocs.org/pull/11144>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Refactor documentation navigation (`#11139 <https://github.com/readthedocs/readthedocs.org/pull/11139>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: fix rendering (`#11133 <https://github.com/readthedocs/readthedocs.org/pull/11133>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add model history on AddonsConfig (`#11127 <https://github.com/readthedocs/readthedocs.org/pull/11127>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update bullet/item list display (`#11123 <https://github.com/readthedocs/readthedocs.org/pull/11123>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11122 <https://github.com/readthedocs/readthedocs.org/pull/11122>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: remove unused (`#11116 <https://github.com/readthedocs/readthedocs.org/pull/11116>`__)
+* `@stsewd <https://github.com/stsewd>`__: Notifications: add admin (`#11114 <https://github.com/readthedocs/readthedocs.org/pull/11114>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: build documentation with social cards (`#11109 <https://github.com/readthedocs/readthedocs.org/pull/11109>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Some fixes for notifications (`#11094 <https://github.com/readthedocs/readthedocs.org/pull/11094>`__)
+
 Version 10.25.0
 ---------------
 
