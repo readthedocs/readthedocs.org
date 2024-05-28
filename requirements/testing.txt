@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.108
+boto3==1.34.113
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.108
+botocore==1.34.113
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -91,10 +91,10 @@ cssselect==1.2.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
+cython==3.0.10
+    # via sphinx
 defusedxml==0.7.1
-    # via
-    #   -r requirements/pip.txt
-    #   python3-openid
+    # via sphinx
 distlib==0.3.8
     # via
     #   -r requirements/pip.txt
@@ -125,7 +125,7 @@ django==4.2.13
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[saml]==0.57.2
+django-allauth[saml,socialaccount]==0.63.1
     # via -r requirements/pip.txt
 django-annoying==0.10.6
     # via -r requirements/pip.txt
@@ -202,7 +202,7 @@ elastic-transport==8.13.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.13.1
+elasticsearch==8.13.2
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -310,13 +310,14 @@ pyjwt[crypto]==2.8.0
     #   django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==8.2.0
+pytest==8.2.1
     # via
     #   -r requirements/testing.in
     #   pytest-cov
     #   pytest-custom-exit-code
     #   pytest-django
     #   pytest-mock
+    #   sphinx
 pytest-cov==5.0.0
     # via -r requirements/testing.in
 pytest-custom-exit-code==0.3.0
@@ -325,7 +326,7 @@ pytest-django==4.8.0
     # via -r requirements/testing.in
 pytest-mock==3.14.0
     # via -r requirements/testing.in
-python-crontab==3.0.0
+python-crontab==3.1.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -335,10 +336,6 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   elasticsearch-dsl
     #   python-crontab
-python3-openid==3.2.0
-    # via
-    #   -r requirements/pip.txt
-    #   django-allauth
 python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
@@ -357,7 +354,7 @@ redis==5.0.4
     #   django-cacheops
 regex==2024.5.15
     # via -r requirements/pip.txt
-requests==2.31.0
+requests==2.32.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -396,7 +393,7 @@ slumber==0.7.1
     # via -r requirements/pip.txt
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.3.7
+sphinx[test]==7.3.7
     # via -r requirements/testing.in
 sphinxcontrib-applehelp==1.0.8
     # via sphinx
@@ -434,7 +431,7 @@ tomli==2.0.1
     #   dparse
     #   pytest
     #   sphinx
-typing-extensions==4.11.0
+typing-extensions==4.12.0
     # via
     #   -r requirements/pip.txt
     #   asgiref
@@ -483,3 +480,6 @@ xmlsec==1.3.14
     #   python3-saml
 yamale==2.2.0
     # via -r requirements/testing.in
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

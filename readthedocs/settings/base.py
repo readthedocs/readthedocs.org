@@ -285,7 +285,6 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount",
             "allauth.socialaccount.providers.github",
             "allauth.socialaccount.providers.gitlab",
-            "allauth.socialaccount.providers.bitbucket",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "cacheops",
         ]
@@ -663,6 +662,7 @@ class CommunityBaseSettings(Settings):
     # Make email verification mandatory.
     # Users won't be able to login until they verify the email address.
     ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+    ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
     ACCOUNT_AUTHENTICATION_METHOD = "username_email"
     ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
@@ -697,12 +697,6 @@ class CommunityBaseSettings(Settings):
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
             # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org.
-        },
-        # Deprecated, we use `bitbucket_oauth2` for all new connections.
-        "bitbucket": {
-            "APPS": [
-                {"client_id": "123", "secret": "456", "key": ""},
-            ],
         },
     }
 
