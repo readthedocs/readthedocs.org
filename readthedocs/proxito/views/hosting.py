@@ -348,7 +348,15 @@ class AddonsResponse:
                 )
 
         main_project = project.main_language_project or project
-        project_translations = main_project.translations.all().order_by("language")
+
+        # Exclude the current project since we don't want to return itself as a translation
+        project_translations = main_project.translations.all().exclude(
+            slug=project.slug
+        )
+        # Include main project as translation if the current project is one of the translations
+        if project != main_project:
+            project_translations |= Project.objects.filter(slug=main_project.slug)
+        project_translations = project_translations.order_by("language")
 
         data = {
             "api_version": "1",
