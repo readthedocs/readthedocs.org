@@ -183,10 +183,10 @@ class BuildDetail(BuildBase, DetailView):
         # On community, we _don't want this_ as this requires the user to have
         # a login to view the new dashboard.
         url_domain = settings.PRODUCTION_DOMAIN
-        if url_domain.startswith("beta."):
-            url_domain = url_domain[5:]
+        if url_domain.startswith("app."):
+            url_domain = url_domain[4:]
         else:
-            url_domain = f"beta.{url_domain}"
+            url_domain = f"app.{url_domain}"
         url_build = build.get_absolute_url()
         # Point to the login view with the build as ?next. We are expecting
         # users to have accounts to view this.
