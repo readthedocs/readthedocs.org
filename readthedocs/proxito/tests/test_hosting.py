@@ -300,12 +300,35 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
 
+        # Hitting the English version of the docs, will return Japanese as translation
         assert len(r.json()["projects"]["translations"]) == 1
         assert r.json()["projects"]["translations"][0]["slug"] == "translation"
         assert r.json()["projects"]["translations"][0]["language"]["code"] == "ja"
         assert (
             r.json()["projects"]["translations"][0]["urls"]["documentation"]
             == "https://project.dev.readthedocs.io/ja/latest/"
+        )
+
+        # Hitting the Japanese version of the docs, will return English as translation
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/ja/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert len(r.json()["projects"]["translations"]) == 1
+        assert r.json()["projects"]["translations"][0]["slug"] == "project"
+        assert r.json()["projects"]["translations"][0]["language"]["code"] == "en"
+        assert (
+            r.json()["projects"]["translations"][0]["urls"]["documentation"]
+            == "https://project.dev.readthedocs.io/en/latest/"
         )
 
     def test_flyout_downloads(self):
