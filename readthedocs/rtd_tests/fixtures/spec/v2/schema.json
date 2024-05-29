@@ -232,7 +232,7 @@
       "properties": {
         "install": {
           "title": "Install",
-          "description": "Installation of packages and requiremens.",
+          "description": "Installation of packages and requirements.",
           "type": "array",
           "items": {
             "anyOf": [
