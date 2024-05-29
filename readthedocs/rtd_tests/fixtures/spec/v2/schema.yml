@@ -59,7 +59,7 @@ python:
   # Default: '3'
   version: enum('2', '2.7', '3', '3.3', '3.4', '3.5', '3.6', required=False)
 
-  # Installation of packages and requiremens
+  # Installation of packages and requirements
   install: list(any(include('python-install-requirements'), include('python-install')), required=False)
 
 python-install-requirements:
