@@ -279,15 +279,11 @@ class TestReadTheDocsConfigJson(TestCase):
         )
 
     def test_flyout_translations(self):
-        translation_ja = fixture.get(
+        fixture.get(
             Project,
             slug="translation",
             main_language_project=self.project,
             language="ja",
-        )
-        translation_ja.versions.update(
-            built=True,
-            active=True,
         )
 
         r = self.client.get(
