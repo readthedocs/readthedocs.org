@@ -288,6 +288,7 @@ class TestReadTheDocsConfigJson(TestCase):
         translation_ja.versions.update(
             built=True,
             active=True,
+            privacy_level=PUBLIC,
         )
 
         r = self.client.get(
