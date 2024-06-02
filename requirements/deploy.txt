@@ -23,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.113
+boto3==1.34.117
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.113
+botocore==1.34.117
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -120,7 +120,7 @@ django==4.2.13
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[saml,socialaccount]==0.63.1
+django-allauth[saml,socialaccount]==0.63.3
     # via -r requirements/pip.txt
 django-annoying==0.10.6
     # via -r requirements/pip.txt
@@ -136,7 +136,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==4.3.0
+django-debug-toolbar==4.4.2
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
@@ -189,7 +189,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.13.0
+elastic-transport==8.13.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -219,7 +219,7 @@ idna==3.7
     # via
     #   -r requirements/pip.txt
     #   requests
-ipython==8.24.0
+ipython==8.25.0
     # via -r requirements/deploy.in
 isodate==0.6.1
     # via
@@ -281,7 +281,7 @@ platformdirs==4.2.2
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-prompt-toolkit==3.0.43
+prompt-toolkit==3.0.45
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -398,7 +398,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.12.0
+typing-extensions==4.12.1
     # via
     #   -r requirements/pip.txt
     #   asgiref

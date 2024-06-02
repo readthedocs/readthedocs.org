@@ -6,7 +6,7 @@
 #
 alabaster==0.7.16
     # via sphinx
-anyio==4.3.0
+anyio==4.4.0
     # via
     #   starlette
     #   watchfiles
@@ -37,7 +37,7 @@ docutils==0.20.1
     #   sphinx-tabs
 exceptiongroup==1.2.1
     # via anyio
-fonttools==4.52.1
+fonttools==4.53.0
     # via matplotlib
 h11==0.14.0
     # via uvicorn
@@ -92,7 +92,7 @@ pyyaml==6.0.1
     # via myst-parser
 readthedocs-sphinx-search==0.3.2
     # via -r requirements/docs.in
-requests==2.30.0
+requests==2.32.3
     # via sphinx
 six==1.16.0
     # via
@@ -125,7 +125,7 @@ sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
 sphinx-design==0.6.0
     # via -r requirements/docs.in
-sphinx-hoverxref==1.3.0
+sphinx-hoverxref==1.4.0
     # via -r requirements/docs.in
 sphinx-intl==2.2.0
     # via -r requirements/docs.in
@@ -167,15 +167,15 @@ starlette==0.37.2
     # via sphinx-autobuild
 tomli==2.0.1
     # via sphinx
-typing-extensions==4.12.0
+typing-extensions==4.12.1
     # via
     #   anyio
     #   uvicorn
 urllib3==2.2.1
     # via requests
-uvicorn==0.29.0
+uvicorn==0.30.0
     # via sphinx-autobuild
-watchfiles==0.21.0
+watchfiles==0.22.0
     # via sphinx-autobuild
 websockets==12.0
     # via sphinx-autobuild
