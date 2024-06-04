@@ -1,4 +1,8 @@
+import datetime
+
+import pytz
 import structlog
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -56,3 +60,25 @@ def proxito_404_page_handler(
     )
     r.status_code = http_status
     return r
+
+
+def allow_readme_html_as_index():
+    if not settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
+        return True
+
+    tzinfo = pytz.timezone("America/Los_Angeles")
+    now = datetime.datetime.now(tz=tzinfo)
+
+    # Brownout dates as published in https://about.readthedocs.com/blog/2024/05/readme-html-deprecated/
+    # fmt: off
+    return not any([
+        # 12 hours browndate
+        datetime.datetime(2024, 6, 10, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 6, 10, 12, 0, 0, tzinfo=tzinfo),
+        # 24 hours browndate
+        datetime.datetime(2024, 6, 17, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 6, 18, 0, 0, 0, tzinfo=tzinfo),
+        # 48 hours browndate
+        datetime.datetime(2024, 6, 24, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 6, 26, 0, 0, 0, tzinfo=tzinfo),
+        # Deprecated after July 1st
+        datetime.datetime(2024, 7, 1, 0, 0, 0, tzinfo=tzinfo) < now,
+    ])
+    # fmt: on

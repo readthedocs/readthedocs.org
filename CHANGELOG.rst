@@ -1,3 +1,22 @@
+Version 10.27.0
+---------------
+
+:Date: June 04, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11376 <https://github.com/readthedocs/readthedocs.org/pull/11376>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: set privacy level to public explicitly (`#11375 <https://github.com/readthedocs/readthedocs.org/pull/11375>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update security policy (`#11374 <https://github.com/readthedocs/readthedocs.org/pull/11374>`__)
+* `@Viicos <https://github.com/Viicos>`__: Fix typo: `requiremens` to `requirements` (`#11369 <https://github.com/readthedocs/readthedocs.org/pull/11369>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add invitation template filter (`#11368 <https://github.com/readthedocs/readthedocs.org/pull/11368>`__)
+* `@stsewd <https://github.com/stsewd>`__: Requirements: unpin allauth (`#11366 <https://github.com/readthedocs/readthedocs.org/pull/11366>`__)
+* `@stsewd <https://github.com/stsewd>`__: Pin requests to a version compatible with docker (`#11364 <https://github.com/readthedocs/readthedocs.org/pull/11364>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: update `projects.translations` API response (`#11361 <https://github.com/readthedocs/readthedocs.org/pull/11361>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.26.0 (`#11360 <https://github.com/readthedocs/readthedocs.org/pull/11360>`__)
+* `@humitos <https://github.com/humitos>`__: Django admin: search and filter notifications (`#11359 <https://github.com/readthedocs/readthedocs.org/pull/11359>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Set better success URL for version form views (`#11355 <https://github.com/readthedocs/readthedocs.org/pull/11355>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix version visibility filter method (`#11354 <https://github.com/readthedocs/readthedocs.org/pull/11354>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: browndate for redirecting `/` to `README.html` (`#11348 <https://github.com/readthedocs/readthedocs.org/pull/11348>`__)
+
 Version 10.26.0
 ---------------
 
