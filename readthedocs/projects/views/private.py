@@ -225,6 +225,17 @@ class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
     lookup_field = "slug"
 
     def get_success_url(self):
+        if settings.RTD_EXT_THEME_ENABLED:
+            # Redirect to the main version listing view instead of the version
+            # admin listing. The version admin view, ``project_version_list``,
+            # is an old view without filtering and splits up active/inactive
+            # versions into two separate querysets.
+            #
+            # See: https://github.com/readthedocs/ext-theme/issues/288
+            return reverse(
+                "projects_detail",
+                kwargs={"project_slug": self.get_project().slug},
+            )
         return reverse(
             "project_version_list",
             kwargs={"project_slug": self.get_project().slug},

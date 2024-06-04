@@ -85,7 +85,7 @@ django-celery-beat
 # TODO: remove this dependency once we upgrade Celery. It should auto-install it.
 tzdata
 
-django-allauth[socialaccount,saml]==0.63.1
+django-allauth[socialaccount,saml]
 
 requests-oauthlib
 
