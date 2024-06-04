@@ -1,13 +1,11 @@
 """Admin interface for SSO models."""
 import structlog
-
 from django.contrib import admin, messages
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.oauth.tasks import sync_remote_repositories
 
 from .models import SSODomain, SSOIntegration
-
 
 log = structlog.get_logger(__name__)
 

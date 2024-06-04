@@ -1,13 +1,13 @@
 import json
 
-from django.db.models import Q, Subquery
 from django.core.management.base import BaseCommand
+from django.db.models import Q, Subquery
 
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
-from readthedocs.projects.models import Project
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import Project
 
 
 class Command(BaseCommand):

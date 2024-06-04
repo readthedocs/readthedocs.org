@@ -3,7 +3,6 @@ from importlib import import_module
 
 from django.conf import settings
 
-
 # Managers
 mkdocs = import_module(settings.MKDOCS_BACKEND)
 sphinx = import_module(settings.SPHINX_BACKEND)

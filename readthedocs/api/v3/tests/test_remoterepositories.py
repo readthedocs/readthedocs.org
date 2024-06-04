@@ -1,7 +1,6 @@
-from django.urls import reverse
-
-from allauth.socialaccount.models import SocialAccount
 import django_dynamic_fixture as fixture
+from allauth.socialaccount.models import SocialAccount
+from django.urls import reverse
 
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.models import (
@@ -11,6 +10,7 @@ from readthedocs.oauth.models import (
     RemoteRepositoryRelation,
 )
 from readthedocs.projects.constants import REPO_TYPE_GIT
+
 from .mixins import APIEndpointMixin
 
 

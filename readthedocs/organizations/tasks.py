@@ -5,7 +5,6 @@ import structlog
 from readthedocs.builds.models import Build
 from readthedocs.worker import app
 
-
 log = structlog.get_logger(__name__)
 
 

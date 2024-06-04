@@ -6,8 +6,8 @@ from django.contrib.auth.signals import (
     user_logged_out,
     user_login_failed,
 )
-from django.dispatch import receiver
 from django.db.models import Q
+from django.dispatch import receiver
 
 from readthedocs.audit.models import AuditLog
 
