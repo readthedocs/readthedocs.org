@@ -646,6 +646,7 @@ class OrganizationsProjectsViewSet(
     APIv3Settings,
     NestedViewSetMixin,
     OrganizationQuerySetMixin,
+    FlexFieldsMixin,
     ReadOnlyModelViewSet,
 ):
     model = Project
