@@ -81,16 +81,8 @@ STATUS_CHOICES = (
 )
 
 REPO_TYPE_GIT = "git"
-REPO_TYPE_SVN = "svn"
-REPO_TYPE_HG = "hg"
-REPO_TYPE_BZR = "bzr"
 
-REPO_CHOICES = (
-    (REPO_TYPE_GIT, _("Git")),
-    (REPO_TYPE_SVN, _("Subversion")),
-    (REPO_TYPE_HG, _("Mercurial")),
-    (REPO_TYPE_BZR, _("Bazaar")),
-)
+REPO_CHOICES = ((REPO_TYPE_GIT, _("Git")),)
 
 PUBLIC = "public"
 PRIVATE = "private"

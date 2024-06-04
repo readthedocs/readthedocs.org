@@ -233,12 +233,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 verbose_name=self.data.version.verbose_name,
                 version_type=self.data.version.type,
             )
-            if not vcs_repository.supports_lsremote:
-                log.info("Syncing repository via full clone.")
-                vcs_repository.update()
-            else:
-                log.info("Syncing repository via remote listing.")
-
+            log.info("Syncing repository via remote listing.")
             self.sync_versions(vcs_repository)
 
 

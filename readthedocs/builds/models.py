@@ -105,8 +105,7 @@ class Version(TimeStampedModel):
     # used by the vcs backend
 
     #: The identifier is the ID for the revision this is version is for.
-    #: This might be the revision number (e.g. in SVN),
-    #: or the commit hash (e.g. in Git).
+    #: This is the commit hash (e.g. in Git).
     #: If the this version is pointing to a branch,
     #: then ``identifier`` will contain the branch name.
     #: `None`/`null` means it will use the VCS default branch.
