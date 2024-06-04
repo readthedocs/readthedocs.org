@@ -69,7 +69,7 @@ from .serializers import (
     BuildSerializer,
     EnvironmentVariableSerializer,
     NotificationSerializer,
-    OrganizationSerializer,
+    OrganizationSerializerWithExpandableFields,
     ProjectCreateSerializer,
     ProjectSerializer,
     ProjectUpdateSerializer,
@@ -633,7 +633,7 @@ class OrganizationsViewSetBase(
     # Also note that Read the Docs for Business expose this endpoint already.
 
     model = Organization
-    serializer_class = OrganizationSerializer
+    serializer_class = OrganizationSerializerWithExpandableFields
     queryset = Organization.objects.none()
     permission_classes = (IsAuthenticated,)
 
@@ -654,10 +654,8 @@ class OrganizationsProjectsViewSet(
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
-    permit_list_expands = [
-        "organization",
-        "organization.teams",
-    ]
+    # We don't need to expand the organization, it's already known.
+    permit_list_expands = []
 
     def get_view_name(self):
         return f"Organizations Projects {self.suffix}"
