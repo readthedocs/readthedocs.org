@@ -32,24 +32,26 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "2.7": "2.7.18",
             "3.6": "3.6.15",
             "3.7": "3.7.17",
-            "3.8": "3.8.18",
-            "3.9": "3.9.18",
-            "3.10": "3.10.13",
-            "3.11": "3.11.6",
-            "3.12": "3.12.0",
+            "3.8": "3.8.19",
+            "3.9": "3.9.19",
+            "3.10": "3.10.14",
+            "3.11": "3.11.9",
+            "3.12": "3.12.3",
             "miniconda3-4.7": "miniconda3-4.7.12",
+            "miniconda3-3.12": "miniconda3-3.12-24.1.2-0",
             "mambaforge-4.10": "mambaforge-4.10.3-10",
             "mambaforge-22.9": "mambaforge-22.9.0-3",
+            "mambaforge-23.11": "mambaforge-23.11.0-0",
         },
         "nodejs": {
             "14": "14.20.1",
             "16": "16.18.1",
             "18": "18.16.1",
             "19": "19.0.1",
-            "20": "20.11.0",  # LTS
+            "20": "20.14.0",  # LTS
         },
         "ruby": {
-            "3.3": "3.3.0",
+            "3.3": "3.3.2",
         },
         "rust": {
             "1.55": "1.55.0",
@@ -57,13 +59,15 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "1.64": "1.64.0",
             "1.70": "1.70.0",
             "1.75": "1.75.0",
+            "1.78": "1.78.0",
         },
         "golang": {
             "1.17": "1.17.13",
             "1.18": "1.18.10",
-            "1.19": "1.19.10",
-            "1.20": "1.20.5",
-            "1.21": "1.21.6",
+            "1.19": "1.19.13",
+            "1.20": "1.20.14",
+            "1.21": "1.21.11",
+            "1.22": "1.22.4",
         },
     },
 }
@@ -74,9 +78,9 @@ _TOOLS = RTD_DOCKER_BUILD_SETTINGS["tools"]
 _OS["ubuntu-lts-latest"] = _OS["ubuntu-22.04"]
 _TOOLS["python"]["3"] = _TOOLS["python"]["3.12"]
 _TOOLS["python"]["latest"] = _TOOLS["python"]["3"]
-_TOOLS["python"]["miniconda-latest"] = _TOOLS["python"]["miniconda3-4.7"]
-_TOOLS["python"]["mambaforge-latest"] = _TOOLS["python"]["mambaforge-22.9"]
+_TOOLS["python"]["miniconda-latest"] = _TOOLS["python"]["miniconda3-3.12"]
+_TOOLS["python"]["mambaforge-latest"] = _TOOLS["python"]["mambaforge-23.11"]
 _TOOLS["nodejs"]["latest"] = _TOOLS["nodejs"]["20"]
 _TOOLS["ruby"]["latest"] = _TOOLS["ruby"]["3.3"]
-_TOOLS["rust"]["latest"] = _TOOLS["rust"]["1.75"]
-_TOOLS["golang"]["latest"] = _TOOLS["golang"]["1.21"]
+_TOOLS["rust"]["latest"] = _TOOLS["rust"]["1.78"]
+_TOOLS["golang"]["latest"] = _TOOLS["golang"]["1.22"]
