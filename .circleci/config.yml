@@ -28,6 +28,7 @@ jobs:
       - run: pip install --user 'tox<5'
       - run: tox -e py310
       - codecov/upload
+      - run: tox -e ext-theme
 
   tests-embedapi:
     docker:

@@ -20,7 +20,7 @@
           You are currently on a trial.
           Please choose a <a href="{{ pricing_url }}">paid plan</a> that fits your organization
           prior to the end of your trial.
-          Upgrade your account by clicking on <strong>Manage Subscription</strong> below.
+          Upgrade your account by clicking on <strong>Manage subscription</strong> below.
           {% endblocktrans %}
         </li>
       </ul>
@@ -100,7 +100,7 @@
       {% csrf_token %}
       <button>
         <span>
-          {% trans "Manage Subscription" %}
+          {% trans "Manage subscription" %}
         </span>
       </button>
       <span class="helptext">
@@ -120,7 +120,7 @@
       <form action="" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <input id="submit" type="submit" value="{% trans "Create Subscription" %}" />
+        <input id="submit" type="submit" value="{% trans "Start subscription" %}" />
       </form>
     {% endif %}
 

@@ -114,8 +114,8 @@ class SubscriptionViewTests(TestCase):
         self.assertContains(resp, "active")
         self.assertNotContains(resp, "Extra products:")
         # The subscribe form isn't shown, but the manage susbcription button is.
-        self.assertContains(resp, "Manage Subscription")
-        self.assertNotContains(resp, "Create Subscription")
+        self.assertContains(resp, "Manage subscription")
+        self.assertNotContains(resp, "Start subscription")
 
     def test_active_subscription_with_extra_product(self):
         get(
@@ -132,8 +132,8 @@ class SubscriptionViewTests(TestCase):
         self.assertContains(resp, "active")
         self.assertContains(resp, "Extra products:")
         # The subscribe form isn't shown, but the manage susbcription button is.
-        self.assertContains(resp, "Manage Subscription")
-        self.assertNotContains(resp, "Create Subscription")
+        self.assertContains(resp, "Manage subscription")
+        self.assertNotContains(resp, "Start subscription")
 
     @requests_mock.Mocker(kw="mock_request")
     def test_manage_subscription(self, mock_request):
@@ -218,6 +218,6 @@ class SubscriptionViewTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context["stripe_subscription"], self.stripe_subscription)
-        # The Manage Subscription form isn't shown, but the Subscribe is.
-        self.assertNotContains(resp, "Manage Subscription")
-        self.assertContains(resp, "Create Subscription")
+        # The Manage subscription form isn't shown, but the Subscribe is.
+        self.assertNotContains(resp, "Manage subscription")
+        self.assertContains(resp, "Start subscription")
