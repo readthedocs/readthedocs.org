@@ -279,6 +279,7 @@ LANGUAGES = (
     # TODO: migrate those projects that are currently using "zh" as language.
     # This is an invalid language code, so the first step is remove it from the
     # list of possible languages.
+    # https://github.com/readthedocs/readthedocs.org/issues/11387
     #
     # In [1]: Project.objects.filter(language='zh').count()
     # Out[1]: 1485
