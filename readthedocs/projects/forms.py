@@ -409,8 +409,7 @@ class UpdateProjectForm(
         url = reverse("projects_integrations", args=[self.instance.slug])
         if not has_supported_integration:
             msg = _(
-                "To build from pull requests you need a "
-                f'GitHub or GitLab <a href="{url}">integration</a>.'
+                f'To build from pull requests you need a GitHub or GitLab <a href="{url}">integration</a>.'
             )
         if has_supported_integration and not can_build_external_versions:
             # If there is only one integration, link directly to it.
@@ -420,9 +419,7 @@ class UpdateProjectForm(
                     args=[self.instance.slug, integrations[0].pk],
                 )
             msg = _(
-                "To build from pull requests your repository's webhook "
-                "needs to send pull request events. "
-                f'Try to <a href="{url}">resync your integration</a>.'
+                f'To build from pull requests your repository\'s webhook needs to send pull request events. Try to <a href="{url}">resync your integration</a>.'
             )
 
         if msg:
