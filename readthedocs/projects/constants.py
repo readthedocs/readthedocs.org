@@ -82,6 +82,7 @@ STATUS_CHOICES = (
 
 REPO_TYPE_GIT = "git"
 
+# TODO: Remove this since we only have 1 type.
 REPO_CHOICES = ((REPO_TYPE_GIT, _("Git")),)
 
 PUBLIC = "public"
