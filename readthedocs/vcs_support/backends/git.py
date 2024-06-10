@@ -30,10 +30,6 @@ class Backend(BaseVCS):
 
     """Git VCS backend."""
 
-    supports_tags = True
-    supports_branches = True
-    supports_submodules = True
-    supports_lsremote = True
     fallback_branch = "master"  # default branch
     repo_depth = 50
 

@@ -267,8 +267,6 @@ markdown==3.6
     # via -r requirements/pip.txt
 markupsafe==2.1.5
     # via jinja2
-mercurial==6.7.3
-    # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt

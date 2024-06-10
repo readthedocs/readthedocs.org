@@ -19,8 +19,6 @@ from readthedocs.projects.constants import (
     MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
-    REPO_TYPE_GIT,
-    REPO_TYPE_HG,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
     SPHINX,
 )
@@ -113,29 +111,6 @@ class TestProjectForms(TestCase):
         form = ProjectBasicsForm(initial)
         self.assertFalse(form.is_valid())
         self.assertIn("name", form.errors)
-
-    def test_changing_vcs_should_not_change_latest_is_not_none(self):
-        """
-        When changing the project's VCS,
-        we should respect the custom default branch.
-        """
-        project = get(Project, repo_type=REPO_TYPE_HG, default_branch="custom")
-        latest = project.versions.get(slug=LATEST)
-        self.assertEqual(latest.identifier, "custom")
-
-        form = ProjectBasicsForm(
-            {
-                "repo": "http://github.com/test/test",
-                "name": "name",
-                "repo_type": REPO_TYPE_GIT,
-                "language": "en",
-            },
-            instance=project,
-        )
-        self.assertTrue(form.is_valid())
-        form.save()
-        latest.refresh_from_db()
-        self.assertEqual(latest.identifier, "custom")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_length_of_tags(self):
