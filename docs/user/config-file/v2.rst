@@ -330,7 +330,7 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``3.12``
   - ``latest`` (alias for the latest version available on Read the Docs)
   - ``miniconda3-4.7``
-  - ``miniconda3-3.12``
+  - ``miniconda3-3.12-24.1``
   - ``miniconda-latest`` (alias for the latest version available on Read the Docs)
   - ``mambaforge-4.10``
   - ``mambaforge-22.9``
