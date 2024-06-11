@@ -1,3 +1,18 @@
+Version 11.0.0
+--------------
+
+This release removes support for VCS systems other than Git. See more in our blog here: https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/
+
+:Date: June 11, 2024
+
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11392 <https://github.com/readthedocs/readthedocs.org/pull/11392>`__)
+* `@rffontenelle <https://github.com/rffontenelle>`__: Unbreak strings to proper extraction for translation (`#11389 <https://github.com/readthedocs/readthedocs.org/pull/11389>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#11382 <https://github.com/readthedocs/readthedocs.org/pull/11382>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update docker compose files (`#11380 <https://github.com/readthedocs/readthedocs.org/pull/11380>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.27.0 (`#11378 <https://github.com/readthedocs/readthedocs.org/pull/11378>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: remove code for old VCS support (`#11377 <https://github.com/readthedocs/readthedocs.org/pull/11377>`__)
+
 Version 10.27.0
 ---------------
 
