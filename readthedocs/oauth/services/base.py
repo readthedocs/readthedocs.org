@@ -5,6 +5,7 @@ from datetime import datetime
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
+from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
@@ -64,7 +65,7 @@ class Service:
         except SocialAccount.DoesNotExist:
             return []
 
-    def get_adapter(self):
+    def get_adapter(self) -> type[OAuth2Adapter]:
         return self.adapter
 
     @property
@@ -83,6 +84,8 @@ class Service:
     def get_access_token_url(self):
         # ``access_token_url`` is a property in some adapters,
         # so we need to instantiate it to get the actual value.
+        # pylint doesn't recognize that get_adapter returns a class.
+        # pylint: disable=not-callable
         adapter = self.get_adapter()(request=None)
         return adapter.access_token_url
 
