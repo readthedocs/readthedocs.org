@@ -1244,7 +1244,7 @@ class Project(models.Model):
 
         vcs_class = self.vcs_class()
         if vcs_class:
-            return vcs_class().fallback_branch
+            return vcs_class.fallback_branch
         else:
             return "Unknown"
 
