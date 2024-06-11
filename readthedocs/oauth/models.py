@@ -150,7 +150,7 @@ class RemoteRepository(TimeStampedModel):
         max_length=512,
         blank=True,
         validators=[
-            URLValidator(schemes=["http", "https", "ssh", "git", "svn"]),
+            URLValidator(schemes=["http", "https", "ssh", "git"]),
         ],
     )
     html_url = models.URLField(_("HTML URL"), null=True, blank=True)

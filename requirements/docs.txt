@@ -14,7 +14,7 @@ babel==2.15.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2024.2.2
+certifi==2024.6.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
@@ -167,13 +167,13 @@ starlette==0.37.2
     # via sphinx-autobuild
 tomli==2.0.1
     # via sphinx
-typing-extensions==4.12.1
+typing-extensions==4.12.2
     # via
     #   anyio
     #   uvicorn
 urllib3==2.2.1
     # via requests
-uvicorn==0.30.0
+uvicorn==0.30.1
     # via sphinx-autobuild
 watchfiles==0.22.0
     # via sphinx-autobuild
