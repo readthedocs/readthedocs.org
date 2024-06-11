@@ -80,6 +80,12 @@ class Service:
             self.create_session()
         return self.session
 
+    def get_access_token_url(self):
+        # ``access_token_url`` is a property in some adapters,
+        # so we need to instantiate it to get the actual value.
+        adapter = self.get_adapter()(request=None)
+        return adapter.access_token_url
+
     def create_session(self):
         """
         Create OAuth session for user.
@@ -113,7 +119,7 @@ class Service:
                 "client_id": social_app.client_id,
                 "client_secret": social_app.secret,
             },
-            auto_refresh_url=self.get_adapter().access_token_url,
+            auto_refresh_url=self.get_access_token_url(),
             token_updater=self.token_updater(token),
         )
 
