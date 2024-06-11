@@ -47,7 +47,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         HOSTIP = ips[0][:-1] + "1"
 
     # Turn this on to test ads
-    USE_PROMOS = True
+    USE_PROMOS = False
     ADSERVER_API_BASE = f"http://{HOSTIP}:5000"
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
