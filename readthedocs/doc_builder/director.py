@@ -266,8 +266,7 @@ class BuildDirector:
         if "image" not in build_config_key and "os" not in build_config_key:
             raise BuildUserError(BuildUserError.BUILD_OS_REQUIRED)
 
-        if self.vcs_repository.supports_submodules:
-            self.vcs_repository.update_submodules(self.data.config)
+        self.vcs_repository.update_submodules(self.data.config)
 
     # System dependencies (``build.apt_packages``)
     # NOTE: `system_dependencies` should not be possible to override by the

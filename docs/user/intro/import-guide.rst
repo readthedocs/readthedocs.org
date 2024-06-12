@@ -41,10 +41,8 @@ project, you will be asked for the repository URL, along with some other
 information for your new project. The URL is normally the URL or path name you'd
 use to checkout, clone, or branch your repository. Some examples:
 
-* Git: ``https://github.com/ericholscher/django-kong.git``
-* Mercurial: ``https://bitbucket.org/ianb/pip``
-* Subversion: ``http://varnish-cache.org/svn/trunk``
-* Bazaar: ``lp:pasta``
+* ``https://github.com/ericholscher/django-kong.git``
+* ``https://gitlab.com/gitlab-org/gitlab``
 
 Add an optional homepage URL and some tags, and then click **Next**.
 

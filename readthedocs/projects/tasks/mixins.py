@@ -41,28 +41,12 @@ class SyncRepositoryMixin:
         # and just validate them trigger the task. All the other logic should
         # be done by the BuildDirector or the VCS backend. We should not
         # check this here and do not depend on ``vcs_repository``.
-        sync_tags = vcs_repository.supports_tags and not self.data.project.has_feature(
-            Feature.SKIP_SYNC_TAGS
+        sync_tags = not self.data.project.has_feature(Feature.SKIP_SYNC_TAGS)
+        sync_branches = not self.data.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
+        branches, tags = vcs_repository.lsremote(
+            include_tags=sync_tags,
+            include_branches=sync_branches,
         )
-        sync_branches = (
-            vcs_repository.supports_branches
-            and not self.data.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
-        )
-        tags = []
-        branches = []
-        if vcs_repository.supports_lsremote:
-            branches, tags = vcs_repository.lsremote(
-                include_tags=sync_tags,
-                include_branches=sync_branches,
-            )
-
-        # Remove this block once we drop support for Bazaar, SVG and Mercurial.
-        # Since we will only support Git, lsremote will be always available.
-        else:
-            if sync_tags:
-                tags = vcs_repository.tags
-            if sync_branches:
-                branches = vcs_repository.branches
 
         tags_data = [
             {

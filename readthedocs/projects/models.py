@@ -1242,7 +1242,10 @@ class Project(models.Model):
         if self.remote_repository and self.remote_repository.default_branch:
             return self.remote_repository.default_branch
 
-        return self.vcs_class().fallback_branch
+        vcs_class = self.vcs_class()
+        if vcs_class:
+            return vcs_class.fallback_branch
+        return "Unknown"
 
     def add_subproject(self, child, alias=None):
         subproject, _ = ProjectRelationship.objects.get_or_create(
