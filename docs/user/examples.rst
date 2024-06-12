@@ -10,47 +10,54 @@ Sphinx
 
 Sphinx example with versioning and Python doc autogeneration.
 
-* Markup language: reStructuredText, Markdown or MyST
-* Rendered version: https://example-sphinx-basic.readthedocs.io/en/latest/>
-* Repository: https://github.com/readthedocs-examples/example-sphinx-basic/
+Markup language
+  reStructuredText, Markdown or MyST
+Rendered version
+  https://example-sphinx-basic.readthedocs.io/en/latest/>
+Repository
+  https://github.com/readthedocs-examples/example-sphinx-basic/
 
 MkDocs
 ------
 
 Basic example of using MkDocs.
 
-* Markup language: Markdown
-* Rendered version: https://example-mkdocs-basic.readthedocs.io/en/latest/
-* Repository: https://github.com/readthedocs-examples/example-mkdocs-basic/
+Markup language
+  Markdown
+Rendered version
+  https://example-mkdocs-basic.readthedocs.io/en/latest/
+Repository
+  https://github.com/readthedocs-examples/example-mkdocs-basic/
 
 Jupyter Book
 ------------
 
 Jupyter Book with popular integrations configured.
 
-* Markup language: MyST.
-* Rendered version: https://example-jupyter-book.readthedocs.io/
-* Repository: https://github.com/readthedocs-examples/example-jupyter-book/
+Markup language
+  MyST
+Rendered version
+  https://example-jupyter-book.readthedocs.io/
+Repository
+  https://github.com/readthedocs-examples/example-jupyter-book/
 
 Antora
 ------
 
 Antora with asciidoctor-kroki extension configured for AsciiDoc and Diagram as Code.
 
-* Markup language: AsciiDoc
-* Rendered version: https://example-antora-basic.readthedocs.io/
-* Repository: https://github.com/man-chi/example-antora-basic/
+Markup language
+  AsciiDoc
+Rendered version
+  https://example-antora-basic.readthedocs.io/
+Repository
+  https://github.com/man-chi/example-antora-basic/
 
 Real-life examples
 ------------------
 
-.. image:: _static/images/awesome-list.svg
-  :alt: Awesome List badge
-  :target: https://github.com/readthedocs-examples/awesome-read-the-docs
-
-We maintain an **Awesome List** where you can contribute new shiny examples of using Read the Docs.
+We maintain an Awesome List where you can contribute new shiny examples of using Read the Docs.
 Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/awesome-read-the-docs>`__.
-
 
 Contributing an example project
 -------------------------------
