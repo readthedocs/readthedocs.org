@@ -30,6 +30,8 @@ def map_proxito_path(view_func):
                 proxito_path=request.path,
             )
         except Http404 as e:
+            # Fall back to our custom 404 handler,
+            # if a 404 was raised by proxito's 404 view.
             return proxito_handler404(request, exception=e)
 
     return inner_view
