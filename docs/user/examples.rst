@@ -5,8 +5,17 @@ The following example projects show a rich variety of uses of Read the Docs.
 You can use them for inspiration, for learning and for recipes to start your own documentation projects.
 View the *rendered* version of each project and then head over to the Git repository to see how it's done and reuse the code.
 
+Real-life examples
+------------------
+
+We maintain an Awesome List where you can contribute new shiny examples of using Read the Docs.
+Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/awesome-read-the-docs>`__.
+
+Minimal basic examples
+----------------------
+
 Sphinx
-------
+~~~~~~
 
 Sphinx example with versioning and Python doc autogeneration.
 
@@ -18,7 +27,7 @@ Repository
   https://github.com/readthedocs-examples/example-sphinx-basic/
 
 MkDocs
-------
+~~~~~~
 
 Basic example of using MkDocs.
 
@@ -30,7 +39,7 @@ Repository
   https://github.com/readthedocs-examples/example-mkdocs-basic/
 
 Jupyter Book
-------------
+~~~~~~~~~~~~
 
 Jupyter Book with popular integrations configured.
 
@@ -42,7 +51,7 @@ Repository
   https://github.com/readthedocs-examples/example-jupyter-book/
 
 Antora
-------
+~~~~~~
 
 Antora with asciidoctor-kroki extension configured for AsciiDoc and Diagram as Code.
 
@@ -52,12 +61,6 @@ Rendered version
   https://example-antora-basic.readthedocs.io/
 Repository
   https://github.com/man-chi/example-antora-basic/
-
-Real-life examples
-------------------
-
-We maintain an Awesome List where you can contribute new shiny examples of using Read the Docs.
-Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/awesome-read-the-docs>`__.
 
 Contributing an example project
 -------------------------------
