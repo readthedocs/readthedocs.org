@@ -232,8 +232,9 @@ BUILD_MESSAGES = [
         header=_("No HTML content found"),
         body=_(
             textwrap.dedent(
-                f"""
-             No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.
+                """
+             No "$READTHEDOCS_OUTPUT/html" folder was created during this build.
+             Read more about <a href="https://docs.readthedocs.io/page/reference/environment-variables.html#envvar-READTHEDOCS_OUTPUT">this environment variable</a>.
              """
             ).strip(),
         ),
