@@ -414,9 +414,8 @@ Take a look at the following example:
 Override the build process
 --------------------------
 
-.. warning::
+.. note::
 
-   This feature is in *beta* and could change without warning.
    We are currently testing :ref:`the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`
    on projects using ``build.commands`` configuration key.
 
