@@ -81,16 +81,9 @@ STATUS_CHOICES = (
 )
 
 REPO_TYPE_GIT = "git"
-REPO_TYPE_SVN = "svn"
-REPO_TYPE_HG = "hg"
-REPO_TYPE_BZR = "bzr"
 
-REPO_CHOICES = (
-    (REPO_TYPE_GIT, _("Git")),
-    (REPO_TYPE_SVN, _("Subversion")),
-    (REPO_TYPE_HG, _("Mercurial")),
-    (REPO_TYPE_BZR, _("Bazaar")),
-)
+# TODO: Remove this since we only have 1 type.
+REPO_CHOICES = ((REPO_TYPE_GIT, _("Git")),)
 
 PUBLIC = "public"
 PRIVATE = "private"
@@ -276,7 +269,15 @@ LANGUAGES = (
     ("yi", "Yiddish"),
     ("yo", "Yoruba"),
     ("za", "Zhuang"),
-    ("zh", "Chinese"),
+    # TODO: migrate those projects that are currently using "zh" as language.
+    # This is an invalid language code, so the first step is remove it from the
+    # list of possible languages.
+    # https://github.com/readthedocs/readthedocs.org/issues/11387
+    #
+    # In [1]: Project.objects.filter(language='zh').count()
+    # Out[1]: 1485
+    #
+    # ("zh", "Chinese"),
     ("zu", "Zulu"),
     # Try these to test our non-2 letter language support
     ("nb-no", "Norwegian Bokmal"),
@@ -422,4 +423,27 @@ VERSIONING_SCHEME_CHOICES = (
         SINGLE_VERSION_WITHOUT_TRANSLATIONS,
         _("Single version without translations (/<filename>)"),
     ),
+)
+
+
+ADDONS_FLYOUT_SORTING_ALPHABETICALLY = "alphabetically"
+# Compatibility to keep the behavior of the old flyout.
+# This isn't a good algorithm, but it's a way to keep the old behavior in case we need it.
+ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE = "semver-readthedocs-compatible"
+# https://pypi.org/project/packaging/
+ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING = "python-packaging"
+ADDONS_FLYOUT_SORTING_CALVER = "calver"
+# Let the user to define a custom pattern and use BumpVer to parse and sort the versions.
+# https://github.com/mbarkhau/bumpver#pattern-examples
+ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN = "custom-pattern"
+
+ADDONS_FLYOUT_SORTING_CHOICES = (
+    (ADDONS_FLYOUT_SORTING_ALPHABETICALLY, _("Alphabetically")),
+    (ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE, _("SemVer (Read the Docs)")),
+    (
+        ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
+        _("Python Packaging (PEP 440 and PEP 425)"),
+    ),
+    (ADDONS_FLYOUT_SORTING_CALVER, _("CalVer (YYYY.0M.0M)")),
+    (ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN, _("Define your own pattern")),
 )

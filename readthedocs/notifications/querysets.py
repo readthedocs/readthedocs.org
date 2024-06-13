@@ -4,11 +4,12 @@ from django.db import models
 from django.utils import timezone
 
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.querysets import NoReprQuerySet
 
 from .constants import CANCELLED, READ, UNREAD
 
 
-class NotificationQuerySet(models.QuerySet):
+class NotificationQuerySet(NoReprQuerySet, models.QuerySet):
     def add(self, *args, **kwargs):
         """
         Create a notification without duplicating it.
@@ -33,6 +34,12 @@ class NotificationQuerySet(models.QuerySet):
         ).first()
 
         if notification:
+            # Remove the fields we are overriding.
+            # Avoids passing these fields twice to ``.update()`` which
+            # raises an exception in that case.
+            kwargs.pop("state", None)
+            kwargs.pop("modified", None)
+
             self.filter(pk=notification.pk).update(
                 *args,
                 modified=timezone.now(),

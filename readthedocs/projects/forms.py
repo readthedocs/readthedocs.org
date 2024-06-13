@@ -22,6 +22,7 @@ from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
+from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.models import (
     AddonsConfig,
     Domain,
@@ -408,8 +409,7 @@ class UpdateProjectForm(
         url = reverse("projects_integrations", args=[self.instance.slug])
         if not has_supported_integration:
             msg = _(
-                "To build from pull requests you need a "
-                f'GitHub or GitLab <a href="{url}">integration</a>.'
+                f'To build from pull requests you need a GitHub or GitLab <a href="{url}">integration</a>.'
             )
         if has_supported_integration and not can_build_external_versions:
             # If there is only one integration, link directly to it.
@@ -419,9 +419,7 @@ class UpdateProjectForm(
                     args=[self.instance.slug, integrations[0].pk],
                 )
             msg = _(
-                "To build from pull requests your repository's webhook "
-                "needs to send pull request events. "
-                f'Try to <a href="{url}">resync your integration</a>.'
+                f'To build from pull requests your repository\'s webhook needs to send pull request events. Try to <a href="{url}">resync your integration</a>.'
             )
 
         if msg:
@@ -586,8 +584,12 @@ class AddonsConfigForm(forms.ModelForm):
             "project",
             "analytics_enabled",
             "doc_diff_enabled",
+            "doc_diff_root_selector",
             "external_version_warning_enabled",
             "flyout_enabled",
+            "flyout_sorting",
+            "flyout_sorting_latest_stable_at_beginning",
+            "flyout_sorting_custom_pattern",
             "hotkeys_enabled",
             "search_enabled",
             "stable_latest_version_warning_enabled",
@@ -601,6 +603,11 @@ class AddonsConfigForm(forms.ModelForm):
                 "Show a notification on non-stable and latest versions"
             ),
         }
+        widgets = {
+            "doc_diff_root_selector": forms.TextInput(
+                attrs={"placeholder": "[role=main]"}
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
@@ -611,6 +618,18 @@ class AddonsConfigForm(forms.ModelForm):
 
         kwargs["instance"] = addons
         super().__init__(*args, **kwargs)
+
+    def clean(self):
+        if (
+            self.cleaned_data["flyout_sorting"] == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
+            and not self.cleaned_data["flyout_sorting_custom_pattern"]
+        ):
+            raise forms.ValidationError(
+                _(
+                    "The flyout sorting custom pattern is required when selecting a custom pattern."
+                ),
+            )
+        return super().clean()
 
     def clean_project(self):
         return self.project

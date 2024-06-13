@@ -285,7 +285,6 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount",
             "allauth.socialaccount.providers.github",
             "allauth.socialaccount.providers.gitlab",
-            "allauth.socialaccount.providers.bitbucket",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "cacheops",
         ]
@@ -382,6 +381,7 @@ class CommunityBaseSettings(Settings):
     MEDIA_ROOT = os.path.join(SITE_ROOT, "media/")
     MEDIA_URL = "/media/"
     ADMIN_MEDIA_PREFIX = "/media/admin/"
+    ADMIN_URL = "/admin"
     STATICFILES_DIRS = [
         os.path.join(SITE_ROOT, "readthedocs", "static"),
         os.path.join(SITE_ROOT, "media"),
@@ -663,6 +663,7 @@ class CommunityBaseSettings(Settings):
     # Make email verification mandatory.
     # Users won't be able to login until they verify the email address.
     ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+    ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
     ACCOUNT_AUTHENTICATION_METHOD = "username_email"
     ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
@@ -697,12 +698,6 @@ class CommunityBaseSettings(Settings):
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
             # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org.
-        },
-        # Deprecated, we use `bitbucket_oauth2` for all new connections.
-        "bitbucket": {
-            "APPS": [
-                {"client_id": "123", "secret": "456", "key": ""},
-            ],
         },
     }
 
@@ -881,6 +876,9 @@ class CommunityBaseSettings(Settings):
         "PAGE_SIZE": 10,
         "TEST_REQUEST_DEFAULT_FORMAT": "json",
     }
+    REST_FLEX_FIELDS = {
+        "RECURSIVE_EXPANSION_PERMITTED": False,
+    }
 
     SILENCED_SYSTEM_CHECKS = ["fields.W342"]
 
@@ -1044,3 +1042,5 @@ class CommunityBaseSettings(Settings):
             "timeout": CACHEOPS_TIMEOUT,
         },
     }
+
+    S3_PROVIDER = "AWS"

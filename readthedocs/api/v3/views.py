@@ -589,6 +589,10 @@ class UsersViewSet(
     serializer_class = UserSerializer
     queryset = User.objects.none()
     permission_classes = (IsAuthenticated,)
+    # We are using the username as the lookup field,
+    # by default, DRF does not allow dots and `/`,
+    # but we allow usernames to have dots.
+    lookup_value_regex = "[^/]+"
 
 
 class NotificationsUserViewSet(

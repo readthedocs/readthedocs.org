@@ -45,6 +45,7 @@
         "urls": {
           "builds": "https://readthedocs.org/projects/project/builds/",
           "documentation": "http://project.readthedocs.io/en/latest/",
+          "downloads": "https://readthedocs.org/projects/project/downloads/",
           "home": "https://readthedocs.org/projects/project/",
           "versions": "https://readthedocs.org/projects/project/versions/"
         },

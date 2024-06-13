@@ -1,6 +1,7 @@
 from unittest import mock
 
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import TestCase
@@ -12,16 +13,17 @@ from readthedocs.builds.models import Version
 from readthedocs.core.forms import RichValidationError
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
+    ADDONS_FLYOUT_SORTING_CALVER,
+    ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
-    REPO_TYPE_GIT,
-    REPO_TYPE_HG,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
     SPHINX,
 )
 from readthedocs.projects.forms import (
+    AddonsConfigForm,
     EmailHookForm,
     EnvironmentVariableForm,
     ProjectAutomaticForm,
@@ -109,29 +111,6 @@ class TestProjectForms(TestCase):
         form = ProjectBasicsForm(initial)
         self.assertFalse(form.is_valid())
         self.assertIn("name", form.errors)
-
-    def test_changing_vcs_should_not_change_latest_is_not_none(self):
-        """
-        When changing the project's VCS,
-        we should respect the custom default branch.
-        """
-        project = get(Project, repo_type=REPO_TYPE_HG, default_branch="custom")
-        latest = project.versions.get(slug=LATEST)
-        self.assertEqual(latest.identifier, "custom")
-
-        form = ProjectBasicsForm(
-            {
-                "repo": "http://github.com/test/test",
-                "name": "name",
-                "repo_type": REPO_TYPE_GIT,
-                "language": "en",
-            },
-            instance=project,
-        )
-        self.assertTrue(form.is_valid())
-        form.save()
-        latest.refresh_from_db()
-        self.assertEqual(latest.identifier, "custom")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_length_of_tags(self):
@@ -498,7 +477,9 @@ class TestProjectPrevalidationForms(TestCase):
         # User with connection
         # User without connection
         self.user_github = get(User)
-        self.social_github = get(SocialAccount, user=self.user_github)
+        self.social_github = get(
+            SocialAccount, user=self.user_github, provider=GitHubProvider.id
+        )
         self.user_email = get(User)
 
     def test_form_prevalidation_email_user(self):
@@ -534,11 +515,17 @@ class TestProjectPrevalidationForms(TestCase):
 class TestProjectPrevalidationFormsWithOrganizations(TestCase):
     def setUp(self):
         self.user_owner = get(User)
-        self.social_owner = get(SocialAccount, user=self.user_owner)
+        self.social_owner = get(
+            SocialAccount, user=self.user_owner, provider=GitHubProvider.id
+        )
         self.user_admin = get(User)
-        self.social_admin = get(SocialAccount, user=self.user_admin)
+        self.social_admin = get(
+            SocialAccount, user=self.user_admin, provider=GitHubProvider.id
+        )
         self.user_readonly = get(User)
-        self.social_readonly = get(SocialAccount, user=self.user_readonly)
+        self.social_readonly = get(
+            SocialAccount, user=self.user_readonly, provider=GitHubProvider.id
+        )
 
         self.organization = get(
             Organization,
@@ -1083,4 +1070,69 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         self.assertEqual(
             EnvironmentVariable.objects.latest().value,
             r"'string escaped here: #$\1[]{}\|'",
+        )
+
+
+class TestAddonsConfigForm(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+
+    def test_addonsconfig_form(self):
+        data = {
+            "enabled": True,
+            "analytics_enabled": False,
+            "doc_diff_enabled": False,
+            "external_version_warning_enabled": True,
+            "flyout_enabled": True,
+            "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
+            "flyout_sorting_latest_stable_at_beginning": True,
+            "flyout_sorting_custom_pattern": None,
+            "hotkeys_enabled": False,
+            "search_enabled": False,
+            "stable_latest_version_warning_enabled": True,
+        }
+        form = AddonsConfigForm(data=data, project=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        self.assertEqual(self.project.addons.enabled, True)
+        self.assertEqual(self.project.addons.analytics_enabled, False)
+        self.assertEqual(self.project.addons.doc_diff_enabled, False)
+        self.assertEqual(self.project.addons.external_version_warning_enabled, True)
+        self.assertEqual(self.project.addons.flyout_enabled, True)
+        self.assertEqual(
+            self.project.addons.flyout_sorting,
+            ADDONS_FLYOUT_SORTING_CALVER,
+        )
+        self.assertEqual(
+            self.project.addons.flyout_sorting_latest_stable_at_beginning,
+            True,
+        )
+        self.assertEqual(self.project.addons.flyout_sorting_custom_pattern, None)
+        self.assertEqual(self.project.addons.hotkeys_enabled, False)
+        self.assertEqual(self.project.addons.search_enabled, False)
+        self.assertEqual(
+            self.project.addons.stable_latest_version_warning_enabled,
+            True,
+        )
+
+    def test_addonsconfig_form_invalid_sorting_custom_pattern(self):
+        data = {
+            "enabled": True,
+            "analytics_enabled": False,
+            "doc_diff_enabled": False,
+            "external_version_warning_enabled": True,
+            "flyout_enabled": True,
+            "flyout_sorting": ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
+            "flyout_sorting_latest_stable_at_beginning": True,
+            "flyout_sorting_custom_pattern": None,
+            "hotkeys_enabled": False,
+            "search_enabled": False,
+            "stable_latest_version_warning_enabled": True,
+        }
+        form = AddonsConfigForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            "The flyout sorting custom pattern is required when selecting a custom pattern.",
+            form.errors["__all__"][0],
         )

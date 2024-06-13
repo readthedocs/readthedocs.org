@@ -84,7 +84,6 @@ class ProjectAdminSerializer(ProjectSerializer):
             "container_mem_limit",
             "container_time_limit",
             "skip",
-            "requirements_file",
             "features",
             "has_valid_clone",
             "has_valid_webhook",
@@ -427,3 +426,8 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         exclude = ["attached_to_id", "attached_to_content_type"]
+
+    def create(self, validated_data):
+        # Override this method to allow de-duplication of notifications,
+        # by calling our custom ``.add()`` method that does this.
+        return Notification.objects.add(**validated_data)

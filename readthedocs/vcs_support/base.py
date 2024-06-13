@@ -1,8 +1,6 @@
 """Base classes for VCS backends."""
-import datetime
 import os
 
-import pytz
 import structlog
 
 from readthedocs.core.utils.filesystem import safe_rmtree
@@ -35,46 +33,7 @@ class VCSVersion:
         )
 
 
-class Deprecated:
-    def __init__(self, *args, **kwargs):
-        tzinfo = pytz.timezone("America/Los_Angeles")
-        now = datetime.datetime.now(tz=tzinfo)
-
-        # Brownout dates as published in https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/
-        # fmt: off
-        disabled = any([
-            # 12 hours browndate
-            datetime.datetime(2024, 4, 1, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 4, 1, 12, 0, 0, tzinfo=tzinfo),
-            # 24 hours browndate
-            datetime.datetime(2024, 5, 6, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 5, 7, 0, 0, 0, tzinfo=tzinfo),
-            # 48 hours browndate
-            datetime.datetime(2024, 5, 20, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 5, 22, 0, 0, 0, tzinfo=tzinfo),
-            # Deprecated after June 3
-            datetime.datetime(2024, 6, 3, 0, 0, 0, tzinfo=tzinfo) < now,
-        ])
-        # fmt: on
-
-        if disabled:
-            from .backends import bzr, hg, svn
-
-            vcs = None
-            if isinstance(self, bzr.Backend):
-                vcs = "Bazaar"
-            elif isinstance(self, svn.Backend):
-                vcs = "Subversion"
-            elif isinstance(self, hg.Backend):
-                vcs = "Mercurial"
-
-            raise BuildUserError(
-                message_id=BuildUserError.VCS_DEPRECATED,
-                format_values={
-                    "vcs": vcs,
-                },
-            )
-
-        super().__init__(*args, **kwargs)
-
-
+# TODO: merge this class with Git VCS class to simplify the code.
 class BaseVCS:
 
     """
@@ -82,13 +41,6 @@ class BaseVCS:
 
     VCS commands are executed inside a ``BaseBuildEnvironment`` subclass.
     """
-
-    supports_tags = False  # Whether this VCS supports tags or not.
-    supports_branches = False  # Whether this VCS supports branches or not.
-    supports_submodules = False  # Whether this VCS supports submodules or not.
-
-    # Whether this VCS supports listing remotes (branches, tags) without cloning
-    supports_lsremote = False
 
     # =========================================================================
     # General methods
@@ -158,8 +110,6 @@ class BaseVCS:
 
     # =========================================================================
     # Tag / Branch related methods
-    # These methods only apply if supports_tags = True and/or
-    # support_branches = True
     # =========================================================================
 
     @property

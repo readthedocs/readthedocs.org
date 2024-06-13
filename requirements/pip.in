@@ -38,7 +38,10 @@ jsonfield
 
 django-safemigrate
 
-requests
+# The latest version of requests isn't compatible with the
+# version of the docker-py library we're using.
+# See https://github.com/docker/docker-py/issues/3256.
+requests==2.30.0
 requests-toolbelt
 slumber
 pyyaml
@@ -82,9 +85,7 @@ django-celery-beat
 # TODO: remove this dependency once we upgrade Celery. It should auto-install it.
 tzdata
 
-# 0.58.0 refactored the built-in templates,
-# we need to check if we need to update our custom templates.
-django-allauth==0.57.2
+django-allauth[socialaccount,saml]
 
 requests-oauthlib
 
@@ -177,3 +178,6 @@ dparse
 gunicorn
 
 django-cacheops
+
+# Used by Addons for sorting patterns
+bumpver

@@ -4,7 +4,6 @@ from annoying.fields import AutoOneToOneField
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from simple_history import register
@@ -45,9 +44,6 @@ class UserProfile(TimeStampedModel):
 
     # Model history
     history = ExtraHistoricalRecords()
-
-    def __str__(self):
-        return gettext("%(username)s's profile") % {"username": self.user.username}
 
     def get_absolute_url(self):
         return reverse(

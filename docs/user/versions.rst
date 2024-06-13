@@ -4,8 +4,8 @@ Versions
 Read the Docs supports multiple versions of your repository.
 On initial import,
 we will create a ``latest`` version.
-This will point at the default branch defined in your VCS control
-(by default, ``main`` on Git and ``default`` in Mercurial).
+This will point at the default branch defined in your Git repository.
+(by default, ``main``).
 
 If your project has any tags or branches with a name following `semantic versioning <https://semver.org/>`_,
 we also create a ``stable`` version, tracking your most recent release.
@@ -132,19 +132,6 @@ Tags and branches
 Read the Docs supports two workflows for versioning: based on tags or branches.
 If you have at least one tag,
 tags will take preference over branches when selecting the stable version.
-
-Version Control Support Matrix
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+------------+------------+-----------+------------+-----------+
-|            |    git     |    hg     |   bzr      |     svn   |
-+============+============+===========+============+===========+
-| Tags       |    Yes     |    Yes    |   Yes      |    No     |
-+------------+------------+-----------+------------+-----------+
-| Branches   |    Yes     |    Yes    |   Yes      |    No     |
-+------------+------------+-----------+------------+-----------+
-| Default    |    master  |   default |            |    trunk  |
-+------------+------------+-----------+------------+-----------+
 
 Version warning
 ---------------

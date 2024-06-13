@@ -72,7 +72,6 @@ class ListOrganization(
     admin_only = False
 
     filterset_class = OrganizationListFilterSet
-    strict = True  # Return an empty queryset on filter validation errors
 
     def get_queryset(self):
         return Organization.objects.for_user(user=self.request.user)

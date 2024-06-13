@@ -214,12 +214,6 @@ class OrganizationOwner(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
-        return _("{org} owner {owner}").format(
-            org=self.organization.name,
-            owner=self.owner.username,
-        )
-
 
 class Team(models.Model):
 
@@ -325,10 +319,7 @@ class TeamInvite(models.Model):
         unique_together = ("team", "email")
 
     def __str__(self):
-        return "{email} to {team}".format(
-            email=self.email,
-            team=self.team,
-        )
+        return self.email
 
     def save(self, *args, **kwargs):
         hash_ = salted_hmac(
@@ -398,16 +389,6 @@ class TeamMember(models.Model):
     )
 
     objects = TeamMemberManager()
-
-    def __str__(self):
-        state = ""
-        if self.is_invite:
-            state = " (pending)"
-        return "{username} to {team}{state}".format(
-            username=self.username,
-            team=self.team,
-            state=state,
-        )
 
     @property
     def username(self):

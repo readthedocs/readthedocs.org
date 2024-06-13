@@ -45,10 +45,11 @@ class InvitationQueryset(models.QuerySet):
         """
         if not to_user and not to_email:
             raise ValueError("A user or email must be provided")
-        fields = dict(
-            content_type=ContentType.objects.get_for_model(obj),
-            object_id=obj.pk,
-        )
+
+        fields = {
+            "content_type": ContentType.objects.get_for_model(obj),
+            "object_id": obj.pk,
+        }
         if to_user:
             fields["to_user"] = to_user
         else:
@@ -241,6 +242,3 @@ class Invitation(TimeStampedModel):
             user=user,
             **kwargs,
         )
-
-    def __str__(self):
-        return f"Invitation for {self.username} to join {self.object}"

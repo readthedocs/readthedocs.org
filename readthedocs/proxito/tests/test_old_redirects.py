@@ -1243,6 +1243,51 @@ class UserForcedRedirectTests(BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
 
+    def test_page_root_redirect(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/",
+            to_url="https://example.com/",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/")
+
+    def test_exact_root_redirect_single_version(self):
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/",
+            to_url="https://example.com/",
+            force=True,
+        )
+        r = self.client.get("/", headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/")
+
+    def test_page_root_redirect_single_version(self):
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/",
+            to_url="https://example.com/",
+            force=True,
+        )
+        r = self.client.get("/", headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/")
+
 
 @override_settings(
     PYTHON_MEDIA=True,

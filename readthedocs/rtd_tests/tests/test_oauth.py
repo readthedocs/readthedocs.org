@@ -531,6 +531,10 @@ class GitHubOAuthTests(TestCase):
             "GitHub webhook Listing failed for project.",
         )
 
+    def test_get_access_token_url(self):
+        url = self.service.get_access_token_url()
+        self.assertEqual(url, "https://github.com/login/oauth/access_token")
+
 
 class BitbucketOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
@@ -946,6 +950,10 @@ class BitbucketOAuthTests(TestCase):
         mock_logger.exception.assert_called_with(
             "Bitbucket webhook Listing failed for project.",
         )
+
+    def test_get_access_token_url(self):
+        url = self.service.get_access_token_url()
+        self.assertEqual(url, "https://bitbucket.org/site/oauth2/access_token")
 
 
 class GitLabOAuthTests(TestCase):
@@ -1403,3 +1411,7 @@ class GitLabOAuthTests(TestCase):
         mock_logger.exception.assert_called_with(
             "GitLab webhook Listing failed for project.",
         )
+
+    def test_get_access_token_url(self):
+        url = self.service.get_access_token_url()
+        self.assertEqual(url, "https://gitlab.com/oauth/token")

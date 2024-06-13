@@ -114,9 +114,3 @@ class BuildData(TimeStampedModel):
 
     data = models.JSONField()
     objects = BuildDataManager()
-
-    def __str__(self):
-        build_id = self.data.get("build", {}).get("id")
-        project_slug = self.data.get("project", {}).get("slug")
-        version_slug = self.data.get("version", {}).get("slug")
-        return f"BuildData for {project_slug}:{version_slug} build={build_id}"
