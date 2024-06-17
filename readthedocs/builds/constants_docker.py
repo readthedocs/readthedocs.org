@@ -25,6 +25,7 @@ RTD_DOCKER_BUILD_SETTINGS = {
     "os": {
         "ubuntu-20.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04",
         "ubuntu-22.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04",
+        "ubuntu-24.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-24.04",
     },
     # Mapping of build.tools options to specific versions.
     "tools": {
@@ -75,7 +76,7 @@ RTD_DOCKER_BUILD_SETTINGS = {
 # Set latest aliases for OS and tools.
 _OS = RTD_DOCKER_BUILD_SETTINGS["os"]
 _TOOLS = RTD_DOCKER_BUILD_SETTINGS["tools"]
-_OS["ubuntu-lts-latest"] = _OS["ubuntu-22.04"]
+_OS["ubuntu-lts-latest"] = _OS["ubuntu-24.04"]
 _TOOLS["python"]["3"] = _TOOLS["python"]["3.12"]
 _TOOLS["python"]["latest"] = _TOOLS["python"]["3"]
 _TOOLS["python"]["miniconda-latest"] = _TOOLS["python"]["miniconda3-3.12-24.1"]
