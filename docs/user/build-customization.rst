@@ -419,7 +419,7 @@ Override the build process
    We are using :ref:`our new addons integration <rtd-blog:addons-flyout-menu-beta>`
    on projects using ``build.commands``.
    This will become the default soon,
-   but has some slight differences from our previous flyout. 
+   but has some slight differences from our previous flyout.
 
 If your project requires full control of the build process,
 and :ref:`extending the build process <build-customization:extend the build process>` is not enough,
