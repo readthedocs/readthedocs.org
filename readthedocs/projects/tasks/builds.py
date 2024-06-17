@@ -628,13 +628,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         },
                     )
 
-                # TODO: improve this renaming :)
                 if artifact_format_files == 1:
+                    # Rename file as "<project_slug>-<version_slug>.<artifact_type>",
+                    # which is the filename that Proxito serves for offline formats
                     filename = list_dir[0]
                     _, extension = filename.rsplit(".")
-                    shutil.mv(
-                        list_dir[0],
-                        f"{self.data.project.slug}-{self.data.version.slug}.{extension}",
+                    shutil.move(
+                        os.path.join(
+                            artifact_directory,
+                            list_dir[0],
+                        ),
+                        os.path.join(
+                            artifact_directory,
+                            f"{self.data.project.slug}-{self.data.version.slug}.{extension}",
+                        ),
                     )
 
             # If all the conditions were met, the artifact is valid
