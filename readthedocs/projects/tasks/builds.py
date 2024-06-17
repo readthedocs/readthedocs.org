@@ -640,7 +640,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         ),
                         os.path.join(
                             artifact_directory,
-                            f"{self.data.project.slug}-{self.data.version.slug}.{extension}",
+                            f"{self.data.project.slug}.{extension}",
                         ),
                     )
 
