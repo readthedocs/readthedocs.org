@@ -1,6 +1,7 @@
 import os
 import pathlib
 import textwrap
+import uuid
 from unittest import mock
 
 import django_dynamic_fixture as fixture
@@ -261,7 +262,8 @@ class TestBuildTask(BuildEnvironmentBase):
         build_docs_class.assert_called_once_with("mkdocs")  # HTML builder
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_build_updates_documentation_type(self, load_yaml_config):
+    @mock.patch("readthedocs.projects.tasks.builds.shutil")
+    def test_build_updates_documentation_type(self, load_yaml_config, shutilmock):
         assert self.version.documentation_type == "sphinx"
         load_yaml_config.return_value = get_build_config(
             {
@@ -282,7 +284,9 @@ class TestBuildTask(BuildEnvironmentBase):
             pathlib.Path(
                 os.path.join(
                     self.project.artifact_path(version=self.version.slug, type_=f),
-                    f"{self.project.slug}.{f}",
+                    # Use a random name for the offline format.
+                    # We will automatically rename this file to filename El Proxito expects.
+                    f"{uuid.uuid4()}.{f}",
                 )
             ).touch()
 
@@ -295,6 +299,8 @@ class TestBuildTask(BuildEnvironmentBase):
         ).touch()
 
         self._trigger_update_docs_task()
+
+        shutilmock.move.assert_called_once_with("", "TEST")
 
         # Update version state
         assert self.requests_mock.request_history[8]._request.method == "PATCH"
