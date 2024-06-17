@@ -68,7 +68,7 @@ VERSION=$2
 # https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-# Spin up a container with the Ubuntu LTS image
+# Spin up a container with the latest Ubuntu LTS image
 CONTAINER_ID=$(docker run --user docs --rm --detach --volume ${SCRIPT_DIR}/python-build.diff:/tmp/python-build.diff readthedocs/build:$OS sleep $SLEEP)
 echo "Running all the commands in Docker container: $CONTAINER_ID"
 
