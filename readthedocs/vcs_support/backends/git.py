@@ -427,8 +427,6 @@ class Backend(BaseVCS):
         # Checkout the correct identifier for this branch.
         code, out, err = self.checkout_revision(identifier)
 
-        # Clean any remains of previous checkouts
-        self.run("git", "clean", "-d", "-f", "-f")
         return code, out, err
 
     def update_submodules(self, config):
