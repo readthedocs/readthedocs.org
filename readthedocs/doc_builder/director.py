@@ -418,10 +418,6 @@ class BuildDirector:
     def run_build_commands(self):
         """Runs each build command in the build environment."""
 
-        self.attach_notification(
-            message_id=BuildUserError.BUILD_COMMANDS_IN_BETA,
-        )
-
         reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},
