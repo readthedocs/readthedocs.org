@@ -49,6 +49,7 @@ class NotificationTests(TestCase):
                 "foo": build,
                 "production_uri": "https://readthedocs.org",
                 # readthedocs_processor context
+                "ADMIN_URL": mock.ANY,
                 "DASHBOARD_ANALYTICS_CODE": mock.ANY,
                 "DO_NOT_TRACK_ENABLED": mock.ANY,
                 "GLOBAL_ANALYTICS_CODE": mock.ANY,

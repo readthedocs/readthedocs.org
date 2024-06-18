@@ -381,6 +381,7 @@ class CommunityBaseSettings(Settings):
     MEDIA_ROOT = os.path.join(SITE_ROOT, "media/")
     MEDIA_URL = "/media/"
     ADMIN_MEDIA_PREFIX = "/media/admin/"
+    ADMIN_URL = "/admin"
     STATICFILES_DIRS = [
         os.path.join(SITE_ROOT, "readthedocs", "static"),
         os.path.join(SITE_ROOT, "media"),

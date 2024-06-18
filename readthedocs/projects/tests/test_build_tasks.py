@@ -524,7 +524,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.12.0",
+                            "full_version": "3.12.3",
                             "version": "3",
                         }
                     },
@@ -798,7 +798,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                 ),
                 mock.call("git", "checkout", "--force", "origin/a1b2c3"),
-                mock.call("git", "clean", "-d", "-f", "-f"),
                 mock.call(
                     "git",
                     "ls-remote",

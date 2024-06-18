@@ -61,6 +61,7 @@
           "enum": [
             "ubuntu-20.04",
             "ubuntu-22.04",
+            "ubuntu-24.04",
             "ubuntu-lts-latest"
           ]
         },
@@ -153,9 +154,11 @@
                 "3.12",
                 "latest",
                 "miniconda3-4.7",
+                "miniconda3-3.12-24.1",
                 "miniconda-latest",
                 "mambaforge-4.10",
                 "mambaforge-22.9",
+                "mambaforge-23.11",
                 "mambaforge-latest"
               ]
             },
@@ -182,6 +185,7 @@
                 "1.64",
                 "1.70",
                 "1.75",
+                "1.78",
                 "latest"
               ]
             },
@@ -192,6 +196,7 @@
                 "1.19",
                 "1.20",
                 "1.21",
+                "1.22",
                 "latest"
               ]
             }
