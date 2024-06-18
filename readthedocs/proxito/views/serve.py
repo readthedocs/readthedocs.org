@@ -122,6 +122,10 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         and if the project is marked as spam.
         """
         unresolved_domain = request.unresolved_domain
+        # Protect against domains that don't exist.
+        if not unresolved_domain:
+            raise Http404
+
         # Handle requests that need canonicalizing first,
         # e.g. HTTP -> HTTPS, redirect to canonical domain, etc.
         # We run this here to reduce work we need to do on easily cached responses.
