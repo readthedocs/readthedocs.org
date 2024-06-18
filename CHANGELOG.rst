@@ -1,3 +1,27 @@
+Version 11.1.0
+--------------
+
+:Date: June 18, 2024
+
+* `@olgaigig <https://github.com/olgaigig>`__: Update docs.rst (`#11422 <https://github.com/readthedocs/readthedocs.org/pull/11422>`__)
+* `@humitos <https://github.com/humitos>`__: Build: add support for Ubuntu 24.04 LTS (`#11421 <https://github.com/readthedocs/readthedocs.org/pull/11421>`__)
+* `@humitos <https://github.com/humitos>`__: Builds: don't call `git clean` anymore (`#11420 <https://github.com/readthedocs/readthedocs.org/pull/11420>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11415 <https://github.com/readthedocs/readthedocs.org/pull/11415>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: use `app.` instead of `beta.` (`#11412 <https://github.com/readthedocs/readthedocs.org/pull/11412>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove "beta" from `build.commands` (`#11411 <https://github.com/readthedocs/readthedocs.org/pull/11411>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update "Example projects" a little (`#11404 <https://github.com/readthedocs/readthedocs.org/pull/11404>`__)
+* `@stsewd <https://github.com/stsewd>`__: Oauth: Fix GitLab access token URL (`#11402 <https://github.com/readthedocs/readthedocs.org/pull/11402>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update `asdf` and its plugins so we can build latest versions (`#11401 <https://github.com/readthedocs/readthedocs.org/pull/11401>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: revert `USE_PROMOS` setting (`#11400 <https://github.com/readthedocs/readthedocs.org/pull/11400>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Unknown for missing VCS class (`#11398 <https://github.com/readthedocs/readthedocs.org/pull/11398>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.0.0 (`#11397 <https://github.com/readthedocs/readthedocs.org/pull/11397>`__)
+* `@rffontenelle <https://github.com/rffontenelle>`__: GitHub with uppercase H in onboard_import.html (`#11396 <https://github.com/readthedocs/readthedocs.org/pull/11396>`__)
+* `@humitos <https://github.com/humitos>`__: Templates: pass `ADMIN_URL` into context (`#11394 <https://github.com/readthedocs/readthedocs.org/pull/11394>`__)
+* `@rffontenelle <https://github.com/rffontenelle>`__: Uppercase G for Gold membership in subscription_detail.html (`#11388 <https://github.com/readthedocs/readthedocs.org/pull/11388>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update all `build.tools` and add latest versions (`#11386 <https://github.com/readthedocs/readthedocs.org/pull/11386>`__)
+* `@humitos <https://github.com/humitos>`__: Translations: disable `zh` code (`#11385 <https://github.com/readthedocs/readthedocs.org/pull/11385>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: remove code for old VCS support (`#11377 <https://github.com/readthedocs/readthedocs.org/pull/11377>`__)
+
 Version 11.0.0
 --------------
 
