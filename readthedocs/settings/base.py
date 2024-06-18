@@ -109,7 +109,7 @@ class CommunityBaseSettings(Settings):
         Cookie used in cross-origin API requests from *.rtd.io to rtd.org/api/v2/sustainability/.
         """
         if self.USE_PROMOS:
-            return None
+            return "None"
         # This is django's default.
         return "Lax"
 

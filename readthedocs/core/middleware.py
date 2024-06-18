@@ -57,15 +57,15 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                 request.session = SessionBase()  # create an empty session
                 return
 
-        if settings.SESSION_COOKIE_SAMESITE:
-            super().process_request(request)
-        else:
+        if settings.SESSION_COOKIE_SAMESITE == "None":
             if settings.SESSION_COOKIE_NAME in request.COOKIES:
                 session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
             else:
                 session_key = request.COOKIES.get(self.cookie_name_fallback)
 
             request.session = self.SessionStore(session_key)
+        else:
+            super().process_request(request)
 
     def process_response(self, request, response):
         for url in self.IGNORE_URLS:
@@ -139,7 +139,7 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                         )
 
                         # NOTE: This was added to support the fallback cookie
-                        if not settings.SESSION_COOKIE_SAMESITE:
+                        if settings.SESSION_COOKIE_SAMESITE != "None":
                             # Forcibly set the session cookie to SameSite=None
                             # This isn't supported in Django<3.1
                             # https://github.com/django/django/pull/11894
