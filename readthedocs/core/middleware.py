@@ -157,6 +157,7 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                                 path=settings.SESSION_COOKIE_PATH,
                                 secure=settings.SESSION_COOKIE_SECURE or None,
                                 httponly=settings.SESSION_COOKIE_HTTPONLY or None,
+                                # Use browser default in case SameSite=None is rejected.
                                 samesite=False,
                             )
         return response
