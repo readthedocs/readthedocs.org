@@ -798,7 +798,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                 ),
                 mock.call("git", "checkout", "--force", "origin/a1b2c3"),
-                mock.call("git", "clean", "-d", "-f", "-f"),
                 mock.call(
                     "git",
                     "ls-remote",
