@@ -139,7 +139,7 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                         )
 
                         # NOTE: This was added to support the fallback cookie
-                        if settings.SESSION_COOKIE_SAMESITE != "None":
+                        if settings.SESSION_COOKIE_SAMESITE == "None":
                             # Forcibly set the session cookie to SameSite=None
                             # This isn't supported in Django<3.1
                             # https://github.com/django/django/pull/11894
@@ -157,7 +157,7 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                                 path=settings.SESSION_COOKIE_PATH,
                                 secure=settings.SESSION_COOKIE_SECURE or None,
                                 httponly=settings.SESSION_COOKIE_HTTPONLY or None,
-                                samesite=settings.SESSION_COOKIE_SAMESITE,
+                                samesite=False,
                             )
         return response
 
