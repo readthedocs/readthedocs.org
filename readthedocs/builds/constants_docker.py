@@ -76,7 +76,11 @@ RTD_DOCKER_BUILD_SETTINGS = {
 # Set latest aliases for OS and tools.
 _OS = RTD_DOCKER_BUILD_SETTINGS["os"]
 _TOOLS = RTD_DOCKER_BUILD_SETTINGS["tools"]
-_OS["ubuntu-lts-latest"] = _OS["ubuntu-24.04"]
+
+# TODO: point ``ubuntu-lts-latest`` to Ubuntu 24.04 LTS once we have tested it
+# in production after some weeks
+_OS["ubuntu-lts-latest"] = _OS["ubuntu-22.04"]
+
 _TOOLS["python"]["3"] = _TOOLS["python"]["3.12"]
 _TOOLS["python"]["latest"] = _TOOLS["python"]["3"]
 _TOOLS["python"]["miniconda-latest"] = _TOOLS["python"]["miniconda3-3.12-24.1"]
