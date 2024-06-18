@@ -26,6 +26,7 @@ def readthedocs_processor(request):
         "SUPPORT_EMAIL": settings.SUPPORT_EMAIL,
         "PUBLIC_API_URL": settings.PUBLIC_API_URL,
         "RTD_EXT_THEME_ENABLED": settings.RTD_EXT_THEME_ENABLED,
+        "ADMIN_URL": settings.ADMIN_URL,
     }
     return exports
 

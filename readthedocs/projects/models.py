@@ -1245,8 +1245,7 @@ class Project(models.Model):
         vcs_class = self.vcs_class()
         if vcs_class:
             return vcs_class.fallback_branch
-        else:
-            return "Unknown"
+        return "Unknown"
 
     def add_subproject(self, child, alias=None):
         subproject, _ = ProjectRelationship.objects.get_or_create(
