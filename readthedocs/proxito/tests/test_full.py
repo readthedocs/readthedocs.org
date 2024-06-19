@@ -109,6 +109,17 @@ class TestFullDocServing(BaseDocServing):
             "/proxito/media/html/translation/latest/awesome.html",
         )
 
+    def test_translation_zh_deprecated_code_serving(self):
+        self.translation.language = "zh"
+        self.translation.save()
+        url = "/zh/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/translation/latest/awesome.html",
+        )
+
     def test_normal_serving(self):
         url = "/en/latest/awesome.html"
         host = "project.dev.readthedocs.io"
