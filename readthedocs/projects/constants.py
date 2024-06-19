@@ -310,6 +310,11 @@ LANGUAGES_REGEX = "|".join(
         re.escape(code)
         for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING.values())
     ]
+    # Add "zh" here to be able to keep serving projects with this old invalid language code.
+    # We don't allow new projects to select this language code anymore.
+    #
+    # https://github.com/readthedocs/readthedocs.org/issues/11428
+    + ["zh"]
 )
 
 PROGRAMMING_LANGUAGES = (

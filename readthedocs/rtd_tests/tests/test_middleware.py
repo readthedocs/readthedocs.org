@@ -250,7 +250,7 @@ class TestSessionMiddleware(TestCase):
 
         self.user = create_user(username="owner", password="test")
 
-    @override_settings(SESSION_COOKIE_SAMESITE=None)
+    @override_settings(SESSION_COOKIE_SAMESITE="None")
     def test_fallback_cookie(self):
         request = self.factory.get("/")
         response = HttpResponse()
@@ -261,7 +261,7 @@ class TestSessionMiddleware(TestCase):
         self.assertTrue(settings.SESSION_COOKIE_NAME in response.cookies)
         self.assertTrue(self.middleware.cookie_name_fallback in response.cookies)
 
-    @override_settings(SESSION_COOKIE_SAMESITE=None)
+    @override_settings(SESSION_COOKIE_SAMESITE="None")
     def test_main_cookie_samesite_none(self):
         request = self.factory.get("/")
         response = HttpResponse()
