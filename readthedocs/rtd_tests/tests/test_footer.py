@@ -319,6 +319,15 @@ class BaseTestFooterHTML:
         self.assertNotIn("/en/2.0/", response.data["html"])
 
 
+    def test_invalid_url(self):
+        # The built versions appears on the footer
+        self.url = (
+            reverse("footer_html")
+            + "/invalid/url"
+        )
+        response = self.render()
+        self.assertEqual(response.status_code, 404)
+
 class TestFooterHTML(BaseTestFooterHTML, TestCase):
     pass
 
