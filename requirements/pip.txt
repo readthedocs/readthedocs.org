@@ -206,8 +206,12 @@ platformdirs==4.2.2
     # via virtualenv
 prompt-toolkit==3.0.47
     # via click-repl
-psycopg2==2.9.9
+psycopg[binary,pool]==3.1.19
     # via -r requirements/pip.in
+psycopg-binary==3.1.19
+    # via psycopg
+psycopg-pool==3.2.2
+    # via psycopg
 pycparser==2.22
     # via cffi
 pygments==2.18.0
@@ -288,6 +292,8 @@ typing-extensions==4.12.2
     # via
     #   asgiref
     #   elasticsearch-dsl
+    #   psycopg
+    #   psycopg-pool
 tzdata==2024.1
     # via
     #   -r requirements/pip.in
