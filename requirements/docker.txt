@@ -310,10 +310,16 @@ prompt-toolkit==3.0.47
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg2==2.9.9
+psycopg[binary,pool]==3.1.19
     # via -r requirements/pip.txt
-psycopg2-binary==2.9.9
-    # via -r requirements/docker.in
+psycopg-binary==3.1.19
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
+psycopg-pool==3.2.2
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
@@ -438,6 +444,8 @@ typing-extensions==4.12.2
     #   asgiref
     #   elasticsearch-dsl
     #   ipython
+    #   psycopg
+    #   psycopg-pool
 tzdata==2024.1
     # via
     #   -r requirements/pip.txt
