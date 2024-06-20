@@ -274,7 +274,7 @@ Image names refer to the operating system Read the Docs uses to build them.
    Arbitrary Docker images are not supported.
 
 :Type: ``string``
-:Options: ``ubuntu-20.04``, ``ubuntu-22.04``, ``ubuntu-lts-latest``
+:Options: ``ubuntu-20.04``, ``ubuntu-22.04``, ``ubuntu-24.04``, ``ubuntu-lts-latest``
 :Required: ``true``
 
 .. note::
@@ -468,12 +468,12 @@ When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will
 This allows you to run custom commands and control the build process completely.
 The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read the Docs.
 
-.. warning::
+.. note::
 
-   This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
-   We are currently testing `the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`_
-   on projects using ``build.commands`` configuration key.
-   Use it under your own responsibility.
+   We are using :ref:`our new addons integration <rtd-blog:addons-flyout-menu-beta>`
+   on projects using ``build.commands``.
+   This will become the default soon,
+   but has some slight differences from our previous flyout.
 
 .. code-block:: yaml
 

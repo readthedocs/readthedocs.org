@@ -7,9 +7,8 @@ django-extensions
 django-polymorphic
 django-autoslug
 
-# NOTE: we cannot use ``psycopg`` (3.x), even if it's supported by Django 4.2
-# because New Relic agent is not sending the data of the database to their servers.
-psycopg2
+# https://www.psycopg.org/psycopg3/docs/basic/install.html
+psycopg[binary,pool]
 
 # 3.1.0 includes changes that require running `makemigrations`
 # https://django-simple-history.readthedocs.io/en/latest/#changes
