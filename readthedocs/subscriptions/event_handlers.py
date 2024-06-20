@@ -132,7 +132,10 @@ def subscription_updated_event(event):
         log.info("Re-enabling organization.", organization_slug=organization.slug)
         organization.disabled = False
 
-    if stripe_subscription.status != SubscriptionStatus.active:
+    if stripe_subscription.status not in (
+        SubscriptionStatus.active,
+        SubscriptionStatus.trialing,
+    ):
         log.info(
             "Organization disabled due its subscription is not active anymore.",
             organization_slug=organization.slug,
