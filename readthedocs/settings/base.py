@@ -848,6 +848,8 @@ class CommunityBaseSettings(Settings):
     # we can't make use of the DJSTRIPE_SUBSCRIBER_MODEL setting.
     DJSTRIPE_SUBSCRIBER_CUSTOMER_KEY = None
 
+    SLACK_WEBHOOK_SALES_CHANNEL = None
+
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False
 
