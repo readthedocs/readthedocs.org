@@ -176,6 +176,7 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
 
 
 class ProjectMixin(PrivateViewMixin):
+
     """Common pieces for model views of Project."""
 
     model = Project
@@ -290,6 +291,7 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
 
 
 class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
+
     """
     Project import wizard.
 
@@ -361,6 +363,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
 
 
 class ImportView(PrivateViewMixin, TemplateView):
+
     """
     On GET, show the source an import view, on POST, mock out a wizard.
 
@@ -702,6 +705,7 @@ class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
 
 
 class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
+
     """Project redirects view and form view."""
 
     form_class = RedirectForm
@@ -733,6 +737,7 @@ class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
 
 
 class ProjectRedirectsInsert(ProjectRedirectsMixin, GenericModelView):
+
     """
     Insert a redirect in a specific position.
 
@@ -825,6 +830,7 @@ class DomainDelete(DomainMixin, DeleteView):
 
 
 class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
+
     """Project external service mixin for listing webhook objects."""
 
     model = Integration
@@ -909,6 +915,7 @@ class IntegrationExchangeDetail(IntegrationMixin, DetailView):
 
 
 class IntegrationWebhookSync(IntegrationMixin, GenericView):
+
     """
     Resync a project webhook.
 
@@ -949,6 +956,7 @@ class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):
 
 
 class EnvironmentVariableMixin(ProjectAdminMixin, PrivateViewMixin):
+
     """Environment Variables to be added when building the Project."""
 
     model = EnvironmentVariable

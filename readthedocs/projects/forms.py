@@ -39,6 +39,7 @@ from readthedocs.redirects.models import Redirect
 
 
 class ProjectForm(SimpleHistoryModelForm):
+
     """
     Project form.
 
@@ -60,6 +61,7 @@ class ProjectForm(SimpleHistoryModelForm):
 
 
 class ProjectTriggerBuildMixin:
+
     """
     Mixin to trigger build on form save.
 
@@ -90,12 +92,14 @@ class ProjectTriggerBuildMixin:
 
 
 class ProjectBackendForm(forms.Form):
+
     """Get the import backend."""
 
     backend = forms.CharField()
 
 
 class ProjectPRBuildsMixin(PrevalidatedForm):
+
     """
     Mixin that provides a method to setup the external builds option.
 
@@ -190,6 +194,7 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
 
 
 class ProjectFormPrevalidateMixin:
+
     """Provides shared logic between the automatic and manual create forms."""
 
     def __init__(self, *args, **kwargs):
@@ -295,6 +300,7 @@ class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
 
 
 class ProjectBasicsForm(ProjectForm):
+
     """Form used when importing a project."""
 
     class Meta:
@@ -370,6 +376,7 @@ class ProjectBasicsForm(ProjectForm):
 
 
 class ProjectConfigForm(forms.Form):
+
     """Simple intermediate step to communicate about the .readthedocs.yaml file."""
 
     def __init__(self, *args, **kwargs):
@@ -381,7 +388,9 @@ class ProjectConfigForm(forms.Form):
 class UpdateProjectForm(
     ProjectTriggerBuildMixin,
     ProjectBasicsForm,
+    ProjectPRBuildsMixin,
 ):
+
     """Main project settings form."""
 
     class Meta:
@@ -618,6 +627,7 @@ class UpdateProjectForm(
 
 
 class ProjectRelationshipForm(forms.ModelForm):
+
     """Form to add/update project relationships."""
 
     parent = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -659,6 +669,7 @@ class ProjectRelationshipForm(forms.ModelForm):
 
 
 class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
+
     """Project pull requests configuration form."""
 
     class Meta:
@@ -676,6 +687,7 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
 
 class AddonsConfigForm(forms.ModelForm):
+
     """Form to opt-in into new beta addons."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -739,6 +751,7 @@ class AddonsConfigForm(forms.ModelForm):
 
 
 class UserForm(forms.Form):
+
     """Project owners form."""
 
     username_or_email = forms.CharField(label=_("Email address or username"))
@@ -775,6 +788,7 @@ class UserForm(forms.Form):
 
 
 class EmailHookForm(forms.Form):
+
     """Project email notification form."""
 
     email = forms.EmailField()
@@ -796,6 +810,7 @@ class EmailHookForm(forms.Form):
 
 
 class WebHookForm(forms.ModelForm):
+
     """Webhook form."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -849,6 +864,7 @@ class WebHookForm(forms.ModelForm):
 
 
 class TranslationBaseForm(forms.Form):
+
     """Project translation form."""
 
     project = forms.ChoiceField()
@@ -954,6 +970,7 @@ class TranslationForm(SettingsOverrideObject):
 
 
 class RedirectForm(forms.ModelForm):
+
     """Form for project redirects."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False, disabled=True)
@@ -989,6 +1006,7 @@ class RedirectForm(forms.ModelForm):
 
 
 class DomainForm(forms.ModelForm):
+
     """Form to configure a custom domain name for a project."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -1058,6 +1076,7 @@ class DomainForm(forms.ModelForm):
 
 
 class IntegrationForm(forms.ModelForm):
+
     """
     Form to add an integration.
 
@@ -1090,6 +1109,7 @@ class IntegrationForm(forms.ModelForm):
 
 
 class ProjectAdvertisingForm(forms.ModelForm):
+
     """Project promotion opt-out form."""
 
     class Meta:
@@ -1102,6 +1122,7 @@ class ProjectAdvertisingForm(forms.ModelForm):
 
 
 class FeatureForm(forms.ModelForm):
+
     """
     Project feature form for dynamic admin choices.
 
@@ -1122,6 +1143,7 @@ class FeatureForm(forms.ModelForm):
 
 
 class EnvironmentVariableForm(forms.ModelForm):
+
     """
     Form to add an EnvironmentVariable to a Project.
 
