@@ -374,7 +374,8 @@ class ProxitoMiddleware(MiddlewareMixin):
     def add_resolver_headers(self, request, response):
         if request.unresolved_url is not None:
             # TODO: add more ``X-RTD-Resolver-*`` headers
-            header_value = escape(request.unresolved_url.filename)
+            uri_filename = iri_to_uri(request.unresolved_url.filename)
+            header_value = escape(uri_filename)
             try:
                 # Use Django internals to validate the header's value before injecting it.
                 ResponseHeaders({})._convert_to_charset(
@@ -383,7 +384,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                     mime_encode=True,
                 )
 
-                response["X-RTD-Resolver-Filename"] = iri_to_uri(header_value)
+                response["X-RTD-Resolver-Filename"] = header_value
             except BadHeaderError:
                 # Skip adding the header because it fails validation
                 log.info(
