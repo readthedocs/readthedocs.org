@@ -173,6 +173,7 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
                 "To build from pull requests you need a "
                 f'GitHub or GitLab <a href="{url}">integration</a>.'
             )
+
         if has_supported_integration and not can_build_external_versions:
             # If there is only one integration, link directly to it.
             if len(integrations) == 1:
@@ -190,10 +191,13 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
             field = self.fields["external_builds_enabled"]
             field.disabled = True
             field.help_text = f"{msg} {field.help_text}"
-            raise RichValidationError(
-                msg,
-                header=_("Pull request builds not supported"),
-            )
+            # Don't raise an error on the Update form,
+            # to keep backwards compat
+            if not self.fields.get("name"):
+                raise RichValidationError(
+                    msg,
+                    header=_("Pull request builds not supported"),
+                )
 
 
 class ProjectFormPrevalidateMixin:
