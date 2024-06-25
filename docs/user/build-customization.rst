@@ -356,6 +356,33 @@ Take a look at the following example:
      configuration: docs/conf.py
 
 
+Install dependencies with ``uv``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Projects can use `uv <https://github.com/astral-sh/uv/>`__,
+to install Python dependencies, usually reducing the time taken to install compared to pip.
+Take a look at the following example:
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.10"
+     commands:
+       - asdf plugin add uv
+       - asdf install uv latest
+       - asdf global uv latest
+       - uv venv
+       - uv pip install .[docs]
+       - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
+
+You can use ``-r docs/requirements.txt``, etc. instead as needed. MkDocs projects could use ``NO_COLOR=1 .venv/bin/mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
+
 Update Conda version
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -387,11 +414,12 @@ Take a look at the following example:
 Override the build process
 --------------------------
 
-.. warning::
+.. note::
 
-   This feature is in *beta* and could change without warning.
-   We are currently testing :ref:`the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`
-   on projects using ``build.commands`` configuration key.
+   We are using :ref:`our new addons integration <rtd-blog:addons-flyout-menu-beta>`
+   on projects using ``build.commands``.
+   This will become the default soon,
+   but has some slight differences from our previous flyout.
 
 If your project requires full control of the build process,
 and :ref:`extending the build process <build-customization:extend the build process>` is not enough,

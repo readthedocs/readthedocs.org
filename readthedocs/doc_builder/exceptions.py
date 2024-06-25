@@ -31,7 +31,6 @@ class BuildAppError(BuildBaseException):
 
 class BuildUserError(BuildBaseException):
     GENERIC = "build:user:generic"
-    SKIPPED_EXIT_CODE_183 = "build:user:exit-code-183"
 
     BUILD_COMMANDS_WITHOUT_OUTPUT = "build:user:output:no-html"
     BUILD_OUTPUT_IS_NOT_A_DIRECTORY = "build:user:output:is-no-a-directory"
@@ -59,6 +58,7 @@ class BuildMaxConcurrencyError(BuildUserError):
 
 class BuildCancelled(BuildUserError):
     CANCELLED_BY_USER = "build:user:cancelled"
+    SKIPPED_EXIT_CODE_183 = "build:user:exit-code-183"
 
 
 class MkDocsYAMLParseError(BuildUserError):

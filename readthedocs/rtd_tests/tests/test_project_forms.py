@@ -1,6 +1,7 @@
 from unittest import mock
 
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import TestCase
@@ -18,8 +19,6 @@ from readthedocs.projects.constants import (
     MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
-    REPO_TYPE_GIT,
-    REPO_TYPE_HG,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
     SPHINX,
 )
@@ -112,29 +111,6 @@ class TestProjectForms(TestCase):
         form = ProjectBasicsForm(initial)
         self.assertFalse(form.is_valid())
         self.assertIn("name", form.errors)
-
-    def test_changing_vcs_should_not_change_latest_is_not_none(self):
-        """
-        When changing the project's VCS,
-        we should respect the custom default branch.
-        """
-        project = get(Project, repo_type=REPO_TYPE_HG, default_branch="custom")
-        latest = project.versions.get(slug=LATEST)
-        self.assertEqual(latest.identifier, "custom")
-
-        form = ProjectBasicsForm(
-            {
-                "repo": "http://github.com/test/test",
-                "name": "name",
-                "repo_type": REPO_TYPE_GIT,
-                "language": "en",
-            },
-            instance=project,
-        )
-        self.assertTrue(form.is_valid())
-        form.save()
-        latest.refresh_from_db()
-        self.assertEqual(latest.identifier, "custom")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_length_of_tags(self):
@@ -501,7 +477,9 @@ class TestProjectPrevalidationForms(TestCase):
         # User with connection
         # User without connection
         self.user_github = get(User)
-        self.social_github = get(SocialAccount, user=self.user_github)
+        self.social_github = get(
+            SocialAccount, user=self.user_github, provider=GitHubProvider.id
+        )
         self.user_email = get(User)
 
     def test_form_prevalidation_email_user(self):
@@ -537,11 +515,17 @@ class TestProjectPrevalidationForms(TestCase):
 class TestProjectPrevalidationFormsWithOrganizations(TestCase):
     def setUp(self):
         self.user_owner = get(User)
-        self.social_owner = get(SocialAccount, user=self.user_owner)
+        self.social_owner = get(
+            SocialAccount, user=self.user_owner, provider=GitHubProvider.id
+        )
         self.user_admin = get(User)
-        self.social_admin = get(SocialAccount, user=self.user_admin)
+        self.social_admin = get(
+            SocialAccount, user=self.user_admin, provider=GitHubProvider.id
+        )
         self.user_readonly = get(User)
-        self.social_readonly = get(SocialAccount, user=self.user_readonly)
+        self.social_readonly = get(
+            SocialAccount, user=self.user_readonly, provider=GitHubProvider.id
+        )
 
         self.organization = get(
             Organization,

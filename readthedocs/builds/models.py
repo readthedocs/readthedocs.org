@@ -11,7 +11,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
@@ -106,8 +105,7 @@ class Version(TimeStampedModel):
     # used by the vcs backend
 
     #: The identifier is the ID for the revision this is version is for.
-    #: This might be the revision number (e.g. in SVN),
-    #: or the commit hash (e.g. in Git).
+    #: This is the commit hash (e.g. in Git).
     #: If the this version is pointing to a branch,
     #: then ``identifier`` will contain the branch name.
     #: `None`/`null` means it will use the VCS default branch.
@@ -210,13 +208,7 @@ class Version(TimeStampedModel):
         ordering = ["-verbose_name"]
 
     def __str__(self):
-        return gettext(
-            "Version {version} of {project} ({pk})".format(
-                version=self.verbose_name,
-                project=self.project,
-                pk=self.pk,
-            ),
-        )
+        return self.verbose_name
 
     @property
     def is_private(self):
@@ -940,17 +932,6 @@ class Build(models.Model):
         super().save(*args, **kwargs)
         self._config_changed = False
 
-    def __str__(self):
-        return gettext(
-            "Build {project} for {usernames} ({pk})".format(
-                project=self.project,
-                usernames=" ".join(
-                    self.project.users.all().values_list("username", flat=True),
-                ),
-                pk=self.pk,
-            ),
-        )
-
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
 
@@ -1159,11 +1140,6 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     objects = RelatedBuildQuerySet.as_manager()
 
-    def __str__(self):
-        return gettext("Build command {pk} for build {build}").format(
-            pk=self.pk, build=self.build
-        )
-
     @property
     def run_time(self):
         """Total command runtime in seconds."""
@@ -1347,11 +1323,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def __str__(self):
         class_name = self.__class__.__name__
-        return (
-            f"({self.priority}) "
-            f"{class_name}/{self.get_action_display()} "
-            f"for {self.project.slug}:{self.get_version_type_display()}"
-        )
+        return f"({self.priority}) {class_name}/{self.get_action_display()}"
 
 
 class RegexAutomationRule(VersionAutomationRule):

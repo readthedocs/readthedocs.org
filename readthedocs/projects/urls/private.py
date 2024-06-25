@@ -30,6 +30,7 @@ from readthedocs.projects.views.private import (
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectDelete,
+    ProjectEmailNotificationsCreate,
     ProjectNotifications,
     ProjectNotificationsDelete,
     ProjectPullRequestsUpdate,
@@ -38,11 +39,13 @@ from readthedocs.projects.views.private import (
     ProjectRedirectsInsert,
     ProjectRedirectsList,
     ProjectRedirectsUpdate,
+    ProjectTranslationsCreate,
     ProjectTranslationsDelete,
-    ProjectTranslationsListAndCreate,
+    ProjectTranslationsList,
     ProjectUpdate,
-    ProjectUsersCreateList,
+    ProjectUsersCreate,
     ProjectUsersDelete,
+    ProjectUsersList,
     ProjectVersionCreate,
     ProjectVersionDeleteHTML,
     ProjectVersionDetail,
@@ -106,8 +109,13 @@ urlpatterns = [
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/users/$",
-        ProjectUsersCreateList.as_view(),
+        ProjectUsersList.as_view(),
         name="projects_users",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/users/create/$",
+        ProjectUsersCreate.as_view(),
+        name="projects_users_create",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/users/delete/$",
@@ -120,14 +128,24 @@ urlpatterns = [
         name="projects_notifications",
     ),
     re_path(
+        r"^(?P<project_slug>[-\w]+)/notifications/create/$",
+        ProjectEmailNotificationsCreate.as_view(),
+        name="projects_notifications_create",
+    ),
+    re_path(
         r"^(?P<project_slug>[-\w]+)/notifications/delete/$",
         ProjectNotificationsDelete.as_view(),
         name="projects_notification_delete",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/translations/$",
-        ProjectTranslationsListAndCreate.as_view(),
+        ProjectTranslationsList.as_view(),
         name="projects_translations",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/translations/create/$",
+        ProjectTranslationsCreate.as_view(),
+        name="projects_translations_create",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$",  # noqa

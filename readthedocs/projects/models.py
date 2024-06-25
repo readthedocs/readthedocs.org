@@ -111,9 +111,6 @@ class ProjectRelationship(models.Model):
 
     objects = ChildRelatedProjectQuerySet.as_manager()
 
-    def __str__(self):
-        return "{} -> {}".format(self.parent, self.child)
-
     def save(self, *args, **kwargs):
         if not self.alias:
             self.alias = self.child.slug
@@ -325,20 +322,6 @@ class Project(models.Model):
             "to use the default value for your VCS.",
         ),
     )
-    requirements_file = models.CharField(
-        _("Requirements file"),
-        max_length=255,
-        default=None,
-        null=True,
-        blank=True,
-        help_text=_(
-            "A <a "
-            'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
-            "pip requirements file</a> needed to build your documentation. "
-            "Path from the root of your project.",
-        ),
-    )
-
     custom_prefix = models.CharField(
         _("Custom path prefix"),
         max_length=255,
@@ -649,13 +632,21 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse("projects_detail", args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug=None, external=False):
+    def get_docs_url(
+        self,
+        version_slug=None,
+        lang_slug=None,
+        external=False,
+        resolver=None,
+    ):
         """
         Return a URL for the docs.
 
-        ``external`` defaults False because we only link external versions in very specific places
+        ``external`` defaults False because we only link external versions in very specific places.
+        ``resolver`` is used to "share a resolver" between the same request.
         """
-        return Resolver().resolve(
+        resolver = resolver or Resolver()
+        return resolver.resolve(
             project=self,
             version_slug=version_slug,
             language=lang_slug,
@@ -1251,7 +1242,10 @@ class Project(models.Model):
         if self.remote_repository and self.remote_repository.default_branch:
             return self.remote_repository.default_branch
 
-        return self.vcs_class().fallback_branch
+        vcs_class = self.vcs_class()
+        if vcs_class:
+            return vcs_class.fallback_branch
+        return "Unknown"
 
     def add_subproject(self, child, alias=None):
         subproject, _ = ProjectRelationship.objects.get_or_create(
@@ -1512,9 +1506,6 @@ class ImportedFile(models.Model):
             filename=self.path,
         )
 
-    def __str__(self):
-        return "{}: {}".format(self.name, self.project)
-
 
 class HTMLFile(ImportedFile):
 
@@ -1702,9 +1693,6 @@ class WebHook(Notification):
         )
         return digest.hexdigest()
 
-    def __str__(self):
-        return f"{self.project.slug} {self.url}"
-
 
 class Domain(TimeStampedModel):
 
@@ -1796,10 +1784,7 @@ class Domain(TimeStampedModel):
         ordering = ("-canonical", "-machine", "domain")
 
     def __str__(self):
-        return "{domain} pointed at {project}".format(
-            domain=self.domain,
-            project=self.project.name,
-        )
+        return self.domain
 
     @property
     def is_valid(self):
@@ -1846,6 +1831,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
     HEADERS_CHOICES = (
         ("access_control_allow_origin", "Access-Control-Allow-Origin"),
         ("access_control_allow_headers", "Access-Control-Allow-Headers"),
+        ("access_control_expose_headers", "Access-Control-Expose-Headers"),
         ("content_security_policy", "Content-Security-Policy"),
         ("feature_policy", "Feature-Policy"),
         ("permissions_policy", "Permissions-Policy"),
@@ -1869,7 +1855,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
     )
 
     def __str__(self):
-        return f"HttpHeader: {self.name} on {self.domain.domain}"
+        return self.name
 
 
 class Feature(models.Model):
@@ -1890,7 +1876,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
@@ -1921,10 +1906,6 @@ class Feature(models.Model):
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
-        (
-            MKDOCS_THEME_RTD,
-            _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
-        ),
         (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
@@ -2043,9 +2024,7 @@ class Feature(models.Model):
     objects = FeatureQuerySet.as_manager()
 
     def __str__(self):
-        return "{} feature".format(
-            self.get_feature_display(),
-        )
+        return self.get_feature_display()
 
     def get_feature_display(self):
         """

@@ -318,6 +318,12 @@ class BaseTestFooterHTML:
         self.assertIn("/en/latest/", response.data["html"])
         self.assertNotIn("/en/2.0/", response.data["html"])
 
+    def test_invalid_footer_url(self):
+        # The built versions appears on the footer
+        self.url = reverse("footer_html") + "/invalid/url"
+        response = self.render()
+        self.assertEqual(response.status_code, 404)
+
 
 class TestFooterHTML(BaseTestFooterHTML, TestCase):
     pass
@@ -343,7 +349,7 @@ class TestVersionCompareFooter(TestCase):
     def test_highest_version_from_stable(self):
         base_version = self.pip.get_stable_version()
         valid_data = {
-            "project": "Version 0.8.1 of Pip (19)",
+            "project": "0.8.1",
             "url": "https://pip.readthedocs.io/en/0.8.1/",
             "slug": "0.8.1",
             "version": "0.8.1",
@@ -355,7 +361,7 @@ class TestVersionCompareFooter(TestCase):
     def test_highest_version_from_lower(self):
         base_version = self.pip.versions.get(slug="0.8")
         valid_data = {
-            "project": "Version 0.8.1 of Pip (19)",
+            "project": "0.8.1",
             "url": "https://pip.readthedocs.io/en/0.8.1/",
             "slug": "0.8.1",
             "version": "0.8.1",
@@ -368,7 +374,7 @@ class TestVersionCompareFooter(TestCase):
         self.pip.versions.filter(slug=LATEST).update(built=True)
         base_version = self.pip.versions.get(slug=LATEST)
         valid_data = {
-            "project": "Version 0.8.1 of Pip (19)",
+            "project": "0.8.1",
             "url": "https://pip.readthedocs.io/en/0.8.1/",
             "slug": "0.8.1",
             "version": "0.8.1",
@@ -397,7 +403,7 @@ class TestVersionCompareFooter(TestCase):
 
         base_version = self.pip.versions.get(slug="0.8.1")
         valid_data = {
-            "project": "Version 1.0.0 of Pip ({})".format(version.pk),
+            "project": "1.0.0",
             "url": "https://pip.readthedocs.io/en/1.0.0/",
             "slug": "1.0.0",
             "version": "1.0.0",
@@ -411,7 +417,7 @@ class TestVersionCompareFooter(TestCase):
 
         base_version = self.pip.versions.get(slug="0.8.1")
         valid_data = {
-            "project": "Version 0.8.1 of Pip (19)",
+            "project": "0.8.1",
             "url": "https://pip.readthedocs.io/en/0.8.1/",
             "slug": "0.8.1",
             "version": "0.8.1",
@@ -422,7 +428,7 @@ class TestVersionCompareFooter(TestCase):
 
         base_version = self.pip.versions.get(slug="0.8")
         valid_data = {
-            "project": "Version 0.8.1 of Pip (19)",
+            "project": "0.8.1",
             "url": "https://pip.readthedocs.io/en/0.8.1/",
             "slug": "0.8.1",
             "version": "0.8.1",
@@ -440,7 +446,7 @@ class TestVersionCompareFooter(TestCase):
             built=True,
         )
         valid_data = {
-            "project": "Version 2.0.0 of Pip ({})".format(version.pk),
+            "project": "2.0.0",
             "url": "https://pip.readthedocs.io/en/2.0.0/",
             "slug": "2.0.0",
             "version": "2.0.0",
@@ -461,7 +467,7 @@ class TestVersionCompareFooter(TestCase):
 
         returned_data = get_version_compare_data(self.pip, base_version, user=self.user)
         valid_data = {
-            "project": "Version 0.8.1 of Pip (19)",
+            "project": "0.8.1",
             "url": "https://pip.readthedocs.io/en/0.8.1/",
             "slug": "0.8.1",
             "version": "0.8.1",

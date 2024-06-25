@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models import CharField, F, Q, Value
 
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.redirects.constants import (
     CLEAN_URL_TO_HTML_REDIRECT,
     EXACT_REDIRECT,
@@ -16,7 +17,7 @@ from readthedocs.redirects.constants import (
 log = structlog.get_logger(__name__)
 
 
-class RedirectQuerySet(models.QuerySet):
+class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
 
     """Redirects take into account their own privacy_level setting."""
 
@@ -60,8 +61,10 @@ class RedirectQuerySet(models.QuerySet):
 
         # Useful to allow redirects to match paths with or without trailling slash.
         # For example, ``/docs`` will match ``/docs/`` and ``/docs``.
-        filename_without_trailling_slash = normalized_filename.rstrip("/")
-        path_without_trailling_slash = normalized_path.rstrip("/")
+        filename_without_trailling_slash = self._strip_trailling_slash(
+            normalized_filename
+        )
+        path_without_trailling_slash = self._strip_trailling_slash(normalized_path)
 
         # Add extra fields with the ``filename`` and ``path`` to perform a
         # filter at db level instead with Python.
@@ -154,3 +157,10 @@ class RedirectQuerySet(models.QuerySet):
         normalized_path = parsed_path._replace(query="").geturl()
         normalized_path = "/" + normalized_path.lstrip("/")
         return normalized_path
+
+    def _strip_trailling_slash(self, path):
+        """Stripe the trailling slash from the path, making sure the root path is always ``/``."""
+        path = path.rstrip("/")
+        if path == "":
+            return "/"
+        return path

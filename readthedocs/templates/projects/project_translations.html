@@ -73,7 +73,8 @@
     <p>
       {% trans "Choose which project you would like to add as a translation." %}
     </p>
-    <form method="post" action=".">{% csrf_token %}
+    <form method="post" action="{% url "projects_translations_create" project.slug %}">
+      {% csrf_token %}
       {{ form.as_p }}
       <input type="submit" value="{% trans "Add" %}">
     </form>

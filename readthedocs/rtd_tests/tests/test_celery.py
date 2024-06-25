@@ -149,7 +149,7 @@ class TestCeleryBuilding(TestCase):
             notification.format_values,
             {
                 "provider_name": "GitHub",
-                "url_connect_account": "/accounts/social/connections/",
+                "url_connect_account": "/accounts/3rdparty/",
             },
         )
 
@@ -222,6 +222,6 @@ class TestCeleryBuilding(TestCase):
             notification.format_values,
             {
                 "provider_name": "GitLab",
-                "url_connect_account": "/accounts/social/connections/",
+                "url_connect_account": "/accounts/3rdparty/",
             },
         )

@@ -2,9 +2,11 @@
 
 import structlog
 from django.db.models import Count, F, Max
-from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
-from django_filters import CharFilter, ChoiceFilter, FilterSet, OrderingFilter
+from django_filters import ChoiceFilter, OrderingFilter
+
+from readthedocs.core.filters import FilteredModelChoiceFilter, ModelFilterSet
+from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
@@ -49,6 +51,7 @@ class VersionSortOrderingFilter(OrderingFilter):
         # This is where we use the None value for this custom filter. This
         # doesn't work with a standard model filter. Note: ``value`` is always
         # an iterable, but can be empty.
+
         if not value:
             value = [self.SORT_BUILD_DATE]
 
@@ -135,7 +138,7 @@ class ProjectSortOrderingFilter(OrderingFilter):
         return qs.annotate(**annotations).order_by(*order_bys)
 
 
-class ProjectListFilterSet(FilterSet):
+class ProjectListFilterSet(ModelFilterSet):
 
     """
     Project list filter set for project list view.
@@ -144,14 +147,28 @@ class ProjectListFilterSet(FilterSet):
     provides search-as-you-type lookup filter as well.
     """
 
-    project = CharFilter(field_name="slug", widget=HiddenInput)
+    slug = FilteredModelChoiceFilter(
+        label=_("Project"),
+        empty_label=_("All projects"),
+        to_field_name="slug",
+        queryset_method="get_project_queryset",
+        method="get_project",
+        label_attribute="name",
+    )
+
     sort = ProjectSortOrderingFilter(
         field_name="sort",
         label=_("Sort by"),
     )
 
+    def get_project_queryset(self):
+        return Project.objects.for_user(user=self.request.user)
 
-class ProjectVersionListFilterSet(FilterSet):
+    def get_project(self, queryset, field_name, project):
+        return queryset.filter(slug=project.slug)
+
+
+class ProjectVersionListFilterSet(ModelFilterSet):
 
     """
     Filter and sorting for project version listing page.
@@ -175,7 +192,15 @@ class ProjectVersionListFilterSet(FilterSet):
     )
 
     # Attribute filter fields
-    version = CharFilter(field_name="slug", widget=HiddenInput)
+    slug = FilteredModelChoiceFilter(
+        label=_("Version"),
+        empty_label=_("All versions"),
+        to_field_name="slug",
+        queryset_method="get_version_queryset",
+        method="get_version",
+        label_attribute="verbose_name",
+    )
+
     privacy = ChoiceFilter(
         field_name="privacy_level",
         label=_("Privacy"),
@@ -198,7 +223,18 @@ class ProjectVersionListFilterSet(FilterSet):
         label=_("Sort by"),
     )
 
-    def get_visibility(self, queryset, *, value):
+    def __init__(self, *args, project=None, **kwargs):
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+    def get_version(self, queryset, field_name, version):
+        return queryset.filter(slug=version.slug)
+
+    def get_version_queryset(self):
+        # This query is passed in at instantiation
+        return self.queryset
+
+    def get_visibility(self, queryset, field_name, value):
         if value == self.VISIBILITY_HIDDEN:
             return queryset.filter(hidden=True)
         if value == self.VISIBILITY_VISIBLE:

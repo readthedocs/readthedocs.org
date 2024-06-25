@@ -49,7 +49,7 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
-from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError, BuildUserError
+from readthedocs.doc_builder.exceptions import BuildCancelled, BuildMaxConcurrencyError
 from readthedocs.integrations.models import GenericAPIWebhook, Integration
 from readthedocs.notifications.constants import READ, UNREAD
 from readthedocs.notifications.models import Notification
@@ -113,7 +113,7 @@ class APIBuildTests(TestCase):
 
         Notification.objects.add(
             attached_to=build,
-            message_id=BuildUserError.SKIPPED_EXIT_CODE_183,
+            message_id=BuildCancelled.SKIPPED_EXIT_CODE_183,
         )
 
         self.assertEqual(build.commands.count(), 1)
@@ -3282,7 +3282,6 @@ class APIVersionTests(TestCase):
                 "programming_language": "words",
                 "repo": "https://github.com/pypa/pip",
                 "repo_type": "git",
-                "requirements_file": None,
                 "readthedocs_yaml_path": None,
                 "show_advertising": True,
                 "skip": False,

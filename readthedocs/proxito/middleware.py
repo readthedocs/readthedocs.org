@@ -15,10 +15,10 @@ from corsheaders.middleware import (
 )
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
-from django.http.response import BadHeaderError, ResponseHeaders
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.encoding import iri_to_uri
 from django.utils.html import escape
 
 from readthedocs.builds.models import Version
@@ -373,23 +373,9 @@ class ProxitoMiddleware(MiddlewareMixin):
     def add_resolver_headers(self, request, response):
         if request.unresolved_url is not None:
             # TODO: add more ``X-RTD-Resolver-*`` headers
-            header_value = escape(request.unresolved_url.filename)
-            try:
-                # Use Django internals to validate the header's value before injecting it.
-                ResponseHeaders({})._convert_to_charset(
-                    header_value,
-                    "latin-1",
-                    mime_encode=True,
-                )
-
-                response["X-RTD-Resolver-Filename"] = header_value
-            except BadHeaderError:
-                # Skip adding the header because it fails validation
-                log.info(
-                    "Skip adding X-RTD-Resolver-Filename header due to invalid value.",
-                    filename=request.unresolved_url.filename,
-                    value=header_value,
-                )
+            uri_filename = iri_to_uri(request.unresolved_url.filename)
+            header_value = escape(uri_filename)
+            response["X-RTD-Resolver-Filename"] = header_value
 
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)

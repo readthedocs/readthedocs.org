@@ -1,8 +1,4 @@
-from readthedocs.doc_builder.backends.mkdocs import (
-    ProxyPythonName,
-    yaml_dump_safely,
-    yaml_load_safely,
-)
+from readthedocs.doc_builder.backends.mkdocs import ProxyPythonName, yaml_load_safely
 
 content = """
 int: 3
@@ -30,8 +26,3 @@ def test_yaml_load_safely():
     assert type(data["other_function"]) is ProxyPythonName
     assert data["function"].value == "python_function"
     assert data["other_function"].value == "module.other.function"
-
-
-def test_yaml_dump_safely():
-    data = yaml_load_safely(content)
-    assert yaml_load_safely(yaml_dump_safely(data)) == data

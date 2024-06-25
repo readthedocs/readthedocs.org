@@ -233,12 +233,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 verbose_name=self.data.version.verbose_name,
                 version_type=self.data.version.type,
             )
-            if not vcs_repository.supports_lsremote:
-                log.info("Syncing repository via full clone.")
-                vcs_repository.update()
-            else:
-                log.info("Syncing repository via remote listing.")
-
+            log.info("Syncing repository via remote listing.")
             self.sync_versions(vcs_repository)
 
 
@@ -300,7 +295,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     # Do not send notifications on failure builds for these exceptions.
     exceptions_without_notifications = (
         BuildCancelled.CANCELLED_BY_USER,
-        BuildUserError.SKIPPED_EXIT_CODE_183,
+        BuildCancelled.SKIPPED_EXIT_CODE_183,
         BuildAppError.BUILDS_DISABLED,
         BuildMaxConcurrencyError.LIMIT_REACHED,
     )
@@ -430,7 +425,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # once we don't need to rely on `self.data.project`.
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
-                instance=socket.gethostname(),
+                builder=socket.gethostname(),
                 protected_from_scale_in=True,
             )
 
@@ -447,10 +442,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self._reset_build()
 
     def _reset_build(self):
-        # Reset build only if it has some commands already.
-        if self.data.build.get("commands"):
-            log.info("Resetting build.")
-            self.data.api_client.build(self.data.build["id"]).reset.post()
+        # Always reset the build before starting.
+        # We used to only reset it when it has at least one command executed already.
+        # However, with the introduction of the new notification system,
+        # it could have a notification attached (e.g. Max concurrency build)
+        # that needs to be removed from the build.
+        # See https://github.com/readthedocs/readthedocs.org/issues/11131
+        log.info("Resetting build.")
+        self.data.api_client.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """
@@ -537,7 +536,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type = self.data.version.type
 
             status = BUILD_STATUS_FAILURE
-            if message_id == BuildUserError.SKIPPED_EXIT_CODE_183:
+            if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
                 # The build was skipped by returning the magic exit code,
                 # marked as CANCELLED, but communicated to GitHub as successful.
                 # This is because the PR has to be available for merging when the build
@@ -742,7 +741,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Disable scale-in protection on this instance
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
-                instance=socket.gethostname(),
+                builder=socket.gethostname(),
                 protected_from_scale_in=False,
             )
 

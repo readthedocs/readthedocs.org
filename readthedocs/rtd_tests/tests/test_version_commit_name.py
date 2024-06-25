@@ -3,7 +3,7 @@ from django_dynamic_fixture import get, new
 
 from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, STABLE, TAG
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import REPO_TYPE_GIT, REPO_TYPE_HG
+from readthedocs.projects.constants import REPO_TYPE_GIT
 from readthedocs.projects.models import Project
 
 
@@ -67,18 +67,6 @@ class VersionCommitNameTests(TestCase):
             version.commit_name,
             "3d92b728b7d7b842259ac2020c2fa389f13aff0d",
         )
-
-    def test_hg_latest_branch(self):
-        hg_project = get(Project, repo_type=REPO_TYPE_HG)
-        version = new(
-            Version,
-            identifier="default",
-            slug=LATEST,
-            verbose_name=LATEST,
-            type=BRANCH,
-            project=hg_project,
-        )
-        self.assertEqual(version.commit_name, "default")
 
     def test_git_latest_branch(self):
         git_project = get(Project, repo_type=REPO_TYPE_GIT)
