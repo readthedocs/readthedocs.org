@@ -144,6 +144,7 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
             and not self.instance.remote_repository.private
         ):
             self.fields["external_builds_privacy_level"].disabled = True
+            # TODO use a proper error/warning instead of help text for error states
             help_text = _(
                 "We have detected that this project is public, pull request previews are set to public."
             )
@@ -184,7 +185,7 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
         if msg:
             raise RichValidationError(
                 msg,
-                header=_("Pull Request builds not supported"),
+                header=_("Pull request builds not supported"),
             )
 
 
