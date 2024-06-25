@@ -1,3 +1,19 @@
+Version 11.1.1
+--------------
+
+:Date: June 25, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11433 <https://github.com/readthedocs/readthedocs.org/pull/11433>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: upgrade `psycopg` to v3 (`#11432 <https://github.com/readthedocs/readthedocs.org/pull/11432>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: allow serving `zh` (deprecated) language code (`#11429 <https://github.com/readthedocs/readthedocs.org/pull/11429>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Be more defensive in redirect code (`#11427 <https://github.com/readthedocs/readthedocs.org/pull/11427>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Link website from docs sidebar (`#11426 <https://github.com/readthedocs/readthedocs.org/pull/11426>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use literal `None` in session cookie samesite setting (`#11424 <https://github.com/readthedocs/readthedocs.org/pull/11424>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.1.0 (`#11423 <https://github.com/readthedocs/readthedocs.org/pull/11423>`__)
+* `@humitos <https://github.com/humitos>`__: Build: add support for Ubuntu 24.04 LTS (`#11421 <https://github.com/readthedocs/readthedocs.org/pull/11421>`__)
+* `@humitos <https://github.com/humitos>`__: Builds: don't call `git clean` anymore (`#11420 <https://github.com/readthedocs/readthedocs.org/pull/11420>`__)
+* `@humitos <https://github.com/humitos>`__: Ops: delete triggering a `time-test` build on `build-large` queue (`#11379 <https://github.com/readthedocs/readthedocs.org/pull/11379>`__)
+
 Version 11.1.0
 --------------
 

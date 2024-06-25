@@ -2,9 +2,6 @@
 
 -r pip.txt
 
-# https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
-psycopg2-binary
-
 # run tests
 tox
 

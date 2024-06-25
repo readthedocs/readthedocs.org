@@ -25,7 +25,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-11 14:31+0000\n"
+"POT-Creation-Date: 2024-06-25 14:50+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Roman Paltsev, 2023\n"
 "Language-Team: Russian (http://app.transifex.com/readthedocs/readthedocs/"
@@ -39,7 +39,7 @@ msgstr ""
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
 #: analytics/models.py:69 builds/filters.py:41 builds/models.py:711
-#: projects/filters.py:196 projects/models.py:1473 search/models.py:27
+#: projects/filters.py:196 projects/models.py:1476 search/models.py:27
 #: templates/base.html:266
 msgid "Version"
 msgstr "Версия"
@@ -250,7 +250,7 @@ msgid "Username"
 msgstr "Имя пользователя"
 
 #: audit/models.py:138 builds/models.py:95 builds/models.py:705
-#: organizations/filters.py:133 projects/filters.py:151 projects/models.py:1467
+#: organizations/filters.py:133 projects/filters.py:151 projects/models.py:1470
 #: redirects/models.py:48
 msgid "Project"
 msgstr "Проект"
@@ -458,7 +458,7 @@ msgstr "Ветка"
 msgid "Tag"
 msgstr "Метка"
 
-#: builds/constants.py:56 projects/constants.py:399
+#: builds/constants.py:56 projects/constants.py:412
 msgid "Unknown"
 msgstr "Неизв."
 
@@ -490,7 +490,7 @@ msgstr "Активно"
 msgid "Build successful"
 msgstr ""
 
-#: builds/filters.py:29 projects/models.py:1572
+#: builds/filters.py:29 projects/models.py:1575
 #: templates/builds/build_detail.html:160
 msgid "Build failed"
 msgstr "Сборка не удалась"
@@ -650,7 +650,7 @@ msgstr "Ошибка"
 msgid "Exit code"
 msgstr "Код завершения"
 
-#: builds/models.py:761 projects/models.py:1484
+#: builds/models.py:761 projects/models.py:1487
 msgid "Commit"
 msgstr "Коммит"
 
@@ -928,7 +928,7 @@ msgstr ""
 msgid "Please provide as much detail as possible."
 msgstr ""
 
-#: core/forms.py:198 projects/models.py:1587
+#: core/forms.py:198 projects/models.py:1590
 msgid "URL"
 msgstr ""
 
@@ -1059,7 +1059,7 @@ msgid "Publication date"
 msgstr "Дата публикации"
 
 #: gold/models.py:29 organizations/models.py:32 organizations/models.py:224
-#: organizations/models.py:298 projects/models.py:239 projects/models.py:1486
+#: organizations/models.py:298 projects/models.py:239 projects/models.py:1489
 msgid "Modified date"
 msgstr "Дата последнего изменения"
 
@@ -1179,7 +1179,7 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:74
-msgid "Your gold membership"
+msgid "Your Gold membership"
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:80
@@ -1472,7 +1472,7 @@ msgstr "Пользователи"
 #: oauth/models.py:33 oauth/models.py:123 organizations/filters.py:54
 #: organizations/filters.py:60 organizations/models.py:48
 #: organizations/models.py:247 projects/filters.py:44 projects/filters.py:110
-#: projects/models.py:249 projects/models.py:1478
+#: projects/models.py:249 projects/models.py:1481
 msgid "Name"
 msgstr "Имя"
 
@@ -1556,7 +1556,7 @@ msgstr ""
 msgid "Failed to add deploy key to project"
 msgstr ""
 
-#: oauth/services/base.py:24
+#: oauth/services/base.py:25
 #, python-brace-format
 msgid ""
 "Our access to your following accounts was revoked: {provider}. Please, "
@@ -2167,7 +2167,7 @@ msgstr "Удалён"
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:92 projects/models.py:2051
+#: projects/constants.py:92 projects/models.py:2054
 msgid "Public"
 msgstr "Общедоступный"
 
@@ -2183,47 +2183,47 @@ msgstr "CPython 2.x"
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/constants.py:396
+#: projects/constants.py:409
 msgid "Valid and active"
 msgstr ""
 
-#: projects/constants.py:397
+#: projects/constants.py:410
 msgid "Invalid"
 msgstr ""
 
-#: projects/constants.py:398
+#: projects/constants.py:411
 msgid "Pending"
 msgstr ""
 
-#: projects/constants.py:408
+#: projects/constants.py:421
 msgid "Multiple versions with translations (/<language>/<version>/<filename>)"
 msgstr ""
 
-#: projects/constants.py:412
+#: projects/constants.py:425
 msgid "Multiple versions without translations (/<version>/<filename>)"
 msgstr ""
 
-#: projects/constants.py:416
+#: projects/constants.py:429
 msgid "Single version without translations (/<filename>)"
 msgstr ""
 
-#: projects/constants.py:433
+#: projects/constants.py:446
 msgid "Alphabetically"
 msgstr ""
 
-#: projects/constants.py:434
+#: projects/constants.py:447
 msgid "SemVer (Read the Docs)"
 msgstr ""
 
-#: projects/constants.py:437
+#: projects/constants.py:450
 msgid "Python Packaging (PEP 440 and PEP 425)"
 msgstr ""
 
-#: projects/constants.py:439
+#: projects/constants.py:452
 msgid "CalVer (YYYY.0M.0M)"
 msgstr ""
 
-#: projects/constants.py:440
+#: projects/constants.py:453
 msgid "Define your own pattern"
 msgstr ""
 
@@ -2705,232 +2705,232 @@ msgstr ""
 msgid "Model must have slug"
 msgstr "В модели должен быть URL"
 
-#: projects/models.py:1348
+#: projects/models.py:1351
 msgid "Subproject nesting is not supported"
 msgstr "Вложенность подпроектов не поддерживается"
 
-#: projects/models.py:1483
+#: projects/models.py:1486
 msgid "Path"
 msgstr "Путь"
 
-#: projects/models.py:1485
+#: projects/models.py:1488
 msgid "Build id"
 msgstr ""
 
-#: projects/models.py:1488
+#: projects/models.py:1491
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1493
+#: projects/models.py:1496
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1536 projects/models.py:1701
+#: projects/models.py:1539 projects/models.py:1704
 msgid "created"
 msgstr "создано"
 
-#: projects/models.py:1541
+#: projects/models.py:1544
 msgid "modified"
 msgstr "изменено"
 
-#: projects/models.py:1570
+#: projects/models.py:1573
 msgid "Build triggered"
 msgstr ""
 
-#: projects/models.py:1571
+#: projects/models.py:1574
 msgid "Build passed"
 msgstr ""
 
-#: projects/models.py:1589
+#: projects/models.py:1592
 msgid "URL to send the webhook to"
 msgstr "URL, на которые следует отправлять веб-обработчика"
 
-#: projects/models.py:1592
+#: projects/models.py:1595
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1600
+#: projects/models.py:1603
 msgid "Events to subscribe"
 msgstr ""
 
-#: projects/models.py:1603
+#: projects/models.py:1606
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1605
+#: projects/models.py:1608
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">the docs</a> for available substitutions."
 msgstr ""
 
-#: projects/models.py:1712
+#: projects/models.py:1715
 msgid "Domain"
 msgstr "Домен"
 
-#: projects/models.py:1719
+#: projects/models.py:1722
 msgid "This domain was auto-created"
 msgstr ""
 
-#: projects/models.py:1723
+#: projects/models.py:1726
 msgid "This domain is a CNAME for the project"
 msgstr ""
 
-#: projects/models.py:1728
+#: projects/models.py:1731
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:1732
+#: projects/models.py:1735
 msgid "Use HTTPS"
 msgstr "Использовать HTTPS"
 
-#: projects/models.py:1734
+#: projects/models.py:1737
 msgid "Always use HTTPS for this domain"
 msgstr "Всегда использовать HTTPS для данного домена"
 
-#: projects/models.py:1738
+#: projects/models.py:1741
 msgid "Number of times this domain has been hit"
 msgstr "Количество посещений этого домена"
 
-#: projects/models.py:1743 templates/projects/domain_form.html:49
+#: projects/models.py:1746 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1752
+#: projects/models.py:1755
 msgid "Skip validation process."
 msgstr ""
 
-#: projects/models.py:1756
+#: projects/models.py:1759
 msgid "Start date of the validation process."
 msgstr ""
 
-#: projects/models.py:1765
+#: projects/models.py:1768
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1770
+#: projects/models.py:1773
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1775
+#: projects/models.py:1778
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1908
+#: projects/models.py:1911
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1912
+#: projects/models.py:1915
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1917
+#: projects/models.py:1920
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 
-#: projects/models.py:1923
+#: projects/models.py:1926
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1927
+#: projects/models.py:1930
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:1931
+#: projects/models.py:1934
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:1936
+#: projects/models.py:1939
 msgid ""
 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
 "one (Project.custom_prefix)."
 msgstr ""
 
-#: projects/models.py:1941
+#: projects/models.py:1944
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:1946
+#: projects/models.py:1949
 msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1950
+#: projects/models.py:1953
 msgid "Webhook: Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1954
+#: projects/models.py:1957
 msgid "Webhook: Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1957
+#: projects/models.py:1960
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:1958
+#: projects/models.py:1961
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1961
+#: projects/models.py:1964
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1965
+#: projects/models.py:1968
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:1970
+#: projects/models.py:1973
 msgid ""
 "Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 
-#: projects/models.py:1976
+#: projects/models.py:1979
 msgid "Search: Disable server side search"
 msgstr ""
 
-#: projects/models.py:1980
+#: projects/models.py:1983
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:1984
+#: projects/models.py:1987
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:1989
+#: projects/models.py:1992
 msgid "Build: Set scale-in protection before/after building."
 msgstr ""
 
-#: projects/models.py:2002
+#: projects/models.py:2005
 msgid "Feature identifier"
 msgstr "Идентификатор особенности"
 
-#: projects/models.py:2007
+#: projects/models.py:2010
 msgid "Date feature was added"
 msgstr "Особенность даты была добавлена"
 
-#: projects/models.py:2013
+#: projects/models.py:2016
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2017
+#: projects/models.py:2020
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2039
+#: projects/models.py:2042
 msgid "Name of the environment variable"
 msgstr "Имя переменной окружения"
 
-#: projects/models.py:2043
+#: projects/models.py:2046
 msgid "Value of the environment variable"
 msgstr "Значение переменной окружения"
 
-#: projects/models.py:2048
+#: projects/models.py:2051
 msgid "Project where this variable will be used"
 msgstr "Проект, в котором будет использоваться эта переменная"
 
-#: projects/models.py:2054
+#: projects/models.py:2057
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
@@ -3227,67 +3227,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:463
+#: settings/base.py:464
 msgid "Catalan"
 msgstr "каталонский"
 
-#: settings/base.py:464
+#: settings/base.py:465
 msgid "English"
 msgstr "Английский"
 
-#: settings/base.py:465
+#: settings/base.py:466
 msgid "Spanish"
 msgstr "Испанский"
 
-#: settings/base.py:466
+#: settings/base.py:467
 msgid "Brazilian Portuguese"
 msgstr "бразильский португальский"
 
-#: settings/base.py:467
+#: settings/base.py:468
 msgid "Norwegian Bokmål"
 msgstr "Норвежский"
 
-#: settings/base.py:468
+#: settings/base.py:469
 msgid "French"
 msgstr "Французский"
 
-#: settings/base.py:469
+#: settings/base.py:470
 msgid "Russian"
 msgstr "Русский"
 
-#: settings/base.py:470
+#: settings/base.py:471
 msgid "German"
 msgstr "Немецкий"
 
-#: settings/base.py:471
+#: settings/base.py:472
 msgid "Galician"
 msgstr "Галисийский"
 
-#: settings/base.py:472
+#: settings/base.py:473
 msgid "Vietnamese"
 msgstr "Вьетнамский"
 
-#: settings/base.py:473
+#: settings/base.py:474
 msgid "Simplified Chinese"
 msgstr "упрощённый китайский"
 
-#: settings/base.py:474
+#: settings/base.py:475
 msgid "Traditional Chinese"
 msgstr "традиционный китайский"
 
-#: settings/base.py:475
+#: settings/base.py:476
 msgid "Japanese"
 msgstr "Японский"
 
-#: settings/base.py:476
+#: settings/base.py:477
 msgid "Ukrainian"
 msgstr "Украинский"
 
-#: settings/base.py:477
+#: settings/base.py:478
 msgid "Italian"
 msgstr "Итальянский"
 
-#: settings/base.py:478
+#: settings/base.py:479
 msgid "Korean"
 msgstr "Корейский"
 
@@ -4963,7 +4963,7 @@ msgstr ""
 #, python-format
 msgid ""
 "In a hurry? <a href=\"%(template_project_url)s\">Fork our template project</"
-"a> on Github, and <a href=\"%(projects_import_url)s\">import it</a>."
+"a> on GitHub, and <a href=\"%(projects_import_url)s\">import it</a>."
 msgstr ""
 
 #: templates/projects/onboard_import.html:25
@@ -5676,12 +5676,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#~ msgid "Subversion"
-#~ msgstr "Subversion"
-
-#~ msgid "Mercurial"
-#~ msgstr "Mercurial"
-
-#~ msgid "Bazaar"
-#~ msgstr "Bazaar"
