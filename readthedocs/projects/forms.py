@@ -187,6 +187,9 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
             )
 
         if msg:
+            field = self.fields["external_builds_enabled"]
+            field.disabled = True
+            field.help_text = f"{msg} {field.help_text}"
             raise RichValidationError(
                 msg,
                 header=_("Pull request builds not supported"),
