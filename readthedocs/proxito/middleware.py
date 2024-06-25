@@ -19,6 +19,7 @@ from django.http.response import BadHeaderError, ResponseHeaders
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.encoding import iri_to_uri
 from django.utils.html import escape
 
 from readthedocs.builds.models import Version
@@ -382,7 +383,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                     mime_encode=True,
                 )
 
-                response["X-RTD-Resolver-Filename"] = header_value
+                response["X-RTD-Resolver-Filename"] = iri_to_uri(header_value)
             except BadHeaderError:
                 # Skip adding the header because it fails validation
                 log.info(

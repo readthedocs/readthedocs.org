@@ -75,6 +75,29 @@ class ProxitoHeaderTests(BaseDocServing):
             "/proxito/media/html/project/latest/guides/jupyter/gallery.html",
         )
 
+    # refs https://read-the-docs.sentry.io/issues/5019718893/
+    def test_serve_headers_with_unicode(self):
+        r = self.client.get(
+            "/en/latest/tutorial_1installation.htmlReview%20of%20Failures%20of%0BReview%20of%20Failures%20of%0BPhotovoltaic%20Moduleshotovoltaic%20Modules",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Cache-Tag"], "project,project:latest")
+        self.assertEqual(r["X-RTD-Domain"], "project.dev.readthedocs.io")
+        self.assertEqual(r["X-RTD-Project"], "project")
+        self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
+        self.assertEqual(r["X-RTD-Version"], "latest")
+        self.assertEqual(r["X-RTD-version-Method"], "path")
+        self.assertEqual(
+            r["X-RTD-Resolver-Filename"],
+            "/tutorial_1installation.htmlReview%20of%20Failures%20of%0BReview%20of%20Failures%20of%0BPhotovoltaic%20Moduleshotovoltaic%20Modules",
+        )
+        self.assertEqual(
+            r["X-RTD-Path"],
+            "/proxito/media/html/project/latest/tutorial_1installation.htmlReview%20of%20Failures%20of%0BReview%20of%20Failures%20of%0BPhotovoltaic%20Moduleshotovoltaic%20Modules",
+        )
+
     def test_subproject_serve_headers(self):
         r = self.client.get(
             "/projects/subproject/en/latest/",
