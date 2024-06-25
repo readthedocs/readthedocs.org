@@ -3,13 +3,13 @@
 {% load i18n %}
 {% load account %}
 
-{% block head_title %}{% trans "Sign In" %}{% endblock %}
+{% block head_title %}{% trans "Log in" %}{% endblock %}
 
 {% block body_class %}login-page{% endblock %}
 
 {% block content %}
 
-<h1>{% trans "Sign In" %}</h1>
+<h1>{% trans "Log in" %}</h1>
 
 {% if is_from_cas_login %}
 <p>
@@ -23,7 +23,7 @@
   {# If allowed providers is given, don't show the username/password form #}
   <div class="clearfix">
     <ul class="socialaccount_providers">
-      {% include "socialaccount/snippets/provider_list.html" with process="login" next=request.GET.next verbiage="Sign in using" %}
+      {% include "socialaccount/snippets/provider_list.html" with process="login" next=request.GET.next verbiage="Log in using" %}
     </ul>
   </div>
 
@@ -48,7 +48,7 @@
     {% if redirect_field_value %}
     <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
     {% endif %}
-    <button class="primaryAction" type="submit">{% trans "Sign In" %}</button>
+    <button class="primaryAction" type="submit">{% trans "Log in" %}</button>
 
     {% url 'account_reset_password' as password_reset_url %}
     <p>
@@ -70,7 +70,7 @@
 
   <div class="clearfix">
     <ul class="socialaccount_providers">
-      {% include "socialaccount/snippets/provider_list.html" with process="login" next=request.GET.next verbiage="Sign in using" %}
+      {% include "socialaccount/snippets/provider_list.html" with process="login" next=request.GET.next verbiage="Log in using" %}
     </ul>
   </div>
 {% endif %}
