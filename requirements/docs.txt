@@ -67,7 +67,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==3.0.1
     # via -r requirements/docs.in
-numpy==1.26.4
+numpy==2.0.0
     # via
     #   contourpy
     #   matplotlib
@@ -171,7 +171,7 @@ typing-extensions==4.12.2
     # via
     #   anyio
     #   uvicorn
-urllib3==2.2.1
+urllib3==2.2.2
     # via requests
 uvicorn==0.30.1
     # via sphinx-autobuild
