@@ -1,2 +1,6 @@
-# This file is left empty on purpose.
-# It's required to be able to register ``HistoricalRecords`` on ``djstripe.models.Subscription``
+from djstripe.models import Subscription
+from simple_history import register
+
+from readthedocs.core.history import ExtraHistoricalRecords
+
+register(Subscription, records_class=ExtraHistoricalRecords, app=__package__)

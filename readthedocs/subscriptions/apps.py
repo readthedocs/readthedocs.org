@@ -1,7 +1,6 @@
 """Subscriptions app."""
 
 from django.apps import AppConfig
-from simple_history import register
 
 
 class SubscriptionsConfig(AppConfig):
@@ -17,7 +16,6 @@ class SubscriptionsConfig(AppConfig):
         import readthedocs.subscriptions.tasks  # noqa
 
         self._add_custom_manager()
-        self._add_subscription_historical_records()
 
     def _add_custom_manager(self):
         """
@@ -37,10 +35,3 @@ class SubscriptionsConfig(AppConfig):
 
         manager = StripeSubscriptionQueryset.as_manager()
         manager.contribute_to_class(Subscription, "readthedocs")
-
-    def _add_subscription_historical_records(self):
-        from djstripe.models import Subscription
-
-        from readthedocs.core.history import ExtraHistoricalRecords
-
-        register(Subscription, records_class=ExtraHistoricalRecords, app=__package__)
