@@ -848,6 +848,10 @@ class CommunityBaseSettings(Settings):
     # we can't make use of the DJSTRIPE_SUBSCRIBER_MODEL setting.
     DJSTRIPE_SUBSCRIBER_CUSTOMER_KEY = None
 
+    # Webhook URL for BotDog to post messages in Slack #sales channel:
+    # https://api.slack.com/apps/A01ML7J7N4T/incoming-webhooks
+    SLACK_WEBHOOK_SALES_CHANNEL = None  # https://hooks.slack.com/services/...
+
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False
 

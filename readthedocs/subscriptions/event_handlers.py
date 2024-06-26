@@ -3,15 +3,20 @@ Dj-stripe webhook handlers.
 
 https://docs.dj-stripe.dev/en/master/usage/webhooks/.
 """
+import requests
 import structlog
 from django.conf import settings
+from django.contrib import humanize
+from django.db.models import Sum
 from django.utils import timezone
 from djstripe import models as djstripe
 from djstripe import webhooks
-from djstripe.enums import SubscriptionStatus
+from djstripe.enums import ChargeStatus, SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.payments.utils import cancel_subscription as cancel_stripe_subscription
+from readthedocs.projects.models import Domain
+from readthedocs.sso.models import SSOIntegration
 from readthedocs.subscriptions.notifications import (
     SubscriptionEndedNotification,
     SubscriptionRequiredNotification,
@@ -190,6 +195,88 @@ def subscription_canceled(event):
         )
         notification.send()
         log.info("Notification sent.", recipient=owner)
+
+    total_spent = (
+        stripe_subscription.customer.charges.filter(status=ChargeStatus.succeeded)
+        .aggregate(total=Sum("amount"))
+        .get("total")
+        or 0
+    )
+    if settings.SLACK_WEBHOOK_SALES_CHANNEL and total_spent > 0:
+        start_date = stripe_subscription.start_date.strftime("%b %-d, %Y")
+        timesince = humanize.naturaltime(stripe_subscription.start_date).split(",")[0]
+        domains = Domain.objects.filter(
+            project__organizations__in=[organization]
+        ).count()
+        try:
+            sso_integration = organization.ssointegration.provider
+        except SSOIntegration.DoesNotExist:
+            sso_integration = "Read the Docs Auth"
+
+        slack_message = {
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": ":x: *Subscription canceled*"},
+                },
+                {"type": "divider"},
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f":office: *Name:* {organization.name}",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":dollar: *Plan:* {stripe_subscription.plan.id}",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":hash: *Slug:* {organization.slug}",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":person_frowning: *Stripe customer:* <https://dashboard.stripe.com/customers/{stripe_subscription.customer_id}|{stripe_subscription.customer_id}>",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":date: *Customer since:* {start_date} (~{timesince})",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":books: *Projects:* {organization.projects.count()}",
+                        },
+                        {"type": "mrkdwn", "text": f":link: *Domains:* {domains}"},
+                        {
+                            "type": "mrkdwn",
+                            "text": f":closed_lock_with_key: *Authentication:* {sso_integration}",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":busts_in_silhouette: *Teams:* {organization.teams.count()}",
+                        },
+                    ],
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "We should contact this customer and see if we can get some feedback from them.",
+                        }
+                    ],
+                },
+            ]
+        }
+        try:
+            requests.post(
+                settings.SLACK_WEBHOOK_SALES_CHANNEL,
+                data=slack_message,
+                timeout=3,
+            )
+        except requests.Timeout:
+            log.warning("Timeout sending a message to Slack webhook")
 
 
 @handler("customer.updated")
