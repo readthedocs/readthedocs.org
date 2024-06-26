@@ -66,6 +66,8 @@ class AuthUserOrganizationsTest(OrganizationMixin, TestCase):
         "/organizations/{slug}/teams/{team}/members/{member}/revoke/": {
             "status_code": 405
         },
+        # Placeholder URL.
+        "/organizations/{slug}/authorization/": {"status_code": 404},
     }
 
     def login(self):

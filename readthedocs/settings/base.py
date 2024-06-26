@@ -15,7 +15,7 @@ from readthedocs.core.settings import Settings
 from readthedocs.builds import constants_docker
 
 try:
-    import readthedocsext  # noqa
+    import readthedocsext.cdn  # noqa
 
     ext = True
 except ImportError:

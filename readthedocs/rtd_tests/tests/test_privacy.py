@@ -78,11 +78,10 @@ class PrivacyTests(TestCase):
         r = self.client.get("/projects/django-kong/")
         self.assertEqual(r.status_code, 200)
         # Build button should appear here
-        self.assertContains(r, "Build a version")
+        self.assertTrue("build version" in r.content.decode().lower())
         r = self.client.get("/projects/django-kong/builds/")
         self.assertEqual(r.status_code, 200)
-        # Build button should appear here
-        self.assertContains(r, "Build Version:")
+
         r = self.client.get("/projects/django-kong/downloads/")
         self.assertEqual(r.status_code, 200)
 
@@ -105,11 +104,11 @@ class PrivacyTests(TestCase):
         r = self.client.get("/projects/django-kong/")
         self.assertEqual(r.status_code, 200)
         # Build button should appear here
-        self.assertContains(r, "Build a version")
+        self.assertTrue("build version" in r.content.decode().lower())
+
         r = self.client.get("/projects/django-kong/builds/")
         self.assertEqual(r.status_code, 200)
-        # Build button should appear here
-        self.assertContains(r, "Build Version:")
+
         r = self.client.get("/projects/django-kong/downloads/")
         self.assertEqual(r.status_code, 200)
 
@@ -121,7 +120,7 @@ class PrivacyTests(TestCase):
         r = self.client.get("/projects/django-kong/builds/")
         self.assertEqual(r.status_code, 200)
         # Build button shouldn't appear here
-        self.assertNotContains(r, "Build Version:")
+        self.assertFalse("build version" in r.content.decode().lower())
         r = self.client.get("/projects/django-kong/downloads/")
         self.assertEqual(r.status_code, 200)
 

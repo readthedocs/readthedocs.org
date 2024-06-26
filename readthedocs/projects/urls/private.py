@@ -1,11 +1,11 @@
 """Project URLs for authenticated users."""
-
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
 from readthedocs.constants import pattern_opts
+from readthedocs.core.views import PageNotFoundView
 from readthedocs.projects.backends.views import ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
@@ -190,6 +190,19 @@ urlpatterns = [
         r"^(?P<project_slug>[-\w]+)/traffic-analytics/$",
         TrafficAnalyticsView.as_view(),
         name="projects_traffic_analytics",
+    ),
+    # Placeholder URLs, so that we can test the new templates
+    # with organizations enabled from our community codebase.
+    # TODO: migrate these functionalities from corporate to community.
+    re_path(
+        r"^(?P<project_slug>{project_slug})/sharing/$".format(**pattern_opts),
+        PageNotFoundView.as_view(),
+        name="projects_temporary_access_list",
+    ),
+    re_path(
+        (r"^(?P<project_slug>{project_slug})/keys/$".format(**pattern_opts)),
+        PageNotFoundView.as_view(),
+        name="projects_keys",
     ),
 ]
 
