@@ -174,12 +174,11 @@ class Virtualenv(PythonEnvironment):
         if self.config.doctype == "mkdocs":
             requirements.append("mkdocs")
         else:
-            requirements.extend(
-                [
-                    "sphinx",
-                    "readthedocs-sphinx-ext",
-                ]
-            )
+            requirements.append("sphinx")
+
+            # Install ``readthedocs-sphinx-ext`` only on old projects
+            if not self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
+                requirements.append("readthedocs-sphinx-ext")
 
         cmd = copy.copy(pip_install_cmd)
         cmd.extend(requirements)
