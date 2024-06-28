@@ -3,6 +3,7 @@ from unittest import mock
 from django.test import override_settings
 from django.urls import reverse
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 
@@ -80,6 +81,33 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertDictEqual(
             response_json,
             self._get_response_dict("projects-versions-builds-list_POST"),
+        )
+
+    def test_external_version_projects_versions_builds_list_post(self):
+        """Build starts using last commit against external version."""
+        self.version.type = EXTERNAL
+        self.build.commit = "d4e5f6"
+        self.version.save()
+        self.build.save()
+        url = reverse(
+            "projects-versions-builds-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "parent_lookup_version__slug": self.version.slug,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        self.assertEqual(self.project.builds.count(), 1)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(self.project.builds.count(), 2)
+
+        response_json = response.json()
+        response_json["build"]["created"] = "2019-04-29T14:00:00Z"
+        self.assertDictEqual(
+            response_json,
+            self._get_response_dict("projects-versions-builds-list-external_POST"),
         )
 
     def test_projects_builds_notifications_list(self):
