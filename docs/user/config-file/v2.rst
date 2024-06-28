@@ -130,7 +130,8 @@ Configuration of the Python environment to be used.
 python.install
 ``````````````
 
-Read the Docs uses :doc:`pip <pip:index>` by  default to install your Python packages, however if you are using a :ref:`Conda <config-file/v2:conda>` environment to manage your build, you'll need to use the Conda ``environment`` file instead. If you have a commercial plan you can also install :doc:`private dependencies </guides/private-python-packages>`.
+Read the Docs uses :doc:`pip <pip:index>` by  default to install your Python packages, however if you are using a :ref:`Conda <config-file/v2:conda>` environment to manage your build, you'll need to use the Conda ``environment`` file instead.
+If you have a commercial plan you can also install :doc:`private dependencies </guides/private-python-packages>`.
 
 List of installation methods of packages and requirements.
 You can have several of the following methods.
@@ -163,7 +164,8 @@ Example:
 Packages
 ''''''''
 
-Install the project using ``pip install``. The use of ``python setup.py install`` is deprecated.
+Install the project using ``pip install``.
+The use of ``python setup.py install`` is deprecated.
 
 The path to the package, relative to the root of the project.
 
