@@ -23,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.131
+boto3==1.34.136
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.131
+botocore==1.34.136
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -219,7 +219,7 @@ idna==3.7
     # via
     #   -r requirements/pip.txt
     #   requests
-ipython==8.25.0
+ipython==8.26.0
     # via -r requirements/deploy.in
 isodate==0.6.1
     # via
@@ -334,7 +334,7 @@ pytz==2024.1
     #   celery
 pyyaml==6.0.1
     # via -r requirements/pip.txt
-redis==5.0.6
+redis==5.0.7
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -357,13 +357,13 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-s3transfer==0.10.1
+s3transfer==0.10.2
     # via
     #   -r requirements/pip.txt
     #   boto3
 selectolax==0.3.21
     # via -r requirements/pip.txt
-sentry-sdk==2.6.0
+sentry-sdk==2.7.1
     # via structlog-sentry
 six==1.16.0
     # via
