@@ -14,9 +14,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.34.131
+boto3==1.34.136
     # via django-storages
-botocore==1.34.131
+botocore==1.34.136
     # via
     #   boto3
     #   s3transfer
@@ -236,7 +236,7 @@ pytz==2024.1
     #   celery
 pyyaml==6.0.1
     # via -r requirements/pip.in
-redis==5.0.6
+redis==5.0.7
     # via
     #   -r requirements/pip.in
     #   django-cacheops
@@ -259,7 +259,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
-s3transfer==0.10.1
+s3transfer==0.10.2
     # via boto3
 selectolax==0.3.21
     # via -r requirements/pip.in
