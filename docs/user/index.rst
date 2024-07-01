@@ -8,10 +8,17 @@ Read the Docs: documentation simplified
 
    /tutorial/index
    /choosing-a-site
-   /intro/getting-started-with-sphinx
-   /intro/getting-started-with-mkdocs
    /intro/import-guide
    /examples
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Supported doctools
+
+   /tools/index
+   /tools/sphinx
+   /tools/mkdocs
 
 .. toctree::
    :maxdepth: 2
