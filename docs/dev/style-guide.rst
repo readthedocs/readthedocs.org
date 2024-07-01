@@ -61,7 +61,6 @@ You can fix many linting issues automatically by installing and running `pre-com
 ❯ pre-commit run --from-ref <OLDER_COMMIT> --to-ref <RECENT_COMMIT>
 ```
 
-
 Word list
 ---------
 
