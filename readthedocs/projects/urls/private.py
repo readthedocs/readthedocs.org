@@ -33,6 +33,7 @@ from readthedocs.projects.views.private import (
     ProjectEmailNotificationsCreate,
     ProjectNotifications,
     ProjectNotificationsDelete,
+    ProjectPullRequestsUpdate,
     ProjectRedirectsCreate,
     ProjectRedirectsDelete,
     ProjectRedirectsInsert,
@@ -180,6 +181,11 @@ urlpatterns = [
         r"^(?P<project_slug>[-\w]+)/advertising/$",
         ProjectAdvertisingUpdate.as_view(),
         name="projects_advertising",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/pull-requests/$",
+        ProjectPullRequestsUpdate.as_view(),
+        name="projects_pull_requests",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/search-analytics/$",
