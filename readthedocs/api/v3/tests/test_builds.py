@@ -105,10 +105,12 @@ class BuildsEndpointTests(APIEndpointMixin):
 
         response_json = response.json()
         response_json["build"]["created"] = "2019-04-29T14:00:00Z"
-        self.assertDictEqual(
-            response_json,
-            self._get_response_dict("projects-versions-builds-list-external_POST"),
-        )
+        expected = self._get_response_dict("projects-versions-builds-list_POST")
+        expected["build"]["commit"] = "d4e5f6"
+        expected["version"]["type"] = "external"
+        expected["version"]["urls"]["documentation"] = "http://project--v1.0.external-builds.readthedocs.io/en/v1.0/"
+        expected["version"]["urls"]["vcs"] = "https://github.com/rtfd/project/pull/v1.0"
+        self.assertDictEqual(response_json, expected)
 
     def test_projects_builds_notifications_list(self):
         url = reverse(
