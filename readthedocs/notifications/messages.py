@@ -233,8 +233,8 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-             No "$READTHEDOCS_OUTPUT/html" folder was created during this build.
-             Read more about <a href="https://docs.readthedocs.io/page/reference/environment-variables.html#envvar-READTHEDOCS_OUTPUT">this environment variable</a>.
+             No content was output to the path "$READTHEDOCS_OUTPUT/html".
+             Read more about <a href="https://docs.readthedocs.io/page/build-customization.html#where-to-put-files">where to put your built files</a>.
              """
             ).strip(),
         ),
