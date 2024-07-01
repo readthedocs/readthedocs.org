@@ -108,7 +108,9 @@ class BuildsEndpointTests(APIEndpointMixin):
         expected = self._get_response_dict("projects-versions-builds-list_POST")
         expected["build"]["commit"] = "d4e5f6"
         expected["version"]["type"] = "external"
-        expected["version"]["urls"]["documentation"] = "http://project--v1.0.external-builds.readthedocs.io/en/v1.0/"
+        expected["version"]["urls"][
+            "documentation"
+        ] = "http://project--v1.0.external-builds.readthedocs.io/en/v1.0/"
         expected["version"]["urls"]["vcs"] = "https://github.com/rtfd/project/pull/v1.0"
         self.assertDictEqual(response_json, expected)
 
