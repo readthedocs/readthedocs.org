@@ -60,22 +60,6 @@ def daily_email():
 
 
 @app.task(queue="web")
-def disable_organization_expired_trials():
-    """Daily task to disable organization with expired Trial Plans."""
-    queryset = Organization.objects.disable_soon(
-        days=30, exact=True
-    ).subscription_trial_plan_ended()
-
-    for organization in queryset:
-        log.info(
-            "Organization disabled due to trial ended.",
-            organization_slug=organization.slug,
-        )
-        organization.disabled = True
-        organization.save()
-
-
-@app.task(queue="web")
 def weekly_subscription_stats_email(recipients=None):
     """
     Weekly email to communicate stats about subscriptions.
