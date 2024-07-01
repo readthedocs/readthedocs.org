@@ -125,7 +125,6 @@ class CommunityBaseSettings(Settings):
 
     # Content Security Policy
     # https://django-csp.readthedocs.io/
-    CSP_BLOCK_ALL_MIXED_CONTENT = True
     CSP_DEFAULT_SRC = None  # This could be improved
     CSP_FRAME_ANCESTORS = ("'none'",)
     CSP_OBJECT_SRC = ("'none'",)
