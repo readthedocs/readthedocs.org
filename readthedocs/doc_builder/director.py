@@ -662,6 +662,7 @@ class BuildDirector:
             # "READTHEDOCS_GIT_HTML_URL": self.data.project.remote_repository.html_url,
             "READTHEDOCS_GIT_IDENTIFIER": self.data.version.identifier,
             "READTHEDOCS_GIT_COMMIT_HASH": self.data.build["commit"],
+            "READTHEDOCS_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         }
         return env
 
