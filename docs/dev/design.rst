@@ -47,6 +47,6 @@ making changes that render older browsers utterly unusable (or provide a sane fa
 Brand guidelines
 ----------------
 
-Find our branding guidelines in our guidelines documentation: https://read-the-docs-guidelines.readthedocs-hosted.com.
+Find our branding guidelines in our guidelines documentation: https://brand-guidelines.readthedocs.org.
 
 .. _Read the Docs GitHub project: https://github.com/readthedocs/readthedocs.org/pulls

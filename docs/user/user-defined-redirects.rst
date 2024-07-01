@@ -29,7 +29,7 @@ Built-in redirects
 
 This section explains the redirects that are automatically active for all projects and how they are useful.
 Built-in redirects are especially useful for creating and sharing incoming links,
-which is discussed indepth in :doc:`/guides/best-practice/links`.
+which is discussed in depth in :doc:`/guides/best-practice/links`.
 
 .. _page_redirects:
 

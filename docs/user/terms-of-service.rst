@@ -310,7 +310,7 @@ Read the Docs trademarks and logos
 If you'd like to use Read the Docs's trademarks,
 you must follow all of our `trademark guidelines`_.
 
-.. _trademark guidelines: https://read-the-docs-guidelines.readthedocs-hosted.com/
+.. _trademark guidelines: https://brand-guidelines.readthedocs.org/
 
 
 API terms
