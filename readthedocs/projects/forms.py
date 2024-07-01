@@ -188,6 +188,7 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
             )
 
         if msg:
+            # TODO use a proper error/warning instead of help text for error states
             field = self.fields["external_builds_enabled"]
             field.disabled = True
             field.help_text = f"{msg} {field.help_text}"
