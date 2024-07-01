@@ -28,7 +28,15 @@ Warning banner
     A warning banner is shown at the top of documentation pages
     to let readers know that this version isn't the main version for the project.
 
-    .. note:: Warning banners are available only for :doc:`Sphinx projects </intro/getting-started-with-sphinx>`.
+    .. note:: Warning banners are available only for :doc:`Sphinx projects </intro/getting-started-with-sphinx>` or projects using :doc:`Read the Docs Addons </addons>`.
+
+DocDiff
+    DocDiff shows proposed changes by visually highlighting the differences between the current pull request and the latest version of the project's documentation.
+
+    Press ``d`` to toggle between DocDiff and normal pull request preview.
+
+    .. note:: DocDiff is available only for projects using :doc:`Read the Docs Addons </addons>`.
+
 
 .. seealso::
 

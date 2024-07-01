@@ -22,6 +22,7 @@ Read the Docs: documentation simplified
    /config-file/v2
    /automation-rules
    /guides/reproducible-builds
+   /addons
 
 .. toctree::
    :maxdepth: 2
