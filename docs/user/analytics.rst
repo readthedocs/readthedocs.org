@@ -1,8 +1,7 @@
 How to use traffic analytics
 ============================
 
-In this guide, you can learn to use Read the Docs' built-in traffic analytics for your documentation project.
-You will also learn how to optionally add your own Google Analytics account or completely disable Google Analytics on your project.
+This guide covers traffic analytics for your documentation project, either built-in or provided through Read the Docs Addons. You can also learn how to enable or disable Google Analytics.
 
 Traffic Analytics lets you see *which* documents your users are reading.
 This allows you to understand how your documentation is being used,
@@ -35,8 +34,8 @@ Enabling Google Analytics on your project
 Read the Docs has native support for Google Analytics.
 You can enable it by:
 
-* Going to :guilabel:`Admin` > :guilabel:`Settings` in your project.
-* Fill in the **Analytics code** heading with your Google Tracking ID (example `UA-123456674-1`)
+#. Going to :guilabel:`Admin` > :guilabel:`Settings` in your project.
+#. Fill in the **Analytics code** heading with your Google Tracking ID (example `UA-123456674-1`)
 
 .. figure:: /_static/images/google-analytics-options.png
    :width: 80%
