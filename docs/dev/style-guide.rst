@@ -55,11 +55,14 @@ Linting
 ReStructuredText for both the RTD user documentation and this developer documentation is linted with `pre-commit` for broken links,
 whitespace consistency, and other minor issues.
 
-You can fix many linting issues automatically by installing and running `pre-commit` locally. To run it on content you have have already committed, use the ``--from-ref`` and ``--to-ref`` `flags <https://pre-commit.com/#pre-commit-run>`__.
+You can fix many linting issues automatically by installing and running `pre-commit` locally.
+To run it on content you have have already committed, use the ``--from-ref`` and ``--to-ref`` `flags <https://pre-commit.com/#pre-commit-run>`__.
 
-```
-❯ pre-commit run --from-ref <OLDER_COMMIT> --to-ref <RECENT_COMMIT>
-```
+.. code-block:: bash
+
+   pre-commit run --from-ref <OLDER_COMMIT> --to-ref <RECENT_COMMIT>
+
+Or use ``pre-commit run --all-files`` to lint all files.
 
 Word list
 ---------
