@@ -5,6 +5,7 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 import os
+import shutil
 import signal
 import socket
 import subprocess
@@ -605,7 +606,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # These output format does not support multiple files yet.
             # In case multiple files are found, the upload for this format is not performed.
             if artifact_type in ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT:
-                artifact_format_files = len(os.listdir(artifact_directory))
+                list_dir = os.listdir(artifact_directory)
+                artifact_format_files = len(list_dir)
                 if artifact_format_files > 1:
                     log.error(
                         "Multiple files are not supported for this format. "
@@ -625,6 +627,21 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                             "artifact_type": artifact_type,
                         },
                     )
+
+                # Rename file as "<project_slug>-<version_slug>.<artifact_type>",
+                # which is the filename that Proxito serves for offline formats.
+                filename = list_dir[0]
+                _, extension = filename.rsplit(".")
+                shutil.move(
+                    os.path.join(
+                        artifact_directory,
+                        list_dir[0],
+                    ),
+                    os.path.join(
+                        artifact_directory,
+                        f"{self.data.project.slug}.{extension}",
+                    ),
+                )
 
             # If all the conditions were met, the artifact is valid
             valid_artifacts.append(artifact_type)
