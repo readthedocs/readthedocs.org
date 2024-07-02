@@ -994,32 +994,6 @@ class TestAdditionalDocViews(BaseDocServing):
             "/en/latest/",
         )
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_directory_indexes_readme_serving(self, storage_open):
-        self.project.versions.update(active=True, built=True)
-
-        get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path="readme-exists/README.html",
-            name="README.html",
-        )
-
-        # Confirm we've serving from storage for the `index-exists/index.html` file
-        response = self.client.get(
-            reverse(
-                "proxito_404_handler",
-                kwargs={"proxito_path": "/en/latest/readme-exists"},
-            ),
-            headers={"host": "project.readthedocs.io"},
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response["location"],
-            "/en/latest/readme-exists/README.html",
-        )
-
     def test_directory_indexes_get_args(self):
         self.project.versions.update(active=True, built=True)
         get(
@@ -1074,71 +1048,6 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
         storage_open.assert_called_once_with("html/project/fancy-version/404.html")
-
-    def test_redirects_to_correct_index_ending_with_slash(self):
-        """When the path ends with a slash, we try README.html as index."""
-        self.project.versions.update(active=True, built=True)
-        version = fixture.get(
-            Version,
-            slug="fancy-version",
-            privacy_level=constants.PUBLIC,
-            active=True,
-            built=True,
-            project=self.project,
-            documentation_type=SPHINX,
-        )
-
-        get(
-            HTMLFile,
-            project=self.project,
-            version=version,
-            path="not-found/README.html",
-            name="README.html",
-        )
-        response = self.client.get(
-            reverse(
-                "proxito_404_handler",
-                kwargs={"proxito_path": "/en/fancy-version/not-found/"},
-            ),
-            headers={"host": "project.readthedocs.io"},
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response["location"], "/en/fancy-version/not-found/README.html"
-        )
-
-    def test_redirects_to_correct_index_ending_without_slash(self):
-        """When the path doesn't end with a slash, we try both, index.html and README.html."""
-        self.project.versions.update(active=True, built=True)
-        version = fixture.get(
-            Version,
-            slug="fancy-version",
-            privacy_level=constants.PUBLIC,
-            active=True,
-            built=True,
-            project=self.project,
-            documentation_type=SPHINX,
-        )
-
-        get(
-            HTMLFile,
-            project=self.project,
-            version=version,
-            path="not-found/README.html",
-            name="README.html",
-        )
-
-        response = self.client.get(
-            reverse(
-                "proxito_404_handler",
-                kwargs={"proxito_path": "/en/fancy-version/not-found"},
-            ),
-            headers={"host": "project.readthedocs.io"},
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response["location"], "/en/fancy-version/not-found/README.html"
-        )
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_404_index_redirect_skips_not_built_versions(self, storage_open):

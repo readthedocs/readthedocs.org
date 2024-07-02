@@ -41,7 +41,6 @@ from readthedocs.proxito.views.mixins import (
     ServeRedirectMixin,
     StorageFileNotFound,
 )
-from readthedocs.proxito.views.utils import allow_readme_html_as_index
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
@@ -389,7 +388,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         This does a couple of things:
 
         * Handles directory indexing for URLs that don't end in a slash
-        * Handles directory indexing for README.html (for now)
         * Check for user redirects
         * Record the broken link for analytics
         * Handles custom 404 serving
@@ -491,7 +489,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         # Check and perform redirects on 404 handler for non-external domains only.
         # NOTE: This redirect check must be done after trying files like
-        # ``index.html`` and ``README.html`` to emulate the behavior we had when
+        # ``index.html`` to emulate the behavior we had when
         # serving directly from NGINX without passing through Python.
         if not unresolved_domain.is_from_external_domain:
             try:
@@ -642,23 +640,9 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         For example:
 
         - /en/latest/foo -> /en/latest/foo/index.html
-        - /en/latest/foo -> /en/latest/foo/README.html
-        - /en/latest/foo/ -> /en/latest/foo/README.html
         """
 
-        if allow_readme_html_as_index():
-            tryfiles = ["index.html", "README.html"]
-            # If the path ends with `/`, we already tried to serve
-            # the `/index.html` file, so we only need to test for
-            # the `/README.html` file.
-            if full_path.endswith("/"):
-                tryfiles = ["README.html"]
-        else:
-            tryfiles = ["index.html"]
-
-        tryfiles = [
-            (filename.rstrip("/") + f"/{tryfile}").lstrip("/") for tryfile in tryfiles
-        ]
+        tryfiles = ["index.html"]
         available_index_files = list(
             HTMLFile.objects.filter(version=version, path__in=tryfiles).values_list(
                 "path", flat=True
@@ -672,10 +656,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             log.info("Redirecting to index file.", tryfile=tryfile)
             # Use urlparse so that we maintain GET args in our redirect
             parts = urlparse(full_path)
-            if allow_readme_html_as_index() and tryfile.endswith("README.html"):
-                new_path = parts.path.rstrip("/") + "/README.html"
-            else:
-                new_path = parts.path.rstrip("/") + "/"
+            new_path = parts.path.rstrip("/") + "/"
 
             # `full_path` doesn't include query params.`
             query = urlparse(request.get_full_path()).query
