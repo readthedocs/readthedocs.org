@@ -232,8 +232,9 @@ BUILD_MESSAGES = [
         header=_("No HTML content found"),
         body=_(
             textwrap.dedent(
-                f"""
-             No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.
+                """
+             No content was output to the path "$READTHEDOCS_OUTPUT/html".
+             Read more about <a href="https://docs.readthedocs.io/page/build-customization.html#where-to-put-files">where to put your built files</a>.
              """
             ).strip(),
         ),

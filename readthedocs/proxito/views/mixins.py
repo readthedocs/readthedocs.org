@@ -270,7 +270,7 @@ class ServeDocsMixin:
         return serve(request, path, root_path)
 
     def _serve_401(self, request, project):
-        res = render(request, "401.html")
+        res = render(request, "errors/proxito/401.html")
         res.status_code = 401
         log.debug("Unauthorized access to documentation.", project_slug=project.slug)
         return res

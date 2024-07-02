@@ -1,6 +1,7 @@
 """URLs that require login."""
 from django.urls import path, re_path
 
+from readthedocs.core.views import PageNotFoundView
 from readthedocs.organizations.views import private as views
 
 urlpatterns = [
@@ -80,5 +81,13 @@ urlpatterns = [
         r"^(?P<slug>[\w.-]+)/teams/(?P<team>[\w.-]+)/members/(?P<member>\d+)/revoke/$",
         views.DeleteOrganizationTeamMember.as_view(),
         name="organization_team_member_delete",
+    ),
+    # Placeholder URL, so that we can test the new templates
+    # with organizations enabled from our community codebase.
+    # TODO: migrate this functionality from corporate to community.
+    re_path(
+        r"^(?P<slug>[\w.-]+)/authorization/$",
+        PageNotFoundView.as_view(),
+        name="organization_sso",
     ),
 ]
