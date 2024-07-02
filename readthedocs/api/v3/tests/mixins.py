@@ -28,6 +28,7 @@ from readthedocs.subscriptions.notifications import MESSAGE_ORGANIZATION_DISABLE
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.io",
     PRODUCTION_DOMAIN="readthedocs.org",
+    RTD_EXTERNAL_VERSION_DOMAIN="external-builds.readthedocs.io",
     RTD_BUILD_MEDIA_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest",
     RTD_ALLOW_ORGANIZATIONS=False,
 )
