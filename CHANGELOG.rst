@@ -1,3 +1,19 @@
+Version 11.1.2
+--------------
+
+:Date: July 02, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11442 <https://github.com/readthedocs/readthedocs.org/pull/11442>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Run iri_to_uri on header values (`#11439 <https://github.com/readthedocs/readthedocs.org/pull/11439>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.1.1 (`#11438 <https://github.com/readthedocs/readthedocs.org/pull/11438>`__)
+* `@humitos <https://github.com/humitos>`__: Sales: send a Slack message to be able to contact the customer (`#11437 <https://github.com/readthedocs/readthedocs.org/pull/11437>`__)
+* `@humitos <https://github.com/humitos>`__: Organization: disable organization on non-active subscription (`#11430 <https://github.com/readthedocs/readthedocs.org/pull/11430>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: update copy for "No HTML content found" (`#11410 <https://github.com/readthedocs/readthedocs.org/pull/11410>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: API: support rebuilding external version builds with build create endpoint (`#11407 <https://github.com/readthedocs/readthedocs.org/pull/11407>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Minor refactor of Private Python packages page (`#11395 <https://github.com/readthedocs/readthedocs.org/pull/11395>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: run tests with the ext-theme (`#11383 <https://github.com/readthedocs/readthedocs.org/pull/11383>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Pull Request builds page to settings (`#10656 <https://github.com/readthedocs/readthedocs.org/pull/10656>`__)
+
 Version 11.1.1
 --------------
 

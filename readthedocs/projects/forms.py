@@ -1,4 +1,5 @@
 """Project forms."""
+
 import json
 from random import choice
 from re import fullmatch
@@ -95,6 +96,109 @@ class ProjectBackendForm(forms.Form):
     """Get the import backend."""
 
     backend = forms.CharField()
+
+
+class ProjectPRBuildsMixin(PrevalidatedForm):
+
+    """
+    Mixin that provides a method to setup the external builds option.
+
+    TODO: Remove this once we migrate to the new dashboard,
+    and we don't need to support the old project settings form.
+    """
+
+    def has_supported_integration(self, integrations):
+        supported_types = {Integration.GITHUB_WEBHOOK, Integration.GITLAB_WEBHOOK}
+        for integration in integrations:
+            if integration.integration_type in supported_types:
+                return True
+        return False
+
+    def can_build_external_versions(self, integrations):
+        """
+        Check if external versions can be enabled for this project.
+
+        A project can build external versions if:
+
+        - They are using GitHub or GitLab.
+        - The repository's webhook is setup to send pull request events.
+
+        If the integration's provider data isn't set,
+        it could mean that the user created the integration manually,
+        and doesn't have an account connected.
+        So we don't know for sure if the webhook is sending pull request events.
+        """
+        for integration in integrations:
+            provider_data = integration.provider_data
+            if integration.integration_type == Integration.GITHUB_WEBHOOK and (
+                not provider_data or "pull_request" in provider_data.get("events", [])
+            ):
+                return True
+            if integration.integration_type == Integration.GITLAB_WEBHOOK and (
+                not provider_data or provider_data.get("merge_requests_events")
+            ):
+                return True
+        return False
+
+    def setup_external_builds_option(self):
+        """Disable the external builds option if the project doesn't meet the requirements."""
+        if (
+            settings.ALLOW_PRIVATE_REPOS
+            and self.instance.remote_repository
+            and not self.instance.remote_repository.private
+        ):
+            self.fields["external_builds_privacy_level"].disabled = True
+            # TODO use a proper error/warning instead of help text for error states
+            help_text = _(
+                "We have detected that this project is public, pull request previews are set to public."
+            )
+            self.fields["external_builds_privacy_level"].help_text = help_text
+
+    def clean_prevalidation(self):
+        """Disable the external builds option if the project doesn't meet the requirements."""
+        integrations = list(self.instance.integrations.all())
+        has_supported_integration = self.has_supported_integration(integrations)
+        can_build_external_versions = self.can_build_external_versions(integrations)
+
+        # External builds are supported for this project,
+        # don't disable the option.
+        if has_supported_integration and can_build_external_versions:
+            return
+
+        msg = None
+        url = reverse("projects_integrations", args=[self.instance.slug])
+
+        if not has_supported_integration:
+            msg = _(
+                "To build from pull requests you need a "
+                f'GitHub or GitLab <a href="{url}">integration</a>.'
+            )
+
+        if has_supported_integration and not can_build_external_versions:
+            # If there is only one integration, link directly to it.
+            if len(integrations) == 1:
+                url = reverse(
+                    "projects_integrations_detail",
+                    args=[self.instance.slug, integrations[0].pk],
+                )
+            msg = _(
+                "To build from pull requests your repository's webhook "
+                "needs to send pull request events. "
+                f'Try to <a href="{url}">resync your integration</a>.'
+            )
+
+        if msg:
+            # TODO use a proper error/warning instead of help text for error states
+            field = self.fields["external_builds_enabled"]
+            field.disabled = True
+            field.help_text = f"{msg} {field.help_text}"
+            # Don't raise an error on the Update form,
+            # to keep backwards compat
+            if not self.fields.get("name"):
+                raise RichValidationError(
+                    msg,
+                    header=_("Pull request builds not supported"),
+                )
 
 
 class ProjectFormPrevalidateMixin:
@@ -292,6 +396,7 @@ class ProjectConfigForm(forms.Form):
 class UpdateProjectForm(
     ProjectTriggerBuildMixin,
     ProjectBasicsForm,
+    ProjectPRBuildsMixin,
 ):
 
     """Main project settings form."""
@@ -382,83 +487,6 @@ class UpdateProjectForm(
             self.fields["default_version"].widget.attrs["readonly"] = True
 
         self.setup_external_builds_option()
-
-    def setup_external_builds_option(self):
-        """Disable the external builds option if the project doesn't meet the requirements."""
-        if (
-            settings.ALLOW_PRIVATE_REPOS
-            and self.instance.remote_repository
-            and not self.instance.remote_repository.private
-        ):
-            self.fields["external_builds_privacy_level"].disabled = True
-            help_text = _(
-                "We have detected that this project is public, pull request previews are set to public."
-            )
-            self.fields["external_builds_privacy_level"].help_text = help_text
-
-        integrations = list(self.instance.integrations.all())
-        has_supported_integration = self.has_supported_integration(integrations)
-        can_build_external_versions = self.can_build_external_versions(integrations)
-
-        # External builds are supported for this project,
-        # don't disable the option.
-        if has_supported_integration and can_build_external_versions:
-            return
-
-        msg = None
-        url = reverse("projects_integrations", args=[self.instance.slug])
-        if not has_supported_integration:
-            msg = _(
-                f'To build from pull requests you need a GitHub or GitLab <a href="{url}">integration</a>.'
-            )
-        if has_supported_integration and not can_build_external_versions:
-            # If there is only one integration, link directly to it.
-            if len(integrations) == 1:
-                url = reverse(
-                    "projects_integrations_detail",
-                    args=[self.instance.slug, integrations[0].pk],
-                )
-            msg = _(
-                f'To build from pull requests your repository\'s webhook needs to send pull request events. Try to <a href="{url}">resync your integration</a>.'
-            )
-
-        if msg:
-            field = self.fields["external_builds_enabled"]
-            field.disabled = True
-            field.help_text = f"{msg} {field.help_text}"
-
-    def has_supported_integration(self, integrations):
-        supported_types = {Integration.GITHUB_WEBHOOK, Integration.GITLAB_WEBHOOK}
-        for integration in integrations:
-            if integration.integration_type in supported_types:
-                return True
-        return False
-
-    def can_build_external_versions(self, integrations):
-        """
-        Check if external versions can be enabled for this project.
-
-        A project can build external versions if:
-
-        - They are using GitHub or GitLab.
-        - The repository's webhook is setup to send pull request events.
-
-        If the integration's provider data isn't set,
-        it could mean that the user created the integration manually,
-        and doesn't have an account connected.
-        So we don't know for sure if the webhook is sending pull request events.
-        """
-        for integration in integrations:
-            provider_data = integration.provider_data
-            if integration.integration_type == Integration.GITHUB_WEBHOOK and (
-                not provider_data or "pull_request" in provider_data.get("events", [])
-            ):
-                return True
-            if integration.integration_type == Integration.GITLAB_WEBHOOK and (
-                not provider_data or provider_data.get("merge_requests_events")
-            ):
-                return True
-        return False
 
     def clean_readthedocs_yaml_path(self):
         """
@@ -569,6 +597,24 @@ class ProjectRelationshipForm(forms.ModelForm):
                 _("A subproject with this alias already exists"),
             )
         return alias
+
+
+class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
+
+    """Project pull requests configuration form."""
+
+    class Meta:
+        model = Project
+        fields = ["external_builds_enabled", "external_builds_privacy_level"]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+        self.setup_external_builds_option()
+
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("external_builds_privacy_level")
 
 
 class AddonsConfigForm(forms.ModelForm):

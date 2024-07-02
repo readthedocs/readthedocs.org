@@ -369,8 +369,21 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
     def create(self, request, **kwargs):  # pylint: disable=arguments-differ
         project = self._get_parent_project()
         version = self._get_parent_version()
+        build_retry = None
+        commit = None
 
-        _, build = trigger_build(project, version=version)
+        if version.is_external:
+            # We use the last build for a version here as we want to update VCS
+            # providers and need to reference the latest commit to do so.
+            build_retry = version.last_build
+            if build_retry:
+                commit = build_retry.commit
+
+        _, build = trigger_build(
+            project=project,
+            version=version,
+            commit=commit,
+        )
 
         # TODO: refactor this to be a serializer
         # BuildTriggeredSerializer(build, project, version).data
