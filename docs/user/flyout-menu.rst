@@ -8,8 +8,30 @@ you will likely notice that we embed a menu on all the documentation pages we se
 This is a way to expose the functionality of Read the Docs on the page,
 without having to have the documentation theme integrate it directly.
 
-Functionality
--------------
+There are two versions of the flyout menu:
+
+- :ref:`flyout-menu:Addons flyout menu`
+- :ref:`flyout-menu:Original flyout menu`
+
+Addons flyout menu
+------------------
+
+The updated :doc:`addons` flyout menu lists available documentation versions and translations, as well as useful links,
+offline formats, and a search bar.
+
+.. figure:: /_static/images/flyout-addons.png
+   :align: center
+
+   The opened flyout
+
+Customizing the look of the addons flyout menu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The addons flyout exposes all the required data to build the flyout menu via a JavaScript ``CustomEvent``.
+Take a look at an example of this approach at https://github.com/readthedocs/sphinx_rtd_theme/pull/1526.
+
+Original flyout menu
+--------------------
 
 The flyout menu provides access to the following bits of Read the Docs functionality:
 
@@ -19,40 +41,25 @@ The flyout menu provides access to the following bits of Read the Docs functiona
 * Links to your :doc:`VCS provider </integrations>` that allow the user to quickly find the exact file that the documentation was rendered from.
 * A search bar that gives users access to our :doc:`/server-side-search/index` of the current version.
 
-Closed
-~~~~~~
-
-.. figure:: /_static/images/flyout-closed.png
-   :align: center
-
-   The flyout when it's closed
-
-Open
-~~~~
-
 .. figure:: /_static/images/flyout-open.png
    :align: center
 
    The opened flyout
 
 Information for theme authors
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. warning::
 
-   *This is currently deprecated* in favor of the new Read the Docs Addons approach.
-   We are working on an idea that exposes all the required data to build the flyout menu via a JavaScript ``CustomEvent``.
-   Take a look at an example of this approach at https://github.com/readthedocs/sphinx_rtd_theme/pull/1526.
-
-   We are looking for feedback on this approach before making it public.
-   Please, comment on that PR or the linked issue from its description letting us know if it would cover your use case.
+   The original flyout menu could be themed by injecting code with JavaScript.
+   This approach is currently deprecated* in favor of the new Read the Docs Addons approach.
 
 People who are making custom documentation themes often want to specify where the flyout is injected,
 and also what it looks like.
 We support both of these use cases for themes.
 
-Defining where the flyout menu is injected
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[Deprecated] Defining where the flyout menu is injected
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The flyout menu injection looks for a specific selector (``#readthedocs-embed-flyout``),
 in order to inject the flyout.
@@ -60,8 +67,8 @@ You can add ``<div id="readthedocs-embed-flyout">`` in your theme,
 and our JavaScript code will inject the flyout there.
 All other themes except for the ``sphinx_rtd_theme`` have the flyout appended to the ``<body>``.
 
-Styling the flyout
-~~~~~~~~~~~~~~~~~~
+[Deprecated] Styling the flyout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 HTML themes can style the flyout to make it match the overall style of the HTML.
 By default the flyout has it's `own CSS file <https://github.com/readthedocs/sphinx_rtd_theme/blob/master/src/sass/_theme_badge.sass>`_,

@@ -24,8 +24,8 @@ Build status report
 
        GitHub build status reporting
 
-Warning banner
-    A warning banner is shown at the top of documentation pages
+Pull request banner
+    A pull request banner is shown at the top of documentation pages
     to let readers know that this version isn't the main version for the project.
 
     .. note:: Warning banners are available only for :doc:`Sphinx projects </intro/getting-started-with-sphinx>` or projects using :doc:`Read the Docs Addons </addons>`.

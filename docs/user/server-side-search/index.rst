@@ -6,6 +6,9 @@ this is powered by Elasticsearch_.
 You can search all projects at https://readthedocs.org/search/,
 or search only on your project from the :guilabel:`Search` tab of your project.
 
+If you're using :doc:`/addons`, you also get :ref:`server-side-search/index:search as you type` built in,
+either from the :doc:`/flyout-menu` or from the :guilabel:`Search` tab of your project
+
 .. seealso::
 
    :doc:`/server-side-search/syntax`

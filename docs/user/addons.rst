@@ -5,6 +5,12 @@ Read the Docs Addons
 
 - :doc:`Traffic analytics </analytics>`
 - :doc:`DocDiff </pull-requests>`
+- :doc:`Pull request notification </pull-requests>`
+- :doc:`Flyout </flyout-menu>`
+- :doc:`Non-stable notification </notifications>`
+- :doc:`Latest version notification </notifications>`
+- :doc:`Search as you type </server-side-search/index>`
+- :ref:`Sponsorship <sponsors:sponsorship information>`
 
 Enabling Read the Docs Addons
 -----------------------------

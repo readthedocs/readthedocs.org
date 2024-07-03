@@ -63,6 +63,7 @@ Read the Docs: documentation simplified
    /server-side-search/index
    /server-side-search/syntax
    /flyout-menu
+   /notifications
 
 .. toctree::
    :maxdepth: 2
