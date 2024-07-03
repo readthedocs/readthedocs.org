@@ -9,6 +9,17 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     :Default: ``True``
 
+.. envvar:: READTHEDOCS_PRODUCTION_DOMAIN
+
+    Domain where Read the Docs application/dashboard and API are running.
+
+    :Example: ``readthedocs.org``
+    :Example: ``readthedocs.com``
+    :Example: ``app.readthedocs.org``
+    :Example: ``app.readthedocs.com``
+    :Example: ``devthedocs.org``
+    :Example: ``devthedocs.com``
+
 .. envvar:: READTHEDOCS_PROJECT
 
     The :term:`slug` of the project being built. For example, ``my-example-project``.
