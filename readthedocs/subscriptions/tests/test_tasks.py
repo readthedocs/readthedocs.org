@@ -10,10 +10,7 @@ from djstripe import models as djstripe
 from djstripe.enums import InvoiceStatus, SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
-from readthedocs.subscriptions.tasks import (
-    daily_email,
-    disable_organization_expired_trials,
-)
+from readthedocs.subscriptions.tasks import daily_email
 
 
 @override_settings(
@@ -124,78 +121,3 @@ class DailyEmailTests(TestCase):
                 ),
             ]
         )
-
-
-@override_settings(
-    RTD_ALLOW_ORGANIZATIONS=True,
-    RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
-)
-class SubscriptionTasksTests(TestCase):
-    def test_disable_organizations_with_expired_trial(self):
-        price = get(djstripe.Price, id="trialing")
-
-        # Active trial subscription
-        subscription1 = get(
-            djstripe.Subscription,
-            status=SubscriptionStatus.active,
-            customer=get(djstripe.Customer),
-        )
-        get(
-            djstripe.SubscriptionItem,
-            price=price,
-            quantity=1,
-            subscription=subscription1,
-        )
-        organization_with_active_subscription = get(
-            Organization,
-            stripe_subscription=subscription1,
-            stripe_customer=subscription1.customer,
-        )
-
-        # Canceled trial subscription
-        subscription2 = get(
-            djstripe.Subscription,
-            status=SubscriptionStatus.canceled,
-            customer=get(djstripe.Customer),
-            ended_at=timezone.now() - timedelta(days=30),
-        )
-        get(
-            djstripe.SubscriptionItem,
-            price=price,
-            quantity=1,
-            subscription=subscription2,
-        )
-        organization_with_canceled_trial_subscription = get(
-            Organization,
-            stripe_subscription=subscription2,
-            stripe_customer=subscription2.customer,
-        )
-
-        # Canceled subscription
-        subscription3 = get(
-            djstripe.Subscription,
-            status=SubscriptionStatus.canceled,
-            customer=get(djstripe.Customer),
-            ended_at=timezone.now() - timedelta(days=30),
-        )
-        get(
-            djstripe.SubscriptionItem,
-            quantity=1,
-            subscription=subscription3,
-        )
-        organization_with_canceled_subscription = get(
-            Organization,
-            stripe_subscription=subscription3,
-            stripe_customer=subscription3.customer,
-        )
-
-        disable_organization_expired_trials()
-
-        organization_with_active_subscription.refresh_from_db()
-        self.assertFalse(organization_with_active_subscription.disabled)
-
-        organization_with_canceled_trial_subscription.refresh_from_db()
-        self.assertTrue(organization_with_canceled_trial_subscription.disabled)
-
-        organization_with_canceled_subscription.refresh_from_db()
-        self.assertFalse(organization_with_canceled_subscription.disabled)

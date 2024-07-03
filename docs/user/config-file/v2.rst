@@ -130,6 +130,9 @@ Configuration of the Python environment to be used.
 python.install
 ``````````````
 
+Read the Docs uses :doc:`pip <pip:index>` by  default to install your Python packages, however if you are using a :ref:`Conda <config-file/v2:conda>` environment to manage your build, you'll need to use the Conda ``environment`` file instead.
+If you have a commercial plan you can also install :doc:`private dependencies </guides/private-python-packages>`.
+
 List of installation methods of packages and requirements.
 You can have several of the following methods.
 
@@ -158,16 +161,11 @@ Example:
        - requirements: docs/requirements.txt
        - requirements: requirements.txt
 
-.. warning::
-
-  If you are using a :ref:`Conda <config-file/v2:conda>` environment to
-  manage the build, this setting will not have any effect. Instead
-  add the extra requirements to the ``environment`` file of Conda.
-
 Packages
 ''''''''
 
-Install the project using ``pip install`` (recommended) or ``python setup.py install`` (deprecated).
+Install the project using ``pip install``.
+The use of ``python setup.py install`` is deprecated.
 
 The path to the package, relative to the root of the project.
 
@@ -186,15 +184,11 @@ The installation method.
 .. _Extra Requirements: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#optional-dependencies
 .. _package dependencies: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#declaring-required-dependency
 
-.. warning::
-
-   You need to install your project with ``pip`` to use ``extra_requirements``.
-
 :Key: ``extra_requirements``
 :Type: ``list``
 :Default: ``[]``
 
-Example:
+For example, to run ``pip install .[docs]``:
 
 .. code-block:: yaml
 
@@ -206,12 +200,6 @@ Example:
          path: .
          extra_requirements:
            - docs
-
-With the previous settings, Read the Docs will execute the next commands:
-
-.. prompt:: bash $
-
-   pip install .[docs]
 
 conda
 ~~~~~
