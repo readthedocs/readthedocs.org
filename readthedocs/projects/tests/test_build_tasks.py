@@ -361,7 +361,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "READTHEDOCS_VERSION_NAME": self.version.verbose_name,
             "READTHEDOCS_PROJECT": self.project.slug,
             "READTHEDOCS_LANGUAGE": self.project.language,
-            "READTHEDOCS_OUTPUT": os.path.join(
+            "READTHEDOCS_REPOSITORY_PATH": os.path.join(
                 self.project.checkout_path(self.version.slug),
             ),
             "READTHEDOCS_OUTPUT": os.path.join(
