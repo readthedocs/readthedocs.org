@@ -6,9 +6,6 @@ this is powered by Elasticsearch_.
 You can search all projects at https://readthedocs.org/search/,
 or search only on your project from the :guilabel:`Search` tab of your project.
 
-If you're using :doc:`/addons`, you also get :ref:`server-side-search/index:search as you type` built in,
-either from the :doc:`/flyout-menu` or from the :guilabel:`Search` tab of your project
-
 .. seealso::
 
    :doc:`/server-side-search/syntax`
@@ -83,14 +80,7 @@ Analytics
 Search as you type
 ------------------
 
-`readthedocs-sphinx-search`_ is a Sphinx extension that integrates your
-documentation more closely with the search implementation of Read the Docs.
-It adds a clean and minimal full-page search UI that supports a **search as you type** feature.
+Search as-you-type allows users to quickly find exactly what they are looking for while typing.
+It also saves recent searches, for future reference.
 
-To try this feature,
-you can press :guilabel:`/` (forward slash) and start typing or just visit these URLs:
-
-- https://docs.readthedocs.io/?rtd_search=contributing
-- https://docs.readthedocs.io/?rtd_search=api/v3/projects/
-
-.. _readthedocs-sphinx-search: https://readthedocs-sphinx-search.readthedocs.io/
+Try it by pressing :guilabel:`/` (forward slash) and typing.

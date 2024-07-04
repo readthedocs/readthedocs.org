@@ -319,7 +319,7 @@ Some of the most valuable feedback these provide include:
 Analytics tools
 ~~~~~~~~~~~~~~~
 
-A tool like :ref:`Google Analytics <analytics:Enabling Google Analytics on your Project>`
+A tool like Google Analytics
 can give you feedback about the search terms people use to find your docs,
 your most popular pages, and lots of other useful data.
 

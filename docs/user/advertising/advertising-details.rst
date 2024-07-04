@@ -117,17 +117,6 @@ The developers at Read the Docs understand that different users have different p
 and we try to respect the different viewpoints as much as possible while also accomplishing
 our own goals.
 
-We have taken steps to address some of the privacy concerns surrounding GA.
-These steps apply both to analytics collected by Read the Docs and when
-:ref:`authors enable analytics on their docs <analytics:Enabling Google Analytics on your Project>`.
-
-* Users can opt-out of analytics by using the Do Not Track feature of their browser.
-* Read the Docs instructs Google to anonymize IP addresses sent to them.
-* The cookie set by GA is a session (non-persistent) cookie rather than the default 2 years.
-* Project maintainers can completely disable analytics on their own projects.
-  Follow the steps in :ref:`analytics:Disabling Google Analytics on your project`.
-
-
 Why we use analytics
 ~~~~~~~~~~~~~~~~~~~~
 

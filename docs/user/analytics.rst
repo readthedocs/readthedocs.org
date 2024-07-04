@@ -1,7 +1,7 @@
 How to use traffic analytics
 ============================
 
-This guide covers traffic analytics for your documentation project, either built-in or provided through Read the Docs Addons. You can also learn how to enable or disable Google Analytics.
+This guide covers traffic analytics for your documentation project, either built-in or provided through Read the Docs Addons.
 
 Traffic Analytics lets you see *which* documents your users are reading.
 This allows you to understand how your documentation is being used,
@@ -27,44 +27,3 @@ You can also access analytics data from :doc:`search results </guides/search-ana
    * On the Community site, the last 90 days are stored.
    * On the Commercial one, it goes from 30 to infinite storage
       (check out `the pricing page <https://readthedocs.com/pricing/>`_).
-
-Enabling Google Analytics on your project
------------------------------------------
-
-Read the Docs has native support for Google Analytics.
-You can enable it by:
-
-#. Going to :guilabel:`Admin` > :guilabel:`Settings` in your project.
-#. Fill in the **Analytics code** heading with your Google Tracking ID (example `UA-123456674-1`)
-
-.. figure:: /_static/images/google-analytics-options.png
-   :width: 80%
-   :align: center
-   :alt: Options to manage Google Analytics
-
-   Options to manage Google Analytics
-
-Once your documentation rebuilds it will include your Analytics tracking code and start sending data.
-Google Analytics usually takes 60 minutes,
-and sometimes can take up to a day before it starts reporting data.
-
-.. note::
-
-   Read the Docs takes some extra precautions with analytics to protect user privacy.
-   As a result, users with Do Not Track enabled will not be counted
-   for the purpose of analytics.
-
-   For more details, see the
-   :ref:`Do Not Track section <privacy-policy:Do Not Track>`
-   of our privacy policy.
-
-Disabling Google Analytics on your project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Google Analytics can be completely disabled on your own projects.
-To disable Google Analytics:
-
-* Going to :guilabel:`Admin` > :guilabel:`Settings` in your project.
-* Check the box **Disable Analytics**.
-
-Your documentation will need to be rebuilt for this change to take effect.

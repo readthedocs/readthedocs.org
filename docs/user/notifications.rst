@@ -12,3 +12,5 @@ Non-stable notification
 Latest version notification
     A notification shown on the latest version tells readers they are reading the latest/development version of the documentation that may include features not yet deployed.
 
+Each of these notifcations can be configured in :ref:`addons:Configuring Read the Docs Addons`
+

@@ -22,7 +22,17 @@ offline formats, and a search bar.
 .. figure:: /_static/images/flyout-addons.png
    :align: center
 
-   The opened flyout
+   The opened flyout menu
+
+Customizing the flyout menu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In your dashboard, you can configure flyout menu options in :guilabel:`Settings`, under :guilabel:`Addons (Beta)`.
+
+Sort your versions :guilabel:`Alphabetically`, by :guilabel:`SemVer`, by :guilabel:`Python Packaging`,
+by :guilabel:`CalVer`, or define your own pattern.
+
+Choose whether to list stable versions first or not.
 
 Customizing the look of the addons flyout menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,7 +62,7 @@ Information for theme authors
 .. warning::
 
    The original flyout menu could be themed by injecting code with JavaScript.
-   This approach is currently deprecated* in favor of the new Read the Docs Addons approach.
+   This approach is currently *deprecated* in favor of the new Read the Docs Addons approach.
 
 People who are making custom documentation themes often want to specify where the flyout is injected,
 and also what it looks like.
