@@ -117,6 +117,14 @@ The developers at Read the Docs understand that different users have different p
 and we try to respect the different viewpoints as much as possible while also accomplishing
 our own goals.
 
+We have taken steps to address some of the privacy concerns surrounding GA.
+These steps apply to analytics only collected by Read the Docs,
+since project authors could follow a different policy if they add GA to their projects.
+
+* Users can opt-out of analytics by using the Do Not Track feature of their browser.
+* Read the Docs instructs Google to anonymize IP addresses sent to them.
+* The cookie set by GA is a session (non-persistent) cookie rather than the default 2 years.
+
 Why we use analytics
 ~~~~~~~~~~~~~~~~~~~~
 
