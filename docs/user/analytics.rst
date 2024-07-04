@@ -11,7 +11,7 @@ To see a list of the top pages from the last month,
 go to the :guilabel:`Admin` tab of your project,
 and then click on :guilabel:`Traffic Analytics`.
 
-.. figure:: /_static/images/traffic-analytics-demo.png
+.. figure:: /_static/images/addons-analytics.png
    :width: 50%
    :align: center
    :alt: Traffic analytics demo
