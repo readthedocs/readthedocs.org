@@ -2,6 +2,7 @@ import django_filters.rest_framework as filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Exists, OuterRef
+from django.shortcuts import get_object_or_404
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
@@ -477,6 +478,14 @@ class NotificationsBuildViewSet(
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
     filterset_class = NotificationFilter
+    # Permissions are checked at the queryset level.
+    # We need to show build notifications to anonymous
+    # users on public builds.
+    permission_classes = ()
+
+    def _get_parent_build(self):
+        pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
+        return get_object_or_404(Build.objects.api(user=self.request.user), pk=pk)
 
     def get_queryset(self):
         build = self._get_parent_build()

@@ -63,13 +63,9 @@ class PublicDetailPrivateListing(BasePermission):
         if view.detail and view.action in ("list", "retrieve", "superproject"):
             # detail view is only allowed on list/retrieve actions (not
             # ``update`` or ``partial_update``).
-            if view.basename not in (
-                "projects-notifications",
-                "projects-builds-notifications",
-            ):
-                # We don't want to give detail access to resources'
-                # notifications to users that don't have access to those
-                # resources.
+            if view.basename != "projects-notifications":
+                # We don't want to give detail access to projects'
+                # notifications to users that don't have access to the project.
                 return True
 
         if view.basename.startswith("projects"):
