@@ -10,6 +10,7 @@ import signal
 import socket
 import subprocess
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import structlog
 from celery import Task
@@ -41,6 +42,7 @@ from readthedocs.builds.signals import build_complete
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
+from readthedocs.core.utils.filesystem import assert_path_is_inside_expected_path
 from readthedocs.doc_builder.director import BuildDirector
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
@@ -630,13 +632,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
                 # Rename file as "<project_slug>-<version_slug>.<artifact_type>",
                 # which is the filename that Proxito serves for offline formats.
-                filename = list_dir[0]
-                _, extension = filename.rsplit(".")
+                filename = os.path.join(artifact_directory, list_dir[0])
+                _, extension = filename.rsplit(".", maxsplit=1)
+                output = os.path.join(
+                    self.data.project.checkout_path(self.data.version.slug),
+                    "_readthedocs/",
+                )
+                assert_path_is_inside_expected_path(Path(filename), Path(output))
                 shutil.move(
-                    os.path.join(
-                        artifact_directory,
-                        list_dir[0],
-                    ),
+                    filename,
                     os.path.join(
                         artifact_directory,
                         f"{self.data.project.slug}.{extension}",

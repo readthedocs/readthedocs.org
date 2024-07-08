@@ -25,11 +25,16 @@ MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024 * 1  # 1 GB
 
 
 def assert_path_is_inside_docroot(path):
+    """Assert that the given path is inside the DOCROOT directory."""
+    assert_path_is_inside_expected_path(path, Path(settings.DOCROOT).absolute())
+
+
+def assert_path_is_inside_expected_path(path, expected_path):
     """
-    Assert that the given path is inside the DOCROOT directory.
+    Assert that the given path is inside the expected path directory.
 
     Symlinks are resolved before checking, a SuspiciousFileOperation exception
-    will be raised if the path is outside the DOCROOT.
+    will be raised if the path is outside the expected path.
 
     .. warning::
 
@@ -37,11 +42,11 @@ def assert_path_is_inside_docroot(path):
        Users shouldn't be able to change files while this operation is done.
     """
     resolved_path = path.absolute().resolve()
-    docroot = Path(settings.DOCROOT).absolute()
-    if not path.is_relative_to(docroot):
+    if not path.is_relative_to(expected_path):
         log.error(
-            "Suspicious operation outside the docroot directory.",
+            "Suspicious operation outside the expected path directory.",
             path_resolved=str(resolved_path),
+            expected_path=str(expected_path),
         )
         raise SuspiciousFileOperation(path)
 
