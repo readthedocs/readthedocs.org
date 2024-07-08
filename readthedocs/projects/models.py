@@ -1896,6 +1896,7 @@ class Feature(models.Model):
     DONT_INSTALL_LATEST_PIP = "dont_install_latest_pip"
     USE_SPHINX_RTD_EXT_LATEST = "rtd_sphinx_ext_latest"
     INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
+    DISABLE_SPHINX_MANIPULATION = "disable_sphinx_manipulation"
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = "disable_server_side_search"
@@ -1973,6 +1974,12 @@ class Feature(models.Model):
                 "Build: Install all the latest versions of Read the Docs core requirements"
             ),
         ),
+        (
+            DISABLE_SPHINX_MANIPULATION,
+            _(
+                "Sphinx: Don't append `conf.py` and don't install ``readthedocs-sphinx-ext``"
+            ),
+        ),
         # Search related features.
         (
             DISABLE_SERVER_SIDE_SEARCH,
@@ -2033,7 +2040,7 @@ class Feature(models.Model):
         Because the field is not a ChoiceField here, we need to manually
         implement this behavior.
         """
-        return dict(self.FEATURES).get(self.feature_id, self.feature_id)
+        return str(dict(self.FEATURES).get(self.feature_id, self.feature_id))
 
 
 class EnvironmentVariable(TimeStampedModel, models.Model):

@@ -9,8 +9,6 @@ and adapted to use:
 """
 
 import django_dynamic_fixture as fixture
-import pytest
-from django.http import Http404
 from django.test.utils import override_settings
 
 from readthedocs.builds.constants import EXTERNAL
@@ -196,8 +194,8 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         redirect.enabled = False
         redirect.save()
 
-        with self.assertRaises(Http404):
-            self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 404)
 
     def test_redirect_order(self):
         redirect_a = fixture.get(
@@ -267,8 +265,8 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             slug="22",
             type=EXTERNAL,
         )
-        with self.assertRaises(Http404):
-            self.client.get(url, headers={"host": "project--22.readthedocs.build"})
+        r = self.client.get(url, headers={"host": "project--22.readthedocs.build"})
+        self.assertEqual(r.status_code, 404)
 
     def test_infinite_redirect(self):
         host = "project.dev.readthedocs.io"
@@ -279,11 +277,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             from_url="/en/latest/install.html",
             to_url="/en/latest/install.html",
         )
-        with pytest.raises(Http404):
-            self.client.get("/en/latest/install.html", headers={"host": host})
+        r = self.client.get("/en/latest/install.html", headers={"host": host})
+        self.assertEqual(r.status_code, 404)
 
-        with pytest.raises(Http404):
-            self.client.get("/en/latest/install.html?foo=bar", headers={"host": host})
+        r = self.client.get("/en/latest/install.html?foo=bar", headers={"host": host})
+        self.assertEqual(r.status_code, 404)
 
     def test_infinite_redirect_changing_protocol(self):
         host = "project.dev.readthedocs.io"
@@ -294,11 +292,12 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             from_url="/en/latest/install.html",
             to_url=f"https://{host}/en/latest/install.html",
         )
-        with pytest.raises(Http404):
-            self.client.get("/en/latest/install.html", headers={"host": host})
 
-        with pytest.raises(Http404):
-            self.client.get("/en/latest/install.html?foo=bar", headers={"host": host})
+        r = self.client.get("/en/latest/install.html", headers={"host": host})
+        self.assertEqual(r.status_code, 404)
+
+        r = self.client.get("/en/latest/install.html?foo=bar", headers={"host": host})
+        self.assertEqual(r.status_code, 404)
 
     def test_exact_redirect_avoid_infinite_redirect(self):
         """
@@ -335,10 +334,10 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/redirect/",
         )
 
-        with self.assertRaises(Http404):
-            self.client.get(
-                "/en/latest/redirect/", headers={"host": "project.dev.readthedocs.io"}
-            )
+        r = self.client.get(
+            "/en/latest/redirect/", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 404)
 
         fixture.get(
             Redirect,
@@ -356,11 +355,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/subdir/redirect.html",
         )
 
-        with self.assertRaises(Http404):
-            self.client.get(
-                "/en/latest/subdir/redirect.html",
-                headers={"host": "project.dev.readthedocs.io"},
-            )
+        r = self.client.get(
+            "/en/latest/subdir/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 404)
 
     def test_page_redirect_avoid_infinite_redirect(self):
         fixture.get(
@@ -379,11 +378,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/subdir/redirect.html",
         )
 
-        with self.assertRaises(Http404):
-            self.client.get(
-                "/en/latest/subdir/redirect.html",
-                headers={"host": "project.dev.readthedocs.io"},
-            )
+        r = self.client.get(
+            "/en/latest/subdir/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 404)
 
         fixture.get(
             Redirect,
@@ -402,11 +401,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/dir/subdir/redirect.html",
         )
 
-        with self.assertRaises(Http404):
-            self.client.get(
-                "/en/latest/dir/subdir/redirect.html",
-                headers={"host": "project.dev.readthedocs.io"},
-            )
+        r = self.client.get(
+            "/en/latest/dir/subdir/redirect.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 404)
 
     def test_exact_redirect_to_parent_path(self):
         self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
@@ -497,11 +496,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         )
 
         # Prefix redirects should match the whole path.
-        with self.assertRaises(Http404):
-            self.client.get(
-                "/en/latest/woot/faq.html",
-                headers={"host": "project.dev.readthedocs.io"},
-            )
+        r = self.client.get(
+            "/en/latest/woot/faq.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 404)
 
     def test_redirect_page(self):
         Redirect.objects.create(
@@ -860,11 +859,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             )
 
         with override_settings(PYTHON_MEDIA=True):
-            with self.assertRaises(Http404):
-                # File does not exist in storage media
-                r = self.client.get(
-                    "/en/latest/", headers={"host": "project.dev.readthedocs.io"}
-                )
+            # File does not exist in storage media
+            r = self.client.get(
+                "/en/latest/", headers={"host": "project.dev.readthedocs.io"}
+            )
+            self.assertEqual(r.status_code, 404)
 
     def test_redirect_html_index(self):
         fixture.get(
@@ -924,12 +923,12 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             to_url="/en/latest/:splat",
         )
 
-        with self.assertRaises(Http404):
-            # Avoid infinite redirect
-            r = self.client.get(
-                "/en/latest/section/file-not-found",
-                headers={"host": "project.dev.readthedocs.io"},
-            )
+        # Avoid infinite redirect
+        r = self.client.get(
+            "/en/latest/section/file-not-found",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 404)
 
     def test_page_redirect_with_and_without_trailing_slash(self):
         fixture.get(
@@ -1397,7 +1396,6 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
-            self.assertNotIn("X-RTD-Resolver-Filename", r.headers)
 
     def test_redirect_html_to_clean_url_crossdomain(self):
         """

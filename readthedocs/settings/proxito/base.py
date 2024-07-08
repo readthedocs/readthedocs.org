@@ -16,7 +16,7 @@ class CommunityProxitoSettingsMixin:
 
     # Allow cookies from cross-site requests on subdomains for now.
     # As 'Lax' breaks when the page is embedded in an iframe.
-    SESSION_COOKIE_SAMESITE = None
+    SESSION_COOKIE_SAMESITE = "None"
 
     @property
     def DATABASES(self):

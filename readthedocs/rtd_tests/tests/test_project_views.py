@@ -1,6 +1,8 @@
 from unittest import mock
 
+import pytest
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
@@ -284,6 +286,9 @@ class TestPublicViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.external_version, response.context["versions"])
 
+    @pytest.mark.skipif(
+        settings.RTD_EXT_THEME_ENABLED, reason="Not applicable for new theme"
+    )
     def test_project_versions_only_shows_internal_versons(self):
         url = reverse("project_version_list", args=[self.pip.slug])
         response = self.client.get(url)

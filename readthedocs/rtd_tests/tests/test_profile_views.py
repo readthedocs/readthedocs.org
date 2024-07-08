@@ -134,12 +134,12 @@ class ProfileViewsTest(TestCase):
     def test_list_api_tokens(self):
         resp = self.client.get(reverse("profiles_tokens"))
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, "No API Tokens currently configured.")
+        self.assertContains(resp, "You currently have no API tokens.")
 
-        Token.objects.create(user=self.user)
+        token = Token.objects.create(user=self.user)
         resp = self.client.get(reverse("profiles_tokens"))
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, f"Token: {self.user.auth_token.key}")
+        self.assertContains(resp, token.key)
 
     def test_create_api_token(self):
         self.assertEqual(Token.objects.filter(user=self.user).count(), 0)

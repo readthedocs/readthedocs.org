@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.127
+boto3==1.34.140
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.127
+botocore==1.34.140
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -40,7 +40,7 @@ celery==5.2.7
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-certifi==2024.6.2
+certifi==2024.7.4
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -77,7 +77,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.5.3
+coverage[toml]==7.5.4
     # via pytest-cov
 cron-descriptor==1.4.3
     # via
@@ -135,13 +135,13 @@ django-cacheops==7.0.2
     # via -r requirements/pip.txt
 django-celery-beat==2.6.0
     # via -r requirements/pip.txt
-django-cors-headers==4.3.1
+django-cors-headers==4.4.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==4.4.2
+django-debug-toolbar==4.4.5
     # via -r requirements/pip.txt
 django-dynamic-fixture==4.0.1
     # via -r requirements/testing.in
@@ -177,7 +177,7 @@ django-timezone-field==6.1.0
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.15.1
+djangorestframework==3.15.2
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -212,7 +212,7 @@ elasticsearch-dsl==8.14.0
     #   django-elasticsearch-dsl
 exceptiongroup==1.2.1
     # via pytest
-filelock==3.15.1
+filelock==3.15.4
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -271,7 +271,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.5
+orjson==3.10.6
     # via -r requirements/pip.txt
 packaging==24.1
     # via
@@ -292,8 +292,16 @@ prompt-toolkit==3.0.47
     # via
     #   -r requirements/pip.txt
     #   click-repl
-psycopg2==2.9.9
+psycopg[binary,pool]==3.2.1
     # via -r requirements/pip.txt
+psycopg-binary==3.2.1
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
+psycopg-pool==3.2.2
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
 pycparser==2.22
     # via
     #   -r requirements/pip.txt
@@ -324,7 +332,7 @@ pytest-django==4.8.0
     # via -r requirements/testing.in
 pytest-mock==3.14.0
     # via -r requirements/testing.in
-python-crontab==3.1.0
+python-crontab==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -346,7 +354,7 @@ pyyaml==6.0.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==5.0.6
+redis==5.0.7
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -373,7 +381,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-s3transfer==0.10.1
+s3transfer==0.10.2
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -434,6 +442,8 @@ typing-extensions==4.12.2
     #   -r requirements/pip.txt
     #   asgiref
     #   elasticsearch-dsl
+    #   psycopg
+    #   psycopg-pool
 tzdata==2024.1
     # via
     #   -r requirements/pip.txt
@@ -448,7 +458,7 @@ unidecode==1.3.8
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.2.1
+urllib3==2.2.2
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -463,7 +473,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.2
+virtualenv==20.26.3
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via

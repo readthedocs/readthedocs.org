@@ -283,6 +283,7 @@ class TestStripeEventHandlers(TestCase):
             },
         )
         event_handlers.subscription_canceled(event)
+        event_handlers.subscription_updated_event(event)
         notification_send.assert_called_once()
 
     @mock.patch(
@@ -314,7 +315,11 @@ class TestStripeEventHandlers(TestCase):
             },
         )
         event_handlers.subscription_canceled(event)
+        event_handlers.subscription_updated_event(event)
         notification_send.assert_called_once()
+
+        self.organization.refresh_from_db()
+        self.assertTrue(self.organization.disabled)
 
     @mock.patch(
         "readthedocs.subscriptions.event_handlers.SubscriptionEndedNotification.send"
@@ -343,6 +348,7 @@ class TestStripeEventHandlers(TestCase):
             },
         )
         event_handlers.subscription_canceled(event)
+        event_handlers.subscription_updated_event(event)
         notification_send.assert_not_called()
 
     def test_register_events(self):
