@@ -24,6 +24,7 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
+from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -478,10 +479,10 @@ class NotificationsBuildViewSet(
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
     filterset_class = NotificationFilter
-    # Permissions are checked at the queryset level.
-    # We need to show build notifications to anonymous
-    # users on public builds.
-    permission_classes = ()
+    # We need to show build notifications to anonymous users
+    # on public builds (the queryset will filter them out).
+    # We allow project admins to edit notifications.
+    permission_classes = [ReadOnlyPermission | IsProjectAdmin]
 
     def _get_parent_build(self):
         pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
