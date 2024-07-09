@@ -639,6 +639,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     Path(artifact_directory) / f"{self.data.project.slug}.{extension}"
                 )
                 assert_path_is_inside_docroot(path)
+                assert_path_is_inside_docroot(destination)
                 shutil.move(path, destination)
 
             # If all the conditions were met, the artifact is valid
