@@ -12,7 +12,7 @@ from django.utils.timezone import make_aware
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
-from readthedocs.builds.constants import TAG
+from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.doc_builder.exceptions import BuildCancelled
@@ -98,6 +98,7 @@ class APIEndpointMixin(TestCase):
 
         self.build = fixture.get(
             Build,
+            id=1,
             date=self.created,
             type="html",
             state="finished",
@@ -124,6 +125,21 @@ class APIEndpointMixin(TestCase):
             versions=[],
             external_builds_privacy_level=PUBLIC,
             privacy_level=PUBLIC,
+        )
+        self.others_version = self.others_project.versions.get(slug=LATEST)
+        self.others_build = fixture.get(
+            Build,
+            date=self.created,
+            type="html",
+            state="finished",
+            error="",
+            success=True,
+            _config={"property": "test value"},
+            version=self.others_version,
+            project=self.others_project,
+            builder="builder01",
+            commit="a1b2c3",
+            length=60,
         )
 
         # Make all non-html true so responses are complete
@@ -169,6 +185,13 @@ class APIEndpointMixin(TestCase):
             attached_to_content_type=ContentType.objects.get_for_model(self.me),
             attached_to_id=self.me.pk,
             message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
+        )
+
+        self.notification_others_build = fixture.get(
+            Notification,
+            attached_to_content_type=ContentType.objects.get_for_model(Build),
+            attached_to_id=self.others_build.pk,
+            message_id=BuildCancelled.CANCELLED_BY_USER,
         )
 
         self.client = APIClient()
