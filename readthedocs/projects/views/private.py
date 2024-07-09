@@ -39,7 +39,11 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
-from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
+from readthedocs.core.mixins import (
+    DeleteViewWithMessage,
+    ListViewWithForm,
+    PrivateViewMixin,
+)
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -79,7 +83,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
-from readthedocs.projects.views.base import DeleteViewWithMessage, ProjectAdminMixin
+from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects.views.mixins import (
     ProjectImportMixin,
     ProjectRelationListMixin,
@@ -1247,6 +1251,9 @@ class ProjectPullRequestsUpdate(SuccessMessageMixin, PrivateViewMixin, UpdateVie
     template_name = "projects/pull_requests_form.html"
     lookup_url_kwarg = "project_slug"
     lookup_field = "slug"
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
         return reverse("projects_pull_requests", args=[self.object.slug])

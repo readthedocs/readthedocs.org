@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
@@ -45,7 +46,7 @@ class TestDomainViews(TestCase):
         self.assertEqual(self.project.domains.count(), 0)
 
         # Ensure a message is shown
-        messages = list(resp.context["messages"])
+        messages = list(get_messages(resp.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Domain deleted")
 
