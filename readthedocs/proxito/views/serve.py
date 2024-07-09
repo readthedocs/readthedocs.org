@@ -641,6 +641,10 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         - /en/latest/foo -> /en/latest/foo/index.html
         """
+        # If the path ends with `/`, we already tried to serve
+        # the `/index.html` file.
+        if full_path.endswith("/"):
+            return None
 
         tryfile = (filename.rstrip("/") + "/index.html").lstrip("/")
         if not HTMLFile.objects.filter(version=version, path=tryfile).exists():
