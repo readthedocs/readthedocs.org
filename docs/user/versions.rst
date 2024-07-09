@@ -123,9 +123,6 @@ This is usually located in the bottom right or bottom left, depending on the the
 This will log you out from the current domain,
 but not end any other session that you have active.
 
-.. figure:: /_static/images/logout-button.png
-   :align: center
-
 Tags and branches
 -----------------
 
