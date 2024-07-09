@@ -94,8 +94,9 @@ class NestedParentObjectMixin:
         return get_object_or_404(Project, slug=slug)
 
     def _get_parent_build(self):
-        pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
-        return get_object_or_404(Build, pk=pk)
+        project_slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
+        build_pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
+        return get_object_or_404(Build, pk=build_pk, project__slug=project_slug)
 
     def _get_parent_version(self):
         project_slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
