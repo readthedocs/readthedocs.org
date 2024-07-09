@@ -547,15 +547,6 @@ You can also download this data in :abbr:`CSV (Comma-Separated Values)`  format 
 To do that, scroll to the bottom of the page
 and click the :guilabel:`Download all data` button.
 
-.. note::
-
-   You can get more detailed traffic data by
-   :ref:`enabling Google Analytics <analytics:Enabling Google Analytics on your Project>`.
-   Notice though that Read the Docs takes extra measures to :ref:`respect user
-   privacy <advertising/advertising-details:analytics>`
-   when they visit projects that have Google Analytics enabled,
-   which might reduce the number of visits counted.
-
 Understanding search analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
