@@ -504,12 +504,12 @@ class ProjectUsersList(ProjectUsersMixin, FormView):
 
 
 class ProjectUsersCreate(ProjectUsersMixin, CreateView):
-    success_message = _("Invitation sent")
+    success_message = _("User added")
     template_name = "projects/project_users_form.html"
 
 
 class ProjectUsersDelete(ProjectUsersMixin, GenericView):
-    success_message = _("Invitation deleted")
+    success_message = _("User deleted")
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):

@@ -35,6 +35,11 @@ class TestDomainViews(TestCase):
         domain = self.project.domains.first()
         self.assertEqual(domain.domain, "test.example.com")
 
+        # Ensure a message is shown
+        messages = list(get_messages(resp.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Domain created")
+
     def test_domain_deletion(self):
         domain = get(Domain, project=self.project, domain="test.example.com")
         self.assertEqual(self.project.domains.count(), 1)
