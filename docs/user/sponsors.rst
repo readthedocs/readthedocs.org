@@ -41,13 +41,6 @@ Past sponsors
 .. _Chan Zuckerberg Initiative: https://chanzuckerberg.com/
 
 
-Sponsorship information
------------------------
-
-As part of increasing sustainability,
-Read the Docs is testing out promoting sponsors on documentation pages.
-We have more information about this in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this effort.
-
 Sponsor us
 ~~~~~~~~~~
 
