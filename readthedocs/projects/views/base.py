@@ -17,7 +17,7 @@ class DeleteViewWithMessage(DeleteView):
     """
     Delete view that shows a message after deleting an object.
 
-    This is a mixin for DeleteView that shows a message after deleting an object.
+    Refs https://code.djangoproject.com/ticket/21926
     """
 
     success_message = None

@@ -44,6 +44,11 @@ class TestDomainViews(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(self.project.domains.count(), 0)
 
+        # Ensure a message is shown
+        messages = list(resp.context["messages"])
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Domain deleted")
+
     def test_domain_edit(self):
         domain = get(
             Domain, project=self.project, domain="test.example.com", canonical=False
