@@ -1,7 +1,7 @@
 How to use traffic analytics
 ============================
 
-This guide covers traffic analytics for your documentation project, either built-in or provided through Read the Docs Addons.
+This guide covers traffic analytics for your documentation project provided through Read the Docs Addons.
 
 Traffic Analytics lets you see *which* documents your users are reading.
 This allows you to understand how your documentation is being used,

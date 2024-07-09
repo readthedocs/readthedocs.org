@@ -15,11 +15,11 @@ Read the Docs Addons
 :doc:`Flyout </flyout-menu>`
     easily switch between versions and translations
 
-:doc:`Non-stable notification </notifications>`
+:doc:`Non-stable notification </versions>`
     notify readers that they are reading docs from a non stable release
 
-:doc:`Latest version notification </notifications>`
-    notify readers that they are reading docs from an older version
+:doc:`Latest version notification </versions>`
+    notify readers that they are reading docs from a development version
 
 :doc:`Search as you type </server-side-search/index>`
     get search results faster
@@ -27,7 +27,7 @@ Read the Docs Addons
 Enabling Read the Docs Addons
 -----------------------------
 
-All projects using the ``build.command`` :ref:`build command <config-file/v2:build.commands>` are already using the Addons, other projects can enable them by following these steps:
+All projects using ``mkdocs`` :ref:`mkdocs <config-file/v2:mkdocs>` or the ``build.command`` :ref:`build command <config-file/v2:build.commands>` are already using the Addons, other projects can enable them by following these steps:
 
 #. Go to the new dashboard:
 
@@ -37,6 +37,10 @@ All projects using the ``build.command`` :ref:`build command <config-file/v2:bui
 #. Click on a project name.
 #. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons (Beta)`.
 #. Check :guilabel:`Enable Addons`, and then configure each Addon individually.
+
+.. note::
+
+    Read the Docs Addons will be enabled by default for all Read the Docs projects some time in the second half of 2024.
 
 Configuring Read the Docs Addons
 --------------------------------
