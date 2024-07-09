@@ -526,6 +526,8 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
         project = self.get_project()
         project.users.remove(user)
 
+        messages.success(self.request, self.success_message)
+
         if user == request.user:
             return HttpResponseRedirect(reverse("projects_dashboard"))
 
