@@ -4,7 +4,6 @@ import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q
 from django.http import (
     Http404,
@@ -102,7 +101,6 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
 
     model = Project
     template_name = "projects/project_dashboard.html"
-
     filterset_class = ProjectListFilterSet
 
     def get_context_data(self, **kwargs):
@@ -175,7 +173,7 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
         return super().get(self, request, *args, **kwargs)
 
 
-class ProjectMixin(PrivateViewMixin):
+class ProjectMixin(ProjectAdminMixin, PrivateViewMixin):
 
     """Common pieces for model views of Project."""
 
@@ -183,9 +181,6 @@ class ProjectMixin(PrivateViewMixin):
     lookup_url_kwarg = "project_slug"
     lookup_field = "slug"
     context_object_name = "project"
-
-    def get_queryset(self):
-        return self.model.objects.for_admin_user(self.request.user)
 
 
 class ProjectUpdate(ProjectMixin, UpdateView):
@@ -195,15 +190,6 @@ class ProjectUpdate(ProjectMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("projects_detail", args=[self.object.slug])
-
-
-class AddonsConfigUpdate(ProjectAdminMixin, PrivateViewMixin, CreateView, UpdateView):
-    form_class = AddonsConfigForm
-    success_message = _("Project addons updated")
-    template_name = "projects/addons_form.html"
-
-    def get_success_url(self):
-        return reverse("projects_addons", args=[self.object.project.slug])
 
 
 class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
@@ -217,6 +203,21 @@ class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
 
     def get_success_url(self):
         return reverse("projects_dashboard")
+
+    def post(self, request, *args, **kwargs):
+        """Hack to show messages on delete."""
+        resp = super().post(request, *args, **kwargs)
+        messages.success(self.request, self.success_message)
+        return resp
+
+
+class AddonsConfigUpdate(ProjectAdminMixin, PrivateViewMixin, CreateView, UpdateView):
+    form_class = AddonsConfigForm
+    success_message = _("Project addons updated")
+    template_name = "projects/addons_form.html"
+
+    def get_success_url(self):
+        return reverse("projects_addons", args=[self.object.project.slug])
 
 
 class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
@@ -263,10 +264,12 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
 
 
 class ProjectVersionCreate(ProjectVersionEditMixin, CreateView):
+    success_message = _("Version created")
     template_name = "projects/project_version_detail.html"
 
 
 class ProjectVersionDetail(ProjectVersionEditMixin, UpdateView):
+    success_message = _("Version updated")
     template_name = "projects/project_version_detail.html"
 
 
@@ -451,15 +454,16 @@ class ProjectRelationshipList(
 
 
 class ProjectRelationshipCreate(ProjectRelationshipMixin, CreateView):
-    pass
+    success_message = _("Subproject created")
 
 
 class ProjectRelationshipUpdate(ProjectRelationshipMixin, UpdateView):
-    pass
+    success_message = _("Subproject updated")
 
 
 class ProjectRelationshipDelete(ProjectRelationshipMixin, DeleteView):
     http_method_names = ["post"]
+    success_message = _("Subproject deleted")
 
 
 class ProjectUsersMixin(ProjectAdminMixin, PrivateViewMixin):
@@ -480,7 +484,7 @@ class ProjectUsersMixin(ProjectAdminMixin, PrivateViewMixin):
         return super().get_form(data, files, **kwargs)
 
 
-class ProjectUsersList(SuccessMessageMixin, ProjectUsersMixin, FormView):
+class ProjectUsersList(ProjectUsersMixin, FormView):
     # We only use this to display the form in the list view.
     http_method_names = ["get"]
     template_name = "projects/project_users.html"
@@ -496,12 +500,13 @@ class ProjectUsersList(SuccessMessageMixin, ProjectUsersMixin, FormView):
         return context
 
 
-class ProjectUsersCreate(SuccessMessageMixin, ProjectUsersMixin, CreateView):
+class ProjectUsersCreate(ProjectUsersMixin, CreateView):
     success_message = _("Invitation sent")
     template_name = "projects/project_users_form.html"
 
 
 class ProjectUsersDelete(ProjectUsersMixin, GenericView):
+    success_message = _("Invitation deleted")
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
@@ -575,10 +580,12 @@ class ProjectNotifications(ProjectNotificationsMixin, FormView):
 
 class ProjectEmailNotificationsCreate(ProjectNotificationsMixin, CreateView):
     template_name = "projects/project_notifications_form.html"
+    success_message = _("Notification created")
 
 
 class ProjectNotificationsDelete(ProjectNotificationsMixin, GenericView):
     http_method_names = ["post"]
+    success_message = _("Notification deleted")
 
     def post(self, request, *args, **kwargs):
         project = self.get_project()
@@ -613,6 +620,8 @@ class WebHookList(WebHookMixin, ListView):
 
 
 class WebHookCreate(WebHookMixin, CreateView):
+    success_message = _("Webhook created")
+
     def get_success_url(self):
         return reverse(
             "projects_webhooks_edit",
@@ -621,6 +630,8 @@ class WebHookCreate(WebHookMixin, CreateView):
 
 
 class WebHookUpdate(WebHookMixin, UpdateView):
+    success_message = _("Webhook updated")
+
     def get_success_url(self):
         return reverse(
             "projects_webhooks_edit",
@@ -629,6 +640,7 @@ class WebHookUpdate(WebHookMixin, UpdateView):
 
 
 class WebHookDelete(WebHookMixin, DeleteView):
+    success_message = _("Webhook deleted")
     http_method_names = ["post"]
 
 
@@ -683,10 +695,12 @@ class ProjectTranslationsList(ProjectTranslationsMixin, FormView):
 
 
 class ProjectTranslationsCreate(ProjectTranslationsMixin, CreateView):
+    success_message = _("Translation created")
     template_name = "projects/project_translations_form.html"
 
 
 class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
+    success_message = _("Translation deleted")
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
@@ -729,11 +743,11 @@ class ProjectRedirectsList(ProjectRedirectsMixin, ListView):
 
 
 class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
-    pass
+    success_message = _("Redirect created")
 
 
 class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
-    pass
+    success_message = _("Redirect updated")
 
 
 class ProjectRedirectsInsert(ProjectRedirectsMixin, GenericModelView):
@@ -762,6 +776,7 @@ class ProjectRedirectsInsert(ProjectRedirectsMixin, GenericModelView):
 
 
 class ProjectRedirectsDelete(ProjectRedirectsMixin, DeleteView):
+    success_message = _("Redirect deleted")
     http_method_names = ["post"]
 
 
@@ -795,6 +810,8 @@ class DomainList(DomainMixin, ListViewWithForm):
 
 
 class DomainCreate(DomainMixin, CreateView):
+    success_message = _("Domain created")
+
     def post(self, request, *args, **kwargs):
         project = self.get_project()
         if self._is_enabled(project) and not project.superproject:
@@ -813,6 +830,8 @@ class DomainCreate(DomainMixin, CreateView):
 
 
 class DomainUpdate(DomainMixin, UpdateView):
+    success_message = _("Domain updated")
+
     def form_valid(self, form):
         response = super().form_valid(form)
         self.object.restart_validation_process()
@@ -826,7 +845,7 @@ class DomainUpdate(DomainMixin, UpdateView):
 
 
 class DomainDelete(DomainMixin, DeleteView):
-    pass
+    success_message = _("Domain deleted")
 
 
 class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
@@ -871,6 +890,8 @@ class IntegrationList(IntegrationMixin, ListView):
 
 
 class IntegrationCreate(IntegrationMixin, CreateView):
+    success_message = _("Integration created")
+
     def form_valid(self, form):
         self.object = form.save()
         if self.object.has_sync:
@@ -896,6 +917,7 @@ class IntegrationDetail(IntegrationMixin, DetailView):
 
 
 class IntegrationDelete(IntegrationMixin, DeleteView):
+    success_message = _("Integration deleted")
     http_method_names = ["post"]
 
 
@@ -940,7 +962,7 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
         return reverse("projects_integrations", args=[self.get_project().slug])
 
 
-class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):
+class ProjectAdvertisingUpdate(ProjectAdminMixin, PrivateViewMixin, UpdateView):
     model = Project
     form_class = ProjectAdvertisingForm
     success_message = _("Project has been opted out from advertisement support")
@@ -975,10 +997,11 @@ class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
 
 
 class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
-    pass
+    success_message = _("Environment Variable created")
 
 
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
+    success_message = _("Environment Variable deleted")
     http_method_names = ["post"]
 
 
@@ -1003,6 +1026,7 @@ class AutomationRuleList(AutomationRuleMixin, ListView):
 
 
 class AutomationRuleMove(AutomationRuleMixin, GenericModelView):
+    success_message = _("Automation rule moved")
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
@@ -1018,6 +1042,7 @@ class AutomationRuleMove(AutomationRuleMixin, GenericModelView):
 
 
 class AutomationRuleDelete(AutomationRuleMixin, DeleteView):
+    success_message = _("Automation rule deleted")
     http_method_names = ["post"]
 
 
@@ -1216,16 +1241,13 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         return get_feature(project, feature_type=self.feature_type)
 
 
-class ProjectPullRequestsUpdate(PrivateViewMixin, UpdateView):
+class ProjectPullRequestsUpdate(ProjectAdminMixin, PrivateViewMixin, UpdateView):
     model = Project
     form_class = ProjectPullRequestForm
     success_message = _("Pull request settings have been updated")
     template_name = "projects/pull_requests_form.html"
     lookup_url_kwarg = "project_slug"
     lookup_field = "slug"
-
-    def get_queryset(self):
-        return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
         return reverse("projects_pull_requests", args=[self.object.slug])
