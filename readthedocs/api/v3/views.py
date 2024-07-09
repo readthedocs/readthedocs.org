@@ -485,8 +485,14 @@ class NotificationsBuildViewSet(
     permission_classes = [ReadOnlyPermission | IsProjectAdmin]
 
     def _get_parent_build(self):
-        pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
-        return get_object_or_404(Build.objects.api(user=self.request.user), pk=pk)
+        """Overriden to filter by builds the current user has access to."""
+        build_pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
+        project_slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
+        return get_object_or_404(
+            Build.objects.api(user=self.request.user),
+            pk=build_pk,
+            project__slug=project_slug,
+        )
 
     def get_queryset(self):
         build = self._get_parent_build()
