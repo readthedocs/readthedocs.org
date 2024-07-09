@@ -4,6 +4,7 @@ import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q
 from django.http import (
     Http404,
@@ -21,7 +22,6 @@ from django.views.generic import ListView, TemplateView
 from formtools.wizard.views import SessionWizardView
 from vanilla import (
     CreateView,
-    DeleteView,
     DetailView,
     FormView,
     GenericModelView,
@@ -79,7 +79,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
-from readthedocs.projects.views.base import ProjectAdminMixin
+from readthedocs.projects.views.base import DeleteViewWithMessage, ProjectAdminMixin
 from readthedocs.projects.views.mixins import (
     ProjectImportMixin,
     ProjectRelationListMixin,
@@ -173,7 +173,9 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
         return super().get(self, request, *args, **kwargs)
 
 
-class ProjectMixin(ProjectAdminMixin, PrivateViewMixin):
+# SuccessMessageMixin is used when we are operating on the Project model itself,
+# instead of a related model, where we use ProjectAdminMixin.
+class ProjectMixin(SuccessMessageMixin, PrivateViewMixin):
 
     """Common pieces for model views of Project."""
 
@@ -181,6 +183,9 @@ class ProjectMixin(ProjectAdminMixin, PrivateViewMixin):
     lookup_url_kwarg = "project_slug"
     lookup_field = "slug"
     context_object_name = "project"
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
 
 
 class ProjectUpdate(ProjectMixin, UpdateView):
@@ -192,7 +197,7 @@ class ProjectUpdate(ProjectMixin, UpdateView):
         return reverse("projects_detail", args=[self.object.slug])
 
 
-class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
+class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteViewWithMessage):
     success_message = _("Project deleted")
     template_name = "projects/project_delete.html"
 
@@ -203,12 +208,6 @@ class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
 
     def get_success_url(self):
         return reverse("projects_dashboard")
-
-    def post(self, request, *args, **kwargs):
-        """Hack to show messages on delete."""
-        resp = super().post(request, *args, **kwargs)
-        messages.success(self.request, self.success_message)
-        return resp
 
 
 class AddonsConfigUpdate(ProjectAdminMixin, PrivateViewMixin, CreateView, UpdateView):
@@ -461,7 +460,7 @@ class ProjectRelationshipUpdate(ProjectRelationshipMixin, UpdateView):
     success_message = _("Subproject updated")
 
 
-class ProjectRelationshipDelete(ProjectRelationshipMixin, DeleteView):
+class ProjectRelationshipDelete(ProjectRelationshipMixin, DeleteViewWithMessage):
     http_method_names = ["post"]
     success_message = _("Subproject deleted")
 
@@ -639,7 +638,7 @@ class WebHookUpdate(WebHookMixin, UpdateView):
         )
 
 
-class WebHookDelete(WebHookMixin, DeleteView):
+class WebHookDelete(WebHookMixin, DeleteViewWithMessage):
     success_message = _("Webhook deleted")
     http_method_names = ["post"]
 
@@ -775,9 +774,9 @@ class ProjectRedirectsInsert(ProjectRedirectsMixin, GenericModelView):
         )
 
 
-class ProjectRedirectsDelete(ProjectRedirectsMixin, DeleteView):
-    success_message = _("Redirect deleted")
+class ProjectRedirectsDelete(ProjectRedirectsMixin, DeleteViewWithMessage):
     http_method_names = ["post"]
+    success_message = _("Redirect deleted")
 
 
 class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
@@ -844,7 +843,7 @@ class DomainUpdate(DomainMixin, UpdateView):
         return HttpResponse("Action not allowed", status=401)
 
 
-class DomainDelete(DomainMixin, DeleteView):
+class DomainDelete(DomainMixin, DeleteViewWithMessage):
     success_message = _("Domain deleted")
 
 
@@ -916,7 +915,7 @@ class IntegrationDetail(IntegrationMixin, DetailView):
     template_name = "projects/integration_webhook_detail.html"
 
 
-class IntegrationDelete(IntegrationMixin, DeleteView):
+class IntegrationDelete(IntegrationMixin, DeleteViewWithMessage):
     success_message = _("Integration deleted")
     http_method_names = ["post"]
 
@@ -962,7 +961,7 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
         return reverse("projects_integrations", args=[self.get_project().slug])
 
 
-class ProjectAdvertisingUpdate(ProjectAdminMixin, PrivateViewMixin, UpdateView):
+class ProjectAdvertisingUpdate(SuccessMessageMixin, PrivateViewMixin, UpdateView):
     model = Project
     form_class = ProjectAdvertisingForm
     success_message = _("Project has been opted out from advertisement support")
@@ -1000,7 +999,7 @@ class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
     success_message = _("Environment Variable created")
 
 
-class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
+class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage):
     success_message = _("Environment Variable deleted")
     http_method_names = ["post"]
 
@@ -1041,7 +1040,7 @@ class AutomationRuleMove(AutomationRuleMixin, GenericModelView):
         )
 
 
-class AutomationRuleDelete(AutomationRuleMixin, DeleteView):
+class AutomationRuleDelete(AutomationRuleMixin, DeleteViewWithMessage):
     success_message = _("Automation rule deleted")
     http_method_names = ["post"]
 
@@ -1052,11 +1051,11 @@ class RegexAutomationRuleMixin(AutomationRuleMixin):
 
 
 class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
-    pass
+    success_message = _("Automation rule created")
 
 
 class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
-    pass
+    success_message = _("Automation rule updated")
 
 
 class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
@@ -1241,7 +1240,7 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         return get_feature(project, feature_type=self.feature_type)
 
 
-class ProjectPullRequestsUpdate(ProjectAdminMixin, PrivateViewMixin, UpdateView):
+class ProjectPullRequestsUpdate(SuccessMessageMixin, PrivateViewMixin, UpdateView):
     model = Project
     form_class = ProjectPullRequestForm
     success_message = _("Pull request settings have been updated")

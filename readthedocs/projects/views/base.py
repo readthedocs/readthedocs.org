@@ -5,10 +5,28 @@ import structlog
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, render
+from vanilla import DeleteView
 
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
+
+
+class DeleteViewWithMessage(DeleteView):
+
+    """
+    Delete view that shows a message after deleting an object.
+
+    This is a mixin for DeleteView that shows a message after deleting an object.
+    """
+
+    success_message = None
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if self.success_message:
+            self.messages.success(self.success_message)
+        return response
 
 
 class ProjectOnboardMixin:
