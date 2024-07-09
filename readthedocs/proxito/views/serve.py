@@ -642,34 +642,25 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         - /en/latest/foo -> /en/latest/foo/index.html
         """
 
-        tryfiles = ["index.html"]
-        available_index_files = list(
-            HTMLFile.objects.filter(version=version, path__in=tryfiles).values_list(
-                "path", flat=True
-            )
-        )
+        tryfile = (filename.rstrip("/") + "/index.html").lstrip("/")
+        if not HTMLFile.objects.filter(version=version, path=tryfile).exists():
+            return None
 
-        for tryfile in tryfiles:
-            if tryfile not in available_index_files:
-                continue
+        log.info("Redirecting to index file.", tryfile=tryfile)
+        # Use urlparse so that we maintain GET args in our redirect
+        parts = urlparse(full_path)
+        new_path = parts.path.rstrip("/") + "/"
 
-            log.info("Redirecting to index file.", tryfile=tryfile)
-            # Use urlparse so that we maintain GET args in our redirect
-            parts = urlparse(full_path)
-            new_path = parts.path.rstrip("/") + "/"
+        # `full_path` doesn't include query params.`
+        query = urlparse(request.get_full_path()).query
+        redirect_url = parts._replace(
+            path=new_path,
+            query=query,
+        ).geturl()
 
-            # `full_path` doesn't include query params.`
-            query = urlparse(request.get_full_path()).query
-            redirect_url = parts._replace(
-                path=new_path,
-                query=query,
-            ).geturl()
-
-            # TODO: decide if we need to check for infinite redirect here
-            # (from URL == to URL)
-            return HttpResponseRedirect(redirect_url)
-
-        return None
+        # TODO: decide if we need to check for infinite redirect here
+        # (from URL == to URL)
+        return HttpResponseRedirect(redirect_url)
 
 
 class ServeError404(SettingsOverrideObject):
