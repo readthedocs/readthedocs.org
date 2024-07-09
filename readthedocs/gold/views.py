@@ -4,6 +4,7 @@ import json
 
 import stripe
 import structlog
+from csp.decorators import csp_update
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -11,6 +12,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
@@ -27,6 +29,14 @@ from .models import GoldUser
 log = structlog.get_logger(__name__)
 
 
+@method_decorator(
+    # Allow inline scripts for the gold view.
+    # We are using inline javascript to initialize Stripe Checkout.
+    # Allowing inline scripts defeats the purpose of using CSP,
+    # but we are limiting it to this view.
+    csp_update(SCRIPT_SRC="'unsafe-inline'"),
+    name="dispatch",
+)
 class GoldSubscription(
     PrivateViewMixin,
     DetailView,

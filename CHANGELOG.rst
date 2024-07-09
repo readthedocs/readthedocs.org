@@ -1,3 +1,19 @@
+Version 11.1.3
+--------------
+
+:Date: July 09, 2024
+
+* `@humitos <https://github.com/humitos>`__: Gold: update `max_length` to accept Stripe price `id` (`#11452 <https://github.com/readthedocs/readthedocs.org/pull/11452>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11451 <https://github.com/readthedocs/readthedocs.org/pull/11451>`__)
+* `@stsewd <https://github.com/stsewd>`__: CSP: Allow inline scripts in gold subscription view (`#11448 <https://github.com/readthedocs/readthedocs.org/pull/11448>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests on .com (`#11447 <https://github.com/readthedocs/readthedocs.org/pull/11447>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.1.2 (`#11446 <https://github.com/readthedocs/readthedocs.org/pull/11446>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Mention linting (`#11445 <https://github.com/readthedocs/readthedocs.org/pull/11445>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Add minimal viable docs for addons (`#11444 <https://github.com/readthedocs/readthedocs.org/pull/11444>`__)
+* `@humitos <https://github.com/humitos>`__: Build: disable Sphinx manipulation (`#11441 <https://github.com/readthedocs/readthedocs.org/pull/11441>`__)
+* `@stsewd <https://github.com/stsewd>`__: CSP: remove obsolete block-all-mixed-content directive (`#11436 <https://github.com/readthedocs/readthedocs.org/pull/11436>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `append_conf` _magic_ from MkDocs (`#11206 <https://github.com/readthedocs/readthedocs.org/pull/11206>`__)
+
 Version 11.1.2
 --------------
 

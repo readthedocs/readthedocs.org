@@ -9,6 +9,17 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     :Default: ``True``
 
+.. envvar:: READTHEDOCS_PRODUCTION_DOMAIN
+
+    Domain where Read the Docs application/dashboard and API are running.
+
+    :Example: ``readthedocs.org``
+    :Example: ``readthedocs.com``
+    :Example: ``app.readthedocs.org``
+    :Example: ``app.readthedocs.com``
+    :Example: ``devthedocs.org``
+    :Example: ``devthedocs.com``
+
 .. envvar:: READTHEDOCS_PROJECT
 
     The :term:`slug` of the project being built. For example, ``my-example-project``.
@@ -80,6 +91,12 @@ All :doc:`build processes </builds>` have the following environment variables au
     :Example: ``https://docs.example.com/en/latest/``
     :Example: ``https://docs.readthedocs.io/ja/stable/``
     :Example: ``https://example--17.org.readthedocs.build/fr/17/``
+
+.. envvar:: READTHEDOCS_REPOSITORY_PATH
+
+    Path where the repository was cloned.
+
+    :Example: ``/home/docs/checkouts/readthedocs.org/user_builds/test-builds/checkouts/latest``
 
 .. envvar:: READTHEDOCS_GIT_CLONE_URL
 
