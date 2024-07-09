@@ -25,6 +25,7 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
 from readthedocs.storage import build_tools_storage
 
@@ -200,6 +201,10 @@ class BuildDirector:
         self.run_build_job("post_build")
         self.store_readthedocs_build_yaml()
 
+        if self.data.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
+            # Mark this version to inject the new js client when serving it via El Proxito
+            self.data.version.addons = True
+
         after_build.send(
             sender=self.data.version,
         )
@@ -266,8 +271,7 @@ class BuildDirector:
         if "image" not in build_config_key and "os" not in build_config_key:
             raise BuildUserError(BuildUserError.BUILD_OS_REQUIRED)
 
-        if self.vcs_repository.supports_submodules:
-            self.vcs_repository.update_submodules(self.data.config)
+        self.vcs_repository.update_submodules(self.data.config)
 
     # System dependencies (``build.apt_packages``)
     # NOTE: `system_dependencies` should not be possible to override by the
@@ -418,10 +422,6 @@ class BuildDirector:
 
     def run_build_commands(self):
         """Runs each build command in the build environment."""
-
-        self.attach_notification(
-            message_id=BuildUserError.BUILD_COMMANDS_IN_BETA,
-        )
 
         reshim_commands = (
             {"pip", "install"},
@@ -650,6 +650,9 @@ class BuildDirector:
             "READTHEDOCS_VERSION_NAME": self.data.version.verbose_name,
             "READTHEDOCS_PROJECT": self.data.project.slug,
             "READTHEDOCS_LANGUAGE": self.data.project.language,
+            "READTHEDOCS_REPOSITORY_PATH": self.data.project.checkout_path(
+                self.data.version.slug
+            ),
             "READTHEDOCS_OUTPUT": os.path.join(
                 self.data.project.checkout_path(self.data.version.slug), "_readthedocs/"
             ),
@@ -659,6 +662,7 @@ class BuildDirector:
             # "READTHEDOCS_GIT_HTML_URL": self.data.project.remote_repository.html_url,
             "READTHEDOCS_GIT_IDENTIFIER": self.data.version.identifier,
             "READTHEDOCS_GIT_COMMIT_HASH": self.data.build["commit"],
+            "READTHEDOCS_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         }
         return env
 

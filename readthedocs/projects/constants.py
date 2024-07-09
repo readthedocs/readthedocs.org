@@ -81,16 +81,9 @@ STATUS_CHOICES = (
 )
 
 REPO_TYPE_GIT = "git"
-REPO_TYPE_SVN = "svn"
-REPO_TYPE_HG = "hg"
-REPO_TYPE_BZR = "bzr"
 
-REPO_CHOICES = (
-    (REPO_TYPE_GIT, _("Git")),
-    (REPO_TYPE_SVN, _("Subversion")),
-    (REPO_TYPE_HG, _("Mercurial")),
-    (REPO_TYPE_BZR, _("Bazaar")),
-)
+# TODO: Remove this since we only have 1 type.
+REPO_CHOICES = ((REPO_TYPE_GIT, _("Git")),)
 
 PUBLIC = "public"
 PRIVATE = "private"
@@ -276,7 +269,15 @@ LANGUAGES = (
     ("yi", "Yiddish"),
     ("yo", "Yoruba"),
     ("za", "Zhuang"),
-    ("zh", "Chinese"),
+    # TODO: migrate those projects that are currently using "zh" as language.
+    # This is an invalid language code, so the first step is remove it from the
+    # list of possible languages.
+    # https://github.com/readthedocs/readthedocs.org/issues/11387
+    #
+    # In [1]: Project.objects.filter(language='zh').count()
+    # Out[1]: 1485
+    #
+    # ("zh", "Chinese"),
     ("zu", "Zulu"),
     # Try these to test our non-2 letter language support
     ("nb-no", "Norwegian Bokmal"),
@@ -309,6 +310,11 @@ LANGUAGES_REGEX = "|".join(
         re.escape(code)
         for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING.values())
     ]
+    # Add "zh" here to be able to keep serving projects with this old invalid language code.
+    # We don't allow new projects to select this language code anymore.
+    #
+    # https://github.com/readthedocs/readthedocs.org/issues/11428
+    + ["zh"]
 )
 
 PROGRAMMING_LANGUAGES = (

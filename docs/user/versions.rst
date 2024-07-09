@@ -1,11 +1,11 @@
 Versions
 ========
 
-Read the Docs supports multiple versions of your repository.
+Read the Docs supports multiple versions of your documentation.
 On initial import,
 we will create a ``latest`` version.
-This will point at the default branch defined in your VCS control
-(by default, ``main`` on Git and ``default`` in Mercurial).
+This will point at the default branch defined in your Git repository.
+(by default, ``main``).
 
 If your project has any tags or branches with a name following `semantic versioning <https://semver.org/>`_,
 we also create a ``stable`` version, tracking your most recent release.
@@ -133,40 +133,27 @@ Read the Docs supports two workflows for versioning: based on tags or branches.
 If you have at least one tag,
 tags will take preference over branches when selecting the stable version.
 
-Version Control Support Matrix
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+------------+------------+-----------+------------+-----------+
-|            |    git     |    hg     |   bzr      |     svn   |
-+============+============+===========+============+===========+
-| Tags       |    Yes     |    Yes    |   Yes      |    No     |
-+------------+------------+-----------+------------+-----------+
-| Branches   |    Yes     |    Yes    |   Yes      |    No     |
-+------------+------------+-----------+------------+-----------+
-| Default    |    master  |   default |            |    trunk  |
-+------------+------------+-----------+------------+-----------+
-
 Version warning
 ---------------
 
-A banner can be automatically displayed to notify viewers that there may be
-a more stable version of the documentation available. Specifically:
+As part of the new :doc:`addons`, Read the Docs displays notifications in the following situations:
 
-- When the ``latest`` version is being shown, and there's also a ``stable`` version active and not hidden,
-  then the banner will remind the viewer that some of the documented features may not yet be
-  available, and suggest that the viewer switch to the ``stable`` version.
-- When a version is being shown that is not the ``stable`` version, and there's a ``stable``
-  version available, then the banner will suggest that the viewer switch to the ``stable`` version
-  to see the newest documentation.
+Non-stable notification
+    A notification on all non-stable versions is shown to clearly communicate to readers they may be reading an outdated version of the documentation.
 
+    Specifically, when a version is being shown that is not the ``stable`` version, and there is a ``stable``
+    version available.
 
-This feature is enabled by default on projects using the new beta addons.
-The beta addons can be enabled by using ``build.commands`` config key or via the new beta dashboard (https://beta.readthedocs.org) going to the admin section of your docs (:guilabel:`Admin` > :guilabel:`Settings`)
+Latest version notification
+    A notification shown on the latest version tells readers they are reading the latest/development version of the documentation that may include features not yet deployed.
+
+    Specically, when the ``latest`` version is being shown, and there's also an active ``stable`` version that is not hidden.
+
+Each of these notifcations can be configured by project admins in :ref:`addons:Configuring Read the Docs Addons`
 
 .. note::
 
-   An older version of this feature is currently only available to projects that have already enabled it.
-   When the updated feature development is finished the toggle setting will be enabled for all projects.
+   An older version of these warning banners is only available to projects that had enabled it before the release of :doc:`addons`.
 
 Redirects on root URLs
 ----------------------

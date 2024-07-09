@@ -15,7 +15,7 @@ from readthedocs.core.settings import Settings
 from readthedocs.builds import constants_docker
 
 try:
-    import readthedocsext  # noqa
+    import readthedocsext.cdn  # noqa
 
     ext = True
 except ImportError:
@@ -109,7 +109,7 @@ class CommunityBaseSettings(Settings):
         Cookie used in cross-origin API requests from *.rtd.io to rtd.org/api/v2/sustainability/.
         """
         if self.USE_PROMOS:
-            return None
+            return "None"
         # This is django's default.
         return "Lax"
 
@@ -125,7 +125,6 @@ class CommunityBaseSettings(Settings):
 
     # Content Security Policy
     # https://django-csp.readthedocs.io/
-    CSP_BLOCK_ALL_MIXED_CONTENT = True
     CSP_DEFAULT_SRC = None  # This could be improved
     CSP_FRAME_ANCESTORS = ("'none'",)
     CSP_OBJECT_SRC = ("'none'",)
@@ -381,6 +380,7 @@ class CommunityBaseSettings(Settings):
     MEDIA_ROOT = os.path.join(SITE_ROOT, "media/")
     MEDIA_URL = "/media/"
     ADMIN_MEDIA_PREFIX = "/media/admin/"
+    ADMIN_URL = "/admin"
     STATICFILES_DIRS = [
         os.path.join(SITE_ROOT, "readthedocs", "static"),
         os.path.join(SITE_ROOT, "media"),
@@ -846,6 +846,10 @@ class CommunityBaseSettings(Settings):
     # since we have subscriptions attached to an organization or gold user
     # we can't make use of the DJSTRIPE_SUBSCRIBER_MODEL setting.
     DJSTRIPE_SUBSCRIBER_CUSTOMER_KEY = None
+
+    # Webhook URL for BotDog to post messages in Slack #sales channel:
+    # https://api.slack.com/apps/A01ML7J7N4T/incoming-webhooks
+    SLACK_WEBHOOK_SALES_CHANNEL = None  # https://hooks.slack.com/services/...
 
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False

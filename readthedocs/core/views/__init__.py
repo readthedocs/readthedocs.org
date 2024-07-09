@@ -7,7 +7,7 @@ and server errors.
 
 import structlog
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, View
@@ -146,6 +146,14 @@ class TeapotView(TemplateView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context, status=418)
+
+
+class PageNotFoundView(View):
+
+    """Just a 404 view that ignores all URL parameters."""
+
+    def get(self, request, *args, **kwargs):
+        raise Http404()
 
 
 def do_not_track(request):

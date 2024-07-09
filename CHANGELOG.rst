@@ -1,3 +1,90 @@
+Version 11.1.3
+--------------
+
+:Date: July 09, 2024
+
+* `@humitos <https://github.com/humitos>`__: Gold: update `max_length` to accept Stripe price `id` (`#11452 <https://github.com/readthedocs/readthedocs.org/pull/11452>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11451 <https://github.com/readthedocs/readthedocs.org/pull/11451>`__)
+* `@stsewd <https://github.com/stsewd>`__: CSP: Allow inline scripts in gold subscription view (`#11448 <https://github.com/readthedocs/readthedocs.org/pull/11448>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests on .com (`#11447 <https://github.com/readthedocs/readthedocs.org/pull/11447>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.1.2 (`#11446 <https://github.com/readthedocs/readthedocs.org/pull/11446>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Mention linting (`#11445 <https://github.com/readthedocs/readthedocs.org/pull/11445>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Add minimal viable docs for addons (`#11444 <https://github.com/readthedocs/readthedocs.org/pull/11444>`__)
+* `@humitos <https://github.com/humitos>`__: Build: disable Sphinx manipulation (`#11441 <https://github.com/readthedocs/readthedocs.org/pull/11441>`__)
+* `@stsewd <https://github.com/stsewd>`__: CSP: remove obsolete block-all-mixed-content directive (`#11436 <https://github.com/readthedocs/readthedocs.org/pull/11436>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `append_conf` _magic_ from MkDocs (`#11206 <https://github.com/readthedocs/readthedocs.org/pull/11206>`__)
+
+Version 11.1.2
+--------------
+
+:Date: July 02, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11442 <https://github.com/readthedocs/readthedocs.org/pull/11442>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Run iri_to_uri on header values (`#11439 <https://github.com/readthedocs/readthedocs.org/pull/11439>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.1.1 (`#11438 <https://github.com/readthedocs/readthedocs.org/pull/11438>`__)
+* `@humitos <https://github.com/humitos>`__: Sales: send a Slack message to be able to contact the customer (`#11437 <https://github.com/readthedocs/readthedocs.org/pull/11437>`__)
+* `@humitos <https://github.com/humitos>`__: Organization: disable organization on non-active subscription (`#11430 <https://github.com/readthedocs/readthedocs.org/pull/11430>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: update copy for "No HTML content found" (`#11410 <https://github.com/readthedocs/readthedocs.org/pull/11410>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: API: support rebuilding external version builds with build create endpoint (`#11407 <https://github.com/readthedocs/readthedocs.org/pull/11407>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Minor refactor of Private Python packages page (`#11395 <https://github.com/readthedocs/readthedocs.org/pull/11395>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: run tests with the ext-theme (`#11383 <https://github.com/readthedocs/readthedocs.org/pull/11383>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Pull Request builds page to settings (`#10656 <https://github.com/readthedocs/readthedocs.org/pull/10656>`__)
+
+Version 11.1.1
+--------------
+
+:Date: June 25, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11433 <https://github.com/readthedocs/readthedocs.org/pull/11433>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: upgrade `psycopg` to v3 (`#11432 <https://github.com/readthedocs/readthedocs.org/pull/11432>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: allow serving `zh` (deprecated) language code (`#11429 <https://github.com/readthedocs/readthedocs.org/pull/11429>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Be more defensive in redirect code (`#11427 <https://github.com/readthedocs/readthedocs.org/pull/11427>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Link website from docs sidebar (`#11426 <https://github.com/readthedocs/readthedocs.org/pull/11426>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use literal `None` in session cookie samesite setting (`#11424 <https://github.com/readthedocs/readthedocs.org/pull/11424>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.1.0 (`#11423 <https://github.com/readthedocs/readthedocs.org/pull/11423>`__)
+* `@humitos <https://github.com/humitos>`__: Build: add support for Ubuntu 24.04 LTS (`#11421 <https://github.com/readthedocs/readthedocs.org/pull/11421>`__)
+* `@humitos <https://github.com/humitos>`__: Builds: don't call `git clean` anymore (`#11420 <https://github.com/readthedocs/readthedocs.org/pull/11420>`__)
+* `@humitos <https://github.com/humitos>`__: Ops: delete triggering a `time-test` build on `build-large` queue (`#11379 <https://github.com/readthedocs/readthedocs.org/pull/11379>`__)
+
+Version 11.1.0
+--------------
+
+:Date: June 18, 2024
+
+* `@olgaigig <https://github.com/olgaigig>`__: Update docs.rst (`#11422 <https://github.com/readthedocs/readthedocs.org/pull/11422>`__)
+* `@humitos <https://github.com/humitos>`__: Build: add support for Ubuntu 24.04 LTS (`#11421 <https://github.com/readthedocs/readthedocs.org/pull/11421>`__)
+* `@humitos <https://github.com/humitos>`__: Builds: don't call `git clean` anymore (`#11420 <https://github.com/readthedocs/readthedocs.org/pull/11420>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11415 <https://github.com/readthedocs/readthedocs.org/pull/11415>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: use `app.` instead of `beta.` (`#11412 <https://github.com/readthedocs/readthedocs.org/pull/11412>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove "beta" from `build.commands` (`#11411 <https://github.com/readthedocs/readthedocs.org/pull/11411>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update "Example projects" a little (`#11404 <https://github.com/readthedocs/readthedocs.org/pull/11404>`__)
+* `@stsewd <https://github.com/stsewd>`__: Oauth: Fix GitLab access token URL (`#11402 <https://github.com/readthedocs/readthedocs.org/pull/11402>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update `asdf` and its plugins so we can build latest versions (`#11401 <https://github.com/readthedocs/readthedocs.org/pull/11401>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: revert `USE_PROMOS` setting (`#11400 <https://github.com/readthedocs/readthedocs.org/pull/11400>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Unknown for missing VCS class (`#11398 <https://github.com/readthedocs/readthedocs.org/pull/11398>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.0.0 (`#11397 <https://github.com/readthedocs/readthedocs.org/pull/11397>`__)
+* `@rffontenelle <https://github.com/rffontenelle>`__: GitHub with uppercase H in onboard_import.html (`#11396 <https://github.com/readthedocs/readthedocs.org/pull/11396>`__)
+* `@humitos <https://github.com/humitos>`__: Templates: pass `ADMIN_URL` into context (`#11394 <https://github.com/readthedocs/readthedocs.org/pull/11394>`__)
+* `@rffontenelle <https://github.com/rffontenelle>`__: Uppercase G for Gold membership in subscription_detail.html (`#11388 <https://github.com/readthedocs/readthedocs.org/pull/11388>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update all `build.tools` and add latest versions (`#11386 <https://github.com/readthedocs/readthedocs.org/pull/11386>`__)
+* `@humitos <https://github.com/humitos>`__: Translations: disable `zh` code (`#11385 <https://github.com/readthedocs/readthedocs.org/pull/11385>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: remove code for old VCS support (`#11377 <https://github.com/readthedocs/readthedocs.org/pull/11377>`__)
+
+Version 11.0.0
+--------------
+
+This release removes support for VCS systems other than Git. See more in our blog here: https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/
+
+:Date: June 11, 2024
+
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11392 <https://github.com/readthedocs/readthedocs.org/pull/11392>`__)
+* `@rffontenelle <https://github.com/rffontenelle>`__: Unbreak strings to proper extraction for translation (`#11389 <https://github.com/readthedocs/readthedocs.org/pull/11389>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#11382 <https://github.com/readthedocs/readthedocs.org/pull/11382>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update docker compose files (`#11380 <https://github.com/readthedocs/readthedocs.org/pull/11380>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.27.0 (`#11378 <https://github.com/readthedocs/readthedocs.org/pull/11378>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: remove code for old VCS support (`#11377 <https://github.com/readthedocs/readthedocs.org/pull/11377>`__)
+
 Version 10.27.0
 ---------------
 

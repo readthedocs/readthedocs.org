@@ -43,6 +43,9 @@ class BuildBase:
         return queryset
 
 
+# TODO this class and views that extend this class can be removed when the old
+# dashboard goes away and RTD_EXT_THEME_ENABLED is removed. Instead of using a
+# hidden form on views, the new dashboard uses APIv3 to trigger new builds.
 class BuildTriggerMixin:
     @method_decorator(login_required)
     def post(self, request, project_slug):

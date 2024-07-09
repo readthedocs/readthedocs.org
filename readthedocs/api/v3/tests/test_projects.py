@@ -395,7 +395,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             "name": "Updated name",
             "repository": {
                 "url": "https://bitbucket.com/rtfd/updated-repository",
-                "type": "hg",
+                "type": "git",
             },
             "language": "es",
             "programming_language": "js",
@@ -429,7 +429,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(
             self.project.repo, "https://bitbucket.com/rtfd/updated-repository"
         )
-        self.assertEqual(self.project.repo_type, "hg")
+        self.assertEqual(self.project.repo_type, "git")
         self.assertEqual(self.project.language, "es")
         self.assertEqual(self.project.programming_language, "js")
         self.assertEqual(self.project.project_url, "https://updated-homepage.org")

@@ -361,12 +361,16 @@ class TestBuildTask(BuildEnvironmentBase):
             "READTHEDOCS_VERSION_NAME": self.version.verbose_name,
             "READTHEDOCS_PROJECT": self.project.slug,
             "READTHEDOCS_LANGUAGE": self.project.language,
+            "READTHEDOCS_REPOSITORY_PATH": os.path.join(
+                self.project.checkout_path(self.version.slug),
+            ),
             "READTHEDOCS_OUTPUT": os.path.join(
                 self.project.checkout_path(self.version.slug), "_readthedocs/"
             ),
             "READTHEDOCS_GIT_CLONE_URL": self.project.repo,
             "READTHEDOCS_GIT_IDENTIFIER": self.version.identifier,
             "READTHEDOCS_GIT_COMMIT_HASH": self.build.commit,
+            "READTHEDOCS_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         }
 
         self._trigger_update_docs_task()
@@ -524,7 +528,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.12.0",
+                            "full_version": "3.12.3",
                             "version": "3",
                         }
                     },
@@ -798,7 +802,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                 ),
                 mock.call("git", "checkout", "--force", "origin/a1b2c3"),
-                mock.call("git", "clean", "-d", "-f", "-f"),
                 mock.call(
                     "git",
                     "ls-remote",

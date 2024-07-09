@@ -22,6 +22,7 @@ Read the Docs: documentation simplified
    /config-file/v2
    /automation-rules
    /guides/reproducible-builds
+   /addons
 
 .. toctree::
    :maxdepth: 2
@@ -111,6 +112,7 @@ Read the Docs: documentation simplified
    /changelog
    /about/index
    Developer Documentation <https://dev.readthedocs.io>
+   Read the Docs website <https://about.readthedocs.com>
 
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.

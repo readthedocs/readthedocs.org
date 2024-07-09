@@ -130,6 +130,9 @@ Configuration of the Python environment to be used.
 python.install
 ``````````````
 
+Read the Docs uses :doc:`pip <pip:index>` by  default to install your Python packages, however if you are using a :ref:`Conda <config-file/v2:conda>` environment to manage your build, you'll need to use the Conda ``environment`` file instead.
+If you have a commercial plan you can also install :doc:`private dependencies </guides/private-python-packages>`.
+
 List of installation methods of packages and requirements.
 You can have several of the following methods.
 
@@ -158,16 +161,11 @@ Example:
        - requirements: docs/requirements.txt
        - requirements: requirements.txt
 
-.. warning::
-
-  If you are using a :ref:`Conda <config-file/v2:conda>` environment to
-  manage the build, this setting will not have any effect. Instead
-  add the extra requirements to the ``environment`` file of Conda.
-
 Packages
 ''''''''
 
-Install the project using ``pip install`` (recommended) or ``python setup.py install`` (deprecated).
+Install the project using ``pip install``.
+The use of ``python setup.py install`` is deprecated.
 
 The path to the package, relative to the root of the project.
 
@@ -186,15 +184,11 @@ The installation method.
 .. _Extra Requirements: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#optional-dependencies
 .. _package dependencies: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#declaring-required-dependency
 
-.. warning::
-
-   You need to install your project with ``pip`` to use ``extra_requirements``.
-
 :Key: ``extra_requirements``
 :Type: ``list``
 :Default: ``[]``
 
-Example:
+For example, to run ``pip install .[docs]``:
 
 .. code-block:: yaml
 
@@ -206,12 +200,6 @@ Example:
          path: .
          extra_requirements:
            - docs
-
-With the previous settings, Read the Docs will execute the next commands:
-
-.. prompt:: bash $
-
-   pip install .[docs]
 
 conda
 ~~~~~
@@ -274,7 +262,7 @@ Image names refer to the operating system Read the Docs uses to build them.
    Arbitrary Docker images are not supported.
 
 :Type: ``string``
-:Options: ``ubuntu-20.04``, ``ubuntu-22.04``, ``ubuntu-lts-latest``
+:Options: ``ubuntu-20.04``, ``ubuntu-22.04``, ``ubuntu-24.04``, ``ubuntu-lts-latest``
 :Required: ``true``
 
 .. note::
@@ -330,9 +318,11 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``3.12``
   - ``latest`` (alias for the latest version available on Read the Docs)
   - ``miniconda3-4.7``
+  - ``miniconda3-3.12-24.1``
   - ``miniconda-latest`` (alias for the latest version available on Read the Docs)
   - ``mambaforge-4.10``
   - ``mambaforge-22.9``
+  - ``mambaforge-23.11``
   - ``mambaforge-latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.nodejs
@@ -371,6 +361,7 @@ Rust version to use.
    - ``1.64``
    - ``1.70``
    - ``1.75``
+   - ``1.78``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.golang
@@ -385,6 +376,7 @@ Go version to use.
    - ``1.19``
    - ``1.20``
    - ``1.21``
+   - ``1.22``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.apt_packages
@@ -464,12 +456,12 @@ When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will
 This allows you to run custom commands and control the build process completely.
 The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read the Docs.
 
-.. warning::
+.. note::
 
-   This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
-   We are currently testing `the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`_
-   on projects using ``build.commands`` configuration key.
-   Use it under your own responsibility.
+   We are using :ref:`our new addons integration <rtd-blog:addons-flyout-menu-beta>`
+   on projects using ``build.commands``.
+   This will become the default soon,
+   but has some slight differences from our previous flyout.
 
 .. code-block:: yaml
 
