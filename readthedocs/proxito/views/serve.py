@@ -635,7 +635,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
     def _get_index_file_redirect(self, request, project, version, filename, full_path):
         """
-        Check if a file is a directory and redirect to its index/README file.
+        Check if a file is a directory and redirect to its index file.
 
         For example:
 
