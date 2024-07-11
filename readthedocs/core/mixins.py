@@ -79,6 +79,7 @@ class DeleteViewWithMessage(DeleteView):
 
     def post(self, request, *args, **kwargs):
         resp = super().post(request, *args, **kwargs)
-        if self.success_message:
+        # Check if resp is a redirect, which means the object was deleted
+        if resp.status_code == 302 and self.success_message:
             messages.success(self.request, self.success_message)
         return resp

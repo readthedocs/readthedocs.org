@@ -504,7 +504,7 @@ class ProjectUsersList(ProjectUsersMixin, FormView):
 
 
 class ProjectUsersCreate(ProjectUsersMixin, CreateView):
-    success_message = _("User added")
+    success_message = _("Invitation sent")
     template_name = "projects/project_users_form.html"
 
 
@@ -984,7 +984,7 @@ class ProjectAdvertisingUpdate(SuccessMessageMixin, PrivateViewMixin, UpdateView
 
 class EnvironmentVariableMixin(ProjectAdminMixin, PrivateViewMixin):
 
-    """Environment Variables to be added when building the Project."""
+    """Environment variables to be added when building the Project."""
 
     model = EnvironmentVariable
     form_class = EnvironmentVariableForm
@@ -1002,11 +1002,11 @@ class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
 
 
 class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
-    success_message = _("Environment Variable created")
+    success_message = _("Environment variable created")
 
 
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage):
-    success_message = _("Environment Variable deleted")
+    success_message = _("Environment variable deleted")
     http_method_names = ["post"]
 
 

@@ -160,7 +160,6 @@ class DeleteOrganizationOwner(
     def post(self, request, *args, **kwargs):
         if self._is_last_user():
             return HttpResponseBadRequest(_("User is the last owner, can't be removed"))
-        messages.success(self.request, self.success_message)
         return super().post(request, *args, **kwargs)
 
 
@@ -199,6 +198,7 @@ class UpdateOrganizationTeamProject(PrivateViewMixin, OrganizationTeamView, Upda
 
 class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, FormView):
     template_name = "organizations/team_member_create.html"
+    # No success message here, since it's set in the form.
 
     def form_valid(self, form):
         # Manually calling to save, since this isn't a ModelFormView.
