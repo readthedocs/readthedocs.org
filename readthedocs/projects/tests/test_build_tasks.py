@@ -2,11 +2,13 @@ import os
 import pathlib
 import textwrap
 import uuid
+from pathlib import Path
 from unittest import mock
 
 import django_dynamic_fixture as fixture
 import pytest
 from django.conf import settings
+from django.test.utils import override_settings
 
 from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
@@ -261,6 +263,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         build_docs_class.assert_called_once_with("mkdocs")  # HTML builder
 
+    @override_settings(DOCROOT="/tmp/readthedocs-tests/git-repository/")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_updates_documentation_type(self, load_yaml_config):
         assert self.version.documentation_type == "sphinx"
@@ -404,6 +407,7 @@ class TestBuildTask(BuildEnvironmentBase):
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
         assert build_env_vars == expected_build_env_vars
 
+    @override_settings(DOCROOT="/tmp/readthedocs-tests/git-repository/")
     @mock.patch("readthedocs.projects.tasks.builds.shutil")
     @mock.patch("readthedocs.projects.tasks.builds.index_build")
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
@@ -463,16 +467,28 @@ class TestBuildTask(BuildEnvironmentBase):
         shutilmock.move.assert_has_calls(
             [
                 mock.call(
-                    f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{filename}.epub",
-                    f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{self.project.slug}.epub",
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{filename}.zip"
+                    ),
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{self.project.slug}.zip"
+                    ),
                 ),
                 mock.call(
-                    f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{filename}.zip",
-                    f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{self.project.slug}.zip",
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{filename}.pdf"
+                    ),
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{self.project.slug}.pdf"
+                    ),
                 ),
                 mock.call(
-                    f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{filename}.pdf",
-                    f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{self.project.slug}.pdf",
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{filename}.epub"
+                    ),
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{self.project.slug}.epub"
+                    ),
                 ),
             ]
         )
