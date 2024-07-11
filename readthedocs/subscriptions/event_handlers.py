@@ -6,7 +6,7 @@ https://docs.dj-stripe.dev/en/master/usage/webhooks/.
 import requests
 import structlog
 from django.conf import settings
-from django.contrib import humanize
+from django.contrib.humanize.templatetags import humanize
 from django.db.models import Sum
 from django.utils import timezone
 from djstripe import models as djstripe
