@@ -1,7 +1,7 @@
 import re
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
@@ -12,7 +12,16 @@ class TestViews(TestCase):
 
     def test_csp_headers(self):
         self.client.force_login(self.user)
-        response = self.client.get(reverse("gold_detail"))
-        self.assertEqual(response.status_code, 200)
-        csp = response["Content-Security-Policy"]
-        self.assertTrue(re.match(r".*\s+script-src [^;]*'unsafe-inline'", csp))
+        csp_header = "Content-Security-Policy"
+        script_src_regex = re.compile(r".*\s+script-src [^;]*'unsafe-inline'")
+        url = reverse("gold_detail")
+
+        with override_settings(RTD_EXT_THEME_ENABLED=False):
+            resp = self.client.get(url)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIsNone(script_src_regex.match(resp[csp_header]))
+
+        with override_settings(RTD_EXT_THEME_ENABLED=True):
+            resp = self.client.get(url)
+            self.assertEqual(resp.status_code, 200)
+            self.assertTrue(script_src_regex.match(resp[csp_header]))
