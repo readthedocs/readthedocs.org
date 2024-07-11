@@ -42,6 +42,7 @@ def assert_path_is_inside_docroot(path):
         log.error(
             "Suspicious operation outside the docroot directory.",
             path_resolved=str(resolved_path),
+            docroot=settings.DOCROOT,
         )
         raise SuspiciousFileOperation(path)
 

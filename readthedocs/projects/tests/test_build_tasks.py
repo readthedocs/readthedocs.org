@@ -1,11 +1,14 @@
 import os
 import pathlib
 import textwrap
+import uuid
+from pathlib import Path
 from unittest import mock
 
 import django_dynamic_fixture as fixture
 import pytest
 from django.conf import settings
+from django.test.utils import override_settings
 
 from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
@@ -260,6 +263,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         build_docs_class.assert_called_once_with("mkdocs")  # HTML builder
 
+    @override_settings(DOCROOT="/tmp/readthedocs-tests/git-repository/")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_updates_documentation_type(self, load_yaml_config):
         assert self.version.documentation_type == "sphinx"
@@ -403,6 +407,8 @@ class TestBuildTask(BuildEnvironmentBase):
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
         assert build_env_vars == expected_build_env_vars
 
+    @override_settings(DOCROOT="/tmp/readthedocs-tests/git-repository/")
+    @mock.patch("readthedocs.projects.tasks.builds.shutil")
     @mock.patch("readthedocs.projects.tasks.builds.index_build")
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
@@ -417,6 +423,7 @@ class TestBuildTask(BuildEnvironmentBase):
         send_external_build_status,
         build_complete,
         index_build,
+        shutilmock,
     ):
         load_yaml_config.return_value = get_build_config(
             {
@@ -433,12 +440,16 @@ class TestBuildTask(BuildEnvironmentBase):
         # Create the artifact paths, so it's detected by the builder
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="json"))
+        filename = str(uuid.uuid4())
         for f in ("htmlzip", "epub", "pdf"):
+            extension = "zip" if f == "htmlzip" else f
             os.makedirs(self.project.artifact_path(version=self.version.slug, type_=f))
             pathlib.Path(
                 os.path.join(
                     self.project.artifact_path(version=self.version.slug, type_=f),
-                    f"{self.project.slug}.{f}",
+                    # Use a random name for the offline format.
+                    # We will automatically rename this file to filename El Proxito expects.
+                    f"{filename}.{extension}",
                 )
             ).touch()
 
@@ -451,6 +462,36 @@ class TestBuildTask(BuildEnvironmentBase):
         ).touch()
 
         self._trigger_update_docs_task()
+
+        # Offline formats were renamed to the correct filename.
+        shutilmock.move.assert_has_calls(
+            [
+                mock.call(
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{filename}.zip"
+                    ),
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{self.project.slug}.zip"
+                    ),
+                ),
+                mock.call(
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{filename}.pdf"
+                    ),
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{self.project.slug}.pdf"
+                    ),
+                ),
+                mock.call(
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{filename}.epub"
+                    ),
+                    Path(
+                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{self.project.slug}.epub"
+                    ),
+                ),
+            ]
+        )
 
         # It has to be called twice, ``before_start`` and ``after_return``
         clean_build.assert_has_calls(
