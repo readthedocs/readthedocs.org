@@ -7,7 +7,6 @@ Read the Docs: documentation simplified
    :caption: Getting started
 
    /tutorial/index
-   /choosing-a-site
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
@@ -145,7 +144,7 @@ Open source and user focused
     |org_brand| hosts documentation for over 100,000 large
     and small open source projects.
     |com_brand| supports hundreds of organizations with product and internal documentation.
-    Learn more about :doc:`our two platforms </choosing-a-site>`.
+    Learn more about these differences in `our pricing page <https://about.readthedocs.com/pricing/>`_.
 
 First time here?
 ----------------
@@ -156,9 +155,6 @@ We have a few places for you to get started:
 
 :doc:`/tutorial/index`
   Take the first practical steps with Read the Docs.
-
-:doc:`/choosing-a-site`
-  Learn about the differences between |org_brand| and |com_brand|.
 
 :doc:`/examples`
   Start your journey with an example project to hit the ground running.
