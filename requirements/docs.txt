@@ -35,7 +35,7 @@ docutils==0.20.1
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-exceptiongroup==1.2.1
+exceptiongroup==1.2.2
     # via anyio
 fonttools==4.53.1
     # via matplotlib
