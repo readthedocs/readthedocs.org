@@ -257,7 +257,7 @@ class Project(models.Model):
         _("Repository URL"),
         max_length=255,
         validators=[validate_repository_url],
-        help_text=_("Hosted documentation repository URL"),
+        help_text=_("Git repository URL"),
         db_index=True,
     )
 
