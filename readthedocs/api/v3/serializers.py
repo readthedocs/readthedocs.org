@@ -789,19 +789,9 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             # NOTE: we use a serializer without expandable fields to avoid
             # leaking information about the organization through the project.
             "organization": (
-                "readthedocs.api.v3.serializers.OrganizationSerializerWithoutExpandableFields",
+                "readthedocs.api.v3.serializers.OrganizationSerializer",
                 # NOTE: we cannot have a Project with multiple organizations.
                 {"source": "organizations.first"},
-            ),
-            # NOTE: we are leaking the slugs of all teams linked to this project
-            # to anyone with access to this prtoject. It's only the slug, but still.
-            "teams": (
-                serializers.SlugRelatedField,
-                {
-                    "slug_field": "slug",
-                    "many": True,
-                    "read_only": True,
-                },
             ),
         }
 
@@ -1170,7 +1160,7 @@ class TeamSerializer(FlexFieldsModelSerializer):
         }
 
 
-class OrganizationSerializerWithoutExpandableFields(FlexFieldsModelSerializer):
+class OrganizationSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(source="pub_date")
     modified = serializers.DateTimeField(source="modified_date")
     owners = UserSerializer(many=True)
@@ -1191,17 +1181,6 @@ class OrganizationSerializerWithoutExpandableFields(FlexFieldsModelSerializer):
             "disabled",
             "_links",
         )
-
-
-class OrganizationSerializerWithExpandableFields(
-    OrganizationSerializerWithoutExpandableFields
-):
-    class Meta(OrganizationSerializerWithoutExpandableFields.Meta):
-        expandable_fields = {
-            # TODO: we are leaking all teams and its members to anyone who is
-            # an admin member of the organization.
-            "teams": (TeamSerializer, {"many": True}),
-        }
 
 
 class RemoteOrganizationSerializer(serializers.ModelSerializer):

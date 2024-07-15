@@ -34,7 +34,7 @@ from readthedocs.oauth.models import (
     RemoteRepository,
     RemoteRepositoryRelation,
 )
-from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import (
     EnvironmentVariable,
     Project,
@@ -71,7 +71,7 @@ from .serializers import (
     BuildSerializer,
     EnvironmentVariableSerializer,
     NotificationSerializer,
-    OrganizationSerializerWithExpandableFields,
+    OrganizationSerializer,
     ProjectCreateSerializer,
     ProjectSerializer,
     ProjectUpdateSerializer,
@@ -82,6 +82,7 @@ from .serializers import (
     SubprojectCreateSerializer,
     SubprojectDestroySerializer,
     SubprojectSerializer,
+    TeamSerializer,
     UserSerializer,
     VersionSerializer,
     VersionUpdateSerializer,
@@ -666,7 +667,7 @@ class OrganizationsViewSetBase(
     # Also note that Read the Docs for Business expose this endpoint already.
 
     model = Organization
-    serializer_class = OrganizationSerializerWithExpandableFields
+    serializer_class = OrganizationSerializer
     queryset = Organization.objects.none()
     permission_classes = (IsAuthenticated,)
 
@@ -680,7 +681,8 @@ class OrganizationsProjectsViewSet(
     NestedViewSetMixin,
     OrganizationQuerySetMixin,
     FlexFieldsMixin,
-    ReadOnlyModelViewSet,
+    ListModelMixin,
+    GenericViewSet,
 ):
     model = Project
     lookup_field = "slug"
@@ -693,6 +695,21 @@ class OrganizationsProjectsViewSet(
 
     def get_view_name(self):
         return f"Organizations Projects {self.suffix}"
+
+
+class OrganizationsTeamsViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
+    FlexFieldsMixin,
+    ListModelMixin,
+    GenericViewSet,
+):
+    model = Team
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
+    permission_classes = [IsAuthenticated & IsOrganizationAdmin]
+    permit_list_expands = ["members"]
 
 
 class NotificationsOrganizationViewSet(

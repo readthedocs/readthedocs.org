@@ -8,6 +8,7 @@ from .views import (
     NotificationsOrganizationViewSet,
     NotificationsProjectViewSet,
     NotificationsUserViewSet,
+    OrganizationsTeamsViewSet,
     OrganizationsViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
@@ -137,6 +138,13 @@ organizations.register(
     r"notifications",
     NotificationsOrganizationViewSet,
     basename="organizations-notifications",
+    parents_query_lookups=["organization__slug"],
+)
+
+organizations.register(
+    "teams",
+    OrganizationsTeamsViewSet,
+    basename="organizations-teams",
     parents_query_lookups=["organization__slug"],
 )
 

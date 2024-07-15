@@ -202,7 +202,8 @@ Projects list
 
       :Query Parameters:
 
-         * **expand** (*string*) -- with ``organization`` and ``teams``.
+         * **expand** (*string*) -- Allows to add/expand some extra fields in the response.
+           Allowed values are: ``organization``.
 
 
 
@@ -314,7 +315,8 @@ Project details
 
       :Query Parameters:
 
-         * **expand** (*string*) -- with ``organization`` and ``teams``.
+         * **expand** (*string*) -- Allows to add/expand some extra fields in the response.
+           Allowed values are: ``organization``.
 
     .. note::
 
@@ -1697,6 +1699,58 @@ Organization projects list
            ]
        }
 
+Organization teams list
++++++++++++++++++++++++
+
+.. http:get:: /api/v3/organizations/(string:organization_slug)/teams/
+
+    Retrieve list of teams under an organization.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.com/api/v3/organizations/pypa/teams/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.com/api/v3/organizations/pypa/teams/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+       {
+          "count": 2,
+          "next": null,
+          "previous": null,
+          "results": [
+             {
+                   "access": "admin",
+                   "created": "2024-07-01T21:19:55.573819Z",
+                   "modified": "2024-07-01T21:19:55.573837Z",
+                   "name": "Admins",
+                   "slug": "admins"
+             },
+             {
+                   "access": "readonly",
+                   "created": "2024-07-01T21:19:55.593815Z",
+                   "modified": "2024-07-01T21:19:55.593829Z",
+                   "name": "Read Only",
+                   "slug": "read-only"
+             }
+          ]
+       }
+
+    :query string expand: Allows to add/expand some extra fields in the response.
+                          Allowed values are: ``members``.
 
 Remote organizations
 ~~~~~~~~~~~~~~~~~~~~
