@@ -419,8 +419,8 @@ class UpdateProjectForm(
             "description",
             "tags",
             # Booleans
-            "external_builds_enabled",
             "external_builds_privacy_level",
+            "external_builds_enabled",
             # Deprecated
             "analytics_code",
             "analytics_disabled",
