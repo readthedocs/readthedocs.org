@@ -51,11 +51,6 @@ How-to guides: content, themes and SEO
     There are a number of use cases for embedding content,
     so we've built our integration in a way that enables users to build on top of it.
 
-⏩️ :doc:`Removing "Edit on ..." buttons from documentation </guides/remove-edit-buttons>`
-    When building your documentation,
-    Read the Docs automatically adds buttons at the top of your documentation and in the versions menu that point readers to your repository to make changes.
-    Here's how to remove it.
-
 ⏩️ :doc:`Adding "Edit Source" links on your Sphinx theme </guides/edit-source-links-sphinx>`
     Using your own theme?
     Add some extra variables in the Sphinx ``html_context``,
