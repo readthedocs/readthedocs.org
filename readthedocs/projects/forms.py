@@ -427,9 +427,11 @@ class UpdateProjectForm(
             "show_version_warning",
         )
 
+    # Make description smaller, only a CharField
     description = forms.CharField(
         required=False,
         max_length=150,
+        help_text=_("Short description of this project"),
     )
 
     def __init__(self, *args, **kwargs):
