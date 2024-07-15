@@ -200,7 +200,7 @@ Learn more about our hosting features:
   Host your documentation in multiple languages.
 
 :doc:`/versioning-schemes`
-  Learn about different versioning schemes.
+  Learn about different URL versioning schemes.
 
 :doc:`/custom-domains`
   Host your documentation on your own domain.

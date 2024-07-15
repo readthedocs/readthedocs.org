@@ -280,7 +280,7 @@ class Project(models.Model):
         help_text=_("URL that documentation is expected to serve from"),
     )
     versioning_scheme = models.CharField(
-        _("URL Versioning scheme"),
+        _("URL versioning scheme"),
         max_length=120,
         default=constants.MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
         choices=constants.VERSIONING_SCHEME_CHOICES,
