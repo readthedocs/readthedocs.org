@@ -58,8 +58,8 @@ How-to guides: content, themes and SEO
 
 ⏩️ :doc:`Adding "Edit Source" links on your Sphinx theme </guides/edit-source-links-sphinx>`
     Using your own theme?
-    Read the Docs injects some extra variables in the Sphinx ``html_context``,
-    some of which you can use to add an "edit source" link at the top of all pages.
+    Add some extra variables in the Sphinx ``html_context``,
+    to add an "edit source" link at the top of all pages.
 
 .. toctree::
    :maxdepth: 1
