@@ -1,5 +1,6 @@
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
@@ -254,6 +255,11 @@ class TestProjectUsersViews(TestCase):
         )
         self.assertEqual(resp.status_code, 302)
         self.assertNotIn(self.user, self.project.users.all())
+
+        # Ensure a message is shown
+        messages = list(get_messages(resp.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "User deleted")
 
     def test_delete_last_maintainer(self):
         url = reverse("projects_users_delete", args=[self.project.slug])

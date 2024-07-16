@@ -3,6 +3,7 @@ from functools import lru_cache
 
 import structlog
 from django.conf import settings
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, render
 
 from readthedocs.projects.models import Project
@@ -40,7 +41,7 @@ class ProjectOnboardMixin:
 
 
 # Mixins
-class ProjectAdminMixin:
+class ProjectAdminMixin(SuccessMessageMixin):
 
     """
     Mixin class that provides project sublevel objects.
@@ -49,6 +50,9 @@ class ProjectAdminMixin:
 
     project_url_field
         The URL kwarg name for the project slug
+
+    success_message
+        Message when the form is successfully saved, comes from SuccessMessageMixin
     """
 
     project_url_field = "project_slug"
