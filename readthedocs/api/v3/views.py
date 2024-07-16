@@ -2,6 +2,7 @@ import django_filters.rest_framework as filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Exists, OuterRef
+from django.shortcuts import get_object_or_404
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
@@ -23,6 +24,7 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
+from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -69,7 +71,7 @@ from .serializers import (
     BuildSerializer,
     EnvironmentVariableSerializer,
     NotificationSerializer,
-    OrganizationSerializer,
+    OrganizationSerializerWithExpandableFields,
     ProjectCreateSerializer,
     ProjectSerializer,
     ProjectUpdateSerializer,
@@ -477,6 +479,24 @@ class NotificationsBuildViewSet(
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
     filterset_class = NotificationFilter
+    # We need to show build notifications to anonymous users
+    # on public builds (the queryset will filter them out).
+    # We allow project admins to edit notifications.
+    permission_classes = [ReadOnlyPermission | IsProjectAdmin]
+
+    def _get_parent_build(self):
+        """
+        Overriden to filter by builds the current user has access to.
+
+        This includes public builds from other projects.
+        """
+        build_pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
+        project_slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
+        return get_object_or_404(
+            Build.objects.api(user=self.request.user),
+            pk=build_pk,
+            project__slug=project_slug,
+        )
 
     def get_queryset(self):
         build = self._get_parent_build()
@@ -646,7 +666,7 @@ class OrganizationsViewSetBase(
     # Also note that Read the Docs for Business expose this endpoint already.
 
     model = Organization
-    serializer_class = OrganizationSerializer
+    serializer_class = OrganizationSerializerWithExpandableFields
     queryset = Organization.objects.none()
     permission_classes = (IsAuthenticated,)
 
@@ -659,6 +679,7 @@ class OrganizationsProjectsViewSet(
     APIv3Settings,
     NestedViewSetMixin,
     OrganizationQuerySetMixin,
+    FlexFieldsMixin,
     ReadOnlyModelViewSet,
 ):
     model = Project
@@ -667,10 +688,8 @@ class OrganizationsProjectsViewSet(
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
-    permit_list_expands = [
-        "organization",
-        "organization.teams",
-    ]
+    # We don't need to expand the organization, it's already known.
+    permit_list_expands = []
 
     def get_view_name(self):
         return f"Organizations Projects {self.suffix}"

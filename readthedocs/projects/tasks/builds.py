@@ -5,10 +5,12 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 import os
+import shutil
 import signal
 import socket
 import subprocess
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import structlog
 from celery import Task
@@ -40,6 +42,7 @@ from readthedocs.builds.signals import build_complete
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
+from readthedocs.core.utils.filesystem import assert_path_is_inside_docroot
 from readthedocs.doc_builder.director import BuildDirector
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
@@ -605,7 +608,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # These output format does not support multiple files yet.
             # In case multiple files are found, the upload for this format is not performed.
             if artifact_type in ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT:
-                artifact_format_files = len(os.listdir(artifact_directory))
+                list_dir = os.listdir(artifact_directory)
+                artifact_format_files = len(list_dir)
                 if artifact_format_files > 1:
                     log.error(
                         "Multiple files are not supported for this format. "
@@ -625,6 +629,18 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                             "artifact_type": artifact_type,
                         },
                     )
+
+                # Rename file as "<project_slug>-<version_slug>.<artifact_type>",
+                # which is the filename that Proxito serves for offline formats.
+                filename = list_dir[0]
+                _, extension = filename.rsplit(".")
+                path = Path(artifact_directory) / filename
+                destination = (
+                    Path(artifact_directory) / f"{self.data.project.slug}.{extension}"
+                )
+                assert_path_is_inside_docroot(path)
+                assert_path_is_inside_docroot(destination)
+                shutil.move(path, destination)
 
             # If all the conditions were met, the artifact is valid
             valid_artifacts.append(artifact_type)
