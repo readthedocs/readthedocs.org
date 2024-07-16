@@ -41,7 +41,6 @@ from readthedocs.proxito.views.mixins import (
     ServeRedirectMixin,
     StorageFileNotFound,
 )
-from readthedocs.proxito.views.utils import allow_readme_html_as_index
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
@@ -389,7 +388,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         This does a couple of things:
 
         * Handles directory indexing for URLs that don't end in a slash
-        * Handles directory indexing for README.html (for now)
         * Check for user redirects
         * Record the broken link for analytics
         * Handles custom 404 serving
@@ -491,7 +489,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         # Check and perform redirects on 404 handler for non-external domains only.
         # NOTE: This redirect check must be done after trying files like
-        # ``index.html`` and ``README.html`` to emulate the behavior we had when
+        # ``index.html`` to emulate the behavior we had when
         # serving directly from NGINX without passing through Python.
         if not unresolved_domain.is_from_external_domain:
             try:
@@ -637,58 +635,36 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
     def _get_index_file_redirect(self, request, project, version, filename, full_path):
         """
-        Check if a file is a directory and redirect to its index/README file.
+        Check if a file is a directory and redirect to its index file.
 
         For example:
 
         - /en/latest/foo -> /en/latest/foo/index.html
-        - /en/latest/foo -> /en/latest/foo/README.html
-        - /en/latest/foo/ -> /en/latest/foo/README.html
         """
+        # If the path ends with `/`, we already tried to serve
+        # the `/index.html` file.
+        if full_path.endswith("/"):
+            return None
 
-        if allow_readme_html_as_index():
-            tryfiles = ["index.html", "README.html"]
-            # If the path ends with `/`, we already tried to serve
-            # the `/index.html` file, so we only need to test for
-            # the `/README.html` file.
-            if full_path.endswith("/"):
-                tryfiles = ["README.html"]
-        else:
-            tryfiles = ["index.html"]
+        tryfile = (filename.rstrip("/") + "/index.html").lstrip("/")
+        if not HTMLFile.objects.filter(version=version, path=tryfile).exists():
+            return None
 
-        tryfiles = [
-            (filename.rstrip("/") + f"/{tryfile}").lstrip("/") for tryfile in tryfiles
-        ]
-        available_index_files = list(
-            HTMLFile.objects.filter(version=version, path__in=tryfiles).values_list(
-                "path", flat=True
-            )
-        )
+        log.info("Redirecting to index file.", tryfile=tryfile)
+        # Use urlparse so that we maintain GET args in our redirect
+        parts = urlparse(full_path)
+        new_path = parts.path.rstrip("/") + "/"
 
-        for tryfile in tryfiles:
-            if tryfile not in available_index_files:
-                continue
+        # `full_path` doesn't include query params.`
+        query = urlparse(request.get_full_path()).query
+        redirect_url = parts._replace(
+            path=new_path,
+            query=query,
+        ).geturl()
 
-            log.info("Redirecting to index file.", tryfile=tryfile)
-            # Use urlparse so that we maintain GET args in our redirect
-            parts = urlparse(full_path)
-            if allow_readme_html_as_index() and tryfile.endswith("README.html"):
-                new_path = parts.path.rstrip("/") + "/README.html"
-            else:
-                new_path = parts.path.rstrip("/") + "/"
-
-            # `full_path` doesn't include query params.`
-            query = urlparse(request.get_full_path()).query
-            redirect_url = parts._replace(
-                path=new_path,
-                query=query,
-            ).geturl()
-
-            # TODO: decide if we need to check for infinite redirect here
-            # (from URL == to URL)
-            return HttpResponseRedirect(redirect_url)
-
-        return None
+        # TODO: decide if we need to check for infinite redirect here
+        # (from URL == to URL)
+        return HttpResponseRedirect(redirect_url)
 
 
 class ServeError404(SettingsOverrideObject):
