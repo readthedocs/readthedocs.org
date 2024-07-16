@@ -55,7 +55,7 @@ A configuration file with explicit dependencies looks like this:
    # Defining the exact version will make sure things don't break
    sphinx==5.3.0
    sphinx_rtd_theme==1.1.1
-   readthedocs-sphinx-search==0.1.1
+   sphinx-notfound-page==1.0.2
 
 .. tip::
 
