@@ -10,10 +10,9 @@
 Default versions of dependencies
 ================================
 
-Read the Docs supports two tools to build your documentation:
+Read the Docs supports any documentation tool to build your documentation.
+However, we provide pre-defined builders for
 `Sphinx <https://www.sphinx-doc.org/>`__ and `MkDocs <https://www.mkdocs.org/>`__.
-In order to provide :doc:`several features </reference/features>`,
-Read the Docs injects or modifies some content while building your docs.
 
 In the past we used to install several dependencies to a specific version and update them after some time,
 but doing so would break some builds and make it more difficult for new projects to use new versions.
@@ -76,12 +75,3 @@ pillow:
 recommonmark:
   Latest version by default installed via ``conda``.
   Projects created after August 7, 2023 won't install this dependency by default.
-
-Internal dependencies
----------------------
-
-Internal dependencies are needed to integrate your docs with Read the Docs.
-We guarantee that these dependencies will work with all current supported versions of our tools,
-you don't need to specify them in your requirements.
-
-- `readthedocs-sphinx-ext <https://github.com/readthedocs/readthedocs-sphinx-ext>`__
