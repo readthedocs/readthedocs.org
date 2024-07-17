@@ -1,3 +1,28 @@
+Version 11.2.0
+--------------
+
+:Date: July 16, 2024
+
+* `@humitos <https://github.com/humitos>`__: Pin the theme to a commit (`#11472 <https://github.com/readthedocs/readthedocs.org/pull/11472>`__)
+* `@humitos <https://github.com/humitos>`__: Dos: update them based on addons updates (`#11468 <https://github.com/readthedocs/readthedocs.org/pull/11468>`__)
+* `@stsewd <https://github.com/stsewd>`__: CSP: apply extra CSP rules only when ext-theme is enabled (`#11466 <https://github.com/readthedocs/readthedocs.org/pull/11466>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Refactor admin views to use the SuccessMessageMixin (`#11463 <https://github.com/readthedocs/readthedocs.org/pull/11463>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: use a faster password hasher (`#11462 <https://github.com/readthedocs/readthedocs.org/pull/11462>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix slack notifications for stripe events (`#11460 <https://github.com/readthedocs/readthedocs.org/pull/11460>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove old flyout image (`#11459 <https://github.com/readthedocs/readthedocs.org/pull/11459>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: Filter build notifications by current project (`#11458 <https://github.com/readthedocs/readthedocs.org/pull/11458>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove past sponsors and old blog post link (`#11457 <https://github.com/readthedocs/readthedocs.org/pull/11457>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: tell users to set the canonical URL manually (`#11455 <https://github.com/readthedocs/readthedocs.org/pull/11455>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.1.3 (`#11454 <https://github.com/readthedocs/readthedocs.org/pull/11454>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: Allow other users to see build notifications from public projects (`#11449 <https://github.com/readthedocs/readthedocs.org/pull/11449>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Add minimal viable docs for addons (`#11444 <https://github.com/readthedocs/readthedocs.org/pull/11444>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: remove redirect for `README.html` files (`#11443 <https://github.com/readthedocs/readthedocs.org/pull/11443>`__)
+* `@stsewd <https://github.com/stsewd>`__: CSP: remove obsolete block-all-mixed-content directive (`#11436 <https://github.com/readthedocs/readthedocs.org/pull/11436>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: avoid leaking information through expandable fields (`#11381 <https://github.com/readthedocs/readthedocs.org/pull/11381>`__)
+* `@janbrasna <https://github.com/janbrasna>`__: chore: Update guidelines links (`#11261 <https://github.com/readthedocs/readthedocs.org/pull/11261>`__)
+* `@nakamura-to <https://github.com/nakamura-to>`__: Correcte the tx push command (`#11204 <https://github.com/readthedocs/readthedocs.org/pull/11204>`__)
+* `@humitos <https://github.com/humitos>`__: Build: rename PDF/ePUB filename to valid one automatically (`#11198 <https://github.com/readthedocs/readthedocs.org/pull/11198>`__)
+
 Version 11.1.3
 --------------
 
