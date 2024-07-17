@@ -117,6 +117,7 @@ class EditOrganization(
     UpdateView,
 ):
     template_name = "organizations/admin/organization_edit.html"
+    success_message = _("Organization updated")
 
 
 class DeleteOrganization(
@@ -126,6 +127,7 @@ class DeleteOrganization(
     DeleteViewWithMessage,
 ):
     template_name = "organizations/admin/organization_delete.html"
+    success_message = _("Organization deleted")
 
     def get_success_url(self):
         return reverse_lazy("organization_list")
@@ -134,6 +136,7 @@ class DeleteOrganization(
 # Owners views
 class EditOrganizationOwners(PrivateViewMixin, OrganizationOwnerView, ListView):
     template_name = "organizations/admin/owners_edit.html"
+    success_message = _("Organization owners updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
