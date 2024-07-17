@@ -62,13 +62,13 @@ class Organization(models.Model):
     )
     description = models.TextField(
         _("Description"),
-        help_text="Tell us a little about yourself.",
+        help_text="A short description shown on your profile page",
         blank=True,
         null=True,
     )
     url = models.URLField(
         _("Home Page"),
-        help_text="The main website for your Organization",
+        help_text="The main website for your organization",
         max_length=255,
         blank=True,
         null=True,
