@@ -407,30 +407,31 @@ class UpdateProjectForm(
             # Basics and repo settings
             "name",
             "repo",
-            "repo_type",
-            "default_branch",
             "language",
-            "description",
-            # Project related settings
             "default_version",
             "privacy_level",
             "versioning_scheme",
-            "external_builds_enabled",
-            "external_builds_privacy_level",
+            "default_branch",
             "readthedocs_yaml_path",
-            "analytics_code",
-            "analytics_disabled",
-            "show_version_warning",
             # Meta data
             "programming_language",
             "project_url",
+            "description",
             "tags",
+            # Booleans
+            "external_builds_privacy_level",
+            "external_builds_enabled",
+            # Deprecated
+            "analytics_code",
+            "analytics_disabled",
+            "show_version_warning",
         )
 
+    # Make description smaller, only a CharField
     description = forms.CharField(
         required=False,
         max_length=150,
-        widget=forms.Textarea,
+        help_text=_("Short description of this project"),
     )
 
     def __init__(self, *args, **kwargs):
@@ -464,6 +465,11 @@ class UpdateProjectForm(
 
         if not settings.ALLOW_PRIVATE_REPOS:
             for field in ["privacy_level", "external_builds_privacy_level"]:
+                self.fields.pop(field)
+
+        # Remove analytics from new dashboard
+        if settings.RTD_EXT_THEME_ENABLED:
+            for field in ["analytics_code", "analytics_disabled"]:
                 self.fields.pop(field)
 
         default_choice = (None, "-" * 9)
