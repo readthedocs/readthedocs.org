@@ -203,6 +203,30 @@ class ProjectsEndpointTests(APIEndpointMixin):
             self._get_response_dict("projects-superproject"),
         )
 
+    def test_projects_sync_versions(self):
+        # Ensure a default version exists to sync
+        self.project.update_latest_version()
+
+        url = reverse(
+            "projects-sync-versions",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict("projects-sync-versions"),
+        )
+
     def test_others_projects_builds_list(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
