@@ -144,7 +144,7 @@ Open source and user focused
     |org_brand| hosts documentation for over 100,000 large
     and small open source projects.
     |com_brand| supports hundreds of organizations with product and internal documentation.
-    Learn more about these differences in `our pricing page <https://about.readthedocs.com/pricing/>`_.
+    Learn more about these differences on `the pricing page <https://about.readthedocs.com/pricing/>`_.
 
 First time here?
 ----------------
