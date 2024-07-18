@@ -24,6 +24,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelV
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -354,6 +355,10 @@ class VersionsViewSet(
         version = self.get_object()
         version.post_save(was_active=was_active)
         return result
+
+    def get_queryset(self):
+        """Overridden to allow internal versions only."""
+        return super().get_queryset().exclude(type=EXTERNAL)
 
 
 class BuildsViewSet(
