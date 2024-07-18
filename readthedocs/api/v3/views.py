@@ -162,6 +162,9 @@ class ProjectsViewSetBase(
         if self.action in ("update", "partial_update"):
             return ProjectUpdateSerializer
 
+        # Default serializer so that sync_versions works with the BrowseableAPI
+        return ProjectSerializer
+
     def get_queryset(self):
         # Allow hitting ``/api/v3/projects/`` to list their own projects
         if self.basename == "projects" and self.action == "list":
