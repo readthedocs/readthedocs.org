@@ -499,6 +499,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     superproject = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
     notifications = serializers.SerializerMethodField()
+    sync_versions = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse("projects-detail", kwargs={"project_slug": obj.slug})
@@ -552,6 +553,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     def get_superproject(self, obj):
         path = reverse(
             "projects-superproject",
+            kwargs={
+                "project_slug": obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_sync_versions(self, obj):
+        path = reverse(
+            "projects-sync-versions",
             kwargs={
                 "project_slug": obj.slug,
             },

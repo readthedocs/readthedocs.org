@@ -227,6 +227,8 @@ class ProjectsViewSetBase(
         """
         Kick off a task to sync versions for a project.
 
+        POST to this endpoint to trigger a task that syncs versions for the project.
+
         This will be used in a button in the frontend,
         but also can be used to trigger a sync from the API.
         """
