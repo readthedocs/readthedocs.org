@@ -28,6 +28,7 @@ from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
     RemoteOrganization,
@@ -217,6 +218,25 @@ class ProjectsViewSetBase(
             return Response(data)
         except Exception:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=["post"])
+    def sync_versions(self, request, project_slug):
+        """
+        Kick off a task to sync versions for a project.
+
+        This will be used in a button in the frontend,
+        but also can be used to trigger a sync from the API.
+        """
+        project = self.get_object()
+        triggered = trigger_sync_versions(project)
+        data = {}
+        if triggered:
+            data.update({"triggered": True})
+            code = status.HTTP_202_ACCEPTED
+        else:
+            data.update({"triggered": False})
+            code = status.HTTP_400_BAD_REQUEST
+        return Response(data=data, status=code)
 
 
 class ProjectsViewSet(SettingsOverrideObject):
