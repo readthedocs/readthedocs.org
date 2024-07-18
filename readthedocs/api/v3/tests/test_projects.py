@@ -220,7 +220,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.post(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 202)
 
         self.assertDictEqual(
             response.json(),
