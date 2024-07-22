@@ -204,8 +204,8 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
         return Organization.objects.for_admin_user(user=user)
 
     def get_queryset(self):
-        """Filter organizations based on the permissions of the current user."""
-        return Organization.objects.for_user(user=self.request.user)
+        """Filter organizations or related resources based on the permissions of the current user."""
+        return self.model.objects.api(user=self.request.user)
 
 
 class UserQuerySetMixin(NestedParentObjectMixin):

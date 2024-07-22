@@ -572,7 +572,6 @@ class RemoteRepositoryViewSet(
     model = RemoteRepository
     serializer_class = RemoteRepositorySerializer
     filterset_class = RemoteRepositoryFilter
-    queryset = RemoteRepository.objects.all()
     permission_classes = (IsAuthenticated,)
     permit_list_expands = ["remote_organization", "projects"]
 
@@ -660,6 +659,7 @@ class OrganizationsViewSetBase(
     APIv3Settings,
     GenericViewSet,
 ):
+    # TODO: migrate code from corporate here.
     # NOTE: this viewset is only useful for nested URLs required for notifications:
     # /api/v3/organizations/<slug>/notifications/
     # However, accessing to /api/v3/organizations/ or /api/v3/organizations/<slug>/ will return 404.
@@ -681,12 +681,10 @@ class OrganizationsProjectsViewSet(
     NestedViewSetMixin,
     OrganizationQuerySetMixin,
     FlexFieldsMixin,
-    ReadOnlyModelViewSet,
+    ListModelMixin,
+    GenericViewSet,
 ):
     model = Project
-    lookup_field = "slug"
-    lookup_url_kwarg = "project_slug"
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
     # We don't need to expand the organization, it's already known.
@@ -712,7 +710,6 @@ class NotificationsOrganizationViewSet(
     lookup_field = "pk"
     lookup_url_kwarg = "notification_pk"
     serializer_class = NotificationSerializer
-    queryset = Notification.objects.all()
     filterset_class = NotificationFilter
     permission_classes = [IsAuthenticated & IsOrganizationAdmin]
 
