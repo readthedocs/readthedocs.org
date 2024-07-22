@@ -650,9 +650,18 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def on_success(self, retval, task_id, args, kwargs):
         valid_artifacts = self.get_valid_artifact_types()
 
-        # NOTE: we are updating the db version instance *only* when
+        # NOTE: we are updating the db version instance *only* if HTML build was successful
         # TODO: remove this condition and *always* update the DB Version instance
         if "html" in valid_artifacts:
+            if settings.READ_THE_DOCS_EXTENSIONS:
+                from readthedocsext.cdn.tasks import purge_tags
+
+                if not self.data.version.built:
+                    # When the version was previously NOT built and now this build was successful,
+                    # we purge the Addons API cache at this point.
+                    # There is a new version that has to be shown in the flyout.
+                    purge_tags.delay(["rtd-addons"])
+
             try:
                 self.data.api_client.version(self.data.version.pk).patch(
                     {
