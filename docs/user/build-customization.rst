@@ -418,7 +418,7 @@ Override the build process
 
    We are using :ref:`our new addons integration <rtd-blog:addons-flyout-menu-beta>`
    on projects using ``build.commands``.
-   This will become the default soon,
+   `This will become the default soon <https://about.readthedocs.com/blog/2024/07/addons-by-default/>`_,
    but has some slight differences from our previous flyout.
 
 If your project requires full control of the build process,

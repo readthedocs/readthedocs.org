@@ -1,5 +1,5 @@
-How to change the versioning scheme of your project
-===================================================
+How to change the URL versioning scheme of your project
+========================================================
 
 In this guide, we show you how to change the versioning scheme of your project on Read the Docs.
 
@@ -20,5 +20,5 @@ Changing the versioning scheme
 
 #. Go the :guilabel:`Admin` tab of your project.
 #. Click on :guilabel:`Settings`.
-#. Select the new versioning scheme in the :guilabel:`Versioning scheme` dropdown.
+#. Select the new versioning scheme in the :guilabel:`URL versioning scheme` dropdown.
 #. Click on :guilabel:`Save`.

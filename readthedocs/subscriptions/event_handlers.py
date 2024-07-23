@@ -182,6 +182,14 @@ def subscription_canceled(event):
         log.info("Stripe subscription not found.")
         return
 
+    total_spent = (
+        stripe_subscription.customer.charges.filter(status=ChargeStatus.succeeded)
+        .aggregate(total=Sum("amount"))
+        .get("total")
+        or 0
+    )
+    log.bind(total_spent=total_spent)
+
     # Using `getattr` to avoid the `RelatedObjectDoesNotExist` exception
     # when the subscription doesn't have an organization attached to it.
     organization = getattr(stripe_subscription.customer, "rtd_organization", None)
@@ -204,14 +212,12 @@ def subscription_canceled(event):
             user=owner,
         )
         notification.send()
-        log.info("Notification sent.", recipient=owner)
+        log.info(
+            "Notification sent.",
+            username=owner.username,
+            organization_slug=organization.slug,
+        )
 
-    total_spent = (
-        stripe_subscription.customer.charges.filter(status=ChargeStatus.succeeded)
-        .aggregate(total=Sum("amount"))
-        .get("total")
-        or 0
-    )
     if settings.SLACK_WEBHOOK_SALES_CHANNEL and total_spent > 0:
         start_date = stripe_subscription.start_date.strftime("%b %-d, %Y")
         timesince = humanize.naturaltime(stripe_subscription.start_date).split(",")[0]

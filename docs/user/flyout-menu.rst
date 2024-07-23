@@ -27,7 +27,7 @@ offline formats, and a search bar.
 Customizing the flyout menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In your dashboard, you can configure flyout menu options in :guilabel:`Settings`, under :guilabel:`Addons (Beta)`.
+In your dashboard, you can configure flyout menu options in :guilabel:`Settings`, under :guilabel:`Addons`.
 
 Sort your versions :guilabel:`Alphabetically`, by :guilabel:`SemVer`, by :guilabel:`Python Packaging`,
 by :guilabel:`CalVer`, or define your own pattern.

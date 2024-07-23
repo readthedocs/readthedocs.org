@@ -460,7 +460,7 @@ The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read t
 
    We are using :ref:`our new addons integration <rtd-blog:addons-flyout-menu-beta>`
    on projects using ``build.commands``.
-   This will become the default soon,
+   `This will become the default soon <https://about.readthedocs.com/blog/2024/07/addons-by-default/>`_,
    but has some slight differences from our previous flyout.
 
 .. code-block:: yaml

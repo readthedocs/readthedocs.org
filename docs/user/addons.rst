@@ -35,7 +35,7 @@ All projects using ``mkdocs`` :ref:`mkdocs <config-file/v2:mkdocs>` or the ``bui
     * `Business <https://app.readthedocs.com>`_
 
 #. Click on a project name.
-#. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons (Beta)`.
+#. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons`.
 #. Check :guilabel:`Enable Addons`, and then configure each Addon individually.
 
 .. note::
@@ -53,5 +53,5 @@ Individual configuration options for each addon are available in :guilabel:`Sett
     * `Business <https://app.readthedocs.com>`_
 
 #. Click on a project name.
-#. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons (Beta)`.
+#. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons`.
 #. Configure each Addon individually.
