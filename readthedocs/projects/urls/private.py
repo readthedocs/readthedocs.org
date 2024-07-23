@@ -249,7 +249,7 @@ domain_urls = [
 
 urlpatterns += domain_urls
 
-# We are allowing users to enable the new beta addons only from the new dashboard
+# We are allowing users to enable the new addons only from the new dashboard
 if settings.RTD_EXT_THEME_ENABLED:
     addons_urls = [
         re_path(

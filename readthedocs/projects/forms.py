@@ -625,7 +625,7 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
 class AddonsConfigForm(forms.ModelForm):
 
-    """Form to opt-in into new beta addons."""
+    """Form to opt-in into new addons."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
