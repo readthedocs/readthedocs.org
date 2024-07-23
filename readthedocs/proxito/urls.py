@@ -35,10 +35,9 @@ pip.rtd.io/_/api/*
 
 from django.conf import settings
 from django.urls import include, path, re_path
-from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.core.views import HealthCheckView, TeapotView
+from readthedocs.core.views import HealthCheckView
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.hosting import ReadTheDocsConfigJson
 from readthedocs.proxito.views.serve import (
@@ -154,19 +153,19 @@ dummy_dashboard_urls = [
     # /projects/<project_slug>/
     re_path(
         r"^projects/(?P<project_slug>{project_slug})/$".format(**pattern_opts),
-        TeapotView.as_view(),
+        ProxitoErrorView.as_view(status_code=418),
         name="projects_detail",
     ),
     # /projects/<project_slug>/builds/
     re_path(
         (r"^projects/(?P<project_slug>{project_slug})/builds/$".format(**pattern_opts)),
-        TeapotView.as_view(),
+        ProxitoErrorView.as_view(status_code=418),
         name="builds_project_list",
     ),
     # /projects/<project_slug>/versions/
     re_path(
         r"^projects/(?P<project_slug>{project_slug})/versions/$".format(**pattern_opts),
-        TeapotView.as_view(),
+        ProxitoErrorView.as_view(status_code=418),
         name="project_version_list",
     ),
     # /projects/<project_slug>/downloads/
@@ -176,7 +175,7 @@ dummy_dashboard_urls = [
                 **pattern_opts
             )
         ),
-        TeapotView.as_view(),
+        ProxitoErrorView.as_view(status_code=418),
         name="project_downloads",
     ),
     # /projects/<project_slug>/builds/<build_id>/
@@ -186,13 +185,13 @@ dummy_dashboard_urls = [
                 **pattern_opts
             )
         ),
-        TeapotView.as_view(),
+        ProxitoErrorView.as_view(status_code=418),
         name="builds_detail",
     ),
     # /projects/<project_slug>/version/<version_slug>/
     re_path(
         r"^projects/(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$",
-        TeapotView.as_view(),
+        ProxitoErrorView.as_view(status_code=418),
         name="project_version_detail",
     ),
 ]
