@@ -1,0 +1,20 @@
+{% extends "errors/dashboard/base.html" %}
+{% load core_tags %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "Bad request" %}
+{% endblock %}
+
+{% block content %}
+<h3>
+  {% blocktrans trimmed %}
+    Bad request
+  {% endblocktrans %}
+</h3>
+<p>
+  {% blocktrans trimmed %}
+    Your request is either unsupported or we didn't understand it.
+  {% endblocktrans %}
+</p>
+{% endblock %}
