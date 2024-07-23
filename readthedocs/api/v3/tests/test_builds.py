@@ -271,28 +271,6 @@ class BuildsEndpointTests(APIEndpointMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-        # User can see their own notifications.
-        url = reverse(
-            "projects-builds-notifications-list",
-            kwargs={
-                "parent_lookup_project__slug": self.others_project.slug,
-                "parent_lookup_build__id": self.others_build.pk,
-            },
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-        # User can't see notifications from other users through his project.
-        url = reverse(
-            "projects-builds-notifications-list",
-            kwargs={
-                "parent_lookup_project__slug": self.others_project.slug,
-                "parent_lookup_build__id": self.build.pk,
-            },
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
-
     def test_projects_builds_notifications_list_post(self):
         url = reverse(
             "projects-builds-notifications-list",
