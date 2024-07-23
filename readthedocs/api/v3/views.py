@@ -222,7 +222,7 @@ class ProjectsViewSetBase(
         except Exception:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], url_path="sync-versions/")
     def sync_versions(self, request, project_slug):
         """
         Kick off a task to sync versions for a project.
