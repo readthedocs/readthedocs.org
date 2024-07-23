@@ -133,15 +133,6 @@ class ErrorView(TemplateView):
         )
 
 
-# TODO replace this with ErrorView and a template in `errors/` instead
-class TeapotView(TemplateView):
-    template_name = "core/teapot.html"
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context, status=418)
-
-
 class PageNotFoundView(View):
 
     """Just a 404 view that ignores all URL parameters."""
