@@ -24,7 +24,7 @@ def fast_404(request, *args, **kwargs):
 
 
 def proxito_404_page_handler(
-    request, template_name="errors/404/base.html", exception=None
+    request, template_name="errors/proxito/404/base.html", exception=None
 ):
     """
     Serves a 404 error message, handling 404 exception types raised throughout the app.
