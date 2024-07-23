@@ -119,13 +119,6 @@ proxied_urls = [
         ReadTheDocsConfigJson.as_view(),
         name="proxito_readthedocs_docs_addons",
     ),
-    # TODO: remove `readthedocs-config/` endpoint once we have changed the URL
-    # in the js and we have deployed it.
-    path(
-        f"{DOC_PATH_PREFIX}readthedocs-config/",
-        ReadTheDocsConfigJson.as_view(),
-        name="proxito_readthedocs_config_json",
-    ),
 ]
 
 core_urls = [
