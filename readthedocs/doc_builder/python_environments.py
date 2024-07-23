@@ -356,7 +356,9 @@ class Conda(PythonEnvironment):
         if self.config.doctype == "mkdocs":
             pip_requirements.append("mkdocs")
         else:
-            pip_requirements.append("readthedocs-sphinx-ext")
+            if not self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
+                pip_requirements.append("readthedocs-sphinx-ext")
+
             conda_requirements.extend(["sphinx"])
 
         return pip_requirements, conda_requirements

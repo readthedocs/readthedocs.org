@@ -5,9 +5,6 @@
 Explanation
 ===========
 
-⏩️ :doc:`/choosing-a-site`
-  Users often ask what the differences are between Read the Docs Community and Read the Docs for Business: here's an overview.
-
 ⏩️ :doc:`/integrations`
   A high-level introduction to *Continuous Documentation Deployment*.
 

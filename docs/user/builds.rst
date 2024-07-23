@@ -131,7 +131,7 @@ Our build limits are:
    .. tab:: |org_brand|
 
       * 15 minutes build time
-      * 3GB of memory
+      * 7GB of memory
       * 2 concurrent builds
 
       We can increase build limits on a per-project basis.
