@@ -49,7 +49,7 @@ from readthedocs.proxito.views.serve import (
     ServeSitemapXML,
     ServeStaticFiles,
 )
-from readthedocs.proxito.views.utils import proxito_404_page_handler
+from readthedocs.proxito.views.utils import ProxitoErrorView, proxito_404_page_handler
 
 DOC_PATH_PREFIX = getattr(settings, "DOC_PATH_PREFIX", "")
 
@@ -203,4 +203,4 @@ urlpatterns = (
 
 # Use Django default error handlers to make things simpler
 handler404 = proxito_404_page_handler
-handler500 = defaults.server_error
+handler500 = ProxitoErrorView.as_view(status_code=500)
