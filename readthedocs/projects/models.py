@@ -540,6 +540,7 @@ class Project(models.Model):
 
     remote_repository = models.ForeignKey(
         "oauth.RemoteRepository",
+        help_text=_("Remote repository linked to this project"),
         on_delete=models.SET_NULL,
         related_name="projects",
         null=True,
