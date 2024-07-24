@@ -2,9 +2,11 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
+    safe = Safe.before_deploy
     dependencies = [
         ("oauth", "0016_deprecate_old_vcs"),
         ("projects", "0125_update_naming"),
