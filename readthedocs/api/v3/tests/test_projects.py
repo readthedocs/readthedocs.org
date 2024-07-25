@@ -218,6 +218,11 @@ class ProjectsEndpointTests(APIEndpointMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401)
 
+        # Test with a user that is not the owner
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.post(url)
         self.assertEqual(response.status_code, 202)
