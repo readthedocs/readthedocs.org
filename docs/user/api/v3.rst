@@ -465,7 +465,43 @@ Project update
 
        Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
-    :statuscode 204: Updated successfully
+    :statuscode 204: Task created successfully
+    :statuscode 400: Bad request, task not created
+
+
+Project versions sync
++++++++++++++++++++++
+
+.. http:post:: /api/v3/projects/(string:project_slug)/sync-versions/
+
+    Trigger a background task to sync the versions of the project.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" \
+              https://readthedocs.org/api/v3/projects/pip/sync-versions/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/sync-versions/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.post(
+                URL,
+                headers=HEADERS,
+            )
+            print(response.json())
+
+    :statuscode 202: Updated successfully
+
+
 
 
 Versions
