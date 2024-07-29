@@ -465,7 +465,7 @@ Project update
 
        Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
-    :statuscode 204: Task created successfully
+    :statuscode 204: Updated successfully
 
 
 Project versions sync
@@ -498,7 +498,7 @@ Project versions sync
             )
             print(response.json())
 
-    :statuscode 202: Updated successfully
+    :statuscode 202: Task created successfully
     :statuscode 400: Bad request, task not created
 
 Versions
