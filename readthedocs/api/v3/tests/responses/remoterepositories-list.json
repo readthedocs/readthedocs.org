@@ -25,6 +25,7 @@
           "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
           "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
           "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
+       "sync_versions": "https://readthedocs.org/api/v3/projects/project/sync-versions/",
           "translations": "https://readthedocs.org/api/v3/projects/project/translations/",
           "versions": "https://readthedocs.org/api/v3/projects/project/versions/"
         },
