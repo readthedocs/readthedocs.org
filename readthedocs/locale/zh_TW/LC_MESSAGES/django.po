@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-23 14:39+0000\n"
+"POT-Creation-Date: 2024-07-30 11:36+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>, 2023\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/readthedocs/"
@@ -150,39 +150,39 @@ msgstr "主機架設方"
 msgid "Privacy Policy"
 msgstr "隱私權政策"
 
-#: api/v3/serializers.py:625
+#: api/v3/serializers.py:635
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr ""
 
-#: api/v3/serializers.py:629
+#: api/v3/serializers.py:639
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr ""
 
-#: api/v3/serializers.py:864
+#: api/v3/serializers.py:874
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:872 projects/forms.py:603
+#: api/v3/serializers.py:882 projects/forms.py:603
 msgid "A subproject with this alias already exists"
 msgstr ""
 
-#: api/v3/serializers.py:1015
+#: api/v3/serializers.py:1025
 #, python-brace-format
 msgid ""
 "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
 "instead. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1021
+#: api/v3/serializers.py:1031
 #, python-brace-format
 msgid ""
 "sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1027
+#: api/v3/serializers.py:1037
 #, python-brace-format
 msgid ""
 "sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
@@ -2406,10 +2406,8 @@ msgid "Repository URL"
 msgstr "儲存庫網址"
 
 #: projects/models.py:260
-#, fuzzy
-#| msgid "Repository URL"
 msgid "Git repository URL"
-msgstr "儲存庫網址"
+msgstr ""
 
 #: projects/models.py:267
 msgid "Repository type"
@@ -3000,16 +2998,12 @@ msgid "Project addons updated"
 msgstr ""
 
 #: projects/views/private.py:270
-#, fuzzy
-#| msgid "Version name"
 msgid "Version created"
-msgstr "版本名稱"
+msgstr ""
 
 #: projects/views/private.py:275
-#, fuzzy
-#| msgid "Version name"
 msgid "Version updated"
-msgstr "版本名稱"
+msgstr ""
 
 #: projects/views/private.py:402
 #, python-brace-format
@@ -3021,28 +3015,20 @@ msgstr ""
 "新串聯帳號。"
 
 #: projects/views/private.py:460
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject created"
-msgstr "子專案"
+msgstr ""
 
 #: projects/views/private.py:464
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject updated"
-msgstr "子專案"
+msgstr ""
 
 #: projects/views/private.py:469
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Subproject deleted"
-msgstr "已刪除專案"
+msgstr ""
 
 #: projects/views/private.py:512
-#, fuzzy
-#| msgid "Project deleted"
 msgid "User deleted"
-msgstr "已刪除專案"
+msgstr ""
 
 #: projects/views/private.py:523
 #, python-brace-format
@@ -3050,116 +3036,80 @@ msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
 #: projects/views/private.py:588
-#, fuzzy
-#| msgid "Invitation accepted"
 msgid "Notification created"
-msgstr "邀請已接受"
+msgstr ""
 
 #: projects/views/private.py:593
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Notification deleted"
-msgstr "已刪除專案"
+msgstr ""
 
 #: projects/views/private.py:628
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook created"
-msgstr "已啟用 Webhook"
+msgstr ""
 
 #: projects/views/private.py:638
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook updated"
-msgstr "已啟用 Webhook"
+msgstr ""
 
 #: projects/views/private.py:648
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook deleted"
-msgstr "已啟用 Webhook"
+msgstr ""
 
 #: projects/views/private.py:703
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation created"
-msgstr "翻譯"
+msgstr ""
 
 #: projects/views/private.py:708
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation deleted"
-msgstr "翻譯"
+msgstr ""
 
 #: projects/views/private.py:751
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Redirect created"
-msgstr "轉址類型"
+msgstr ""
 
 #: projects/views/private.py:755
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Redirect updated"
-msgstr "轉址類型"
+msgstr ""
 
 #: projects/views/private.py:785
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Redirect deleted"
-msgstr "已刪除專案"
+msgstr ""
 
 #: projects/views/private.py:818
-#, fuzzy
-#| msgid "Machine Created"
 msgid "Domain created"
-msgstr "已建立機器"
+msgstr ""
 
 #: projects/views/private.py:838
-#, fuzzy
-#| msgid "Stay Updated"
 msgid "Domain updated"
-msgstr "保持更新"
+msgstr ""
 
 #: projects/views/private.py:853
-#, fuzzy
-#| msgid "Deleted"
 msgid "Domain deleted"
-msgstr "已刪除"
+msgstr ""
 
 #: projects/views/private.py:898
-#, fuzzy
-#| msgid "Integration type"
 msgid "Integration created"
-msgstr "整合類型"
+msgstr ""
 
 #: projects/views/private.py:925
-#, fuzzy
-#| msgid "Integration type"
 msgid "Integration deleted"
-msgstr "整合類型"
+msgstr ""
 
 #: projects/views/private.py:973
 msgid "Project has been opted out from advertisement support"
 msgstr "專案已選擇退出廣告支援"
 
 #: projects/views/private.py:1005
-#, fuzzy
-#| msgid "Environment Variables"
 msgid "Environment variable created"
-msgstr "環境變數"
+msgstr ""
 
 #: projects/views/private.py:1009
-#, fuzzy
-#| msgid "Environment Variables"
 msgid "Environment variable deleted"
-msgstr "環境變數"
+msgstr ""
 
 #: projects/views/private.py:1034
-#, fuzzy
-#| msgid "Invitation revoked"
 msgid "Automation rule moved"
-msgstr "邀請已撤銷"
+msgstr ""
 
 #: projects/views/private.py:1050
 msgid "Automation rule deleted"
@@ -5696,9 +5646,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#~ msgid "Site URL"
-#~ msgstr "站台網址"
-
-#~ msgid "Hosted documentation repository URL"
-#~ msgstr "託管文件的儲存庫網址"

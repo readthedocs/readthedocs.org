@@ -33,7 +33,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-23 14:39+0000\n"
+"POT-Creation-Date: 2024-07-30 11:36+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: JY3, 2022-2023\n"
 "Language-Team: Chinese (China) (http://app.transifex.com/readthedocs/"
@@ -164,39 +164,39 @@ msgstr "托管于"
 msgid "Privacy Policy"
 msgstr "隐私政策"
 
-#: api/v3/serializers.py:625
+#: api/v3/serializers.py:635
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "无效的项目名称「{0}」：未生成网址标识。"
 
-#: api/v3/serializers.py:629
+#: api/v3/serializers.py:639
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "网址标识为「{0}」的项目已存在。"
 
-#: api/v3/serializers.py:864
+#: api/v3/serializers.py:874
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "带有 {slug_name}={value} 的项目不能作为子项目。"
 
-#: api/v3/serializers.py:872 projects/forms.py:603
+#: api/v3/serializers.py:882 projects/forms.py:603
 msgid "A subproject with this alias already exists"
 msgstr "存在具有此名称的子项目"
 
-#: api/v3/serializers.py:1015
+#: api/v3/serializers.py:1025
 #, python-brace-format
 msgid ""
 "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
 "instead. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1021
+#: api/v3/serializers.py:1031
 #, python-brace-format
 msgid ""
 "sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1027
+#: api/v3/serializers.py:1037
 #, python-brace-format
 msgid ""
 "sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
@@ -2419,10 +2419,8 @@ msgid "Repository URL"
 msgstr "代码库地址"
 
 #: projects/models.py:260
-#, fuzzy
-#| msgid "Repository URL"
 msgid "Git repository URL"
-msgstr "代码库地址"
+msgstr ""
 
 #: projects/models.py:267
 msgid "Repository type"
@@ -3013,16 +3011,12 @@ msgid "Project addons updated"
 msgstr ""
 
 #: projects/views/private.py:270
-#, fuzzy
-#| msgid "Version name"
 msgid "Version created"
-msgstr "项目名称"
+msgstr ""
 
 #: projects/views/private.py:275
-#, fuzzy
-#| msgid "Version name"
 msgid "Version updated"
-msgstr "项目名称"
+msgstr ""
 
 #: projects/views/private.py:402
 #, python-brace-format
@@ -3034,28 +3028,20 @@ msgstr ""
 "</a>上的账号。"
 
 #: projects/views/private.py:460
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject created"
-msgstr "子项目"
+msgstr ""
 
 #: projects/views/private.py:464
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject updated"
-msgstr "子项目"
+msgstr ""
 
 #: projects/views/private.py:469
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Subproject deleted"
-msgstr "项目已删除"
+msgstr ""
 
 #: projects/views/private.py:512
-#, fuzzy
-#| msgid "Project deleted"
 msgid "User deleted"
-msgstr "项目已删除"
+msgstr ""
 
 #: projects/views/private.py:523
 #, python-brace-format
@@ -3063,94 +3049,64 @@ msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
 #: projects/views/private.py:588
-#, fuzzy
-#| msgid "Publication date"
 msgid "Notification created"
-msgstr "发布日期"
+msgstr ""
 
 #: projects/views/private.py:593
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Notification deleted"
-msgstr "项目已删除"
+msgstr ""
 
 #: projects/views/private.py:628
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook created"
-msgstr "Webhook 已激活"
+msgstr ""
 
 #: projects/views/private.py:638
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook updated"
-msgstr "Webhook 已激活"
+msgstr ""
 
 #: projects/views/private.py:648
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook deleted"
-msgstr "Webhook 已激活"
+msgstr ""
 
 #: projects/views/private.py:703
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation created"
-msgstr "翻译"
+msgstr ""
 
 #: projects/views/private.py:708
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation deleted"
-msgstr "翻译"
+msgstr ""
 
 #: projects/views/private.py:751
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Redirect created"
-msgstr "重定向类型"
+msgstr ""
 
 #: projects/views/private.py:755
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Redirect updated"
-msgstr "重定向类型"
+msgstr ""
 
 #: projects/views/private.py:785
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Redirect deleted"
-msgstr "项目已删除"
+msgstr ""
 
 #: projects/views/private.py:818
-#, fuzzy
-#| msgid "Machine Created"
 msgid "Domain created"
-msgstr "由机器创建"
+msgstr ""
 
 #: projects/views/private.py:838
-#, fuzzy
-#| msgid "Domain"
 msgid "Domain updated"
-msgstr "域"
+msgstr ""
 
 #: projects/views/private.py:853
-#, fuzzy
-#| msgid "Deleted"
 msgid "Domain deleted"
-msgstr "已删除"
+msgstr ""
 
 #: projects/views/private.py:898
-#, fuzzy
-#| msgid "Integration type"
 msgid "Integration created"
-msgstr "集成类型"
+msgstr ""
 
 #: projects/views/private.py:925
-#, fuzzy
-#| msgid "Integration type"
 msgid "Integration deleted"
-msgstr "集成类型"
+msgstr ""
 
 #: projects/views/private.py:973
 msgid "Project has been opted out from advertisement support"
@@ -5708,6 +5664,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#~ msgid "Hosted documentation repository URL"
-#~ msgstr "托管文档仓库 URL"
