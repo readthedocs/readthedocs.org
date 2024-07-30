@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-23 14:39+0000\n"
+"POT-Creation-Date: 2024-07-30 11:36+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2020,2022-2024\n"
 "Language-Team: Portuguese (Brazil) (http://app.transifex.com/readthedocs/"
@@ -156,26 +156,26 @@ msgstr "Hospedado por"
 msgid "Privacy Policy"
 msgstr "Política de Privacidade"
 
-#: api/v3/serializers.py:625
+#: api/v3/serializers.py:635
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Nome de projeto \"{0}\" inválido: nenhum slug gerado."
 
-#: api/v3/serializers.py:629
+#: api/v3/serializers.py:639
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "Um projeto com slug \"{0}\" já existe."
 
-#: api/v3/serializers.py:864
+#: api/v3/serializers.py:874
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "O projeto com {slug_name}={value} não é válido como subprojeto"
 
-#: api/v3/serializers.py:872 projects/forms.py:603
+#: api/v3/serializers.py:882 projects/forms.py:603
 msgid "A subproject with this alias already exists"
 msgstr "Um subprojeto com este alias já existe"
 
-#: api/v3/serializers.py:1015
+#: api/v3/serializers.py:1025
 #, python-brace-format
 msgid ""
 "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
@@ -184,7 +184,7 @@ msgstr ""
 "Redirecionamentos de prefixo foram removidos. Em vez disso, use um "
 "redirecionamento exato `/prefix/*`. Veja {blog_link}."
 
-#: api/v3/serializers.py:1021
+#: api/v3/serializers.py:1031
 #, python-brace-format
 msgid ""
 "sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
@@ -192,7 +192,7 @@ msgstr ""
 "sphinx_html redirecionamento foi renomeado para clean_url_to_html. Veja "
 "{blog_link}."
 
-#: api/v3/serializers.py:1027
+#: api/v3/serializers.py:1037
 #, python-brace-format
 msgid ""
 "sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
@@ -2530,10 +2530,8 @@ msgid "Repository URL"
 msgstr "URL do repositório"
 
 #: projects/models.py:260
-#, fuzzy
-#| msgid "Repository URL"
 msgid "Git repository URL"
-msgstr "URL do repositório"
+msgstr "URL de repositório Git"
 
 #: projects/models.py:267
 msgid "Repository type"
@@ -2556,25 +2554,18 @@ msgid "URL that documentation is expected to serve from"
 msgstr "A URL na qual a documentação deverá ser exibida"
 
 #: projects/models.py:283
-#, fuzzy
-#| msgid "Versioning scheme"
 msgid "URL versioning scheme"
-msgstr "Esquema de versionamento"
+msgstr "Esquema de versionamento da URL"
 
 #: projects/models.py:290
-#, fuzzy
-#| msgid ""
-#| "This affects how the URL of your documentation looks like, and if it "
-#| "supports translations or multiple versions. Changing the versioning "
-#| "scheme will break your current URLs."
 msgid ""
 "This affects URL your documentation is served from, and if it supports "
 "translations or versions. Changing the versioning scheme will break your "
 "current URLs, so you might need to create a redirect."
 msgstr ""
-"Isso afeta a aparência do URL da sua documentação e se ela oferece suporte a "
-"traduções ou múltiplas versões. Alterar o esquema de versionamento quebrará "
-"seus URLs atuais."
+"Isso afeta a URL a partir do qual sua documentação é veiculada e se ela "
+"suporta traduções ou versões. Alterar o esquema de versionamento quebrará "
+"suas URLs atuais, então talvez seja necessário criar um redirecionamento."
 
 #: projects/models.py:298
 msgid "Single version"
@@ -3186,16 +3177,12 @@ msgid "Project addons updated"
 msgstr "Addons do projeto atualizados"
 
 #: projects/views/private.py:270
-#, fuzzy
-#| msgid "Version activated"
 msgid "Version created"
-msgstr "Versão ativada"
+msgstr "Versão criada"
 
 #: projects/views/private.py:275
-#, fuzzy
-#| msgid "Version deleted"
 msgid "Version updated"
-msgstr "Versão excluída"
+msgstr "Versão atualizada"
 
 #: projects/views/private.py:402
 #, python-brace-format
@@ -3207,28 +3194,20 @@ msgstr ""
 "<a href=\"{url}\">página de serviços conectados</a>."
 
 #: projects/views/private.py:460
-#, fuzzy
-#| msgid "Subproject"
 msgid "Subproject created"
-msgstr "Subprojeto"
+msgstr "Subprojeto criado"
 
 #: projects/views/private.py:464
-#, fuzzy
-#| msgid "Team projects updated"
 msgid "Subproject updated"
-msgstr "Projetos da equipe atualizados"
+msgstr "Subprojeto atualizado"
 
 #: projects/views/private.py:469
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Subproject deleted"
-msgstr "Projeto excluído"
+msgstr "Subprojeto excluído"
 
 #: projects/views/private.py:512
-#, fuzzy
-#| msgid "Team deleted"
 msgid "User deleted"
-msgstr "Equipe excluída"
+msgstr "Usuário excluído"
 
 #: projects/views/private.py:523
 #, python-brace-format
@@ -3236,134 +3215,92 @@ msgid "{username} is the last owner, can't be removed"
 msgstr "{username} é o último dono, não pode ser removido"
 
 #: projects/views/private.py:588
-#, fuzzy
-#| msgid "Email Notifications"
 msgid "Notification created"
-msgstr "Notificações por e-mail"
+msgstr "Notificação criada"
 
 #: projects/views/private.py:593
-#, fuzzy
-#| msgid "Version deleted"
 msgid "Notification deleted"
-msgstr "Versão excluída"
+msgstr "Notificação excluída"
 
 #: projects/views/private.py:628
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook created"
-msgstr "Webhook ativado"
+msgstr "Webhook criado"
 
 #: projects/views/private.py:638
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook updated"
-msgstr "Webhook ativado"
+msgstr "Webhook atualizado"
 
 #: projects/views/private.py:648
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook deleted"
-msgstr "Webhook ativado"
+msgstr "Webhook excluído"
 
 #: projects/views/private.py:703
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation created"
-msgstr "Traduções"
+msgstr "Tradução criada"
 
 #: projects/views/private.py:708
-#, fuzzy
-#| msgid "Version deleted"
 msgid "Translation deleted"
-msgstr "Versão excluída"
+msgstr "Tradução excluída"
 
 #: projects/views/private.py:751
-#, fuzzy
-#| msgid "Recently created"
 msgid "Redirect created"
-msgstr "Criada recentemente"
+msgstr "Redirecionamento criado"
 
 #: projects/views/private.py:755
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Redirect updated"
-msgstr "Tipo de redirecionamento"
+msgstr "Redirecionamento atualizado"
 
 #: projects/views/private.py:785
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Redirect deleted"
-msgstr "Projeto excluído"
+msgstr "Redirecionamento excluído"
 
 #: projects/views/private.py:818
-#, fuzzy
-#| msgid "Machine Created"
 msgid "Domain created"
-msgstr "Criada por máquina"
+msgstr "Domínio criado"
 
 #: projects/views/private.py:838
-#, fuzzy
-#| msgid "Team updated"
 msgid "Domain updated"
-msgstr "Equipe atualizada"
+msgstr "Domínio atualizado"
 
 #: projects/views/private.py:853
-#, fuzzy
-#| msgid "Team deleted"
 msgid "Domain deleted"
-msgstr "Equipe excluída"
+msgstr "Domínio excluído"
 
 #: projects/views/private.py:898
-#, fuzzy
-#| msgid "Integration type"
 msgid "Integration created"
-msgstr "Tipo de integração"
+msgstr "Integração criada"
 
 #: projects/views/private.py:925
-#, fuzzy
-#| msgid "Integration type"
 msgid "Integration deleted"
-msgstr "Tipo de integração"
+msgstr "Integração excluída"
 
 #: projects/views/private.py:973
 msgid "Project has been opted out from advertisement support"
 msgstr "O projeto optou por desativar apoio por anúncios"
 
 #: projects/views/private.py:1005
-#, fuzzy
-#| msgid "Environment Variables"
 msgid "Environment variable created"
-msgstr "Variáveis de ambiente"
+msgstr "Variável ambiente criada"
 
 #: projects/views/private.py:1009
-#, fuzzy
-#| msgid "Environment Variables"
 msgid "Environment variable deleted"
-msgstr "Variáveis de ambiente"
+msgstr "Variável ambiente excluída"
 
 #: projects/views/private.py:1034
-#, fuzzy
-#| msgid "Automation Rule"
 msgid "Automation rule moved"
-msgstr "Regra de automação"
+msgstr "Regra de automação movida"
 
 #: projects/views/private.py:1050
-#, fuzzy
-#| msgid "Automation Rule"
 msgid "Automation rule deleted"
-msgstr "Regra de automação"
+msgstr "Regra de automação excluída"
 
 #: projects/views/private.py:1060
-#, fuzzy
-#| msgid "Automation Rule"
 msgid "Automation rule created"
-msgstr "Regra de automação"
+msgstr "Regra de automação criada"
 
 #: projects/views/private.py:1064
-#, fuzzy
-#| msgid "Automation Rule"
 msgid "Automation rule updated"
-msgstr "Regra de automação"
+msgstr "Regra de automação atualizada"
 
 #: projects/views/private.py:1252
 msgid "Pull request settings have been updated"
@@ -6210,9 +6147,3 @@ msgstr ""
 "desconectar um serviço, você também deverá visitar seu provedor Git para "
 "excluir a conexão OAuth do Read the Docs. No GitHub, isso está localizado em "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
-
-#~ msgid "Site URL"
-#~ msgstr "URL do site"
-
-#~ msgid "Hosted documentation repository URL"
-#~ msgstr "URL do repositório onde a documentação está hospedada"

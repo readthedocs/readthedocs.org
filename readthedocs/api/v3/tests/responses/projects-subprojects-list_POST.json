@@ -13,6 +13,7 @@
             "redirects": "https://readthedocs.org/api/v3/projects/new-project/redirects/",
             "subprojects": "https://readthedocs.org/api/v3/projects/new-project/subprojects/",
             "superproject": "https://readthedocs.org/api/v3/projects/new-project/superproject/",
+            "sync_versions": "https://readthedocs.org/api/v3/projects/new-project/sync-versions/",
             "translations": "https://readthedocs.org/api/v3/projects/new-project/translations/",
             "versions": "https://readthedocs.org/api/v3/projects/new-project/versions/"
         },
