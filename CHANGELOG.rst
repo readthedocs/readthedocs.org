@@ -1,3 +1,20 @@
+Version 11.3.0
+--------------
+
+:Date: July 30, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Templates: remove unused filter (`#11504 <https://github.com/readthedocs/readthedocs.org/pull/11504>`__)
+* `@stsewd <https://github.com/stsewd>`__: Social accounts: Add filter to check if a social account can be disconnected (`#11503 <https://github.com/readthedocs/readthedocs.org/pull/11503>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11502 <https://github.com/readthedocs/readthedocs.org/pull/11502>`__)
+* `@humitos <https://github.com/humitos>`__: Build: do not use custom builder when `DISABLE_SPHINX_MANIPULATION` (`#11499 <https://github.com/readthedocs/readthedocs.org/pull/11499>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.2.1 (`#11497 <https://github.com/readthedocs/readthedocs.org/pull/11497>`__)
+* `@humitos <https://github.com/humitos>`__: Logs: slightly improve on subscription cancelled logs (`#11496 <https://github.com/readthedocs/readthedocs.org/pull/11496>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use the latest rc1 release of the theme (`#11495 <https://github.com/readthedocs/readthedocs.org/pull/11495>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: remove "beta" framing around addons (`#11493 <https://github.com/readthedocs/readthedocs.org/pull/11493>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove beta framing from pull request (`#11492 <https://github.com/readthedocs/readthedocs.org/pull/11492>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: remove outdated URL (`#11491 <https://github.com/readthedocs/readthedocs.org/pull/11491>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an initial resync_versions API to v3 (`#11484 <https://github.com/readthedocs/readthedocs.org/pull/11484>`__)
+
 Version 11.2.1
 --------------
 
