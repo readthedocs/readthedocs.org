@@ -160,8 +160,6 @@ And a diff can only be done between versions of the same project that the user h
 
 The endpoint will be:
 
-.. code:: http
-
    GET /api/v3/projects/{project_slug}/versions/{version_slug}/diff/{other_version_slug}/
 
 And the response will be:
