@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-23 14:39+0000\n"
+"POT-Creation-Date: 2024-07-30 11:36+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022-2024\n"
 "Language-Team: Hebrew (http://app.transifex.com/readthedocs/readthedocs/"
@@ -141,26 +141,26 @@ msgstr "מתארח בחסות"
 msgid "Privacy Policy"
 msgstr "מדיניות פרטיות"
 
-#: api/v3/serializers.py:625
+#: api/v3/serializers.py:635
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "שם המיזם „{0}” שגוי: לא נוצר שם מפושט."
 
-#: api/v3/serializers.py:629
+#: api/v3/serializers.py:639
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "כבר קיים מיזם עם השם המפושט „{0}”."
 
-#: api/v3/serializers.py:864
+#: api/v3/serializers.py:874
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "מיזם עם {slug_name}={value} אינו תקף כתת־מיזם"
 
-#: api/v3/serializers.py:872 projects/forms.py:603
+#: api/v3/serializers.py:882 projects/forms.py:603
 msgid "A subproject with this alias already exists"
 msgstr "כבר קיים תת־מיזם עם הכינוי הזה"
 
-#: api/v3/serializers.py:1015
+#: api/v3/serializers.py:1025
 #, python-brace-format
 msgid ""
 "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
@@ -169,14 +169,14 @@ msgstr ""
 "הפניות קידומת הוסרו. נא להשתמש בהפנייה מדויקת ‎`/prefix/*`‎ במקום. למידע נוסף: "
 "{blog_link}."
 
-#: api/v3/serializers.py:1021
+#: api/v3/serializers.py:1031
 #, python-brace-format
 msgid ""
 "sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
 msgstr ""
 "שם ההפניה sphinx_html השתנה ל־clean_url_to_html. ניתן לפנות אל {blog_link}."
 
-#: api/v3/serializers.py:1027
+#: api/v3/serializers.py:1037
 #, python-brace-format
 msgid ""
 "sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
@@ -2474,10 +2474,8 @@ msgid "Repository URL"
 msgstr "כתובת מאגר"
 
 #: projects/models.py:260
-#, fuzzy
-#| msgid "Repository URL"
 msgid "Git repository URL"
-msgstr "כתובת מאגר"
+msgstr "כתובת מאגר Git"
 
 #: projects/models.py:267
 msgid "Repository type"
@@ -2500,24 +2498,17 @@ msgid "URL that documentation is expected to serve from"
 msgstr "כתובת שמצופה ממנה להציג את התיעוד"
 
 #: projects/models.py:283
-#, fuzzy
-#| msgid "Versioning scheme"
 msgid "URL versioning scheme"
-msgstr "שיטת גרסאות"
+msgstr "סכמת כתובות לגרסאות"
 
 #: projects/models.py:290
-#, fuzzy
-#| msgid ""
-#| "This affects how the URL of your documentation looks like, and if it "
-#| "supports translations or multiple versions. Changing the versioning "
-#| "scheme will break your current URLs."
 msgid ""
 "This affects URL your documentation is served from, and if it supports "
 "translations or versions. Changing the versioning scheme will break your "
 "current URLs, so you might need to create a redirect."
 msgstr ""
-"משפיע על איך כתובת התיעוד שלך נראית ואם היא תומכת בתרגומים או בריבוי גרסאות. "
-"החלפת שיטת הגרסאות תפגום בכתובות הנוכחיות שלך."
+"משפיע על הכתובת ממנה מוגש התיעוד שלך, ואם יש לה תמיכה בתרגומים או גרסאות. "
+"החלפת סכמת הגרסאות תפגע בכתובות הנוכחיות שלך, כך שאולי כדאי גם ליצור הפניה."
 
 #: projects/models.py:298
 msgid "Single version"
@@ -3111,16 +3102,12 @@ msgid "Project addons updated"
 msgstr "תוספי המיזם עודכנו"
 
 #: projects/views/private.py:270
-#, fuzzy
-#| msgid "Version activated"
 msgid "Version created"
-msgstr "גרסה הופעלה"
+msgstr "גרסה נוצרה"
 
 #: projects/views/private.py:275
-#, fuzzy
-#| msgid "Version deleted"
 msgid "Version updated"
-msgstr "גרסה נמחקה"
+msgstr "גרסה עודכנה"
 
 #: projects/views/private.py:402
 #, python-brace-format
@@ -3132,28 +3119,20 @@ msgstr ""
 "ב<a href=\"{url}\">עמוד השירותים המחוברים</a> שלך."
 
 #: projects/views/private.py:460
-#, fuzzy
-#| msgid "Subproject"
 msgid "Subproject created"
-msgstr "תת־מיזם"
+msgstr "תת־מיזם נוצר"
 
 #: projects/views/private.py:464
-#, fuzzy
-#| msgid "Team projects updated"
 msgid "Subproject updated"
-msgstr "מיזמי הצוות עודכנו"
+msgstr "תת־מיזם עודכן"
 
 #: projects/views/private.py:469
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Subproject deleted"
-msgstr "המיזם נמחק"
+msgstr "תת־מיזם נמחק"
 
 #: projects/views/private.py:512
-#, fuzzy
-#| msgid "Team deleted"
 msgid "User deleted"
-msgstr "נמחקה קבוצה"
+msgstr "משתמש נמחק"
 
 #: projects/views/private.py:523
 #, python-brace-format
@@ -3161,134 +3140,92 @@ msgid "{username} is the last owner, can't be removed"
 msgstr "{username} הוא הבעלים האחרונים, לא ניתן להסיר"
 
 #: projects/views/private.py:588
-#, fuzzy
-#| msgid "Email Notifications"
 msgid "Notification created"
-msgstr "התראות בדוא״ל"
+msgstr "התראה נוצרה"
 
 #: projects/views/private.py:593
-#, fuzzy
-#| msgid "Version deleted"
 msgid "Notification deleted"
-msgstr "גרסה נמחקה"
+msgstr "התראה נמחקה"
 
 #: projects/views/private.py:628
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook created"
-msgstr "התלייה הופעלה"
+msgstr "התלייה נוצרה"
 
 #: projects/views/private.py:638
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook updated"
-msgstr "התלייה הופעלה"
+msgstr "התלייה עודכנה"
 
 #: projects/views/private.py:648
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook deleted"
-msgstr "התלייה הופעלה"
+msgstr "התלייה נמחקה"
 
 #: projects/views/private.py:703
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation created"
-msgstr "תרגומים"
+msgstr "תרגום נוצר"
 
 #: projects/views/private.py:708
-#, fuzzy
-#| msgid "Version deleted"
 msgid "Translation deleted"
-msgstr "גרסה נמחקה"
+msgstr "תרגום נמחק"
 
 #: projects/views/private.py:751
-#, fuzzy
-#| msgid "Recently created"
 msgid "Redirect created"
-msgstr "נוצרו לאחרונה"
+msgstr "הפניה נוצרה"
 
 #: projects/views/private.py:755
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Redirect updated"
-msgstr "סוג ההפניה"
+msgstr "הפניה עודכנה"
 
 #: projects/views/private.py:785
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Redirect deleted"
-msgstr "המיזם נמחק"
+msgstr "הפניה נמחקה"
 
 #: projects/views/private.py:818
-#, fuzzy
-#| msgid "Machine Created"
 msgid "Domain created"
-msgstr "ביצירת מכונה"
+msgstr "שם תחום נוצר"
 
 #: projects/views/private.py:838
-#, fuzzy
-#| msgid "Team updated"
 msgid "Domain updated"
-msgstr "עודכנה קבוצה"
+msgstr "שם תחום עודכן"
 
 #: projects/views/private.py:853
-#, fuzzy
-#| msgid "Team deleted"
 msgid "Domain deleted"
-msgstr "נמחקה קבוצה"
+msgstr "שם תחום נמחק"
 
 #: projects/views/private.py:898
-#, fuzzy
-#| msgid "Integration type"
 msgid "Integration created"
-msgstr "סוג השילוב"
+msgstr "שילוב נוצר"
 
 #: projects/views/private.py:925
-#, fuzzy
-#| msgid "Integration type"
 msgid "Integration deleted"
-msgstr "סוג השילוב"
+msgstr "שילוב נמחק"
 
 #: projects/views/private.py:973
 msgid "Project has been opted out from advertisement support"
 msgstr "המיזם ביטל תמיכה עם פרסומות"
 
 #: projects/views/private.py:1005
-#, fuzzy
-#| msgid "Environment Variables"
 msgid "Environment variable created"
-msgstr "משתנים סביבתיים"
+msgstr "משתנה סביבה נוצר"
 
 #: projects/views/private.py:1009
-#, fuzzy
-#| msgid "Environment Variables"
 msgid "Environment variable deleted"
-msgstr "משתנים סביבתיים"
+msgstr "משתנה סביבה נמחק"
 
 #: projects/views/private.py:1034
-#, fuzzy
-#| msgid "Automation Rule"
 msgid "Automation rule moved"
-msgstr "כלל אוטומציה"
+msgstr "כלל אוטומטציה הועבר"
 
 #: projects/views/private.py:1050
-#, fuzzy
-#| msgid "Automation Rule"
 msgid "Automation rule deleted"
-msgstr "כלל אוטומציה"
+msgstr "כלל אוטומציה נמחק"
 
 #: projects/views/private.py:1060
-#, fuzzy
-#| msgid "Automation Rule"
 msgid "Automation rule created"
-msgstr "כלל אוטומציה"
+msgstr "כלל אוטומציה נוצר"
 
 #: projects/views/private.py:1064
-#, fuzzy
-#| msgid "Automation Rule"
 msgid "Automation rule updated"
-msgstr "כלל אוטומציה"
+msgstr "כלל אוטומציה עודכן"
 
 #: projects/views/private.py:1252
 msgid "Pull request settings have been updated"
@@ -6053,9 +5990,3 @@ msgstr ""
 "מספיקה ועליך גם לבקר בהגדרות אצל ספק ה־Git שלך כדי למחוק את חיבור ה־OAuth של "
 "Read the Docs. ב־GitHub, הוא ממוקם תחת <code>Settings > Applications > "
 "Authorized OAuth Apps</code>."
-
-#~ msgid "Site URL"
-#~ msgstr "כתובת האתר"
-
-#~ msgid "Hosted documentation repository URL"
-#~ msgstr "כתובת מאגר תיעוד מתארח"
