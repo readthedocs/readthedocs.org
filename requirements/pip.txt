@@ -121,7 +121,7 @@ django-safemigrate==4.3
     # via -r requirements/pip.in
 django-simple-history==3.0.0
     # via -r requirements/pip.in
-django-storages[boto3]==1.14.3
+django-storages[boto3]==1.14.4
     # via -r requirements/pip.in
 django-structlog==2.2.0
     # via -r requirements/pip.in
