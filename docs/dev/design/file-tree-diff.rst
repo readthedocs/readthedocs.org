@@ -110,7 +110,7 @@ But maybe that's ok? Do we really need to know if a line was changed instead of 
 
    import difflib
 
-   diff = difflib.ndiff(['one', 'two', 'three', 'four'], ['ore', 'three', 'four', 'five'])
+   diff = difflib.ndiff(["one", "two", "three", "four"], ["ore", "three", "four", "five"])
    print(list(diff))
    # ['+ ore', '- one', '- two', '  three', '  four', '+ five']
 
