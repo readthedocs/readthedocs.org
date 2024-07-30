@@ -114,6 +114,9 @@ But maybe that's ok? Do we really need to know if a line was changed instead of 
    print(list(diff))
    # ['+ ore', '- one', '- two', '  three', '  four', '+ five']
 
+A good thing of using Python is that we don't need to write the files to disk,
+and the result is easier to parse.
+
 Storing results
 ---------------
 
@@ -151,6 +154,11 @@ Things important to note:
 
 We could store the changed files sorted by the number of changes, or make that an option in the API,
 or just let the client sort the files as they see fit.
+
+A combination of using the DB and S3 would be really useful,
+as the model will serve as the lock for the API,
+and will be easier to keep track of which build was used to generate the diff
+without having to download the diff file from S3.
 
 API
 ---
