@@ -3,8 +3,9 @@ from unittest import mock
 import django_dynamic_fixture as fixture
 from django.test import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Project
 
@@ -400,6 +401,13 @@ class ProjectsEndpointTests(APIEndpointMixin):
             clone_url="https://github.com/rtfd/template",
             html_url="https://github.com/rtfd/template",
             ssh_url="git@github.com:rtfd/template.git",
+            private=False,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repository,
+            user=self.me,
+            admin=True,
         )
 
         data = {
@@ -420,6 +428,49 @@ class ProjectsEndpointTests(APIEndpointMixin):
         project = query.first()
         self.assertIsNotNone(project.remote_repository)
         self.assertEqual(project.remote_repository, remote_repository)
+
+    def test_import_project_with_remote_repository_from_other_user(self):
+        repo_url = "https://github.com/readthedocs/template"
+        remote_repository = get(
+            RemoteRepository,
+            full_name="readthedocs/template",
+            clone_url=repo_url,
+            html_url="https://github.com/readthedocs/template",
+            ssh_url="git@github.com:readthedocs/template.git",
+            private=False,
+        )
+
+        data = {
+            "name": "Test Project",
+            "repository": {
+                "url": repo_url,
+                "type": "git",
+            },
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        response = self.client.post(reverse("projects-list"), data)
+        self.assertEqual(response.status_code, 201)
+        project = Project.objects.get(slug=response.data["slug"])
+        self.assertIsNone(project.remote_repository)
+
+        # The user has access to the repository but is not an admin,
+        # and the repository is private.
+        remote_repository.private = True
+        remote_repository.save()
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repository,
+            user=self.me,
+            admin=False,
+        )
+
+        data["name"] = "Test Project 2"
+        response = self.client.post(reverse("projects-list"), data)
+        self.assertEqual(response.status_code, 201)
+        project = Project.objects.get(slug=response.data["slug"])
+        self.assertIsNone(project.remote_repository)
 
     def test_update_project(self):
         data = {
