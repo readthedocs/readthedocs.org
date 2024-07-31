@@ -360,6 +360,15 @@ class LocalMediaBuilder(BaseSphinx):
     sphinx_builder = "readthedocssinglehtmllocalmedia"
     relative_output_dir = "htmlzip"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # The builder `readthedocssinglehtmllocalmedia` is defined by our
+        # `readthedocs-sphinx-ext` extension that we are not installing
+        # anymore; so we want to use the default Sphinx `singlehtml` builder
+        if self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
+            self.sphinx_builder = "singlehtml"
+
     def _post_build(self):
         """Internal post build to create the ZIP file from the HTML output."""
         target_file = os.path.join(

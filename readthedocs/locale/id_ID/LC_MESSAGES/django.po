@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-23 14:39+0000\n"
+"POT-Creation-Date: 2024-07-30 11:36+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Rifqi Imaduddin Irfan, 2021\n"
 "Language-Team: Indonesian (Indonesia) (http://app.transifex.com/readthedocs/"
@@ -141,39 +141,39 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr "Kebijakan Privasi"
 
-#: api/v3/serializers.py:625
+#: api/v3/serializers.py:635
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr ""
 
-#: api/v3/serializers.py:629
+#: api/v3/serializers.py:639
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr ""
 
-#: api/v3/serializers.py:864
+#: api/v3/serializers.py:874
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:872 projects/forms.py:603
+#: api/v3/serializers.py:882 projects/forms.py:603
 msgid "A subproject with this alias already exists"
 msgstr ""
 
-#: api/v3/serializers.py:1015
+#: api/v3/serializers.py:1025
 #, python-brace-format
 msgid ""
 "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
 "instead. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1021
+#: api/v3/serializers.py:1031
 #, python-brace-format
 msgid ""
 "sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1027
+#: api/v3/serializers.py:1037
 #, python-brace-format
 msgid ""
 "sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
@@ -2396,10 +2396,8 @@ msgid "Repository URL"
 msgstr "URL repositori"
 
 #: projects/models.py:260
-#, fuzzy
-#| msgid "Repository URL"
 msgid "Git repository URL"
-msgstr "URL repositori"
+msgstr ""
 
 #: projects/models.py:267
 msgid "Repository type"
@@ -2988,16 +2986,12 @@ msgid "Project addons updated"
 msgstr ""
 
 #: projects/views/private.py:270
-#, fuzzy
-#| msgid "Version"
 msgid "Version created"
-msgstr "Versi"
+msgstr ""
 
 #: projects/views/private.py:275
-#, fuzzy
-#| msgid "Version"
 msgid "Version updated"
-msgstr "Versi"
+msgstr ""
 
 #: projects/views/private.py:402
 #, python-brace-format
@@ -3007,28 +3001,20 @@ msgid ""
 msgstr ""
 
 #: projects/views/private.py:460
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject created"
-msgstr "Subproyek"
+msgstr ""
 
 #: projects/views/private.py:464
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject updated"
-msgstr "Subproyek"
+msgstr ""
 
 #: projects/views/private.py:469
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Subproject deleted"
-msgstr "Proyek dihapus"
+msgstr ""
 
 #: projects/views/private.py:512
-#, fuzzy
-#| msgid "Project deleted"
 msgid "User deleted"
-msgstr "Proyek dihapus"
+msgstr ""
 
 #: projects/views/private.py:523
 #, python-brace-format
@@ -3036,62 +3022,44 @@ msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
 #: projects/views/private.py:588
-#, fuzzy
-#| msgid "Publication date"
 msgid "Notification created"
-msgstr "Tanggal publikasi"
+msgstr ""
 
 #: projects/views/private.py:593
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Notification deleted"
-msgstr "Proyek dihapus"
+msgstr ""
 
 #: projects/views/private.py:628
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook created"
-msgstr "Webhook diaktifkan"
+msgstr ""
 
 #: projects/views/private.py:638
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook updated"
-msgstr "Webhook diaktifkan"
+msgstr ""
 
 #: projects/views/private.py:648
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook deleted"
-msgstr "Webhook diaktifkan"
+msgstr ""
 
 #: projects/views/private.py:703
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation created"
-msgstr "Terjemahan"
+msgstr ""
 
 #: projects/views/private.py:708
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation deleted"
-msgstr "Terjemahan"
+msgstr ""
 
 #: projects/views/private.py:751
 msgid "Redirect created"
 msgstr ""
 
 #: projects/views/private.py:755
-#, fuzzy
-#| msgid "Project settings updated"
 msgid "Redirect updated"
-msgstr "Pengaturan proyek telah diperbarui"
+msgstr ""
 
 #: projects/views/private.py:785
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Redirect deleted"
-msgstr "Proyek dihapus"
+msgstr ""
 
 #: projects/views/private.py:818
 msgid "Domain created"
@@ -3102,22 +3070,16 @@ msgid "Domain updated"
 msgstr ""
 
 #: projects/views/private.py:853
-#, fuzzy
-#| msgid "Deleted"
 msgid "Domain deleted"
-msgstr "Terhapus"
+msgstr ""
 
 #: projects/views/private.py:898
-#, fuzzy
-#| msgid "Integrations"
 msgid "Integration created"
-msgstr "Integrasi"
+msgstr ""
 
 #: projects/views/private.py:925
-#, fuzzy
-#| msgid "Integrations"
 msgid "Integration deleted"
-msgstr "Integrasi"
+msgstr ""
 
 #: projects/views/private.py:973
 msgid "Project has been opted out from advertisement support"

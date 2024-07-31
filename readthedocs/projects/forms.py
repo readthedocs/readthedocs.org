@@ -55,9 +55,7 @@ class ProjectForm(SimpleHistoryModelForm):
         self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
         self.fields["repo"].widget.attrs["required"] = True
 
-        self.fields["remote_repository"].queryset = RemoteRepository.objects.filter(
-            users=self.user,
-        )
+        self.fields["remote_repository"].queryset = RemoteRepository.objects.for_project_linking(self.user)
 
     def save(self, commit=True):
         project = super().save(commit)

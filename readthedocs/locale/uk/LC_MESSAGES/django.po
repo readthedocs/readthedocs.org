@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-23 14:39+0000\n"
+"POT-Creation-Date: 2024-07-30 11:36+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Anna Zhirnova, 2023\n"
 "Language-Team: Ukrainian (http://app.transifex.com/readthedocs/readthedocs/"
@@ -149,39 +149,39 @@ msgstr "Організовано"
 msgid "Privacy Policy"
 msgstr "Політика конфіденційності"
 
-#: api/v3/serializers.py:625
+#: api/v3/serializers.py:635
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Недійсна назва проекту \"{0}\": слаг не створено."
 
-#: api/v3/serializers.py:629
+#: api/v3/serializers.py:639
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "Проект зі слагом \"{0}\" вже існує."
 
-#: api/v3/serializers.py:864
+#: api/v3/serializers.py:874
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "Проект із {slug_name}={value} недійсний як підпроект"
 
-#: api/v3/serializers.py:872 projects/forms.py:603
+#: api/v3/serializers.py:882 projects/forms.py:603
 msgid "A subproject with this alias already exists"
 msgstr "Підпроект із цим псевдонімом уже існує"
 
-#: api/v3/serializers.py:1015
+#: api/v3/serializers.py:1025
 #, python-brace-format
 msgid ""
 "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
 "instead. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1021
+#: api/v3/serializers.py:1031
 #, python-brace-format
 msgid ""
 "sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1027
+#: api/v3/serializers.py:1037
 #, python-brace-format
 msgid ""
 "sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
@@ -2410,10 +2410,8 @@ msgid "Repository URL"
 msgstr "URL репозиторію"
 
 #: projects/models.py:260
-#, fuzzy
-#| msgid "Repository URL"
 msgid "Git repository URL"
-msgstr "URL репозиторію"
+msgstr ""
 
 #: projects/models.py:267
 msgid "Repository type"
@@ -3004,16 +3002,12 @@ msgid "Project addons updated"
 msgstr ""
 
 #: projects/views/private.py:270
-#, fuzzy
-#| msgid "Version name"
 msgid "Version created"
-msgstr "Ім'я версії"
+msgstr ""
 
 #: projects/views/private.py:275
-#, fuzzy
-#| msgid "Version name"
 msgid "Version updated"
-msgstr "Ім'я версії"
+msgstr ""
 
 #: projects/views/private.py:402
 #, python-brace-format
@@ -3023,28 +3017,20 @@ msgid ""
 msgstr ""
 
 #: projects/views/private.py:460
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject created"
-msgstr "Підпроекти"
+msgstr ""
 
 #: projects/views/private.py:464
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject updated"
-msgstr "Підпроекти"
+msgstr ""
 
 #: projects/views/private.py:469
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject deleted"
-msgstr "Підпроекти"
+msgstr ""
 
 #: projects/views/private.py:512
-#, fuzzy
-#| msgid "Deleted"
 msgid "User deleted"
-msgstr "Видалено"
+msgstr ""
 
 #: projects/views/private.py:523
 #, python-brace-format
@@ -3052,22 +3038,16 @@ msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
 #: projects/views/private.py:588
-#, fuzzy
-#| msgid "Invitation accepted"
 msgid "Notification created"
-msgstr "Запрошення прийняте"
+msgstr ""
 
 #: projects/views/private.py:593
-#, fuzzy
-#| msgid "Invitation declined"
 msgid "Notification deleted"
-msgstr "Запрошення відхилено"
+msgstr ""
 
 #: projects/views/private.py:628
-#, fuzzy
-#| msgid "created"
 msgid "Webhook created"
-msgstr "Створено"
+msgstr ""
 
 #: projects/views/private.py:638
 msgid "Webhook updated"
@@ -3078,22 +3058,16 @@ msgid "Webhook deleted"
 msgstr ""
 
 #: projects/views/private.py:703
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation created"
-msgstr "Переклади"
+msgstr ""
 
 #: projects/views/private.py:708
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation deleted"
-msgstr "Переклади"
+msgstr ""
 
 #: projects/views/private.py:751
-#, fuzzy
-#| msgid "created"
 msgid "Redirect created"
-msgstr "Створено"
+msgstr ""
 
 #: projects/views/private.py:755
 msgid "Redirect updated"
@@ -3104,32 +3078,24 @@ msgid "Redirect deleted"
 msgstr ""
 
 #: projects/views/private.py:818
-#, fuzzy
-#| msgid "Machine Created"
 msgid "Domain created"
-msgstr "Машина створена"
+msgstr ""
 
 #: projects/views/private.py:838
 msgid "Domain updated"
 msgstr ""
 
 #: projects/views/private.py:853
-#, fuzzy
-#| msgid "Deleted"
 msgid "Domain deleted"
-msgstr "Видалено"
+msgstr ""
 
 #: projects/views/private.py:898
-#, fuzzy
-#| msgid "Invitation accepted"
 msgid "Integration created"
-msgstr "Запрошення прийняте"
+msgstr ""
 
 #: projects/views/private.py:925
-#, fuzzy
-#| msgid "Invitation declined"
 msgid "Integration deleted"
-msgstr "Запрошення відхилено"
+msgstr ""
 
 #: projects/views/private.py:973
 msgid "Project has been opted out from advertisement support"
@@ -3144,10 +3110,8 @@ msgid "Environment variable deleted"
 msgstr ""
 
 #: projects/views/private.py:1034
-#, fuzzy
-#| msgid "Invitation revoked"
 msgid "Automation rule moved"
-msgstr "Запрошення відкликано"
+msgstr ""
 
 #: projects/views/private.py:1050
 msgid "Automation rule deleted"
