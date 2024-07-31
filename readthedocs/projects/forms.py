@@ -55,7 +55,17 @@ class ProjectForm(SimpleHistoryModelForm):
         self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
         self.fields["repo"].widget.attrs["required"] = True
 
-        self.fields["remote_repository"].queryset = RemoteRepository.objects.for_project_linking(self.user)
+        queryset = RemoteRepository.objects.for_project_linking(self.user)
+        current_remote_repo = (
+            self.instance.remote_repository if self.instance.pk else None
+        )
+        # If there is a remote repo attached to the project, add it to the queryset,
+        # since the current user might not have access to it.
+        if current_remote_repo:
+            queryset |= RemoteRepository.objects.filter(
+                pk=current_remote_repo.pk
+            ).distinct()
+        self.fields["remote_repository"].queryset = queryset
 
     def save(self, commit=True):
         project = super().save(commit)
@@ -384,13 +394,13 @@ class UpdateProjectForm(
             # Basics and repo settings
             "name",
             "repo",
+            "remote_repository",
             "language",
             "default_version",
             "privacy_level",
             "versioning_scheme",
             "default_branch",
             "readthedocs_yaml_path",
-            "remote_repository",
             # Meta data
             "programming_language",
             "project_url",
