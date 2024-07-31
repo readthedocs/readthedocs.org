@@ -642,6 +642,7 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     def validate(self, data):  # pylint: disable=arguments-renamed
         repo = data.get("repo")
+        user = self.context["request"].user
         try:
             # We are looking for an exact match of the repository URL entered
             # by the user and any of the known URLs (ssh, clone, html) we have
@@ -650,7 +651,9 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             # If the `RemoteRepository` is found, we save it to link with
             # `Project` object after performing its creating.
             query = Q(ssh_url=repo) | Q(clone_url=repo) | Q(html_url=repo)
-            remote_repository = RemoteRepository.objects.get(query)
+            remote_repository = RemoteRepository.objects.for_project_linking(user).get(
+                query
+            )
             data.update(
                 {
                     "remote_repository": remote_repository,

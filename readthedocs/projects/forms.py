@@ -362,9 +362,8 @@ class ProjectBasicsForm(ProjectForm):
         if not remote_repo:
             return None
         try:
-            return RemoteRepository.objects.get(
+            return RemoteRepository.objects.for_project_linking(self.user).get(
                 pk=remote_repo,
-                users=self.user,
             )
         except RemoteRepository.DoesNotExist as exc:
             raise forms.ValidationError(_("Repository invalid")) from exc
