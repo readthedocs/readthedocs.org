@@ -19,7 +19,8 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 blank=True,
                 db_constraint=False,
-                help_text="Repository linked to this project",
+                verbose_name="Connected repository",
+                help_text="Repository connected to this project",
                 null=True,
                 on_delete=django.db.models.deletion.DO_NOTHING,
                 related_name="+",
@@ -31,7 +32,8 @@ class Migration(migrations.Migration):
             name="remote_repository",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Repository linked to this project",
+                verbose_name="Connected repository",
+                help_text="Repository connected to this project",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="projects",

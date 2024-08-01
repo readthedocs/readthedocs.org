@@ -66,6 +66,7 @@ class ProjectForm(SimpleHistoryModelForm):
                 pk=current_remote_repo.pk
             ).distinct()
         self.fields["remote_repository"].queryset = queryset
+        self.fields["remote_repository"].empty_label = _("No connected repository")
 
     def save(self, commit=True):
         project = super().save(commit)
