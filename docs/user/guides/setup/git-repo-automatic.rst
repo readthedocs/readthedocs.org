@@ -138,8 +138,6 @@ which allow us to build your documentation on every change to your repository.
       Repository status (``repo:status``)
           Repository statuses allow Read the Docs to report the status
           (eg. passed, failed, pending) of pull requests to GitHub.
-          This is used for a feature currently in beta testing
-          that builds documentation on each pull request similar to a continuous integration service.
 
       .. note::
 

@@ -499,6 +499,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     superproject = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
     notifications = serializers.SerializerMethodField()
+    sync_versions = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse("projects-detail", kwargs={"project_slug": obj.slug})
@@ -552,6 +553,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     def get_superproject(self, obj):
         path = reverse(
             "projects-superproject",
+            kwargs={
+                "project_slug": obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_sync_versions(self, obj):
+        path = reverse(
+            "projects-sync-versions",
             kwargs={
                 "project_slug": obj.slug,
             },
@@ -632,6 +642,7 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     def validate(self, data):  # pylint: disable=arguments-renamed
         repo = data.get("repo")
+        user = self.context["request"].user
         try:
             # We are looking for an exact match of the repository URL entered
             # by the user and any of the known URLs (ssh, clone, html) we have
@@ -640,7 +651,9 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             # If the `RemoteRepository` is found, we save it to link with
             # `Project` object after performing its creating.
             query = Q(ssh_url=repo) | Q(clone_url=repo) | Q(html_url=repo)
-            remote_repository = RemoteRepository.objects.get(query)
+            remote_repository = RemoteRepository.objects.for_project_linking(user).get(
+                query
+            )
             data.update(
                 {
                     "remote_repository": remote_repository,

@@ -3,8 +3,9 @@ from unittest import mock
 import django_dynamic_fixture as fixture
 from django.test import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects.constants import PRIVATE, SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Project
 
@@ -297,6 +298,62 @@ class ProjectsEndpointTests(APIEndpointMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
+    def test_projects_sync_versions(self):
+        # Ensure a default version exists to sync
+        self.project.update_latest_version()
+
+        url = reverse(
+            "projects-sync-versions",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 401)
+
+        # Test with a user that is not the owner
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 202)
+
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict("projects-sync-versions"),
+        )
+
+    def test_others_projects_builds_list(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(
+            reverse(
+                "projects-builds-list",
+                kwargs={
+                    "parent_lookup_project__slug": self.others_project.slug,
+                },
+            ),
+        )
+        expected_response = self._get_response_dict("projects-superproject")
+
+        self.client.logout()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # The project is private
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
     def test_others_projects_detail(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
@@ -451,6 +508,13 @@ class ProjectsEndpointTests(APIEndpointMixin):
             clone_url="https://github.com/rtfd/template",
             html_url="https://github.com/rtfd/template",
             ssh_url="git@github.com:rtfd/template.git",
+            private=False,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repository,
+            user=self.me,
+            admin=True,
         )
 
         data = {
@@ -471,6 +535,49 @@ class ProjectsEndpointTests(APIEndpointMixin):
         project = query.first()
         self.assertIsNotNone(project.remote_repository)
         self.assertEqual(project.remote_repository, remote_repository)
+
+    def test_import_project_with_remote_repository_from_other_user(self):
+        repo_url = "https://github.com/readthedocs/template"
+        remote_repository = get(
+            RemoteRepository,
+            full_name="readthedocs/template",
+            clone_url=repo_url,
+            html_url="https://github.com/readthedocs/template",
+            ssh_url="git@github.com:readthedocs/template.git",
+            private=False,
+        )
+
+        data = {
+            "name": "Test Project",
+            "repository": {
+                "url": repo_url,
+                "type": "git",
+            },
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        response = self.client.post(reverse("projects-list"), data)
+        self.assertEqual(response.status_code, 201)
+        project = Project.objects.get(slug=response.data["slug"])
+        self.assertIsNone(project.remote_repository)
+
+        # The user has access to the repository but is not an admin,
+        # and the repository is private.
+        remote_repository.private = True
+        remote_repository.save()
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repository,
+            user=self.me,
+            admin=False,
+        )
+
+        data["name"] = "Test Project 2"
+        response = self.client.post(reverse("projects-list"), data)
+        self.assertEqual(response.status_code, 201)
+        project = Project.objects.get(slug=response.data["slug"])
+        self.assertIsNone(project.remote_repository)
 
     def test_update_project(self):
         data = {
