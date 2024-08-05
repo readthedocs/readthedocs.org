@@ -188,12 +188,17 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
     """
 
     def has_admin_permission(self, user, organization):
+        """Check if user is an owner of the organization."""
         if self.admin_organizations(user).filter(pk=organization.pk).exists():
             return True
 
         return False
 
     def is_admin_member(self, user, organization):
+        """Check if user is an owner or belongs to a team with admin permissions of the organization."""
+        if self.has_admin_permission(user, organization):
+            return True
+
         return (
             Project.objects.for_admin_user(user=user)
             .filter(organizations__in=[organization])
