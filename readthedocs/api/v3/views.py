@@ -143,7 +143,7 @@ class ProjectsViewSetBase(
         if self.action in ("create", "list"):
             permission_classes = [IsAuthenticated]
         # Actions that change the state of the project require admin permissions on the project.
-        elif self.action in ("update", "partial_update", "destroy"):
+        elif self.action in ("update", "partial_update", "destroy", "sync_versions"):
             permission_classes = [IsAuthenticated & IsProjectAdmin]
         # Any other action is read-only.
         else:
@@ -222,7 +222,7 @@ class ProjectsViewSetBase(
         project = super().perform_create(serializer)
         self.finish_import_project(self.request, project)
 
-    @action(detail=True, methods=["get"], permission_classes=[ReadOnlyPermission])
+    @action(detail=True, methods=["get"])
     def superproject(self, request, project_slug):
         """Return the superproject of a ``Project``."""
         superproject = self._get_superproject()

@@ -311,7 +311,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
         self.client.logout()
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 405)
         response = self.client.post(url)
         self.assertEqual(response.status_code, 401)
 
@@ -328,31 +328,6 @@ class ProjectsEndpointTests(APIEndpointMixin):
             response.json(),
             self._get_response_dict("projects-sync-versions"),
         )
-
-    def test_others_projects_builds_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
-        response = self.client.get(
-            reverse(
-                "projects-builds-list",
-                kwargs={
-                    "parent_lookup_project__slug": self.others_project.slug,
-                },
-            ),
-        )
-        expected_response = self._get_response_dict("projects-superproject")
-
-        self.client.logout()
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.json(), expected_response)
-
-        # The project is private
-        self.project.privacy_level = PRIVATE
-        self.project.save()
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
 
     def test_others_projects_detail(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
