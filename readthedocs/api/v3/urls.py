@@ -25,6 +25,7 @@ router = DefaultRouterWithNesting()
 # allows /api/v3/projects/
 # allows /api/v3/projects/pip/
 # allows /api/v3/projects/pip/superproject/
+# allows /api/v3/projects/pip/sync-versions/
 projects = router.register(
     r"projects",
     ProjectsViewSet,

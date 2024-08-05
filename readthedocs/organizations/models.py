@@ -54,21 +54,21 @@ class Organization(models.Model):
         blank=False,
     )
     email = models.EmailField(
-        _("E-mail"),
-        help_text="How can we get in touch with you?",
+        _("Email"),
+        help_text="Best email address for billing related inquiries",
         max_length=255,
         blank=True,
         null=True,
     )
     description = models.TextField(
         _("Description"),
-        help_text="Tell us a little about yourself.",
+        help_text="A short description shown on your profile page",
         blank=True,
         null=True,
     )
     url = models.URLField(
         _("Home Page"),
-        help_text="The main website for your Organization",
+        help_text="The main website for your organization",
         max_length=255,
         blank=True,
         null=True,

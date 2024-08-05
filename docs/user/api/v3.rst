@@ -470,6 +470,39 @@ Project update
     :statuscode 204: Updated successfully
 
 
+Project versions sync
++++++++++++++++++++++
+
+.. http:post:: /api/v3/projects/(string:project_slug)/sync-versions/
+
+    Trigger a background task to sync the versions of the project.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" \
+              https://readthedocs.org/api/v3/projects/pip/sync-versions/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/sync-versions/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.post(
+                URL,
+                headers=HEADERS,
+            )
+            print(response.json())
+
+    :statuscode 202: Task created successfully
+    :statuscode 400: Bad request, task not created
+
 Versions
 ~~~~~~~~
 
