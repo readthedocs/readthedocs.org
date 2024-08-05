@@ -731,10 +731,13 @@ class OrganizationsTeamsViewSet(
     GenericViewSet,
 ):
     model = Team
-    queryset = Team.objects.all()
     serializer_class = TeamSerializer
     permission_classes = [IsAuthenticated & IsOrganizationAdmin]
     permit_list_expands = ["members"]
+
+    def get_queryset(self):
+        organization = self._get_parent_organization()
+        return organization.teams.all()
 
 
 class NotificationsOrganizationViewSet(
