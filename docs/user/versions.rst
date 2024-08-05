@@ -21,8 +21,6 @@ Each version of your documentation has a combination of three states (**Active**
 
 You can change the states for each version of your documentation in the :guilabel:`Versions` tab of your project.
 
-The combination of all three states
-
 **Active** or **Inactive**
   - **Active** docs are visible, and builds can be triggered for the documentation.
   - Docs for **Inactive** versions *are deleted* and builds cannot be triggered.
