@@ -36,8 +36,8 @@ All hope was lost for having nice features like this, until now.
 Proposed solution
 -----------------
 
-Since redirects and files of interest are related to the generated files.
-Instead of working over the source files, we will work over the generated files, which we have access to.
+Since redirects and files of interest are related to the generated files,
+instead of working over the source files, we will work over the generated files, which we have access to.
 
 The key points of this feature are:
 
@@ -65,8 +65,10 @@ For this, it uses the metadata of the files, like size and hash
    = unchanged.txt
    * changed.txt
 
-The result is a list of files with a mark indicating if they were added, removed, or modified.
+The result is a list of files with a mark indicating if they were added, removed, or modified, or if they were unchanged.
 The result is easy to parse.
+There is no option to exclude the files that were unchanged when using ``--combined``,
+another option can be to output each type of change to a different file (``--missing-on-dst``, ``--missing-on-src``, ``--differ``).
 
 To start, we will only consider HTML files (``--include=*.html``).
 
@@ -228,7 +230,14 @@ Future improvements and ideas
 -----------------------------
 
 - Detect moved files.
+  This will imply checking the hashes of deleted and added files,
+  if that same hash of a file that was deleted matches one from a file that was added,
+  we have a move.
+  But since we don't have access to those hashes after rclone is run,
+  we would need to re-fetch that metadata from S3.
+  Could be a feature request for rclone.
 - Detect changes in sections of HTML files.
+  We could re-use the code we have for search indexing.
 - Expand to other file types?
 - Integrate with addons?
 - Allow doing a diff between versions of different projects?
