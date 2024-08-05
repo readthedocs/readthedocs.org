@@ -20,6 +20,50 @@ from .mixins import APIEndpointMixin
 )
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
 class BuildsEndpointTests(APIEndpointMixin):
+    def test_projects_builds_list_anonymous_user(self):
+        url = reverse(
+            "projects-builds-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        expected_response = self._get_response_dict("projects-builds-list")
+        expected_empty_response = self._get_response_dict("projects-list-empty")
+
+        self.client.logout()
+
+        # Project and version are public.
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Project is private, version is public.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PUBLIC
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_empty_response)
+
+        # Project and version are private.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_empty_response)
+
+        # Project is public, but version is private.
+        self.project.privacy_level = PUBLIC
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_empty_response)
+
     def test_projects_builds_list(self):
         url = reverse(
             "projects-builds-list",
@@ -27,14 +71,128 @@ class BuildsEndpointTests(APIEndpointMixin):
                 "parent_lookup_project__slug": self.project.slug,
             },
         )
+        expected_response = self._get_response_dict("projects-builds-list")
 
         self.client.logout()
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 401)
-
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # Project and version are public.
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Project is private, version is public.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PUBLIC
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Project and version are private.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Project is public, but version is private.
+        self.project.privacy_level = PUBLIC
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+    def test_projects_builds_list_other_user(self):
+        url = reverse(
+            "projects-builds-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        expected_response = self._get_response_dict("projects-builds-list")
+        expected_empty_response = self._get_response_dict("projects-list-empty")
+
+        self.client.logout()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+
+        # Project and version are public.
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Project is private, version is public.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PUBLIC
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_empty_response)
+
+        # Project and version are private.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_empty_response)
+
+        # Project is public, but version is private.
+        self.project.privacy_level = PUBLIC
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_empty_response)
+
+    def test_projects_builds_detail_anoymous_user(self):
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
+        )
+        expected_response = self._get_response_dict("projects-builds-detail")
+
+        self.client.logout()
+
+        # Project and version are public.
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Project is private, version is public.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PUBLIC
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+        # Project and version are private.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+        # Project is public, but version is private.
+        self.project.privacy_level = PUBLIC
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
     def test_projects_builds_detail(self):
         url = reverse(
@@ -44,19 +202,83 @@ class BuildsEndpointTests(APIEndpointMixin):
                 "build_pk": self.build.pk,
             },
         )
+        expected_response = self._get_response_dict("projects-builds-detail")
 
         self.client.logout()
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 401)
-
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # Project and version are public.
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
 
-        self.assertDictEqual(
-            response.json(),
-            self._get_response_dict("projects-builds-detail"),
+        # Project is private, version is public.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PUBLIC
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Project and version are private.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Project is public, but version is private.
+        self.project.privacy_level = PUBLIC
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+    def test_projects_builds_detail_other_user(self):
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
         )
+        expected_response = self._get_response_dict("projects-builds-detail")
+        self.client.logout()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+
+        # Project and version are public.
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Project is private, version is public.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PUBLIC
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+        # Project and version are private.
+        self.project.privacy_level = PRIVATE
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+        # Project is public, but version is private.
+        self.project.privacy_level = PUBLIC
+        self.project.save()
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
     def test_projects_versions_builds_list_post(self):
         url = reverse(
@@ -70,6 +292,10 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.client.logout()
         response = self.client.post(url)
         self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 403)
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         self.assertEqual(self.project.builds.count(), 1)
@@ -440,6 +666,10 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.client.logout()
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 403)
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.patch(url, data)
