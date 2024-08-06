@@ -200,6 +200,10 @@ class ProjectUpdate(ProjectMixin, UpdateView):
     def get_success_url(self):
         return reverse("projects_detail", args=[self.object.slug])
 
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["user"] = self.request.user
+        return super().get_form(data, files, **kwargs)
+
 
 class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteViewWithMessage):
     success_message = _("Project deleted")
