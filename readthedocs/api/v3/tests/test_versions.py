@@ -7,6 +7,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, TAG
 from readthedocs.builds.models import Version
+from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import HTMLFile, Project
 
 from .mixins import APIEndpointMixin
@@ -14,6 +15,29 @@ from .mixins import APIEndpointMixin
 
 @override_settings(ALLOW_PRIVATE_REPOS=False)
 class VersionsEndpointTests(APIEndpointMixin):
+    def test_projects_versions_list_anonymous_user(self):
+        url = reverse(
+            "projects-versions-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+
+        # Versions are public
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertEqual(len(json_data["results"]), 2)
+        self.assertEqual(json_data["results"][0]["slug"], "v1.0")
+        self.assertEqual(json_data["results"][1]["slug"], "latest")
+
+        # Versions are private
+        self.project.versions.update(privacy_level=PRIVATE)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertEqual(len(json_data["results"]), 0)
+
     def test_projects_versions_list(self):
         url = reverse(
             "projects-versions-list",
@@ -23,10 +47,9 @@ class VersionsEndpointTests(APIEndpointMixin):
         )
 
         self.client.logout()
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 401)
-
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # Versions are public
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = response.json()
@@ -34,17 +57,60 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response["results"][0]["slug"], "v1.0")
         self.assertEqual(response["results"][1]["slug"], "latest")
 
-    def test_others_projects_versions_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
-        response = self.client.get(
-            reverse(
-                "projects-versions-list",
-                kwargs={
-                    "parent_lookup_project__slug": self.others_project.slug,
-                },
-            ),
+        # Versions are private
+        Project.objects.filter(slug=self.project.slug).update(privacy_level=PRIVATE)
+        response = self.client.get(url)
+        response = response.json()
+        self.assertEqual(len(response["results"]), 2)
+        self.assertEqual(response["results"][0]["slug"], "v1.0")
+        self.assertEqual(response["results"][1]["slug"], "latest")
+
+    def test_projects_versions_list_other_user(self):
+        url = reverse(
+            "projects-versions-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
         )
-        self.assertEqual(response.status_code, 403)
+        self.client.logout()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+
+        # Versions are public
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertEqual(len(json_data["results"]), 2)
+        self.assertEqual(json_data["results"][0]["slug"], "v1.0")
+        self.assertEqual(json_data["results"][1]["slug"], "latest")
+
+        # Versions are private
+        self.project.versions.update(privacy_level=PRIVATE)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertEqual(len(json_data["results"]), 0)
+
+    def test_projects_versions_detail_anonymous_user(self):
+        url = reverse(
+            "projects-versions-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "version_slug": "v1.0",
+            },
+        )
+        expected_response = self._get_response_dict("projects-versions-detail")
+
+        self.client.logout()
+
+        # Version is public
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Version is private
+        self.project.versions.update(privacy_level=PRIVATE)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
     def test_projects_versions_detail(self):
         url = reverse(
@@ -54,18 +120,45 @@ class VersionsEndpointTests(APIEndpointMixin):
                 "version_slug": "v1.0",
             },
         )
+        expected_response = self._get_response_dict("projects-versions-detail")
 
         self.client.logout()
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 401)
-
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # Version is public
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(
-            response.json(),
-            self._get_response_dict("projects-versions-detail"),
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Version is private
+        self.project.versions.update(privacy_level=PRIVATE)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        expected_response["privacy_level"] = "private"
+        self.assertDictEqual(response.json(), expected_response)
+
+    def test_projects_versions_detail_other_user(self):
+        url = reverse(
+            "projects-versions-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "version_slug": "v1.0",
+            },
         )
+        expected_response = self._get_response_dict("projects-versions-detail")
+
+        self.client.logout()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+
+        # Version is public
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json(), expected_response)
+
+        # Version is private
+        self.project.versions.update(privacy_level=PRIVATE)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_projects_versions_detail_privacy_levels_allowed(self):
@@ -170,6 +263,10 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.client.logout()
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 403)
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.patch(url, data)

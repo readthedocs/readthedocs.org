@@ -11,6 +11,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.forms import RichValidationError
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
@@ -156,7 +157,8 @@ class TestProjectForms(TestCase):
 
 class TestProjectAdvancedForm(TestCase):
     def setUp(self):
-        self.project = get(Project, privacy_level=PUBLIC)
+        self.user = get(User)
+        self.project = get(Project, privacy_level=PUBLIC, users=[self.user])
         get(
             Version,
             project=self.project,
@@ -332,6 +334,55 @@ class TestProjectAdvancedForm(TestCase):
             project=self.project,
             version=default_branch,
         )
+
+    def test_set_remote_repository(self):
+        data = {
+            "name": "Project",
+            "repo": "https://github.com/readthedocs/readthedocs.org/",
+            "repo_type": self.project.repo_type,
+            "default_version": LATEST,
+            "language": self.project.language,
+            "versioning_scheme": self.project.versioning_scheme,
+        }
+
+        remote_repository = get(
+            RemoteRepository,
+            full_name="rtfd/template",
+            clone_url="https://github.com/rtfd/template",
+            html_url="https://github.com/rtfd/template",
+            ssh_url="git@github.com:rtfd/template.git",
+            private=False,
+        )
+
+        # No remote repository attached.
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertTrue(form.is_valid())
+
+        # Remote repository attached, but it doesn't belong to the user.
+        data["remote_repository"] = remote_repository.pk
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertFalse(form.is_valid())
+        self.assertIn("remote_repository", form.errors)
+
+        # Remote repository attached, it belongs to the user now.
+        remote_repository_rel = get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repository,
+            user=self.user,
+            admin=True,
+        )
+        data["remote_repository"] = remote_repository.pk
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertTrue(form.is_valid())
+
+        # The project has the remote repository attached.
+        # And the user doesn't have access to it anymore, but still can use it.
+        self.project.remote_repository = remote_repository
+        self.project.save()
+        remote_repository_rel.delete()
+        data["remote_repository"] = remote_repository.pk
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertTrue(form.is_valid())
 
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
