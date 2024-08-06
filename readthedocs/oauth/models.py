@@ -186,7 +186,7 @@ class RemoteRepository(TimeStampedModel):
         db_table = "oauth_remoterepository_2020"
 
     def __str__(self):
-        return self.html_url
+        return self.html_url or self.full_name
 
     def matches(self, user):
         """Existing projects connected to this RemoteRepository."""

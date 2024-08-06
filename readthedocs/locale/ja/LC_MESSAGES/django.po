@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-23 14:39+0000\n"
+"POT-Creation-Date: 2024-07-30 11:36+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Noguchi Muneyuki, 2023\n"
 "Language-Team: Japanese (http://app.transifex.com/readthedocs/readthedocs/"
@@ -152,39 +152,39 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr "プライバシーポリシー"
 
-#: api/v3/serializers.py:625
+#: api/v3/serializers.py:635
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr ""
 
-#: api/v3/serializers.py:629
+#: api/v3/serializers.py:639
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr ""
 
-#: api/v3/serializers.py:864
+#: api/v3/serializers.py:874
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:872 projects/forms.py:603
+#: api/v3/serializers.py:882 projects/forms.py:603
 msgid "A subproject with this alias already exists"
 msgstr ""
 
-#: api/v3/serializers.py:1015
+#: api/v3/serializers.py:1025
 #, python-brace-format
 msgid ""
 "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
 "instead. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1021
+#: api/v3/serializers.py:1031
 #, python-brace-format
 msgid ""
 "sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
 msgstr ""
 
-#: api/v3/serializers.py:1027
+#: api/v3/serializers.py:1037
 #, python-brace-format
 msgid ""
 "sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
@@ -2406,10 +2406,8 @@ msgid "Repository URL"
 msgstr "リポジトリURL"
 
 #: projects/models.py:260
-#, fuzzy
-#| msgid "Repository URL"
 msgid "Git repository URL"
-msgstr "リポジトリURL"
+msgstr ""
 
 #: projects/models.py:267
 msgid "Repository type"
@@ -3002,16 +3000,12 @@ msgid "Project addons updated"
 msgstr ""
 
 #: projects/views/private.py:270
-#, fuzzy
-#| msgid "Version name"
 msgid "Version created"
-msgstr "バージョン名"
+msgstr ""
 
 #: projects/views/private.py:275
-#, fuzzy
-#| msgid "Version name"
 msgid "Version updated"
-msgstr "バージョン名"
+msgstr ""
 
 #: projects/views/private.py:402
 #, python-brace-format
@@ -3023,28 +3017,20 @@ msgstr ""
 "サービスページ</a>でアカウントの再接続をしてください。"
 
 #: projects/views/private.py:460
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject created"
-msgstr "サブプロジェクト"
+msgstr ""
 
 #: projects/views/private.py:464
-#, fuzzy
-#| msgid "Subprojects"
 msgid "Subproject updated"
-msgstr "サブプロジェクト"
+msgstr ""
 
 #: projects/views/private.py:469
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Subproject deleted"
-msgstr "プロジェクトを削除しました"
+msgstr ""
 
 #: projects/views/private.py:512
-#, fuzzy
-#| msgid "Project deleted"
 msgid "User deleted"
-msgstr "プロジェクトを削除しました"
+msgstr ""
 
 #: projects/views/private.py:523
 #, python-brace-format
@@ -3052,82 +3038,56 @@ msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
 #: projects/views/private.py:588
-#, fuzzy
-#| msgid "Publication date"
 msgid "Notification created"
-msgstr "公開時刻"
+msgstr ""
 
 #: projects/views/private.py:593
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Notification deleted"
-msgstr "プロジェクトを削除しました"
+msgstr ""
 
 #: projects/views/private.py:628
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook created"
-msgstr "Webhookを有効化しました"
+msgstr ""
 
 #: projects/views/private.py:638
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook updated"
-msgstr "Webhookを有効化しました"
+msgstr ""
 
 #: projects/views/private.py:648
-#, fuzzy
-#| msgid "Webhook activated"
 msgid "Webhook deleted"
-msgstr "Webhookを有効化しました"
+msgstr ""
 
 #: projects/views/private.py:703
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation created"
-msgstr "翻訳"
+msgstr ""
 
 #: projects/views/private.py:708
-#, fuzzy
-#| msgid "Translations"
 msgid "Translation deleted"
-msgstr "翻訳"
+msgstr ""
 
 #: projects/views/private.py:751
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Redirect created"
-msgstr "リダイレクトタイプ"
+msgstr ""
 
 #: projects/views/private.py:755
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Redirect updated"
-msgstr "リダイレクトタイプ"
+msgstr ""
 
 #: projects/views/private.py:785
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Redirect deleted"
-msgstr "プロジェクトを削除しました"
+msgstr ""
 
 #: projects/views/private.py:818
-#, fuzzy
-#| msgid "Machine Created"
 msgid "Domain created"
-msgstr "マシンが作成されました"
+msgstr ""
 
 #: projects/views/private.py:838
-#, fuzzy
-#| msgid "Domain"
 msgid "Domain updated"
-msgstr "ドメイン"
+msgstr ""
 
 #: projects/views/private.py:853
-#, fuzzy
-#| msgid "Deleted"
 msgid "Domain deleted"
-msgstr "削除済み"
+msgstr ""
 
 #: projects/views/private.py:898
 msgid "Integration created"
@@ -3142,16 +3102,12 @@ msgid "Project has been opted out from advertisement support"
 msgstr ""
 
 #: projects/views/private.py:1005
-#, fuzzy
-#| msgid "Environment Variables"
 msgid "Environment variable created"
-msgstr "環境変数"
+msgstr ""
 
 #: projects/views/private.py:1009
-#, fuzzy
-#| msgid "Environment Variables"
 msgid "Environment variable deleted"
-msgstr "環境変数"
+msgstr ""
 
 #: projects/views/private.py:1034
 msgid "Automation rule moved"
@@ -5695,6 +5651,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#~ msgid "Site URL"
-#~ msgstr "サイトURL"

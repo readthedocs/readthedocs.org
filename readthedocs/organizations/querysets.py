@@ -26,6 +26,9 @@ class BaseOrganizationQuerySet(NoReprQuerySet, models.QuerySet):
     def for_admin_user(self, user):
         return self.filter(owners__in=[user]).distinct()
 
+    def api(self, user):
+        return self.for_user(user)
+
     def created_days_ago(self, days, field="pub_date"):
         """
         Filter organizations by creation date.
