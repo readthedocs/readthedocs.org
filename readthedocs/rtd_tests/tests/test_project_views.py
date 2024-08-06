@@ -162,11 +162,87 @@ class TestBasicsForm(WizardTestCase):
         self.assertIn("remote_repository", form.errors)
 
     def test_remote_repository_invalid_id(self):
-        self.step_data["basics"]["remote_repository"] = 9
-        resp = self.post_step("basics")
-        self.assertEqual(resp.status_code, 200)
-        form = resp.context_data["form"]
-        self.assertIn("remote_repository", form.errors)
+        remote_repository_admin_public = get(
+            RemoteRepository,
+            private=False,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            remote_repository=remote_repository_admin_public,
+            admin=True,
+        )
+
+        remote_repository_admin_private = get(
+            RemoteRepository,
+            private=True,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            remote_repository=remote_repository_admin_private,
+            admin=True,
+        )
+
+        remote_repository_not_admin_public = get(
+            RemoteRepository,
+            private=False,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            remote_repository=remote_repository_not_admin_public,
+            admin=False,
+        )
+
+        remote_repository_not_admin_private = get(
+            RemoteRepository,
+            private=True,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            remote_repository=remote_repository_not_admin_private,
+            admin=False,
+        )
+
+        other_user = get(User)
+        remote_repository_other_user = get(
+            RemoteRepository,
+            private=False,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=other_user,
+            remote_repository=remote_repository_other_user,
+            admin=True,
+        )
+
+        invalid_remote_repos_pk = [
+            remote_repository_not_admin_private.pk,
+            remote_repository_other_user.pk,
+            # Doesn't exist
+            99,
+        ]
+        valid_remote_repos_pk = [
+            remote_repository_admin_private.pk,
+            remote_repository_admin_public.pk,
+            remote_repository_not_admin_public.pk,
+        ]
+
+        for remote_repo_pk in invalid_remote_repos_pk:
+            self.step_data["basics"]["remote_repository"] = remote_repo_pk
+            resp = self.post_step("basics")
+            self.assertEqual(resp.status_code, 200)
+            form = resp.context_data["form"]
+            self.assertIn("remote_repository", form.errors)
+
+        for remote_repo_pk in valid_remote_repos_pk:
+            self.step_data["basics"]["remote_repository"] = remote_repo_pk
+            resp = self.post_step("basics")
+            self.assertEqual(resp.status_code, 200)
+            form = resp.context_data["form"]
+            self.assertNotIn("remote_repository", form.errors)
 
     def test_remote_repository_is_not_added_for_wrong_user(self):
         user = get(User)

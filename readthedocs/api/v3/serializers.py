@@ -499,6 +499,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     superproject = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
     notifications = serializers.SerializerMethodField()
+    sync_versions = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse("projects-detail", kwargs={"project_slug": obj.slug})
@@ -552,6 +553,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     def get_superproject(self, obj):
         path = reverse(
             "projects-superproject",
+            kwargs={
+                "project_slug": obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_sync_versions(self, obj):
+        path = reverse(
+            "projects-sync-versions",
             kwargs={
                 "project_slug": obj.slug,
             },
@@ -632,6 +642,7 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     def validate(self, data):  # pylint: disable=arguments-renamed
         repo = data.get("repo")
+        user = self.context["request"].user
         try:
             # We are looking for an exact match of the repository URL entered
             # by the user and any of the known URLs (ssh, clone, html) we have
@@ -640,7 +651,9 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             # If the `RemoteRepository` is found, we save it to link with
             # `Project` object after performing its creating.
             query = Q(ssh_url=repo) | Q(clone_url=repo) | Q(html_url=repo)
-            remote_repository = RemoteRepository.objects.get(query)
+            remote_repository = RemoteRepository.objects.for_project_linking(user).get(
+                query
+            )
             data.update(
                 {
                     "remote_repository": remote_repository,
@@ -789,19 +802,9 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             # NOTE: we use a serializer without expandable fields to avoid
             # leaking information about the organization through the project.
             "organization": (
-                "readthedocs.api.v3.serializers.OrganizationSerializerWithoutExpandableFields",
+                "readthedocs.api.v3.serializers.OrganizationSerializer",
                 # NOTE: we cannot have a Project with multiple organizations.
                 {"source": "organizations.first"},
-            ),
-            # NOTE: we are leaking the slugs of all teams linked to this project
-            # to anyone with access to this prtoject. It's only the slug, but still.
-            "teams": (
-                serializers.SlugRelatedField,
-                {
-                    "slug_field": "slug",
-                    "many": True,
-                    "read_only": True,
-                },
             ),
         }
 
@@ -1170,7 +1173,7 @@ class TeamSerializer(FlexFieldsModelSerializer):
         }
 
 
-class OrganizationSerializerWithoutExpandableFields(FlexFieldsModelSerializer):
+class OrganizationSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(source="pub_date")
     modified = serializers.DateTimeField(source="modified_date")
     owners = UserSerializer(many=True)
@@ -1191,17 +1194,6 @@ class OrganizationSerializerWithoutExpandableFields(FlexFieldsModelSerializer):
             "disabled",
             "_links",
         )
-
-
-class OrganizationSerializerWithExpandableFields(
-    OrganizationSerializerWithoutExpandableFields
-):
-    class Meta(OrganizationSerializerWithoutExpandableFields.Meta):
-        expandable_fields = {
-            # TODO: we are leaking all teams and its members to anyone who is
-            # an admin member of the organization.
-            "teams": (TeamSerializer, {"many": True}),
-        }
 
 
 class RemoteOrganizationSerializer(serializers.ModelSerializer):

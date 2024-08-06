@@ -52,12 +52,61 @@ class ProjectForm(SimpleHistoryModelForm):
         self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
+        self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
+        self.fields["repo"].widget.attrs["required"] = True
+
+        queryset = RemoteRepository.objects.for_project_linking(self.user)
+        current_remote_repo = (
+            self.instance.remote_repository if self.instance.pk else None
+        )
+        # If there is a remote repo attached to the project, add it to the queryset,
+        # since the current user might not have access to it.
+        if current_remote_repo:
+            queryset |= RemoteRepository.objects.filter(
+                pk=current_remote_repo.pk
+            ).distinct()
+        self.fields["remote_repository"].queryset = queryset
+        self.fields["remote_repository"].empty_label = _("No connected repository")
+
     def save(self, commit=True):
         project = super().save(commit)
         if commit:
             if self.user and not project.users.filter(pk=self.user.pk).exists():
                 project.users.add(self.user)
         return project
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name", "")
+        if not self.instance.pk:
+            potential_slug = slugify(name)
+            if Project.objects.filter(slug=potential_slug).exists():
+                raise forms.ValidationError(
+                    _("Invalid project name, a project already exists with that name"),
+                )  # yapf: disable # noqa
+            if not potential_slug:
+                # Check the generated slug won't be empty
+                raise forms.ValidationError(
+                    _("Invalid project name"),
+                )
+
+        return name
+
+    def clean_repo(self):
+        repo = self.cleaned_data.get("repo", "")
+        return repo.rstrip("/")
+
+    def placehold_repo(self):
+        return choice(
+            [
+                "https://bitbucket.org/cherrypy/cherrypy",
+                "https://bitbucket.org/birkenfeld/sphinx",
+                "https://bitbucket.org/hpk42/tox",
+                "https://github.com/zzzeek/sqlalchemy.git",
+                "https://github.com/django/django.git",
+                "https://github.com/fabric/fabric.git",
+                "https://github.com/ericholscher/django-kong.git",
+            ]
+        )
 
 
 class ProjectTriggerBuildMixin:
@@ -313,74 +362,13 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ("name", "repo", "default_branch", "language")
-
-    remote_repository = forms.IntegerField(
-        widget=forms.HiddenInput(),
-        required=False,
-    )
+        fields = ("name", "repo", "default_branch", "language", "remote_repository")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
         self.fields["repo"].widget.attrs["required"] = True
-
-    def save(self, commit=True):
-        """Add remote repository relationship to the project instance."""
-        instance = super().save(commit)
-        remote_repo = self.cleaned_data.get("remote_repository", None)
-        if remote_repo:
-            if commit:
-                remote_repo.projects.add(self.instance)
-                remote_repo.save()
-            else:
-                instance.remote_repository = remote_repo
-        return instance
-
-    def clean_name(self):
-        name = self.cleaned_data.get("name", "")
-        if not self.instance.pk:
-            potential_slug = slugify(name)
-            if Project.objects.filter(slug=potential_slug).exists():
-                raise forms.ValidationError(
-                    _("Invalid project name, a project already exists with that name"),
-                )  # yapf: disable # noqa
-            if not potential_slug:
-                # Check the generated slug won't be empty
-                raise forms.ValidationError(
-                    _("Invalid project name"),
-                )
-
-        return name
-
-    def clean_repo(self):
-        repo = self.cleaned_data.get("repo", "")
-        return repo.rstrip("/")
-
-    def clean_remote_repository(self):
-        remote_repo = self.cleaned_data.get("remote_repository", None)
-        if not remote_repo:
-            return None
-        try:
-            return RemoteRepository.objects.get(
-                pk=remote_repo,
-                users=self.user,
-            )
-        except RemoteRepository.DoesNotExist as exc:
-            raise forms.ValidationError(_("Repository invalid")) from exc
-
-    def placehold_repo(self):
-        return choice(
-            [
-                "https://bitbucket.org/cherrypy/cherrypy",
-                "https://bitbucket.org/birkenfeld/sphinx",
-                "https://bitbucket.org/hpk42/tox",
-                "https://github.com/zzzeek/sqlalchemy.git",
-                "https://github.com/django/django.git",
-                "https://github.com/fabric/fabric.git",
-                "https://github.com/ericholscher/django-kong.git",
-            ]
-        )
+        self.fields["remote_repository"].widget = forms.HiddenInput()
 
 
 class ProjectConfigForm(forms.Form):
@@ -395,7 +383,7 @@ class ProjectConfigForm(forms.Form):
 
 class UpdateProjectForm(
     ProjectTriggerBuildMixin,
-    ProjectBasicsForm,
+    ProjectForm,
     ProjectPRBuildsMixin,
 ):
 
@@ -407,30 +395,32 @@ class UpdateProjectForm(
             # Basics and repo settings
             "name",
             "repo",
-            "repo_type",
-            "default_branch",
+            "remote_repository",
             "language",
-            "description",
-            # Project related settings
             "default_version",
             "privacy_level",
             "versioning_scheme",
-            "external_builds_enabled",
-            "external_builds_privacy_level",
+            "default_branch",
             "readthedocs_yaml_path",
-            "analytics_code",
-            "analytics_disabled",
-            "show_version_warning",
             # Meta data
             "programming_language",
             "project_url",
+            "description",
             "tags",
+            # Booleans
+            "external_builds_privacy_level",
+            "external_builds_enabled",
+            # Deprecated
+            "analytics_code",
+            "analytics_disabled",
+            "show_version_warning",
         )
 
+    # Make description smaller, only a CharField
     description = forms.CharField(
         required=False,
         max_length=150,
-        widget=forms.Textarea,
+        help_text=_("Short description of this project"),
     )
 
     def __init__(self, *args, **kwargs):
@@ -464,6 +454,11 @@ class UpdateProjectForm(
 
         if not settings.ALLOW_PRIVATE_REPOS:
             for field in ["privacy_level", "external_builds_privacy_level"]:
+                self.fields.pop(field)
+
+        # Remove analytics from new dashboard
+        if settings.RTD_EXT_THEME_ENABLED:
+            for field in ["analytics_code", "analytics_disabled"]:
                 self.fields.pop(field)
 
         default_choice = (None, "-" * 9)
@@ -619,7 +614,7 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
 class AddonsConfigForm(forms.ModelForm):
 
-    """Form to opt-in into new beta addons."""
+    """Form to opt-in into new addons."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 

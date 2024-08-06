@@ -257,7 +257,7 @@ class Project(models.Model):
         _("Repository URL"),
         max_length=255,
         validators=[validate_repository_url],
-        help_text=_("Hosted documentation repository URL"),
+        help_text=_("Git repository URL"),
         db_index=True,
     )
 
@@ -280,16 +280,17 @@ class Project(models.Model):
         help_text=_("URL that documentation is expected to serve from"),
     )
     versioning_scheme = models.CharField(
-        _("Versioning scheme"),
+        _("URL versioning scheme"),
         max_length=120,
         default=constants.MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
         choices=constants.VERSIONING_SCHEME_CHOICES,
         # TODO: remove after migration
         null=True,
         help_text=_(
-            "This affects how the URL of your documentation looks like, "
-            "and if it supports translations or multiple versions. "
-            "Changing the versioning scheme will break your current URLs."
+            "This affects URL your documentation is served from, "
+            "and if it supports translations or versions. "
+            "Changing the versioning scheme will break your current URLs, "
+            "so you might need to create a redirect."
         ),
     )
     # TODO: this field is deprecated, use `versioning_scheme` instead.
@@ -539,6 +540,8 @@ class Project(models.Model):
 
     remote_repository = models.ForeignKey(
         "oauth.RemoteRepository",
+        verbose_name=_("Connected repository"),
+        help_text=_("Repository connected to this project"),
         on_delete=models.SET_NULL,
         related_name="projects",
         null=True,
