@@ -5,6 +5,7 @@ import signal
 
 import structlog
 from django.conf import settings
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
@@ -272,6 +273,24 @@ def cancel_build(build):
         terminate=terminate,
     )
     app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=terminate)
+
+
+def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):
+    """Given an email object, send it using our send_email_task task."""
+    from readthedocs.core.tasks import send_email_task
+
+    html_content = None
+    if isinstance(email, EmailMultiAlternatives):
+        for content, mimetype in email.alternatives:
+            if mimetype == "text/html":
+                html_content = content
+    send_email_task.delay(
+        recipient=email.to,
+        subject=email.subject,
+        content=email.body,
+        content_html=html_content,
+        from_email=email.from_email,
+    )
 
 
 def send_email(
