@@ -56,6 +56,7 @@ from readthedocs.doc_builder.exceptions import (
     MkDocsYAMLParseError,
 )
 from readthedocs.projects.models import Feature
+from readthedocs.projects.notifications import MESSAGE_PROJECT_ADDONS_BY_DEFAULT
 from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
@@ -819,6 +820,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     self.update_build(state=BUILD_STATE_BUILDING)
                     self.data.build_director.run_build_commands()
                 else:
+                    # Temporal notification while we migrate to addons enabled by default.
+                    if self.data.build_director.is_type_sphinx():
+                        self.data.build_director.attach_notification(
+                            MESSAGE_PROJECT_ADDONS_BY_DEFAULT
+                        )
+
                     # Installing
                     self.update_build(state=BUILD_STATE_INSTALLING)
                     self.data.build_director.setup_environment()
