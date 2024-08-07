@@ -14,8 +14,8 @@ create either a tag or branch in your project with that name.
 When you have :doc:`/integrations` configured for your repository,
 we will automatically build each version when you push a commit.
 
-Version states and visibility
------------------------------
+Version states
+--------------
 
 Each version of your documentation has a combination of three states (**Active**, **Public**, and **Hidden**) which determine its visibility on your site:
 
@@ -45,7 +45,7 @@ You can change the states for each version of your documentation in the :guilabe
 **Public** or **Private** (only available on on :doc:`/commercial/index`)
   - Public versions are visible to everyone.
   - Private versions are available only to people who have permissions to see them.
-    They will not display on any list view, and will 404 when you link them to others.
+    They will not display on any list view, and will 404 when visted by people without viewing permissions.
     If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 
     In addition, if you want other users to view the build page of your public versions,
@@ -93,41 +93,25 @@ they will be redirected to the **Default version**.
 This defaults to **latest**,
 but could also point to your latest released version.
 
-How we envision versions working
---------------------------------
+Versioning workflows
+--------------------
 
-In the normal case,
-the ``latest`` version will always point to the most up to date development code.
-If you develop on a branch that is different than the default for your VCS,
-you should set the **Default Branch** to that branch.
+RTD makes certain assumptions about your documentation version defaults,
+all of which can be reconfigured if you need to:
 
-You should push a **tag** for each version of your project.
-These tags should be numbered in a way that is consistent with semantic versioning.
-This will map to your ``stable`` branch by default.
+- ``latest`` version points to the most up to date development code.
+  If you develop on a branch that is different than the default for your version control system,
+  set the **Default Branch** to the branch you use.
 
-.. note::
-    We in fact are parsing your tag names against the rules given by
-    `PEP 440`_. This spec allows "normal" version numbers like ``1.4.2`` as
-    well as pre-releases. An alpha version or a release candidate are examples
-    of pre-releases and they look like this: ``2.0a1``.
+- **tags** are semantic versioning compatible (according to  `PEP 440`_) snapshots
+  of your documentation. The most recent semantic tag maps to the ``stable`` tag.
 
-    We only consider non pre-releases for the ``stable`` version of your
-    documentation.
+  Semantic versioning allows "normal" version numbers like ``1.4.2``, as
+  well as pre-releases like this: ``2.0a1``. The ``stable`` version of your documentation never includes a pre-release.
 
-If you have documentation changes on a **long-lived branch**,
-you can build those too.
-This will allow you to see how the new docs will be built in this branch of the code.
-Generally you won't have more than 1 active branch over a long period of time.
-The main exception here would be **release branches**,
-which are branches that are maintained over time for a specific release number.
+- If you have documentation changes on a **long-lived branch**,
+  you can build those too, to see how the new docs will be built.
+  Generally you won't have more than 1 active branch over a long period of time,
+  apart from **release branches**, maintained over time for a specific release.
 
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
-
-Logging out
------------
-
-When you log in to a documentation site, you will be logged in until you close your browser.
-To log out, click on the :guilabel:`Log out` link in your documentation's :term:`flyout menu`.
-This is usually located in the bottom right or bottom left, depending on the theme design.
-This will log you out from the current domain,
-but not end any other session that you have active.
