@@ -161,9 +161,6 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 attached_to=user,
                 message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
                 dismissable=True,
-                format_values={
-                    "account_email_url": reverse("account_email"),
-                },
             )
 
     def get_queryset(self):
