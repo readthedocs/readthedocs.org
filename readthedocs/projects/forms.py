@@ -55,18 +55,43 @@ class ProjectForm(SimpleHistoryModelForm):
         self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
         self.fields["repo"].widget.attrs["required"] = True
 
+        # NOTE: we are not using the default ModelChoiceField widget
+        # in order to use a list of choices instead of a queryset.
+        # See _get_remote_repository_choices for more info.
+        self.fields["remote_repository"] = forms.TypedChoiceField(
+            choices=self._get_remote_repository_choices(),
+            coerce=lambda x: RemoteRepository.objects.get(pk=x),
+            required=False,
+            empty_value=None,
+        )
+
+    def _get_remote_repository_choices(self):
+        """
+        Get valid choices for the remote repository field.
+
+        If there is a remote repo attached to the project,
+        we add it to the queryset, since the current user
+        might not have access to it.
+
+        .. note::
+
+           We are not including the current remote repo in the queryset
+           using an "or" condition, that confuses the ORM/postgres and
+           it results in a very slow query. Instead, we are using a list,
+           and adding the current remote repo to it.
+        """
         queryset = RemoteRepository.objects.for_project_linking(self.user)
         current_remote_repo = (
             self.instance.remote_repository if self.instance.pk else None
         )
-        # If there is a remote repo attached to the project, add it to the queryset,
-        # since the current user might not have access to it.
-        if current_remote_repo:
-            queryset |= RemoteRepository.objects.filter(
-                pk=current_remote_repo.pk
-            ).distinct()
-        self.fields["remote_repository"].queryset = queryset
-        self.fields["remote_repository"].empty_label = _("No connected repository")
+        options = [
+            (None, _("No connected repository")),
+        ]
+        if current_remote_repo and current_remote_repo not in queryset:
+            options.append((current_remote_repo.pk, str(current_remote_repo)))
+
+        options.extend((repo.pk, str(repo)) for repo in queryset)
+        return options
 
     def save(self, commit=True):
         project = super().save(commit)

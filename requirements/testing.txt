@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/testing.txt requirements/testing.in
 #
-alabaster==0.7.16
+alabaster==1.0.0
     # via sphinx
 amqp==5.2.0
     # via
@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.149
+boto3==1.34.153
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.149
+botocore==1.34.153
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -125,9 +125,9 @@ django==4.2.14
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[saml,socialaccount]==0.63.6
+django-allauth[saml,socialaccount]==64.0.0
     # via -r requirements/pip.txt
-django-annoying==0.10.6
+django-annoying==0.10.7
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
@@ -149,7 +149,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==24.2
+django-filter==24.3
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -169,7 +169,7 @@ django-storages[boto3]==1.14.3
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
-django-taggit==5.0.1
+django-taggit==6.0.0
     # via -r requirements/pip.txt
 django-timezone-field==7.0
     # via
@@ -310,7 +310,7 @@ pygments==2.18.0
     # via
     #   -r requirements/pip.txt
     #   sphinx
-pyjwt[crypto]==2.8.0
+pyjwt[crypto]==2.9.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -354,7 +354,7 @@ pyyaml==6.0.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==5.0.7
+redis==5.0.8
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -399,19 +399,19 @@ slumber==0.7.1
     # via -r requirements/pip.txt
 snowballstemmer==2.2.0
     # via sphinx
-sphinx[test]==7.4.7
+sphinx[test]==8.0.2
     # via -r requirements/testing.in
-sphinxcontrib-applehelp==1.0.8
+sphinxcontrib-applehelp==2.0.0
     # via sphinx
-sphinxcontrib-devhelp==1.0.6
+sphinxcontrib-devhelp==2.0.0
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.6
+sphinxcontrib-htmlhelp==2.1.0
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.8
+sphinxcontrib-qthelp==2.0.0
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.10
+sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 sqlparse==0.5.1
     # via
