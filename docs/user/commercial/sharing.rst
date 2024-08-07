@@ -67,6 +67,13 @@ view your project.
    This is useful for when you have documentation you want users to bookmark.
    They can enter a URL directly and enter the password when prompted.
 
+.. warning::
+
+   Since multiple passwords can be created for a single project,
+   each password must be unique within that project.
+   If you generate multiple sharing links using the same password for a project,
+   only the first link will work.
+
 HTTP Authorization Header
 *************************
 
