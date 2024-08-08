@@ -31,7 +31,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -289,11 +289,19 @@ class ProxitoMiddleware(MiddlewareMixin):
         version_slug = getattr(request, "path_version_slug", "")
 
         if project_slug:
+            # TODO: update this code once DISABLE_SPHINX_MANIPULATION and addons becomes the default
+            # https://about.readthedocs.com/blog/2024/07/addons-by-default/
+            disable_sphinx_manipulation_enabled = Feature.objects.filter(
+                feature_id=Feature.DISABLE_SPHINX_MANIPULATION,
+                projects__slug=Project.objects.filter(slug=project_slug).first(),
+            ).exists()
+
             force_addons = Project.objects.filter(
                 slug=project_slug,
                 addons__enabled=True,
             ).exists()
-            if force_addons:
+
+            if force_addons or disable_sphinx_manipulation_enabled:
                 response["X-RTD-Force-Addons"] = "true"
                 return
 
