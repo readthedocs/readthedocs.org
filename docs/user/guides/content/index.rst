@@ -73,5 +73,4 @@ How-to guides: content, themes and SEO
    Using Jupyter notebooks in Sphinx </guides/jupyter>
    Migrating from rST to MyST </guides/migrate-rest-myst>
    Adding custom CSS or JavaScript to Sphinx documentation </guides/adding-custom-css>
-   Removing "Edit on ..." buttons from documentation </guides/remove-edit-buttons>
    Adding "Edit Source" links on your Sphinx theme </guides/edit-source-links-sphinx>
