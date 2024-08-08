@@ -17,11 +17,6 @@ and this is one of the suggested ways to solve it from search engines.
 
 .. _canonical URL: https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls
 
-.. seealso::
-
-   :doc:`/guides/canonical-urls`
-      More information on how to enable canonical URLs in your project.
-
 How Read the Docs generates canonical URLs
 ------------------------------------------
 
