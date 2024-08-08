@@ -97,7 +97,7 @@ Versioning workflows
 --------------------
 
 Read the Docs makes certain assumptions about your documentation version defaults,
-all of which can be reconfigured if you need to:
+all of which can be reconfigured if necessary:
 
 - ``latest`` version points to the most up to date development code.
   If you develop on a branch that is different than the default for your version control system,
