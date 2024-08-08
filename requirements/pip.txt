@@ -14,9 +14,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.34.149
+boto3==1.34.153
     # via django-storages
-botocore==1.34.149
+botocore==1.34.153
     # via
     #   boto3
     #   s3transfer
@@ -87,7 +87,7 @@ django==4.2.14
     #   jsonfield
 django-allauth[mfa,saml,socialaccount]==64.0.0
     # via -r requirements/pip.in
-django-annoying==0.10.6
+django-annoying==0.10.7
     # via -r requirements/pip.in
 django-autoslug==1.9.9
     # via -r requirements/pip.in
@@ -107,7 +107,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.in
 django-extensions==3.2.3
     # via -r requirements/pip.in
-django-filter==24.2
+django-filter==24.3
     # via -r requirements/pip.in
 django-formtools==2.3
     # via -r requirements/pip.in
@@ -127,7 +127,7 @@ django-storages[boto3]==1.14.3
     # via -r requirements/pip.in
 django-structlog==2.2.0
     # via -r requirements/pip.in
-django-taggit==5.0.1
+django-taggit==6.0.0
     # via -r requirements/pip.in
 django-timezone-field==7.0
     # via django-celery-beat
@@ -220,7 +220,7 @@ pycparser==2.22
     # via cffi
 pygments==2.18.0
     # via -r requirements/pip.in
-pyjwt[crypto]==2.8.0
+pyjwt[crypto]==2.9.0
     # via django-allauth
 pypng==0.20220715.0
     # via qrcode
@@ -244,7 +244,7 @@ pyyaml==6.0.1
     # via -r requirements/pip.in
 qrcode==7.4.2
     # via django-allauth
-redis==5.0.7
+redis==5.0.8
     # via
     #   -r requirements/pip.in
     #   django-cacheops
