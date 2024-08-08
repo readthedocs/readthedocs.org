@@ -285,6 +285,7 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount.providers.github",
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
+            "allauth.mfa",
             "cacheops",
         ]
         if ext:
@@ -655,7 +656,7 @@ class CommunityBaseSettings(Settings):
         )
         return limits
 
-    # All auth
+    # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
     ACCOUNT_EMAIL_REQUIRED = True
 
