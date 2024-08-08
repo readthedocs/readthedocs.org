@@ -107,9 +107,7 @@ class ProjectSpamMixin:
             )
 
             if is_show_dashboard_denied(self.get_project()):
-                template_name = "spam.html"
-                if settings.RTD_EXT_THEME_ENABLED:
-                    template_name = "errors/dashboard/410.html"
+                template_name = "errors/dashboard/spam.html"
                 return render(request, template_name=template_name, status=410)
 
         return super().get(request, *args, **kwargs)

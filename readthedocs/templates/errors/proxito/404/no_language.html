@@ -1,0 +1,10 @@
+{% extends "errors/proxito/404/base.html" %}
+{% load i18n %}
+
+{# project exists but not in the requested language #}
+
+{% block 404_error_message %}
+  {% include "errors/proxito/404/include_error_message.html" %}
+  {% include "errors/proxito/404/include_search.html" with search_project=project.slug %}
+  {% include "errors/proxito/404/include_tips.html" %}
+{% endblock %}
