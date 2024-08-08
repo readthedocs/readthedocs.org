@@ -111,6 +111,6 @@ all of which can be reconfigured if necessary:
 
 - If you have documentation changes on a **long-lived branch**,
   you can build those too, to see how the new docs will be built.
- This is most useful for **release branches**, which are maintained over time for a specific release. An example would be a ``2.1`` branch that is kept up to date with the latest ``2.1.x`` release. 
+ This is most useful for **release branches**, which are maintained over time for a specific release. An example would be a ``2.1`` branch that is kept up to date with the latest ``2.1.x`` release.
 
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
