@@ -40,7 +40,7 @@ You can change the states for each version of your documentation in the :guilabe
   - You have a work in progress version and don't want to publish its docs just yet.
 
   Hidden verions are listed as ``Disallow: /path/to/version/``
-  in the default `robots.txt file <https://www.robotstxt.org/>`__ created by Read the Docs.
+  in the default :doc:`/reference/robots` created by Read the Docs.
 
 **Public** or **Private** (only available on on :doc:`/commercial/index`)
   - Public versions are visible to everyone.
@@ -50,6 +50,7 @@ You can change the states for each version of your documentation in the :guilabe
 
     In addition, if you want other users to view the build page of your public versions,
     you'll need to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
+
 
 Tags and branches
 -----------------
@@ -104,13 +105,14 @@ all of which can be reconfigured if necessary:
   set the **Default Branch** to the branch you use.
 
 - **tags** are semantic versioning compatible (according to  `PEP 440`_) snapshots
-  of your documentation. The most recent semantic tag maps to the ``stable`` tag.
+  of your documentation. The most recent semantic tag maps to the ``stable`` version.
 
   Semantic versioning allows "normal" version numbers like ``1.4.2``, as
   well as pre-releases like this: ``2.0a1``. The ``stable`` version of your documentation never includes a pre-release.
 
 - If you have documentation changes on a **long-lived branch**,
   you can build those too, to see how the new docs will be built.
- This is most useful for **release branches**, which are maintained over time for a specific release. An example would be a ``2.1`` branch that is kept up to date with the latest ``2.1.x`` release.
+  This is most useful for **release branches**, which are maintained over time for a specific release.
+  An example would be a ``2.1`` branch that is kept up to date with the latest ``2.1.x`` release.
 
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
