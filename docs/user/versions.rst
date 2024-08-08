@@ -40,7 +40,7 @@ You can change the states for each version of your documentation in the :guilabe
   - You have a work in progress version and don't want to publish its docs just yet.
 
   Hidden verions are listed as ``Disallow: /path/to/version/``
-  in the default `robots.txt file <https://www.robotstxt.org/>`__ created by Read the Docs.
+  in the default :doc:`/reference/robots` created by Read the Docs.
 
 **Public** or **Private** (only available on on :doc:`/commercial/index`)
   - Public versions are visible to everyone.
@@ -50,6 +50,7 @@ You can change the states for each version of your documentation in the :guilabe
 
     In addition, if you want other users to view the build page of your public versions,
     you'll need to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
+
 
 Tags and branches
 -----------------
@@ -104,7 +105,7 @@ all of which can be reconfigured if necessary:
   set the **Default Branch** to the branch you use.
 
 - **tags** are semantic versioning compatible (according to  `PEP 440`_) snapshots
-  of your documentation. The most recent semantic tag maps to the ``stable`` tag.
+  of your documentation. The most recent semantic tag maps to the ``stable`` version.
 
   Semantic versioning allows "normal" version numbers like ``1.4.2``, as
   well as pre-releases like this: ``2.0a1``. The ``stable`` version of your documentation never includes a pre-release.
