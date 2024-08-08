@@ -17,7 +17,7 @@ messages = [
             textwrap.dedent(
                 """
             Your primary email address is not verified.
-            Please <a href="{{account_email_url}}">verify it here</a>.
+            Please <a href="{% url 'account_email' %}">verify it here</a>.
             """
             ).strip(),
         ),

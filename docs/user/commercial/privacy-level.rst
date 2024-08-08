@@ -17,4 +17,4 @@ and changing :guilabel:`Privacy level` to `Public`.
 .. note::
 
    To control access to the documentation itself,
-   see :ref:`versions:privacy levels`.
+   see :ref:`versions:Version states`.

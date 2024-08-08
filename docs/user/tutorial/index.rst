@@ -415,7 +415,7 @@ and that's why the URLs of your HTML documentation contain the string ``/latest/
 Creating a new version of your documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Read the Docs automatically creates documentation versions from GitHub branches and tags that :ref:`follows some rules <versions:how we envision versions working>` about looking like version numbers, such as ``1.0``, ``2.0.3`` or ``4.x``.
+Read the Docs automatically creates documentation versions from GitHub branches and tags that :ref:`follows some rules <versions:Versioning workflows>` about looking like version numbers, such as ``1.0``, ``2.0.3`` or ``4.x``.
 
 To create version ``1.0`` of your code, and consequently of your documentation:
 
@@ -472,7 +472,7 @@ To activate the ``1.0.x`` version:
 
 .. note::
 
-   Read more about :ref:`hidden versions <versions:hidden>`
+   Read more about :ref:`hidden versions <versions:Version states>`
    in our documentation.
 
 .. "Show a warning for old versions" feature is not available anymore.
