@@ -10,7 +10,6 @@ How-to guides: content, themes and SEO
 
 ⏩️ :doc:`Using traffic analytics </analytics>`
     In this guide, you can learn to use Read the Docs' built-in traffic analytics for your documentation project.
-    You will also learn how to optionally add your own Google Analytics account or completely disable Google Analytics on your project.
 
 ⏩️ :doc:`Managing translations for Sphinx projects </guides/manage-translations-sphinx>`
     This guide walks through the process needed to manage translations of your documentation.
