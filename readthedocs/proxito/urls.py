@@ -46,6 +46,7 @@ from readthedocs.proxito.views.serve import (
     ServeError404,
     ServePageRedirect,
     ServeRobotsTXT,
+    ServeSitemapIndexXML,
     ServeSitemapXML,
     ServeStaticFiles,
 )
@@ -129,7 +130,15 @@ core_urls = [
         name="proxito_404_handler",
     ),
     re_path(r"robots\.txt$", ServeRobotsTXT.as_view(), name="robots_txt"),
-    re_path(r"sitemap\.xml$", ServeSitemapXML.as_view(), name="sitemap_xml"),
+    re_path(
+        r"^(?:projects/(?P<subproject_slug>{project_slug})/)?"
+        r"sitemap\.xml$".format(**pattern_opts),
+        ServeSitemapXML.as_view(),
+        name="sitemap_xml",
+    ),
+    re_path(
+        r"sitemap_index\.xml$", ServeSitemapIndexXML.as_view(), name="sitemap_index_xml"
+    ),
 ]
 
 docs_urls = [

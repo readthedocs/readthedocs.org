@@ -747,8 +747,8 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
             pass
 
         # Serve default robots.txt
-        sitemap_url = "{scheme}://{domain}/sitemap.xml".format(
-            scheme="https",
+        sitemap_url = '{scheme}://{domain}/sitemap_index.xml'.format(
+            scheme='https',
             domain=project.subdomain(),
         )
         context = {
@@ -797,7 +797,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
     # Extra cache tag to invalidate only this view if needed.
     project_cache_tag = "sitemap.xml"
 
-    def get(self, request):
+    def get(self, request, subproject_slug=None):
         """
         Generate and serve a ``sitemap.xml`` for a particular ``project``.
 
@@ -856,6 +856,12 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             yield from itertools.chain(changefreqs, itertools.repeat("monthly"))
 
         project = request.unresolved_domain.project
+
+        if subproject_slug:
+            project = get_object_or_404(
+                project.subprojects, alias=subproject_slug
+            ).child
+
         public_versions = Version.internal.public(
             project=project,
             only_active=True,
@@ -952,6 +958,59 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
 
 class ServeSitemapXML(SettingsOverrideObject):
     _default_class = ServeSitemapXMLBase
+
+
+class ServeSitemapIndexXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
+
+    """Serve sitemap_index.xml from the domain's root."""
+
+    cache_response = True
+    project_cache_tag = "sitemap.xml"
+
+    def get(self, request):
+        """
+        Generate and serve a ``sitemap_index.xml`` for a ``project``.
+
+        The sitemap index is generated from the project and all sub-projects.
+        """
+
+        project = request.unresolved_domain.project
+
+        locations = [
+            "{scheme}://{domain}/sitemap.xml".format(
+                scheme="https",
+                domain=project.subdomain(),
+            )
+        ]
+        for subproject in project.related_projects.all():
+            locations.append(
+                "{scheme}://{domain}/projects/{subproject}/sitemap.xml".format(
+                    scheme="https",
+                    domain=project.subdomain(),
+                    subproject=subproject.slug,
+                )
+            )
+        context = {
+            "locations": locations,
+        }
+        return render(
+            request,
+            "sitemap_index.xml",
+            context,
+            content_type="application/xml",
+        )
+
+    def _get_project(self):
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
+
+    def _get_version(self):
+        # This view isn't attached to a version.
+        return None
+
+
+class ServeSitemapIndexXML(SettingsOverrideObject):
+    _default_class = ServeSitemapIndexXMLBase
 
 
 class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):

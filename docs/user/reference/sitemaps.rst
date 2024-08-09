@@ -16,11 +16,17 @@ It contains information such as:
 * How important this URL is in relation to other URLs in the site.
 * What translations are available for a page.
 
-Read the Docs automatically generates a ``sitemap.xml`` for your project,
+Read the Docs automatically generates a ``sitemap.xml`` and a
+``sitemap_index.xml`` for your project,
 
 By default the sitemap includes:
 
 * Each version of your documentation and when it was last updated, sorted by version number.
+
+By default the sitemap index includes:
+
+* The location of ``sitemap.xml``
+* The locations of the ``sitemap.xml`` of subprojects if they are set.
 
 This allows search engines to prioritize results based on the version number,
 sorted by `semantic versioning`_.
