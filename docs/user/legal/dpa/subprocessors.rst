@@ -2,7 +2,7 @@ Sub-processor list
 ==================
 
 :Effective: April 16, 2021
-:Last updated: December 27, 2022
+:Last updated: August 9, 2024
 
 Read the Docs for Business uses services from the following sub-processors to
 provide documentation hosting services. This document supplements :doc:`our Data
@@ -34,7 +34,7 @@ Sendgrid, Inc.
     and other generated messages. The body of notification emails can include
     user information, including email address.
 
-Google Analytics
+Plausible
     Website analtyics for dashboard and documentation sites.
 
 Stripe Inc.
