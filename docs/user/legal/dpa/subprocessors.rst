@@ -35,7 +35,7 @@ Sendgrid, Inc.
     user information, including email address.
 
 Plausible
-    Website analtyics for dashboard and documentation sites.
+    Website analytics for dashboard and Read the Docs owned documentation sites.
 
 Stripe Inc.
     Subscription payment provider. Data collected can include user data necessary
