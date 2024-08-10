@@ -20,8 +20,7 @@ Traffic Analytics lets you see *which* documents your users are reading.
 This allows you to understand how your documentation is being used,
 so you can focus on expanding and updating parts people are reading most.
 
-If you require more detailed analytics, Read the Docs has native support for Google Analytics.
-It's also possible to customize your documentation to include other analytics frameworks.
+If you require more detailed analytics it's possible to customize your documentation to include other analytics tools.
 
 Learn more in :doc:`/analytics`.
 
