@@ -15,7 +15,7 @@ Authentication and authorization
 --------------------------------
 
 Requests to the Read the Docs public API are for public and private information.
-All endpoints require authentication.
+Endpoints that return public information do not require authentication.
 
 
 Token
@@ -45,16 +45,7 @@ to authenticate as a user and have the same permissions that the user itself.
 Session
 ~~~~~~~
 
-.. warning::
-
-   Authentication via session is not enabled yet.
-
-Session authentication is allowed on very specific endpoints,
-to allow hitting the API when reading documentation.
-
-When a user is trying to authenticate via session,
-:abbr:`CSRF (Cross-site request forgery)` check is performed.
-
+Session authentication is allowed, so the API can be used by our dashboard and other internal services.
 
 Resources
 ---------

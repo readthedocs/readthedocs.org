@@ -19,17 +19,17 @@ async-timeout==4.0.3
     # via
     #   -r requirements/pip.txt
     #   redis
-babel==2.15.0
+babel==2.16.0
     # via sphinx
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.153
+boto3==1.34.158
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.153
+botocore==1.34.158
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -45,7 +45,7 @@ certifi==2024.7.4
     #   -r requirements/pip.txt
     #   elastic-transport
     #   requests
-cffi==1.16.0
+cffi==1.17.0
     # via
     #   -r requirements/pip.txt
     #   cryptography
@@ -77,7 +77,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.6.0
+coverage[toml]==7.6.1
     # via pytest-cov
 cron-descriptor==1.4.3
     # via
@@ -91,7 +91,7 @@ cssselect==1.2.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
-cython==3.0.10
+cython==3.0.11
     # via sphinx
 defusedxml==0.7.1
     # via sphinx
@@ -103,7 +103,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.14
+django==4.2.15
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -220,7 +220,7 @@ funcy==2.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements/pip.txt
 idna==3.7
     # via
@@ -245,7 +245,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.3.7
+kombu==5.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -257,7 +257,7 @@ looseversion==1.3.0
     # via
     #   -r requirements/pip.txt
     #   bumpver
-lxml==5.2.2
+lxml==5.3.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -271,7 +271,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.6
+orjson==3.10.7
     # via -r requirements/pip.txt
 packaging==24.1
     # via
@@ -350,7 +350,7 @@ pytz==2024.1
     # via
     #   -r requirements/pip.txt
     #   celery
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via
     #   -r requirements/pip.txt
     #   yamale

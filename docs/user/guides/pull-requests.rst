@@ -48,7 +48,7 @@ To change the privacy level:
 #. Select your option in :guilabel:`Privacy level of builds from pull requests`
 #. Click on :guilabel:`Save`
 
-Privacy levels work the same way as :ref:`normal versions <versions:privacy levels>`.
+Privacy levels work the same way as :ref:`normal versions <versions:Version states>`.
 
 Limitations
 -----------
