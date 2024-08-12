@@ -679,7 +679,8 @@ class AddonsConfigForm(forms.ModelForm):
         kwargs["instance"] = addons
         super().__init__(*args, **kwargs)
 
-        if addons_enabled_by_default:
+        # Keep the ability to disable addons completely on Read the Docs for Business
+        if not settings.RTD_ALLOW_ORGANIZATIONS and addons_enabled_by_default:
             self.fields.pop("enabled")
 
     def clean(self):
