@@ -18,7 +18,8 @@ from corsheaders.middleware import (
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
-from django.urls import reverse, timezone
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.encoding import iri_to_uri
 from django.utils.html import escape
