@@ -242,19 +242,11 @@ def subscription_canceled(event):
                     "fields": [
                         {
                             "type": "mrkdwn",
-                            "text": f":office: *Name:* {organization.name}",
+                            "text": f":office: *Name:* <{settings.ADMIN_URL}/organizations/organization/{organization.pk}/change/|{organization.name}>",
                         },
                         {
                             "type": "mrkdwn",
-                            "text": f":dollar: *Plan:* {stripe_subscription.plan.id}",
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": f":hash: *Slug:* {organization.slug}",
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": f":person_frowning: *Stripe customer:* <https://dashboard.stripe.com/customers/{stripe_subscription.customer_id}|{stripe_subscription.customer_id}>",
+                            "text": f":dollar: *Plan:* <https://dashboard.stripe.com/customers/{stripe_subscription.customer_id}|{stripe_subscription.plan.product.name}> (${str(total_spent)})",
                         },
                         {
                             "type": "mrkdwn",
