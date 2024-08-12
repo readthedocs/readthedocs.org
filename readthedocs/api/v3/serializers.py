@@ -821,6 +821,12 @@ class ProjectSerializer(FlexFieldsModelSerializer):
                     "source": "*",
                 },
             ),
+            "permissions": (
+                ProjectPermissionSerializer,
+                {
+                    "source": "*",
+                },
+            ),
         }
 
     def __init__(self, *args, **kwargs):
