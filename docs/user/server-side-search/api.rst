@@ -30,16 +30,18 @@ API v3
    :>json string domain: Canonical domain of the resulting page
    :>json string path: Path to the resulting page
    :>json object highlights: An object containing a list of substrings with matching terms.
-                             Note that the text is HTML escaped with the matching terms inside a <span> tag.
+                             Note that the text is HTML escaped with the matching terms inside a ``<span>`` tag.
    :>json object blocks:
 
     A list of block objects containing search results from the page.
-    Currently, there are two types of blocks:
+    Currently, there is one type of block:
 
     - section: A page section with a linkable anchor (``id`` attribute).
-    - domain: A Sphinx :doc:`domain <sphinx:usage/restructuredtext/domains>`
-      with a linkable anchor (``id`` attribute).
 
+   .. warning::
+
+      Except for highlights, any other content is not HTML escaped,
+      you shouldn't include it in your page without escaping it first.
 
    **Example request**:
 
@@ -156,7 +158,7 @@ to include results from subprojects use the ``subprojects`` paramater.
 Authentication and authorization
 --------------------------------
 
-If you are using :ref:`private versions <versions:privacy levels>`,
+If you are using :ref:`private versions <versions:Version states>`,
 users will only be allowed to search projects they have permissions over.
 Authentication and authorization is done using the current session,
 or any of the valid :doc:`sharing methods </commercial/sharing>`.
@@ -198,16 +200,18 @@ API v2 (deprecated)
    :>json string domain: Canonical domain of the resulting page
    :>json string path: Path to the resulting page
    :>json object highlights: An object containing a list of substrings with matching terms.
-                             Note that the text is HTML escaped with the matching terms inside a <span> tag.
+                             Note that the text is HTML escaped with the matching terms inside a ``<span>`` tag.
    :>json object blocks:
 
     A list of block objects containing search results from the page.
-    Currently, there are two types of blocks:
+    Currently, there is one type of block:
 
     - section: A page section with a linkable anchor (``id`` attribute).
-    - domain: A Sphinx :doc:`domain <sphinx:usage/restructuredtext/domains>`
-      with a linkable anchor (``id`` attribute).
 
+   .. warning::
+
+      Except for highlights, any other content is not HTML escaped,
+      you shouldn't include it in your page without escaping it first.
 
    **Example request**:
 
@@ -264,17 +268,6 @@ API v2 (deprecated)
                            "content": [
                               "You can <span>search</span> all projects at https:&#x2F;&#x2F;readthedocs.org&#x2F;<span>search</span>&#x2F"
                            ]
-                        }
-                     },
-                     {
-                        "type": "domain",
-                        "role": "http:get",
-                        "name": "/_/api/v2/search/",
-                        "id": "get--_-api-v2-search-",
-                        "content": "Retrieve search results for docs",
-                        "highlights": {
-                           "name": [""],
-                           "content": ["Retrieve <span>search</span> results for docs"]
                         }
                      }
                   ]

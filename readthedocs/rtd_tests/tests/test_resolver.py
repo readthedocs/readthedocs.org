@@ -17,6 +17,7 @@ from readthedocs.subscriptions.products import RTDProductFeature
 
 resolver = Resolver()
 
+
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.org",
     RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
@@ -61,6 +62,7 @@ class ResolverBase(TestCase):
             self.subproject_translation.versions.first()
         )
         self.subproject.translations.add(self.subproject_translation)
+
 
 class SmartResolverPathTests(ResolverBase):
     def test_resolver_filename(self):
@@ -137,7 +139,7 @@ class SmartResolverPathTests(ResolverBase):
         self.assertEqual(url, "/en/latest/")
 
     def test_resolver_subproject_subdomain(self):
-        url = resolver.resolve_path(project=self.subproject, filename="index.html")
+        url = Resolver().resolve_path(project=self.subproject, filename="index.html")
         self.assertEqual(url, "/projects/sub/ja/latest/index.html")
 
     def test_resolver_subproject_single_version(self):
@@ -481,7 +483,7 @@ class ResolverTests(ResolverBase):
         relation = self.pip.subprojects.first()
         relation.alias = "sub_alias"
         relation.save()
-        url = resolver.resolve(project=self.subproject)
+        url = Resolver().resolve(project=self.subproject)
         self.assertEqual(
             url,
             "http://pip.readthedocs.org/projects/sub_alias/ja/latest/",
@@ -926,18 +928,18 @@ class TestResolverWithCustomPrefixes(ResolverBase):
         self.pip.custom_subproject_prefix = "/"
         self.pip.save()
 
-        url = resolver.resolve(self.subproject)
+        url = Resolver().resolve(self.subproject)
         self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/latest/")
 
-        url = resolver.resolve(
+        url = Resolver().resolve(
             self.subproject, version_slug=self.subproject_version.slug
         )
         self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/latest/")
 
-        url = resolver.resolve(self.subproject, version_slug="stable")
+        url = Resolver().resolve(self.subproject, version_slug="stable")
         self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/stable/")
 
-        url = resolver.resolve(
+        url = Resolver().resolve(
             self.subproject,
             version_slug=self.subproject_version.slug,
             filename="/api/index.html",
@@ -1075,6 +1077,13 @@ class TestResolverWithCustomPrefixes(ResolverBase):
         self.assertEqual(
             url, "http://pip.readthedocs.io/s/sub/prefix/es/latest/api/index.html"
         )
+
+    def test_format_injection(self):
+        self.pip.custom_prefix = "/prefix/{language}"
+        self.pip.save()
+        url = resolver.resolve(self.pip)
+        # THe {language} inside the prefix isn't evaluated.
+        self.assertEqual(url, "http://pip.readthedocs.io/prefix/{language}/en/latest/")
 
     def test_get_project_domain(self):
         domain = resolver.get_domain(self.pip)

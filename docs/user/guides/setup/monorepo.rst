@@ -45,7 +45,7 @@ Setting the custom build configuration file
 -------------------------------------------
 
 Once you have added a Git repository to a project that needs a custom configuration file path,
-navigate to :menuselection:`Admin --> Advanced Settings` and add the path to the :guilabel:`Build configuration file` field.
+navigate to :menuselection:`Admin --> Settings` and add the path to the :guilabel:`Build configuration file` field.
 
 .. image:: /img/screenshot-howto-build-configuration-file.png
    :alt: Screenshot of where to find the :guilabel:`Build configuration file` setting.

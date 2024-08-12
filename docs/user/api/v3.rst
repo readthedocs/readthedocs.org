@@ -15,7 +15,7 @@ Authentication and authorization
 --------------------------------
 
 Requests to the Read the Docs public API are for public and private information.
-All endpoints require authentication.
+Endpoints that return public information do not require authentication.
 
 
 Token
@@ -45,16 +45,7 @@ to authenticate as a user and have the same permissions that the user itself.
 Session
 ~~~~~~~
 
-.. warning::
-
-   Authentication via session is not enabled yet.
-
-Session authentication is allowed on very specific endpoints,
-to allow hitting the API when reading documentation.
-
-When a user is trying to authenticate via session,
-:abbr:`CSRF (Cross-site request forgery)` check is performed.
-
+Session authentication is allowed, so the API can be used by our dashboard and other internal services.
 
 Resources
 ---------
@@ -202,7 +193,8 @@ Projects list
 
       :Query Parameters:
 
-         * **expand** (*string*) -- with ``organization`` and ``teams``.
+         * **expand** (*string*) -- Add additional fields in the response.
+           Allowed values are: ``organization``.
 
 
 
@@ -258,7 +250,10 @@ Project details
             "translation_of": null,
             "urls": {
                 "documentation": "http://pip.pypa.io/en/stable/",
-                "home": "https://pip.pypa.io/"
+                "home": "https://readthedocs.org/projects/pip/",
+                "downloads": "https://readthedocs.org/projects/pip/downloads/",
+                "builds": "https://readthedocs.org/projects/pip/builds/",
+                "versions": "https://readthedocs.org/projects/pip/versions/",
             },
             "tags": [
                 "distutils",
@@ -291,7 +286,7 @@ Project details
             }
         }
 
-    :query string expand: allows to add/expand some extra fields in the response.
+    :query string expand: Add additional fields in the response.
                           Allowed values are ``active_versions``, ``active_versions.last_build`` and
                           ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
 
@@ -311,7 +306,8 @@ Project details
 
       :Query Parameters:
 
-         * **expand** (*string*) -- with ``organization`` and ``teams``.
+         * **expand** (*string*) -- Add additional fields in the response.
+           Allowed values are: ``organization``.
 
     .. note::
 
@@ -465,6 +461,39 @@ Project update
     :statuscode 204: Updated successfully
 
 
+Project versions sync
++++++++++++++++++++++
+
+.. http:post:: /api/v3/projects/(string:project_slug)/sync-versions/
+
+    Trigger a background task to sync the versions of the project.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" \
+              https://readthedocs.org/api/v3/projects/pip/sync-versions/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/sync-versions/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.post(
+                URL,
+                headers=HEADERS,
+            )
+            print(response.json())
+
+    :statuscode 202: Task created successfully
+    :statuscode 400: Bad request, task not created
+
 Versions
 ~~~~~~~~
 
@@ -556,6 +585,7 @@ Version detail
             "ref": "19.0.2",
             "built": true,
             "active": true,
+            "aliases": ["VERSION"],
             "hidden": false,
             "type": "tag",
             "last_build": "{BUILD}",
@@ -583,7 +613,7 @@ Version detail
                        ``null`` when it's not the stable version.
     :>json boolean built: the version has at least one successful build.
 
-    :query string expand: allows to add/expand some extra fields in the response.
+    :query string expand: Add additional fields in the response.
                           Allowed values are ``last_build`` and ``last_build.config``.
                           Multiple fields can be passed separated by commas.
 
@@ -745,7 +775,7 @@ Build details
     :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, ``finished`` or ``cancelled``)
     :>json string error: An error message if the build was unsuccessful
 
-    :query string expand: allows to add/expand some extra fields in the response.
+    :query string expand: Add additional fields in the response.
                           Allowed value is ``config``.
 
 
@@ -1145,6 +1175,11 @@ Redirect details
            "from_url": "/docs/",
            "to_url": "/documentation/",
            "type": "page",
+           "http_status": 302,
+           "description": "",
+           "enabled": true,
+           "force": false,
+           "position": 0,
            "_links": {
                "_self": "/api/v3/projects/pip/redirects/1/",
                "project": "/api/v3/projects/pip/"
@@ -1227,18 +1262,19 @@ Redirect create
         {
             "from_url": "/docs/",
             "to_url": "/documentation/",
-            "type": "page"
+            "type": "page",
+            "position": 0,
         }
 
     .. note::
 
-       ``type`` can be one of ``prefix``, ``page``, ``exact``, ``sphinx_html`` and ``sphinx_htmldir``.
+       - ``type`` can be one of ``page``, ``exact``, ``clean_url_to_html`` and ``html_to_clean_url``.
+       - Depending on the ``type`` of the redirect, some fields may not be needed:
 
-       Depending on the ``type`` of the redirect, some fields may not be needed:
+         * ``page`` and ``exact`` types require ``from_url`` and ``to_url``.
+         * ``clean_url_to_html`` and ``html_to_clean_url`` types do not require ``from_url`` and ``to_url``.
 
-       * ``prefix`` type does not require ``to_url``.
-       * ``page`` and ``exact`` types require ``from_url`` and ``to_url``.
-       * ``sphinx_html`` and ``sphinx_htmldir`` types do not require ``from_url`` and ``to_url``.
+       - Position starts at 0 and is used to order redirects.
 
     **Example response**:
 
@@ -1290,6 +1326,11 @@ Redirect update
             "to_url": "/documentation.html",
             "type": "page"
         }
+
+    .. note::
+
+       If the position of the redirect is changed,
+       it will be inserted in the new position and the other redirects will be reordered.
 
     **Example response**:
 
@@ -1682,6 +1723,58 @@ Organization projects list
            ]
        }
 
+Organization teams list
++++++++++++++++++++++++
+
+.. http:get:: /api/v3/organizations/(string:organization_slug)/teams/
+
+    Retrieve list of teams under an organization.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.com/api/v3/organizations/pypa/teams/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.com/api/v3/organizations/pypa/teams/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+       {
+          "count": 2,
+          "next": null,
+          "previous": null,
+          "results": [
+             {
+                   "access": "admin",
+                   "created": "2024-07-01T21:19:55.573819Z",
+                   "modified": "2024-07-01T21:19:55.573837Z",
+                   "name": "Admins",
+                   "slug": "admins"
+             },
+             {
+                   "access": "readonly",
+                   "created": "2024-07-01T21:19:55.593815Z",
+                   "modified": "2024-07-01T21:19:55.593829Z",
+                   "name": "Read Only",
+                   "slug": "read-only"
+             }
+          ]
+       }
+
+    :query string expand: Add additional fields in the response.
+                          Allowed values are: ``members``.
 
 Remote organizations
 ~~~~~~~~~~~~~~~~~~~~
@@ -1868,7 +1961,7 @@ Remote repository listing
     :query string full_name: return remote repositories containing the full name (it inclues the username/organization the project belongs to)
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
     :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
-    :query string expand: allows to add/expand some extra fields in the response.
+    :query string expand: Add additional fields in the response.
                           Allowed values are ``projects`` and ``remote_organization``.
                           Multiple fields can be passed separated by commas.
 
@@ -1882,6 +1975,11 @@ Embed
 
     Retrieve HTML-formatted content from documentation page or section.
     Read :doc:`/guides/embedding-content` to know more about how to use this endpoint.
+
+    .. warning::
+
+       The content will be returned as is, without any sanitization or escaping.
+       You should not include content from arbitrary projects, or projects you do not trust.
 
     **Example request**:
 
@@ -1913,7 +2011,6 @@ Embed
 
        Passing ``?doctool=`` and ``?doctoolversion=`` may improve the response,
        since the endpoint will know more about the exact structure of the HTML and can make better decisions.
-
 
 Additional APIs
 ---------------

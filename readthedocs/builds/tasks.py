@@ -33,7 +33,8 @@ from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import send_email, trigger_build
 from readthedocs.integrations.models import HttpExchange
-from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
+from readthedocs.notifications.models import Notification
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import Project, WebHookEvent
 from readthedocs.storage import build_commands_storage
@@ -467,16 +468,17 @@ def send_build_status(build_pk, commit, status):
                         )
                         return True
 
-        for user in users:
-            # Send Site notification about Build status reporting failure
-            # to all the users of the project.
-            notification = GitBuildStatusFailureNotification(
-                context_object=build.project,
-                extra_context={"provider_name": provider_name},
-                user=user,
-                success=False,
-            )
-            notification.send()
+        # NOTE: this notifications was attached to every user.
+        # Now, I'm attaching it to the project itself since it's a problem at project level.
+        Notification.objects.add(
+            message_id=MESSAGE_OAUTH_BUILD_STATUS_FAILURE,
+            attached_to=build.project,
+            format_values={
+                "provider_name": provider_name,
+                "url_connect_account": reverse("socialaccount_connections"),
+            },
+            dismissable=True,
+        )
 
         log.info("No social account or repository permission available.")
         return False
@@ -492,6 +494,7 @@ def send_build_notifications(version_pk, build_pk, event):
     if not build:
         return
 
+    # NOTE: this class is used to send email/webhook notification on build success/failure
     sender = BuildNotificationSender(
         version=version,
         build=build,

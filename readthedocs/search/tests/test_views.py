@@ -306,9 +306,6 @@ class TestPageSearch:
         reason="Versions are not showing correctly! Fixme while rewrite!"
     )
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
-        # override the settings to index all versions
-        settings.INDEX_ONLY_LATEST = False
-
         project = all_projects[0]
         # Create some versions of the project
         versions = [get(Version, project=project) for _ in range(3)]

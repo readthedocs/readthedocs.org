@@ -43,7 +43,6 @@ The following how-to guides help you solve common tasks and challenges in the se
 
 
 .. toctree::
-   :maxdepth: 1
    :hidden:
 
    Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>

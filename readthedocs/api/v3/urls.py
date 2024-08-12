@@ -3,25 +3,41 @@ from .views import (
     BuildsCreateViewSet,
     BuildsViewSet,
     EnvironmentVariablesViewSet,
+    NotificationsBuildViewSet,
+    NotificationsForUserViewSet,
+    NotificationsOrganizationViewSet,
+    NotificationsProjectViewSet,
+    NotificationsUserViewSet,
+    OrganizationsTeamsViewSet,
+    OrganizationsViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
     RemoteOrganizationViewSet,
     RemoteRepositoryViewSet,
     SubprojectRelationshipViewSet,
     TranslationRelationshipViewSet,
+    UsersViewSet,
     VersionsViewSet,
 )
-
 
 router = DefaultRouterWithNesting()
 
 # allows /api/v3/projects/
 # allows /api/v3/projects/pip/
 # allows /api/v3/projects/pip/superproject/
+# allows /api/v3/projects/pip/sync-versions/
 projects = router.register(
     r"projects",
     ProjectsViewSet,
     basename="projects",
+)
+
+# allows /api/v3/projects/pip/notifications/
+projects.register(
+    r"notifications",
+    NotificationsProjectViewSet,
+    basename="projects-notifications",
+    parents_query_lookups=["project__slug"],
 )
 
 # allows /api/v3/projects/pip/subprojects/
@@ -63,11 +79,19 @@ versions.register(
 
 # allows /api/v3/projects/pip/builds/
 # allows /api/v3/projects/pip/builds/1053/
-projects.register(
+builds = projects.register(
     r"builds",
     BuildsViewSet,
     basename="projects-builds",
     parents_query_lookups=["project__slug"],
+)
+
+# allows /api/v3/projects/pip/builds/1053/notifications/
+builds.register(
+    r"notifications",
+    NotificationsBuildViewSet,
+    basename="projects-builds-notifications",
+    parents_query_lookups=["project__slug", "build__id"],
 )
 
 # allows /api/v3/projects/pip/redirects/
@@ -88,6 +112,50 @@ projects.register(
     parents_query_lookups=["project__slug"],
 )
 
+# allows /api/v3/users/
+users = router.register(
+    r"users",
+    UsersViewSet,
+    basename="users",
+)
+
+# allows /api/v3/users/<username>/notifications/
+users.register(
+    r"notifications",
+    NotificationsUserViewSet,
+    basename="users-notifications",
+    parents_query_lookups=["user__username"],
+)
+
+# allows /api/v3/organizations/
+organizations = router.register(
+    r"organizations",
+    OrganizationsViewSet,
+    basename="organizations",
+)
+
+# allows /api/v3/organizations/<slug>/notifications/
+organizations.register(
+    r"notifications",
+    NotificationsOrganizationViewSet,
+    basename="organizations-notifications",
+    parents_query_lookups=["organization__slug"],
+)
+
+organizations.register(
+    "teams",
+    OrganizationsTeamsViewSet,
+    basename="organizations-teams",
+    parents_query_lookups=["organization__slug"],
+)
+
+# allows /api/v3/notifications/
+router.register(
+    r"notifications",
+    NotificationsForUserViewSet,
+    basename="notifications",
+)
+
 # allows /api/v3/remote/repositories/
 router.register(
     r"remote/repositories",
@@ -101,6 +169,7 @@ router.register(
     RemoteOrganizationViewSet,
     basename="remoteorganizations",
 )
+
 
 urlpatterns = []
 urlpatterns += router.urls

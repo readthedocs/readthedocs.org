@@ -24,7 +24,8 @@ User setup
 ~~~~~~~~~~
 
 Using this setup,
-all users who have access to the configured Google Workspace will be granted a subset of permissions on your organization automatically on account creation.
+all users who have access to the configured Google Workspace will automatically join to your organization when they sign up with their Google account.
+Existing users will not be automatically joined to the organization.
 
 You can still add outside collaborators and manage their access.
 There are two ways to manage this access:
@@ -41,6 +42,14 @@ However, you can define which teams users matching your company's domain email a
 1. Navigate to the `authorization setting page <https://readthedocs.com/organizations/choose/organization_sso/>`__.
 2. Select **Google** in the :guilabel:`Provider` drop-down.
 3. Press :guilabel:`Save`.
+
+After enabling SSO with Google Workspace,
+all users with email addresses from your configured Google Workspace domain will be required to signup using their Google account.
+
+.. warning::
+
+   Existing users with email addresses from your configured Google Workspace domain will not be required to link their Google account,
+   but they won't be automatically joined to your organization.
 
 Configure team for all users to join
 ------------------------------------
@@ -62,7 +71,23 @@ Revoke user's access to all the projects
 ----------------------------------------
 
 By disabling the Google Workspace account with email ``employee@company.com``,
-you revoke access to all the projects that user had access and disable login on Read the Docs completely for that user.
+you revoke access to all the projects the linked Read the Docs user had access to,
+and disable login on Read the Docs completely for that user.
+
+.. warning::
+
+   If the user signed up to Read the Docs previously to enabling SSO with Google Workspace on your organization,
+   they may still have access to their account and projects if they were manually added to a team.
+
+   To completely revoke access to a user, remove them from all the teams they are part of.
+
+.. warning::
+
+   If the user was already signed in to Read the Docs when their access was revoked,
+   they may still have access to documentation pages until their session expires.
+   This is three days for the dashboard and documentation pages.
+
+   To completely revoke access to a user, remove them from all the teams they are part of.
 
 .. seealso::
 

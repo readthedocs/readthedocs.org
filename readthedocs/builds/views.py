@@ -14,11 +14,10 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from requests.utils import quote
 
-from readthedocs.builds.constants import (
-    BUILD_FINAL_STATES,
-)
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build, trigger_build
 from readthedocs.doc_builder.exceptions import BuildAppError
@@ -44,6 +43,9 @@ class BuildBase:
         return queryset
 
 
+# TODO this class and views that extend this class can be removed when the old
+# dashboard goes away and RTD_EXT_THEME_ENABLED is removed. Instead of using a
+# hidden form on views, the new dashboard uses APIv3 to trigger new builds.
 class BuildTriggerMixin:
     @method_decorator(login_required)
     def post(self, request, project_slug):
@@ -122,7 +124,9 @@ class BuildTriggerMixin:
         )
 
 
-class BuildList(BuildBase, BuildTriggerMixin, ListView):
+class BuildList(FilterContextMixin, BuildBase, BuildTriggerMixin, ListView):
+    filterset_class = BuildListFilter
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -140,9 +144,11 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
         builds = self.get_queryset()
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = BuildListFilter(self.request.GET, queryset=builds)
-            context["filter"] = filter
-            builds = filter.qs
+            context["filter"] = self.get_filterset(
+                queryset=builds,
+                project=self.project,
+            )
+            builds = self.get_filtered_queryset()
         context["build_qs"] = builds
 
         return context
@@ -171,7 +177,30 @@ class BuildDetail(BuildBase, DetailView):
 
         build = self.get_object()
 
-        if build.error != BuildAppError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
+        # Temporary notification to point to the same page on the new dashboard
+        #
+        # To support readthedocs.com, we have to point to the login view. We
+        # can't point directly to the build view on the new dashboard as this
+        # will give the users a 404 because they aren't logged in.
+        #
+        # On community, we _don't want this_ as this requires the user to have
+        # a login to view the new dashboard.
+        url_domain = settings.PRODUCTION_DOMAIN
+        if url_domain.startswith("app."):
+            url_domain = url_domain[4:]
+        else:
+            url_domain = f"app.{url_domain}"
+        url_build = build.get_absolute_url()
+        # Point to the login view with the build as ?next. We are expecting
+        # users to have accounts to view this.
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            url_build = reverse("account_login") + f"?next={url_build}"
+        context["url_switch_dashboard"] = f"https://{url_domain}{url_build}"
+
+        context["notifications"] = build.notifications.all()
+        if not build.notifications.filter(
+            message_id=BuildAppError.GENERIC_WITH_BUILD_ID
+        ).exists():
             # Do not suggest to open an issue if the error is not generic
             return context
 
@@ -212,4 +241,5 @@ class BuildDetail(BuildBase, DetailView):
         issue_url = scheme.format(**scheme_dict)
         issue_url = urlparse(issue_url).geturl()
         context["issue_url"] = issue_url
+
         return context

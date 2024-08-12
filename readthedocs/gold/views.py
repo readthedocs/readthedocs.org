@@ -39,6 +39,18 @@ class GoldSubscription(
     form_class = GoldSubscriptionForm
     template_name = "gold/subscription_detail.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        # Allow inline scripts for the gold view.
+        # We are using inline javascript to initialize Stripe Checkout.
+        # Allowing inline scripts defeats the purpose of using CSP,
+        # but we are limiting it to this view.
+        # TODO: use the `@csp_update` decorator once we are running
+        # ext-theme by default.
+        if settings.RTD_EXT_THEME_ENABLED:
+            response._csp_update = {"script-src": "'unsafe-inline'"}
+        return response
+
     def get(self, *args, **kwargs):
         subscribed = self.request.GET.get("subscribed", None)
         if subscribed == "true":

@@ -1,5 +1,5 @@
-Subprojects: host multiple projects on a single domain
-======================================================
+Subprojects
+===========
 
 In this article, you can learn more about how several documentation projects can be combined and presented to the reader on the same website.
 

@@ -44,13 +44,4 @@ class CommunityMetrics5mTask(Metrics5mTaskBase):
             doc_url=None,
             webhook_url="{api_host}/api/v2/webhook/{project}/{webhook_id}/",
         ),
-        BuildLatencyMetric(
-            project="time-test",
-            queue_name="build-large",
-            version="latency-test-large",
-            doc="index",
-            section="Time",
-            doc_url=None,
-            webhook_url="{api_host}/api/v2/webhook/{project}/{webhook_id}/",
-        ),
     ]

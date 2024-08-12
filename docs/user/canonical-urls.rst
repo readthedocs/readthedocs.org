@@ -17,11 +17,6 @@ and this is one of the suggested ways to solve it from search engines.
 
 .. _canonical URL: https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls
 
-.. tip::
-
-   In most cases, Read the Docs will automatically generate a canonical URL for Sphinx projects.
-   Most Sphinx users do not need to take further action.
-
 .. seealso::
 
    :doc:`/guides/canonical-urls`
@@ -48,15 +43,14 @@ thus avoiding duplicating the content.
 
 .. note::
 
-   If you want your custom domain to be set as the canonical, you need to set ``Canonical:  This domain is the primary one where the documentation is served from`` in the :guilabel:`Admin` > :guilabel:`Domains` section of your project settings.
+   If you want your custom domain to be set as the canonical,
+   you need to set ``Canonical:  This domain is the primary one where the documentation is served from``
+   in the :guilabel:`Admin` > :guilabel:`Domains` section of your project settings.
 
-Implementation
---------------
 
-A canonical URL is automatically specified in the HTML output with a ``<link>`` element.
-For instance, regardless of whether you are viewing this page on ``/en/latest`` or ``/en/stable``,
-the following HTML header data will be present:
+How to specify the canonical URL
+--------------------------------
 
-.. code-block:: html
-
-   <link rel="canonical" href="https://docs.readthedocs.io/en/stable/canonical-urls.html" />
+A canonical URL is automatically passed to the build process as ``READTHEDOCS_CANONICAL_URL`` :doc:`environment variable </reference/environment-variables>`.
+You can use this variable to configure your documentation tool to use it
+(eg. Sphinx does this via the ``html_baseurl`` config, MkDocs via ``site_url`` and Pelican with ``SITEURL``)

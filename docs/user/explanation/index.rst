@@ -5,9 +5,6 @@
 Explanation
 ===========
 
-⏩️ :doc:`/choosing-a-site`
-  Users often ask what the differences are between Read the Docs Community and Read the Docs for Business: here's an overview.
-
 ⏩️ :doc:`/integrations`
   A high-level introduction to *Continuous Documentation Deployment*.
 
@@ -22,15 +19,3 @@ Explanation
 
 ⏩️ :doc:`/environment-variables`
   An introduction to how pre-defined and user-defined environment variables work and how to use them.
-
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   /choosing-a-site
-   /integrations
-   /subprojects
-   /localization
-   /downloadable-documentation
-   /environment-variables

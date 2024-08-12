@@ -233,6 +233,7 @@ class ProjectMixin(URLAccessMixin):
             "invalid_project_slug": "invalid_slug",
             "webhook_pk": self.webhook.pk,
             "webhook_exchange_pk": self.webhook_exchange.pk,
+            "position": 0,
         }
 
 
@@ -250,6 +251,7 @@ class PublicProjectMixin(ProjectMixin):
         "/projects/pip/badge/": {"status_code": 200},
         "/projects/invalid_slug/": {"status_code": 302},
         "/projects/pip/search/": {"status_code": 302},
+        "/dashboard/pip/advanced/": {"status_code": 301},
     }
 
     def test_public_urls(self):
@@ -302,10 +304,14 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/import/manual/demo/": {"status_code": 302},
         "/dashboard/pip/": {"status_code": 301},
         "/dashboard/pip/subprojects/delete/sub/": {"status_code": 302},
+        "/dashboard/pip/advanced/": {"status_code": 301},
         # 405's where we should be POST'ing
         "/dashboard/pip/users/delete/": {"status_code": 405},
         "/dashboard/pip/notifications/delete/": {"status_code": 405},
         "/dashboard/pip/redirects/{redirect_pk}/delete/": {"status_code": 405},
+        "/dashboard/pip/redirects/{redirect_pk}/insert/{position}/": {
+            "status_code": 405
+        },
         "/dashboard/pip/subprojects/sub/delete/": {"status_code": 405},
         "/dashboard/pip/integrations/sync/": {"status_code": 405},
         "/dashboard/pip/integrations/{integration_id}/sync/": {"status_code": 405},
@@ -318,6 +324,9 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/pip/rules/{automation_rule_id}/delete/": {"status_code": 405},
         "/dashboard/pip/rules/{automation_rule_id}/move/{steps}/": {"status_code": 405},
         "/dashboard/pip/webhooks/{webhook_id}/delete/": {"status_code": 405},
+        # Placeholder URLs.
+        "/dashboard/pip/sharing/": {"status_code": 404},
+        "/dashboard/pip/keys/": {"status_code": 404},
     }
 
     def get_url_path_ctx(self):
@@ -328,6 +337,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
             "steps": 1,
+            "position": 0,
         }
 
     def login(self):
@@ -345,12 +355,16 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/import/": {"status_code": 200},
         "/dashboard/import/manual/": {"status_code": 200},
         "/dashboard/import/manual/demo/": {"status_code": 302},
+        "/dashboard/pip/advanced/": {"status_code": 301},
         # Unauth access redirect for non-owners
         "/dashboard/pip/": {"status_code": 301},
         # 405's where we should be POST'ing
         "/dashboard/pip/users/delete/": {"status_code": 405},
         "/dashboard/pip/notifications/delete/": {"status_code": 405},
         "/dashboard/pip/redirects/{redirect_pk}/delete/": {"status_code": 405},
+        "/dashboard/pip/redirects/{redirect_pk}/insert/{position}/": {
+            "status_code": 405
+        },
         "/dashboard/pip/subprojects/sub/delete/": {"status_code": 405},
         "/dashboard/pip/integrations/sync/": {"status_code": 405},
         "/dashboard/pip/integrations/{integration_id}/sync/": {"status_code": 405},
@@ -376,6 +390,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
             "steps": 1,
+            "position": 0,
         }
 
     def login(self):
@@ -388,6 +403,12 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 class PrivateProjectUnauthAccessTest(PrivateProjectMixin, TestCase):
     # Auth protected
     default_status_code = 302
+
+    response_data = {
+        # Placeholder URLs.
+        "/dashboard/pip/sharing/": {"status_code": 404},
+        "/dashboard/pip/keys/": {"status_code": 404},
+    }
 
     def login(self):
         pass

@@ -55,6 +55,7 @@ Bug bounties
 
 While we sincerely appreciate and encourage reports of suspected security problems,
 please note that the Read the Docs is an open source project, and **does not run any bug bounty programs**.
+But we will gladly give credit to you and/or your organization for responsibly reporting security issues.
 
 Security issue archive
 ----------------------

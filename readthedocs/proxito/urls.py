@@ -38,7 +38,7 @@ from django.urls import include, path, re_path
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.core.views import HealthCheckView
+from readthedocs.core.views import HealthCheckView, TeapotView
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.hosting import ReadTheDocsConfigJson
 from readthedocs.proxito.views.serve import (
@@ -119,13 +119,6 @@ proxied_urls = [
         ReadTheDocsConfigJson.as_view(),
         name="proxito_readthedocs_docs_addons",
     ),
-    # TODO: remove `readthedocs-config/` endpoint once we have changed the URL
-    # in the js and we have deployed it.
-    path(
-        f"{DOC_PATH_PREFIX}readthedocs-config/",
-        ReadTheDocsConfigJson.as_view(),
-        name="proxito_readthedocs_config_json",
-    ),
 ]
 
 core_urls = [
@@ -151,7 +144,62 @@ docs_urls = [
     re_path(r"^(?P<path>.*)$", ServeDocs.as_view(), name="docs_detail"),
 ]
 
-urlpatterns = health_check_urls + proxied_urls + core_urls + docs_urls
+
+# Declare dummy "dashboard URLs" in El Proxito to be able to ``reverse()`` them
+# from API ``/_/addons/`` endpoint. Mainly for the the ``*.urls`` fields. We
+# cannot resolve ``*._links`` fields properly yet, but they are not required at
+# this point. We can come back later here if we need them.
+# See https://github.com/readthedocs/readthedocs-ops/issues/1323
+dummy_dashboard_urls = [
+    # /projects/<project_slug>/
+    re_path(
+        r"^projects/(?P<project_slug>{project_slug})/$".format(**pattern_opts),
+        TeapotView.as_view(),
+        name="projects_detail",
+    ),
+    # /projects/<project_slug>/builds/
+    re_path(
+        (r"^projects/(?P<project_slug>{project_slug})/builds/$".format(**pattern_opts)),
+        TeapotView.as_view(),
+        name="builds_project_list",
+    ),
+    # /projects/<project_slug>/versions/
+    re_path(
+        r"^projects/(?P<project_slug>{project_slug})/versions/$".format(**pattern_opts),
+        TeapotView.as_view(),
+        name="project_version_list",
+    ),
+    # /projects/<project_slug>/downloads/
+    re_path(
+        (
+            r"^projects/(?P<project_slug>{project_slug})/downloads/$".format(
+                **pattern_opts
+            )
+        ),
+        TeapotView.as_view(),
+        name="project_downloads",
+    ),
+    # /projects/<project_slug>/builds/<build_id>/
+    re_path(
+        (
+            r"^projects/(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$".format(
+                **pattern_opts
+            )
+        ),
+        TeapotView.as_view(),
+        name="builds_detail",
+    ),
+    # /projects/<project_slug>/version/<version_slug>/
+    re_path(
+        r"^projects/(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$",
+        TeapotView.as_view(),
+        name="project_version_detail",
+    ),
+]
+
+urlpatterns = (
+    health_check_urls + proxied_urls + core_urls + docs_urls + dummy_dashboard_urls
+)
 
 # Use Django default error handlers to make things simpler
 handler404 = proxito_404_page_handler

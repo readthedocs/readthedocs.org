@@ -1,4 +1,4 @@
-Configuration file tutorial
+Configuration file overview
 ===========================
 
 As part of the initial set up for your Read the Docs site,
@@ -128,7 +128,7 @@ you should define the Python version in ``build.tools.python``.
 The ``python`` key contains a list of sub-keys,
 specifying the requirements to install.
 
-- Use ``python.install.package`` to install the project itself as a Python package using pip
+- Use ``python.install.path`` to install the project itself as a Python package using pip
 - Use ``python.install.requirements`` to install packages from a requirements file
 - Use ``build.jobs`` to install packages using Poetry or PDM
 

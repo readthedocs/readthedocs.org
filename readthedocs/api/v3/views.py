@@ -1,4 +1,6 @@
 import django_filters.rest_framework as filters
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Exists, OuterRef
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
@@ -10,6 +12,7 @@ from rest_framework.mixins import (
     CreateModelMixin,
     DestroyModelMixin,
     ListModelMixin,
+    RetrieveModelMixin,
     UpdateModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
@@ -20,15 +23,19 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
+from readthedocs.api.v2.permissions import ReadOnlyPermission
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.views.hooks import trigger_sync_versions
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
     RemoteOrganization,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
-from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import (
     EnvironmentVariable,
     Project,
@@ -39,6 +46,7 @@ from readthedocs.redirects.models import Redirect
 
 from .filters import (
     BuildFilter,
+    NotificationFilter,
     ProjectFilter,
     RemoteOrganizationFilter,
     RemoteRepositoryFilter,
@@ -50,18 +58,20 @@ from .mixins import (
     RemoteQuerySetMixin,
     UpdateChangeReasonMixin,
     UpdateMixin,
+    UserQuerySetMixin,
 )
 from .permissions import (
-    CommonPermissions,
+    IsCurrentUser,
+    IsOrganizationAdmin,
     IsOrganizationAdminMember,
     IsProjectAdmin,
-    UserOrganizationsListing,
 )
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     EnvironmentVariableSerializer,
+    NotificationSerializer,
     OrganizationSerializer,
     ProjectCreateSerializer,
     ProjectSerializer,
@@ -73,6 +83,8 @@ from .serializers import (
     SubprojectCreateSerializer,
     SubprojectDestroySerializer,
     SubprojectSerializer,
+    TeamSerializer,
+    UserSerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -93,7 +105,6 @@ class APIv3Settings:
     """
 
     authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (CommonPermissions,)
 
     pagination_class = LimitOffsetPagination
     LimitOffsetPagination.default_limit = 10
@@ -120,7 +131,6 @@ class ProjectsViewSetBase(
     lookup_field = "slug"
     lookup_url_kwarg = "project_slug"
     filterset_class = ProjectFilter
-    queryset = Project.objects.all()
     permit_list_expands = [
         "active_versions",
         "active_versions.last_build",
@@ -130,8 +140,22 @@ class ProjectsViewSetBase(
         "teams",
     ]
 
+    def get_permissions(self):
+        # Create and list are actions that act on the current user.
+        if self.action in ("create", "list"):
+            permission_classes = [IsAuthenticated]
+        # Actions that change the state of the project require admin permissions on the project.
+        elif self.action in ("update", "partial_update", "destroy", "sync_versions"):
+            permission_classes = [IsAuthenticated & IsProjectAdmin]
+        # Any other action is read-only.
+        else:
+            permission_classes = [ReadOnlyPermission]
+        return [permission() for permission in permission_classes]
+
     def get_view_name(self):
         # Avoid "Base" in BrowseableAPI view's title
+        if self.name:
+            return self.name
         return f"Projects {self.suffix}"
 
     def get_serializer_class(self):
@@ -141,9 +165,7 @@ class ProjectsViewSetBase(
         For GET it returns a serializer with many fields and on PUT/PATCH/POST,
         it return a serializer to validate just a few fields.
         """
-        if self.action in ("list", "retrieve", "superproject"):
-            # NOTE: ``superproject`` is the @action defined in the
-            # ProjectViewSet that returns the superproject of a project.
+        if self.action in ("list", "retrieve"):
             return ProjectSerializer
 
         if self.action == "create":
@@ -152,17 +174,19 @@ class ProjectsViewSetBase(
         if self.action in ("update", "partial_update"):
             return ProjectUpdateSerializer
 
+        # Default serializer so that sync_versions works with the BrowseableAPI
+        return ProjectSerializer
+
     def get_queryset(self):
-        # Allow hitting ``/api/v3/projects/`` to list their own projects
-        if self.basename == "projects" and self.action == "list":
-            # We force returning ``Project`` objects here because it's under the
-            # ``projects`` view.
-            return self.admin_projects(self.request.user)
+        if self.action == "list":
+            # When listing, return all the projects where the user is admin.
+            queryset = self.admin_projects(self.request.user)
+        else:
+            queryset = super().get_queryset()
 
         # This could be a class attribute and managed on the ``ProjectQuerySetMixin`` in
         # case we want to extend the ``prefetch_related`` to other views as
         # well.
-        queryset = super().get_queryset()
         return queryset.prefetch_related(
             "related_projects",
             "domains",
@@ -174,14 +198,16 @@ class ProjectsViewSetBase(
         """
         Import Project.
 
-        Override to use a different serializer in the response.
+        Override to use a different serializer in the response,
+        since it's a different format than the one used for the request.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
 
-        # Use serializer that fully render a Project
+        # Use a serializer that fully renders a Project,
+        # instead of the one used for the request.
         serializer = ProjectSerializer(instance=serializer.instance)
 
         return Response(
@@ -201,13 +227,37 @@ class ProjectsViewSetBase(
     @action(detail=True, methods=["get"])
     def superproject(self, request, project_slug):
         """Return the superproject of a ``Project``."""
-        project = self.get_object()
-        try:
-            superproject = project.superprojects.first().parent
-            data = self.get_serializer(superproject).data
-            return Response(data)
-        except Exception:
+        superproject = self._get_superproject()
+        if not superproject:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        data = ProjectSerializer(superproject).data
+        return Response(data)
+
+    def _get_superproject(self):
+        """Get the superproject of the project, taking into consideration the user permissions."""
+        project = self.get_object()
+        return self.get_queryset().filter(subprojects__child=project).first()
+
+    @action(detail=True, methods=["post"], url_path="sync-versions")
+    def sync_versions(self, request, project_slug):
+        """
+        Kick off a task to sync versions for a project.
+
+        POST to this endpoint to trigger a task that syncs versions for the project.
+
+        This will be used in a button in the frontend,
+        but also can be used to trigger a sync from the API.
+        """
+        project = self.get_object()
+        triggered = trigger_sync_versions(project)
+        data = {}
+        if triggered:
+            data.update({"triggered": True})
+            code = status.HTTP_202_ACCEPTED
+        else:
+            data.update({"triggered": False})
+            code = status.HTTP_400_BAD_REQUEST
+        return Response(data=data, status=code)
 
 
 class ProjectsViewSet(SettingsOverrideObject):
@@ -229,7 +279,7 @@ class SubprojectRelationshipViewSet(
     model = ProjectRelationship
     lookup_field = "alias"
     lookup_url_kwarg = "alias_slug"
-    queryset = ProjectRelationship.objects.all()
+    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
 
     def get_serializer_class(self):
         """
@@ -282,7 +332,7 @@ class TranslationRelationshipViewSet(
     lookup_field = "slug"
     lookup_url_kwarg = "project_slug"
     serializer_class = ProjectSerializer
-    queryset = Project.objects.all()
+    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
 
 
 # Inherit order is important here. ``NestedViewSetMixin`` has to be on the left
@@ -305,7 +355,7 @@ class VersionsViewSet(
     lookup_value_regex = r"[^/]+"
 
     filterset_class = VersionFilter
-    queryset = Version.internal.all()
+    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
     permit_list_expands = [
         "last_build",
         "last_build.config",
@@ -333,6 +383,10 @@ class VersionsViewSet(
         version.post_save(was_active=was_active)
         return result
 
+    def get_queryset(self):
+        """Overridden to allow internal versions only."""
+        return super().get_queryset().exclude(type=EXTERNAL)
+
 
 class BuildsViewSet(
     APIv3Settings,
@@ -346,7 +400,7 @@ class BuildsViewSet(
     lookup_url_kwarg = "build_pk"
     serializer_class = BuildSerializer
     filterset_class = BuildFilter
-    queryset = Build.internal.all()
+    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
     permit_list_expands = [
         "config",
     ]
@@ -362,8 +416,21 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
     def create(self, request, **kwargs):  # pylint: disable=arguments-differ
         project = self._get_parent_project()
         version = self._get_parent_version()
+        build_retry = None
+        commit = None
 
-        _, build = trigger_build(project, version=version)
+        if version.is_external:
+            # We use the last build for a version here as we want to update VCS
+            # providers and need to reference the latest commit to do so.
+            build_retry = version.last_build
+            if build_retry:
+                commit = build_retry.commit
+
+        _, build = trigger_build(
+            project=project,
+            version=version,
+            commit=commit,
+        )
 
         # TODO: refactor this to be a serializer
         # BuildTriggeredSerializer(build, project, version).data
@@ -382,6 +449,90 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
         return Response(data=data, status=code)
 
 
+class NotificationsForUserViewSet(
+    APIv3Settings,
+    FlexFieldsMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
+
+    """
+    Endpoint to return all the notifications related to the logged in user.
+
+    Hitting this endpoint while logged in will return notifications attached to:
+
+     - User making the request
+     - Organizations where the user is owner/member
+     - Projects where the user is admin/member
+    """
+
+    model = Notification
+    serializer_class = NotificationSerializer
+
+    # Override global permissions here because it doesn't not make sense to hit
+    # this endpoint without being logged in. We can't use our
+    # ``CommonPermissions`` because it requires the endpoint to be nested under
+    # ``projects``
+    permission_classes = (IsAuthenticated,)
+    filterset_class = NotificationFilter
+
+    def get_queryset(self):
+        return Notification.objects.for_user(self.request.user, resource="all")
+
+
+class NotificationsProjectViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    ProjectQuerySetMixin,
+    FlexFieldsMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
+    model = Notification
+    lookup_field = "pk"
+    lookup_url_kwarg = "notification_pk"
+    serializer_class = NotificationSerializer
+    filterset_class = NotificationFilter
+    # We don't want to show notifications to users that don't have admin access to the project.
+    permission_classes = [IsAuthenticated & IsProjectAdmin]
+
+    def get_queryset(self):
+        project = self._get_parent_project()
+        return project.notifications.all()
+
+
+class NotificationsBuildViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    ProjectQuerySetMixin,
+    FlexFieldsMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
+    model = Notification
+    lookup_field = "pk"
+    lookup_url_kwarg = "notification_pk"
+    serializer_class = NotificationSerializer
+    filterset_class = NotificationFilter
+    # We need to show build notifications to anonymous users
+    # on public builds (the queryset will filter them out).
+    # We allow project admins to edit notifications.
+    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+
+    def get_queryset(self):
+        build = self._get_parent_build()
+        return build.notifications.all()
+
+
 class RedirectsViewSet(
     APIv3Settings,
     NestedViewSetMixin,
@@ -392,7 +543,6 @@ class RedirectsViewSet(
     model = Redirect
     lookup_field = "pk"
     lookup_url_kwarg = "redirect_pk"
-    queryset = Redirect.objects.all()
     permission_classes = (IsAuthenticated & IsProjectAdmin,)
 
     def get_queryset(self):
@@ -426,7 +576,6 @@ class EnvironmentVariablesViewSet(
     model = EnvironmentVariable
     lookup_field = "pk"
     lookup_url_kwarg = "environmentvariable_pk"
-    queryset = EnvironmentVariable.objects.all()
     serializer_class = EnvironmentVariableSerializer
     permission_classes = (IsAuthenticated & IsProjectAdmin,)
 
@@ -444,64 +593,12 @@ class EnvironmentVariablesViewSet(
         serializer.save()
 
 
-class OrganizationsViewSet(
-    APIv3Settings,
-    NestedViewSetMixin,
-    OrganizationQuerySetMixin,
-    ReadOnlyModelViewSet,
-):
-    model = Organization
-    lookup_field = "slug"
-    lookup_url_kwarg = "organization_slug"
-    queryset = Organization.objects.all()
-    serializer_class = OrganizationSerializer
-    permission_classes = [
-        IsAuthenticated & (UserOrganizationsListing | IsOrganizationAdminMember)
-    ]
-    permit_list_expands = [
-        "projects",
-        "teams",
-        "teams.members",
-    ]
-
-    def get_view_name(self):
-        return f"Organizations {self.suffix}"
-
-    def get_queryset(self):
-        # Allow hitting ``/api/v3/organizations/`` to list their own organizations
-        if self.basename == "organizations" and self.action == "list":
-            # We force returning ``Organization`` objects here because it's
-            # under the ``organizations`` view.
-            return self.admin_organizations(self.request.user)
-
-        return super().get_queryset()
-
-
-class OrganizationsProjectsViewSet(
-    APIv3Settings, NestedViewSetMixin, OrganizationQuerySetMixin, ReadOnlyModelViewSet
-):
-    model = Project
-    lookup_field = "slug"
-    lookup_url_kwarg = "project_slug"
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
-    permit_list_expands = [
-        "organization",
-        "organization.teams",
-    ]
-
-    def get_view_name(self):
-        return f"Organizations Projects {self.suffix}"
-
-
 class RemoteRepositoryViewSet(
     APIv3Settings, RemoteQuerySetMixin, FlexFieldsMixin, ListModelMixin, GenericViewSet
 ):
     model = RemoteRepository
     serializer_class = RemoteRepositorySerializer
     filterset_class = RemoteRepositoryFilter
-    queryset = RemoteRepository.objects.all()
     permission_classes = (IsAuthenticated,)
     permit_list_expands = ["remote_organization", "projects"]
 
@@ -510,6 +607,7 @@ class RemoteRepositoryViewSet(
             super()
             .get_queryset()
             .annotate(
+                # This field will be used by the serializer.
                 _admin=Exists(
                     RemoteRepositoryRelation.objects.filter(
                         remote_repository=OuterRef("pk"),
@@ -535,5 +633,131 @@ class RemoteOrganizationViewSet(
     model = RemoteOrganization
     serializer_class = RemoteOrganizationSerializer
     filterset_class = RemoteOrganizationFilter
-    queryset = RemoteOrganization.objects.all()
     permission_classes = (IsAuthenticated,)
+
+
+class UsersViewSet(
+    APIv3Settings,
+    GenericViewSet,
+):
+    # NOTE: this viewset is only useful for nested URLs required for notifications:
+    # /api/v3/users/<username>/notifications/
+    # However, accessing to /api/v3/users/ or /api/v3/users/<username>/ will return 404.
+    # We can implement these endpoints when we need them, tho.
+
+    model = User
+    serializer_class = UserSerializer
+    queryset = User.objects.none()
+    permission_classes = (IsAuthenticated,)
+    # We are using the username as the lookup field,
+    # by default, DRF does not allow dots and `/`,
+    # but we allow usernames to have dots.
+    lookup_value_regex = "[^/]+"
+
+
+class NotificationsUserViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    UserQuerySetMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
+    model = Notification
+    lookup_field = "pk"
+    lookup_url_kwarg = "notification_pk"
+    serializer_class = NotificationSerializer
+    filterset_class = NotificationFilter
+    permission_classes = [IsAuthenticated & IsCurrentUser]
+
+    def get_queryset(self):
+        # Filter the queryset by only notifications attached to the particular user
+        # that's making the request to this endpoint
+        content_type = ContentType.objects.get_for_model(User)
+        return Notification.objects.filter(
+            attached_to_content_type=content_type,
+            attached_to_id=self.request.user.pk,
+        )
+
+
+class OrganizationsViewSetBase(
+    APIv3Settings,
+    GenericViewSet,
+):
+    # TODO: migrate code from corporate here.
+    # NOTE: this viewset is only useful for nested URLs required for notifications:
+    # /api/v3/organizations/<slug>/notifications/
+    # However, accessing to /api/v3/organizations/ or /api/v3/organizations/<slug>/ will return 404.
+    # We can implement these endpoints when we need them, tho.
+    # Also note that Read the Docs for Business expose this endpoint already.
+
+    model = Organization
+    serializer_class = OrganizationSerializer
+    queryset = Organization.objects.none()
+    permission_classes = (IsAuthenticated,)
+
+
+class OrganizationsViewSet(SettingsOverrideObject):
+    _default_class = OrganizationsViewSetBase
+
+
+class OrganizationsProjectsViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
+    FlexFieldsMixin,
+    ListModelMixin,
+    GenericViewSet,
+):
+    model = Project
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
+    # We don't need to expand the organization, it's already known.
+    permit_list_expands = []
+
+    def get_view_name(self):
+        if self.name:
+            return self.name
+        return f"Organizations Projects {self.suffix}"
+
+
+class OrganizationsTeamsViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
+    FlexFieldsMixin,
+    ListModelMixin,
+    GenericViewSet,
+):
+    model = Team
+    serializer_class = TeamSerializer
+    permission_classes = [IsAuthenticated & IsOrganizationAdmin]
+    permit_list_expands = ["members"]
+
+    def get_queryset(self):
+        organization = self._get_parent_organization()
+        return organization.teams.all()
+
+
+class NotificationsOrganizationViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
+    model = Notification
+    lookup_field = "pk"
+    lookup_url_kwarg = "notification_pk"
+    serializer_class = NotificationSerializer
+    filterset_class = NotificationFilter
+    permission_classes = [IsAuthenticated & IsOrganizationAdmin]
+
+    def get_queryset(self):
+        organization = self._get_parent_organization()
+        return organization.notifications.all()

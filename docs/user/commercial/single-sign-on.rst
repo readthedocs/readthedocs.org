@@ -1,5 +1,5 @@
-Choosing a Single Sign-On (SSO) approach for your organization
-==============================================================
+Single Sign-On (SSO)
+====================
 
 .. include:: /shared/admonition-rtd-business.rst
 
@@ -12,8 +12,6 @@ Currently, we support two different types of single sign-on:
 
 * Authentication *and* authorization are managed by the identity provider (GitHub, Bitbucket or GitLab)
 * Authentication (*only*) is managed by the identity provider (Google Workspace account with a verified email address)
-
-Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the RTD flyout menu.
 
 .. _sso_git_provider:
 
@@ -36,13 +34,28 @@ Learn how to configure this SSO method with our :doc:`/guides/setup-single-sign-
 SSO with Google Workspace
 -------------------------
 
-This feature allows you to restrict access to users with a specific email address (e.g. ``employee@company.com``),
+This feature allows you to easily manage access to users with a specific email address (e.g. ``employee@company.com``),
 where ``company.com`` is a registered Google Workspace domain.
-As this identity provider does not provide authorization over each project a user has access to,
+As this identity provider does not provide information about which projects a user has access to,
 permissions are managed by the :ref:`internal Read the Docs's teams <commercial/organizations:Team Types>` authorization system.
 
 This feature is only available on the **Pro plan** and above.
 Learn how to configure this SSO method with our :doc:`/guides/setup-single-sign-on-google-email`.
+
+SSO with SAML
+-------------
+
+.. note::
+
+   This feature is in beta, and will be available for **Enterprise** plans only.
+   Contact :doc:`support </support>` to enable this feature for your organization.
+
+   **At the moment only Okta is supported as a SAML identity provider.**
+
+This feature allows you to easily manage access to users that are part of your identity provider.
+As SAML doesn't provide information about which projects a user has access to,
+permissions are managed by the :ref:`internal Read the Docs's teams <commercial/organizations:Team Types>` authorization system.
+Learn how to configure this SSO method with our :doc:`guide </guides/set-up-single-sign-on-saml>`.
 
 Requesting additional providers
 -------------------------------

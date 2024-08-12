@@ -7,11 +7,13 @@ These guides will help walk you through specific use cases
 related to Read the Docs itself, documentation tools like Sphinx and MkDocs
 and how to write successful documentation.
 
-.. tip::
-   We recommend looking through the list,
-   maybe there is a guide you hadn't looked for?
-
 .. toctree::
-   :glob:
 
-   */index
+   Project setup and configuration </guides/setup/index>
+   Build process </guides/build/index>
+   Upgrading and maintaining projects </guides/maintenance/index>
+   Content, themes and SEO </guides/content/index>
+   Security and access </guides/access/index>
+   Account management </guides/management/index>
+   Best practice </guides/best-practice/index>
+   Troubleshooting problems </guides/troubleshooting/index>

@@ -37,6 +37,12 @@ class CommunityTestSettings(CommunityBaseSettings):
         }
     }
 
+    # Speed up tests by using a fast password hasher.
+    # https://docs.djangoproject.com/en/5.0/topics/testing/overview/#speeding-up-the-tests.
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
+
     @property
     def DATABASES(self):  # noqa
         return {

@@ -5,6 +5,7 @@ from datetime import datetime
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
+from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
@@ -64,7 +65,7 @@ class Service:
         except SocialAccount.DoesNotExist:
             return []
 
-    def get_adapter(self):
+    def get_adapter(self) -> type[OAuth2Adapter]:
         return self.adapter
 
     @property
@@ -73,12 +74,20 @@ class Service:
 
     @property
     def provider_name(self):
-        return registry.by_id(self.provider_id).name
+        return registry.get_class(self.provider_id).name
 
     def get_session(self):
         if self.session is None:
             self.create_session()
         return self.session
+
+    def get_access_token_url(self):
+        # ``access_token_url`` is a property in some adapters,
+        # so we need to instantiate it to get the actual value.
+        # pylint doesn't recognize that get_adapter returns a class.
+        # pylint: disable=not-callable
+        adapter = self.get_adapter()(request=None)
+        return adapter.access_token_url
 
     def create_session(self):
         """
@@ -105,14 +114,15 @@ class Service:
                 }
             )
 
+        social_app = self.account.get_provider().app
         self.session = OAuth2Session(
-            client_id=token.app.client_id,
+            client_id=social_app.client_id,
             token=token_config,
             auto_refresh_kwargs={
-                "client_id": token.app.client_id,
-                "client_secret": token.app.secret,
+                "client_id": social_app.client_id,
+                "client_secret": social_app.secret,
             },
-            auto_refresh_url=self.get_adapter().access_token_url,
+            auto_refresh_url=self.get_access_token_url(),
             token_updater=self.token_updater(token),
         )
 

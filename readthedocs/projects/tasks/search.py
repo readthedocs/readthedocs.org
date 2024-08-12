@@ -45,7 +45,7 @@ def index_build(build_id):
 
     build_config = build.config or {}
     search_config = build_config.get("search", {})
-    search_ranking = search_config.get("ranking", [])
+    search_ranking = search_config.get("ranking", {})
     search_ignore = search_config.get("ignore", [])
 
     try:
@@ -203,7 +203,8 @@ def _create_imported_files_and_search_index(
 
             # Create the imported file only if it's a top-level 404 file,
             # or if it's an index file. We don't need to keep track of all files.
-            if relpath == "404.html" or filename in ["index.html", "README.html"]:
+            tryfiles = ["index.html"]
+            if relpath == "404.html" or filename in tryfiles:
                 html_files_to_save.append(html_file)
 
     # We first index the files in ES, and then save the objects in the DB.

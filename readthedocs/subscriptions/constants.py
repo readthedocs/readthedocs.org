@@ -18,6 +18,8 @@ TYPE_SSO = "sso"
 TYPE_CUSTOM_URL = "urls"
 TYPE_AUDIT_LOGS = "audit-logs"
 TYPE_AUDIT_PAGEVIEWS = "audit-pageviews"
+TYPE_REDIRECTS_LIMIT = "redirects-limit"
+TYPE_SSO_SAML = "sso-saml"
 
 FEATURE_TYPES = (
     (TYPE_CNAME, _("Custom domain")),
@@ -30,7 +32,9 @@ FEATURE_TYPES = (
     (TYPE_PAGEVIEW_ANALYTICS, _("Pageview analytics")),
     (TYPE_CONCURRENT_BUILDS, _("Concurrent builds")),
     (TYPE_SSO, _("Single sign on (SSO) with Google")),
+    (TYPE_SSO_SAML, _("Single sign on (SSO) with SAML")),
     (TYPE_CUSTOM_URL, _("Custom URLs")),
     (TYPE_AUDIT_LOGS, _("Audit logs")),
     (TYPE_AUDIT_PAGEVIEWS, _("Audit logs for every page view")),
+    (TYPE_REDIRECTS_LIMIT, _("Redirects limit")),
 )

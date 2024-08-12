@@ -8,7 +8,6 @@ from celery.worker.request import Request
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import (
     BUILD_FINAL_STATES,
@@ -18,6 +17,8 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
+from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.notifications.models import Notification
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -129,12 +130,13 @@ def finish_inactive_builds():
 
         build.success = False
         build.state = BUILD_STATE_CANCELLED
-        build.error = _(
-            "This build was terminated due to inactivity. If you "
-            "continue to encounter this error, file a support "
-            "request with and reference this build id ({}).".format(build.pk),
-        )
         build.save()
+
+        Notification.objects.add(
+            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
+            attached_to=build,
+        )
+
         builds_finished.append(build.pk)
         projects_finished.add(build.project.slug)
 
@@ -163,14 +165,14 @@ def send_external_build_status(version_type, build_pk, commit, status):
 
 
 @app.task(queue="web")
-def set_builder_scale_in_protection(instance, protected_from_scale_in):
+def set_builder_scale_in_protection(builder, protected_from_scale_in):
     """
-    Set scale-in protection on this builder ``instance``.
+    Set scale-in protection on this builder ``builder``.
 
-    This way, AWS will not scale-in this instance while it's building the documentation.
+    This way, AWS will not scale-in this builder while it's building the documentation.
     This is pretty useful for long running tasks.
     """
-    log.bind(instance=instance, protected_from_scale_in=protected_from_scale_in)
+    log.bind(builder=builder, protected_from_scale_in=protected_from_scale_in)
 
     if settings.DEBUG or settings.RTD_DOCKER_COMPOSE:
         log.info(
@@ -186,7 +188,7 @@ def set_builder_scale_in_protection(instance, protected_from_scale_in):
     )
 
     # web-extra-i-0c3e866c4e323928f
-    hostname_match = re.match(r"([a-z\-]+)-(i-[a-f0-9]+)", instance)
+    hostname_match = re.match(r"([a-z\-]+)-(i-[a-f0-9]+)", builder)
     if not hostname_match:
         log.warning(
             "Unable to set scale-in protection. Hostname name matching not found.",

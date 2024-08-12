@@ -7,13 +7,11 @@ from functools import partial
 import regex
 import structlog
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
 
@@ -59,8 +57,8 @@ from readthedocs.builds.utils import (
     get_vcs_url,
 )
 from readthedocs.builds.version_slug import VersionSlugField
-from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -81,6 +79,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
 
@@ -91,36 +90,22 @@ class Version(TimeStampedModel):
 
     """Version of a ``Project``."""
 
-    # Overridden from TimeStampedModel just to allow null values.
-    # TODO: remove after deploy.
-    created = CreationDateTimeField(
-        _('created'),
-        null=True,
-        blank=True,
-    )
-    modified = ModificationDateTimeField(
-        _('modified'),
-        null=True,
-        blank=True,
-    )
-
     project = models.ForeignKey(
         Project,
-        verbose_name=_('Project'),
-        related_name='versions',
+        verbose_name=_("Project"),
+        related_name="versions",
         on_delete=models.CASCADE,
     )
     type = models.CharField(
-        _('Type'),
+        _("Type"),
         max_length=20,
         choices=VERSION_TYPES,
-        default='unknown',
+        default="unknown",
     )
     # used by the vcs backend
 
     #: The identifier is the ID for the revision this is version is for.
-    #: This might be the revision number (e.g. in SVN),
-    #: or the commit hash (e.g. in Git).
+    #: This is the commit hash (e.g. in Git).
     #: If the this version is pointing to a branch,
     #: then ``identifier`` will contain the branch name.
     #: `None`/`null` means it will use the VCS default branch.
@@ -132,24 +117,24 @@ class Version(TimeStampedModel):
     #: ``identifier``. This might be the tag or branch name like ``"v1.0.4"``.
     #: However this might also hold special version names like ``"latest"``
     #: and ``"stable"``.
-    verbose_name = models.CharField(_('Verbose Name'), max_length=255)
+    verbose_name = models.CharField(_("Verbose Name"), max_length=255)
 
     #: The slug is the slugified version of ``verbose_name`` that can be used
     #: in the URL to identify this version in a project. It's also used in the
     #: filesystem to determine how the paths for this version are called. It
     #: must not be used for any other identifying purposes.
     slug = VersionSlugField(
-        _('Slug'),
+        _("Slug"),
         max_length=255,
-        populate_from='verbose_name',
+        populate_from="verbose_name",
     )
 
     # TODO: this field (`supported`) could be removed. It's returned only on
     # the footer API response but I don't think anybody is using this field at
     # all.
-    supported = models.BooleanField(_('Supported'), default=True)
+    supported = models.BooleanField(_("Supported"), default=True)
 
-    active = models.BooleanField(_('Active'), default=False)
+    active = models.BooleanField(_("Active"), default=False)
     state = models.CharField(
         _("State"),
         max_length=20,
@@ -166,32 +151,32 @@ class Version(TimeStampedModel):
     uploaded = models.BooleanField(_("Uploaded"), default=False)
 
     privacy_level = models.CharField(
-        _('Privacy Level'),
+        _("Privacy Level"),
         max_length=20,
         choices=PRIVACY_CHOICES,
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
-        help_text=_('Level of privacy for this Version.'),
+        help_text=_("Level of privacy for this Version."),
     )
     hidden = models.BooleanField(
-        _('Hidden'),
+        _("Hidden"),
         default=False,
-        help_text=_('Hide this version from the version (flyout) menu and search results?')
+        help_text=_(
+            "Hide this version from the version (flyout) menu and search results?"
+        ),
     )
-    machine = models.BooleanField(_('Machine Created'), default=False)
+    machine = models.BooleanField(_("Machine Created"), default=False)
 
     # Whether the latest successful build for this version contains certain media types
-    has_pdf = models.BooleanField(_('Has PDF'), default=False)
-    has_epub = models.BooleanField(_('Has ePub'), default=False)
-    has_htmlzip = models.BooleanField(_('Has HTML Zip'), default=False)
+    has_pdf = models.BooleanField(_("Has PDF"), default=False)
+    has_epub = models.BooleanField(_("Has ePub"), default=False)
+    has_htmlzip = models.BooleanField(_("Has HTML Zip"), default=False)
 
     documentation_type = models.CharField(
-        _('Documentation type'),
+        _("Documentation type"),
         max_length=20,
         choices=DOCTYPE_CHOICES,
         default=SPHINX,
-        help_text=_(
-            'Type of documentation the version was built with.'
-        ),
+        help_text=_("Type of documentation the version was built with."),
     )
 
     build_data = models.JSONField(
@@ -210,22 +195,20 @@ class Version(TimeStampedModel):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
-    internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
+    internal = InternalVersionManager.from_queryset(
+        partial(VersionQuerySet, internal_only=True)
+    )()
     # Only include EXTERNAL type Versions.
-    external = ExternalVersionManager.from_queryset(partial(VersionQuerySet, external_only=True))()
+    external = ExternalVersionManager.from_queryset(
+        partial(VersionQuerySet, external_only=True)
+    )()
 
     class Meta:
-        unique_together = [('project', 'slug')]
-        ordering = ['-verbose_name']
+        unique_together = [("project", "slug")]
+        ordering = ["-verbose_name"]
 
     def __str__(self):
-        return gettext(
-            'Version {version} of {project} ({pk})'.format(
-                version=self.verbose_name,
-                project=self.project,
-                pk=self.pk,
-            ),
-        )
+        return self.verbose_name
 
     @property
     def is_private(self):
@@ -297,7 +280,7 @@ class Version(TimeStampedModel):
                 version_name = self.project.get_default_branch()
             else:
                 version_name = self.slug
-            if 'bitbucket' in self.project.repo:
+            if "bitbucket" in self.project.repo:
                 version_name = self.identifier
 
         return get_vcs_url(
@@ -308,7 +291,7 @@ class Version(TimeStampedModel):
 
     @property
     def last_build(self):
-        return self.builds.order_by('-date').first()
+        return self.builds.order_by("-date").first()
 
     @property
     def config(self):
@@ -322,8 +305,9 @@ class Version(TimeStampedModel):
             self.builds.filter(
                 state=BUILD_STATE_FINISHED,
                 success=True,
-            ).order_by('-date')
-            .only('_config')
+            )
+            .order_by("-date")
+            .only("_config")
             .first()
         )
         if last_build:
@@ -350,14 +334,14 @@ class Version(TimeStampedModel):
                 # name from the commit identifier, but it's hacky.
                 # TODO: Refactor ``Version`` to store more actual info about
                 # the underlying commits.
-                if self.identifier.startswith('origin/'):
-                    return self.identifier[len('origin/'):]
+                if self.identifier.startswith("origin/"):
+                    return self.identifier[len("origin/") :]
             return self.identifier
 
         # By now we must have handled all special versions.
         if self.slug in NON_REPOSITORY_VERSIONS:
             # pylint: disable=broad-exception-raised
-            raise Exception('All special versions must be handled by now.')
+            raise Exception("All special versions must be handled by now.")
 
         if self.type in (BRANCH, TAG):
             # If this version is a branch or a tag, the verbose_name will
@@ -377,7 +361,7 @@ class Version(TimeStampedModel):
         # nor a branch, tag or EXTERNAL version.
         # Therefore just return the identifier to make a safe guess.
         log.debug(
-            'TODO: Raise an exception here. Testing what cases it happens',
+            "TODO: Raise an exception here. Testing what cases it happens",
         )
         return self.identifier
 
@@ -414,7 +398,8 @@ class Version(TimeStampedModel):
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
-        log.info('Removing files for version.', version_slug=self.slug)
+
+        log.info("Removing files for version.", version_slug=self.slug)
         clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
@@ -473,7 +458,7 @@ class Version(TimeStampedModel):
             # This usually happens when we haven't pulled the ``default_branch`` for LATEST.
             return "Unknown yet"
 
-        if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
+        if re.match(r"^[0-9a-f]{40}$", self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
 
@@ -505,19 +490,19 @@ class Version(TimeStampedModel):
             return k if pretty else k.lower()
 
         if self.has_pdf:
-            data[prettify('PDF')] = project.get_production_media_url(
-                'pdf',
+            data[prettify("PDF")] = project.get_production_media_url(
+                "pdf",
                 self.slug,
             )
 
         if self.has_htmlzip:
-            data[prettify('HTML')] = project.get_production_media_url(
-                'htmlzip',
+            data[prettify("HTML")] = project.get_production_media_url(
+                "htmlzip",
                 self.slug,
             )
         if self.has_epub:
-            data[prettify('Epub')] = project.get_production_media_url(
-                'epub',
+            data[prettify("Epub")] = project.get_production_media_url(
+                "epub",
                 self.slug,
             )
         return data
@@ -549,11 +534,11 @@ class Version(TimeStampedModel):
         return paths
 
     def get_github_url(
-            self,
-            docroot,
-            filename,
-            source_suffix='.rst',
-            action='view',
+        self,
+        docroot,
+        filename,
+        source_suffix=".rst",
+        action="view",
     ):
         """
         Return a GitHub URL for a given filename.
@@ -564,27 +549,27 @@ class Version(TimeStampedModel):
         :param action: `view` (default) or `edit`
         """
         repo_url = self.project.repo
-        if 'github' not in repo_url:
-            return ''
+        if "github" not in repo_url:
+            return ""
 
         if not docroot:
-            return ''
+            return ""
 
         # Normalize /docroot/
-        docroot = '/' + docroot.strip('/') + '/'
+        docroot = "/" + docroot.strip("/") + "/"
 
-        if action == 'view':
-            action_string = 'blob'
-        elif action == 'edit':
-            action_string = 'edit'
+        if action == "view":
+            action_string = "blob"
+        elif action == "edit":
+            action_string = "edit"
 
         user, repo = get_github_username_repo(repo_url)
         if not user and not repo:
-            return ''
+            return ""
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
-            source_suffix = ''
+            source_suffix = ""
 
         return GITHUB_URL.format(
             user=user,
@@ -597,34 +582,34 @@ class Version(TimeStampedModel):
         )
 
     def get_gitlab_url(
-            self,
-            docroot,
-            filename,
-            source_suffix='.rst',
-            action='view',
+        self,
+        docroot,
+        filename,
+        source_suffix=".rst",
+        action="view",
     ):
         repo_url = self.project.repo
-        if 'gitlab' not in repo_url:
-            return ''
+        if "gitlab" not in repo_url:
+            return ""
 
         if not docroot:
-            return ''
+            return ""
 
         # Normalize /docroot/
-        docroot = '/' + docroot.strip('/') + '/'
+        docroot = "/" + docroot.strip("/") + "/"
 
-        if action == 'view':
-            action_string = 'blob'
-        elif action == 'edit':
-            action_string = 'edit'
+        if action == "view":
+            action_string = "blob"
+        elif action == "edit":
+            action_string = "edit"
 
         user, repo = get_gitlab_username_repo(repo_url)
         if not user and not repo:
-            return ''
+            return ""
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
-            source_suffix = ''
+            source_suffix = ""
 
         return GITLAB_URL.format(
             user=user,
@@ -636,23 +621,23 @@ class Version(TimeStampedModel):
             action=action_string,
         )
 
-    def get_bitbucket_url(self, docroot, filename, source_suffix='.rst'):
+    def get_bitbucket_url(self, docroot, filename, source_suffix=".rst"):
         repo_url = self.project.repo
-        if 'bitbucket' not in repo_url:
-            return ''
+        if "bitbucket" not in repo_url:
+            return ""
         if not docroot:
-            return ''
+            return ""
 
         # Normalize /docroot/
-        docroot = '/' + docroot.strip('/') + '/'
+        docroot = "/" + docroot.strip("/") + "/"
 
         user, repo = get_bitbucket_username_repo(repo_url)
         if not user and not repo:
-            return ''
+            return ""
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
-            source_suffix = ''
+            source_suffix = ""
 
         return BITBUCKET_URL.format(
             user=user,
@@ -690,7 +675,7 @@ class APIVersion(Version):
         self.canonical_url = kwargs.pop("canonical_url", None)
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
-        for key in ['resource_uri', 'absolute_url', 'downloads']:
+        for key in ["resource_uri", "absolute_url", "downloads"]:
             try:
                 del kwargs[key]
             except KeyError:
@@ -717,29 +702,29 @@ class Build(models.Model):
 
     project = models.ForeignKey(
         Project,
-        verbose_name=_('Project'),
-        related_name='builds',
+        verbose_name=_("Project"),
+        related_name="builds",
         on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         Version,
-        verbose_name=_('Version'),
+        verbose_name=_("Version"),
         null=True,
-        related_name='builds',
+        related_name="builds",
         on_delete=models.SET_NULL,
     )
     type = models.CharField(
-        _('Type'),
+        _("Type"),
         max_length=55,
         choices=BUILD_TYPES,
-        default='html',
+        default="html",
     )
 
     # Describe build state as where in the build process the build is. This
     # allows us to show progression to the user in the form of a progress bar
     # or in the build listing
     state = models.CharField(
-        _('State'),
+        _("State"),
         max_length=55,
         choices=BUILD_STATE,
         default=BUILD_STATE_TRIGGERED,
@@ -751,54 +736,54 @@ class Build(models.Model):
     # doesn't help describe progression
     # https://github.com/readthedocs/readthedocs.org/pull/7123#issuecomment-635065807
     status = models.CharField(
-        _('Status'),
+        _("Status"),
         choices=BUILD_STATUS_CHOICES,
         max_length=32,
         null=True,
         default=None,
         blank=True,
     )
-    date = models.DateTimeField(_('Date'), auto_now_add=True, db_index=True)
-    success = models.BooleanField(_('Success'), default=True)
+    date = models.DateTimeField(_("Date"), auto_now_add=True, db_index=True)
+    success = models.BooleanField(_("Success"), default=True)
 
     # TODO: remove these fields (setup, setup_error, output, error, exit_code)
     # since they are not used anymore in the new implementation and only really
     # old builds (>5 years ago) only were using these fields.
-    setup = models.TextField(_('Setup'), null=True, blank=True)
-    setup_error = models.TextField(_('Setup error'), null=True, blank=True)
-    output = models.TextField(_('Output'), default='', blank=True)
-    error = models.TextField(_('Error'), default='', blank=True)
-    exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
+    setup = models.TextField(_("Setup"), null=True, blank=True)
+    setup_error = models.TextField(_("Setup error"), null=True, blank=True)
+    output = models.TextField(_("Output"), default="", blank=True)
+    error = models.TextField(_("Error"), default="", blank=True)
+    exit_code = models.IntegerField(_("Exit code"), null=True, blank=True)
 
     # Metadata from were the build happened.
     # This is also used after the version is deleted.
     commit = models.CharField(
-        _('Commit'),
+        _("Commit"),
         max_length=255,
         null=True,
         blank=True,
     )
     version_slug = models.CharField(
-        _('Version slug'),
+        _("Version slug"),
         max_length=255,
         null=True,
         blank=True,
     )
     version_name = models.CharField(
-        _('Version name'),
+        _("Version name"),
         max_length=255,
         null=True,
         blank=True,
     )
     version_type = models.CharField(
-        _('Version type'),
+        _("Version type"),
         max_length=32,
         choices=VERSION_TYPES,
         null=True,
         blank=True,
     )
     _config = models.JSONField(
-        _('Configuration used in the build'),
+        _("Configuration used in the build"),
         null=True,
         blank=True,
     )
@@ -811,26 +796,33 @@ class Build(models.Model):
         validators=[validate_build_config_file],
     )
 
-    length = models.IntegerField(_('Build Length'), null=True, blank=True)
+    length = models.IntegerField(_("Build Length"), null=True, blank=True)
 
     builder = models.CharField(
-        _('Builder'),
+        _("Builder"),
         max_length=255,
         null=True,
         blank=True,
     )
 
     cold_storage = models.BooleanField(
-        _('Cold Storage'),
+        _("Cold Storage"),
         null=True,
-        help_text='Build steps stored outside the database.',
+        help_text="Build steps stored outside the database.",
     )
 
     task_id = models.CharField(
-        _('Celery task id'),
+        _("Celery task id"),
         max_length=36,
         null=True,
         blank=True,
+    )
+
+    notifications = GenericRelation(
+        Notification,
+        related_query_name="build",
+        content_type_field="attached_to_content_type",
+        object_id_field="attached_to_id",
     )
 
     # Managers
@@ -840,11 +832,11 @@ class Build(models.Model):
     # Only include EXTERNAL type Version builds.
     external = ExternalBuildManager.from_queryset(BuildQuerySet)()
 
-    CONFIG_KEY = '__config'
+    CONFIG_KEY = "__config"
 
     class Meta:
-        ordering = ['-date']
-        get_latest_by = 'date'
+        ordering = ["-date"]
+        get_latest_by = "date"
         index_together = [
             # Useful for `/_/addons/` API endpoint.
             # Query: ``version.builds.filter(success=True, state=BUILD_STATE_FINISHED)``
@@ -853,7 +845,7 @@ class Build(models.Model):
             ["date", "id"],
         ]
         indexes = [
-            models.Index(fields=['project', 'date']),
+            models.Index(fields=["project", "date"]),
         ]
 
     def __init__(self, *args, **kwargs):
@@ -874,7 +866,9 @@ class Build(models.Model):
                     project=self.project,
                     version=self.version,
                     date__lt=date,
-                ).order_by('-date').first()
+                )
+                .order_by("-date")
+                .first()
             )
         return None
 
@@ -894,8 +888,7 @@ class Build(models.Model):
         # well
         if self._config and self.CONFIG_KEY in self._config:
             return (
-                Build.objects
-                .only('_config')
+                Build.objects.only("_config")
                 .get(pk=self._config[self.CONFIG_KEY])
                 ._config
             )
@@ -939,19 +932,8 @@ class Build(models.Model):
         super().save(*args, **kwargs)
         self._config_changed = False
 
-    def __str__(self):
-        return gettext(
-            'Build {project} for {usernames} ({pk})'.format(
-                project=self.project,
-                usernames=' '.join(
-                    self.project.users.all().values_list('username', flat=True),
-                ),
-                pk=self.pk,
-            ),
-        )
-
     def get_absolute_url(self):
-        return reverse('builds_detail', args=[self.project.slug, self.pk])
+        return reverse("builds_detail", args=[self.project.slug, self.pk])
 
     def get_full_url(self):
         """
@@ -959,11 +941,11 @@ class Build(models.Model):
 
         Example: https://readthedocs.org/projects/pip/builds/99999999/
         """
-        scheme = 'http' if settings.DEBUG else 'https'
-        full_url = '{scheme}://{domain}{absolute_url}'.format(
+        scheme = "http" if settings.DEBUG else "https"
+        full_url = "{scheme}://{domain}{absolute_url}".format(
             scheme=scheme,
             domain=settings.PRODUCTION_DOMAIN,
-            absolute_url=self.get_absolute_url()
+            absolute_url=self.get_absolute_url(),
         )
         return full_url
 
@@ -974,8 +956,8 @@ class Build(models.Model):
 
     def get_version_slug(self):
         if self.version:
-            return self.version.verbose_name
-        return self.version_name
+            return self.version.slug
+        return self.version_slug
 
     def get_version_type(self):
         if self.version:
@@ -996,59 +978,53 @@ class Build(models.Model):
         """Return the commit URL."""
         repo_url = self.project.repo
         if self.is_external:
-            if 'github' in repo_url:
+            if "github" in repo_url:
                 user, repo = get_github_username_repo(repo_url)
                 if not user and not repo:
-                    return ''
+                    return ""
 
                 return GITHUB_PULL_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
                     number=self.get_version_name(),
-                    commit=self.commit
+                    commit=self.commit,
                 )
-            if 'gitlab' in repo_url:
+            if "gitlab" in repo_url:
                 user, repo = get_gitlab_username_repo(repo_url)
                 if not user and not repo:
-                    return ''
+                    return ""
 
                 return GITLAB_MERGE_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
                     number=self.get_version_name(),
-                    commit=self.commit
+                    commit=self.commit,
                 )
             # TODO: Add External Version Commit URL for Bitbucket.
         else:
-            if 'github' in repo_url:
+            if "github" in repo_url:
                 user, repo = get_github_username_repo(repo_url)
                 if not user and not repo:
-                    return ''
+                    return ""
 
                 return GITHUB_COMMIT_URL.format(
-                    user=user,
-                    repo=repo,
-                    commit=self.commit
+                    user=user, repo=repo, commit=self.commit
                 )
-            if 'gitlab' in repo_url:
+            if "gitlab" in repo_url:
                 user, repo = get_gitlab_username_repo(repo_url)
                 if not user and not repo:
-                    return ''
+                    return ""
 
                 return GITLAB_COMMIT_URL.format(
-                    user=user,
-                    repo=repo,
-                    commit=self.commit
+                    user=user, repo=repo, commit=self.commit
                 )
-            if 'bitbucket' in repo_url:
+            if "bitbucket" in repo_url:
                 user, repo = get_bitbucket_username_repo(repo_url)
                 if not user and not repo:
-                    return ''
+                    return ""
 
                 return BITBUCKET_COMMIT_URL.format(
-                    user=user,
-                    repo=repo,
-                    commit=self.commit
+                    user=user, repo=repo, commit=self.commit
                 )
 
         return None
@@ -1083,10 +1059,10 @@ class Build(models.Model):
         """
         if self.is_external:
             is_latest_build = (
-                self == Build.objects.filter(
-                    project=self.project,
-                    version=self.version
-                ).only('id').first()
+                self
+                == Build.objects.filter(project=self.project, version=self.version)
+                .only("id")
+                .first()
             )
             return self.version and self.version.active and is_latest_build
         return False
@@ -1094,36 +1070,6 @@ class Build(models.Model):
     @property
     def external_version_name(self):
         return external_version_name(self)
-
-    def deprecated_config_used(self):
-        """
-        Check whether this particular build is using a deprecated config file.
-
-        When using v1 or not having a config file at all, it returns ``True``.
-        Returns ``False`` only when it has a config file and it is using v2.
-
-        Note we are using this to communicate deprecation of v1 file and not using a config file.
-        See https://github.com/readthedocs/readthedocs.org/issues/10342
-        """
-        if not self.config:
-            return True
-
-        return int(self.config.get("version", "1")) != LATEST_CONFIGURATION_VERSION
-
-    def deprecated_build_image_used(self):
-        """
-        Check whether this particular build is using the deprecated "build.image" config.
-
-        Note we are using this to communicate deprecation of "build.image".
-        See https://github.com/readthedocs/meta/discussions/48
-        """
-        if not self.config:
-            # Don't notify users without a config file.
-            # We hope they will migrate to `build.os` in the process of adding a `.readthedocs.yaml`
-            return False
-
-        build_config_key = self.config.get("build", {})
-        return "image" in build_config_key
 
     def reset(self):
         """
@@ -1133,14 +1079,15 @@ class Build(models.Model):
         we care more about deleting the commands.
         """
         self.state = BUILD_STATE_TRIGGERED
-        self.status = ''
+        self.status = ""
         self.success = True
-        self.output = ''
-        self.error = ''
+        self.output = ""
+        self.error = ""
         self.exit_code = None
-        self.builder = ''
+        self.builder = ""
         self.cold_storage = False
         self.commands.all().delete()
+        self.notifications.all().delete()
         self.save()
 
 
@@ -1174,30 +1121,24 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     build = models.ForeignKey(
         Build,
-        verbose_name=_('Build'),
-        related_name='commands',
+        verbose_name=_("Build"),
+        related_name="commands",
         on_delete=models.CASCADE,
     )
 
-    command = models.TextField(_('Command'))
-    description = models.TextField(_('Description'), blank=True)
-    output = models.TextField(_('Command output'), blank=True)
-    exit_code = models.IntegerField(_('Command exit code'))
+    command = models.TextField(_("Command"))
+    description = models.TextField(_("Description"), blank=True)
+    output = models.TextField(_("Command output"), blank=True)
+    exit_code = models.IntegerField(_("Command exit code"))
 
-    start_time = models.DateTimeField(_('Start time'))
-    end_time = models.DateTimeField(_('End time'))
+    start_time = models.DateTimeField(_("Start time"))
+    end_time = models.DateTimeField(_("End time"))
 
     class Meta:
-        ordering = ['start_time']
-        get_latest_by = 'start_time'
+        ordering = ["start_time"]
+        get_latest_by = "start_time"
 
     objects = RelatedBuildQuerySet.as_manager()
-
-    def __str__(self):
-        return (
-            gettext('Build command {pk} for build {build}')
-            .format(pk=self.pk, build=self.build)
-        )
 
     @property
     def run_time(self):
@@ -1211,12 +1152,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     """Versions automation rules for projects."""
 
-    ACTIVATE_VERSION_ACTION = 'activate-version'
-    DELETE_VERSION_ACTION = 'delete-version'
-    HIDE_VERSION_ACTION = 'hide-version'
-    MAKE_VERSION_PUBLIC_ACTION = 'make-version-public'
-    MAKE_VERSION_PRIVATE_ACTION = 'make-version-private'
-    SET_DEFAULT_VERSION_ACTION = 'set-default-version'
+    ACTIVATE_VERSION_ACTION = "activate-version"
+    DELETE_VERSION_ACTION = "delete-version"
+    HIDE_VERSION_ACTION = "hide-version"
+    MAKE_VERSION_PUBLIC_ACTION = "make-version-public"
+    MAKE_VERSION_PRIVATE_ACTION = "make-version-private"
+    SET_DEFAULT_VERSION_ACTION = "set-default-version"
 
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _("Activate version")),
@@ -1232,30 +1173,30 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     project = models.ForeignKey(
         Project,
-        related_name='automation_rules',
+        related_name="automation_rules",
         on_delete=models.CASCADE,
     )
     priority = models.PositiveIntegerField(
-        _('Rule priority'),
-        help_text=_('A lower number (0) means a higher priority'),
+        _("Rule priority"),
+        help_text=_("A lower number (0) means a higher priority"),
         default=0,
     )
     description = models.CharField(
-        _('Description'),
+        _("Description"),
         max_length=255,
         null=True,
         blank=True,
     )
     match_arg = models.CharField(
-        _('Match argument'),
-        help_text=_('Value used for the rule to match the version'),
+        _("Match argument"),
+        help_text=_("Value used for the rule to match the version"),
         max_length=255,
     )
     predefined_match_arg = models.CharField(
-        _('Predefined match argument'),
+        _("Predefined match argument"),
         help_text=_(
-            'Match argument defined by us, it is used if is not None, '
-            'otherwise match_arg will be used.'
+            "Match argument defined by us, it is used if is not None, "
+            "otherwise match_arg will be used."
         ),
         max_length=255,
         choices=PREDEFINED_MATCH_ARGS,
@@ -1264,28 +1205,30 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         default=None,
     )
     action = models.CharField(
-        _('Action'),
-        help_text=_('Action to apply to matching versions'),
+        _("Action"),
+        help_text=_("Action to apply to matching versions"),
         max_length=32,
         choices=ACTIONS,
     )
     action_arg = models.CharField(
-        _('Action argument'),
-        help_text=_('Value used for the action to perfom an operation'),
+        _("Action argument"),
+        help_text=_("Value used for the action to perfom an operation"),
         max_length=255,
         null=True,
         blank=True,
     )
     version_type = models.CharField(
-        _('Version type'),
-        help_text=_('Type of version the rule should be applied to'),
+        _("Version type"),
+        help_text=_("Type of version the rule should be applied to"),
         max_length=32,
         choices=VERSION_TYPES,
     )
 
+    _position_manager = ProjectItemPositionManager(position_field_name="priority")
+
     class Meta:
-        unique_together = (('project', 'priority'),)
-        ordering = ('priority', '-modified', '-created')
+        unique_together = (("project", "priority"),)
+        ordering = ("priority", "-modified", "-created")
 
     def get_match_arg(self):
         """Get the match arg defined for `predefined_match_arg` or the match from user."""
@@ -1334,10 +1277,9 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         :raises: NotImplementedError if the action
                  isn't implemented or supported for this rule.
         """
-        action = (
-            self.allowed_actions_on_create.get(self.action)
-            or self.allowed_actions_on_delete.get(self.action)
-        )
+        action = self.allowed_actions_on_create.get(
+            self.action
+        ) or self.allowed_actions_on_delete.get(self.action)
         if action is None:
             raise NotImplementedError
         action(version, match_result, self.action_arg)
@@ -1359,138 +1301,32 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.priority = new_priority
         self.save()
 
-    def _change_priority(self):
-        """
-        Re-order the priorities of the other rules when the priority of this rule changes.
-
-        If the rule is new, we just need to move all other rules down,
-        so there is space for the new rule.
-
-        If the rule already exists, we need to move the other rules up or down,
-        depending on the new priority, so we can insert the rule at the new priority.
-
-        The save() method needs to be called after this method.
-        """
-        total = self.project.automation_rules.count()
-
-        # If the rule was just created, we just need to insert it at the given priority.
-        # We do this by moving the other rules down before saving.
-        if not self.pk:
-            # A new rule can be created at the end as max.
-            self.priority = min(self.priority, total)
-
-            # A new rule can't be created with a negative priority. All rules start at 0.
-            self.priority = max(self.priority, 0)
-
-            rules = (
-                self.project.automation_rules.filter(priority__gte=self.priority)
-                # We sort the queryset in desc order
-                # to be updated in that order
-                # to avoid hitting the unique constraint (project, priority).
-                .order_by('-priority')
-            )
-            expression = F('priority') + 1
-        else:
-            current_priority = self.project.automation_rules.values_list(
-                "priority",
-                flat=True,
-            ).get(pk=self.pk)
-
-            # An existing rule can't be moved past the end.
-            self.priority = min(self.priority, total - 1)
-
-            # A new rule can't be created with a negative priority. all rules start at 0.
-            self.priority = max(self.priority, 0)
-
-            # The rule wasn't moved, so we don't need to do anything.
-            if self.priority == current_priority:
-                return
-
-            if self.priority > current_priority:
-                # It was moved down, so we need to move the other rules up.
-                rules = (
-                    self.project.automation_rules.filter(
-                        priority__gt=current_priority, priority__lte=self.priority
-                    )
-                    # We sort the queryset in asc order
-                    # to be updated in that order
-                    # to avoid hitting the unique constraint (project, priority).
-                    .order_by("priority")
-                )
-                expression = F("priority") - 1
-            else:
-                # It was moved up, so we need to move the other rules down.
-                rules = (
-                    self.project.automation_rules.filter(
-                        priority__lt=current_priority, priority__gte=self.priority
-                    )
-                    # We sort the queryset in desc order
-                    # to be updated in that order
-                    # to avoid hitting the unique constraint (project, priority).
-                    .order_by("-priority")
-                )
-                expression = F("priority") + 1
-
-        # Put an impossible priority to avoid
-        # the unique constraint (project, priority) while updating.
-        # We use update() instead of save() to avoid calling the save() method again.
-        if self.pk:
-            self._meta.model.objects.filter(pk=self.pk).update(priority=total + 99)
-
-        # NOTE: we can't use rules.update(priority=expression), because SQLite is used
-        # in tests and hits a UNIQUE constraint error. PostgreSQL doesn't have this issue.
-        # We use update() instead of save() to avoid calling the save() method.
-        for rule in rules:
-            self._meta.model.objects.filter(pk=rule.pk).update(priority=expression)
-
     def save(self, *args, **kwargs):
         """Override method to update the other priorities before save."""
-        self._change_priority()
+        self._position_manager.change_position_before_save(self)
         if not self.description:
             self.description = self.get_description()
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         """Override method to update the other priorities after delete."""
-        current_priority = self.priority
-        project = self.project
         super().delete(*args, **kwargs)
-
-        rules = (
-            project.automation_rules
-            .filter(priority__gte=current_priority)
-            # We sort the queryset in asc order
-            # to be updated in that order
-            # to avoid hitting the unique constraint (project, priority).
-            .order_by('priority')
-        )
-        # We update each object one by one to
-        # avoid hitting the unique constraint (project, priority).
-        # We use update() instead of save() to avoid calling the save() method.
-        for rule in rules:
-            self._meta.model.objects.filter(pk=rule.pk).update(
-                priority=F("priority") - 1,
-            )
+        self._position_manager.change_position_after_delete(self)
 
     def get_description(self):
         if self.description:
             return self.description
-        return f'{self.get_action_display()}'
+        return f"{self.get_action_display()}"
 
     def get_edit_url(self):
         raise NotImplementedError
 
     def __str__(self):
         class_name = self.__class__.__name__
-        return (
-            f'({self.priority}) '
-            f'{class_name}/{self.get_action_display()} '
-            f'for {self.project.slug}:{self.get_version_type_display()}'
-        )
+        return f"({self.priority}) {class_name}/{self.get_action_display()}"
 
 
 class RegexAutomationRule(VersionAutomationRule):
-
     TIMEOUT = 1  # timeout in seconds
 
     allowed_actions_on_create = {
@@ -1531,23 +1367,22 @@ class RegexAutomationRule(VersionAutomationRule):
             return bool(match), match
         except TimeoutError:
             log.warning(
-                'Timeout while parsing regex.',
+                "Timeout while parsing regex.",
                 pattern=match_arg,
                 version_slug=version.slug,
             )
         except Exception:
-            log.exception('Error parsing regex.', exc_info=True)
+            log.exception("Error parsing regex.", exc_info=True)
         return False, None
 
     def get_edit_url(self):
         return reverse(
-            'projects_automation_rule_regex_edit',
+            "projects_automation_rule_regex_edit",
             args=[self.project.slug, self.pk],
         )
 
 
 class AutomationRuleMatch(TimeStampedModel):
-
     ACTIONS_PAST_TENSE = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
         VersionAutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
@@ -1563,8 +1398,8 @@ class AutomationRuleMatch(TimeStampedModel):
 
     rule = models.ForeignKey(
         VersionAutomationRule,
-        verbose_name=_('Matched rule'),
-        related_name='matches',
+        verbose_name=_("Matched rule"),
+        related_name="matches",
         on_delete=models.CASCADE,
     )
 
@@ -1583,7 +1418,7 @@ class AutomationRuleMatch(TimeStampedModel):
     objects = AutomationRuleMatchManager()
 
     class Meta:
-        ordering = ('-modified', '-created')
+        ordering = ("-modified", "-created")
 
     def get_action_past_tense(self):
         return self.ACTIONS_PAST_TENSE.get(self.action)

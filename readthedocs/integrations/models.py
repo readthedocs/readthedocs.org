@@ -1,18 +1,15 @@
 """Integration models for external services."""
-
 import json
 import re
 import uuid
 
-from django.contrib.contenttypes.fields import (
-    GenericForeignKey,
-    GenericRelation,
-)
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.crypto import get_random_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer
@@ -262,7 +259,7 @@ class IntegrationQuerySet(models.QuerySet):
         return obj
 
 
-class Integration(models.Model):
+class Integration(TimeStampedModel):
 
     """Inbound webhook integration for projects."""
 
@@ -312,9 +309,7 @@ class Integration(models.Model):
     has_sync = False
 
     def __str__(self):
-        return _("{0} for {1}").format(
-            self.get_integration_type_display(), self.project.name
-        )
+        return self.get_integration_type_display()
 
     def save(self, *args, **kwargs):
         if not self.secret:

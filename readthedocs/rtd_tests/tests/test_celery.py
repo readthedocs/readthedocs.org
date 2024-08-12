@@ -5,12 +5,13 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
-from messages_extends.models import Message
 
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
 from readthedocs.projects.models import Project
 
 
@@ -105,7 +106,7 @@ class TestCeleryBuilding(TestCase):
             external_build.commit,
             BUILD_STATUS_SUCCESS,
         )
-        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
+        self.assertEqual(Notification.objects.count(), 0)
 
     @patch("readthedocs.oauth.services.github.GitHubService.send_build_status")
     def test_send_build_status_with_social_account_github(self, send_build_status):
@@ -125,7 +126,7 @@ class TestCeleryBuilding(TestCase):
             external_build.commit,
             BUILD_STATUS_SUCCESS,
         )
-        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
+        self.assertEqual(Notification.objects.count(), 0)
 
     @patch("readthedocs.oauth.services.github.GitHubService.send_build_status")
     def test_send_build_status_no_remote_repo_or_social_account_github(
@@ -140,7 +141,17 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_not_called()
-        self.assertEqual(Message.objects.filter(user=self.eric).count(), 1)
+        self.assertEqual(Notification.objects.count(), 1)
+        notification = Notification.objects.all().first()
+        self.assertEqual(notification.message_id, MESSAGE_OAUTH_BUILD_STATUS_FAILURE)
+        self.assertEqual(notification.attached_to, self.project)
+        self.assertEqual(
+            notification.format_values,
+            {
+                "provider_name": "GitHub",
+                "url_connect_account": "/accounts/3rdparty/",
+            },
+        )
 
     @patch("readthedocs.oauth.services.gitlab.GitLabService.send_build_status")
     def test_send_build_status_with_remote_repo_gitlab(self, send_build_status):
@@ -168,7 +179,7 @@ class TestCeleryBuilding(TestCase):
             external_build.commit,
             BUILD_STATUS_SUCCESS,
         )
-        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
+        self.assertEqual(Notification.objects.count(), 0)
 
     @patch("readthedocs.oauth.services.gitlab.GitLabService.send_build_status")
     def test_send_build_status_with_social_account_gitlab(self, send_build_status):
@@ -188,7 +199,7 @@ class TestCeleryBuilding(TestCase):
             external_build.commit,
             BUILD_STATUS_SUCCESS,
         )
-        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
+        self.assertEqual(Notification.objects.count(), 0)
 
     @patch("readthedocs.oauth.services.gitlab.GitLabService.send_build_status")
     def test_send_build_status_no_remote_repo_or_social_account_gitlab(
@@ -203,4 +214,14 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_not_called()
-        self.assertEqual(Message.objects.filter(user=self.eric).count(), 1)
+        self.assertEqual(Notification.objects.count(), 1)
+        notification = Notification.objects.all().first()
+        self.assertEqual(notification.message_id, MESSAGE_OAUTH_BUILD_STATUS_FAILURE)
+        self.assertEqual(notification.attached_to, self.project)
+        self.assertEqual(
+            notification.format_values,
+            {
+                "provider_name": "GitLab",
+                "url_connect_account": "/accounts/3rdparty/",
+            },
+        )

@@ -35,11 +35,6 @@ DEFAULT_PRIVACY_LEVEL
 
 What privacy projects default to having. Generally set to `public`. Also acts as a proxy setting for blocking certain historically insecure options, like serving generated artifacts directly from the media server.
 
-INDEX_ONLY_LATEST
------------------
-
-In search, only index the `latest` version of a Project.
-
 PUBLIC_DOMAIN
 -------------
 
@@ -135,5 +130,41 @@ ELASTICSEARCH_DSL_AUTOSYNC
 
 This setting is used for automatically indexing objects to elasticsearch.
 
-
 .. _elasticsearch-dsl-py.connections.configure: https://elasticsearch-dsl.readthedocs.io/en/stable/configuration.html#multiple-clusters
+
+
+Docker pass-through settings
+----------------------------
+
+If you run a Docker environment, it is possible to pass some secrets through to
+the Docker containers from your host system. For security reasons, we do not
+commit these secrets to our repository. Instead, we individually define these
+settings for our local environments.
+
+We recommend using `direnv`_ for storing local development secrets.
+
+.. _direnv: https://direnv.net/
+
+Allauth secrets
+~~~~~~~~~~~~~~~
+
+It is possible to set the Allauth application secrets for our supported
+providers using the following environment variables:
+
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUB_CLIENT_ID
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUB_SECRET
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITLAB_CLIENT_ID
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITLAB_SECRET
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_BITBUCKET_OAUTH2_CLIENT_ID
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_BITBUCKET_OAUTH2_SECRET
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_CLIENT_ID
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_SECRET
+
+Stripe secrets
+~~~~~~~~~~~~~~
+
+The following secrets are required to use ``djstripe`` and our Stripe integration.
+
+.. envvar:: RTD_STRIPE_SECRET
+.. envvar:: RTD_STRIPE_PUBLISHABLE
+.. envvar:: RTD_DJSTRIPE_WEBHOOK_SECRET

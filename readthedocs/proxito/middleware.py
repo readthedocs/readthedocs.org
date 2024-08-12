@@ -18,6 +18,8 @@ from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.encoding import iri_to_uri
+from django.utils.html import escape
 
 from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
@@ -104,7 +106,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                         http_header=http_header.name,
                         domain=domain.domain,
                     )
-                log.info(
+                log.debug(
                     "Adding custom response HTTP header.",
                     http_header=http_header.name,
                     domain=domain.domain,
@@ -198,6 +200,7 @@ class ProxitoMiddleware(MiddlewareMixin):
     def process_request(self, request):  # noqa
         # Initialize our custom request attributes.
         request.unresolved_domain = None
+        request.unresolved_url = None
 
         skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
         if skip:
@@ -207,7 +210,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         try:
             unresolved_domain = unresolver.unresolve_domain_from_request(request)
         except SuspiciousHostnameError as exc:
-            log.warning("Weird variation on our hostname.", domain=exc.domain)
+            log.debug("Weird variation on our hostname.", domain=exc.domain)
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
                 http_status=400,
@@ -367,11 +370,19 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         return None
 
+    def add_resolver_headers(self, request, response):
+        if request.unresolved_url is not None:
+            # TODO: add more ``X-RTD-Resolver-*`` headers
+            uri_filename = iri_to_uri(request.unresolved_url.filename)
+            header_value = escape(uri_filename)
+            response["X-RTD-Resolver-Filename"] = header_value
+
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
         self.add_cache_headers(request, response)
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         self.add_hosting_integrations_headers(request, response)
+        self.add_resolver_headers(request, response)
         self.add_cors_headers(request, response)
         return response

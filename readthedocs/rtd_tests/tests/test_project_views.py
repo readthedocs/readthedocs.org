@@ -1,6 +1,8 @@
 from unittest import mock
 
+import pytest
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
@@ -14,7 +16,13 @@ from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Domain, Project, WebHook, WebHookEvent
+from readthedocs.projects.models import (
+    Domain,
+    EmailHook,
+    Project,
+    WebHook,
+    WebHookEvent,
+)
 from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.public import ProjectBadgeView
@@ -121,7 +129,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertIsNotNone(proj)
         for key, val in list(self.step_data["basics"].items()):
             self.assertEqual(getattr(proj, key), val)
-        self.assertEqual(proj.documentation_type, "sphinx")
+        self.assertIsNone(proj.documentation_type)
 
     def test_remote_repository_is_added(self):
         remote_repo = get(RemoteRepository, default_branch="default-branch")
@@ -154,11 +162,87 @@ class TestBasicsForm(WizardTestCase):
         self.assertIn("remote_repository", form.errors)
 
     def test_remote_repository_invalid_id(self):
-        self.step_data["basics"]["remote_repository"] = 9
-        resp = self.post_step("basics")
-        self.assertEqual(resp.status_code, 200)
-        form = resp.context_data["form"]
-        self.assertIn("remote_repository", form.errors)
+        remote_repository_admin_public = get(
+            RemoteRepository,
+            private=False,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            remote_repository=remote_repository_admin_public,
+            admin=True,
+        )
+
+        remote_repository_admin_private = get(
+            RemoteRepository,
+            private=True,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            remote_repository=remote_repository_admin_private,
+            admin=True,
+        )
+
+        remote_repository_not_admin_public = get(
+            RemoteRepository,
+            private=False,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            remote_repository=remote_repository_not_admin_public,
+            admin=False,
+        )
+
+        remote_repository_not_admin_private = get(
+            RemoteRepository,
+            private=True,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            remote_repository=remote_repository_not_admin_private,
+            admin=False,
+        )
+
+        other_user = get(User)
+        remote_repository_other_user = get(
+            RemoteRepository,
+            private=False,
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=other_user,
+            remote_repository=remote_repository_other_user,
+            admin=True,
+        )
+
+        invalid_remote_repos_pk = [
+            remote_repository_not_admin_private.pk,
+            remote_repository_other_user.pk,
+            # Doesn't exist
+            99,
+        ]
+        valid_remote_repos_pk = [
+            remote_repository_admin_private.pk,
+            remote_repository_admin_public.pk,
+            remote_repository_not_admin_public.pk,
+        ]
+
+        for remote_repo_pk in invalid_remote_repos_pk:
+            self.step_data["basics"]["remote_repository"] = remote_repo_pk
+            resp = self.post_step("basics")
+            self.assertEqual(resp.status_code, 200)
+            form = resp.context_data["form"]
+            self.assertIn("remote_repository", form.errors)
+
+        for remote_repo_pk in valid_remote_repos_pk:
+            self.step_data["basics"]["remote_repository"] = remote_repo_pk
+            resp = self.post_step("basics")
+            self.assertEqual(resp.status_code, 200)
+            form = resp.context_data["form"]
+            self.assertNotIn("remote_repository", form.errors)
 
     def test_remote_repository_is_not_added_for_wrong_user(self):
         user = get(User)
@@ -278,6 +362,9 @@ class TestPublicViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.external_version, response.context["versions"])
 
+    @pytest.mark.skipif(
+        settings.RTD_EXT_THEME_ENABLED, reason="Not applicable for new theme"
+    )
     def test_project_versions_only_shows_internal_versons(self):
         url = reverse("project_version_list", args=[self.pip.slug])
         response = self.client.get(url)
@@ -591,6 +678,44 @@ class TestTags(TestCase):
         pip.tags.add("tag with space")
         response = self.client.get("/projects/tags/tag-with-space/")
         self.assertContains(response, '"/projects/pip/"')
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestProjectEmailNotifications(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug="test", users=[self.user])
+        self.version = get(Version, slug="1.0", project=self.project)
+        self.email_notification = get(EmailHook, project=self.project)
+        self.client.force_login(self.user)
+
+    def test_list(self):
+        resp = self.client.get(
+            reverse("projects_notifications", args=[self.project.slug]),
+        )
+        self.assertEqual(resp.status_code, 200)
+        queryset = resp.context["emails"]
+        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(queryset.first(), self.email_notification)
+
+    def test_create(self):
+        self.assertEqual(self.project.emailhook_notifications.all().count(), 1)
+        resp = self.client.post(
+            reverse("projects_notifications_create", args=[self.project.slug]),
+            data={
+                "email": "test@example.com",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(self.project.emailhook_notifications.all().count(), 2)
+
+    def test_delete(self):
+        self.assertEqual(self.project.emailhook_notifications.all().count(), 1)
+        self.client.post(
+            reverse("projects_notification_delete", args=[self.project.slug]),
+            data={"email": self.email_notification.email},
+        )
+        self.assertEqual(self.project.emailhook_notifications.all().count(), 0)
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)

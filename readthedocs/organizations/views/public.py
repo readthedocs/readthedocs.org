@@ -8,6 +8,8 @@ from django.views.generic.base import TemplateView
 from vanilla import DetailView, GenericView, ListView
 
 from readthedocs.core.filters import FilterContextMixin
+from readthedocs.core.permissions import AdminPermission
+from readthedocs.notifications.models import Notification
 from readthedocs.organizations.filters import (
     OrganizationProjectListFilterSet,
     OrganizationTeamListFilterSet,
@@ -38,7 +40,7 @@ class DetailOrganization(FilterContextMixin, OrganizationView, DetailView):
 
     """Display information about an organization."""
 
-    template_name = 'organizations/organization_detail.html'
+    template_name = "organizations/organization_detail.html"
     admin_only = False
 
     filterset_class = OrganizationProjectListFilterSet
@@ -48,10 +50,7 @@ class DetailOrganization(FilterContextMixin, OrganizationView, DetailView):
         context = super().get_context_data(**kwargs)
         org = self.get_object()
         projects = (
-            Project.objects
-            .for_user(self.request.user)
-            .filter(organizations=org)
-            .all()
+            Project.objects.for_user(self.request.user).filter(organizations=org).all()
         )
         if settings.RTD_EXT_THEME_ENABLED:
             context["filter"] = self.get_filterset(
@@ -69,6 +68,10 @@ class DetailOrganization(FilterContextMixin, OrganizationView, DetailView):
             context["owners"] = org.owners.all()
 
         context["projects"] = projects
+        context["notifications"] = Notification.objects.for_user(
+            self.request.user,
+            resource=org,
+        )
         return context
 
 
@@ -91,19 +94,21 @@ class ListOrganizationMembers(FilterContextMixin, OrganizationMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.get_organization().members
+        return AdminPermission.members(
+            obj=self.get_organization(), user=self.request.user
+        )
 
     def get_success_url(self):
         return reverse_lazy(
-            'organization_members',
+            "organization_members",
             args=[self.get_organization().slug],
         )
 
 
 # Team Views
 class ListOrganizationTeams(FilterContextMixin, OrganizationTeamView, ListView):
-    template_name = 'organizations/team_list.html'
-    context_object_name = 'teams'
+    template_name = "organizations/team_list.html"
+    context_object_name = "teams"
     admin_only = False
 
     filterset_class = OrganizationTeamListFilterSet
@@ -127,13 +132,13 @@ class ListOrganizationTeams(FilterContextMixin, OrganizationTeamView, ListView):
 
 
 class ListOrganizationTeamMembers(OrganizationTeamMemberView, ListView):
-    template_name = 'organizations/team_detail.html'
-    context_object_name = 'team_members'
+    template_name = "organizations/team_detail.html"
+    context_object_name = "team_members"
     admin_only = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['projects'] = self.get_team().projects.all()
+        context["projects"] = self.get_team().projects.all()
         return context
 
 

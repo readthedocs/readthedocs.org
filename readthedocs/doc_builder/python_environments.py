@@ -60,13 +60,11 @@ class PythonEnvironment:
         if install.method == PIP:
             # Prefix ./ so pip installs from a local path rather than pypi
             local_path = (
-                os.path.join('.', install.path) if install.path != '.' else install.path
+                os.path.join(".", install.path) if install.path != "." else install.path
             )
-            extra_req_param = ''
+            extra_req_param = ""
             if install.extra_requirements:
-                extra_req_param = '[{}]'.format(
-                    ','.join(install.extra_requirements)
-                )
+                extra_req_param = "[{}]".format(",".join(install.extra_requirements))
             self.build_env.run(
                 self.venv_bin(filename="python"),
                 "-m",
@@ -85,10 +83,10 @@ class PythonEnvironment:
             )
         elif install.method == SETUPTOOLS:
             self.build_env.run(
-                self.venv_bin(filename='python'),
-                os.path.join(install.path, 'setup.py'),
-                'install',
-                '--force',
+                self.venv_bin(filename="python"),
+                os.path.join(install.path, "setup.py"),
+                "install",
+                "--force",
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
@@ -133,7 +131,7 @@ class Virtualenv(PythonEnvironment):
             https://github.com/readthedocs/readthedocs.org/issues/7322
         """
         cli_args = [
-            '-mvirtualenv',
+            "-mvirtualenv",
             # Append the positional destination argument
             "$READTHEDOCS_VIRTUALENV_PATH",
         ]
@@ -150,12 +148,12 @@ class Virtualenv(PythonEnvironment):
     def install_core_requirements(self):
         """Install basic Read the Docs requirements into the virtualenv."""
         pip_install_cmd = [
-            self.venv_bin(filename='python'),
-            '-m',
-            'pip',
-            'install',
-            '--upgrade',
-            '--no-cache-dir',
+            self.venv_bin(filename="python"),
+            "-m",
+            "pip",
+            "install",
+            "--upgrade",
+            "--no-cache-dir",
         ]
 
         self._install_latest_requirements(pip_install_cmd)
@@ -176,12 +174,11 @@ class Virtualenv(PythonEnvironment):
         if self.config.doctype == "mkdocs":
             requirements.append("mkdocs")
         else:
-            requirements.extend(
-                [
-                    "sphinx",
-                    "readthedocs-sphinx-ext",
-                ]
-            )
+            requirements.append("sphinx")
+
+            # Install ``readthedocs-sphinx-ext`` only on old projects
+            if not self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
+                requirements.append("readthedocs-sphinx-ext")
 
         cmd = copy.copy(pip_install_cmd)
         cmd.extend(requirements)
@@ -201,17 +198,17 @@ class Virtualenv(PythonEnvironment):
         requirements_file_path = install.requirements
         if requirements_file_path:
             args = [
-                self.venv_bin(filename='python'),
-                '-m',
-                'pip',
-                'install',
+                self.venv_bin(filename="python"),
+                "-m",
+                "pip",
+                "install",
             ]
             if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
-                args += ['--upgrade']
+                args += ["--upgrade"]
             args += [
-                '--exists-action=w',
-                '--no-cache-dir',
-                '-r',
+                "--exists-action=w",
+                "--no-cache-dir",
+                "-r",
                 requirements_file_path,
             ]
             self.build_env.run(
@@ -252,12 +249,12 @@ class Conda(PythonEnvironment):
 
         self.build_env.run(
             self.conda_bin_name(),
-            'env',
-            'create',
-            '--quiet',
-            '--name',
+            "env",
+            "create",
+            "--quiet",
+            "--name",
             self.version.slug,
-            '--file',
+            "--file",
             self.config.conda.environment,
             bin_path=None,  # Don't use conda bin that doesn't exist yet
             cwd=self.checkout_path,
@@ -266,7 +263,7 @@ class Conda(PythonEnvironment):
     def _show_environment_yaml(self):
         """Show ``environment.yml`` file in the Build output."""
         self.build_env.run(
-            'cat',
+            "cat",
             self.config.conda.environment,
             cwd=self.checkout_path,
         )
@@ -293,36 +290,37 @@ class Conda(PythonEnvironment):
             )
             if not inputfile:
                 raise UserFileNotFound(
-                    UserFileNotFound.FILE_NOT_FOUND.format(
-                        self.config.conda.environment
-                    )
+                    message_id=UserFileNotFound.FILE_NOT_FOUND,
+                    format_values={
+                        "filename": self.config.conda.environment,
+                    },
                 )
             environment = parse_yaml(inputfile)
         except IOError:
             log.warning(
-                'There was an error while reading Conda environment file.',
+                "There was an error while reading Conda environment file.",
             )
         except ParseError:
             log.warning(
-                'There was an error while parsing Conda environment file.',
+                "There was an error while parsing Conda environment file.",
             )
         else:
             # Append conda dependencies directly to ``dependencies`` and pip
             # dependencies to ``dependencies.pip``
             pip_requirements, conda_requirements = self._get_core_requirements()
-            dependencies = environment.get('dependencies', [])
-            pip_dependencies = {'pip': pip_requirements}
+            dependencies = environment.get("dependencies", [])
+            pip_dependencies = {"pip": pip_requirements}
 
             for item in dependencies:
-                if isinstance(item, dict) and 'pip' in item:
+                if isinstance(item, dict) and "pip" in item:
                     # NOTE: pip can be ``None``
-                    pip_requirements.extend(item.get('pip') or [])
+                    pip_requirements.extend(item.get("pip") or [])
                     dependencies.remove(item)
                     break
 
             dependencies.append(pip_dependencies)
             dependencies.extend(conda_requirements)
-            environment.update({'dependencies': dependencies})
+            environment.update({"dependencies": dependencies})
             try:
                 # Allow symlinks, but only the ones that resolve inside the base directory.
                 outputfile = safe_open(
@@ -336,15 +334,16 @@ class Conda(PythonEnvironment):
                 )
                 if not outputfile:
                     raise UserFileNotFound(
-                        UserFileNotFound.FILE_NOT_FOUND.format(
-                            self.config.conda.environment
-                        )
+                        message_id=UserFileNotFound.FILE_NOT_FOUND,
+                        format_values={
+                            "filename": self.config.conda.environment,
+                        },
                     )
                 yaml.safe_dump(environment, outputfile)
             except IOError:
                 log.warning(
-                    'There was an error while writing the new Conda '
-                    'environment file.',
+                    "There was an error while writing the new Conda "
+                    "environment file.",
                 )
 
     def _get_core_requirements(self):
@@ -357,7 +356,9 @@ class Conda(PythonEnvironment):
         if self.config.doctype == "mkdocs":
             pip_requirements.append("mkdocs")
         else:
-            pip_requirements.append("readthedocs-sphinx-ext")
+            if not self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
+                pip_requirements.append("readthedocs-sphinx-ext")
+
             conda_requirements.extend(["sphinx"])
 
         return pip_requirements, conda_requirements
@@ -376,10 +377,10 @@ class Conda(PythonEnvironment):
         # not appended to the ``environment.yml`` file.
         cmd = [
             self.conda_bin_name(),
-            'install',
-            '--yes',
-            '--quiet',
-            '--name',
+            "install",
+            "--yes",
+            "--quiet",
+            "--name",
             self.version.slug,
         ]
         cmd.extend(conda_requirements)
@@ -392,18 +393,18 @@ class Conda(PythonEnvironment):
 
         # Install requirements via ``pip install``
         pip_cmd = [
-            self.venv_bin(filename='python'),
-            '-m',
-            'pip',
-            'install',
-            '-U',
-            '--no-cache-dir',
+            self.venv_bin(filename="python"),
+            "-m",
+            "pip",
+            "install",
+            "-U",
+            "--no-cache-dir",
         ]
         pip_cmd.extend(pip_requirements)
         self.build_env.run(
             *pip_cmd,
             bin_path=self.venv_bin(),
-            cwd=self.checkout_path  # noqa - no comma here in py27 :/
+            cwd=self.checkout_path,  # noqa - no comma here in py27 :/
         )
 
     def install_requirements_file(self, install):

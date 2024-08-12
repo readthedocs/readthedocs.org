@@ -33,6 +33,16 @@ RUN apt-get -y install \
         npm \
         rclone
 
+# Dependencies for django-allauth SAML support.
+# See:
+# - https://github.com/SAML-Toolkits/python3-saml#installation
+# - https://github.com/xmlsec/python-xmlsec#linux-debian
+RUN apt-get -y install \
+      pkg-config \
+      libxml2-dev \
+      libxmlsec1-dev \
+      libxmlsec1-openssl
+
 # Gets the MinIO mc client used to add buckets upon initialization
 # If this client should have issues running inside this image, it is also
 # fine to defer it to a separate image.

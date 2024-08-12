@@ -5,14 +5,15 @@
         "duration": null,
         "error": "",
         "finished": null,
-        "id": 2,
+        "id": 3,
         "_links": {
-            "_self": "https://readthedocs.org/api/v3/projects/project/builds/2/",
+            "_self": "https://readthedocs.org/api/v3/projects/project/builds/3/",
+            "notifications": "https://readthedocs.org/api/v3/projects/project/builds/3/notifications/",
             "project": "https://readthedocs.org/api/v3/projects/project/",
             "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
         },
         "urls": {
-            "build": "https://readthedocs.org/projects/project/builds/2/",
+            "build": "https://readthedocs.org/projects/project/builds/3/",
             "project": "https://readthedocs.org/projects/project/",
             "version": "https://readthedocs.org/dashboard/project/version/v1.0/edit/"
         },
@@ -38,8 +39,10 @@
             "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
             "environmentvariables": "https://readthedocs.org/api/v3/projects/project/environmentvariables/",
             "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
+            "notifications": "https://readthedocs.org/api/v3/projects/project/notifications/",
             "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
             "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
+       "sync_versions": "https://readthedocs.org/api/v3/projects/project/sync-versions/",
             "translations": "https://readthedocs.org/api/v3/projects/project/translations/",
             "versions": "https://readthedocs.org/api/v3/projects/project/versions/"
         },
@@ -65,6 +68,7 @@
         "urls": {
             "builds": "https://readthedocs.org/projects/project/builds/",
             "documentation": "http://project.readthedocs.io/en/latest/",
+            "downloads": "https://readthedocs.org/projects/project/downloads/",
             "home": "https://readthedocs.org/projects/project/",
             "versions": "https://readthedocs.org/projects/project/versions/"
         },
@@ -81,6 +85,7 @@
     "triggered": true,
     "version": {
         "active": true,
+        "aliases": [],
         "hidden": false,
         "built": true,
         "downloads": {

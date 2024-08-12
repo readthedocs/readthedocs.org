@@ -3,12 +3,13 @@ from django.db import models
 from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
 
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.subscriptions.products import get_feature
 
 
-class ProjectQuerySetBase(models.QuerySet):
+class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
     """Projects take into account their own privacy_level setting."""
 
@@ -32,8 +33,12 @@ class ProjectQuerySetBase(models.QuerySet):
         - Projects where both are member
         - Public projects from `user`
         """
-        viewer_projects = self._add_user_projects(self.none(), viewer, admin=True, member=True)
-        owner_projects = self._add_user_projects(self.none(), user, admin=True, member=True)
+        viewer_projects = self._add_user_projects(
+            self.none(), viewer, admin=True, member=True
+        )
+        owner_projects = self._add_user_projects(
+            self.none(), user, admin=True, member=True
+        )
         owner_public_projects = owner_projects.filter(privacy_level=constants.PUBLIC)
         queryset = (viewer_projects & owner_projects) | owner_public_projects
         return queryset.distinct()
@@ -79,11 +84,7 @@ class ProjectQuerySetBase(models.QuerySet):
         """
         any_owner_banned = any(u.profile.banned for u in project.users.all())
         organization = project.organizations.first()
-        if (
-            project.skip
-            or any_owner_banned
-            or (organization and organization.disabled)
-        ):
+        if project.skip or any_owner_banned or (organization and organization.disabled):
             return False
 
         return True
@@ -132,12 +133,12 @@ class ProjectQuerySetBase(models.QuerySet):
 
         # Prefetch the latest build for each project.
         subquery = Subquery(
-            Build.internal.filter(
-                project=OuterRef('project_id')
-            ).order_by('-date').values_list('id', flat=True)[:1]
+            Build.internal.filter(project=OuterRef("project_id"))
+            .order_by("-date")
+            .values_list("id", flat=True)[:1]
         )
         latest_build = Prefetch(
-            'builds',
+            "builds",
             Build.internal.filter(pk__in=subquery),
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
@@ -169,7 +170,7 @@ class ProjectQuerySet(SettingsOverrideObject):
     _default_class = ProjectQuerySetBase
 
 
-class RelatedProjectQuerySet(models.QuerySet):
+class RelatedProjectQuerySet(NoReprQuerySet, models.QuerySet):
 
     """
     Useful for objects that relate to Project and its permissions.
@@ -180,25 +181,22 @@ class RelatedProjectQuerySet(models.QuerySet):
     """
 
     use_for_related_fields = True
-    project_field = 'project'
+    project_field = "project"
 
     def _add_from_user_projects(self, queryset, user):
         if user and user.is_authenticated:
-            projects_pk = (
-                AdminPermission.projects(
-                    user=user,
-                    admin=True,
-                    member=True,
-                )
-                .values_list('pk', flat=True)
-            )
-            kwargs = {f'{self.project_field}__in': projects_pk}
+            projects_pk = AdminPermission.projects(
+                user=user,
+                admin=True,
+                member=True,
+            ).values_list("pk", flat=True)
+            kwargs = {f"{self.project_field}__in": projects_pk}
             user_queryset = self.filter(**kwargs)
             queryset = user_queryset | queryset
         return queryset
 
     def public(self, user=None, project=None):
-        kwargs = {f'{self.project_field}__privacy_level': constants.PUBLIC}
+        kwargs = {f"{self.project_field}__privacy_level": constants.PUBLIC}
         queryset = self.filter(**kwargs)
         if user:
             if user.is_superuser:
@@ -214,21 +212,21 @@ class RelatedProjectQuerySet(models.QuerySet):
 
 
 class ParentRelatedProjectQuerySet(RelatedProjectQuerySet):
-    project_field = 'parent'
+    project_field = "parent"
     use_for_related_fields = True
 
 
 class ChildRelatedProjectQuerySet(RelatedProjectQuerySet):
-    project_field = 'child'
+    project_field = "child"
     use_for_related_fields = True
 
 
-class FeatureQuerySet(models.QuerySet):
+class FeatureQuerySet(NoReprQuerySet, models.QuerySet):
     use_for_related_fields = True
 
     def for_project(self, project):
         return self.filter(
-            Q(projects=project) |
-            Q(default_true=True, add_date__gt=project.pub_date) |
-            Q(future_default_true=True, add_date__lte=project.pub_date)
+            Q(projects=project)
+            | Q(default_true=True, add_date__gt=project.pub_date)
+            | Q(future_default_true=True, add_date__lte=project.pub_date)
         ).distinct()
