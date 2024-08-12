@@ -3,7 +3,6 @@
 import hashlib
 import ipaddress
 
-import requests
 import structlog
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -60,34 +59,6 @@ def anonymize_user_agent(user_agent):
         return "Rare user agent"
 
     return user_agent
-
-
-def send_to_analytics(data):
-    """Sends data to Google Analytics."""
-    if data.get("uip") and data.get("ua"):
-        data["cid"] = generate_client_id(data["uip"], data["ua"])
-
-    if data.get("uip"):
-        # Anonymize IP address if applicable
-        data["uip"] = anonymize_ip_address(data["uip"])
-
-    if data.get("ua"):
-        # Anonymize user agent if it is rare
-        data["ua"] = anonymize_user_agent(data["ua"])
-
-    resp = None
-    log.debug("Sending data to analytics.", data=data)
-    try:
-        resp = requests.post(
-            "https://www.google-analytics.com/collect",
-            data=data,
-            timeout=3,  # seconds
-        )
-    except requests.Timeout:
-        log.warning("Timeout sending to Google Analytics")
-
-    if resp and not resp.ok:
-        log.warning("Unknown error sending to Google Analytics")
 
 
 def generate_client_id(ip_address, user_agent):

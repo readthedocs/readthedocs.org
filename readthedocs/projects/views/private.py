@@ -162,9 +162,6 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 attached_to=user,
                 message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
                 dismissable=True,
-                format_values={
-                    "account_email_url": reverse("account_email"),
-                },
             )
 
     def get_queryset(self):
@@ -200,6 +197,10 @@ class ProjectUpdate(ProjectMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("projects_detail", args=[self.object.slug])
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["user"] = self.request.user
+        return super().get_form(data, files, **kwargs)
 
 
 class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteViewWithMessage):

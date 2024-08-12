@@ -12,7 +12,7 @@
       "dismissable": false,
       "id": 1,
       "message": {
-        "body": "The organization \"organization\" is currently disabled. You need to <a href=\"\">renew your subscription</a> to keep using Read the Docs",
+        "body": "The organization \"organization\" is currently disabled. You need to <a href=\"/organizations/organization/subscription/\">renew your subscription</a> to keep using Read the Docs",
         "header": "Your organization has been disabled",
         "icon_classes": "fas fa-circle-info",
         "id": "organization:disabled",
@@ -48,7 +48,7 @@
       "dismissable": false,
       "id": 4,
       "message": {
-        "body": "Your primary email address is not verified.\nPlease <a href=\"\">verify it here</a>.",
+        "body": "Your primary email address is not verified.\nPlease <a href=\"/accounts/email/\">verify it here</a>.",
         "header": "Email address not verified",
         "icon_classes": "fas fa-circle-exclamation",
         "id": "core:email:validation-pending",
