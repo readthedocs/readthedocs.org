@@ -229,6 +229,7 @@ def subscription_canceled(event):
         except SSOIntegration.DoesNotExist:
             sso_integration = "Read the Docs Auth"
 
+        # https://api.slack.com/surfaces/messages#payloads
         slack_message = {
             "blocks": [
                 {
@@ -286,11 +287,14 @@ def subscription_canceled(event):
             ]
         }
         try:
-            requests.post(
+            response = requests.post(
                 settings.SLACK_WEBHOOK_SALES_CHANNEL,
-                data=slack_message,
+                json=slack_message,
                 timeout=3,
             )
+            if not response.ok:
+                log.error("There was an issue when sending a message to Slack webhook")
+
         except requests.Timeout:
             log.warning("Timeout sending a message to Slack webhook")
 
