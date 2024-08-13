@@ -39,22 +39,16 @@ Projects with multiple translations (Sphinx-only)
    :doc:`guides/manage-translations-sphinx`
      Describes the whole process for a documentation with multiples languages in the same repository and how to keep the translations updated on time.
 
-This situation is a bit more complicated.
-To support this,
-you will have one parent project and a number of projects marked as translations of that parent.
+This situation is a bit more complicated. Each language must have its own project. You will choose one to be the parent project, and add each of the other projects as "Translations" of the parent project. 
+
 Let's use ``phpmyadmin`` as an example.
 
-The main ``phpmyadmin`` project is the parent for all translations.
-Then you must create a project for each translation,
-for example ``phpmyadmin-spanish``.
-You will set the *Language* for ``phpmyadmin-spanish`` to ``Spanish``.
-In the parent projects *Translations* page,
-you will say that ``phpmyadmin-spanish`` is a translation for your project.
+The ``phpmyadmin`` project is the parent. Each translation then has its own project, for example ``phpmyadmin-spanish``. The *Language* for ``phpmyadmin-spanish`` is set to ``Spanish``. Then, on the  *Translations* page of the ``phpmyadmin`` project, ``phpmyadmin-spanish`` is set as translation.
 
 This has the results of serving:
 
-* ``phpmyadmin`` at ``http://phpmyadmin.readthedocs.io/en/latest/``
-* ``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.io/es/latest/``
+* ``phpmyadmin`` at ``https://phpmyadmin.readthedocs.io/en/latest/``
+* ``phpmyadmin-spanish`` at ``https://phpmyadmin.readthedocs.io/es/latest/``
 
 It also gets included in the Read the Docs :term:`flyout menu`:
 
