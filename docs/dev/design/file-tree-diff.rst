@@ -130,10 +130,14 @@ The information to store would contain some information about the versions compa
 .. code:: python
 
    class VersionDiff(models.Model):
-       version_a = models.ForeignKey(Version, on_delete=models.CASCADE, related_name='diff_a')
-       version_b = models.ForeignKey(Version, on_delete=models.CASCADE, related_name='diff_b')
-       build_a = models.ForeignKey(Build, on_delete=models.CASCADE, related_name='diff_a')
-       build_b = models.ForeignKey(Build, on_delete=models.CASCADE, related_name='diff_b')
+       version_a = models.ForeignKey(
+           Version, on_delete=models.CASCADE, related_name="diff_a"
+       )
+       version_b = models.ForeignKey(
+           Version, on_delete=models.CASCADE, related_name="diff_b"
+       )
+       build_a = models.ForeignKey(Build, on_delete=models.CASCADE, related_name="diff_a")
+       build_b = models.ForeignKey(Build, on_delete=models.CASCADE, related_name="diff_b")
        diff = JSONField()
 
 The diff will be a JSON object with the files that were added, removed, or modified.
