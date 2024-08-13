@@ -124,19 +124,27 @@ Storing results
 
 Doing a diff between two versions can be expensive, so we need to store the results.
 
-We can store the results in the DB (``VersionDiff``), or in S3 (``diff/project/version-a/version-b.json``), or maybe a combination of both.
-The information to store would contain some information about the versions compared, the build, and the diff itself.
+We can store the results in the DB (``VersionDiff``).
+The information to store would contain some information about the versions compared, the builds, and the diff itself.
+
+.. code:: python
+
+   class VersionDiff(models.Model):
+       version_a = models.ForeignKey(Version, on_delete=models.CASCADE, related_name='diff_a')
+       version_b = models.ForeignKey(Version, on_delete=models.CASCADE, related_name='diff_b')
+       build_a = models.ForeignKey(Build, on_delete=models.CASCADE, related_name='diff_a')
+       build_b = models.ForeignKey(Build, on_delete=models.CASCADE, related_name='diff_b')
+       diff = JSONField()
+
+The diff will be a JSON object with the files that were added, removed, or modified.
+With an structure like this:
 
 .. code:: json
 
    {
-       "version_a": {"id": 1, "build": {"id": 1}},
-       "version_b": {"id": 2, "build": {"id": 2}},
-       "diff": {
-           "added": [{"file": "new.txt"}],
-           "removed": [{"file": "deleted.txt"}],
-           "modified": [{"file": "changed.txt", "lines": {"added": 1, "removed": 1}}]
-       }
+       "added": [{"file": "new.txt"}],
+       "removed": [{"file": "deleted.txt"}],
+       "modified": [{"file": "changed.txt", "lines": {"added": 1, "removed": 1}}]
    }
 
 The information is stored in a similar way that it will be returned by the API.
@@ -150,27 +158,22 @@ Things important to note:
 - The list of files are objects, so we can store additional information in the future.
 - When a file has been modified, we also store the number of lines that changed.
   We could also show this for files that were added or removed.
-- Instead of using the slugs on storage (if we decide to use S3), we could use the IDs, that will prevent the need to update the data if the slugs change.
-  But if the slugs change, the builds will probably be different, so we will need to update the data anyway.
 - If a project or version is deleted (or deactivated), we should delete the diff as well.
+- Using the DB to save this information will serve as the lock for the API,
+  so we don't calculate the diff multiple times for the same versions.
 
 We could store the changed files sorted by the number of changes, or make that an option in the API,
 or just let the client sort the files as they see fit.
 
-A combination of using the DB and S3 would be really useful,
-as the model will serve as the lock for the API,
-and will be easier to keep track of which build was used to generate the diff
-without having to download the diff file from S3.
-
 API
 ---
 
-This operation is expensive, so it won't be available to unauthenticated users.
+The initial diff operation can be expensive, so we may consider not exposing this feature to unauthenticated users.
 And a diff can only be done between versions of the same project that the user has access to.
 
 The endpoint will be:
 
-   GET /api/v3/projects/{project_slug}/versions/{version_slug}/diff/{other_version_slug}/
+   GET /api/v3/projects/{project_slug}/diff/?version_a={version_a}&version_b={version_b}
 
 And the response will be:
 
@@ -212,6 +215,23 @@ We could:
 - Use a custom `repository dispatch event <https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#repository_dispatch>`__
   to trigger the action from our webhook. This requires the user to do some additional setup,
   and for our webhooks to support custom headers.
+- Hit the API repeatedly from the GitHub action until the diff is ready.
+  This is not ideal, some build may take a long time, and the action may time out.
+- Expose this feature in the addons API only, which will hit the service when a user views the PR preview.
+
+Initial implementation
+----------------------
+
+For the initial implementation, we will:
+
+- Use the ``rclone check`` command to get the diff between two versions.
+- Only expose the files that were added, removed, or modified (HTML files only).
+  The number of lines that changed wont be exposed.
+- Store the results in the DB.
+- Expose this feature only via the addons feature.
+- Allow to diff an external version against the version that points to the default branch/tag of the project only.
+- Use a feature flag to enable this feature on projects.
+- Run the diff while we have the files on disk (end of the build), if possible.
 
 Possible issues
 ---------------
@@ -238,6 +258,5 @@ Future improvements and ideas
   Could be a feature request for rclone.
 - Detect changes in sections of HTML files.
   We could re-use the code we have for search indexing.
-- Expand to other file types?
-- Integrate with addons?
-- Allow doing a diff between versions of different projects?
+- Expand to other file types
+- Allow doing a diff between versions of different projects
