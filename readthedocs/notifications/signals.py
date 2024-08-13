@@ -4,7 +4,6 @@ import structlog
 from allauth.account.models import EmailAddress
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.urls import reverse
 
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.notifications.models import Notification
@@ -62,7 +61,4 @@ def user_email_verified(instance, *args, **kwargs):
                 attached_to=instance.user,
                 message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
                 dismissable=True,
-                format_values={
-                    "account_email_url": reverse("account_email"),
-                },
             )
