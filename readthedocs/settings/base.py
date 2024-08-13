@@ -14,6 +14,8 @@ from corsheaders.defaults import default_headers
 from readthedocs.core.settings import Settings
 from readthedocs.builds import constants_docker
 
+from django.conf.global_settings import PASSWORD_HASHERS
+
 try:
     import readthedocsext.cdn  # noqa
 
@@ -364,6 +366,10 @@ class CommunityBaseSettings(Settings):
             "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
         },
     ]
+
+    # Explicitly set the password hashers to the default ones,
+    # so we can change them in our test settings.
+    PASSWORD_HASHERS = PASSWORD_HASHERS
 
     # Paths
     SITE_ROOT = os.path.dirname(

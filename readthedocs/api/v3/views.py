@@ -136,6 +136,7 @@ class ProjectsViewSetBase(
         "active_versions.last_build",
         "active_versions.last_build.config",
         "organization",
+        "permissions",
         "teams",
     ]
 

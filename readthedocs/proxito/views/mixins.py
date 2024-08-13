@@ -14,8 +14,6 @@ from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
 
-from readthedocs.analytics.tasks import analytics_event
-from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.resolver import Resolver
@@ -118,15 +116,6 @@ class ServeDocsMixin:
             path=storage_path,
             request=request,
             download=True,
-        )
-
-        # Send media download to analytics - sensitive data is anonymized
-        analytics_event.delay(
-            event_category="Build Media",
-            event_action=f"Download {type_}",
-            event_label=str(version),
-            ua=request.headers.get("User-Agent"),
-            uip=get_client_ip(request),
         )
 
         response = self._serve_file(
