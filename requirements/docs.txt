@@ -10,7 +10,7 @@ anyio==4.4.0
     # via
     #   starlette
     #   watchfiles
-babel==2.15.0
+babel==2.16.0
     # via
     #   sphinx
     #   sphinx-intl
@@ -59,13 +59,13 @@ markdown-it-py==3.0.0
     #   myst-parser
 markupsafe==2.1.5
     # via jinja2
-matplotlib==3.9.1
+matplotlib==3.9.1.post1
     # via -r requirements/docs.in
 mdit-py-plugins==0.4.1
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-parser==3.0.1
+myst-parser==4.0.0
     # via -r requirements/docs.in
 numpy==2.0.1
     # via
@@ -88,7 +88,7 @@ pyparsing==3.1.2
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via myst-parser
 requests==2.32.3
     # via sphinx
@@ -121,7 +121,7 @@ sphinx-autobuild==2024.4.16
     # via -r requirements/docs.in
 sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
-sphinx-design==0.6.0
+sphinx-design==0.6.1
     # via -r requirements/docs.in
 sphinx-hoverxref==1.4.0
     # via -r requirements/docs.in
@@ -129,7 +129,7 @@ sphinx-intl==2.2.0
     # via -r requirements/docs.in
 sphinx-multiproject==1.0.0rc1
     # via -r requirements/docs.in
-sphinx-notfound-page==1.0.2
+sphinx-notfound-page==1.0.4
     # via -r requirements/docs.in
 sphinx-prompt==1.8.0
     # via -r requirements/docs.in
@@ -137,11 +137,11 @@ sphinx-rtd-theme==2.1.0rc1
     # via -r requirements/docs.in
 sphinx-tabs==3.4.5
     # via -r requirements/docs.in
-sphinxcontrib-applehelp==1.0.8
+sphinxcontrib-applehelp==2.0.0
     # via sphinx
-sphinxcontrib-devhelp==1.0.6
+sphinxcontrib-devhelp==2.0.0
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.6
+sphinxcontrib-htmlhelp==2.1.0
     # via sphinx
 sphinxcontrib-httpdomain==1.8.1
     # via -r requirements/docs.in
@@ -151,9 +151,9 @@ sphinxcontrib-jquery==4.1
     #   sphinx-rtd-theme
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.8
+sphinxcontrib-qthelp==2.0.0
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.10
+sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 sphinxcontrib-video @ git+https://github.com/readthedocs/sphinxcontrib-video/
     # via -r requirements/docs.in
@@ -171,9 +171,9 @@ typing-extensions==4.12.2
     #   uvicorn
 urllib3==2.2.2
     # via requests
-uvicorn==0.30.3
+uvicorn==0.30.5
     # via sphinx-autobuild
-watchfiles==0.22.0
+watchfiles==0.23.0
     # via sphinx-autobuild
 websockets==12.0
     # via sphinx-autobuild

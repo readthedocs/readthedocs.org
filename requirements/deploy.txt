@@ -23,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.149
+boto3==1.34.158
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.149
+botocore==1.34.158
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -44,7 +44,7 @@ certifi==2024.7.4
     #   elastic-transport
     #   requests
     #   sentry-sdk
-cffi==1.16.0
+cffi==1.17.0
     # via
     #   -r requirements/pip.txt
     #   cryptography
@@ -98,7 +98,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.14
+django==4.2.15
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -120,9 +120,9 @@ django==4.2.14
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[saml,socialaccount]==0.63.6
+django-allauth[saml,socialaccount]==64.0.0
     # via -r requirements/pip.txt
-django-annoying==0.10.6
+django-annoying==0.10.7
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
@@ -142,7 +142,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==24.2
+django-filter==24.3
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -162,7 +162,7 @@ django-storages[boto3]==1.14.3
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
-django-taggit==5.0.1
+django-taggit==6.0.0
     # via -r requirements/pip.txt
 django-timezone-field==7.0
     # via
@@ -213,7 +213,7 @@ funcy==2.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements/pip.txt
 idna==3.7
     # via
@@ -236,7 +236,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.3.7
+kombu==5.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -248,7 +248,7 @@ looseversion==1.3.0
     # via
     #   -r requirements/pip.txt
     #   bumpver
-lxml==5.2.2
+lxml==5.3.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -258,13 +258,13 @@ markdown==3.6
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==9.12.0
+newrelic==9.13.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.6
+orjson==3.10.7
     # via -r requirements/pip.txt
 packaging==24.1
     # via
@@ -308,7 +308,7 @@ pygments==2.18.0
     # via
     #   -r requirements/pip.txt
     #   ipython
-pyjwt[crypto]==2.8.0
+pyjwt[crypto]==2.9.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -332,9 +332,9 @@ pytz==2024.1
     # via
     #   -r requirements/pip.txt
     #   celery
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via -r requirements/pip.txt
-redis==5.0.7
+redis==5.0.8
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -363,7 +363,7 @@ s3transfer==0.10.2
     #   boto3
 selectolax==0.3.21
     # via -r requirements/pip.txt
-sentry-sdk==2.11.0
+sentry-sdk==2.12.0
     # via structlog-sentry
 six==1.16.0
     # via

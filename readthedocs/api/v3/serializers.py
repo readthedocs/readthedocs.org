@@ -13,6 +13,7 @@ from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -642,6 +643,7 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     def validate(self, data):  # pylint: disable=arguments-renamed
         repo = data.get("repo")
+        user = self.context["request"].user
         try:
             # We are looking for an exact match of the repository URL entered
             # by the user and any of the known URLs (ssh, clone, html) we have
@@ -650,7 +652,9 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             # If the `RemoteRepository` is found, we save it to link with
             # `Project` object after performing its creating.
             query = Q(ssh_url=repo) | Q(clone_url=repo) | Q(html_url=repo)
-            remote_repository = RemoteRepository.objects.get(query)
+            remote_repository = RemoteRepository.objects.for_project_linking(user).get(
+                query
+            )
             data.update(
                 {
                     "remote_repository": remote_repository,
@@ -723,6 +727,14 @@ class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
 class ProjectUpdateSerializer(SettingsOverrideObject):
     _default_class = ProjectUpdateSerializerBase
+
+
+class ProjectPermissionSerializer(serializers.Serializer):
+    admin = serializers.SerializerMethodField()
+
+    def get_admin(self, obj):
+        user = self.context.get("request").user
+        return AdminPermission.is_admin(user, obj)
 
 
 class ProjectSerializer(FlexFieldsModelSerializer):
@@ -799,18 +811,14 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             # NOTE: we use a serializer without expandable fields to avoid
             # leaking information about the organization through the project.
             "organization": (
-                "readthedocs.api.v3.serializers.OrganizationSerializerWithoutExpandableFields",
+                "readthedocs.api.v3.serializers.OrganizationSerializer",
                 # NOTE: we cannot have a Project with multiple organizations.
                 {"source": "organizations.first"},
             ),
-            # NOTE: we are leaking the slugs of all teams linked to this project
-            # to anyone with access to this prtoject. It's only the slug, but still.
-            "teams": (
-                serializers.SlugRelatedField,
+            "permissions": (
+                ProjectPermissionSerializer,
                 {
-                    "slug_field": "slug",
-                    "many": True,
-                    "read_only": True,
+                    "source": "*",
                 },
             ),
         }
@@ -1180,7 +1188,7 @@ class TeamSerializer(FlexFieldsModelSerializer):
         }
 
 
-class OrganizationSerializerWithoutExpandableFields(FlexFieldsModelSerializer):
+class OrganizationSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(source="pub_date")
     modified = serializers.DateTimeField(source="modified_date")
     owners = UserSerializer(many=True)
@@ -1201,17 +1209,6 @@ class OrganizationSerializerWithoutExpandableFields(FlexFieldsModelSerializer):
             "disabled",
             "_links",
         )
-
-
-class OrganizationSerializerWithExpandableFields(
-    OrganizationSerializerWithoutExpandableFields
-):
-    class Meta(OrganizationSerializerWithoutExpandableFields.Meta):
-        expandable_fields = {
-            # TODO: we are leaking all teams and its members to anyone who is
-            # an admin member of the organization.
-            "teams": (TeamSerializer, {"many": True}),
-        }
 
 
 class RemoteOrganizationSerializer(serializers.ModelSerializer):

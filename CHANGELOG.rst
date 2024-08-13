@@ -1,3 +1,37 @@
+Version 11.5.0
+--------------
+
+:Date: August 13, 2024
+
+* `@humitos <https://github.com/humitos>`__: Docs: simplify repdroducible guide (`#11535 <https://github.com/readthedocs/readthedocs.org/pull/11535>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11534 <https://github.com/readthedocs/readthedocs.org/pull/11534>`__)
+* `@humitos <https://github.com/humitos>`__: Analytics: remove GA (`#11532 <https://github.com/readthedocs/readthedocs.org/pull/11532>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Post merge fixes (`#11530 <https://github.com/readthedocs/readthedocs.org/pull/11530>`__)
+* `@stsewd <https://github.com/stsewd>`__: Settings: explicitly set password hashers (`#11523 <https://github.com/readthedocs/readthedocs.org/pull/11523>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: render the URL for account using Django template tag (`#11521 <https://github.com/readthedocs/readthedocs.org/pull/11521>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repository: fix slow query (`#11518 <https://github.com/readthedocs/readthedocs.org/pull/11518>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update API V3 docs about authentication (`#11517 <https://github.com/readthedocs/readthedocs.org/pull/11517>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove "Canonical URLs" guide (`#11516 <https://github.com/readthedocs/readthedocs.org/pull/11516>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.4.0 (`#11515 <https://github.com/readthedocs/readthedocs.org/pull/11515>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add a notification on each Sphinx build (`#11514 <https://github.com/readthedocs/readthedocs.org/pull/11514>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Explore an alternative way of explaining states (`#11512 <https://github.com/readthedocs/readthedocs.org/pull/11512>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11511 <https://github.com/readthedocs/readthedocs.org/pull/11511>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: render the URL using Django `url` template tag (`#11465 <https://github.com/readthedocs/readthedocs.org/pull/11465>`__)
+* `@humitos <https://github.com/humitos>`__: APIv3: return `permissions` expandable field on projects (`#10978 <https://github.com/readthedocs/readthedocs.org/pull/10978>`__)
+
+Version 11.4.0
+--------------
+
+:Date: August 06, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11511 <https://github.com/readthedocs/readthedocs.org/pull/11511>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.3.0 (`#11506 <https://github.com/readthedocs/readthedocs.org/pull/11506>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11502 <https://github.com/readthedocs/readthedocs.org/pull/11502>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: allow connecting a project to a remote repository after it has been created (`#11498 <https://github.com/readthedocs/readthedocs.org/pull/11498>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: change permissions to allow anonymous access to public resources (`#11485 <https://github.com/readthedocs/readthedocs.org/pull/11485>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: Don't allow leaking teams through expandable fields (`#11471 <https://github.com/readthedocs/readthedocs.org/pull/11471>`__)
+* `@stsewd <https://github.com/stsewd>`__: Telemetry: skip listing conda packages on non-conda envs (`#9390 <https://github.com/readthedocs/readthedocs.org/pull/9390>`__)
+
 Version 11.3.0
 --------------
 

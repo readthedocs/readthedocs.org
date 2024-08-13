@@ -52,12 +52,86 @@ class ProjectForm(SimpleHistoryModelForm):
         self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
+        self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
+        self.fields["repo"].widget.attrs["required"] = True
+
+        # NOTE: we are not using the default ModelChoiceField widget
+        # in order to use a list of choices instead of a queryset.
+        # See _get_remote_repository_choices for more info.
+        self.fields["remote_repository"] = forms.TypedChoiceField(
+            choices=self._get_remote_repository_choices(),
+            coerce=lambda x: RemoteRepository.objects.get(pk=x),
+            required=False,
+            empty_value=None,
+        )
+
+    def _get_remote_repository_choices(self):
+        """
+        Get valid choices for the remote repository field.
+
+        If there is a remote repo attached to the project,
+        we add it to the queryset, since the current user
+        might not have access to it.
+
+        .. note::
+
+           We are not including the current remote repo in the queryset
+           using an "or" condition, that confuses the ORM/postgres and
+           it results in a very slow query. Instead, we are using a list,
+           and adding the current remote repo to it.
+        """
+        queryset = RemoteRepository.objects.for_project_linking(self.user)
+        current_remote_repo = (
+            self.instance.remote_repository if self.instance.pk else None
+        )
+        options = [
+            (None, _("No connected repository")),
+        ]
+        if current_remote_repo and current_remote_repo not in queryset:
+            options.append((current_remote_repo.pk, str(current_remote_repo)))
+
+        options.extend((repo.pk, str(repo)) for repo in queryset)
+        return options
+
     def save(self, commit=True):
         project = super().save(commit)
         if commit:
             if self.user and not project.users.filter(pk=self.user.pk).exists():
                 project.users.add(self.user)
         return project
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name", "")
+        if not self.instance.pk:
+            potential_slug = slugify(name)
+            if Project.objects.filter(slug=potential_slug).exists():
+                raise forms.ValidationError(
+                    _("Invalid project name, a project already exists with that name"),
+                )  # yapf: disable # noqa
+            if not potential_slug:
+                # Check the generated slug won't be empty
+                raise forms.ValidationError(
+                    _("Invalid project name"),
+                )
+
+        return name
+
+    def clean_repo(self):
+        repo = self.cleaned_data.get("repo", "")
+        return repo.rstrip("/")
+
+    def placehold_repo(self):
+        return choice(
+            [
+                "https://bitbucket.org/cherrypy/cherrypy",
+                "https://bitbucket.org/birkenfeld/sphinx",
+                "https://bitbucket.org/hpk42/tox",
+                "https://github.com/zzzeek/sqlalchemy.git",
+                "https://github.com/django/django.git",
+                "https://github.com/fabric/fabric.git",
+                "https://github.com/ericholscher/django-kong.git",
+            ]
+        )
 
 
 class ProjectTriggerBuildMixin:
@@ -313,74 +387,13 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ("name", "repo", "default_branch", "language")
-
-    remote_repository = forms.IntegerField(
-        widget=forms.HiddenInput(),
-        required=False,
-    )
+        fields = ("name", "repo", "default_branch", "language", "remote_repository")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
         self.fields["repo"].widget.attrs["required"] = True
-
-    def save(self, commit=True):
-        """Add remote repository relationship to the project instance."""
-        instance = super().save(commit)
-        remote_repo = self.cleaned_data.get("remote_repository", None)
-        if remote_repo:
-            if commit:
-                remote_repo.projects.add(self.instance)
-                remote_repo.save()
-            else:
-                instance.remote_repository = remote_repo
-        return instance
-
-    def clean_name(self):
-        name = self.cleaned_data.get("name", "")
-        if not self.instance.pk:
-            potential_slug = slugify(name)
-            if Project.objects.filter(slug=potential_slug).exists():
-                raise forms.ValidationError(
-                    _("Invalid project name, a project already exists with that name"),
-                )  # yapf: disable # noqa
-            if not potential_slug:
-                # Check the generated slug won't be empty
-                raise forms.ValidationError(
-                    _("Invalid project name"),
-                )
-
-        return name
-
-    def clean_repo(self):
-        repo = self.cleaned_data.get("repo", "")
-        return repo.rstrip("/")
-
-    def clean_remote_repository(self):
-        remote_repo = self.cleaned_data.get("remote_repository", None)
-        if not remote_repo:
-            return None
-        try:
-            return RemoteRepository.objects.get(
-                pk=remote_repo,
-                users=self.user,
-            )
-        except RemoteRepository.DoesNotExist as exc:
-            raise forms.ValidationError(_("Repository invalid")) from exc
-
-    def placehold_repo(self):
-        return choice(
-            [
-                "https://bitbucket.org/cherrypy/cherrypy",
-                "https://bitbucket.org/birkenfeld/sphinx",
-                "https://bitbucket.org/hpk42/tox",
-                "https://github.com/zzzeek/sqlalchemy.git",
-                "https://github.com/django/django.git",
-                "https://github.com/fabric/fabric.git",
-                "https://github.com/ericholscher/django-kong.git",
-            ]
-        )
+        self.fields["remote_repository"].widget = forms.HiddenInput()
 
 
 class ProjectConfigForm(forms.Form):
@@ -395,7 +408,7 @@ class ProjectConfigForm(forms.Form):
 
 class UpdateProjectForm(
     ProjectTriggerBuildMixin,
-    ProjectBasicsForm,
+    ProjectForm,
     ProjectPRBuildsMixin,
 ):
 
@@ -407,6 +420,7 @@ class UpdateProjectForm(
             # Basics and repo settings
             "name",
             "repo",
+            "remote_repository",
             "language",
             "default_version",
             "privacy_level",
