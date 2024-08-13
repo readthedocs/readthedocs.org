@@ -13,6 +13,7 @@ from readthedocs.projects.exceptions import (
 )
 
 MESSAGE_PROJECT_SKIP_BUILDS = "project:invalid:skip-builds"
+MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
 messages = [
     Message(
         id=MESSAGE_PROJECT_SKIP_BUILDS,
@@ -144,6 +145,20 @@ messages = [
             ).strip(),
         ),
         type=WARNING,
+    ),
+    # Temporary notification until October 7th.
+    Message(
+        id=MESSAGE_PROJECT_ADDONS_BY_DEFAULT,
+        header=_("""Read the Docs Addons will be enabled by default on October 7th"""),
+        body=_(
+            textwrap.dedent(
+                """
+                Read the <a href="https://about.readthedocs.com/blog/2024/07/addons-by-default/" target="_blank">full announcement in our blog</a>
+                to know if your project will be affected and how to update.
+                """
+            ).strip(),
+        ),
+        type=INFO,
     ),
 ]
 registry.add(messages)

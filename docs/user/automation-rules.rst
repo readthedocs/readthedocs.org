@@ -73,11 +73,11 @@ Hide version
 
 Make version public
   Sets the version's privacy level to public.
-  See :ref:`versions:Privacy levels`.
+  See :ref:`versions:Version states`.
 
 Make version private
   Sets the version's privacy level to private.
-  See :ref:`versions:Privacy levels`.
+  See :ref:`versions:Version states`.
 
 Set version as default
   Sets the version as the :term:`default version`.
