@@ -48,6 +48,9 @@ The key points of this feature are:
 Diff between two S3 directories
 -------------------------------
 
+Using rclone
+~~~~~~~~~~~~
+
 We are already using ``rclone`` to speed up uploads to S3,
 ``rclone`` has a command (``rclone check``) to return the diff between two directories.
 For this, it uses the metadata of the files, like size and hash
@@ -72,8 +75,22 @@ another option can be to output each type of change to a different file (``--mis
 
 To start, we will only consider HTML files (``--include=*.html``).
 
+Using a manifest
+~~~~~~~~~~~~~~~~
+
+Another option is to create a manifest that contains the hashes and other important metadata of the files,
+we can save this manifest in storage or in the DB.
+
+When a build finishes, we can generate this manifest and store it.
+When we need to compare two versions, we can just compare the manifests.
+
 Lines changed between two files
 -------------------------------
+
+Having a list of files that changed is good, but if the builds inject some content
+that changes on every build (like a timestamp), all files will always be marked as changed.
+In order to provide more useful information, we can sort the files by some metrics,
+like the number of lines that changed.
 
 Once we have the list of files that changed, we can use a tool like ``diff`` to get the lines that changed.
 This is useful to link to the most relevant files that changed in a PR.
@@ -118,6 +135,17 @@ But maybe that's ok? Do we really need to know if a line was changed instead of 
 
 A good thing of using Python is that we don't need to write the files to disk,
 and the result is easier to parse.
+
+Alternative metrics
+~~~~~~~~~~~~~~~~~~~
+
+Checking the number of lines that changed is a good metric, but it requires downloading the files.
+Another metric we could use is the size of the files, that can be obtained from the metadata (no need of downloading the files),
+The most a file size has changed, the most lines have likely been added or removed,
+this still leaves lines that changed with the same amount of characters as irrelevant in the listing.
+
+Another way could be to check for lines changed in the main content of the file,
+we can re-use the code we have for search indexing.
 
 Storing results
 ---------------
@@ -236,6 +264,10 @@ For the initial implementation, we will:
 - Allow to diff an external version against the version that points to the default branch/tag of the project only.
 - Use a feature flag to enable this feature on projects.
 - Run the diff while we have the files on disk (end of the build), if possible.
+
+Other features that are not mentioned here, like exposing the number of lines that changed,
+or a public API, will not be implemented in the initial version,
+and may be considered in the future (and thier implementation is subject to change).
 
 Possible issues
 ---------------
