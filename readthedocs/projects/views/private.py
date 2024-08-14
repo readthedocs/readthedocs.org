@@ -1,5 +1,6 @@
 """Project views for authenticated users."""
 
+import requests
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -49,6 +50,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
+from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
@@ -347,7 +349,33 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
 
     def get_template_names(self):
         """Return template names based on step name."""
-        return "projects/import_{}.html".format(self.steps.current)
+        return f"projects/import_{self.steps.current}.html"
+
+    def process_step(self, form):
+        if isinstance(form, ProjectBasicsForm):
+            remote_repository = form.cleaned_data.get("remote_repository")
+            if remote_repository and remote_repository.vcs_provider == GITHUB:
+                for yaml in [
+                    ".readthedocs.yaml",
+                    ".readthedocs.yml",
+                    "readthedocs.yaml",
+                    "readthedocs.yml",
+                ]:
+                    try:
+                        response = requests.head(
+                            f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}",
+                            timeout=1,
+                        )
+                        if response.ok:
+                            log.info(
+                                "Read the Docs YAML file found for this repository.",
+                                yaml=yaml,
+                            )
+                            self.form_list.pop("config")
+                            break
+                    except requests.Timeout:
+                        continue
+        return super().process_step(form)
 
     def done(self, form_list, **kwargs):
         """
