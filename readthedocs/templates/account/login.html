@@ -75,7 +75,7 @@
       <li>
         <form action="{% url "saml_resolve_login" %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value }}{% endif %}" method="get">
           <button class="socialaccount-provider button" type="submit">
-              {% trans "Login usin single sign-on" %}
+              {% trans "Log in using single sign-on" %}
           </button>
         </form>
       </li>
