@@ -237,21 +237,10 @@ Creating galleries of examples using notebooks
 
 `nbsphinx`_ has support for :doc:`creating thumbnail galleries from a list of Jupyter
 notebooks <nbsphinx:subdir/gallery>`.
-This functionality relies on `Sphinx-Gallery <https://sphinx-gallery.github.io/>`_
-and extends it to work with Jupyter notebooks rather than Python scripts.
+This functionality is inspired by, but doesn't depend on
+`Sphinx-Gallery <https://sphinx-gallery.github.io/>`_.
 
-To use it, you will need to install both nbsphinx and Sphinx-Gallery,
-and modify your ``conf.py`` as follows:
-
-.. code-block:: python
-   :caption: conf.py
-
-   extensions = [
-       "nbsphinx",
-       "sphinx_gallery.load_style",
-   ]
-
-After doing that, there are two ways to create the gallery:
+There are two ways to create the gallery:
 
 - From a reStructuredText source file, using the ``.. nbgallery::`` directive,
   :ref:`as showcased in the
