@@ -1,6 +1,9 @@
 Mkdocs on Read the Docs
 =======================
 
+.. meta::
+   :description lang=en: Hosting MkDocs on Read the Docs.
+
 MkDocs is a fast, simple and downright gorgeous static site generator that's geared towards building project documentation.
 
 .. TODO The code comments here are pre-addons right? cos there is no manipulation
@@ -25,6 +28,15 @@ MkDocs is a fast, simple and downright gorgeous static site generator that's gea
        # https://docs.readthedocs.io/en/stable/guides/private-python-packages.html
        - pip install mkdocs-material
        - mkdocs build --site-dir $READTHEDOCS_OUTPUT/html
+
+Quick start
+-----------
+
+- If you have an existing Mkdocs project your want to host on Read the Docs, check out our :doc:`/intro/import-guide` guide.
+
+- If you're new to Mkdocs, check out the official `Getting started with MkDocs`_ guide.
+
+.. _Getting started with MkDocs: https://www.mkdocs.org/getting-started/
 
 Configuring Mkdocs and Read the Docs addons
 -------------------------------------------
@@ -117,8 +129,14 @@ To integrate the version menu into your site navigation
         extra_javascript:
             - javascript/readthedocs.js
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Getting started
 
-   /intro/getting-started-with-mkdocs
+Further reading
+---------------
+
+* `MkDocs documentation`_
+* `Markdown syntax guide`_
+* `Writing your docs with MkDocs`_
+
+.. _MkDocs documentation: https://www.mkdocs.org/
+.. _Markdown syntax guide: https://daringfireball.net/projects/markdown/syntax
+.. _Writing your docs with MkDocs: https://www.mkdocs.org/user-guide/writing-your-docs/

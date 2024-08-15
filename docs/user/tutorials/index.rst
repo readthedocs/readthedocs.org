@@ -14,7 +14,7 @@ Tutorials
   It supports both reStructuredText and Markdown formats, and can generate rich API documentation from your source code.
   We recommend Sphinx for documentation that includes API reference documentation.
 
-⏩️ :doc:`/intro/getting-started-with-mkdocs`
+⏩️ :doc:`/intro/mkdocs`
   Another great and popular tool is MkDocs.
   This is especially popular because of its default of using Markdown.
   This tool is well-supported on our platform and that's why we have a tutorial.
@@ -38,7 +38,7 @@ Tutorials
 
    /tutorial/index
    /intro/getting-started-with-sphinx
-   /intro/getting-started-with-mkdocs
+   /intro/mkdocs
    /intro/import-guide
    /config-file/index
    /examples

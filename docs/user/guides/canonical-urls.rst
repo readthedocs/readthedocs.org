@@ -26,7 +26,7 @@ and letting Read the Docs define it.
 MkDocs
 ~~~~~~
 
-For :doc:`MkDocs </intro/getting-started-with-mkdocs>` we do not define your canonical domain automatically,
+For :doc:`MkDocs </intro/mkdocs>` we do not define your canonical domain automatically,
 but you can use the site_url_ setting to set a similar value.
 
 In your ``mkdocs.yml``, define the following:
