@@ -123,7 +123,16 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
             template_name = None
             projects = AdminPermission.projects(user=self.request.user, admin=True)
             n_projects = projects.count()
-            if n_projects == 0 or (
+
+            # TODO remove this with RTD_EXT_THEME_ENABLED
+            # This is going to try hard to show the new dashboard announcement.
+            # We can't yet back down to another announcement as we don't have
+            # the ability to evaluate local storage. Until we add the ability to
+            # dynamically change the announcement, this is going to be the only
+            # announcement shown.
+            if True:
+                template_name = "new-dashboard.html"
+            elif n_projects == 0 or (
                 n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
             ):
                 template_name = "example-projects.html"
