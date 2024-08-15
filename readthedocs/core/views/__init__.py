@@ -108,21 +108,22 @@ class ErrorView(TemplateView):
     """
 
     base_path = "errors/dashboard"
-    status_code = 500
+    status_code = 400
+    template_name = None
 
     def get_status_code(self):
-        status_code = self.status_code
-        try:
-            status_code = int(self.kwargs["status_code"])
-        except (ValueError, KeyError):
-            pass
-        return status_code
+        return self.kwargs.get("status_code", self.status_code)
+
+    def get_template_name(self):
+        return self.kwargs.get("template_name", self.template_name)
 
     def get_template_names(self):
-        status_code = self.get_status_code()
-        status_code_class = int(status_code / 100)
-        generic_code = f"{status_code_class}xx"
-        return [f"{self.base_path}/{code}.html" for code in [status_code, generic_code]]
+        template_names = []
+        if (template_name := self.get_template_name()) is not None:
+            template_names.append(template_name.rstrip("/"))
+        if (status_code := self.get_status_code()) is not None:
+            template_names.append(str(status_code))
+        return [f"{self.base_path}/{file}.html" for file in template_names]
 
     def dispatch(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)

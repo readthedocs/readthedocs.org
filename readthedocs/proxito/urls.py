@@ -33,6 +33,9 @@ pip.rtfd.io/<lang>/
 pip.rtd.io/_/api/*
 """
 
+from functools import reduce
+from operator import add
+
 from django.conf import settings
 from django.urls import include, path, re_path
 
@@ -196,9 +199,28 @@ dummy_dashboard_urls = [
     ),
 ]
 
-urlpatterns = (
-    health_check_urls + proxied_urls + core_urls + docs_urls + dummy_dashboard_urls
-)
+debug_urls = [
+    # For testing error responses and templates
+    re_path(
+        r"^{DOC_PATH_PREFIX}error/(?P<template_name>.*)$".format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+        ),
+        ProxitoErrorView.as_view(),
+    ),
+]
+
+groups = [
+    health_check_urls,
+    proxied_urls,
+    dummy_dashboard_urls,
+    core_urls,
+    docs_urls,
+]
+
+if settings.SHOW_DEBUG_TOOLBAR:
+    groups.insert(0, debug_urls)
+
+urlpatterns = reduce(add, groups)
 
 # Use Django default error handlers to make things simpler
 handler404 = proxito_404_page_handler
