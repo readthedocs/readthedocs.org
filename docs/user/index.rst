@@ -7,6 +7,7 @@ Read the Docs: documentation simplified
    :caption: Getting started
 
    /tutorial/index
+   /intro/doctools
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
