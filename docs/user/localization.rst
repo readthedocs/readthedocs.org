@@ -39,7 +39,7 @@ Projects with multiple translations (Sphinx-only)
    :doc:`guides/manage-translations-sphinx`
      Describes the whole process for a documentation with multiples languages in the same repository and how to keep the translations updated on time.
 
-This situation is a bit more complicated. Each language must have its own project. You will choose one to be the parent project, and add each of the other projects as "Translations" of the parent project. 
+This situation is a bit more complicated. Each language must have its own project. You will choose one to be the parent project, and add each of the other projects as "Translations" of the parent project.
 
 Let's use ``phpmyadmin`` as an example.
 
