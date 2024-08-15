@@ -122,4 +122,3 @@ To integrate the version menu into your site navigation
    :caption: Getting started
 
    /intro/getting-started-with-mkdocs
-
