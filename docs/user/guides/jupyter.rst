@@ -237,8 +237,6 @@ Creating galleries of examples using notebooks
 
 `nbsphinx`_ has support for :doc:`creating thumbnail galleries from a list of Jupyter
 notebooks <nbsphinx:subdir/gallery>`.
-This functionality is inspired by, but doesn't depend on
-`Sphinx-Gallery <https://sphinx-gallery.github.io/>`_.
 
 There are two ways to create the gallery:
 
