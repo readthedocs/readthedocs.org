@@ -31,24 +31,30 @@ The language will be represented in the URL for your project.
 For example,
 a project that is in Spanish will have a default URL of ``/es/latest/`` instead of ``/en/latest/``.
 
-Projects with multiple translations (Sphinx-only)
--------------------------------------------------
+Projects with multiple translations
+-----------------------------------
 
 .. seealso::
 
    :doc:`guides/manage-translations-sphinx`
-     Describes the whole process for a documentation with multiples languages in the same repository and how to keep the translations updated on time.
+     Describes the whole process for a Sphinx documentation projects with multiples languages
+     in the same repository and how to keep the translations updated on time.
 
-This situation is a bit more complicated. Each language must have its own project. You will choose one to be the parent project, and add each of the other projects as "Translations" of the parent project.
+Each language must have its own project on Read the Docs.
+You will choose one to be the parent project,
+and add each of the other projects as "Translations" of the parent project.
 
-Let's use ``phpmyadmin`` as an example.
+Let's use ``godot`` as an example.
 
-The ``phpmyadmin`` project is the parent. Each translation then has its own project, for example ``phpmyadmin-spanish``. The *Language* for ``phpmyadmin-spanish`` is set to ``Spanish``. Then, on the  *Translations* page of the ``phpmyadmin`` project, ``phpmyadmin-spanish`` is set as translation.
+The ``godot`` project is the parent.
+Each translation then has its own project, for example ``godot-es``.
+The *Language* for ``godot-es`` is set to ``Spanish``.
+Then, on the  *Translations* page of the ``godot`` project, ``godot-es`` is set as translation.
 
 This has the results of serving:
 
-* ``phpmyadmin`` at ``https://phpmyadmin.readthedocs.io/en/latest/``
-* ``phpmyadmin-spanish`` at ``https://phpmyadmin.readthedocs.io/es/latest/``
+* ``godot`` at ``https://docs.godotengine.org/en/stable/``
+* ``godot-es`` at ``https://docs.godotengine.org/es/4.x/``
 
 It also gets included in the Read the Docs :term:`flyout menu`:
 
@@ -59,12 +65,6 @@ It also gets included in the Read the Docs :term:`flyout menu`:
     parent project that the domain was configured on. See
     :doc:`/custom-domains` for more information.
 
-.. note:: You can include multiple translations in the same repository,
-          with same ``conf.py`` and ``.rst`` files,
-          but each project must specify the language to build for those docs.
-
-.. note:: You must commit the ``.po`` files for Read the Docs to translate your documentation.
-
 
 Translation workflows
 ~~~~~~~~~~~~~~~~~~~~~
@@ -74,14 +74,11 @@ the workflow of your translators becomes a critical component.
 
 Considerations include:
 
-* Are your translators able to use a git workflow? For instance, are they able to translate directly via GitHub?
+* Are your translators able to use a Git workflow? For instance, are they able to translate directly via GitHub?
 * Do you benefit from machine translation?
 * Do you need different roles, for instance do you need translators and editors?
 * What is your source language?
 * When are your translated versions published?
-
-By using Sphinx and .po files,
-you will be able to automatically synchronize between your documentation source messages on your git platform and your translation platform.
 
 There are many translation platforms that support this workflow.
 These include:
@@ -90,7 +87,7 @@ These include:
 * `Transifex <https://www.transifex.com/>`_
 * `Crowdin <https://crowdin.com/>`_
 
-Because Read the Docs builds your git repository,
+Because Read the Docs builds your Git repository,
 you can use any of the above solutions.
-Any solution that synchronizes your translations with your git repository
+Any solution that synchronizes your translations with your Git repository
 will ensure that your translations are automatically published with Read the Docs.
