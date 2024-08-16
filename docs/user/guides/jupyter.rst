@@ -253,9 +253,7 @@ There are two ways to create the gallery:
 
    Panel to modify cell metadata in JupyterLab
 
-For example, this reST markup would create a thumbnail gallery
-with generic images as thumbnails,
-thanks to the Sphinx-Gallery default style:
+For example, this markup would create a thumbnail gallery:
 
 .. tabs::
 
