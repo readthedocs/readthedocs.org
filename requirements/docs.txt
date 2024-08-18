@@ -59,7 +59,7 @@ markdown-it-py==3.0.0
     #   myst-parser
 markupsafe==2.1.5
     # via jinja2
-matplotlib==3.9.1.post1
+matplotlib==3.9.2
     # via -r requirements/docs.in
 mdit-py-plugins==0.4.1
     # via myst-parser
@@ -171,7 +171,7 @@ typing-extensions==4.12.2
     #   uvicorn
 urllib3==2.2.2
     # via requests
-uvicorn==0.30.5
+uvicorn==0.30.6
     # via sphinx-autobuild
 watchfiles==0.23.0
     # via sphinx-autobuild
