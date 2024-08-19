@@ -371,6 +371,12 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
                                 "Read the Docs YAML file found for this repository.",
                                 yaml=yaml,
                             )
+                            messages.success(
+                                self.request,
+                                _(
+                                    "We detected a Read the Docs configuration file in your repository. Triggering an initial build."
+                                ),
+                            )
                             self.form_list.pop("config")
                             break
                     except requests.Timeout:
