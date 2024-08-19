@@ -229,6 +229,7 @@ def subscription_canceled(event):
         except SSOIntegration.DoesNotExist:
             sso_integration = "Read the Docs Auth"
 
+        # https://api.slack.com/surfaces/messages#payloads
         slack_message = {
             "blocks": [
                 {
@@ -241,19 +242,11 @@ def subscription_canceled(event):
                     "fields": [
                         {
                             "type": "mrkdwn",
-                            "text": f":office: *Name:* {organization.name}",
+                            "text": f":office: *Name:* <{settings.ADMIN_URL}/organizations/organization/{organization.pk}/change/|{organization.name}>",
                         },
                         {
                             "type": "mrkdwn",
-                            "text": f":dollar: *Plan:* {stripe_subscription.plan.id}",
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": f":hash: *Slug:* {organization.slug}",
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": f":person_frowning: *Stripe customer:* <https://dashboard.stripe.com/customers/{stripe_subscription.customer_id}|{stripe_subscription.customer_id}>",
+                            "text": f":dollar: *Plan:* <https://dashboard.stripe.com/customers/{stripe_subscription.customer_id}|{stripe_subscription.plan.product.name}> (${str(total_spent)})",
                         },
                         {
                             "type": "mrkdwn",
@@ -286,11 +279,14 @@ def subscription_canceled(event):
             ]
         }
         try:
-            requests.post(
+            response = requests.post(
                 settings.SLACK_WEBHOOK_SALES_CHANNEL,
-                data=slack_message,
+                json=slack_message,
                 timeout=3,
             )
+            if not response.ok:
+                log.error("There was an issue when sending a message to Slack webhook")
+
         except requests.Timeout:
             log.warning("Timeout sending a message to Slack webhook")
 
