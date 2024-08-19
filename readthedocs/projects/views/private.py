@@ -1,6 +1,5 @@
 """Project views for authenticated users."""
 
-import requests
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -51,7 +50,7 @@ from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
-from readthedocs.oauth.services import registry
+from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
@@ -352,35 +351,53 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         return f"projects/import_{self.steps.current}.html"
 
     def process_step(self, form):
+        # pylint: disable=too-many-nested-blocks
         if isinstance(form, ProjectBasicsForm):
             remote_repository = form.cleaned_data.get("remote_repository")
             if remote_repository and remote_repository.vcs_provider == GITHUB:
-                for yaml in [
-                    ".readthedocs.yaml",
-                    ".readthedocs.yml",
-                    "readthedocs.yaml",
-                    "readthedocs.yml",
-                ]:
-                    try:
-                        response = requests.head(
-                            f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}",
-                            timeout=1,
-                        )
-                        if response.ok:
-                            log.info(
-                                "Read the Docs YAML file found for this repository.",
-                                yaml=yaml,
+                remote_repository_relations = (
+                    remote_repository.remote_repository_relation.filter(
+                        user=self.request.user,
+                        account__isnull=False,
+                    )
+                    .select_related("account", "user")
+                    .only("user", "account")
+                )
+                for relation in remote_repository_relations:
+                    service = GitHubService(relation.user, relation.account)
+                    session = service.get_session()
+
+                    for yaml in [
+                        ".readthedocs.yaml",
+                        ".readthedocs.yml",
+                        "readthedocs.yaml",
+                        "readthedocs.yml",
+                    ]:
+                        try:
+                            response = session.head(
+                                f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}",
+                                timeout=1,
                             )
-                            messages.success(
-                                self.request,
-                                _(
-                                    "We detected a Read the Docs configuration file in your repository. Triggering an initial build."
-                                ),
+                            if response.ok:
+                                log.info(
+                                    "Read the Docs YAML file found for this repository.",
+                                    yaml=yaml,
+                                )
+                                messages.success(
+                                    self.request,
+                                    _(
+                                        "We detected a configuration file in your repository; triggering an initial build"
+                                    ),
+                                )
+                                self.form_list.pop("config")
+                                break
+                        except Exception:
+                            log.warning(
+                                "Failed when hitting GitHub API to check for .readthedocs.yaml file.",
+                                filename=yaml,
                             )
-                            self.form_list.pop("config")
-                            break
-                    except requests.Timeout:
-                        continue
+                            continue
+
         return super().process_step(form)
 
     def done(self, form_list, **kwargs):
