@@ -54,7 +54,7 @@ Then, on the  *Translations* page of the ``godot`` project, ``godot-es`` is set 
 This has the results of serving:
 
 * ``godot`` at ``https://docs.godotengine.org/en/stable/``
-* ``godot-es`` at ``https://docs.godotengine.org/es/4.x/``
+* ``godot-es`` at ``https://docs.godotengine.org/es/stable/``
 
 It also gets included in the Read the Docs :term:`flyout menu`:
 
