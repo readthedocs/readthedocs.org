@@ -15,8 +15,8 @@ This is useful for:
 
 For a main project ``example-project``, a subproject ``example-project-plugin`` can be made available as follows:
 
-* Main project: https://example-project.readthedocs.io/en/latest/
-* Subproject: https://example-project.readthedocs.io/projects/plugin/en/latest/
+* Main project: ``https://example-project.readthedocs.io/en/latest/``
+* Subproject: ``https://example-project.readthedocs.io/projects/plugin/en/latest/``
 
 .. seealso::
 
@@ -38,8 +38,8 @@ If the example project ``example-project`` was set up with a custom domain,
 ``docs.example.com``, the URLs for projects ``example-project`` and ``example-project-plugin`` with alias ``plugin`` would
 respectively be at:
 
-* ``example-project``: https://docs.example.com/en/latest/
-* ``example-project-plugin``: https://docs.example.com/projects/plugin/en/latest/
+* ``example-project``: ``https://docs.example.com/en/latest/``
+* ``example-project-plugin``: ``https://docs.example.com/projects/plugin/en/latest/``
 
 Using aliases
 -------------
