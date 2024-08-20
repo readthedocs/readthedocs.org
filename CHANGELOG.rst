@@ -1,3 +1,20 @@
+Version 11.6.0
+--------------
+
+:Date: August 20, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#11552 <https://github.com/readthedocs/readthedocs.org/pull/11552>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: make translation section more generic (`#11549 <https://github.com/readthedocs/readthedocs.org/pull/11549>`__)
+* `@webknjaz <https://github.com/webknjaz>`__: Fix a typo in "invited" in email notification subjects (`#11546 <https://github.com/readthedocs/readthedocs.org/pull/11546>`__)
+* `@mgeier <https://github.com/mgeier>`__: Update instructions for Jupyter notebook galleries (`#11545 <https://github.com/readthedocs/readthedocs.org/pull/11545>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Drop "Unknown message" notification (`#11542 <https://github.com/readthedocs/readthedocs.org/pull/11542>`__)
+* `@stsewd <https://github.com/stsewd>`__: Login: add link to SAML login (`#11541 <https://github.com/readthedocs/readthedocs.org/pull/11541>`__)
+* `@robredpath <https://github.com/robredpath>`__: Update i18n docs for Sphinx (`#11538 <https://github.com/readthedocs/readthedocs.org/pull/11538>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.5.0 (`#11537 <https://github.com/readthedocs/readthedocs.org/pull/11537>`__)
+* `@humitos <https://github.com/humitos>`__: Slack: use json= to send a message using webhooks (`#11536 <https://github.com/readthedocs/readthedocs.org/pull/11536>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add a notification on each Sphinx build (`#11514 <https://github.com/readthedocs/readthedocs.org/pull/11514>`__)
+* `@stsewd <https://github.com/stsewd>`__: Ask for confirmation when adding a user to a project/organization/team (`#9440 <https://github.com/readthedocs/readthedocs.org/pull/9440>`__)
+
 Version 11.5.0
 --------------
 
