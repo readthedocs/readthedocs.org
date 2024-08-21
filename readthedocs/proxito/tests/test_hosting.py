@@ -19,7 +19,6 @@ from readthedocs.projects.constants import (
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
 from readthedocs.projects.models import AddonsConfig, Domain, Project
-from readthedocs.proxito.views.hosting import ClientError
 
 
 @override_settings(
@@ -710,9 +709,7 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         )
         assert r.status_code == 404
-        assert r.json() == {
-            "error": ClientError.PROJECT_NOT_FOUND,
-        }
+        assert r.json() == {"detail": "No Project matches the given query."}
 
     def test_number_of_queries_project_version_slug(self):
         # The number of queries should not increase too much, even if we change
@@ -734,7 +731,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(23):
+        with self.assertNumQueries(22):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

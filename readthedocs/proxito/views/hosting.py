@@ -1,12 +1,13 @@
 """Views for hosting features."""
-
 from functools import lru_cache
 
 import packaging
 import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 
@@ -18,7 +19,7 @@ from readthedocs.api.v3.serializers import (
     VersionSerializer,
 )
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
-from readthedocs.builds.models import Version
+from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -50,6 +51,25 @@ class ClientError(Exception):
     PROJECT_NOT_FOUND = "There is no project with the 'project-slug' requested"
 
 
+class IsAuthorizedToViewProject(permissions.BasePermission):
+
+    """Checks if the user from the request has permissions to see the project."""
+
+    def has_permission(self, request, view):
+        project = view._get_project()
+        version = view._get_version()
+        # We can only grant access to the project,
+        # if a version is given, we need to check the version
+        # permissions (IsAuthorizedToViewVersion).
+        if version:
+            return False
+
+        has_access = (
+            Project.objects.public(user=request.user).filter(pk=project.pk).exists()
+        )
+        return has_access
+
+
 class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
     """
@@ -76,7 +96,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
     """
 
     http_method_names = ["get"]
-    permission_classes = [IsAuthorizedToViewVersion]
+    permission_classes = [IsAuthorizedToViewProject | IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer]
     project_cache_tag = "rtd-addons"
 
@@ -91,11 +111,6 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         build = None
         filename = None
 
-        unresolved_domain = self.request.unresolved_domain
-
-        # Main project from the domain.
-        project = unresolved_domain.project
-
         if url:
             try:
                 unresolved_url = unresolver.unresolve_url(url)
@@ -104,18 +119,6 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 project = unresolved_url.project
                 version = unresolved_url.version
                 filename = unresolved_url.filename
-                # This query should use a particular index:
-                # ``builds_build_version_id_state_date_success_12dfb214_idx``.
-                # Otherwise, if the index is not used, the query gets too slow.
-                build = (
-                    version.builds.filter(
-                        success=True,
-                        state=BUILD_STATE_FINISHED,
-                    )
-                    .select_related("project", "version")
-                    .first()
-                )
-
             except UnresolverError as exc:
                 # If an exception is raised and there is a ``project`` in the
                 # exception, it's a partial match. This could be because of an
@@ -123,25 +126,34 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 # continue with the ``project``, but without a ``version``.
                 # Otherwise, we return 404 NOT FOUND.
                 project = getattr(exc, "project", None)
-                if not project:
-                    raise Http404() from exc
-
         else:
-            project = Project.objects.filter(slug=project_slug).first()
-            version = (
-                Version.objects.filter(slug=version_slug, project=project)
-                .select_related("project")
+            # When not sending "url", we require "project-slug" and "version-slug".
+            project = get_object_or_404(Project, slug=project_slug)
+            version = get_object_or_404(project.versions.all(), slug=version_slug)
+
+        # A project is always required.
+        if not project:
+            return JsonResponse(
+                {"error": ClientError.PROJECT_NOT_FOUND},
+                status=404,
+            )
+
+        # If we have a version, we also return its latest successful build.
+        if version:
+            # This query should use a particular index:
+            # ``builds_build_version_id_state_date_success_12dfb214_idx``.
+            # Otherwise, if the index is not used, the query gets too slow.
+            build = (
+                Build.objects.api(user=self.request.user)
+                .filter(
+                    project=project,
+                    version=version,
+                    success=True,
+                    state=BUILD_STATE_FINISHED,
+                )
+                .select_related("project", "version")
                 .first()
             )
-            if version:
-                build = (
-                    version.builds.filter(
-                        success=True,
-                        state=BUILD_STATE_FINISHED,
-                    )
-                    .select_related("project", "version")
-                    .first()
-                )
 
         return project, version, build, filename
 
@@ -153,19 +165,24 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         _, version, _, _ = self._resolve_resources()
         return version
 
-    def get(self, request, format=None):
+    def dispatch(self, request, *args, **kwargs):
+        # We check if the correct parameters are sent
+        # in dispatch, since we want to return a useful error message
+        # before checking for permissions.
         url = request.GET.get("url")
         project_slug = request.GET.get("project-slug")
         version_slug = request.GET.get("version-slug")
-        if not url:
-            if not project_slug or not version_slug:
-                return JsonResponse(
-                    {
-                        "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
-                    },
-                    status=400,
-                )
+        if not url and (not project_slug or not version_slug):
+            return JsonResponse(
+                {
+                    "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
+                },
+                status=400,
+            )
+        return super().dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        url = request.GET.get("url")
         addons_version = request.GET.get("api-version")
         if not addons_version:
             return JsonResponse(
@@ -190,11 +207,6 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             )
 
         project, version, build, filename = self._resolve_resources()
-        if not project:
-            return JsonResponse(
-                {"error": ClientError.PROJECT_NOT_FOUND},
-                status=404,
-            )
 
         data = AddonsResponse().get(
             addons_version,
@@ -293,15 +305,15 @@ class AddonsResponse:
         """
         resolver = Resolver()
         versions_active_built_not_hidden = Version.objects.none()
-        sorted_versions_active_built_not_hidden = (
-            versions_active_built_not_hidden
-        ) = Version.objects.none()
+        sorted_versions_active_built_not_hidden = Version.objects.none()
 
         # Automatically create an AddonsConfig with the default values for
         # projects that don't have one already
         AddonsConfig.objects.get_or_create(project=project)
 
         if project.supports_multiple_versions:
+            # TODO: this should take into consideration the
+            # temporal access tokens if present.
             versions_active_built_not_hidden = (
                 Version.internal.public(
                     project=project,
@@ -349,6 +361,7 @@ class AddonsResponse:
 
         main_project = project.main_language_project or project
 
+        # TODO: We should filter by projects the user has access to.
         # Exclude the current project since we don't want to return itself as a translation
         project_translations = main_project.translations.all().exclude(
             slug=project.slug
@@ -504,6 +517,8 @@ class AddonsResponse:
             )
 
         # Update this data with the one generated at build time by the doctool
+        # TODO: hmm, this looks a little dangerous?
+        # We can't trust this output.
         if version and version.build_data:
             data.update(version.build_data)
 
