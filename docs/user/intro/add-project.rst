@@ -8,8 +8,8 @@ This page drives you through the process to add a documentation project to Read 
 If you have :doc:`connected your Read the Docs account </guides/connecting-git-account>` to GitHub, Bitbucket or GitLab you will be able to add your project automatically.
 Otherwise, you will need to add it manually and perform some extra steps.
 
-Automatically
--------------
+Automatically add your project
+------------------------------
 
 #. Go to your :term:`dashoard`.
 #. Click on :guilabel:`Add project`.
@@ -20,8 +20,8 @@ Automatically
 #. Add a :term:`configuration file` to your repository if it's doesn't exist yet.
 #. Click on :guilabel:`This file exists`.
 
-Manually
---------
+Manually add your project
+-------------------------
 
 #. Go to your :term:`dashoard`.
 #. Click on :guilabel:`Add project`.

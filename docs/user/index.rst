@@ -9,7 +9,7 @@ Read the Docs: documentation simplified
    /tutorial/index
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
-   /intro/import-guide
+   /intro/add-project
    /examples
 
 .. toctree::

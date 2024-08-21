@@ -36,10 +36,10 @@ A custom build configuration file path is applied to all versions of your docume
 Adding an additional project from the same repository
 -----------------------------------------------------
 
-Once you have added the first project from the :ref:`Import Wizard <intro/import-guide:Automatically import your docs>`,
+Once you have added the first project from the :ref:`Import Wizard <intro/add-project:Automatically add your project>`,
 it will show as if it has already been imported and cannot be imported again.
 In order to add another project with the same repository,
-you will need to use the :ref:`Manual Import <intro/import-guide:Manually import your docs>`.
+you will need to use the :ref:`Manual Import <intro/add-project:Manually add your project>`.
 
 Setting the custom build configuration file
 -------------------------------------------

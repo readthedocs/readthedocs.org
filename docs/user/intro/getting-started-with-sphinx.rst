@@ -22,7 +22,7 @@ check out :doc:`/tutorial/index`.
 Quick start
 -----------
 
-.. seealso:: If you already have a Sphinx project, check out our :doc:`/intro/import-guide` guide.
+.. seealso:: If you already have a Sphinx project, check out our :doc:`/intro/add-project` guide.
 
 Assuming you have Python already, :doc:`install Sphinx <sphinx:usage/installation>`:
 
@@ -68,7 +68,7 @@ Open this file in your web browser to see your docs.
 
 Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
 Once you have Sphinx documentation in a public repository, you can start using Read the Docs
-by :doc:`importing your docs </intro/import-guide>`.
+by :doc:`importing your docs </intro/add-project>`.
 
 .. warning::
 
