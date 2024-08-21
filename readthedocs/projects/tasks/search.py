@@ -109,7 +109,7 @@ def reindex_version(version_id, search_index_name=None):
         log.exception("Failed during creation of new files")
 
 
-@app.task(queue="web")
+@app.task(queue="reindex")
 def index_project(project_slug, skip_if_exists=False):
     """
     Index all active versions of the project.
