@@ -11,7 +11,7 @@ Otherwise, you will need to add it manually and perform some extra steps.
 Automatically add your project
 ------------------------------
 
-#. Go to your :term:`dashoard`.
+#. Go to your :term:`dashboard`.
 #. Click on :guilabel:`Add project`.
 #. Type the name of the respository you want to add and click on it.
 #. Click on :guilabel:`Continue`.
@@ -23,7 +23,7 @@ Automatically add your project
 Manually add your project
 -------------------------
 
-#. Go to your :term:`dashoard`.
+#. Go to your :term:`dashboard`.
 #. Click on :guilabel:`Add project`.
 #. Click on :guilabel:`Configure manually`.
 #. Click on :guilabel:`Continue`.
