@@ -534,8 +534,9 @@ class AddonsResponseBase:
             )
 
         # Update this data with the one generated at build time by the doctool
-        # TODO: hmm, this looks a little dangerous?
-        # We can't trust this output.
+        # TODO: this looks a little dangerous.
+        # We can't trust this output, we may want
+        # to scope the data that can be overridden.
         if version and version.build_data:
             data.update(version.build_data)
 
