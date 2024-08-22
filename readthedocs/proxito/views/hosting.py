@@ -371,7 +371,6 @@ class AddonsResponseBase:
                 )
 
         main_project = project.main_language_project or project
-        project_translations = Project.objects.none()
 
         # Exclude the current project since we don't want to return itself as a translation
         project_translations = (
