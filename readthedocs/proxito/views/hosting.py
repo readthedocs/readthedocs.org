@@ -53,14 +53,18 @@ class ClientError(Exception):
 
 class IsAuthorizedToViewProject(permissions.BasePermission):
 
-    """Checks if the user from the request has permissions to see the project."""
+    """
+    Checks if the user from the request has permissions to see the project.
+
+    This is only valid if the view doesn't have a version,
+    since the version permissions must be checked by the
+    IsAuthorizedToViewVersion permission.
+    """
 
     def has_permission(self, request, view):
         project = view._get_project()
         version = view._get_version()
-        # We can only grant access to the project,
-        # if a version is given, we need to check the version
-        # permissions (IsAuthorizedToViewVersion).
+
         if version:
             return False
 
@@ -209,13 +213,13 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         project, version, build, filename = self._resolve_resources()
 
         data = AddonsResponse().get(
-            addons_version,
-            project,
-            version,
-            build,
-            filename,
-            url,
-            user=request.user,
+            addons_version=addons_version,
+            project=project,
+            request=request,
+            version=version,
+            build=build,
+            filename=filename,
+            url=url,
         )
         return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
 
@@ -268,16 +272,16 @@ class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
     pass
 
 
-class AddonsResponse:
+class AddonsResponseBase:
     def get(
         self,
         addons_version,
         project,
+        request,
         version=None,
         build=None,
         filename=None,
         url=None,
-        user=None,
     ):
         """
         Unique entry point to get the proper API response.
@@ -286,12 +290,26 @@ class AddonsResponse:
         best JSON structure for that particular version.
         """
         if addons_version.major == 1:
-            return self._v1(project, version, build, filename, url, user)
+            return self._v1(project, version, build, filename, url, request)
 
         if addons_version.major == 2:
-            return self._v2(project, version, build, filename, url, user)
+            return self._v2(project, version, build, filename, url, request)
 
-    def _v1(self, project, version, build, filename, url, user):
+    def _get_active_versions(self, request, project):
+        """
+        Get all active for a project that the user has access to.
+
+        This includes only active and built versions that are not hidden.
+        """
+        return Version.internal.public(
+            project=project,
+            user=request.user,
+            only_active=True,
+            only_built=True,
+            include_hidden=False,
+        )
+
+    def _v1(self, project, version, build, filename, url, request):
         """
         Initial JSON data structure consumed by the JavaScript client.
 
@@ -306,22 +324,15 @@ class AddonsResponse:
         resolver = Resolver()
         versions_active_built_not_hidden = Version.objects.none()
         sorted_versions_active_built_not_hidden = Version.objects.none()
+        user = request.user
 
         # Automatically create an AddonsConfig with the default values for
         # projects that don't have one already
         AddonsConfig.objects.get_or_create(project=project)
 
         if project.supports_multiple_versions:
-            # TODO: this should take into consideration the
-            # temporal access tokens if present.
             versions_active_built_not_hidden = (
-                Version.internal.public(
-                    project=project,
-                    only_active=True,
-                    only_built=True,
-                    user=user,
-                )
-                .exclude(hidden=True)
+                self._get_active_versions(request, project)
                 .select_related("project")
                 .order_by("slug")
             )
@@ -360,16 +371,23 @@ class AddonsResponse:
                 )
 
         main_project = project.main_language_project or project
+        project_translations = Project.objects.none()
 
-        # TODO: We should filter by projects the user has access to.
         # Exclude the current project since we don't want to return itself as a translation
-        project_translations = main_project.translations.all().exclude(
-            slug=project.slug
+        project_translations = (
+            Project.objects.public(user=user)
+            .filter(pk__in=main_project.translations.all())
+            .exclude(slug=project.slug)
         )
+
         # Include main project as translation if the current project is one of the translations
         if project != main_project:
-            project_translations |= Project.objects.filter(slug=main_project.slug)
-        project_translations = project_translations.order_by("language")
+            project_translations |= Project.objects.public(user=user).filter(
+                slug=main_project.slug
+            )
+        project_translations = project_translations.order_by("language").select_related(
+            "main_language_project"
+        )
 
         data = {
             "api_version": "1",
@@ -555,6 +573,10 @@ class AddonsResponse:
             "api_version": "2",
             "comment": "Undefined yet. Use v1 for now",
         }
+
+
+class AddonsResponse(SettingsOverrideObject):
+    _default_class = AddonsResponseBase
 
 
 class ReadTheDocsConfigJson(SettingsOverrideObject):
