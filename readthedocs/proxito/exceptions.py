@@ -49,9 +49,7 @@ class DomainDNSHttp404(ContextualizedHttp404):
     """Raised if a DNS record points to us and we don't know the domain."""
 
     template_name = "errors/proxito/404/dns.html"
-    not_found_subject = pgettext_lazy(
-        _not_found_subject_translation_context, "matching DNS record"
-    )
+    not_found_subject = pgettext_lazy(_not_found_subject_translation_context, "domain")
 
     def __init__(self, domain, **kwargs):
         """
