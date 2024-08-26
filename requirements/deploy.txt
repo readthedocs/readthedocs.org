@@ -23,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.158
+boto3==1.35.5
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.158
+botocore==1.35.5
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -76,7 +76,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-cron-descriptor==1.4.3
+cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -121,7 +121,7 @@ django==4.2.15
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==64.0.0
+django-allauth[mfa,saml,socialaccount]==64.1.0
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
@@ -129,7 +129,7 @@ django-autoslug==1.9.9
     # via -r requirements/pip.txt
 django-cacheops==7.0.2
     # via -r requirements/pip.txt
-django-celery-beat==2.6.0
+django-celery-beat==2.7.0
     # via -r requirements/pip.txt
 django-cors-headers==4.4.0
     # via -r requirements/pip.txt
@@ -190,15 +190,15 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.13.1
+elastic-transport==8.15.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.14.0
+elasticsearch==8.15.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.14.0
+elasticsearch-dsl==8.15.1
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -220,7 +220,7 @@ funcy==2.0
     #   django-cacheops
 gunicorn==23.0.0
     # via -r requirements/pip.txt
-idna==3.7
+idna==3.8
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -259,7 +259,7 @@ lxml==5.3.0
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.6
+markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
@@ -376,7 +376,7 @@ s3transfer==0.10.2
     #   boto3
 selectolax==0.3.21
     # via -r requirements/pip.txt
-sentry-sdk==2.12.0
+sentry-sdk==2.13.0
     # via structlog-sentry
 six==1.16.0
     # via
