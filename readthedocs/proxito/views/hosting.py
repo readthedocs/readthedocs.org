@@ -5,7 +5,7 @@ import packaging
 import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
@@ -137,10 +137,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
         # A project is always required.
         if not project:
-            return JsonResponse(
-                {"error": ClientError.PROJECT_NOT_FOUND},
-                status=404,
-            )
+            raise Http404(ClientError.PROJECT_NOT_FOUND)
 
         # If we have a version, we also return its latest successful build.
         if version:
@@ -295,11 +292,16 @@ class AddonsResponseBase:
         if addons_version.major == 2:
             return self._v2(project, version, build, filename, url, request)
 
-    def _get_active_versions(self, request, project):
+    def _get_versions(self, request, project):
         """
         Get all active for a project that the user has access to.
 
-        This includes only active and built versions that are not hidden.
+        This includes versions matching the following conditions:
+
+        - The user has access to it
+        - They are built
+        - They are active
+        - They are not hidden
         """
         return Version.internal.public(
             project=project,
@@ -332,7 +334,7 @@ class AddonsResponseBase:
 
         if project.supports_multiple_versions:
             versions_active_built_not_hidden = (
-                self._get_active_versions(request, project)
+                self._get_versions(request, project)
                 .select_related("project")
                 .order_by("slug")
             )
@@ -532,13 +534,6 @@ class AddonsResponseBase:
                     },
                 }
             )
-
-        # Update this data with the one generated at build time by the doctool
-        # TODO: this looks a little dangerous.
-        # We can't trust this output, we may want
-        # to scope the data that can be overridden.
-        if version and version.build_data:
-            data.update(version.build_data)
 
         # Update this data with ethicalads
         if "readthedocsext.donate" in settings.INSTALLED_APPS:
