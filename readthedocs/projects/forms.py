@@ -93,7 +93,7 @@ class ProjectForm(SimpleHistoryModelForm):
         if current_remote_repo and current_remote_repo not in queryset:
             options.append((current_remote_repo.pk, str(current_remote_repo)))
 
-        options.extend((repo.pk, str(repo)) for repo in queryset)
+        options.extend((repo.pk, repo.clone_url) for repo in queryset)
         return options
 
     def save(self, commit=True):

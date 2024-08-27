@@ -1,5 +1,3 @@
-import textwrap
-
 import structlog
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -8,8 +6,8 @@ from django.urls import reverse
 from django.utils.translation import gettext_noop as _
 from django_extensions.db.models import TimeStampedModel
 
-from .constants import CANCELLED, DISMISSED, READ, UNREAD, WARNING
-from .messages import Message, registry
+from .constants import CANCELLED, DISMISSED, READ, UNREAD
+from .messages import registry
 from .querysets import NotificationQuerySet
 
 log = structlog.get_logger(__name__)
@@ -76,23 +74,10 @@ class Notification(TimeStampedModel):
 
         message = registry.get(self.message_id, format_values=format_values)
         if message is None:
-            # Log the error and return an unknown error to avoid breaking the response.
+            # Log the error and let the None message return through the API
             log.error(
                 "The message ID retrieved is not in our registry anymore.",
                 message_id=self.message_id,
-            )
-            return Message(
-                id="unknown-message",
-                header=_("Unknown message"),
-                body=_(
-                    textwrap.dedent(
-                        """
-                        It seems it was an old message,
-                        and is not in our registry anymore.
-                        """
-                    ).strip(),
-                ),
-                type=WARNING,
             )
 
         return message

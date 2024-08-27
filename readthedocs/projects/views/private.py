@@ -358,7 +358,15 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         other side effects for now, by signalling a save without commit. Then,
         finish by added the members to the project and saving.
         """
-        basics_form = form_list[0]
+
+        # We need to find the "basics" for here by iterating the list of bounded instance forms
+        # because community and business have different steps -- it's not always the first one.
+        basics_form = None
+        for form in form_list:
+            if isinstance(form, self.form_list.get("basics")):
+                basics_form = form
+                break
+
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
