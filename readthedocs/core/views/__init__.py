@@ -108,7 +108,7 @@ class ErrorView(TemplateView):
     """
 
     base_path = "errors/dashboard"
-    status_code = 400
+    status_code = None
     template_name = None
 
     def get_status_code(self):
@@ -125,8 +125,13 @@ class ErrorView(TemplateView):
             template_names.append(str(status_code))
         return [f"{self.base_path}/{file}.html" for file in template_names]
 
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data["status_code"] = self.get_status_code()
+        return context_data
+
     def dispatch(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
+        context = self.get_context_data()
         status_code = self.get_status_code()
         return self.render_to_response(
             context,
