@@ -2,7 +2,7 @@ from fnmatch import fnmatch
 
 import structlog
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.projects.signals import files_changed
@@ -95,7 +95,7 @@ def reindex_version(version_id, search_index_name=None):
 
     build_config = latest_successful_build.config or {}
     search_config = build_config.get("search", {})
-    search_ranking = search_config.get("ranking", [])
+    search_ranking = search_config.get("ranking", {})
     search_ignore = search_config.get("ignore", [])
 
     try:
@@ -107,6 +107,31 @@ def reindex_version(version_id, search_index_name=None):
         )
     except Exception:
         log.exception("Failed during creation of new files")
+
+
+@app.task(queue="reindex")
+def index_project(project_slug, skip_if_exists=False):
+    """
+    Index all active versions of the project.
+
+    If ``skip_if_exists`` is True, we first check if
+    the project has at least one version indexed,
+    and skip the re-indexing if it does.
+    """
+    log.bind(project_slug=project_slug)
+    project = Project.objects.filter(slug=project_slug).first()
+    if not project:
+        log.debug("Project doesn't exist.")
+        return
+
+    if skip_if_exists:
+        if PageDocument().search().filter("term", project=project.slug).count():
+            log.debug("Skipping search indexing. Project is already indexed.")
+            return
+
+    versions = project.versions(manager=INTERNAL).filter(active=True, built=True)
+    for version in versions:
+        reindex_version(version_id=version.id)
 
 
 @app.task(queue="web")
