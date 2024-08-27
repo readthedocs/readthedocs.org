@@ -547,7 +547,7 @@ class TestReadTheDocsConfigJson(TestCase):
         subproject.save()
 
         fixture.get(Version, slug="v1", project=subproject, privacy_level=PUBLIC)
-        fixture.get(Version, slug="v2.3", project=subproject, private_level=PUBLIC)
+        fixture.get(Version, slug="v2.3", project=subproject, privacy_level=PUBLIC)
         subproject.versions.update(
             privacy_level=PUBLIC,
             built=True,
