@@ -1,10 +1,14 @@
 import time
+from unittest import mock
 
 import pytest
 from django.urls import reverse
 
 from readthedocs.builds.constants import LATEST, STABLE
+from readthedocs.projects.models import Project
+from readthedocs.projects.tasks.search import index_project
 from readthedocs.search import utils
+from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 
@@ -66,3 +70,25 @@ class TestSearchUtils:
         for project in ["pipeline", "docs"]:
             for version in [LATEST, STABLE]:
                 assert self.has_results(api_client, project, version)
+
+    @mock.patch("readthedocs.projects.tasks.search.reindex_version")
+    def test_index_project(self, reindex_version, all_projects):
+        project_slug = "kuma"
+        project = Project.objects.get(slug=project_slug)
+        # Create builds for all versions
+        for version in project.versions.all():
+            version.builds.create(
+                project=project,
+                state="finished",
+                success=True,
+            )
+
+        assert PageDocument().search().filter("term", project=project_slug).count()
+
+        # Re-index is skipped, since the project is already indexed.
+        index_project(project_slug=project_slug, skip_if_exists=True)
+        reindex_version.assert_not_called()
+
+        # Re-index all versions of the project.
+        index_project(project_slug=project_slug, skip_if_exists=False)
+        assert reindex_version.call_count == project.versions.count()
