@@ -283,6 +283,7 @@ class TestReadTheDocsConfigJson(TestCase):
             slug="translation",
             main_language_project=self.project,
             language="ja",
+            privacy_level=PUBLIC,
         )
         translation_ja.versions.update(
             built=True,
@@ -529,20 +530,24 @@ class TestReadTheDocsConfigJson(TestCase):
             slug="translation",
             language="es",
             repo="https://github.com/readthedocs/subproject",
+            privacy_level=PUBLIC,
         )
         translation.versions.update(
             built=True,
             active=True,
         )
         subproject = fixture.get(
-            Project, slug="subproject", repo="https://github.com/readthedocs/subproject"
+            Project,
+            slug="subproject",
+            repo="https://github.com/readthedocs/subproject",
+            privacy_level=PUBLIC,
         )
         self.project.add_subproject(subproject)
         subproject.translations.add(translation)
         subproject.save()
 
-        fixture.get(Version, slug="v1", project=subproject)
-        fixture.get(Version, slug="v2.3", project=subproject)
+        fixture.get(Version, slug="v1", project=subproject, privacy_level=PUBLIC)
+        fixture.get(Version, slug="v2.3", project=subproject, private_level=PUBLIC)
         subproject.versions.update(
             privacy_level=PUBLIC,
             built=True,
