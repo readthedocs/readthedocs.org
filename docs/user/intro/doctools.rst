@@ -12,5 +12,4 @@ with more coming soon.
    :caption: Supported doctools
 
    Hosting Sphinx documentation on Read the Docs </intro/sphinx>
-   Hosting Mkdocs documentation on Read the Docs </intro/mkdocs>
-   Hosting JSDoc documentation on Read the Docs </intro/jsdoc>
+   Hosting MaterialMkdocs documentation on Read the Docs </intro/mkdocs>
