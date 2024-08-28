@@ -32,7 +32,7 @@ MkDocs is a fast, simple and downright gorgeous static site generator that's gea
 Quick start
 -----------
 
-- If you have an existing Mkdocs project your want to host on Read the Docs, check out our :doc:`/intro/import-guide` guide.
+- If you have an existing Mkdocs project you want to host on Read the Docs, check out our :doc:`/intro/import-guide` guide.
 
 - If you're new to Mkdocs, check out the official `Getting started with MkDocs`_ guide.
 
