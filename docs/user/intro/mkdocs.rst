@@ -43,8 +43,8 @@ Quick start
 
 .. _Getting started with Material for MkDocs: https://squidfunk.github.io/mkdocs-material/getting-started/
 
-Configuring MkDocs and Read the Docs addons
--------------------------------------------
+Configuring Material for MkDocs and Read the Docs addons
+--------------------------------------------------------
 
 To get the best integration with Read the Docs,
 you need to make the following configuration changes to your Material for MkDocs config:
@@ -78,8 +78,8 @@ you need to make the following configuration changes to your Material for MkDocs
             - javascript/readthedocs.js
 
 
-Integrating Read the Docs version menu into your site navigation
------------------------------------------------------------------
+Integrating the Read the Docs version menu into your site navigation
+--------------------------------------------------------------------
 
 To integrate the version menu into your site navigation
 
@@ -134,6 +134,14 @@ To integrate the version menu into your site navigation
         extra_javascript:
             - javascript/readthedocs.js
 
+Example repo and demo
+---------------------
+
+Example repo::
+    https://github.com/readthedocs/test-builds/tree/mkdocs-material
+
+Demo::
+    https://test-builds.readthedocs.io/en/mkdocs-material/
 
 Further reading
 ---------------
