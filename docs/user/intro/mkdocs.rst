@@ -142,6 +142,6 @@ Further reading
 * `Markdown syntax guide`_
 * `Writing your docs with MkDocs`_
 
-.. _MkDocs documentation: https://squidfunk.github.io/mkdocs-material/setup/
+.. _Material for MkDocs documentation: https://squidfunk.github.io/mkdocs-material/setup/
 .. _Markdown syntax guide: https://daringfireball.net/projects/markdown/syntax
 .. _Writing your docs with MkDocs: https://www.mkdocs.org/user-guide/writing-your-docs/
