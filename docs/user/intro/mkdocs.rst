@@ -1,12 +1,17 @@
-Mkdocs on Read the Docs
-=======================
+Material for MkDocs on Read the Docs
+====================================
 
 .. meta::
-   :description lang=en: Hosting MkDocs on Read the Docs.
+   :description lang=en: Hosting Material for MkDocs on Read the Docs.
 
-MkDocs is a fast, simple and downright gorgeous static site generator that's geared towards building project documentation.
+MkDocs is a fast, simple static site generator that's geared towards building project documentation.
+Material for MkDocs is a powerful documentation framework on top of MkDocs.
 
-.. TODO The code comments here are pre-addons right? cos there is no manipulation
+.. note::
+
+    This page is explicitly about Material for MkDocs. We're working on a guide for plain MkDocs as well.
+
+.. TODO The code comments for this next coe block are pre-addons right? cos there is no manipulation
 
 
 .. code-block:: yaml
@@ -32,17 +37,17 @@ MkDocs is a fast, simple and downright gorgeous static site generator that's gea
 Quick start
 -----------
 
-- If you have an existing Mkdocs project you want to host on Read the Docs, check out our :doc:`/intro/import-guide` guide.
+- If you have an existing Material for MkDocs project you want to host on Read the Docs, check out our :doc:`/intro/import-guide` guide.
 
-- If you're new to Mkdocs, check out the official `Getting started with MkDocs`_ guide.
+- If you're new to Material for MkDocs, check out the official `Getting started with Material for MkDocs`_ guide.
 
-.. _Getting started with MkDocs: https://www.mkdocs.org/getting-started/
+.. _Getting started with Material for MkDocs: https://squidfunk.github.io/mkdocs-material/getting-started/
 
-Configuring Mkdocs and Read the Docs addons
+Configuring MkDocs and Read the Docs addons
 -------------------------------------------
 
 To get the best integration with Read the Docs,
-you need to make the following configuration changes to your Mkdocs config:
+you need to make the following configuration changes to your Material for MkDocs config:
 
 #. Set the site URL using a :doc:`Read the Docs environment variable </reference/environment-variables>`:
 
@@ -51,7 +56,7 @@ you need to make the following configuration changes to your Mkdocs config:
 
         site_url: !ENV READTHEDOCS_CANONICAL_URL
 
-#. Configure search to use Read the Docs search instead of Mkdocs search:
+#. Configure search to use Read the Docs search instead of the default search:
 
     .. code-block:: js
         :caption: javascript/readthedocs.js
@@ -64,7 +69,7 @@ you need to make the following configuration changes to your Mkdocs config:
             });
         });
 
-#. Include ``javascript/readthedocs.js`` in the Mkdocs build:
+#. Include ``javascript/readthedocs.js`` in the MkDocs build:
 
     .. code-block:: yaml
         :caption: mkdocs.yml
@@ -121,7 +126,7 @@ To integrate the version menu into your site navigation
             document.querySelector(".md-header__topic").insertAdjacentHTML("beforeend", versioning);
         });
 
-#. Make sure that ``javascript/readthedocs.js`` is included in the Mkdocs build:
+#. Make sure that ``javascript/readthedocs.js`` is included in the MkDocs build:
 
     .. code-block:: yaml
         :caption: mkdocs.yml
@@ -133,10 +138,10 @@ To integrate the version menu into your site navigation
 Further reading
 ---------------
 
-* `MkDocs documentation`_
+* `Material for MkDocs documentation`_
 * `Markdown syntax guide`_
 * `Writing your docs with MkDocs`_
 
-.. _MkDocs documentation: https://www.mkdocs.org/
+.. _MkDocs documentation: https://squidfunk.github.io/mkdocs-material/setup/
 .. _Markdown syntax guide: https://daringfireball.net/projects/markdown/syntax
 .. _Writing your docs with MkDocs: https://www.mkdocs.org/user-guide/writing-your-docs/
