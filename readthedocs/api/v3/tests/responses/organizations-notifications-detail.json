@@ -7,7 +7,7 @@
   "dismissable": false,
   "id": 1,
   "message": {
-    "body": "The organization \"organization\" is currently disabled. You need to <a href=\"\">renew your subscription</a> to keep using Read the Docs",
+    "body": "The organization \"organization\" is currently disabled. You need to <a href=\"/organizations/organization/subscription/\">renew your subscription</a> to keep using Read the Docs",
     "header": "Your organization has been disabled",
     "icon_classes": "fas fa-circle-info",
     "id": "organization:disabled",

@@ -13,6 +13,7 @@ from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -728,6 +729,14 @@ class ProjectUpdateSerializer(SettingsOverrideObject):
     _default_class = ProjectUpdateSerializerBase
 
 
+class ProjectPermissionSerializer(serializers.Serializer):
+    admin = serializers.SerializerMethodField()
+
+    def get_admin(self, obj):
+        user = self.context.get("request").user
+        return AdminPermission.is_admin(user, obj)
+
+
 class ProjectSerializer(FlexFieldsModelSerializer):
 
     """
@@ -805,6 +814,12 @@ class ProjectSerializer(FlexFieldsModelSerializer):
                 "readthedocs.api.v3.serializers.OrganizationSerializer",
                 # NOTE: we cannot have a Project with multiple organizations.
                 {"source": "organizations.first"},
+            ),
+            "permissions": (
+                ProjectPermissionSerializer,
+                {
+                    "source": "*",
+                },
             ),
         }
 

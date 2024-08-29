@@ -13,8 +13,6 @@ Currently, we support two different types of single sign-on:
 * Authentication *and* authorization are managed by the identity provider (GitHub, Bitbucket or GitLab)
 * Authentication (*only*) is managed by the identity provider (Google Workspace account with a verified email address)
 
-Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the RTD flyout menu.
-
 .. _sso_git_provider:
 
 Single Sign-on with GitHub, Bitbucket, or GitLab

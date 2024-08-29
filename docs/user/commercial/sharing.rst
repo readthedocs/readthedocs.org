@@ -35,8 +35,6 @@ Enabling sharing
 
    You can always revoke access in the same panel.
 
-Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the RTD flyout menu.
-
 Sharing methods
 ---------------
 

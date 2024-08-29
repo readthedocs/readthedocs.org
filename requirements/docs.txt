@@ -10,7 +10,7 @@ anyio==4.4.0
     # via
     #   starlette
     #   watchfiles
-babel==2.15.0
+babel==2.16.0
     # via
     #   sphinx
     #   sphinx-intl
@@ -41,7 +41,7 @@ fonttools==4.53.1
     # via matplotlib
 h11==0.14.0
     # via uvicorn
-idna==3.7
+idna==3.8
     # via
     #   anyio
     #   requests
@@ -59,15 +59,15 @@ markdown-it-py==3.0.0
     #   myst-parser
 markupsafe==2.1.5
     # via jinja2
-matplotlib==3.9.1
+matplotlib==3.9.2
     # via -r requirements/docs.in
 mdit-py-plugins==0.4.1
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-parser==3.0.1
+myst-parser==4.0.0
     # via -r requirements/docs.in
-numpy==2.0.1
+numpy==2.1.0
     # via
     #   contourpy
     #   matplotlib
@@ -88,7 +88,7 @@ pyparsing==3.1.2
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via myst-parser
 requests==2.32.3
     # via sphinx
@@ -171,11 +171,11 @@ typing-extensions==4.12.2
     #   uvicorn
 urllib3==2.2.2
     # via requests
-uvicorn==0.30.5
+uvicorn==0.30.6
     # via sphinx-autobuild
-watchfiles==0.22.0
+watchfiles==0.23.0
     # via sphinx-autobuild
-websockets==12.0
+websockets==13.0
     # via sphinx-autobuild
 
 # The following packages are considered to be unsafe in a requirements file:
