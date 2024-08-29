@@ -4,7 +4,7 @@ import textwrap
 
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.notifications.constants import ERROR, INFO
+from readthedocs.notifications.constants import ERROR, INFO, WARNING
 from readthedocs.notifications.messages import Message, registry
 
 MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS = "oauth:webhook:no-permissions"
@@ -15,6 +15,9 @@ MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_SUCCESSFULLY = (
     "oauth:deploy-key:attached-successfully"
 )
 MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_FAILED = "oauth:deploy-key:attached-failed"
+MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_FAILED_ON_MANUAL_IMPORTED_PROJECT = (
+    "oauth:deploy-key:attached-failed-unknown-repo"
+)
 
 messages = [
     Message(
@@ -95,6 +98,22 @@ messages = [
             ).strip(),
         ),
         type=ERROR,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_FAILED_ON_MANUAL_IMPORTED_PROJECT,
+        header=_("Failed to add deploy key to project"),
+        body=_(
+            textwrap.dedent(
+                """
+                We were unable to find this repository in your {{ provider_name }} account.
+                If this is a private repository, you'll need to
+                <a href="https://docs.readthedocs.io/page/guides/importing-private-repositories.html">
+                  add the deploy key manually
+                </a>.
+                """
+            ).strip(),
+        ),
+        type=WARNING,
     ),
 ]
 registry.add(messages)
