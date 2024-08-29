@@ -20,6 +20,7 @@ class SSOIntegrationAdmin(admin.ModelAdmin):
     list_display = ("organization", "provider")
     search_fields = ("organization__slug", "organization__name", "domains__domain")
     list_filter = ("provider",)
+    raw_id_fields = ("organization",)
 
     actions = [
         "resync_sso_user_accounts",
