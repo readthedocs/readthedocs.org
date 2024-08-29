@@ -284,6 +284,7 @@ def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):
         for content, mimetype in email.alternatives:
             if mimetype == "text/html":
                 html_content = content
+                break
     send_email_task.delay(
         recipient=email.to,
         subject=email.subject,
