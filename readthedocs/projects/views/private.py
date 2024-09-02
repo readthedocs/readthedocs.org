@@ -386,7 +386,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
                                 messages.success(
                                     self.request,
                                     _(
-                                        "We detected a configuration file in your repository; triggering an initial build"
+                                        "We detected a configuration file in your repository and started your project's first build."
                                     ),
                                 )
                                 self.form_list.pop("config")
