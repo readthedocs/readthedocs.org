@@ -356,7 +356,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
             remote_repository = form.cleaned_data.get("remote_repository")
             if remote_repository and remote_repository.vcs_provider == GITHUB:
                 remote_repository_relations = (
-                    remote_repository.remote_repository_relation.filter(
+                    remote_repository.remote_repository_relations.filter(
                         user=self.request.user,
                         account__isnull=False,
                     )
