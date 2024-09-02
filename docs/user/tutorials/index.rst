@@ -9,7 +9,7 @@ Tutorials
 ⏩️ :doc:`/tutorial/index`
   This is where you should go if you are trying Read the Docs for the first time!
 
-⏩️ :doc:`/intro/getting-started-with-sphinx`
+⏩️ :doc:`/intro/sphinx`
   Sphinx is the most popular documentation tool on our platform.
   It supports both reStructuredText and Markdown formats, and can generate rich API documentation from your source code.
   We recommend Sphinx for documentation that includes API reference documentation.
@@ -37,7 +37,7 @@ Tutorials
    :hidden:
 
    /tutorial/index
-   /intro/getting-started-with-sphinx
+   /intro/sphinx
    /intro/mkdocs
    /intro/import-guide
    /config-file/index
