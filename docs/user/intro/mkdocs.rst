@@ -46,17 +46,36 @@ Quick start
 Configuring Material for MkDocs and Read the Docs addons
 --------------------------------------------------------
 
-To get the best integration with Read the Docs,
-you need to make the following configuration changes to your Material for MkDocs config:
+For optimal integration with Read the Docs, make the optional following configuration changes to your Material for MkDocs config.
 
-#. Set the site URL using a :doc:`Read the Docs environment variable </reference/environment-variables>`:
+.. contents::
+   :depth: 1
+   :local:
+   :backlinks: none
 
-    .. code-block:: yaml
-        :caption: mkdocs.yml
+Set the canonical URL
+~~~~~~~~~~~~~~~~~~~~~
 
-        site_url: !ENV READTHEDOCS_CANONICAL_URL
+A :doc:`canonical URL </canonical-urls>` allows you to specify the preferred version of a web page
+to prevent duplicated content.
 
-#. Configure search to use Read the Docs search instead of the default search:
+Set your MkDocs `site URL`_  to your Read the Docs canonical URL using a
+:doc:`Read the Docs environment variable </reference/environment-variables>`:
+
+.. code-block:: yaml
+    :caption: mkdocs.yml
+
+    site_url: !ENV READTHEDOCS_CANONICAL_URL
+
+.. _Site URL: https://www.mkdocs.org/user-guide/configuration/#site_url
+
+
+Configure Read the Docs search
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To configure your site to use :doc:`Read the Docs search </server-side-search/index>` instead of the default search:
+
+#. Add the following block of JavaScript:
 
     .. code-block:: js
         :caption: javascript/readthedocs.js
@@ -69,7 +88,7 @@ you need to make the following configuration changes to your Material for MkDocs
             });
         });
 
-#. Include ``javascript/readthedocs.js`` in the MkDocs build:
+#. Include ``javascript/readthedocs.js`` in your MkDocs configuration:
 
     .. code-block:: yaml
         :caption: mkdocs.yml
@@ -78,8 +97,8 @@ you need to make the following configuration changes to your Material for MkDocs
             - javascript/readthedocs.js
 
 
-Integrating the Read the Docs version menu into your site navigation
---------------------------------------------------------------------
+Integrate the Read the Docs version menu into your site navigation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To integrate the version menu into your site navigation
 
@@ -126,7 +145,7 @@ To integrate the version menu into your site navigation
             document.querySelector(".md-header__topic").insertAdjacentHTML("beforeend", versioning);
         });
 
-#. Make sure that ``javascript/readthedocs.js`` is included in the MkDocs build:
+#. Make sure that ``javascript/readthedocs.js`` is included in your MkDocs configuration:
 
     .. code-block:: yaml
         :caption: mkdocs.yml
@@ -134,8 +153,8 @@ To integrate the version menu into your site navigation
         extra_javascript:
             - javascript/readthedocs.js
 
-Example repo and demo
----------------------
+Example repository and demo
+---------------------------
 
 Example repo::
     https://github.com/readthedocs/test-builds/tree/mkdocs-material
