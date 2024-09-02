@@ -1,3 +1,46 @@
+Version 11.7.0
+--------------
+
+:Date: August 27, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11566 <https://github.com/readthedocs/readthedocs.org/pull/11566>`__)
+* `@kurtmckee <https://github.com/kurtmckee>`__: Fix a minor typo (`#11565 <https://github.com/readthedocs/readthedocs.org/pull/11565>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Use clone_url for remote repository field (`#11564 <https://github.com/readthedocs/readthedocs.org/pull/11564>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tasks: delete closed PRs every 30 minutes (`#11563 <https://github.com/readthedocs/readthedocs.org/pull/11563>`__)
+* `@stsewd <https://github.com/stsewd>`__: Settings: define threshold setting for removing projects from ES (`#11560 <https://github.com/readthedocs/readthedocs.org/pull/11560>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: improve way to get the `basics` form (`#11558 <https://github.com/readthedocs/readthedocs.org/pull/11558>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: add function to re-index a project (`#11555 <https://github.com/readthedocs/readthedocs.org/pull/11555>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.6.0 (`#11554 <https://github.com/readthedocs/readthedocs.org/pull/11554>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: make URLs not linkable (`#11553 <https://github.com/readthedocs/readthedocs.org/pull/11553>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#11552 <https://github.com/readthedocs/readthedocs.org/pull/11552>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: make translation section more generic (`#11549 <https://github.com/readthedocs/readthedocs.org/pull/11549>`__)
+* `@mgeier <https://github.com/mgeier>`__: Update instructions for Jupyter notebook galleries (`#11545 <https://github.com/readthedocs/readthedocs.org/pull/11545>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: 2FA (`#11524 <https://github.com/readthedocs/readthedocs.org/pull/11524>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.21.0 (`#11185 <https://github.com/readthedocs/readthedocs.org/pull/11185>`__)
+* `@humitos <https://github.com/humitos>`__: Build: show the YAML config file before validating it (`#11175 <https://github.com/readthedocs/readthedocs.org/pull/11175>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.18.0 (`#11096 <https://github.com/readthedocs/readthedocs.org/pull/11096>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11090 <https://github.com/readthedocs/readthedocs.org/pull/11090>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use version slug for get_version_slug (`#11085 <https://github.com/readthedocs/readthedocs.org/pull/11085>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: Don't allow webhooks without a secret (`#11083 <https://github.com/readthedocs/readthedocs.org/pull/11083>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: sorting algorithm for versions customizable on flyout (`#11069 <https://github.com/readthedocs/readthedocs.org/pull/11069>`__)
+
+Version 11.6.0
+--------------
+
+:Date: August 20, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#11552 <https://github.com/readthedocs/readthedocs.org/pull/11552>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: make translation section more generic (`#11549 <https://github.com/readthedocs/readthedocs.org/pull/11549>`__)
+* `@webknjaz <https://github.com/webknjaz>`__: Fix a typo in "invited" in email notification subjects (`#11546 <https://github.com/readthedocs/readthedocs.org/pull/11546>`__)
+* `@mgeier <https://github.com/mgeier>`__: Update instructions for Jupyter notebook galleries (`#11545 <https://github.com/readthedocs/readthedocs.org/pull/11545>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Drop "Unknown message" notification (`#11542 <https://github.com/readthedocs/readthedocs.org/pull/11542>`__)
+* `@stsewd <https://github.com/stsewd>`__: Login: add link to SAML login (`#11541 <https://github.com/readthedocs/readthedocs.org/pull/11541>`__)
+* `@robredpath <https://github.com/robredpath>`__: Update i18n docs for Sphinx (`#11538 <https://github.com/readthedocs/readthedocs.org/pull/11538>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.5.0 (`#11537 <https://github.com/readthedocs/readthedocs.org/pull/11537>`__)
+* `@humitos <https://github.com/humitos>`__: Slack: use json= to send a message using webhooks (`#11536 <https://github.com/readthedocs/readthedocs.org/pull/11536>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add a notification on each Sphinx build (`#11514 <https://github.com/readthedocs/readthedocs.org/pull/11514>`__)
+* `@stsewd <https://github.com/stsewd>`__: Ask for confirmation when adding a user to a project/organization/team (`#9440 <https://github.com/readthedocs/readthedocs.org/pull/9440>`__)
+
 Version 11.5.0
 --------------
 

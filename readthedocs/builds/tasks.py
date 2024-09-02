@@ -251,7 +251,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
     queryset = Version.external.filter(
         state=EXTERNAL_VERSION_STATE_CLOSED,
         modified__lte=days_ago,
-    )[:limit]
+    ).order_by("modified")[:limit]
     for version in queryset:
         try:
             last_build = version.last_build

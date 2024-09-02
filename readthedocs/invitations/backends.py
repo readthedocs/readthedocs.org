@@ -67,7 +67,7 @@ class Backend:
         )
         send_email(
             recipient=email,
-            subject=f"{from_name} has invite you to join the {object_description}",
+            subject=f"{from_name} has invited you to join the {object_description}",
             template="invitations/email/invitation.txt",
             template_html="invitations/email/invitation.html",
             context={
