@@ -5,12 +5,8 @@ How-to guides: content, themes and SEO
     This article explains how documentation can be optimized to appear in search results,
     ultimately increasing traffic to your docs.
 
-⏩️ :doc:`Enabling canonical URLs </guides/canonical-urls>`
-    In this guide, we introduce relevant settings for enabling canonical URLs in popular documentation frameworks.
-
 ⏩️ :doc:`Using traffic analytics </analytics>`
     In this guide, you can learn to use Read the Docs' built-in traffic analytics for your documentation project.
-    You will also learn how to optionally add your own Google Analytics account or completely disable Google Analytics on your project.
 
 ⏩️ :doc:`Managing translations for Sphinx projects </guides/manage-translations-sphinx>`
     This guide walks through the process needed to manage translations of your documentation.
@@ -63,7 +59,6 @@ How-to guides: content, themes and SEO
    Search engine optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
    Using traffic analytics </analytics>
    Using search analytics </guides/search-analytics>
-   Enabling canonical URLs </guides/canonical-urls>
    Enabling offline formats </guides/enable-offline-formats>
    Embedding content from your documentation </guides/embedding-content>
    Managing translations for Sphinx projects </guides/manage-translations-sphinx>

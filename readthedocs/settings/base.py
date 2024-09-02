@@ -14,6 +14,8 @@ from corsheaders.defaults import default_headers
 from readthedocs.core.settings import Settings
 from readthedocs.builds import constants_docker
 
+from django.conf.global_settings import PASSWORD_HASHERS
+
 try:
     import readthedocsext.cdn  # noqa
 
@@ -285,6 +287,7 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount.providers.github",
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
+            "allauth.mfa",
             "cacheops",
         ]
         if ext:
@@ -363,6 +366,10 @@ class CommunityBaseSettings(Settings):
             "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
         },
     ]
+
+    # Explicitly set the password hashers to the default ones,
+    # so we can change them in our test settings.
+    PASSWORD_HASHERS = PASSWORD_HASHERS
 
     # Paths
     SITE_ROOT = os.path.dirname(
@@ -539,11 +546,11 @@ class CommunityBaseSettings(Settings):
                 "delete": True,
             },
         },
-        "every-three-hours-delete-inactive-external-versions": {
+        "every-30m-delete-inactive-external-versions": {
             "task": "readthedocs.builds.tasks.delete_closed_external_versions",
             # Increase the frequency because we have 255k closed versions and they keep growing.
             # It's better to increase this frequency than the `limit=` of the task.
-            "schedule": crontab(minute=0, hour="*/3"),
+            "schedule": crontab(minute="*/30", hour="*"),
             "options": {"queue": "web"},
         },
         "every-day-resync-remote-repositories": {
@@ -655,7 +662,7 @@ class CommunityBaseSettings(Settings):
         )
         return limits
 
-    # All auth
+    # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
     ACCOUNT_EMAIL_REQUIRED = True
 
@@ -1004,6 +1011,7 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS = 200
     RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD = 300
     RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS = 500
+    RTD_SPAM_THRESHOLD_REMOVE_FROM_SEARCH_INDEX = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
 

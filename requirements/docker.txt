@@ -19,35 +19,35 @@ async-timeout==4.0.3
     # via
     #   -r requirements/pip.txt
     #   redis
-attrs==24.1.0
+attrs==24.2.0
     # via wmctrl
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.153
+boto3==1.35.10
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.153
+botocore==1.35.10
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2023.1129
     # via -r requirements/pip.txt
-cachetools==5.4.0
+cachetools==5.5.0
     # via tox
 celery==5.2.7
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
     #   requests
-cffi==1.16.0
+cffi==1.17.0
     # via
     #   -r requirements/pip.txt
     #   cryptography
@@ -82,13 +82,14 @@ colorama==0.4.6
     #   -r requirements/pip.txt
     #   bumpver
     #   tox
-cron-descriptor==1.4.3
+cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
 cryptography==43.0.0
     # via
     #   -r requirements/pip.txt
+    #   fido2
     #   pyjwt
 cssselect==1.2.0
     # via
@@ -108,7 +109,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.14
+django==4.2.15
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -130,7 +131,7 @@ django==4.2.14
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[saml,socialaccount]==64.0.0
+django-allauth[mfa,saml,socialaccount]==64.2.0
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
@@ -138,7 +139,7 @@ django-autoslug==1.9.9
     # via -r requirements/pip.txt
 django-cacheops==7.0.2
     # via -r requirements/pip.txt
-django-celery-beat==2.6.0
+django-celery-beat==2.7.0
     # via -r requirements/pip.txt
 django-cors-headers==4.4.0
     # via -r requirements/pip.txt
@@ -156,7 +157,7 @@ django-filter==24.3
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
-django-gravatar2==1.4.4
+django-gravatar2==1.4.5
     # via -r requirements/pip.txt
 django-ipware==5.0.2
     # via
@@ -199,15 +200,15 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.13.1
+elastic-transport==8.15.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.14.0
+elasticsearch==8.15.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.14.0
+elasticsearch-dsl==8.15.1
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -217,6 +218,10 @@ executing==2.0.1
     # via stack-data
 fancycompleter==0.9.1
     # via pdbpp
+fido2==1.1.3
+    # via
+    #   -r requirements/pip.txt
+    #   django-allauth
 filelock==3.15.4
     # via
     #   -r requirements/pip.txt
@@ -226,15 +231,15 @@ funcy==2.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements/pip.txt
-idna==3.7
+idna==3.8
     # via
     #   -r requirements/pip.txt
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.26.0
+ipython==8.27.0
     # via ipdb
 isodate==0.6.1
     # via
@@ -251,7 +256,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.3.7
+kombu==5.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -263,13 +268,13 @@ looseversion==1.3.0
     # via
     #   -r requirements/pip.txt
     #   bumpver
-lxml==5.2.2
+lxml==5.3.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.6
+markdown==3.7
     # via -r requirements/pip.txt
 markdown-it-py==3.0.0
     # via rich
@@ -281,7 +286,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.6
+orjson==3.10.7
     # via -r requirements/pip.txt
 packaging==24.1
     # via
@@ -338,9 +343,13 @@ pyjwt[crypto]==2.9.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
+pypng==0.20220715.0
+    # via
+    #   -r requirements/pip.txt
+    #   qrcode
 pyproject-api==1.7.1
     # via tox
-pyquery==2.0.0
+pyquery==2.0.1
     # via -r requirements/pip.txt
 pyrepl==0.9.0
     # via fancycompleter
@@ -362,8 +371,12 @@ pytz==2024.1
     # via
     #   -r requirements/pip.txt
     #   celery
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via -r requirements/pip.txt
+qrcode==7.4.2
+    # via
+    #   -r requirements/pip.txt
+    #   django-allauth
 redis==5.0.8
     # via
     #   -r requirements/pip.txt
@@ -387,7 +400,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-rich==13.7.1
+rich==13.8.0
     # via -r requirements/docker.in
 s3transfer==0.10.2
     # via
@@ -432,7 +445,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.16.0
+tox==4.18.0
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -446,6 +459,7 @@ typing-extensions==4.12.2
     #   ipython
     #   psycopg
     #   psycopg-pool
+    #   qrcode
 tzdata==2024.1
     # via
     #   -r requirements/pip.txt

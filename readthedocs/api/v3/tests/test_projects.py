@@ -111,10 +111,12 @@ class ProjectsEndpointTests(APIEndpointMixin):
             "expand": (
                 "active_versions,"
                 "active_versions.last_build,"
-                "active_versions.last_build.config"
+                "active_versions.last_build.config,"
+                "permissions"
             ),
         }
         expected_response = self._get_response_dict("projects-detail")
+        expected_response["permissions"]["admin"] = False
 
         self.client.logout()
 
@@ -139,7 +141,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
             "expand": (
                 "active_versions,"
                 "active_versions.last_build,"
-                "active_versions.last_build.config"
+                "active_versions.last_build.config,"
+                "permissions"
             ),
         }
         expected_response = self._get_response_dict("projects-detail")
@@ -170,10 +173,12 @@ class ProjectsEndpointTests(APIEndpointMixin):
             "expand": (
                 "active_versions,"
                 "active_versions.last_build,"
-                "active_versions.last_build.config"
+                "active_versions.last_build.config,"
+                "permissions"
             ),
         }
         expected_response = self._get_response_dict("projects-detail")
+        expected_response["permissions"]["admin"] = False
 
         self.client.logout()
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
@@ -201,7 +206,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
             "expand": (
                 "active_versions,"
                 "active_versions.last_build,"
-                "active_versions.last_build.config"
+                "active_versions.last_build.config,"
+                "permissions"
             ),
         }
 
