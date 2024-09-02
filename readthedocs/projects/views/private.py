@@ -381,7 +381,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
                             if response.ok:
                                 log.info(
                                     "Read the Docs YAML file found for this repository.",
-                                    yaml=yaml,
+                                    filename=yaml,
                                 )
                                 messages.success(
                                     self.request,
