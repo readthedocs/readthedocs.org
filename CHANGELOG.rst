@@ -1,3 +1,15 @@
+Version 11.7.1
+--------------
+
+:Date: September 03, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11575 <https://github.com/readthedocs/readthedocs.org/pull/11575>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: update Okta setup steps (`#11569 <https://github.com/readthedocs/readthedocs.org/pull/11569>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: small typo (`#11568 <https://github.com/readthedocs/readthedocs.org/pull/11568>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.7.0 (`#11567 <https://github.com/readthedocs/readthedocs.org/pull/11567>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: skip config step if YAML file is present (`#11540 <https://github.com/readthedocs/readthedocs.org/pull/11540>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: don't completely override the `send_email` method (`#11526 <https://github.com/readthedocs/readthedocs.org/pull/11526>`__)
+
 Version 11.7.0
 --------------
 
