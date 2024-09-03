@@ -286,7 +286,7 @@ def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):
                 html_content = content
                 break
     send_email_task.delay(
-        recipient=email.to,
+        recipient=email.to[0],
         subject=email.subject,
         content=email.body,
         content_html=html_content,
