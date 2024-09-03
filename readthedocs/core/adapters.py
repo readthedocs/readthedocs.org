@@ -1,10 +1,13 @@
 """Allauth overrides."""
 
+import json
+
 import structlog
 from allauth.account.adapter import DefaultAccountAdapter
+from django.template.loader import render_to_string
 from django.utils.encoding import force_str
 
-from readthedocs.core.utils import send_email_from_object
+from readthedocs.core.utils import send_email
 from readthedocs.invitations.models import Invitation
 
 log = structlog.get_logger(__name__)
@@ -17,25 +20,36 @@ class AccountAdapter(DefaultAccountAdapter):
     def format_email_subject(self, subject):
         return force_str(subject)
 
-    def render_mail(self, template_prefix, email, context, headers=None):
-        """
-        Wrapper around render_mail to send emails using a task.
+    def send_mail(self, template_prefix, email, context):
+        subject = render_to_string(
+            "{}_subject.txt".format(template_prefix),
+            context,
+        )
+        subject = " ".join(subject.splitlines()).strip()
+        subject = self.format_email_subject(subject)
 
-        ``send_email`` makes use of the email object returned by this method,
-        and calls ``send`` on it. We override this method to return a dummy
-        object that has a ``send`` method, which in turn calls our task to send
-        the email.
-        """
-        email = super().render_mail(template_prefix, email, context, headers=headers)
+        # Allauth sends some additional data in the context, remove it if the
+        # pieces can't be json encoded
+        removed_keys = []
+        for key in list(context.keys()):
+            try:
+                _ = json.dumps(context[key])  # noqa for F841
+            except (ValueError, TypeError):
+                removed_keys.append(key)
+                del context[key]
+        if removed_keys:
+            log.debug(
+                "Removed context we were unable to serialize.",
+                removed_keys=removed_keys,
+            )
 
-        class DummyEmail:
-            def __init__(self, email):
-                self.email = email
-
-            def send(self):
-                send_email_from_object(self.email)
-
-        return DummyEmail(email)
+        send_email(
+            recipient=email,
+            subject=subject,
+            template="{}_message.txt".format(template_prefix),
+            template_html="{}_message.html".format(template_prefix),
+            context=context,
+        )
 
     def save_user(self, request, user, form, commit=True):
         """Override default account signup to redeem invitations at sign-up."""
