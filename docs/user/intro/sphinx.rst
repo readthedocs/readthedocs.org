@@ -12,7 +12,7 @@ specifying a python 3.x toolchain on Ubuntu, defining the location of the instal
 :ref:`mkdocs <config-file/v2:sphinx>` command:
 
 
-.. TODO:: why do we install tree using apt_package here? Because it might not be in the requirements.txt but is still necessary?
+.. TODO why do we install tree using apt_package here? Because it might not be in the requirements.txt but is still necessary?
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
