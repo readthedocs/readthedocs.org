@@ -2,7 +2,7 @@ Material for MkDocs on Read the Docs
 ====================================
 
 .. meta::
-   :description lang=en: Hosting Material for MkDocs on Read the Docs.
+   :description lang=en: Hosting Material for MkDocs sites on Read the Docs.
 
 MkDocs is a fast, simple static site generator that's geared towards building project documentation.
 Material for MkDocs is a powerful documentation framework on top of MkDocs.
@@ -11,28 +11,26 @@ Material for MkDocs is a powerful documentation framework on top of MkDocs.
 
     This page is explicitly about Material for MkDocs. We're working on a guide for plain MkDocs as well.
 
-.. TODO The code comments for this next coe block are pre-addons right? cos there is no manipulation
-
+Minimal configuration required to build an existing Material for MkDocs project on Read the Docs looks like this,
+specifying a python toolchain on Ubuntu, defining the location of the installation requirements, and using the built-in
+:ref:`mkdocs <config-file/v2:mkdocs>` command:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
 
-   version: 2
-   build:
-     os: ubuntu-22.04
-     tools:
-       python: "3"
-     # Since Read the Docs manipulates that `mkdocs.yml` and it does not support `!ENV`,
-     # we use `build.commands` here because we need `!ENV` in our `mkdocs.yml`.
-     #
-     commands:
-       # Install Material for MkDocs Insiders
-       # https://squidfunk.github.io/mkdocs-material/insiders/getting-started/
-       #
-       # Create GH_TOKEN environment variable on Read the Docs
-       # https://docs.readthedocs.io/en/stable/guides/private-python-packages.html
-       - pip install mkdocs-material
-       - mkdocs build --site-dir $READTHEDOCS_OUTPUT/html
+    version: 2
+
+    build:
+      os: ubuntu-24.04
+      tools:
+        python: "3"
+
+    python:
+      install:
+        - requirements: requirements.txt
+
+    mkdocs:
+      configuration: mkdocs.yml
 
 Quick start
 -----------
