@@ -35,6 +35,7 @@ In order to enable SSO with Okta, you need to create a new SAML application in y
    * :guilabel:`Single Sign On URL`: ``https://readthedocs.com/accounts/saml/<organization-slug>/acs/`` (replace ``<organization-slug>`` with your organization slug)
    * :guilabel:`Audience URI (SP Entity ID)`: ``https://readthedocs.com/accounts/saml/<organization-slug>/metadata/`` (replace ``<organization-slug>`` with your organization slug)
    * :guilabel:`Name ID format`: ``EmailAddress``
+   * :guilabel:`Application username`: ``Email``
    * Leave the rest of the fields as default.
 
 6. Add the following "attribute statements" to be used when creating a new user:
