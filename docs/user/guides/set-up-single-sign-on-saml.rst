@@ -100,7 +100,7 @@ After they sign up, they will be automatically joined to your organization withi
 Existing users
 ~~~~~~~~~~~~~~
 
-Existing users with email addresses from your configured domain will not be required to sign up using SAML,
+Existing users with email addresses from your configured domain will not be required to sign in using SAML,
 but they won't be automatically joined to your organization.
 
 If you want to enforce SAML for existing users, you have the following options:
@@ -108,6 +108,7 @@ If you want to enforce SAML for existing users, you have the following options:
 - Users can delete their accounts, and sign up again using SAML.
 - Users can link their existing accounts to their SAML identity by following this link while logged in their Read the Docs account:
   ``https://readthedocs.com/accounts/saml/<organization-slug>/login/?process=connect`` (replace ``<organization-slug>`` with your organization slug).
+  You can find this link in your `organization's SAML settings page <https://readthedocs.com/organizations/choose/organization_saml/>`__.
 
 Outside collaborators
 ~~~~~~~~~~~~~~~~~~~~~
