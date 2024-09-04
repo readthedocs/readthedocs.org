@@ -45,8 +45,19 @@ The key points of this feature are:
 - Expose that as an API.
 - Integrate that in PR previews.
 
-Diff between two S3 directories
--------------------------------
+Diff between two versions
+-------------------------
+
+Using a manifest
+~~~~~~~~~~~~~~~~
+
+We can create a manifest that contains the hashes and other important metadata of the files,
+we can save this manifest in storage or in the DB.
+
+When a build finishes, we generate this manifest for all HTML files, and store it.
+When we need to compare two versions, we can just compare the manifests.
+
+This doesn't require downloading the files, but it requires building a version to generate the manifest.
 
 Using rclone
 ~~~~~~~~~~~~
@@ -75,20 +86,29 @@ another option can be to output each type of change to a different file (``--mis
 
 To start, we will only consider HTML files (``--include=*.html``).
 
-Using a manifest
-~~~~~~~~~~~~~~~~
+Changed files
+-------------
 
-Another option is to create a manifest that contains the hashes and other important metadata of the files,
-we can save this manifest in storage or in the DB.
+Listing the files that were added or deleted is straightforward,
+but when listing the files that were modified, we want to list files that had relevant changes only.
 
-When a build finishes, we can generate this manifest and store it.
-When we need to compare two versions, we can just compare the manifests.
+For example, if the build injects some content that changes on every build (like a timestamp or commit),
+we don't want to list all files as modified.
+
+We have a couple of options to improve this list.
+
+Hashing the main content
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Timestamps and other metadata is usually added in the footer of the files, outside the main content.
+Instead of hashing the whole file, we can hash only the main content of the file,
+and use that hash to compare the files.
+
+This will allow us to better detect files that were modified in a meaningful way.
 
 Lines changed between two files
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Having a list of files that changed is good, but if the builds inject some content
-that changes on every build (like a timestamp), all files will always be marked as changed.
 In order to provide more useful information, we can sort the files by some metrics,
 like the number of lines that changed.
 
@@ -137,15 +157,12 @@ A good thing of using Python is that we don't need to write the files to disk,
 and the result is easier to parse.
 
 Alternative metrics
-~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++
 
 Checking the number of lines that changed is a good metric, but it requires downloading the files.
 Another metric we could use is the size of the files, that can be obtained from the metadata (no need of downloading the files),
 The most a file size has changed, the most lines have likely been added or removed,
 this still leaves lines that changed with the same amount of characters as irrelevant in the listing.
-
-Another way could be to check for lines changed in the main content of the file,
-we can re-use the code we have for search indexing.
 
 Storing results
 ---------------
@@ -256,14 +273,17 @@ Initial implementation
 
 For the initial implementation, we will:
 
-- Use the ``rclone check`` command to get the diff between two versions.
+- Generate a manifest of all HTML files from the versions that we want to compare.
+  This will be done at the end of the build.
+- Generate the hash based on the main content of the file,
+  not the whole file.
 - Only expose the files that were added, removed, or modified (HTML files only).
   The number of lines that changed wont be exposed.
-- Store the results in the DB.
+- Don't store the results in the DB,
+  we can store the results in a next iteration.
 - Expose this feature only via the addons feature.
 - Allow to diff an external version against the version that points to the default branch/tag of the project only.
 - Use a feature flag to enable this feature on projects.
-- Run the diff while we have the files on disk (end of the build), if possible.
 
 Other features that are not mentioned here, like exposing the number of lines that changed,
 or a public API, will not be implemented in the initial version,
@@ -272,7 +292,11 @@ and may be considered in the future (and thier implementation is subject to chan
 Possible issues
 ---------------
 
-Even if we don't download files from S3, we are still making calls to S3, and AWS charges for those calls.
+In the case that we use a manifest,
+hashing the contents of the files may add some overhead to the build.
+
+In the case that we use ``rclone``,
+even if we don't download files from S3, we are still making calls to S3, and AWS charges for those calls.
 But since we are doing this on demand, and we can cache the results, we can minimize the costs
 (maybe is not that much).
 
@@ -289,10 +313,14 @@ Future improvements and ideas
   This will imply checking the hashes of deleted and added files,
   if that same hash of a file that was deleted matches one from a file that was added,
   we have a move.
-  But since we don't have access to those hashes after rclone is run,
+  In case we use rclone, since we don't have access to those hashes after rclone is run,
   we would need to re-fetch that metadata from S3.
   Could be a feature request for rclone.
 - Detect changes in sections of HTML files.
   We could re-use the code we have for search indexing.
 - Expand to other file types
 - Allow doing a diff between versions of different projects
+- Allow to configure how the main content of the file is detected
+  (like a CSS selector).
+- Allow to configure content that should be ignored when hashing the file
+  (like a CSS selector).
