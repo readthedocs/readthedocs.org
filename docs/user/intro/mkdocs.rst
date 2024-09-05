@@ -98,7 +98,7 @@ To configure your site to use :doc:`Read the Docs search </server-side-search/in
 Integrate the Read the Docs version menu into your site navigation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To integrate the version menu into your site navigation
+To integrate the :ref:`flyout-menu:Addons flyout menu` version menu into your site navigation
 
 #. Override the ``main.html`` template to include the data in the ``meta`` attribute:
 
@@ -150,6 +150,26 @@ To integrate the version menu into your site navigation
 
         extra_javascript:
             - javascript/readthedocs.js
+
+Adjust the flyout menu font size
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Edit ``readthedocs.css`` to so that the font in the :ref:`flyout-menu:Addons flyout menu` matches the theme better.
+
+.. code-block:: css
+    :caption: readthedocs.css:
+
+    :root {
+        /* Reduce Read the Docs' flyout font a little bit */
+        --readthedocs-flyout-font-size: 0.7rem;
+
+        /* Reduce Read the Docs' notification font a little bit */
+        --readthedocs-notification-font-size: 0.8rem;
+
+        /* This customization is not yet perfect because we can't change the `line-height` yet. */
+        /* See https://github.com/readthedocs/addons/issues/197 */
+        --readthedocs-search-font-size: 0.7rem;
+    }
 
 Example repository and demo
 ---------------------------

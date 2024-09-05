@@ -71,8 +71,48 @@ Set your `html_baseurl`_  to your Read the Docs canonical URL using a
 Configure Read the Docs search
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+If you're using the `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`__,
+:doc:`Server side search </server-side-search/index>` already works out of the box.
+
+If you're using a different theme, enable :doc:`Server side search </server-side-search/index>`:
+
+#. Add a snippet of JavaScript:
+
+   .. code-block:: js
+      :caption: readthedocs.js
+
+
+      // Trigger the Read the Docs Addons Search modal when clicking on "Search docs" input from the topnav.
+      document.querySelector("[role='search'] input").addEventListener("focusin", () => {
+         const event = new CustomEvent("readthedocs-search-show");
+         document.dispatchEvent(event);
+      });
+
+#. Include it in your build:
+
+    .. code-block:: py
+        :caption: conf.py
+
+         html_js_files = [
+            readthedocs.js,
+         ]
+
+
 Integrate the Read the Docs version menu into your site navigation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you're using the `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`__, the :ref:`flyout-menu:Addons flyout menu` is already fully integrated.
+
+You *may* need to set `flyout_display` to `hidden <https://sphinx-rtd-theme.readthedocs.io/en/latest/configuring.html#confval-flyout_display>`_ in your ``conf.py`` so as not to display two identical menus:
+
+.. code-block:: py
+   :caption: conf.py
+
+    html_theme_options = {
+       'flyout_display': 'hidden',
+    }
+
+If you're using a different theme, the flyout menu will display in the default bottom right side of your docs.
 
 Using Markdown with Sphinx
 --------------------------
