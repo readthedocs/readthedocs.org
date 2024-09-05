@@ -122,6 +122,10 @@ sphinx-autobuild==2024.4.16
 sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
 sphinx-design==0.6.1
+    # via
+    #   -r requirements/docs.in
+    #   sphinx-design-elements
+sphinx-design-elements==0.2.1
     # via -r requirements/docs.in
 sphinx-hoverxref==1.4.0
     # via -r requirements/docs.in
