@@ -16,6 +16,9 @@ class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
             return self.none()
         return self.filter(users=user)
 
+    def api_v2(self, *args, **kwargs):
+        return self.api(*args, **kwargs)
+
 
 class RemoteRepositoryQuerySet(RelatedUserQuerySet):
     def for_project_linking(self, user):

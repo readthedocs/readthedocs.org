@@ -153,6 +153,9 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
     def api(self, user=None):
         return self.public(user)
 
+    def api_v2(self, *args, **kwargs):
+        return self.api(*args, **kwargs)
+
     def single_owner(self, user):
         """
         Returns projects where `user` is the only owner.
@@ -209,6 +212,9 @@ class RelatedProjectQuerySet(NoReprQuerySet, models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        return self.api(*args, **kwargs)
 
 
 class ParentRelatedProjectQuerySet(RelatedProjectQuerySet):
