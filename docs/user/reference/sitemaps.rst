@@ -1,5 +1,5 @@
-Sitemaps support
-================
+Sitemap support
+===============
 
 `Sitemaps <https://www.sitemaps.org/>`__ allow you to inform search engines about URLs that are available for crawling.
 This makes your content more :term:`discoverable <discoverability>`,
