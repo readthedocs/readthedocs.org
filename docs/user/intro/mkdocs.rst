@@ -1,5 +1,5 @@
-Material for MkDocs on Read the Docs
-====================================
+Material for MkDocs
+===================
 
 .. meta::
    :description lang=en: Hosting Material for MkDocs sites on Read the Docs.

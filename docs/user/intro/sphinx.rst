@@ -8,11 +8,9 @@ Sphinx is a powerful documentation generator that
 has many features for writing technical documentation.
 
 Minimal configuration required to build an existing Sphinx project on Read the Docs looks like this,
-specifying a python 3.x toolchain on Ubuntu, defining the location of the installation requirements, and using the built-in
-:ref:`mkdocs <config-file/v2:sphinx>` command:
+specifying a python 3.x toolchain on Ubuntu, using the built-in :ref:`mkdocs <config-file/v2:sphinx>` command,
+and defining the location of the installation requirements:
 
-
-.. TODO why do we install tree using apt_package here? Because it might not be in the requirements.txt but is still necessary?
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -20,11 +18,9 @@ specifying a python 3.x toolchain on Ubuntu, defining the location of the instal
       version: 2
 
       build:
-         os: ubuntu-22.04
+         os: ubuntu-24.04
          tools:
             python: "3"
-         apt_packages:
-            - tree
 
       sphinx:
          configuration: docs/conf.py
