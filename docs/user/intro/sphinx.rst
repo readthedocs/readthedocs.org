@@ -1,5 +1,5 @@
-Sphinx on Read the Docs
-=======================
+Sphinx
+======
 
 .. meta::
    :description lang=en: Hosting Sphinx documentation on Read the Docs.
