@@ -54,6 +54,20 @@ For optimal integration with Read the Docs, make the optional following configur
 Set the canonical URL
 ~~~~~~~~~~~~~~~~~~~~~
 
+A :doc:`canonical URL </canonical-urls>` allows you to specify the preferred version of a web page
+to prevent duplicated content.
+
+Set your `html_baseurl`_  to your Read the Docs canonical URL using a
+:doc:`Read the Docs environment variable </reference/environment-variables>`:
+
+.. code-block:: py
+    :caption: conf.py
+
+    html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
+
+
+.. _html_baseurl: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_baseurl
+
 Configure Read the Docs search
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
