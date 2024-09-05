@@ -78,7 +78,7 @@ Using Markdown with Sphinx
 --------------------------
 
 You can use `Markdown using MyST`_ and reStructuredText in the same Sphinx project.
-We support this natively on Read the Docs, and you can do it locally:
+We support this natively on Read the Docs, and you can also use locally by installing ``myst-parser``:
 
 .. prompt:: bash $
 
@@ -91,10 +91,19 @@ Then in your ``conf.py``:
    extensions = ["myst_parser"]
 
 You can now continue writing your docs in ``.md`` files and it will work with Sphinx.
-Read the `Getting started with MyST in Sphinx`_ docs for additional instructions.
 
-.. _Getting started with MyST in Sphinx: https://myst-parser.readthedocs.io/en/latest/sphinx/intro.html
+.. seealso::
+
+   `Getting started with MyST in Sphinx <https://myst-parser.readthedocs.io/en/latest/sphinx/intro.html>`_
+
+   :doc:`/guides/migrate-rest-myst`
+     Learn how to use references between different Sphinx projects, for instance between subprojects
+
+   :doc:`/guides/migrate-rest-myst`
+     Start writing Markdown in your existing reStructuredText project, or migrate it completely.
+
 .. _Markdown using MyST: https://myst-parser.readthedocs.io/en/latest/using/intro.html
+
 
 Example repository and demo
 ---------------------------
