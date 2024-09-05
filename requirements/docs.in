@@ -8,6 +8,7 @@ sphinx_rtd_theme==2.1.0rc1
 sphinx-tabs
 sphinx-intl
 sphinx-design
+sphinx-design-elements
 sphinx-multiproject
 
 # RTD deps :)

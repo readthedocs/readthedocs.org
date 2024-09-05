@@ -7,9 +7,47 @@ MkDocs, Docusaurus and a variety of other tools.
 Here are minimal configuration examples for some common tools,
 with more coming soon.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Supported doctools
+.. info-card::
 
-   Sphinx </intro/sphinx>
-   Material for Mkdocs </intro/mkdocs>
+    .. grid-item::
+        :columns: 7
+
+        :doc:`/intro/mkdocs` is a powerful documentation framework on top of MkDocs.
+
+
+    .. grid-item::
+        :columns: 2
+
+        Formats:
+
+        Language:
+
+    .. grid-item::
+        :columns: 3
+
+        :tags-primary:`md`
+
+        :tags-success:`python`
+
+.. info-card::
+
+    .. grid-item::
+        :columns: 7
+
+        :doc:`/intro/sphinx` is a powerful documentation generator that has many features for writing technical documentation.
+
+    .. grid-item::
+        :columns: 2
+
+        Formats:
+
+        Language:
+
+    .. grid-item::
+        :columns: 3
+
+        :tags-primary:`rst, md`
+
+        :tags-success:`python`
+
+
