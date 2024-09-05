@@ -861,7 +861,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
             Disallow: # Allow everything
 
-            Sitemap: https://project.readthedocs.io/sitemap.xml
+            Sitemap: https://project.readthedocs.io/sitemap_index.xml
             """
         ).lstrip()
         self.assertEqual(response.content.decode(), expected)
@@ -915,7 +915,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
             Disallow: /en/hidden/ # Hidden version
 
-            Sitemap: https://project.readthedocs.io/sitemap.xml
+            Sitemap: https://project.readthedocs.io/sitemap_index.xml
             """
         ).lstrip()
         self.assertEqual(response.content.decode(), expected)
@@ -1652,6 +1652,51 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_sitemap_subproject(self):
+        self.project.versions.update(active=True)
+        self.subproject.versions.update(active=True)
+
+        subresponse = self.client.get(
+            reverse("sitemap_xml", args=["subproject"]),
+            headers={"host": "project.readthedocs.io"},
+        )
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "subproject.readthedocs.io"}
+        )
+
+        self.assertEqual(subresponse.status_code, 200)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(subresponse.content, response.content)
+
+    def test_sitemap_index(self):
+        self.project.versions.update(active=True)
+        response = self.client.get(
+            reverse("sitemap_index_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/xml")
+        expected = dedent(
+            """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+                <sitemap>
+                    <loc>https://project.readthedocs.io/sitemap.xml</loc>
+                </sitemap>
+
+                <sitemap>
+                    <loc>https://project.readthedocs.io/projects/subproject/sitemap.xml</loc>
+                </sitemap>
+
+                <sitemap>
+                    <loc>https://project.readthedocs.io/projects/subproject-alias/sitemap.xml</loc>
+                </sitemap>
+
+            </sitemapindex>
+            """
+        ).lstrip()
+        self.assertEqual(response.content.decode(), expected)
 
     @mock.patch(
         "readthedocs.proxito.views.mixins.staticfiles_storage",
