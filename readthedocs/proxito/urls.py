@@ -212,9 +212,10 @@ debug_urls = [
 groups = [
     health_check_urls,
     proxied_urls,
-    dummy_dashboard_urls,
     core_urls,
     docs_urls,
+    # Fallback paths only required for resolving URLs, evaluate these last
+    dummy_dashboard_urls,
 ]
 
 if settings.SHOW_DEBUG_TOOLBAR:
