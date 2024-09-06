@@ -40,7 +40,8 @@ All projects using ``mkdocs`` :ref:`mkdocs <config-file/v2:mkdocs>` or the ``bui
 
 .. note::
 
-    Read the Docs Addons will be enabled by default for all Read the Docs projects some time in the second half of 2024.
+    Read the Docs Addons will be enabled by default for all Read the Docs projects on October 7th.
+    Read the full announcement in our `blog post <https://about.readthedocs.com/blog/2024/07/addons-by-default/>`_.
 
 Configuring Read the Docs Addons
 --------------------------------
