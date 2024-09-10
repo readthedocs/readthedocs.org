@@ -7,47 +7,27 @@ MkDocs, Docusaurus and a variety of other tools.
 Here are minimal configuration examples for some common tools,
 with more coming soon.
 
-.. info-card::
+.. grid:: 2
 
-    .. grid-item::
-        :columns: 7
+    .. grid-item-card::  Material for MkDocs
+        :link: /intro/mkdocs.html
 
-        :doc:`/intro/mkdocs` is a powerful documentation framework on top of MkDocs.
+        Material for MkDocs is a powerful documentation framework on top of MkDocs.
+
+        Supported formats
+             :bdg-success:`md`
+        Written in
+             :bdg-info:`python`
 
 
-    .. grid-item::
-        :columns: 2
+    .. grid-item-card::  Sphinx
+        :link: /intro/sphinx.html
 
-        Formats:
+        Sphinx is a powerful documentation generator that has many features for writing technical documentation.
 
-        Language:
-
-    .. grid-item::
-        :columns: 3
-
-        :tags-primary:`md`
-
-        :tags-success:`python`
-
-.. info-card::
-
-    .. grid-item::
-        :columns: 7
-
-        :doc:`/intro/sphinx` is a powerful documentation generator that has many features for writing technical documentation.
-
-    .. grid-item::
-        :columns: 2
-
-        Formats:
-
-        Language:
-
-    .. grid-item::
-        :columns: 3
-
-        :tags-primary:`rst, md`
-
-        :tags-success:`python`
+        Supported formats
+             :bdg-success:`rst` :bdg-success:`md`
+        Written in
+             :bdg-info:`python`
 
 
