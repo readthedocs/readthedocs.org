@@ -1,3 +1,19 @@
+Version 11.7.2
+--------------
+
+:Date: September 10, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11590 <https://github.com/readthedocs/readthedocs.org/pull/11590>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update common (`#11589 <https://github.com/readthedocs/readthedocs.org/pull/11589>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: final date for addons and link to blog post (`#11588 <https://github.com/readthedocs/readthedocs.org/pull/11588>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: small updates to sitemaps page (`#11585 <https://github.com/readthedocs/readthedocs.org/pull/11585>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: update docs (`#11583 <https://github.com/readthedocs/readthedocs.org/pull/11583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Email: use first recipient from email object (`#11581 <https://github.com/readthedocs/readthedocs.org/pull/11581>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.7.1 (`#11580 <https://github.com/readthedocs/readthedocs.org/pull/11580>`__)
+* `@stsewd <https://github.com/stsewd>`__: Admin: set raw field for SSOIntegration (`#11572 <https://github.com/readthedocs/readthedocs.org/pull/11572>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: skip config step if YAML file is present (`#11540 <https://github.com/readthedocs/readthedocs.org/pull/11540>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Standardize error template paths (`#11494 <https://github.com/readthedocs/readthedocs.org/pull/11494>`__)
+
 Version 11.7.1
 --------------
 
