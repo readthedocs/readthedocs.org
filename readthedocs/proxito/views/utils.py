@@ -2,9 +2,15 @@ import structlog
 from django.http import HttpResponse
 from django.shortcuts import render
 
+from readthedocs.core.views import ErrorView
+
 from ..exceptions import ContextualizedHttp404
 
 log = structlog.get_logger(__name__)  # noqa
+
+
+class ProxitoErrorView(ErrorView):
+    base_path = "errors/proxito"
 
 
 def fast_404(request, *args, **kwargs):
@@ -18,7 +24,7 @@ def fast_404(request, *args, **kwargs):
 
 
 def proxito_404_page_handler(
-    request, template_name="errors/404/base.html", exception=None
+    request, template_name="errors/proxito/404/base.html", exception=None
 ):
     """
     Serves a 404 error message, handling 404 exception types raised throughout the app.
