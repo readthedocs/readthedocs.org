@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-30 11:36+0000\n"
+"POT-Creation-Date: 2024-09-10 10:53+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2020,2022-2024\n"
 "Language-Team: Portuguese (Brazil) (http://app.transifex.com/readthedocs/"
@@ -37,7 +37,7 @@ msgstr ""
 "1000000 == 0 ? 1 : 2;\n"
 
 #: analytics/models.py:69 builds/filters.py:41 builds/models.py:711
-#: projects/filters.py:196 projects/models.py:1477 search/models.py:27
+#: projects/filters.py:196 projects/models.py:1479 search/models.py:27
 #: templates/base.html:266
 msgid "Version"
 msgstr "Versão"
@@ -156,26 +156,26 @@ msgstr "Hospedado por"
 msgid "Privacy Policy"
 msgstr "Política de Privacidade"
 
-#: api/v3/serializers.py:635
+#: api/v3/serializers.py:636
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Nome de projeto \"{0}\" inválido: nenhum slug gerado."
 
-#: api/v3/serializers.py:639
+#: api/v3/serializers.py:640
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "Um projeto com slug \"{0}\" já existe."
 
-#: api/v3/serializers.py:874
+#: api/v3/serializers.py:882
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "O projeto com {slug_name}={value} não é válido como subprojeto"
 
-#: api/v3/serializers.py:882 projects/forms.py:603
+#: api/v3/serializers.py:890 projects/forms.py:617
 msgid "A subproject with this alias already exists"
 msgstr "Um subprojeto com este alias já existe"
 
-#: api/v3/serializers.py:1025
+#: api/v3/serializers.py:1033
 #, python-brace-format
 msgid ""
 "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
@@ -184,7 +184,7 @@ msgstr ""
 "Redirecionamentos de prefixo foram removidos. Em vez disso, use um "
 "redirecionamento exato `/prefix/*`. Veja {blog_link}."
 
-#: api/v3/serializers.py:1031
+#: api/v3/serializers.py:1039
 #, python-brace-format
 msgid ""
 "sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
@@ -192,7 +192,7 @@ msgstr ""
 "sphinx_html redirecionamento foi renomeado para clean_url_to_html. Veja "
 "{blog_link}."
 
-#: api/v3/serializers.py:1037
+#: api/v3/serializers.py:1045
 #, python-brace-format
 msgid ""
 "sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
@@ -224,7 +224,7 @@ msgid "Log out"
 msgstr "Sair"
 
 #: audit/models.py:91 organizations/views/private.py:146
-#: organizations/views/private.py:207 projects/views/private.py:507
+#: organizations/views/private.py:207 projects/views/private.py:567
 msgid "Invitation sent"
 msgstr "Convite enviado"
 
@@ -254,7 +254,7 @@ msgid "Username"
 msgstr "Usuário"
 
 #: audit/models.py:138 builds/models.py:95 builds/models.py:705
-#: organizations/filters.py:133 projects/filters.py:151 projects/models.py:1471
+#: organizations/filters.py:133 projects/filters.py:151 projects/models.py:1473
 #: redirects/models.py:48
 msgid "Project"
 msgstr "Projeto"
@@ -496,7 +496,7 @@ msgstr "Ativo"
 msgid "Build successful"
 msgstr "Construção bem-sucedida"
 
-#: builds/filters.py:29 projects/models.py:1576
+#: builds/filters.py:29 projects/models.py:1578
 #: templates/builds/build_detail.html:160
 msgid "Build failed"
 msgstr "Construção falhou"
@@ -609,7 +609,7 @@ msgstr "Tem ePub"
 msgid "Has HTML Zip"
 msgstr "Tem Zip de HTML"
 
-#: builds/models.py:175 projects/models.py:561
+#: builds/models.py:175 projects/models.py:563
 msgid "Documentation type"
 msgstr "Tipo de documentação"
 
@@ -658,7 +658,7 @@ msgstr "Erro"
 msgid "Exit code"
 msgstr "Código de saída"
 
-#: builds/models.py:761 projects/models.py:1488
+#: builds/models.py:761 projects/models.py:1490
 msgid "Commit"
 msgstr "Commit"
 
@@ -940,7 +940,7 @@ msgstr "Explicação do problema"
 msgid "Please provide as much detail as possible."
 msgstr "Por favor, forneça o máximo possível de detalhes."
 
-#: core/forms.py:198 projects/models.py:1591
+#: core/forms.py:198 projects/models.py:1593
 msgid "URL"
 msgstr "URL"
 
@@ -1072,7 +1072,7 @@ msgid "Publication date"
 msgstr "Data de publicação"
 
 #: gold/models.py:29 organizations/models.py:32 organizations/models.py:224
-#: organizations/models.py:298 projects/models.py:239 projects/models.py:1490
+#: organizations/models.py:298 projects/models.py:239 projects/models.py:1492
 msgid "Modified date"
 msgstr "Data de modificação"
 
@@ -1486,13 +1486,9 @@ msgstr "Erro desconhecido ao carregar seu arquivo de configuração de MkDocs"
 msgid "Syntax error in <code>mkdocs.yml</code>"
 msgstr "Erro de sintaxe em <code>mkdocs.yml</code>"
 
-#: notifications/models.py:42
+#: notifications/models.py:40
 msgid "Show under bell icon"
 msgstr "Mostrar sob o ícone do sino"
-
-#: notifications/models.py:86
-msgid "Unknown message"
-msgstr "Mensagem desconhecida"
 
 #: oauth/models.py:28 oauth/models.py:111 organizations/models.py:240
 msgid "Users"
@@ -1501,7 +1497,7 @@ msgstr "Usuários"
 #: oauth/models.py:33 oauth/models.py:123 organizations/filters.py:54
 #: organizations/filters.py:60 organizations/models.py:48
 #: organizations/models.py:247 projects/filters.py:44 projects/filters.py:110
-#: projects/models.py:249 projects/models.py:1482
+#: projects/models.py:249 projects/models.py:1484
 msgid "Name"
 msgstr "Nome"
 
@@ -1679,11 +1675,11 @@ msgstr "Nome organização inválido: nenhum slug gerado"
 msgid "Organization %(name)s already exists"
 msgstr "Organização %(name)s já existe"
 
-#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:694
+#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:708
 msgid "Email address or username"
 msgstr "Endereço de e-mail ou nome de usuário"
 
-#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:709
+#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:723
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr "Usuário %(username)s não existe"
@@ -2251,7 +2247,7 @@ msgstr "Excluído"
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:92 projects/models.py:2062
+#: projects/constants.py:92 projects/models.py:2064
 msgid "Public"
 msgstr "Público"
 
@@ -2355,7 +2351,19 @@ msgstr "Versões privadas"
 msgid "Visibility"
 msgstr "Visibilidade"
 
-#: projects/forms.py:153
+#: projects/forms.py:88
+msgid "No connected repository"
+msgstr "Nenhum repositório conectado"
+
+#: projects/forms.py:109
+msgid "Invalid project name, a project already exists with that name"
+msgstr "Nome do projeto inválido. Já existe um projeto com esse nome"
+
+#: projects/forms.py:114
+msgid "Invalid project name"
+msgstr "Nome de projeto inválido"
+
+#: projects/forms.py:227
 msgid ""
 "We have detected that this project is public, pull request previews are set "
 "to public."
@@ -2363,11 +2371,11 @@ msgstr ""
 "Detectamos que este projeto é público, as prévias de pull request estão "
 "definidas como públicas."
 
-#: projects/forms.py:173
+#: projects/forms.py:247
 msgid "To build from pull requests you need a "
 msgstr "Para construir a partir de pull requests, você precisa de uma "
 
-#: projects/forms.py:185
+#: projects/forms.py:259
 msgid ""
 "To build from pull requests your repository's webhook needs to send pull "
 "request events. "
@@ -2375,20 +2383,20 @@ msgstr ""
 "Para construir a partir de pull requests, o webhook do seu repositório "
 "precisa enviar eventos de pull request."
 
-#: projects/forms.py:200
+#: projects/forms.py:274
 msgid "Pull request builds not supported"
 msgstr "Sem suporte a construção a partir de pull requests"
 
-#: projects/forms.py:263
+#: projects/forms.py:337
 #, python-brace-format
 msgid "You must first <a href='{url}'>add a connected service "
 msgstr "Você deve <a href='{url}'>adicionar um serviço conectado "
 
-#: projects/forms.py:267
+#: projects/forms.py:341
 msgid "No connected services found"
 msgstr "Nenhum serviço conectado encontrado"
 
-#: projects/forms.py:273
+#: projects/forms.py:347
 msgid ""
 "Only organization owners may create new projects when single sign-on is "
 "enabled."
@@ -2396,11 +2404,11 @@ msgstr ""
 "Somente os donos da organização podem criar novos projetos quando o logon "
 "único estiver ativado."
 
-#: projects/forms.py:276 projects/forms.py:298
+#: projects/forms.py:350 projects/forms.py:372
 msgid "Organization single sign-on enabled"
 msgstr "Logon único da organização ativado"
 
-#: projects/forms.py:281 projects/forms.py:303
+#: projects/forms.py:355 projects/forms.py:377
 msgid ""
 "You must be on a team with admin permissions in order to add a new project "
 "to your organization."
@@ -2408,11 +2416,11 @@ msgstr ""
 "Você deve fazer parte de uma equipe com permissões de administrador para "
 "adicionar um novo projeto à sua organização."
 
-#: projects/forms.py:284 projects/forms.py:306
+#: projects/forms.py:358 projects/forms.py:380
 msgid "Admin permission required"
 msgstr "Permissão de administrador necessária"
 
-#: projects/forms.py:295
+#: projects/forms.py:369
 msgid ""
 "Projects cannot be manually configured when single sign-on is enabled for "
 "your organization."
@@ -2420,51 +2428,39 @@ msgstr ""
 "Os projetos não podem ser configurados manualmente quando o logon único está "
 "ativado para sua organização."
 
-#: projects/forms.py:346
-msgid "Invalid project name, a project already exists with that name"
-msgstr "Nome do projeto inválido. Já existe um projeto com esse nome"
-
-#: projects/forms.py:351
-msgid "Invalid project name"
-msgstr "Nome de projeto inválido"
-
-#: projects/forms.py:370
-msgid "Repository invalid"
-msgstr "Repositório inválido"
-
-#: projects/forms.py:434 projects/models.py:254
+#: projects/forms.py:448 projects/models.py:254
 msgid "Short description of this project"
 msgstr "Descrição curta deste projeto"
 
-#: projects/forms.py:456
+#: projects/forms.py:470
 #, python-brace-format
 msgid ""
 "This setting is inherited from the <a href=\"{link}\">parent translation</a>."
 msgstr "Essa configuração é herdada da <a href=\"{link}\">tradução mãe</a>."
 
-#: projects/forms.py:531
+#: projects/forms.py:545
 #, python-brace-format
 msgid "There is already a \"{lang}\" translation for the {proj} project."
 msgstr "Há há uma tradução \"{lang}\" para o projeto {proj}."
 
-#: projects/forms.py:560
+#: projects/forms.py:574
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "O comprimento de cada tag deve ser menor ou igual a 100 caracteres."
 
-#: projects/forms.py:650
+#: projects/forms.py:664
 msgid "Enable Addons"
 msgstr "Ativar addons"
 
-#: projects/forms.py:652
+#: projects/forms.py:666
 msgid "Show a notification on builds from pull requests"
 msgstr "Mostrar uma notificação em construções de pull requests"
 
-#: projects/forms.py:655
+#: projects/forms.py:669
 msgid "Show a notification on non-stable and latest versions"
 msgstr ""
 "Mostrar uma notificação em versões não estáveis e mais recentes (latest)"
 
-#: projects/forms.py:681
+#: projects/forms.py:695
 msgid ""
 "The flyout sorting custom pattern is required when selecting a custom "
 "pattern."
@@ -2472,16 +2468,16 @@ msgstr ""
 "O padrão personalizado de classificação do menu flutuante é necessário ao "
 "selecionar um padrão personalizado."
 
-#: projects/forms.py:713
+#: projects/forms.py:727
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr "O usuário %(username)s já é um mantenedor"
 
-#: projects/forms.py:798
+#: projects/forms.py:812
 msgid "The payload must be a valid JSON object."
 msgstr "A carga útil deve ser um objeto JSON válido."
 
-#: projects/forms.py:831
+#: projects/forms.py:845
 msgid ""
 "This project is configured with a versioning scheme that doesn't support "
 "translations."
@@ -2489,27 +2485,27 @@ msgstr ""
 "Este projeto está configurado com um esquema de versionamento que não "
 "oferece suporte a traduções."
 
-#: projects/forms.py:1010
+#: projects/forms.py:1024
 msgid "Only one domain can be canonical at a time."
 msgstr "Apenas um domínio pode ser canônico por vez."
 
-#: projects/forms.py:1113
+#: projects/forms.py:1127
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Nome de variável não pode iniciar com __ (sublinhado duplo)"
 
-#: projects/forms.py:1117
+#: projects/forms.py:1131
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Nome de variável não pode começar com READTHEDOCS"
 
-#: projects/forms.py:1122
+#: projects/forms.py:1136
 msgid "There is already a variable with this name for this project"
 msgstr "Já existe uma variável com esse nome para este projeto"
 
-#: projects/forms.py:1127
+#: projects/forms.py:1141
 msgid "Variable name can't contain spaces"
 msgstr "Nome de variável não pode conter espaços"
 
-#: projects/forms.py:1131
+#: projects/forms.py:1145
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Apenas letras, números e sublinhados são permitidos"
 
@@ -2808,7 +2804,15 @@ msgstr "Este projeto foi construído com um webhook"
 msgid "This project has been successfully cloned"
 msgstr "Este projeto foi clonado com sucesso"
 
-#: projects/models.py:568
+#: projects/models.py:543
+msgid "Connected repository"
+msgstr "Repositório conectado"
+
+#: projects/models.py:544
+msgid "Repository connected to this project"
+msgstr "Repositório conectado a este projeto"
+
+#: projects/models.py:570
 msgid ""
 "Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
 "en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
@@ -2818,67 +2822,67 @@ msgstr ""
 "doc.org/en/stable/builders.html#sphinx.builders.html."
 "DirectoryHTMLBuilder\">Mais informações sobre construtores do Sphinx."
 
-#: projects/models.py:579
+#: projects/models.py:581
 msgid "project"
 msgstr "projeto"
 
-#: projects/models.py:590
+#: projects/models.py:592
 msgid "Model must have slug"
 msgstr "Modelo deve ter slug"
 
-#: projects/models.py:1352
+#: projects/models.py:1354
 msgid "Subproject nesting is not supported"
 msgstr "Não há suporte a subprojeto aninhado"
 
-#: projects/models.py:1487
+#: projects/models.py:1489
 msgid "Path"
 msgstr "Caminho"
 
-#: projects/models.py:1489
+#: projects/models.py:1491
 msgid "Build id"
 msgstr "ID de construção"
 
-#: projects/models.py:1492
+#: projects/models.py:1494
 msgid "Page search rank"
 msgstr "Classificação de busca por páginas"
 
-#: projects/models.py:1497
+#: projects/models.py:1499
 msgid "Ignore this file from operations like indexing"
 msgstr "Ignorar este arquivo de operações como indexação"
 
-#: projects/models.py:1540 projects/models.py:1705
+#: projects/models.py:1542 projects/models.py:1707
 msgid "created"
 msgstr "criado"
 
-#: projects/models.py:1545
+#: projects/models.py:1547
 msgid "modified"
 msgstr "modificado"
 
-#: projects/models.py:1574
+#: projects/models.py:1576
 msgid "Build triggered"
 msgstr "Construção acionada"
 
-#: projects/models.py:1575
+#: projects/models.py:1577
 msgid "Build passed"
 msgstr "Construção bem-sucedida"
 
-#: projects/models.py:1593
+#: projects/models.py:1595
 msgid "URL to send the webhook to"
 msgstr "URL para onde enviar o webhook"
 
-#: projects/models.py:1596
+#: projects/models.py:1598
 msgid "Secret used to sign the payload of the webhook"
 msgstr "Segredo usado para assinar a carga útil do webhook"
 
-#: projects/models.py:1604
+#: projects/models.py:1606
 msgid "Events to subscribe"
 msgstr "Eventos para assinar"
 
-#: projects/models.py:1607
+#: projects/models.py:1609
 msgid "JSON payload"
 msgstr "Carga útil JSON"
 
-#: projects/models.py:1609
+#: projects/models.py:1611
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
@@ -2888,76 +2892,76 @@ msgstr ""
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">a documentação</a> para substituições disponíveis."
 
-#: projects/models.py:1716
+#: projects/models.py:1718
 msgid "Domain"
 msgstr "Domínio"
 
-#: projects/models.py:1723
+#: projects/models.py:1725
 msgid "This domain was auto-created"
 msgstr "Este domínio foi criado automaticamente"
 
-#: projects/models.py:1727
+#: projects/models.py:1729
 msgid "This domain is a CNAME for the project"
 msgstr "Este domínio é um CNAME para o projeto"
 
-#: projects/models.py:1732
+#: projects/models.py:1734
 msgid "This domain is the primary one where the documentation is served from"
 msgstr "Este domínio é o principal de onde a documentação é veiculada"
 
-#: projects/models.py:1736
+#: projects/models.py:1738
 msgid "Use HTTPS"
 msgstr "Usar HTTPS"
 
-#: projects/models.py:1738
+#: projects/models.py:1740
 msgid "Always use HTTPS for this domain"
 msgstr "Sempre usar HTTPS para este domínio"
 
-#: projects/models.py:1742
+#: projects/models.py:1744
 msgid "Number of times this domain has been hit"
 msgstr "Número de vezes que este domínio foi acessado"
 
-#: projects/models.py:1747 templates/projects/domain_form.html:49
+#: projects/models.py:1749 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr "Status do certificado SSL"
 
-#: projects/models.py:1756
+#: projects/models.py:1758
 msgid "Skip validation process."
 msgstr "Ignorar processo de validação."
 
-#: projects/models.py:1760
+#: projects/models.py:1762
 msgid "Start date of the validation process."
 msgstr "Data de início do processo de validação."
 
-#: projects/models.py:1769
+#: projects/models.py:1771
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 "Defina uma idade máxima personalizada (por exemplo, 31536000) para o "
 "cabeçalho HSTS"
 
-#: projects/models.py:1774
+#: projects/models.py:1776
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 "Se hsts_max_age > 0, defina o sinalizador includeSubDomains com o cabeçalho "
 "HSTS"
 
-#: projects/models.py:1779
+#: projects/models.py:1781
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 "Se hsts_max_age > 0, defina o sinalizador de pré-carregamento com o "
 "cabeçalho HSTS"
 
-#: projects/models.py:1913
+#: projects/models.py:1915
 msgid "Build: Try alternative method of posting large data"
 msgstr "Construção: Tenta um método alternativo de postar dados grandes"
 
-#: projects/models.py:1917
+#: projects/models.py:1919
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 "Conda: Anexa os requisitos principais do Read the Docs ao arquivo "
 "environment.yml"
 
-#: projects/models.py:1922
+#: projects/models.py:1924
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
@@ -2965,19 +2969,19 @@ msgstr ""
 "Sphinx: Passa todas as versões (incluindo privadas) para o contexto HTML ao "
 "construir com o Sphinx"
 
-#: projects/models.py:1928
+#: projects/models.py:1930
 msgid "Proxito: Record 404s page views."
 msgstr "Proxito: Registra visualizações de páginas 404s."
 
-#: projects/models.py:1932
+#: projects/models.py:1934
 msgid "Proxito: Disable all page views"
 msgstr "Proxito: Desativa todas as visualizações de páginas"
 
-#: projects/models.py:1936
+#: projects/models.py:1938
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr "Proxito: Permite o uso do cabeçalho X-RTD-Slug"
 
-#: projects/models.py:1941
+#: projects/models.py:1943
 msgid ""
 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
 "one (Project.custom_prefix)."
@@ -2985,132 +2989,138 @@ msgstr ""
 "Proxito: Usa APIs com proxy (/_/*) com o prefixo personalizado se o projeto "
 "tiver um (Projeto.prefixo_personalizado)."
 
-#: projects/models.py:1946
+#: projects/models.py:1948
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr "Painel: Permite que o projeto use o banner de aviso de versão."
 
-#: projects/models.py:1951
+#: projects/models.py:1953
 msgid "Webhook: Skip syncing branches"
 msgstr "Webhook: Ignora a sincronização de branches"
 
-#: projects/models.py:1955
+#: projects/models.py:1957
 msgid "Webhook: Skip syncing tags"
 msgstr "Webhook: Ignora a sincronização de tags"
 
-#: projects/models.py:1959
+#: projects/models.py:1961
 msgid "Webhook: Skip sync versions task"
 msgstr "Webhook: Ignora a sincronização de tarefas de versões"
 
-#: projects/models.py:1962
+#: projects/models.py:1964
 msgid "Build: Always run pip install --upgrade"
 msgstr "Construção: Sempre executa pip install --upgrade"
 
-#: projects/models.py:1963
+#: projects/models.py:1965
 msgid "Build: Use new pip resolver"
 msgstr "Construção: Usa o novo resolvedor do pip"
 
-#: projects/models.py:1966
+#: projects/models.py:1968
 msgid "Build: Don't install the latest version of pip"
 msgstr "Construção: Não instala a versão mais recente do pip"
 
-#: projects/models.py:1970
+#: projects/models.py:1972
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr "Sphinx: Usa a versão mais recente da extensão Read the Docs do Sphinx"
 
-#: projects/models.py:1975
+#: projects/models.py:1977
 msgid ""
 "Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 "Construção: Instala todas as versões mais recentes a partir dos requisitos "
 "principais do Read the Docs"
 
-#: projects/models.py:1981
+#: projects/models.py:1983
 msgid ""
 "Sphinx: Don't append `conf.py` and don't install ``readthedocs-sphinx-ext``"
 msgstr "Sphinx: Não anexa `conf.py` e não instala ``readthedocs-sphinx-ext``"
 
-#: projects/models.py:1987
+#: projects/models.py:1989
 msgid "Search: Disable server side search"
 msgstr "Pesquisa: Desativa a pesquisa no servidor"
 
-#: projects/models.py:1991
+#: projects/models.py:1993
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr "Pesquisa: Ativa a pesquisa no servidor para projetos MkDocs"
 
-#: projects/models.py:1995
+#: projects/models.py:1997
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 "Pesquisa: Usa como padrão a pesquisa difusa para consultas de pesquisa "
 "simples"
 
-#: projects/models.py:2000
+#: projects/models.py:2002
 msgid "Build: Set scale-in protection before/after building."
 msgstr "Construção: Define a proteção de redução antes/depois da construção."
 
-#: projects/models.py:2013
+#: projects/models.py:2015
 msgid "Feature identifier"
 msgstr "Identificador do recurso"
 
-#: projects/models.py:2018
+#: projects/models.py:2020
 msgid "Date feature was added"
 msgstr "Data em que o recurso foi adicionado"
 
-#: projects/models.py:2024
+#: projects/models.py:2026
 msgid "Default all past projects to True"
 msgstr "Padronizar todos os projetos anteriores como True"
 
-#: projects/models.py:2028
+#: projects/models.py:2030
 msgid "Default all future projects to True"
 msgstr "Padronizar todos os projetos futuros como True"
 
-#: projects/models.py:2050
+#: projects/models.py:2052
 msgid "Name of the environment variable"
 msgstr "Nome da variável de ambiente"
 
-#: projects/models.py:2054
+#: projects/models.py:2056
 msgid "Value of the environment variable"
 msgstr "Valor da variável de ambiente"
 
-#: projects/models.py:2059
+#: projects/models.py:2061
 msgid "Project where this variable will be used"
 msgstr "O Projeto no qual esta variável será usada"
 
-#: projects/models.py:2065
+#: projects/models.py:2067
 msgid "Expose this environment variable in PR builds?"
 msgstr "Expor esta variável de ambiente em construções de PR?"
 
-#: projects/notifications.py:19
-msgid "Build skipped for this project"
+#: projects/notifications.py:20
+#, fuzzy
+#| msgid "Build skipped for this project"
+msgid "Builds skipped for this project"
 msgstr "Construção ignorada neste projeto"
 
-#: projects/notifications.py:33 projects/notifications.py:71
-#: projects/notifications.py:84
+#: projects/notifications.py:34 projects/notifications.py:72
+#: projects/notifications.py:85
 msgid "Error while cloning the repository"
 msgstr "Erro ao clonar o repositório"
 
-#: projects/notifications.py:46
+#: projects/notifications.py:47
 msgid "Duplicated reserved versions"
 msgstr "Versões reservadas duplicadas"
 
-#: projects/notifications.py:59
+#: projects/notifications.py:60
 msgid "Error while checking out the repository"
 msgstr "Erro ao verificar o repositório"
 
-#: projects/notifications.py:98
+#: projects/notifications.py:99
 msgid "Sphinx configuration file is missing"
 msgstr "O arquivo de configuração do Sphinx está ausente"
 
-#: projects/notifications.py:111
+#: projects/notifications.py:112
 msgid "Multiple Sphinx configuration files found"
 msgstr "Vários arquivos de configuração do Sphinx encontrados"
 
-#: projects/notifications.py:125
+#: projects/notifications.py:126
 msgid "Expected file not found"
 msgstr "Arquivo esperado não encontrado"
 
-#: projects/notifications.py:137
+#: projects/notifications.py:138
 msgid "Repository locked"
 msgstr "Repositório bloqueado"
+
+#: projects/notifications.py:152
+msgid "Read the Docs Addons will be enabled by default on October 7th"
+msgstr ""
 
 #: projects/validators.py:18
 msgid "Enter a valid plain or internationalized domain name value"
@@ -3164,27 +3174,33 @@ msgstr "O único nome de arquivo permitido é <code>{filename}."
 msgid "The only allowed filenames are <code>{filenames}</code>."
 msgstr "Os únicos nomes de arquivos permitidos são <code>{filenames}</code>."
 
-#: projects/views/private.py:197
+#: projects/views/private.py:195
 msgid "Project settings updated"
 msgstr "Configurações do projeto atualizadas"
 
-#: projects/views/private.py:205
+#: projects/views/private.py:207
 msgid "Project deleted"
 msgstr "Projeto excluído"
 
-#: projects/views/private.py:219
+#: projects/views/private.py:221
 msgid "Project addons updated"
 msgstr "Addons do projeto atualizados"
 
-#: projects/views/private.py:270
+#: projects/views/private.py:272
 msgid "Version created"
 msgstr "Versão criada"
 
-#: projects/views/private.py:275
+#: projects/views/private.py:277
 msgid "Version updated"
 msgstr "Versão atualizada"
 
-#: projects/views/private.py:402
+#: projects/views/private.py:389
+msgid ""
+"We detected a configuration file in your repository and started your "
+"project's first build."
+msgstr ""
+
+#: projects/views/private.py:462
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
@@ -3193,125 +3209,125 @@ msgstr ""
 "Há um problema com sua conta do {service}, tente reconectar sua conta na sua "
 "<a href=\"{url}\">página de serviços conectados</a>."
 
-#: projects/views/private.py:460
+#: projects/views/private.py:520
 msgid "Subproject created"
 msgstr "Subprojeto criado"
 
-#: projects/views/private.py:464
+#: projects/views/private.py:524
 msgid "Subproject updated"
 msgstr "Subprojeto atualizado"
 
-#: projects/views/private.py:469
+#: projects/views/private.py:529
 msgid "Subproject deleted"
 msgstr "Subprojeto excluído"
 
-#: projects/views/private.py:512
+#: projects/views/private.py:572
 msgid "User deleted"
 msgstr "Usuário excluído"
 
-#: projects/views/private.py:523
+#: projects/views/private.py:583
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr "{username} é o último dono, não pode ser removido"
 
-#: projects/views/private.py:588
+#: projects/views/private.py:648
 msgid "Notification created"
 msgstr "Notificação criada"
 
-#: projects/views/private.py:593
+#: projects/views/private.py:653
 msgid "Notification deleted"
 msgstr "Notificação excluída"
 
-#: projects/views/private.py:628
+#: projects/views/private.py:688
 msgid "Webhook created"
 msgstr "Webhook criado"
 
-#: projects/views/private.py:638
+#: projects/views/private.py:698
 msgid "Webhook updated"
 msgstr "Webhook atualizado"
 
-#: projects/views/private.py:648
+#: projects/views/private.py:708
 msgid "Webhook deleted"
 msgstr "Webhook excluído"
 
-#: projects/views/private.py:703
+#: projects/views/private.py:763
 msgid "Translation created"
 msgstr "Tradução criada"
 
-#: projects/views/private.py:708
+#: projects/views/private.py:768
 msgid "Translation deleted"
 msgstr "Tradução excluída"
 
-#: projects/views/private.py:751
+#: projects/views/private.py:811
 msgid "Redirect created"
 msgstr "Redirecionamento criado"
 
-#: projects/views/private.py:755
+#: projects/views/private.py:815
 msgid "Redirect updated"
 msgstr "Redirecionamento atualizado"
 
-#: projects/views/private.py:785
+#: projects/views/private.py:845
 msgid "Redirect deleted"
 msgstr "Redirecionamento excluído"
 
-#: projects/views/private.py:818
+#: projects/views/private.py:878
 msgid "Domain created"
 msgstr "Domínio criado"
 
-#: projects/views/private.py:838
+#: projects/views/private.py:898
 msgid "Domain updated"
 msgstr "Domínio atualizado"
 
-#: projects/views/private.py:853
+#: projects/views/private.py:913
 msgid "Domain deleted"
 msgstr "Domínio excluído"
 
-#: projects/views/private.py:898
+#: projects/views/private.py:958
 msgid "Integration created"
 msgstr "Integração criada"
 
-#: projects/views/private.py:925
+#: projects/views/private.py:985
 msgid "Integration deleted"
 msgstr "Integração excluída"
 
-#: projects/views/private.py:973
+#: projects/views/private.py:1033
 msgid "Project has been opted out from advertisement support"
 msgstr "O projeto optou por desativar apoio por anúncios"
 
-#: projects/views/private.py:1005
+#: projects/views/private.py:1065
 msgid "Environment variable created"
 msgstr "Variável ambiente criada"
 
-#: projects/views/private.py:1009
+#: projects/views/private.py:1069
 msgid "Environment variable deleted"
 msgstr "Variável ambiente excluída"
 
-#: projects/views/private.py:1034
+#: projects/views/private.py:1094
 msgid "Automation rule moved"
 msgstr "Regra de automação movida"
 
-#: projects/views/private.py:1050
+#: projects/views/private.py:1110
 msgid "Automation rule deleted"
 msgstr "Regra de automação excluída"
 
-#: projects/views/private.py:1060
+#: projects/views/private.py:1120
 msgid "Automation rule created"
 msgstr "Regra de automação criada"
 
-#: projects/views/private.py:1064
+#: projects/views/private.py:1124
 msgid "Automation rule updated"
 msgstr "Regra de automação atualizada"
 
-#: projects/views/private.py:1252
+#: projects/views/private.py:1312
 msgid "Pull request settings have been updated"
 msgstr "As configurações de pull request foram atualizadas"
 
-#: proxito/exceptions.py:96
+#: proxito/exceptions.py:94
 msgctxt "Names an object not found in a 404 error"
 msgid "subproject"
 msgstr "subprojeto"
 
-#: proxito/exceptions.py:141
+#: proxito/exceptions.py:139
 msgctxt "Names an object not found in a 404 error"
 msgid "translation"
 msgstr "tradução"
@@ -3495,67 +3511,67 @@ msgstr "Consulta"
 msgid "Total results"
 msgstr "Resultados totais"
 
-#: settings/base.py:463
+#: settings/base.py:470
 msgid "Catalan"
 msgstr "Catalão"
 
-#: settings/base.py:464
+#: settings/base.py:471
 msgid "English"
 msgstr "Inglês"
 
-#: settings/base.py:465
+#: settings/base.py:472
 msgid "Spanish"
 msgstr "Espanhol"
 
-#: settings/base.py:466
+#: settings/base.py:473
 msgid "Brazilian Portuguese"
 msgstr "Português do Brasil"
 
-#: settings/base.py:467
+#: settings/base.py:474
 msgid "Norwegian Bokmål"
 msgstr "Norueguês"
 
-#: settings/base.py:468
+#: settings/base.py:475
 msgid "French"
 msgstr "Frances"
 
-#: settings/base.py:469
+#: settings/base.py:476
 msgid "Russian"
 msgstr "Russo"
 
-#: settings/base.py:470
+#: settings/base.py:477
 msgid "German"
 msgstr "Alemão"
 
-#: settings/base.py:471
+#: settings/base.py:478
 msgid "Galician"
 msgstr "Galego"
 
-#: settings/base.py:472
+#: settings/base.py:479
 msgid "Vietnamese"
 msgstr "Vietnamita"
 
-#: settings/base.py:473
+#: settings/base.py:480
 msgid "Simplified Chinese"
 msgstr "Chinês Simplificado"
 
-#: settings/base.py:474
+#: settings/base.py:481
 msgid "Traditional Chinese"
 msgstr "Chinês Tradicional"
 
-#: settings/base.py:475
+#: settings/base.py:482
 msgid "Japanese"
 msgstr "Japonês"
 
-#: settings/base.py:476
+#: settings/base.py:483
 msgid "Ukrainian"
 msgstr "Ucraniano"
 
-#: settings/base.py:477
+#: settings/base.py:484
 msgid "Italian"
 msgstr "Italiano"
 
-#: settings/base.py:478
+#: settings/base.py:485
 msgid "Korean"
 msgstr "Coreano"
 
@@ -3716,19 +3732,6 @@ msgid ""
 msgstr ""
 "Ocorreu um erro ao conectar-se ao Stripe. Tente novamente em alguns minutos."
 
-#: templates/401.html:6 templates/403.html:6
-#: templates/errors/proxito/401.html:6
-msgid "Maze Found"
-msgstr "Labirinto encontrado"
-
-#: templates/429.html:6
-msgid "Too many requests"
-msgstr "Número excessivo de solicitações"
-
-#: templates/500.html:5
-msgid "Server Error"
-msgstr "Erro do servidor"
-
 #: templates/account/email.html:5 templates/account/email.html:9
 #: templates/profiles/base_profile_edit.html:51
 msgid "Change Email"
@@ -3867,6 +3870,12 @@ msgid ""
 msgstr ""
 "Se você esqueceu sua senha, <a href=\"%(password_reset_url)s\">redefina-a</"
 "a>."
+
+#: templates/account/login.html:78
+#, fuzzy
+#| msgid "Organization single sign-on enabled"
+msgid "Log in using single sign-on"
+msgstr "Logon único da organização ativado"
 
 #: templates/account/password_change.html:5
 #: templates/account/password_change.html:9
@@ -4368,10 +4377,6 @@ msgstr "Nenhum documento"
 msgid "No projects found"
 msgstr "Nenhum projeto encontrado"
 
-#: templates/core/teapot.html:6 templates/core/teapot.html:10
-msgid "418. I'm a teapot"
-msgstr "418. I'm a teapot"
-
 #: templates/core/widesearchbar.html:5
 msgid "Search all the docs"
 msgstr "Pesquisar todos os documentos"
@@ -4385,11 +4390,19 @@ msgstr "Pesquisar no Read the Docs"
 msgid "Let's do this."
 msgstr "Vamos lá!"
 
-#: templates/errors/404/base.html:6 templates/errors/404/base.html:11
+#: templates/errors/dashboard/401.html:6 templates/errors/dashboard/403.html:6
+#: templates/errors/proxito/401.html:6 templates/errors/proxito/403.html:6
+msgid "Maze Found"
+msgstr "Labirinto encontrado"
+
+#: templates/errors/dashboard/404.html:6 templates/errors/dashboard/404.html:11
+#: templates/errors/proxito/404/base.html:6
+#: templates/errors/proxito/404/base.html:11
 msgid "404 Not Found"
 msgstr "404 Não Encontrado"
 
-#: templates/errors/404/base.html:15
+#: templates/errors/dashboard/404.html:15
+#: templates/errors/proxito/404/base.html:15
 msgid ""
 "You have encountered a 404 on Read the Docs. You are either looking for a "
 "page that does not exist or a project that has been removed."
@@ -4397,12 +4410,32 @@ msgstr ""
 "Você encontrou um 404 em Read the Docs. Você está procurando uma página que "
 "não existe ou um projeto que foi removido."
 
-#: templates/errors/404/dns.html:7
+#: templates/errors/dashboard/429.html:6 templates/errors/proxito/429.html:6
+msgid "Too many requests"
+msgstr "Número excessivo de solicitações"
+
+#: templates/errors/dashboard/4xx.html:6 templates/errors/dashboard/4xx.html:11
+#: templates/errors/proxito/4xx.html:7 templates/errors/proxito/4xx.html:11
+#, fuzzy
+#| msgid "Too many requests"
+msgid "Bad request"
+msgstr "Número excessivo de solicitações"
+
+#: templates/errors/dashboard/4xx.html:16
+msgid "Your request is either unsupported or we didn't understand it."
+msgstr ""
+
+#: templates/errors/dashboard/500.html:5 templates/errors/dashboard/5xx.html:5
+#: templates/errors/proxito/500.html:5 templates/errors/proxito/5xx.html:5
+msgid "Server Error"
+msgstr "Erro do servidor"
+
+#: templates/errors/proxito/404/dns.html:7
 #, python-format
 msgid "The host \"%(domain)s\" is unknown to Read the Docs"
 msgstr "O host \"%(domain)s\" é desconhecido para Read the Docs"
 
-#: templates/errors/404/dns.html:11
+#: templates/errors/proxito/404/dns.html:11
 #, python-format
 msgid ""
 "If you control this domain and believe this is in error, please review our "
@@ -4421,21 +4454,23 @@ msgstr ""
 "estão algumas etapas para ajudar você a fazer com que seu domínio volte a "
 "funcionar:"
 
-#: templates/errors/404/dns.html:23 templates/errors/404/include_tips.html:3
+#: templates/errors/proxito/404/dns.html:23
+#: templates/errors/proxito/404/include_tips.html:3
 msgid "Are you the project owner?"
 msgstr "Você é o dono do projeto?"
 
-#: templates/errors/404/dns.html:25 templates/errors/404/include_tips.html:5
+#: templates/errors/proxito/404/dns.html:25
+#: templates/errors/proxito/404/include_tips.html:5
 msgid "Here are some tips to address 404 errors:"
 msgstr "Aqui estão algumas dicas para resolver erros 404:"
 
-#: templates/errors/404/dns.html:28
+#: templates/errors/proxito/404/dns.html:28
 msgid "Ensure you have a CNAME record pointing to <code>readthedocs.io</code>"
 msgstr ""
 "Verifique se você possui um registro CNAME apontando para <code>readthedocs."
 "io</code>"
 
-#: templates/errors/404/dns.html:29
+#: templates/errors/proxito/404/dns.html:29
 msgid ""
 "Add your desired domain in the Read the Docs dashboard for your project "
 "(under Your Project &gt;&gt; Admin &gt;&gt; Domains)"
@@ -4443,7 +4478,7 @@ msgstr ""
 "Adicione o domínio desejado no painel Read the Docs para o seu projeto (em "
 "Meus Projetos &gt;&gt; Admin &gt;&gt; Domínios)"
 
-#: templates/errors/404/include_error_message.html:4
+#: templates/errors/proxito/404/include_error_message.html:4
 #, python-format
 msgid ""
 "You are browsing the documentation of <code>%(project_slug)s</code>. The "
@@ -4452,7 +4487,7 @@ msgstr ""
 "Você está navegando na documentação de <code>%(project_slug)s</code>. O "
 "%(not_found_subject)s que você está procurando não foram encontrados."
 
-#: templates/errors/404/include_error_message.html:11
+#: templates/errors/proxito/404/include_error_message.html:11
 msgid ""
 "Documentation changes over time and pages are moved around. You can try to "
 "navigate to <a href=\"/\">the index page</a> of the project and use its "
@@ -4462,28 +4497,28 @@ msgstr ""
 "navegar até <a href=\"/\">a página de índice</a> do projeto e usar sua "
 "navegação, ou procurar uma página semelhante."
 
-#: templates/errors/404/include_search.html:3
+#: templates/errors/proxito/404/include_search.html:3
 msgid "Try searching?"
 msgstr "Tente buscar?"
 
-#: templates/errors/404/include_tips.html:8
+#: templates/errors/proxito/404/include_tips.html:8
 msgid "Use your own custom 404 page:"
 msgstr "Use sua própria página 404 personalizada:"
 
-#: templates/errors/404/include_tips.html:8
-#: templates/errors/404/include_tips.html:9
+#: templates/errors/proxito/404/include_tips.html:8
+#: templates/errors/proxito/404/include_tips.html:9
 msgid "Read more"
 msgstr "Leia mais"
 
-#: templates/errors/404/include_tips.html:9
+#: templates/errors/proxito/404/include_tips.html:9
 msgid "Create redirects when you move contents:"
 msgstr "Crie redirecionamentos quando você move conteúdos:"
 
-#: templates/errors/404/no_project.html:9
+#: templates/errors/proxito/404/no_project.html:9
 msgid "no domain"
 msgstr "sem domínio"
 
-#: templates/errors/404/no_project.html:9
+#: templates/errors/proxito/404/no_project.html:9
 #, python-format
 msgid ""
 "The project for <code>%(domain)s</code> that you are looking for either does "
@@ -4491,6 +4526,10 @@ msgid ""
 msgstr ""
 "O projeto para <code>%(domain)s</code> que você está procurando não existe, "
 "foi excluído ou ainda não possui nenhuma construção bem-sucedida."
+
+#: templates/errors/proxito/418.html:7 templates/errors/proxito/418.html:11
+msgid "418. I'm a teapot"
+msgstr "418. I'm a teapot"
 
 #: templates/flagging/flag_confirm.html:6
 #: templates/flagging/flag_confirm.html:11
@@ -6147,3 +6186,6 @@ msgstr ""
 "desconectar um serviço, você também deverá visitar seu provedor Git para "
 "excluir a conexão OAuth do Read the Docs. No GitHub, isso está localizado em "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
+
+#~ msgid "Unknown message"
+#~ msgstr "Mensagem desconhecida"
