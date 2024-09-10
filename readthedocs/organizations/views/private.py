@@ -136,7 +136,6 @@ class DeleteOrganization(
 # Owners views
 class EditOrganizationOwners(PrivateViewMixin, OrganizationOwnerView, ListView):
     template_name = "organizations/admin/owners_edit.html"
-    success_message = _("Organization owners updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
