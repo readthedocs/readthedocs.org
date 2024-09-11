@@ -523,6 +523,7 @@ class BaseBuildEnvironment:
                     msg,
                     command=build_cmd.get_command(),
                     output=build_output,
+                    exit_code=build_cmd.exit_code,
                     project_slug=self.project.slug if self.project else "",
                     version_slug=self.version.slug if self.version else "",
                 )
