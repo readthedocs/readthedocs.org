@@ -21,7 +21,8 @@ extensions = [
     "hoverxref.extension",
     "multiproject",
     "myst_parser",
-    "notfound.extension",
+    # For testing, conditionally disable the custom 404 pages on dev docs
+    # "notfound.extension",
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_tabs.tabs",
@@ -54,6 +55,10 @@ multiproject_projects = {
 }
 
 docset = get_project(multiproject_projects)
+
+# Disable custom 404 on dev docs
+if docset == "user":
+    extensions.append("notfound.extension")
 
 ogp_site_name = "Read the Docs Documentation"
 ogp_use_first_image = True  # https://github.com/readthedocs/blog/pull/118
