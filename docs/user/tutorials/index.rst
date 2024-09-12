@@ -19,7 +19,7 @@ Tutorials
   This is especially popular because of its default of using Markdown.
   This tool is well-supported on our platform and that's why we have a tutorial.
 
-⏩️ :doc:`/intro/import-guide`
+⏩️ :doc:`/intro/add-project`
   If you already wrote your documentation,
   this guide will help you get started at the most natural point:
   importing an existing documentation project.
@@ -39,6 +39,6 @@ Tutorials
    /tutorial/index
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
-   /intro/import-guide
+   /intro/add-project
    /config-file/index
    /examples
