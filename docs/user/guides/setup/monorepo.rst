@@ -37,9 +37,7 @@ Adding an additional project from the same repository
 -----------------------------------------------------
 
 Once you have added the first project from the :ref:`Import Wizard <intro/add-project:Automatically add your project>`,
-it will show as if it has already been imported and cannot be imported again.
-In order to add another project with the same repository,
-you will need to use the :ref:`Manual Import <intro/add-project:Manually add your project>`.
+you will need to repeat this process again to add the additional project from the same repository.
 
 Setting the custom build configuration file
 -------------------------------------------
