@@ -12,7 +12,7 @@ so that you have a reference for how we're using them.
       Read the Docs is a combined CI/CD platform made for documentation.
 
    configuration file
-      YAML configuration file (e.g. ``.readthedocs.yaml``) to configure the build process of your project on Read the Docs.
+      YAML configuration file (e.g. ``.readthedocs.yaml``) that configures the build process of your project on Read the Docs.
 
       .. seealso::
 

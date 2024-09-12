@@ -55,7 +55,7 @@ including the ones that were automatically created.
 
 .. seealso::
 
-   :ref:`intro/add-project:Manually your project`
+   :ref:`intro/add-project:Manually add your project`
      Using a different provider?
      Read the Docs still supports other providers such as Gitea or GitHub Enterprise.
      In fact, any Git repository URL can be configured manually.
@@ -80,7 +80,7 @@ By granting Read the Docs the requested permissions,
 we are issued a secret OAuth token from your Git provider.
 
 Using the secret token,
-we can automatically configure the repository that you select in the :doc:`project import </intro/add-project>`.
+we can automatically configure repositories during :doc:`project creation </intro/add-project>`.
 We also use the token to send back build statuses and preview URLs for :doc:`pull requests </pull-requests>`.
 
 .. _OAuth: https://en.wikipedia.org/wiki/OAuth

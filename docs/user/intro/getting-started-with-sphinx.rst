@@ -68,7 +68,7 @@ Open this file in your web browser to see your docs.
 
 Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
 Once you have Sphinx documentation in a public repository, you can start using Read the Docs
-by :doc:`importing your docs </intro/add-project>`.
+by :doc:`adding a project </intro/add-project>`.
 
 .. warning::
 

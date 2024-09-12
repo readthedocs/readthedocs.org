@@ -59,7 +59,7 @@ You can make changes to your Markdown files and your docs will automatically reb
    Your MkDocs project is built
 
 Once you have your documentation in a public repository such as GitHub, Bitbucket, or GitLab,
-you can start using Read the Docs by :doc:`importing your docs </intro/add-project>`.
+you can start using Read the Docs by :doc:`adding a project </intro/add-project>`.
 
 .. _install MkDocs: https://www.mkdocs.org/user-guide/installation/
 

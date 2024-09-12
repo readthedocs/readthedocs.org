@@ -2,9 +2,9 @@ Adding a documentation project
 ==============================
 
 .. meta::
-   :description lang=en: Add your existing technical documentation from version control system into Read the Docs.
+   :description lang=en: Add your existing documentation from a Git repository into Read the Docs.
 
-This page drives you through the process to add a documentation project to Read the Docs.
+This page takes you through the process of adding a documentation project to Read the Docs.
 If you have :doc:`connected your Read the Docs account </guides/connecting-git-account>` to GitHub, Bitbucket or GitLab you will be able to add your project automatically.
 Otherwise, you will need to add it manually and perform some extra steps.
 
@@ -37,13 +37,13 @@ Once your project is created, you'll need to manually configure the repository w
 .. seealso::
 
    :doc:`/guides/setup/git-repo-manual`
-      Once you have imported your Git project, use this guide to manually set up basic and additional *webhook* integration.
+      Additional setup steps required for manually created projects. This guide covers setting up SSH keys and webhook integrations.
 
 
 What's next
 -----------
 
-Once your documentation project was created, a build is triggered.
+Once your documentation project is created, a build will be triggered.
 It will automatically fetch the code from your repository and build the documentation.
 You can see the logs for the build process from your :term:`dashboard`.
 
