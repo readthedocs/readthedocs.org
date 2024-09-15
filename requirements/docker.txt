@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.14
+boto3==1.35.19
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.14
+botocore==1.35.19
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -204,11 +204,11 @@ elastic-transport==8.15.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.15.0
+elasticsearch==8.15.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.15.2
+elasticsearch-dsl==8.15.3
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -233,7 +233,7 @@ funcy==2.0
     #   django-cacheops
 gunicorn==23.0.0
     # via -r requirements/pip.txt
-idna==3.8
+idna==3.9
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -256,7 +256,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.4.0
+kombu==5.4.1
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -303,7 +303,7 @@ pdbpp==0.10.3
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
-platformdirs==4.3.1
+platformdirs==4.3.3
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -367,7 +367,7 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2024.1
+pytz==2024.2
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -381,7 +381,7 @@ redis==5.0.8
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-regex==2024.7.24
+regex==2024.9.11
     # via -r requirements/pip.txt
 requests==2.30.0
     # via
@@ -400,7 +400,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-rich==13.8.0
+rich==13.8.1
     # via -r requirements/docker.in
 s3transfer==0.10.2
     # via
@@ -474,7 +474,7 @@ unidecode==1.3.8
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   -r requirements/pip.txt
     #   botocore

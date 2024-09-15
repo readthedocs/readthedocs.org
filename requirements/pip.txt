@@ -14,9 +14,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.14
+boto3==1.35.19
     # via django-storages
-botocore==1.35.14
+botocore==1.35.19
     # via
     #   boto3
     #   s3transfer
@@ -154,11 +154,11 @@ drf-flex-fields==1.0.2
     # via -r requirements/pip.in
 elastic-transport==8.15.0
     # via elasticsearch
-elasticsearch==8.15.0
+elasticsearch==8.15.1
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
-elasticsearch-dsl==8.15.2
+elasticsearch-dsl==8.15.3
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -170,7 +170,7 @@ funcy==2.0
     # via django-cacheops
 gunicorn==23.0.0
     # via -r requirements/pip.in
-idna==3.8
+idna==3.9
     # via requests
 isodate==0.6.1
     # via python3-saml
@@ -182,7 +182,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-kombu==5.4.0
+kombu==5.4.1
     # via celery
 lexid==2021.1006
     # via bumpver
@@ -206,7 +206,7 @@ packaging==24.1
     #   docker
     #   dparse
     #   gunicorn
-platformdirs==4.3.1
+platformdirs==4.3.3
     # via virtualenv
 prompt-toolkit==3.0.47
     # via click-repl
@@ -236,7 +236,7 @@ python-dateutil==2.9.0.post0
     #   python-crontab
 python3-saml==1.16.0
     # via django-allauth
-pytz==2024.1
+pytz==2024.2
     # via
     #   -r requirements/pip.in
     #   celery
@@ -248,7 +248,7 @@ redis==5.0.8
     # via
     #   -r requirements/pip.in
     #   django-cacheops
-regex==2024.7.24
+regex==2024.9.11
     # via -r requirements/pip.in
 requests==2.30.0
     # via
@@ -313,7 +313,7 @@ unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
     # via -r requirements/pip.in
 unidecode==1.3.8
     # via unicode-slugify
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   botocore
     #   docker
