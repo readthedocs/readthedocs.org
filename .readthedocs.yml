@@ -36,7 +36,7 @@ build:
     # TODO: remove me once we have tested the version/language selectors
     # https://github.com/readthedocs/sphinx_rtd_theme/pull/1601
     post_install:
-      - pip uninstall sphinx_rtd_theme
+      - pip uninstall --yes sphinx_rtd_theme
       - pip install git+https://github.com/readthedocs/sphinx_rtd_theme@humitos/selectors#egg=sphinx-rtd-theme
 
 search:
