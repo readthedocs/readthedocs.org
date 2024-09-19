@@ -10,7 +10,7 @@ with more coming soon.
 .. grid:: 2
 
     .. grid-item-card::  Material for MkDocs
-        :link: /intro/mkdocs.html
+        :link: mkdocs.html
 
         Material for MkDocs is a powerful documentation framework on top of MkDocs.
 
@@ -21,7 +21,7 @@ with more coming soon.
 
 
     .. grid-item-card::  Sphinx
-        :link: /intro/sphinx.html
+        :link: sphinx.html
 
         Sphinx is a powerful documentation generator that has many features for writing technical documentation.
 
@@ -29,5 +29,3 @@ with more coming soon.
              :bdg-success:`rst` :bdg-success:`md`
         Written in
              :bdg-info:`python`
-
-

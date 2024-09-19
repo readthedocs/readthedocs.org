@@ -4,8 +4,9 @@ Sphinx
 .. meta::
    :description lang=en: Hosting Sphinx documentation on Read the Docs.
 
-Sphinx is a powerful documentation generator that
+`Sphinx`_ is a powerful documentation generator that
 has many features for writing technical documentation.
+Sphinx is written in Python, and supports documentation written in reStructuredText and Markdown.
 
 Minimal configuration required to build an existing Sphinx project on Read the Docs looks like this,
 specifying a python 3.x toolchain on Ubuntu, using the built-in :ref:`mkdocs <config-file/v2:sphinx>` command,
@@ -28,6 +29,8 @@ and defining the location of the installation requirements:
       python:
          install:
             - requirements: requirements.txt
+
+.. _Sphinx: https://www.sphinx-doc.org
 
 Quick start
 -----------
@@ -94,7 +97,7 @@ If you're using a different theme, enable :doc:`Server side search </server-side
         :caption: conf.py
 
          html_js_files = [
-            readthedocs.js,
+             readthedocs.js,
          ]
 
 
@@ -109,7 +112,7 @@ You *may* need to set `flyout_display` to `hidden <https://sphinx-rtd-theme.read
    :caption: conf.py
 
     html_theme_options = {
-       'flyout_display': 'hidden',
+        "flyout_display": "hidden",
     }
 
 If you're using a different theme, the flyout menu will display in the default bottom right side of your docs.
@@ -163,4 +166,3 @@ Further reading
 
 .. _Sphinx documentation: https://www.sphinx-doc.org/
 .. _An introduction to Sphinx and Read the Docs for technical writers: https://www.ericholscher.com/blog/2016/jul/1/sphinx-and-rtd-for-writers/
-

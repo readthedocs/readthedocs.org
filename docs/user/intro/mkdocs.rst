@@ -7,8 +7,9 @@ Material for MkDocs
 .. meta::
    :description lang=en: Hosting Material for MkDocs sites on Read the Docs.
 
-MkDocs is a fast, simple static site generator that's geared towards building project documentation.
-Material for MkDocs is a powerful documentation framework on top of MkDocs.
+`MkDocs`_ is a fast, simple static site generator that's geared towards building project documentation.
+`Material for MkDocs`_ is a powerful documentation framework on top of MkDocs.
+Mkdocs is written in Python, and supports documentation written in Markdown.
 
 .. note::
 
@@ -34,6 +35,10 @@ specifying a python toolchain on Ubuntu, defining the location of the installati
 
     mkdocs:
       configuration: mkdocs.yml
+
+.. _MkDocs: https://www.mkdocs.org/
+.. _Material for MkDocs: https://squidfunk.github.io/mkdocs-material
+
 
 Quick start
 -----------
