@@ -41,7 +41,7 @@ fonttools==4.53.1
     # via matplotlib
 h11==0.14.0
     # via uvicorn
-idna==3.8
+idna==3.9
     # via
     #   anyio
     #   requests
@@ -51,7 +51,7 @@ jinja2==3.1.4
     # via
     #   myst-parser
     #   sphinx
-kiwisolver==1.4.5
+kiwisolver==1.4.7
     # via matplotlib
 markdown-it-py==3.0.0
     # via
@@ -61,13 +61,13 @@ markupsafe==2.1.5
     # via jinja2
 matplotlib==3.9.2
     # via -r requirements/docs.in
-mdit-py-plugins==0.4.1
+mdit-py-plugins==0.4.2
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
 myst-parser==4.0.0
     # via -r requirements/docs.in
-numpy==2.1.0
+numpy==2.1.1
     # via
     #   contourpy
     #   matplotlib
@@ -117,7 +117,7 @@ sphinx==7.4.7
     #   sphinxcontrib-jquery
     #   sphinxemoji
     #   sphinxext-opengraph
-sphinx-autobuild==2024.4.16
+sphinx-autobuild==2024.9.3
     # via -r requirements/docs.in
 sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
@@ -127,7 +127,7 @@ sphinx-design==0.6.1
     #   sphinx-design-elements
 sphinx-design-elements==0.2.1
     # via -r requirements/docs.in
-sphinx-hoverxref==1.4.0
+sphinx-hoverxref==1.4.1
     # via -r requirements/docs.in
 sphinx-intl==2.2.0
     # via -r requirements/docs.in
@@ -165,7 +165,7 @@ sphinxemoji==0.3.1
     # via -r requirements/docs.in
 sphinxext-opengraph==0.9.1
     # via -r requirements/docs.in
-starlette==0.38.2
+starlette==0.38.5
     # via sphinx-autobuild
 tomli==2.0.1
     # via sphinx
@@ -173,7 +173,7 @@ typing-extensions==4.12.2
     # via
     #   anyio
     #   uvicorn
-urllib3==2.2.2
+urllib3==2.2.3
     # via requests
 uvicorn==0.30.6
     # via sphinx-autobuild

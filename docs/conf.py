@@ -21,7 +21,8 @@ extensions = [
     "hoverxref.extension",
     "multiproject",
     "myst_parser",
-    "notfound.extension",
+    # For testing, conditionally disable the custom 404 pages on dev docs
+    # "notfound.extension",
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_design_elements",
@@ -56,6 +57,10 @@ multiproject_projects = {
 
 docset = get_project(multiproject_projects)
 
+# Disable custom 404 on dev docs
+if docset == "user":
+    extensions.append("notfound.extension")
+
 ogp_site_name = "Read the Docs Documentation"
 ogp_use_first_image = True  # https://github.com/readthedocs/blog/pull/118
 ogp_image = "https://docs.readthedocs.io/en/latest/_static/img/logo-opengraph.png"
@@ -77,7 +82,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "11.7.0"
+version = "11.7.2"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"

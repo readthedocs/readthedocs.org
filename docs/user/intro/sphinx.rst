@@ -35,7 +35,7 @@ and defining the location of the installation requirements:
 Quick start
 -----------
 
-- If you have an existing Sphinx project you want to host on Read the Docs, check out our :doc:`/intro/import-guide` guide.
+- If you have an existing Sphinx project you want to host on Read the Docs, check out our :doc:`/intro/add-project` guide.
 
 - If you're new to Sphinx, check out the official `Getting started with Sphinx`_ guide.
 

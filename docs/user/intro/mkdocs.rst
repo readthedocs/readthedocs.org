@@ -43,7 +43,7 @@ specifying a python toolchain on Ubuntu, defining the location of the installati
 Quick start
 -----------
 
-- If you have an existing Material for MkDocs project you want to host on Read the Docs, check out our :doc:`/intro/import-guide` guide.
+- If you have an existing Material for MkDocs project you want to host on Read the Docs, check out our :doc:`/intro/add-project` guide.
 
 - If you're new to Material for MkDocs, check out the official `Getting started with Material for MkDocs`_ guide.
 

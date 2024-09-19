@@ -18,8 +18,8 @@ Prerequisites
 
 .. include:: /shared/organization-permissions.rst
 
-Create a new SAML application in Okta
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create a SAML application in Okta
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to enable SSO with Okta, you need to create a new SAML application in your Okta account.
 
@@ -51,40 +51,35 @@ In order to enable SSO with Okta, you need to create a new SAML application in y
 8. Select ``This is an internal app that we have created``.
 9. Click :guilabel:`Finish`.
 
-User setup
-~~~~~~~~~~
+Enable SAML on your Read the Docs organization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Using this setup, all users who have access to the configured Okta application will automatically join to your Read the Docs organization when they sign up.
-Existing users will not be automatically joined to the organization.
+Once you have created the SAML application in Okta, you need to enable SAML on Read the Docs.
 
-You can still add outside collaborators and manage their access.
-There are two ways to manage this access:
+1. Copy the Metadata URL from the Okta application you just created.
 
-* Using :doc:`teams </guides/manage-read-the-docs-teams>` to provide access for ongoing contribution.
-* Using :doc:`sharing </commercial/sharing>` to provide short-term access requiring a login.
+   * On Okta, click on the :guilabel:`Applications`.
+   * Click on the Read the Docs application.
+   * Click on the :guilabel:`Sign On` tab.
+   * Copy the :guilabel:`Metadata URL`.
 
-Enabling SSO
-------------
+2. Go you your `organization's SAML settings page <https://readthedocs.com/organizations/choose/organization_saml/>`__.
+3. Paste the Metadata URL in the :guilabel:`Metadata URL` field.
+4. Leave the domain field empty.
+5. Click :guilabel:`Save`.
 
-Enabling SSO is currently done by the Read the Docs team,
-contact :doc:`support </support>` to enable this feature for your organization.
+Attaching the email domain your organization uses to enforce SAML is currently done by the Read the Docs team,
+contact :doc:`support </support>` using an account that's an owner of the organization.
 
-By default, users that sign up with SAML do not have any permissions over any project.
-However, you can define which teams users will auto-join when they sign up.
+Configure a team for users to join automatically
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After enabling the SAML integration,
-all users with email addresses from your configured domain will be required to signup using SAML.
+After you have enabled SAML on your organization,
+a team named "SAML Users" will be created automatically,
+and all users that sign up with SAML will be automatically joined to this team.
+You can delete this team, or configure a different team or teams for users to join automatically.
 
-.. warning::
-
-   Existing users with email addresses from your configured domain will not be required to sign up using SAML,
-   but they won't be automatically joined to your organization.
-
-Configure team for all users to join
-------------------------------------
-
-You can mark one or more teams that users will automatically join when they sign up with a matching email address.
-Configure this option by:
+To configure a team for users to join automatically:
 
 1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
 2. Click the :guilabel:`<team name>`.
@@ -92,15 +87,43 @@ Configure this option by:
 4. Enable *Auto join users with an organization's email address to this team*.
 5. Click :guilabel:`Save`
 
-With this enabled,
-all users that sign up with SAML will automatically join this team.
-These teams can have either *read-only* or *admin* permissions over a set of projects.
+User management
+---------------
+
+New users
+~~~~~~~~~
+
+After enabling the SAML integration,
+all users with an email domain matching the one in your SAML integration will be required to sign up using SAML.
+After they sign up, they will be automatically joined to your organization within the teams you have configured to auto-join users.
+
+Existing users
+~~~~~~~~~~~~~~
+
+Existing users with email addresses from your configured domain will not be required to sign in using SAML,
+but they won't be automatically joined to your organization.
+
+If you want to enforce SAML for existing users, you have the following options:
+
+- Users can delete their accounts, and sign up again using SAML.
+- Users can link their existing accounts to their SAML identity by following this link while logged in their Read the Docs account:
+  ``https://readthedocs.com/accounts/saml/<organization-slug>/login/?process=connect`` (replace ``<organization-slug>`` with your organization slug).
+  You can find this link in your `organization's SAML settings page <https://readthedocs.com/organizations/choose/organization_saml/>`__.
+
+Outside collaborators
+~~~~~~~~~~~~~~~~~~~~~
+
+You can still add outside collaborators that don't use SAML and manage their access.
+There are two ways to manage this access:
+
+* Using :doc:`teams </guides/manage-read-the-docs-teams>` to provide access for ongoing contribution.
+* Using :doc:`sharing </commercial/sharing>` to provide short-term access requiring a login.
 
 Revoke user's access to all the projects
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By disabling access to the SAML integration to a user,
-you revoke access to all the projects the linked Read the Docs user had access to,
+you revoke access to all the projects their linked Read the Docs user had access to,
 and disable login on Read the Docs completely for that user.
 
 .. warning::

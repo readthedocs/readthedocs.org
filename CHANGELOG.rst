@@ -1,3 +1,31 @@
+Version 11.7.2
+--------------
+
+:Date: September 10, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11590 <https://github.com/readthedocs/readthedocs.org/pull/11590>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update common (`#11589 <https://github.com/readthedocs/readthedocs.org/pull/11589>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: final date for addons and link to blog post (`#11588 <https://github.com/readthedocs/readthedocs.org/pull/11588>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: small updates to sitemaps page (`#11585 <https://github.com/readthedocs/readthedocs.org/pull/11585>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: update docs (`#11583 <https://github.com/readthedocs/readthedocs.org/pull/11583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Email: use first recipient from email object (`#11581 <https://github.com/readthedocs/readthedocs.org/pull/11581>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.7.1 (`#11580 <https://github.com/readthedocs/readthedocs.org/pull/11580>`__)
+* `@stsewd <https://github.com/stsewd>`__: Admin: set raw field for SSOIntegration (`#11572 <https://github.com/readthedocs/readthedocs.org/pull/11572>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: skip config step if YAML file is present (`#11540 <https://github.com/readthedocs/readthedocs.org/pull/11540>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Standardize error template paths (`#11494 <https://github.com/readthedocs/readthedocs.org/pull/11494>`__)
+
+Version 11.7.1
+--------------
+
+:Date: September 03, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11575 <https://github.com/readthedocs/readthedocs.org/pull/11575>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: update Okta setup steps (`#11569 <https://github.com/readthedocs/readthedocs.org/pull/11569>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: small typo (`#11568 <https://github.com/readthedocs/readthedocs.org/pull/11568>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.7.0 (`#11567 <https://github.com/readthedocs/readthedocs.org/pull/11567>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: skip config step if YAML file is present (`#11540 <https://github.com/readthedocs/readthedocs.org/pull/11540>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: don't completely override the `send_email` method (`#11526 <https://github.com/readthedocs/readthedocs.org/pull/11526>`__)
+
 Version 11.7.0
 --------------
 

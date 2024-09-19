@@ -10,7 +10,7 @@ Read the Docs: documentation simplified
    /intro/doctools
    /intro/mkdocs
    /intro/sphinx
-   /intro/import-guide
+   /intro/add-project
    /examples
 
 .. toctree::
