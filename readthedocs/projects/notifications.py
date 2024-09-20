@@ -17,7 +17,7 @@ MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
 messages = [
     Message(
         id=MESSAGE_PROJECT_SKIP_BUILDS,
-        header=_("Build skipped for this project"),
+        header=_("Builds skipped for this project"),
         body=_(
             textwrap.dedent(
                 """

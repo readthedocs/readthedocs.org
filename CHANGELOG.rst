@@ -1,3 +1,57 @@
+Version 11.7.2
+--------------
+
+:Date: September 10, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11590 <https://github.com/readthedocs/readthedocs.org/pull/11590>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update common (`#11589 <https://github.com/readthedocs/readthedocs.org/pull/11589>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: final date for addons and link to blog post (`#11588 <https://github.com/readthedocs/readthedocs.org/pull/11588>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: small updates to sitemaps page (`#11585 <https://github.com/readthedocs/readthedocs.org/pull/11585>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: update docs (`#11583 <https://github.com/readthedocs/readthedocs.org/pull/11583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Email: use first recipient from email object (`#11581 <https://github.com/readthedocs/readthedocs.org/pull/11581>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.7.1 (`#11580 <https://github.com/readthedocs/readthedocs.org/pull/11580>`__)
+* `@stsewd <https://github.com/stsewd>`__: Admin: set raw field for SSOIntegration (`#11572 <https://github.com/readthedocs/readthedocs.org/pull/11572>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: skip config step if YAML file is present (`#11540 <https://github.com/readthedocs/readthedocs.org/pull/11540>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Standardize error template paths (`#11494 <https://github.com/readthedocs/readthedocs.org/pull/11494>`__)
+
+Version 11.7.1
+--------------
+
+:Date: September 03, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11575 <https://github.com/readthedocs/readthedocs.org/pull/11575>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: update Okta setup steps (`#11569 <https://github.com/readthedocs/readthedocs.org/pull/11569>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: small typo (`#11568 <https://github.com/readthedocs/readthedocs.org/pull/11568>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.7.0 (`#11567 <https://github.com/readthedocs/readthedocs.org/pull/11567>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: skip config step if YAML file is present (`#11540 <https://github.com/readthedocs/readthedocs.org/pull/11540>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: don't completely override the `send_email` method (`#11526 <https://github.com/readthedocs/readthedocs.org/pull/11526>`__)
+
+Version 11.7.0
+--------------
+
+:Date: August 27, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11566 <https://github.com/readthedocs/readthedocs.org/pull/11566>`__)
+* `@kurtmckee <https://github.com/kurtmckee>`__: Fix a minor typo (`#11565 <https://github.com/readthedocs/readthedocs.org/pull/11565>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Use clone_url for remote repository field (`#11564 <https://github.com/readthedocs/readthedocs.org/pull/11564>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tasks: delete closed PRs every 30 minutes (`#11563 <https://github.com/readthedocs/readthedocs.org/pull/11563>`__)
+* `@stsewd <https://github.com/stsewd>`__: Settings: define threshold setting for removing projects from ES (`#11560 <https://github.com/readthedocs/readthedocs.org/pull/11560>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: improve way to get the `basics` form (`#11558 <https://github.com/readthedocs/readthedocs.org/pull/11558>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: add function to re-index a project (`#11555 <https://github.com/readthedocs/readthedocs.org/pull/11555>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.6.0 (`#11554 <https://github.com/readthedocs/readthedocs.org/pull/11554>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: make URLs not linkable (`#11553 <https://github.com/readthedocs/readthedocs.org/pull/11553>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#11552 <https://github.com/readthedocs/readthedocs.org/pull/11552>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: make translation section more generic (`#11549 <https://github.com/readthedocs/readthedocs.org/pull/11549>`__)
+* `@mgeier <https://github.com/mgeier>`__: Update instructions for Jupyter notebook galleries (`#11545 <https://github.com/readthedocs/readthedocs.org/pull/11545>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: 2FA (`#11524 <https://github.com/readthedocs/readthedocs.org/pull/11524>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.21.0 (`#11185 <https://github.com/readthedocs/readthedocs.org/pull/11185>`__)
+* `@humitos <https://github.com/humitos>`__: Build: show the YAML config file before validating it (`#11175 <https://github.com/readthedocs/readthedocs.org/pull/11175>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.18.0 (`#11096 <https://github.com/readthedocs/readthedocs.org/pull/11096>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11090 <https://github.com/readthedocs/readthedocs.org/pull/11090>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use version slug for get_version_slug (`#11085 <https://github.com/readthedocs/readthedocs.org/pull/11085>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: Don't allow webhooks without a secret (`#11083 <https://github.com/readthedocs/readthedocs.org/pull/11083>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: sorting algorithm for versions customizable on flyout (`#11069 <https://github.com/readthedocs/readthedocs.org/pull/11069>`__)
+
 Version 11.6.0
 --------------
 

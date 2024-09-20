@@ -1,13 +1,11 @@
 """Admin interface for SSO models."""
 import structlog
-
 from django.contrib import admin, messages
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.oauth.tasks import sync_remote_repositories
 
 from .models import SSODomain, SSOIntegration
-
 
 log = structlog.get_logger(__name__)
 
@@ -20,6 +18,7 @@ class SSOIntegrationAdmin(admin.ModelAdmin):
     list_display = ("organization", "provider")
     search_fields = ("organization__slug", "organization__name", "domains__domain")
     list_filter = ("provider",)
+    raw_id_fields = ("organization",)
 
     actions = [
         "resync_sso_user_accounts",

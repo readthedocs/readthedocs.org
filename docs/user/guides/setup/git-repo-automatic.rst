@@ -26,7 +26,7 @@ the integration will automatically be configured on the Read the Docs project an
 Here is an outline of what happens:
 
 #. A list of repositories that you have access to are automatically listed on Read the Docs' project import.
-#. You choose a Git repository from the list (see :doc:`/intro/import-guide`).
+#. You choose a Git repository from the list (see :doc:`/intro/add-project`).
 #. Data about the repository is now fetched using the account connection and you are asked to confirm the setup.
 #. When Read the Docs creates your project,
    it automatically sets up an integration with the Git provider,
@@ -55,7 +55,7 @@ including the ones that were automatically created.
 
 .. seealso::
 
-   :ref:`intro/import-guide:Manually import your docs`
+   :ref:`intro/add-project:Manually add your project`
      Using a different provider?
      Read the Docs still supports other providers such as Gitea or GitHub Enterprise.
      In fact, any Git repository URL can be configured manually.
@@ -80,7 +80,7 @@ By granting Read the Docs the requested permissions,
 we are issued a secret OAuth token from your Git provider.
 
 Using the secret token,
-we can automatically configure the repository that you select in the :doc:`project import </intro/import-guide>`.
+we can automatically configure repositories during :doc:`project creation </intro/add-project>`.
 We also use the token to send back build statuses and preview URLs for :doc:`pull requests </pull-requests>`.
 
 .. _OAuth: https://en.wikipedia.org/wiki/OAuth
