@@ -143,7 +143,9 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 template_name = "security-logs.html"
 
             if template_name:
-                context["promotion"] = f"projects/partials/dashboard/{template_name}"
+                context[
+                    "announcement"
+                ] = f"projects/partials/announcements/{template_name}"
 
         return context
 
