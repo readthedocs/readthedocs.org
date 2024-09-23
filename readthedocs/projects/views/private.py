@@ -357,6 +357,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         # pylint: disable=too-many-nested-blocks
         if isinstance(form, ProjectBasicsForm):
             remote_repository = form.cleaned_data.get("remote_repository")
+            default_branch = form.cleaned_data.get("default_branch")
             if remote_repository and remote_repository.vcs_provider == GITHUB:
                 remote_repository_relations = (
                     remote_repository.remote_repository_relations.filter(
@@ -377,8 +378,11 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
                         "readthedocs.yml",
                     ]:
                         try:
+                            querystrings = (
+                                f"?ref={default_branch}" if default_branch else ""
+                            )
                             response = session.head(
-                                f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}",
+                                f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}{querystrings}",
                                 timeout=1,
                             )
                             if response.ok:
