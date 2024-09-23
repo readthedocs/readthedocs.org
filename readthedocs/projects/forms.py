@@ -1,16 +1,19 @@
 """Project forms."""
 
+import datetime
 import json
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
+import pytz
 from allauth.socialaccount.models import SocialAccount
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
@@ -677,13 +680,23 @@ class AddonsConfigForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
+
+        tzinfo = pytz.timezone("America/Los_Angeles")
+        addons_enabled_by_default = timezone.now() > datetime.datetime(
+            2024, 10, 7, 0, 0, 0, tzinfo=tzinfo
+        )
+
         addons, created = AddonsConfig.objects.get_or_create(project=self.project)
         if created:
-            addons.enabled = False
+            addons.enabled = addons_enabled_by_default
             addons.save()
 
         kwargs["instance"] = addons
         super().__init__(*args, **kwargs)
+
+        # Keep the ability to disable addons completely on Read the Docs for Business
+        if not settings.RTD_ALLOW_ORGANIZATIONS and addons_enabled_by_default:
+            self.fields.pop("enabled")
 
     def clean(self):
         if (

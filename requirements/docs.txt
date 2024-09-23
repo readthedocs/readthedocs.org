@@ -6,7 +6,7 @@
 #
 alabaster==0.7.16
     # via sphinx
-anyio==4.4.0
+anyio==4.6.0
     # via
     #   starlette
     #   watchfiles
@@ -41,7 +41,7 @@ fonttools==4.53.1
     # via matplotlib
 h11==0.14.0
     # via uvicorn
-idna==3.9
+idna==3.10
     # via
     #   anyio
     #   requests
@@ -117,7 +117,7 @@ sphinx==7.4.7
     #   sphinxcontrib-jquery
     #   sphinxemoji
     #   sphinxext-opengraph
-sphinx-autobuild==2024.9.3
+sphinx-autobuild==2024.9.19
     # via -r requirements/docs.in
 sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
@@ -175,7 +175,7 @@ uvicorn==0.30.6
     # via sphinx-autobuild
 watchfiles==0.24.0
     # via sphinx-autobuild
-websockets==13.0.1
+websockets==13.1
     # via sphinx-autobuild
 
 # The following packages are considered to be unsafe in a requirements file:
