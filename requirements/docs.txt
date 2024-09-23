@@ -133,7 +133,7 @@ sphinx-notfound-page==1.0.4
     # via -r requirements/docs.in
 sphinx-prompt==1.8.0
     # via -r requirements/docs.in
-sphinx-rtd-theme==2.1.0rc1
+sphinx-rtd-theme==3.0.0rc2
     # via -r requirements/docs.in
 sphinx-tabs==3.4.5
     # via -r requirements/docs.in
