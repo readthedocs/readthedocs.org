@@ -101,21 +101,27 @@ If you're using a different theme, enable :doc:`Server side search </server-side
          ]
 
 
-Integrate the Read the Docs version menu into your site navigation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. TODO: adapt and uncomment this section.
+   We've changed `flyout_display` to be `hidden` by default;
+   If people want to use the integrated version of it, they should declare it as `attached`.
+   However, as we have the version/language selectors now,
+   we want to promote that more and keep the Addons flyout enabled by default.
 
-If you're using the `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`__, the :ref:`flyout-menu:Addons flyout menu` is already fully integrated.
+   Integrate the Read the Docs version menu into your site navigation
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You *may* need to set `flyout_display` to `hidden <https://sphinx-rtd-theme.readthedocs.io/en/latest/configuring.html#confval-flyout_display>`_ in your ``conf.py`` so as not to display two identical menus:
+   If you're using the `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`__, the :ref:`flyout-menu:Addons flyout menu` is already fully integrated.
 
-.. code-block:: py
-   :caption: conf.py
+   You *may* need to set `flyout_display` to `hidden <https://sphinx-rtd-theme.readthedocs.io/en/latest/configuring.html#confval-flyout_display>`_ in your ``conf.py`` so as not to display two identical menus:
 
-    html_theme_options = {
-        "flyout_display": "hidden",
-    }
+   .. code-block:: py
+      :caption: conf.py
 
-If you're using a different theme, the flyout menu will display in the default bottom right side of your docs.
+       html_theme_options = {
+           "flyout_display": "hidden",
+       }
+
+   If you're using a different theme, the flyout menu will display in the default bottom right side of your docs.
 
 Using Markdown with Sphinx
 --------------------------
