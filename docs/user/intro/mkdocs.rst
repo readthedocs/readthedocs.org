@@ -182,10 +182,10 @@ Edit ``readthedocs.css`` to so that the font in the :ref:`flyout-menu:Addons fly
 Example repository and demo
 ---------------------------
 
-Example repo::
+Example repository
     https://github.com/readthedocs/test-builds/tree/mkdocs-material
 
-Demo::
+Demo
     https://test-builds.readthedocs.io/en/mkdocs-material/
 
 Further reading

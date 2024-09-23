@@ -97,7 +97,7 @@ If you're using a different theme, enable :doc:`Server side search </server-side
         :caption: conf.py
 
          html_js_files = [
-             readthedocs.js,
+             "readthedocs.js",
          ]
 
 
@@ -151,10 +151,10 @@ You can now continue writing your docs in ``.md`` files and it will work with Sp
 Example repository and demo
 ---------------------------
 
-Example repo::
+Example repository
     https://github.com/readthedocs/test-builds/tree/sphinx-7.0.x
 
-Demo::
+Demo
     https://test-builds.readthedocs.io/en/sphinx-7.0.x
 
 Further reading
