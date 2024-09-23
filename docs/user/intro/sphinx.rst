@@ -45,7 +45,7 @@ Quick start
 
 
 Configuring Sphinx and Read the Docs addons
---------------------------------------------------------
+-------------------------------------------
 
 For optimal integration with Read the Docs, make the optional following configuration changes to your Spinx config.
 
