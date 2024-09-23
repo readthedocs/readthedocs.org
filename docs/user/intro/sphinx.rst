@@ -152,10 +152,10 @@ Example repository and demo
 ---------------------------
 
 Example repository
-    https://github.com/readthedocs/test-builds/tree/sphinx-7.0.x
+    https://github.com/readthedocs/test-builds/tree/full-feature
 
 Demo
-    https://test-builds.readthedocs.io/en/sphinx-7.0.x
+    https://test-builds.readthedocs.io/en/full-feature
 
 Further reading
 ---------------
