@@ -169,7 +169,7 @@ class HttpExchange(models.Model):
 
     class Meta:
         ordering = ["-date"]
-        indexes = (models.Index(fields=["content_type", "object_id", "date"]),)
+        indexes = [models.Index(fields=["content_type", "object_id", "date"])]
 
     def __str__(self):
         return _("Exchange {0}").format(self.pk)
