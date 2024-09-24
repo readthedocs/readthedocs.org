@@ -846,6 +846,7 @@ class Build(models.Model):
         ]
         indexes = [
             models.Index(fields=["project", "date"]),
+            models.Index(fields=["version", "date"]),
         ]
 
     def __init__(self, *args, **kwargs):
