@@ -7,9 +7,10 @@ Read the Docs: documentation simplified
    :caption: Getting started
 
    /tutorial/index
-   /intro/getting-started-with-sphinx
-   /intro/getting-started-with-mkdocs
-   /intro/import-guide
+   /intro/doctools
+   /intro/mkdocs
+   /intro/sphinx
+   /intro/add-project
    /examples
 
 .. toctree::

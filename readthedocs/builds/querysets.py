@@ -3,7 +3,7 @@ import datetime
 
 import structlog
 from django.db import models
-from django.db.models import Q
+from django.db.models import OuterRef, Prefetch, Q, Subquery
 from django.utils import timezone
 
 from readthedocs.builds.constants import (
@@ -140,6 +140,30 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
             .exclude(project__is_spam=True)
             .distinct()
         )
+
+    def prefetch_subquery(self):
+        """
+        Prefetch related objects via subquery for each version.
+
+        .. note::
+
+            This should come after any filtering.
+        """
+        from readthedocs.builds.models import Build
+
+        # Prefetch the latest build for each project.
+        subquery_builds = Subquery(
+            Build.internal.filter(version=OuterRef("version_id"))
+            .order_by("-date")
+            .values_list("id", flat=True)[:1]
+        )
+        prefetch_builds = Prefetch(
+            "builds",
+            Build.internal.filter(pk__in=subquery_builds),
+            to_attr=self.model.LATEST_BUILD_CACHE,
+        )
+
+        return self.prefetch_related(prefetch_builds)
 
 
 class VersionQuerySet(SettingsOverrideObject):

@@ -183,7 +183,7 @@ This other example shows how to cancel a build if the commit message contains ``
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",
          # in that case exit the command with 183 to cancel the build
-         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | grep -viq "skip ci") || exit 183
+         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | paste -s -d " " | grep -viq "skip ci") || exit 183
 
 
 Generate documentation from annotated sources with Doxygen

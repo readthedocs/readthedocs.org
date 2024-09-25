@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.14
+boto3==1.35.24
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.14
+botocore==1.35.24
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -204,11 +204,11 @@ elastic-transport==8.15.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.15.0
+elasticsearch==8.15.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.15.2
+elasticsearch-dsl==8.15.3
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -222,7 +222,7 @@ fido2==1.1.3
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.16.0
+filelock==3.16.1
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -233,7 +233,7 @@ funcy==2.0
     #   django-cacheops
 gunicorn==23.0.0
     # via -r requirements/pip.txt
-idna==3.8
+idna==3.10
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -256,7 +256,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.4.0
+kombu==5.4.2
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -303,7 +303,7 @@ pdbpp==0.10.3
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
-platformdirs==4.3.1
+platformdirs==4.3.6
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -315,13 +315,13 @@ prompt-toolkit==3.0.47
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.2.1
+psycopg[binary,pool]==3.2.2
     # via -r requirements/pip.txt
-psycopg-binary==3.2.1
+psycopg-binary==3.2.2
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.2.2
+psycopg-pool==3.2.3
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -347,7 +347,7 @@ pypng==0.20220715.0
     # via
     #   -r requirements/pip.txt
     #   qrcode
-pyproject-api==1.7.1
+pyproject-api==1.8.0
     # via tox
 pyquery==2.0.1
     # via -r requirements/pip.txt
@@ -367,7 +367,7 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2024.1
+pytz==2024.2
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -381,7 +381,7 @@ redis==5.0.8
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-regex==2024.7.24
+regex==2024.9.11
     # via -r requirements/pip.txt
 requests==2.30.0
     # via
@@ -400,7 +400,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-rich==13.8.0
+rich==13.8.1
     # via -r requirements/docker.in
 s3transfer==0.10.2
     # via
@@ -445,7 +445,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.18.1
+tox==4.20.0
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -464,6 +464,7 @@ tzdata==2024.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
+    #   kombu
 ua-parser==0.18.0
     # via
     #   -r requirements/pip.txt
@@ -474,7 +475,7 @@ unidecode==1.3.8
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -489,7 +490,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.4
+virtualenv==20.26.5
     # via
     #   -r requirements/pip.txt
     #   tox
