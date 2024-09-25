@@ -132,33 +132,17 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         from readthedocs.builds.models import Build
 
         # Prefetch the latest build for each project.
-        subquery_build_latest = Subquery(
+        subquery = Subquery(
             Build.internal.filter(project=OuterRef("project_id"))
             .order_by("-date")
             .values_list("id", flat=True)[:1]
         )
-        prefetch_build_latest = Prefetch(
+        latest_build = Prefetch(
             "builds",
-            Build.internal.filter(pk__in=subquery_build_latest),
+            Build.internal.filter(pk__in=subquery),
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
-
-        # Prefetch the latest successful build for each project.
-        subquery_build_successful = Subquery(
-            Build.internal.filter(project=OuterRef("project_id"))
-            .order_by("-date")
-            .values_list("id", flat=True)[:1]
-        )
-        prefetch_build_successful = Prefetch(
-            "builds",
-            Build.internal.filter(pk__in=subquery_build_successful),
-            to_attr=self.model.LATEST_SUCCESSFUL_BUILD_CACHE,
-        )
-
-        return self.prefetch_related(
-            prefetch_build_latest,
-            prefetch_build_successful,
-        )
+        return self.prefetch_related(latest_build)
 
     # Aliases
 
