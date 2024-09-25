@@ -117,6 +117,7 @@ class EditOrganization(
     UpdateView,
 ):
     template_name = "organizations/admin/organization_edit.html"
+    success_message = _("Organization updated")
 
 
 class DeleteOrganization(
@@ -126,6 +127,7 @@ class DeleteOrganization(
     DeleteViewWithMessage,
 ):
     template_name = "organizations/admin/organization_delete.html"
+    success_message = _("Organization deleted")
 
     def get_success_url(self):
         return reverse_lazy("organization_list")

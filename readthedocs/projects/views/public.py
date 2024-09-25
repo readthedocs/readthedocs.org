@@ -123,7 +123,11 @@ class ProjectDetailViewBase(
                 queryset=versions,
                 project=project,
             )
-            versions = self.get_filtered_queryset()
+            versions = (
+                self.get_filtered_queryset()
+                .prefetch_related("project")
+                .prefetch_subquery()
+            )
         context["versions"] = versions
 
         protocol = "http"

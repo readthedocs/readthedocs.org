@@ -74,6 +74,7 @@ from readthedocs.projects.forms import (
     WebHookForm,
 )
 from readthedocs.projects.models import (
+    AddonsConfig,
     Domain,
     EmailHook,
     EnvironmentVariable,
@@ -143,7 +144,9 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 template_name = "security-logs.html"
 
             if template_name:
-                context["promotion"] = f"projects/partials/dashboard/{template_name}"
+                context[
+                    "announcement"
+                ] = f"projects/partials/announcements/{template_name}"
 
         return context
 
@@ -354,6 +357,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         # pylint: disable=too-many-nested-blocks
         if isinstance(form, ProjectBasicsForm):
             remote_repository = form.cleaned_data.get("remote_repository")
+            default_branch = form.cleaned_data.get("default_branch")
             if remote_repository and remote_repository.vcs_provider == GITHUB:
                 remote_repository_relations = (
                     remote_repository.remote_repository_relations.filter(
@@ -374,8 +378,11 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
                         "readthedocs.yml",
                     ]:
                         try:
+                            querystrings = (
+                                f"?ref={default_branch}" if default_branch else ""
+                            )
                             response = session.head(
-                                f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}",
+                                f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}{querystrings}",
                                 timeout=1,
                             )
                             if response.ok:
@@ -420,6 +427,9 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
+
+        # Create an AddonsConfig object for this project.
+        AddonsConfig.objects.get_or_create(project=project)
 
         self.finish_import_project(self.request, project)
 
