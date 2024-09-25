@@ -133,12 +133,13 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
         # Get most recent and recent successful builds
         builds_latest = (
-            Build.objects.values("project")
+            Build.objects.filter(project__in=self)
+            .values("project")
             .annotate(latest=Max("pk"))
             .values_list("latest", flat=True)
         )
         builds_success = (
-            Build.objects.filter(success=True)
+            Build.objects.filter(project__in=self, success=True)
             .values("project")
             .annotate(latest=Max("pk"))
             .values_list("latest", flat=True)
