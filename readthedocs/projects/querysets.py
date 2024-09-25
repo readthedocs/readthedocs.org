@@ -1,6 +1,6 @@
 """Project model QuerySet classes."""
 from django.db import models
-from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
+from django.db.models import Count, Max, Prefetch, Q
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
@@ -131,27 +131,30 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         """
         from readthedocs.builds.models import Build
 
-        # Prefetch the latest build for each project.
-        subquery_build_latest = Subquery(
-            Build.internal.filter(project=OuterRef("project_id"))
-            .order_by("-date")
-            .values_list("id", flat=True)[:1]
+        # Get most recent and recent successful builds
+        builds_latest = (
+            Build.objects.values("project")
+            .annotate(latest=Max("pk"))
+            .values_list("latest", flat=True)
         )
+        builds_success = (
+            Build.objects.filter(success=True)
+            .values("project")
+            .annotate(latest=Max("pk"))
+            .values_list("latest", flat=True)
+        )
+
+        # Prefetch the latest build for each project.
         prefetch_build_latest = Prefetch(
             "builds",
-            Build.internal.filter(pk__in=subquery_build_latest),
+            Build.internal.filter(pk__in=builds_latest),
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
 
         # Prefetch the latest successful build for each project.
-        subquery_build_successful = Subquery(
-            Build.internal.filter(project=OuterRef("project_id"))
-            .order_by("-date")
-            .values_list("id", flat=True)[:1]
-        )
         prefetch_build_successful = Prefetch(
             "builds",
-            Build.internal.filter(pk__in=subquery_build_successful),
+            Build.internal.filter(pk__in=builds_success),
             to_attr=self.model.LATEST_SUCCESSFUL_BUILD_CACHE,
         )
 
