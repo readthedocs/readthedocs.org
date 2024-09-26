@@ -291,6 +291,10 @@ class Version(TimeStampedModel):
 
     @property
     def last_build(self):
+        return self.latest_build
+
+    @property
+    def latest_build(self):
         return self.builds.order_by("-date").first()
 
     @property
