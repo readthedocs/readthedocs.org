@@ -101,6 +101,7 @@ class Version(TimeStampedModel):
         max_length=20,
         choices=VERSION_TYPES,
         default="unknown",
+        db_index=True,
     )
     # used by the vcs backend
 
@@ -858,7 +859,6 @@ class Build(models.Model):
             # Query: ``version.builds.filter(success=True, state=BUILD_STATE_FINISHED)``
             ["version", "state", "date", "success"],
             ["version", "state", "type"],
-            ["date", "id"],
         ]
         indexes = [
             models.Index(fields=["project", "date"]),

@@ -1,6 +1,6 @@
-import structlog
 from functools import partial
 
+import structlog
 from django import forms
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -66,13 +66,11 @@ class ExtraFieldsHistoricalModel(models.Model):
         _("ID"),
         blank=True,
         null=True,
-        db_index=True,
     )
     extra_history_user_username = models.CharField(
         _("username"),
         max_length=150,
         null=True,
-        db_index=True,
     )
     extra_history_ip = models.CharField(
         _("IP address"),
