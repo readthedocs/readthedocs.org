@@ -291,6 +291,8 @@ class Version(TimeStampedModel):
 
     @property
     def last_build(self):
+        # TODO deprecated in favor of `latest_build`, which matches naming on
+        # the Project model
         return self.latest_build
 
     @property
