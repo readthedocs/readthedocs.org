@@ -168,10 +168,15 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
             )
 
     def get_queryset(self):
+        queryset = Project.objects.dashboard(self.request.user)
+        if settings.RTD_EXT_THEME_ENABLED:
+            return queryset
+        # The new dashboard uses django-filters, this is a manual filter for the
+        # old dashboard and it can be removed with the old dashboard.
         sort = self.request.GET.get("sort")
         if sort not in ["modified_date", "-modified_date", "slug", "-slug"]:
             sort = "slug"
-        return Project.objects.dashboard(self.request.user).order_by(sort)
+        return queryset.order_by(sort)
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
