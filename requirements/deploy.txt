@@ -23,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.24
+boto3==1.35.29
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.24
+botocore==1.35.29
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -121,7 +121,7 @@ django==4.2.16
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==64.2.1
+django-allauth[mfa,saml,socialaccount]==65.0.2
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
@@ -263,7 +263,7 @@ markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==9.13.0
+newrelic==10.0.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
@@ -286,7 +286,7 @@ platformdirs==4.3.6
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-prompt-toolkit==3.0.47
+prompt-toolkit==3.0.48
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -347,7 +347,7 @@ qrcode==7.4.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==5.0.8
+redis==5.1.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -428,7 +428,7 @@ typing-extensions==4.12.2
     #   psycopg
     #   psycopg-pool
     #   qrcode
-tzdata==2024.1
+tzdata==2024.2
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -459,7 +459,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.5
+virtualenv==20.26.6
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via
