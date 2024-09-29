@@ -1,5 +1,5 @@
-How to manage your Read the Docs for Business subscription
-==========================================================
+How to manage your subscription
+===============================
 
 We want to make it easy to manage your billing information.
 All :doc:`organization owners </commercial/subscriptions>` can manage the subscription for that organization.
@@ -42,8 +42,8 @@ Billing information
 
 We provide both monthly and annual subscriptions for all plans.
 Annual plans are given a 2 month discount compared to monthly billing.
-We only support credit card billing for our Basic and Advanced plans.
-For our Pro and Enterprise users, we support invoice-based and PO billing.
+We support credit card billing for all plans.
+Pro and Enterprise plans can use invoice-based and PO billing for annual subscriptions.
 
 .. tip::
     We recommend paying by credit card for all users,

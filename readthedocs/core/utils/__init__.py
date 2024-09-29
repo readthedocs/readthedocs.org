@@ -5,6 +5,7 @@ import signal
 
 import structlog
 from django.conf import settings
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
@@ -18,6 +19,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.doc_builder.exceptions import BuildCancelled, BuildMaxConcurrencyError
+from readthedocs.notifications.models import Notification
 from readthedocs.worker import app
 
 log = structlog.get_logger(__name__)
@@ -153,10 +155,13 @@ def prepare_build(
         # and the user will be alerted in the UI from the Error below.
         options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
         options["max_retries"] = settings.RTD_BUILDS_MAX_RETRIES
-        build.error = BuildMaxConcurrencyError.message.format(
-            limit=max_concurrent_builds,
+
+        Notification.objects.add(
+            message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+            attached_to=build,
+            dismissable=False,
+            format_values={"limit": max_concurrent_builds},
         )
-        build.save()
 
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
 
@@ -244,7 +249,14 @@ def cancel_build(build):
         terminate = False
         build.state = BUILD_STATE_CANCELLED
         build.success = False
-        build.error = BuildCancelled.message
+
+        # Add a notification for this build
+        Notification.objects.add(
+            message_id=BuildCancelled.CANCELLED_BY_USER,
+            attached_to=build,
+            dismissable=False,
+        )
+
         build.length = 0
         build.save()
     else:
@@ -261,6 +273,25 @@ def cancel_build(build):
         terminate=terminate,
     )
     app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=terminate)
+
+
+def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):
+    """Given an email object, send it using our send_email_task task."""
+    from readthedocs.core.tasks import send_email_task
+
+    html_content = None
+    if isinstance(email, EmailMultiAlternatives):
+        for content, mimetype in email.alternatives:
+            if mimetype == "text/html":
+                html_content = content
+                break
+    send_email_task.delay(
+        recipient=email.to[0],
+        subject=email.subject,
+        content=email.body,
+        content_html=html_content,
+        from_email=email.from_email,
+    )
 
 
 def send_email(

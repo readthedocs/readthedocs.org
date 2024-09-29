@@ -92,6 +92,18 @@ class FormTests(TestCase):
             f"{settings.PUBLIC_DOMAIN} is not a valid domain.",
         )
 
+    @override_settings(RTD_EXTERNAL_VERSION_DOMAIN="readthedocs.build")
+    def test_external_domain_not_allowed(self):
+        for domain in ["readthedocs.build", "test.readthedocs.build"]:
+            form = DomainForm(
+                {"domain": domain},
+                project=self.project,
+            )
+            self.assertFalse(form.is_valid())
+            self.assertEqual(
+                form.errors["domain"][0], "readthedocs.build is not a valid domain."
+            )
+
     def test_domain_with_path(self):
         form = DomainForm(
             {"domain": "domain.com/foo/bar"},

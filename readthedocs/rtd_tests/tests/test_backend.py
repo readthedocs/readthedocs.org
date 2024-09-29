@@ -20,7 +20,6 @@ from readthedocs.rtd_tests.utils import (
     get_current_commit,
     get_git_latest_commit_hash,
     make_test_git,
-    make_test_hg,
 )
 
 
@@ -160,8 +159,8 @@ class TestGitBackend(TestCase):
         with self.assertRaises(RepositoryError) as e:
             repo.checkout(version)
         self.assertEqual(
-            str(e.exception),
-            RepositoryError.FAILED_TO_CHECKOUT.format(version),
+            e.exception.message_id,
+            RepositoryError.FAILED_TO_CHECKOUT,
         )
 
     def test_check_for_submodules(self):
@@ -357,78 +356,3 @@ class TestGitBackend(TestCase):
         # Checkout the master branch to verify that we can checkout something
         # from the above clone+fetch
         repo.checkout("master")
-
-
-# Avoid trying to save the commands via the API
-@mock.patch("readthedocs.doc_builder.environments.BuildCommand.save", mock.MagicMock())
-class TestHgBackend(TestCase):
-    def setUp(self):
-        hg_repo = make_test_hg()
-        super().setUp()
-        self.eric = User(username="eric")
-        self.eric.set_password("test")
-        self.eric.save()
-        self.project = Project.objects.create(
-            name="Test Project",
-            repo_type="hg",
-            # Our top-level checkout
-            repo=hg_repo,
-        )
-        self.project.users.add(self.eric)
-        self.build_environment = LocalBuildEnvironment(api_client=mock.MagicMock())
-
-    def test_parse_branches(self):
-        data = """\
-        stable
-        default
-        """
-
-        expected_ids = ["stable", "default"]
-        given_ids = [
-            x.identifier
-            for x in self.project.vcs_repo(
-                environment=self.build_environment
-            ).parse_branches(data)
-        ]
-        self.assertEqual(expected_ids, given_ids)
-
-    def test_update_and_checkout(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.make_clean_working_dir()
-        code, _, _ = repo.update()
-        self.assertEqual(code, 0)
-        code, _, _ = repo.checkout()
-        self.assertEqual(code, 0)
-        self.assertTrue(exists(repo.working_dir))
-
-    def test_checkout_invalid_revision(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        version = "invalid-revision"
-        with self.assertRaises(RepositoryError) as e:
-            repo.checkout(version)
-        self.assertEqual(
-            str(e.exception),
-            RepositoryError.FAILED_TO_CHECKOUT.format(version),
-        )
-
-    def test_parse_tags(self):
-        data = """\
-        tip                            13575:8e94a1b4e9a4
-        1.8.1                          13573:aa1f3be38ab1
-        1.8                            13515:2616325766e3
-        1.7.5                          13334:2b2155623ee2
-         """
-        expected_tags = [
-            ("aa1f3be38ab1", "1.8.1"),
-            ("2616325766e3", "1.8"),
-            ("2b2155623ee2", "1.7.5"),
-        ]
-
-        given_ids = [
-            (x.identifier, x.verbose_name)
-            for x in self.project.vcs_repo(
-                environment=self.build_environment
-            ).parse_tags(data)
-        ]
-        self.assertEqual(expected_tags, given_ids)

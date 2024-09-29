@@ -1,4 +1,3 @@
-
 """Doc build constants."""
 
 import re

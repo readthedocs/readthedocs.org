@@ -18,7 +18,14 @@
     {% endblocktrans %}
   </p>
 
-  {% if project.main_language_project %}
+  {% if not project.supports_translations %}
+    {% url 'projects_edit' project_slug=project.slug as project_settings_url %}
+    <p>
+      {% blocktrans trimmed with project_settings_url=project_settings_url %}
+      This project is <a href="{{ project_settings_url }}">configured</a> with a versioning scheme that doesn't support translations.
+      {% endblocktrans %}
+    </p>
+  {% elif project.main_language_project %}
     <p>
       {% blocktrans trimmed with language=project.get_language_display  main_project=project.main_language_project.name %}
         This project is already configured as the <code>{{ language }}</code> translation of
@@ -66,7 +73,8 @@
     <p>
       {% trans "Choose which project you would like to add as a translation." %}
     </p>
-    <form method="post" action=".">{% csrf_token %}
+    <form method="post" action="{% url "projects_translations_create" project.slug %}">
+      {% csrf_token %}
       {{ form.as_p }}
       <input type="submit" value="{% trans "Add" %}">
     </form>

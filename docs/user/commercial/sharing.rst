@@ -1,4 +1,4 @@
-Private documentation sharing
+Sharing private documentation
 =============================
 
 .. include:: /shared/admonition-rtd-business.rst
@@ -34,8 +34,6 @@ Enabling sharing
 .. note::
 
    You can always revoke access in the same panel.
-
-Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the RTD flyout menu.
 
 Sharing methods
 ---------------

@@ -3,16 +3,16 @@
 import structlog
 from django.db.models import F
 from django.utils.translation import gettext_lazy as _
-from django_filters import ChoiceFilter, FilterSet, OrderingFilter
+from django_filters import ChoiceFilter, OrderingFilter
 
-from readthedocs.core.filters import FilteredModelChoiceFilter
+from readthedocs.core.filters import FilteredModelChoiceFilter, ModelFilterSet
 from readthedocs.organizations.constants import ACCESS_LEVELS
 from readthedocs.organizations.models import Organization, Team
 
 log = structlog.get_logger(__name__)
 
 
-class OrganizationFilterSet(FilterSet):
+class OrganizationFilterSet(ModelFilterSet):
 
     """
     Organization base filter set.
@@ -39,11 +39,6 @@ class OrganizationFilterSet(FilterSet):
             self.request.user,
             organization=self.organization,
         ).prefetch_related("organization")
-
-    def is_valid(self):
-        # This differs from the default logic as we want to consider unbound
-        # data as a valid filterset state.
-        return (self.is_bound is False) or self.form.is_valid()
 
 
 class OrganizationSortOrderingFilter(OrderingFilter):
@@ -100,12 +95,16 @@ class OrganizationListFilterSet(OrganizationFilterSet):
         to_field_name="slug",
         queryset_method="get_organization_queryset",
         method="get_organization",
+        label_attribute="name",
     )
 
     sort = OrganizationSortOrderingFilter(
         field_name="sort",
         label=_("Sort by"),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def get_organization(self, queryset, field_name, organization):
         return queryset.filter(slug=organization.slug)
@@ -136,6 +135,7 @@ class OrganizationProjectListFilterSet(OrganizationFilterSet):
         to_field_name="slug",
         queryset_method="get_project_queryset",
         method="get_project",
+        label_attribute="name",
     )
 
     teams__slug = FilteredModelChoiceFilter(
@@ -144,6 +144,7 @@ class OrganizationProjectListFilterSet(OrganizationFilterSet):
         field_name="teams",
         to_field_name="slug",
         queryset_method="get_team_queryset",
+        label_attribute="name",
     )
 
     def get_project_queryset(self):
@@ -175,6 +176,7 @@ class OrganizationTeamListFilterSet(OrganizationFilterSet):
         to_field_name="slug",
         queryset_method="get_team_queryset",
         method="get_team",
+        label_attribute="name",
     )
 
     def get_team_queryset(self):
@@ -221,6 +223,7 @@ class OrganizationTeamMemberListFilterSet(OrganizationFilterSet):
         field_name="teams",
         to_field_name="slug",
         queryset_method="get_team_queryset",
+        label_attribute="name",
     )
 
     access = ChoiceFilter(

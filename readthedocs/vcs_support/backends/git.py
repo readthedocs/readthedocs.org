@@ -4,6 +4,7 @@ import re
 from typing import Iterable
 
 import structlog
+from django.conf import settings
 
 from readthedocs.builds.constants import (
     BRANCH,
@@ -29,11 +30,7 @@ class Backend(BaseVCS):
 
     """Git VCS backend."""
 
-    supports_tags = True
-    supports_branches = True
-    supports_submodules = True
-    supports_lsremote = True
-    fallback_branch = 'master'  # default branch
+    fallback_branch = "master"  # default branch
     repo_depth = 50
 
     def __init__(self, *args, **kwargs):
@@ -45,16 +42,16 @@ class Backend(BaseVCS):
         # We also need to know about Version.machine
         self.version_machine = kwargs.pop("version_machine")
         super().__init__(*args, **kwargs)
-        self.token = kwargs.get('token')
+        self.token = kwargs.get("token")
         self.repo_url = self._get_clone_url()
 
     def _get_clone_url(self):
-        if '://' in self.repo_url:
-            hacked_url = self.repo_url.split('://')[1]
-            hacked_url = re.sub('.git$', '', hacked_url)
-            clone_url = 'https://%s' % hacked_url
+        if "://" in self.repo_url:
+            hacked_url = self.repo_url.split("://")[1]
+            hacked_url = re.sub(".git$", "", hacked_url)
+            clone_url = "https://%s" % hacked_url
             if self.token:
-                clone_url = 'https://{}@{}'.format(self.token, hacked_url)
+                clone_url = "https://{}@{}".format(self.token, hacked_url)
                 return clone_url
             # Don't edit URL because all hosts aren't the same
             # else:
@@ -180,7 +177,10 @@ class Backend(BaseVCS):
             code, stdout, stderr = self.run(*cmd)
             return code, stdout, stderr
         except RepositoryError as exc:
-            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
+            message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_NOT_ALLOWED
+            if settings.ALLOW_PRIVATE_REPOS:
+                message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED
+            raise RepositoryError(message_id=message_id) from exc
 
     def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
@@ -288,11 +288,14 @@ class Backend(BaseVCS):
 
     def checkout_revision(self, revision):
         try:
-            code, out, err = self.run('git', 'checkout', '--force', revision)
+            code, out, err = self.run("git", "checkout", "--force", revision)
             return [code, out, err]
         except RepositoryError as exc:
             raise RepositoryError(
-                RepositoryError.FAILED_TO_CHECKOUT.format(revision),
+                message_id=RepositoryError.FAILED_TO_CHECKOUT,
+                format_values={
+                    "revision": revision,
+                },
             ) from exc
 
     def lsremote(self, include_tags=True, include_branches=True):
@@ -334,7 +337,7 @@ class Backend(BaseVCS):
                 tag = ref.replace("refs/tags/", "", 1)
                 # If the tag is annotated, then the real commit
                 # will be on the ref ending with ^{}.
-                if tag.endswith('^{}'):
+                if tag.endswith("^{}"):
                     light_tags[tag[:-3]] = commit
                 else:
                     all_tags[tag] = commit
@@ -424,8 +427,6 @@ class Backend(BaseVCS):
         # Checkout the correct identifier for this branch.
         code, out, err = self.checkout_revision(identifier)
 
-        # Clean any remains of previous checkouts
-        self.run('git', 'clean', '-d', '-f', '-f')
         return code, out, err
 
     def update_submodules(self, config):
@@ -442,13 +443,13 @@ class Backend(BaseVCS):
 
         If submodules is empty, all submodules will be updated.
         """
-        self.run('git', 'submodule', 'sync')
+        self.run("git", "submodule", "sync")
         cmd = [
-            'git',
-            'submodule',
-            'update',
-            '--init',
-            '--force',
+            "git",
+            "submodule",
+            "update",
+            "--init",
+            "--force",
         ]
         if recursive:
             cmd.append("--recursive")
@@ -459,7 +460,7 @@ class Backend(BaseVCS):
     def find_ref(self, ref):
         # If the ref already starts with 'origin/',
         # we don't need to do anything.
-        if ref.startswith('origin/'):
+        if ref.startswith("origin/"):
             return ref
 
         # Check if ref is a branch of the origin remote

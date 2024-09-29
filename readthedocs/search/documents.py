@@ -5,19 +5,18 @@ from elasticsearch import Elasticsearch
 
 from readthedocs.projects.models import HTMLFile, Project
 
-project_conf = settings.ES_INDEXES['project']
-project_index = Index(project_conf['name'])
-project_index.settings(**project_conf['settings'])
+project_conf = settings.ES_INDEXES["project"]
+project_index = Index(project_conf["name"])
+project_index.settings(**project_conf["settings"])
 
-page_conf = settings.ES_INDEXES['page']
-page_index = Index(page_conf['name'])
-page_index.settings(**page_conf['settings'])
+page_conf = settings.ES_INDEXES["page"]
+page_index = Index(page_conf["name"])
+page_index.settings(**page_conf["settings"])
 
 log = structlog.get_logger(__name__)
 
 
 class RTDDocTypeMixin:
-
     def update(self, *args, **kwargs):
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
@@ -33,20 +32,20 @@ class ProjectDocument(RTDDocTypeMixin, Document):
     """Document representation of a Project."""
 
     # Metadata
-    url = fields.TextField(attr='get_absolute_url')
+    url = fields.TextField(attr="get_absolute_url")
     users = fields.NestedField(
         properties={
-            'username': fields.TextField(),
-            'id': fields.IntegerField(),
+            "username": fields.TextField(),
+            "id": fields.IntegerField(),
         }
     )
     language = fields.KeywordField()
 
-    name = fields.TextField(attr='name')
-    slug = fields.TextField(attr='slug')
-    description = fields.TextField(attr='description')
+    name = fields.TextField(attr="name")
+    slug = fields.TextField(attr="slug")
+    description = fields.TextField(attr="description")
 
-    modified_model_field = 'modified_date'
+    modified_model_field = "modified_date"
 
     def get_queryset(self):
         """
@@ -83,33 +82,33 @@ class PageDocument(RTDDocTypeMixin, Document):
     """
 
     # Metadata
-    project = fields.KeywordField(attr='project.slug')
-    version = fields.KeywordField(attr='version.slug')
-    doctype = fields.KeywordField(attr='version.documentation_type')
-    path = fields.KeywordField(attr='processed_json.path')
-    full_path = fields.KeywordField(attr='path')
+    project = fields.KeywordField(attr="project.slug")
+    version = fields.KeywordField(attr="version.slug")
+    doctype = fields.KeywordField(attr="version.documentation_type")
+    path = fields.KeywordField(attr="processed_json.path")
+    full_path = fields.KeywordField(attr="path")
     rank = fields.IntegerField()
 
     # Searchable content
     title = fields.TextField(
-        attr='processed_json.title',
+        attr="processed_json.title",
     )
     sections = fields.NestedField(
-        attr='processed_json.sections',
+        attr="processed_json.sections",
         properties={
-            'id': fields.KeywordField(),
-            'title': fields.TextField(),
-            'content': fields.TextField(
-                term_vector='with_positions_offsets',
+            "id": fields.KeywordField(),
+            "title": fields.TextField(),
+            "content": fields.TextField(
+                term_vector="with_positions_offsets",
             ),
-        }
+        },
     )
 
-    modified_model_field = 'modified_date'
+    modified_model_field = "modified_date"
 
     class Django:
         model = HTMLFile
-        fields = ('commit', 'build')
+        fields = ("commit", "build")
         ignore_signals = True
 
     def prepare_rank(self, html_file):
@@ -121,10 +120,9 @@ class PageDocument(RTDDocTypeMixin, Document):
         """Don't include ignored files and delisted projects."""
         queryset = super().get_queryset()
         queryset = (
-            queryset
-            .exclude(ignore=True)
+            queryset.exclude(ignore=True)
             .exclude(project__delisted=True)
             .exclude(project__is_spam=True)
-            .select_related('version', 'project')
+            .select_related("version", "project")
         )
         return queryset

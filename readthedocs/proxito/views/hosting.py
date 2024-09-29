@@ -17,17 +17,29 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.constants import (
+    ADDONS_FLYOUT_SORTING_CALVER,
+    ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
+    ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
+)
+from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.version_handling import (
+    comparable_version,
+    sort_versions_calver,
+    sort_versions_custom_pattern,
+    sort_versions_python_packaging,
+)
 
 log = structlog.get_logger(__name__)  # noqa
 
 
-ADDONS_VERSIONS_SUPPORTED = (0, 1)
+ADDONS_VERSIONS_SUPPORTED = (1, 2)
 
 
 class ClientError(Exception):
@@ -35,6 +47,7 @@ class ClientError(Exception):
         "The version specified in 'api-version' is currently not supported"
     )
     VERSION_INVALID = "The version specifified in 'api-version' is invalid"
+    PROJECT_NOT_FOUND = "There is no project with the 'project-slug' requested"
 
 
 class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
@@ -94,10 +107,14 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 # This query should use a particular index:
                 # ``builds_build_version_id_state_date_success_12dfb214_idx``.
                 # Otherwise, if the index is not used, the query gets too slow.
-                build = version.builds.filter(
-                    success=True,
-                    state=BUILD_STATE_FINISHED,
-                ).first()
+                build = (
+                    version.builds.filter(
+                        success=True,
+                        state=BUILD_STATE_FINISHED,
+                    )
+                    .select_related("project", "version")
+                    .first()
+                )
 
             except UnresolverError as exc:
                 # If an exception is raised and there is a ``project`` in the
@@ -111,9 +128,20 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
         else:
             project = Project.objects.filter(slug=project_slug).first()
-            version = Version.objects.filter(slug=version_slug, project=project).first()
+            version = (
+                Version.objects.filter(slug=version_slug, project=project)
+                .select_related("project")
+                .first()
+            )
             if version:
-                build = version.builds.first()
+                build = (
+                    version.builds.filter(
+                        success=True,
+                        state=BUILD_STATE_FINISHED,
+                    )
+                    .select_related("project", "version")
+                    .first()
+                )
 
         return project, version, build, filename
 
@@ -162,6 +190,11 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             )
 
         project, version, build, filename = self._resolve_resources()
+        if not project:
+            return JsonResponse(
+                {"error": ClientError.PROJECT_NOT_FOUND},
+                status=404,
+            )
 
         data = AddonsResponse().get(
             addons_version,
@@ -179,10 +212,7 @@ class NoLinksMixin:
 
     """Mixin to remove conflicting fields from serializers."""
 
-    FIELDS_TO_REMOVE = (
-        "_links",
-        "urls",
-    )
+    FIELDS_TO_REMOVE = ("_links",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -197,16 +227,29 @@ class NoLinksMixin:
 
 # NOTE: the following serializers are required only to remove some fields we
 # can't expose yet in this API endpoint because it's running under El Proxito
-# which cannot resolve some dashboard URLs because they are not defined on El
-# Proxito.
+# which cannot resolve URLs pointing to the APIv3 because they are not defined
+# on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
-    pass
+    def __init__(self, *args, **kwargs):
+        resolver = kwargs.pop("resolver", Resolver())
+        super().__init__(
+            *args,
+            resolver=resolver,
+            **kwargs,
+        )
 
 
 class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
-    pass
+    def __init__(self, *args, **kwargs):
+        resolver = kwargs.pop("resolver", Resolver())
+        super().__init__(
+            *args,
+            resolver=resolver,
+            version_serializer=VersionSerializerNoLinks,
+            **kwargs,
+        )
 
 
 class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
@@ -230,13 +273,13 @@ class AddonsResponse:
         It will evaluate the ``addons_version`` passed and decide which is the
         best JSON structure for that particular version.
         """
-        if addons_version.major == 0:
-            return self._v0(project, version, build, filename, url, user)
-
         if addons_version.major == 1:
             return self._v1(project, version, build, filename, url, user)
 
-    def _v0(self, project, version, build, filename, url, user):
+        if addons_version.major == 2:
+            return self._v2(project, version, build, filename, url, user)
+
+    def _v1(self, project, version, build, filename, url, user):
         """
         Initial JSON data structure consumed by the JavaScript client.
 
@@ -249,10 +292,16 @@ class AddonsResponse:
         (Project, Version, Build, etc).
         """
         resolver = Resolver()
-        version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
+        sorted_versions_active_built_not_hidden = (
+            versions_active_built_not_hidden
+        ) = Version.objects.none()
 
-        if not project.is_single_version:
+        # Automatically create an AddonsConfig with the default values for
+        # projects that don't have one already
+        AddonsConfig.objects.get_or_create(project=project)
+
+        if project.supports_multiple_versions:
             versions_active_built_not_hidden = (
                 Version.internal.public(
                     project=project,
@@ -261,39 +310,82 @@ class AddonsResponse:
                     user=user,
                 )
                 .exclude(hidden=True)
-                .only("slug", "type")
+                .select_related("project")
                 .order_by("slug")
             )
+            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
 
-        if version:
-            version_downloads = version.get_downloads(pretty=True).items()
+            if (
+                project.addons.flyout_sorting
+                == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
+            ):
+                sorted_versions_active_built_not_hidden = sorted(
+                    versions_active_built_not_hidden,
+                    key=lambda version: comparable_version(
+                        version.verbose_name,
+                        repo_type=project.repo_type,
+                    ),
+                )
+            elif (
+                project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
+            ):
+                sorted_versions_active_built_not_hidden = (
+                    sort_versions_python_packaging(
+                        versions_active_built_not_hidden,
+                        project.addons.flyout_sorting_latest_stable_at_beginning,
+                    )
+                )
+            elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
+                sorted_versions_active_built_not_hidden = sort_versions_calver(
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                )
+            elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN:
+                sorted_versions_active_built_not_hidden = sort_versions_custom_pattern(
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_custom_pattern,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
+                )
 
-        project_translations = (
-            project.translations.all().only("language").order_by("language")
+        main_project = project.main_language_project or project
+
+        # Exclude the current project since we don't want to return itself as a translation
+        project_translations = main_project.translations.all().exclude(
+            slug=project.slug
         )
-        # Make one DB query here and then check on Python code
-        # TODO: make usage of ``Project.addons.<name>_enabled`` to decide if enabled
-        #
-        # NOTE: using ``feature_id__startswith="addons_"`` to make the query faster.
-        # It went down from 20ms to 1ms since it does not have to check the
-        # `Project.pub_date` against all the features.
-        project_features = project.features.filter(
-            feature_id__startswith="addons_"
-        ).values_list("feature_id", flat=True)
+        # Include main project as translation if the current project is one of the translations
+        if project != main_project:
+            project_translations |= Project.objects.filter(slug=main_project.slug)
+        project_translations = project_translations.order_by("language")
 
         data = {
-            "api_version": "0",
-            "comment": (
-                "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
-                " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
-            ),
+            "api_version": "1",
             "projects": {
-                # TODO: return the "parent" project here when the "current"
-                # project is a subproject/translation.
-                "current": ProjectSerializerNoLinks(project).data,
+                "current": ProjectSerializerNoLinks(
+                    project,
+                    resolver=resolver,
+                    version_slug=version.slug if version else None,
+                ).data,
+                "translations": ProjectSerializerNoLinks(
+                    project_translations,
+                    resolver=resolver,
+                    version_slug=version.slug if version else None,
+                    many=True,
+                ).data,
             },
             "versions": {
-                "current": VersionSerializerNoLinks(version).data if version else None,
+                "current": VersionSerializerNoLinks(
+                    version,
+                    resolver=resolver,
+                ).data
+                if version
+                else None,
+                # These are "sorted active, built, not hidden versions"
+                "active": VersionSerializerNoLinks(
+                    sorted_versions_active_built_not_hidden,
+                    resolver=resolver,
+                    many=True,
+                ).data,
             },
             "builds": {
                 "current": BuildSerializerNoLinks(build).data if build else None,
@@ -313,8 +405,7 @@ class AddonsResponse:
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
                 "analytics": {
-                    "enabled": Feature.ADDONS_ANALYTICS_DISABLED
-                    not in project_features,
+                    "enabled": project.addons.analytics_enabled,
                     # TODO: consider adding this field into the ProjectSerializer itself.
                     # NOTE: it seems we are removing this feature,
                     # so we may not need the ``code`` attribute here
@@ -322,57 +413,19 @@ class AddonsResponse:
                     "code": project.analytics_code,
                 },
                 "external_version_warning": {
-                    "enabled": Feature.ADDONS_EXTERNAL_VERSION_WARNING_DISABLED
-                    not in project_features,
+                    "enabled": project.addons.external_version_warning_enabled,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
                 },
                 "non_latest_version_warning": {
-                    "enabled": Feature.ADDONS_NON_LATEST_VERSION_WARNING_DISABLED
-                    not in project_features,
+                    "enabled": project.addons.stable_latest_version_warning_enabled,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
-                    "versions": list(
-                        versions_active_built_not_hidden.values_list("slug", flat=True)
-                    ),
                 },
                 "flyout": {
-                    "enabled": Feature.ADDONS_FLYOUT_DISABLED not in project_features,
-                    "translations": [
-                        {
-                            # TODO: name this field "display_name"
-                            "slug": translation.language,
-                            "url": resolver.resolve(
-                                project=project,
-                                version_slug=version.slug,
-                                language=translation.language,
-                                external=version.type == EXTERNAL,
-                            ),
-                        }
-                        for translation in project_translations
-                    ],
-                    "versions": [
-                        {
-                            # TODO: name this field "display_name"
-                            "slug": version_.slug,
-                            "url": resolver.resolve(
-                                project=project,
-                                version_slug=version_.slug,
-                                external=version_.type == EXTERNAL,
-                            ),
-                        }
-                        for version_ in versions_active_built_not_hidden
-                    ],
-                    "downloads": [
-                        {
-                            # TODO: name this field "display_name"
-                            "name": name,
-                            "url": url_,
-                        }
-                        for name, url_ in version_downloads
-                    ],
+                    "enabled": project.addons.flyout_enabled,
                     # TODO: find a way to get this data in a reliably way.
                     # We don't have a simple way to map a URL to a file in the repository.
                     # This feature may be deprecated/removed in this implementation since it relies
@@ -391,29 +444,22 @@ class AddonsResponse:
                     # },
                 },
                 "search": {
-                    "enabled": Feature.ADDONS_SEARCH_DISABLED not in project_features,
-                    "project": project.slug,
-                    "version": version.slug if version else None,
-                    "api_endpoint": "/_/api/v3/search/",
+                    "enabled": project.addons.search_enabled,
                     # TODO: figure it out where this data comes from
                     "filters": [
                         [
-                            "Search only in this project",
-                            f"project:{project.slug}/{version.slug}",
-                        ],
-                        [
-                            "Search subprojects",
+                            "Include subprojects",
                             f"subprojects:{project.slug}/{version.slug}",
                         ],
                     ]
                     if version
                     else [],
-                    "default_filter": f"subprojects:{project.slug}/{version.slug}"
+                    "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
                     else None,
                 },
                 "hotkeys": {
-                    "enabled": Feature.ADDONS_HOTKEYS_DISABLED not in project_features,
+                    "enabled": project.addons.hotkeys_enabled,
                     "doc_diff": {
                         "enabled": True,
                         "trigger": "KeyD",  # Could be something like "Ctrl + D"
@@ -434,8 +480,7 @@ class AddonsResponse:
             data["addons"].update(
                 {
                     "doc_diff": {
-                        "enabled": Feature.ADDONS_DOC_DIFF_DISABLED
-                        not in project_features,
+                        "enabled": project.addons.doc_diff_enabled,
                         # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                         "base_url": resolver.resolve(
                             project=project,
@@ -447,7 +492,7 @@ class AddonsResponse:
                         )
                         if filename
                         else None,
-                        "root_selector": "[role=main]",
+                        "root_selector": project.addons.doc_diff_root_selector,
                         "inject_styles": True,
                         # NOTE: `base_host` and `base_page` are not required, since
                         # we are constructing the `base_url` in the backend instead
@@ -475,8 +520,7 @@ class AddonsResponse:
             data["addons"].update(
                 {
                     "ethicalads": {
-                        "enabled": Feature.ADDONS_ETHICALADS_DISABLED
-                        not in project_features,
+                        "enabled": project.addons.ethicalads_enabled,
                         # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
                         #
                         # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here
@@ -491,10 +535,10 @@ class AddonsResponse:
 
         return data
 
-    def _v1(self, project, version, build, filename, url, user):
+    def _v2(self, project, version, build, filename, url, user):
         return {
-            "api_version": "1",
-            "comment": "Undefined yet. Use v0 for now",
+            "api_version": "2",
+            "comment": "Undefined yet. Use v1 for now",
         }
 
 

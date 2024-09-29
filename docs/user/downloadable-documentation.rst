@@ -1,5 +1,5 @@
-Understanding offline formats
-=============================
+Offline formats (PDF, ePub, HTML)
+=================================
 
 This page will provide an overview of a core Read the Docs feature: building docs in multiple formats.
 

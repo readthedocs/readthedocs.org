@@ -13,8 +13,8 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 
 from readthedocs.doc_builder.exceptions import (
+    BuildUserError,
     FileIsNotRegularFile,
-    FileTooLarge,
     SymlinkOutsideBasePath,
     UnsupportedSymlinkFileError,
 )
@@ -24,13 +24,25 @@ log = structlog.get_logger(__name__)
 MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024 * 1  # 1 GB
 
 
-def _assert_path_is_inside_docroot(path):
+def assert_path_is_inside_docroot(path):
+    """
+    Assert that the given path is inside the DOCROOT directory.
+
+    Symlinks are resolved before checking, a SuspiciousFileOperation exception
+    will be raised if the path is outside the DOCROOT.
+
+    .. warning::
+
+       This operation isn't safe to TocTou (Time-of-check to Time-of-use) attacks.
+       Users shouldn't be able to change files while this operation is done.
+    """
     resolved_path = path.absolute().resolve()
     docroot = Path(settings.DOCROOT).absolute()
     if not path.is_relative_to(docroot):
         log.error(
             "Suspicious operation outside the docroot directory.",
             path_resolved=str(resolved_path),
+            docroot=settings.DOCROOT,
         )
         raise SuspiciousFileOperation(path)
 
@@ -77,11 +89,11 @@ def safe_open(
     )
 
     if path.exists() and not path.is_file():
-        raise FileIsNotRegularFile()
+        raise FileIsNotRegularFile(FileIsNotRegularFile.SYMLINK_USED)
 
     if not allow_symlinks and path.is_symlink():
-        log.info("Skipping file becuase it's a symlink.")
-        raise UnsupportedSymlinkFileError()
+        log.info("Skipping file because it's a symlink.")
+        raise UnsupportedSymlinkFileError(UnsupportedSymlinkFileError.SYMLINK_USED)
 
     # Expand symlinks.
     resolved_path = path.resolve()
@@ -90,16 +102,16 @@ def safe_open(
         file_size = resolved_path.stat().st_size
         if file_size > max_size_bytes:
             log.info("File is too large.", size_bytes=file_size)
-            raise FileTooLarge()
+            raise BuildUserError(BuildUserError.FILE_TOO_LARGE)
 
     if allow_symlinks and base_path:
         base_path = Path(base_path).absolute()
         if not resolved_path.is_relative_to(base_path):
             # Trying to path traversal via a symlink, sneaky!
             log.info("Path traversal via symlink.")
-            raise SymlinkOutsideBasePath()
+            raise SymlinkOutsideBasePath(SymlinkOutsideBasePath.SYMLINK_USED)
 
-    _assert_path_is_inside_docroot(resolved_path)
+    assert_path_is_inside_docroot(resolved_path)
 
     # The encoding is valid only if the file opened is a text file,
     # this function is used to read both types of files (text and binary),
@@ -134,8 +146,8 @@ def safe_copytree(from_dir, to_dir, *args, **kwargs):
         )
         return False
 
-    _assert_path_is_inside_docroot(from_dir)
-    _assert_path_is_inside_docroot(to_dir)
+    assert_path_is_inside_docroot(from_dir)
+    assert_path_is_inside_docroot(to_dir)
 
     return shutil.copytree(
         from_dir,
@@ -165,5 +177,5 @@ def safe_rmtree(path, *args, **kwargs):
             resolved_path=path.resolve(),
         )
         return None
-    _assert_path_is_inside_docroot(path)
+    assert_path_is_inside_docroot(path)
     return shutil.rmtree(path, *args, **kwargs)

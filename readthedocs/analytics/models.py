@@ -25,25 +25,25 @@ class PageViewManager(models.Manager):
 
     """Manager for PageView model."""
 
-    def register_page_view(self, project, version, path, full_path, status):
+    def register_page_view(self, project, version, filename, path, status):
         """Track page view with the given parameters."""
         # TODO: remove after the migration of duplicate records has been completed.
         if project.has_feature(Feature.DISABLE_PAGEVIEWS):
             return
 
         # Normalize paths to avoid duplicates.
+        filename = "/" + filename.lstrip("/")
         path = "/" + path.lstrip("/")
-        full_path = "/" + full_path.lstrip("/")
 
         page_view, created = self.get_or_create(
             project=project,
             version=version,
-            path=path,
+            path=filename,
             date=timezone.now().date(),
             status=status,
             defaults={
                 "view_count": 1,
-                "full_path": full_path,
+                "full_path": path,
             },
         )
         if not created:
@@ -101,9 +101,6 @@ class PageView(models.Model):
                 name="analytics_pageview_constraint_unique_without_optional",
             ),
         ]
-
-    def __str__(self):
-        return f"PageView: [{self.project.slug}] - {self.full_path or self.path} for {self.date}"
 
     @classmethod
     def top_viewed_pages(

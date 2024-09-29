@@ -35,7 +35,7 @@ class GitLabService(Service):
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(
-        re.escape(urlparse(adapter.provider_base_url).netloc),
+        re.escape(urlparse(adapter.provider_default_url).netloc),
     )
 
     PERMISSION_NO_ACCESS = 0
@@ -73,7 +73,7 @@ class GitLabService(Service):
         remote_repositories = []
         try:
             repos = self.paginate(
-                "{url}/api/v4/projects".format(url=self.adapter.provider_base_url),
+                "{url}/api/v4/projects".format(url=self.adapter.provider_default_url),
                 per_page=100,
                 archived=False,
                 order_by="path",
@@ -100,7 +100,7 @@ class GitLabService(Service):
 
         try:
             orgs = self.paginate(
-                "{url}/api/v4/groups".format(url=self.adapter.provider_base_url),
+                "{url}/api/v4/groups".format(url=self.adapter.provider_default_url),
                 per_page=100,
                 all_available=False,
                 order_by="path",
@@ -110,7 +110,7 @@ class GitLabService(Service):
                 remote_organization = self.create_organization(org)
                 org_repos = self.paginate(
                     "{url}/api/v4/groups/{id}/projects".format(
-                        url=self.adapter.provider_base_url,
+                        url=self.adapter.provider_default_url,
                         id=org["id"],
                     ),
                     per_page=100,
@@ -131,7 +131,7 @@ class GitLabService(Service):
                         # which contains the admin permission fields.
                         resp = self.get_session().get(
                             "{url}/api/v4/projects/{id}".format(
-                                url=self.adapter.provider_base_url, id=repo["id"]
+                                url=self.adapter.provider_default_url, id=repo["id"]
                             )
                         )
 
@@ -270,7 +270,7 @@ class GitLabService(Service):
         organization.name = fields.get("name")
         organization.slug = fields.get("path")
         organization.url = "{url}/{path}".format(
-            url=self.adapter.provider_base_url,
+            url=self.adapter.provider_default_url,
             path=fields.get("path"),
         )
         organization.avatar_url = fields.get("avatar_url")
@@ -336,7 +336,7 @@ class GitLabService(Service):
         try:
             resp = session.get(
                 "{url}/api/v4/projects/{repo_id}/hooks".format(
-                    url=self.adapter.provider_base_url,
+                    url=self.adapter.provider_default_url,
                     repo_id=repo_id,
                 ),
             )
@@ -383,7 +383,7 @@ class GitLabService(Service):
             )
 
         repo_id = self._get_repo_id(project)
-        url = f"{self.adapter.provider_base_url}/api/v4/projects/{repo_id}/hooks"
+        url = f"{self.adapter.provider_default_url}/api/v4/projects/{repo_id}/hooks"
 
         if repo_id is None:
             return (False, resp)
@@ -462,7 +462,7 @@ class GitLabService(Service):
             hook_id = provider_data.get("id")
             resp = session.put(
                 "{url}/api/v4/projects/{repo_id}/hooks/{hook_id}".format(
-                    url=self.adapter.provider_base_url,
+                    url=self.adapter.provider_default_url,
                     repo_id=repo_id,
                     hook_id=hook_id,
                 ),
@@ -537,7 +537,7 @@ class GitLabService(Service):
             "description": description,
             "context": context,
         }
-        url = f"{self.adapter.provider_base_url}/api/v4/projects/{repo_id}/statuses/{commit}"
+        url = f"{self.adapter.provider_default_url}/api/v4/projects/{repo_id}/statuses/{commit}"
 
         log.bind(
             project_slug=project.slug,

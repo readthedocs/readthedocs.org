@@ -239,21 +239,6 @@ def get_current_commit(directory):
     return check_output(command, env=env).decode().strip()
 
 
-@restoring_chdir
-def make_test_hg():
-    directory = mkdtemp()
-    path = get_readthedocs_app_path()
-    sample = abspath(pjoin(path, "rtd_tests/fixtures/sample_repo"))
-    directory = pjoin(directory, "sample_repo")
-    copytree(sample, directory)
-    chdir(directory)
-    hguser = "Test User <test-user@readthedocs.org>"
-    log.info(check_output(["hg", "init"] + [directory]))
-    log.info(check_output(["hg", "add", "."]))
-    log.info(check_output(["hg", "commit", "-u", hguser, '-m"init"']))
-    return directory
-
-
 def create_user(username, password, **kwargs):
     user = new(User, username=username, **kwargs)
     user.set_password(password)

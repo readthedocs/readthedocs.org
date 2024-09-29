@@ -1,3 +1,5 @@
+:orphan:
+
 =================
 Feature reference
 =================
@@ -19,8 +21,8 @@ Feature reference
   We support multiple versions and translations,
   integrated nicely into the URL of your documentation.
   This is served at ``/en/latest/`` by default.
-  If you only have 1 version and translation,
-  we also support :doc:`single version projects </single-version>` served at ``/``.
+  If you have only one version, or don't need translations,
+  you can change the :doc:`versioning scheme </versioning-schemes>` of your project.
 
 ⏩️ :doc:`/pull-requests`
   Your project can be configured to build and host documentation for every new pull request.
@@ -60,50 +62,3 @@ Feature reference
   `robots.txt` files allow you to customize how your documentation is indexed in search engines.
   We provide a default robots.txt file,
   but you can also customize it.
-
-.. The TOC here will be refactored once we reorganize the files in docs/user/.
-.. Probably, all feature reference should be in this directory!
-.. In upcoming work, redirects will be added for old URL destinations.
-.. In fact, this whole page will become a proper index page with more explanation of what sort of reference can
-.. be found.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Hosting Features
-
-   /custom-domains
-   /reference/git-integration
-   /versions
-   /pull-requests
-   /build-notifications
-   /user-defined-redirects
-   /reference/analytics
-   /commercial/sharing
-   /reference/cdn
-   /reference/sitemaps
-   /reference/404-not-found
-   /reference/robots
-
-.. Move these to the above TOC once they're in the fancy list above
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Business features
-
-   /commercial/organizations
-   /commercial/privacy-level
-   /commercial/single-sign-on
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Additional features
-
-   /automation-rules
-   /badges
-   /canonical-urls
-   /flyout-menu
-   /reference/environment-variables
-   /security-log
-   /server-side-search/index
-   /single-version
-   /science

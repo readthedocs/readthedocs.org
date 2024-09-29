@@ -37,7 +37,7 @@ class GoldUser(models.Model):
     )
     level = models.CharField(
         _("Level"),
-        max_length=20,
+        max_length=64,
         choices=LEVEL_CHOICES,
         default=LEVEL_CHOICES[0][0],
     )

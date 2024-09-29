@@ -1,5 +1,5 @@
-Git provider integrations
-=========================
+Git integration (GitHub, GitLab, Bitbucket)
+===========================================
 
 Your Read the Docs account can be connected to your Git provider's account.
 Connecting your account provides the following features:
@@ -9,7 +9,7 @@ Connecting your account provides the following features:
 
 🔁️ List your projects
   Select a project to automatically import from all your Git repositories and organizations.
-  See: :doc:`/intro/import-guide`.
+  See: :doc:`/intro/add-project`.
 
 ⚙️ Automatic configuration
   Have your Git repository automatically configured with your Read the Docs :term:`webhook`,

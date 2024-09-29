@@ -32,6 +32,10 @@ The following how-to guides help you solve common tasks and challenges in the se
     Is your version (flyout) menu overwhelmed and hard to navigate?
     Here's how to make it shorter.
 
+⏩️ :doc:`Changing the versioning scheme of your project </guides/setup/versioning-schemes>`
+    Change how the URLs of your documentation look like,
+    and if your project supports multiple versions or translations.
+
 .. seealso::
 
    :doc:`/tutorial/index`
@@ -39,7 +43,6 @@ The following how-to guides help you solve common tasks and challenges in the se
 
 
 .. toctree::
-   :maxdepth: 1
    :hidden:
 
    Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>
@@ -50,3 +53,4 @@ The following how-to guides help you solve common tasks and challenges in the se
    Hiding a version </guides/hiding-a-version>
    Using a .readthedocs.yaml file in a sub-folder </guides/setup/monorepo>
    Using custom URL redirects in documentation projects </guides/redirects>
+   Changing the versioning scheme of your project </guides/setup/versioning-schemes>

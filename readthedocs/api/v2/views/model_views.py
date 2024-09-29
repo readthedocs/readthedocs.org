@@ -18,6 +18,7 @@ from readthedocs.api.v2.permissions import HasBuildAPIKey, IsOwner, ReadOnlyPerm
 from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain, Project
@@ -29,6 +30,7 @@ from ..serializers import (
     BuildCommandSerializer,
     BuildSerializer,
     DomainSerializer,
+    NotificationSerializer,
     ProjectAdminSerializer,
     ProjectSerializer,
     RemoteOrganizationSerializer,
@@ -359,6 +361,42 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
     def get_queryset_for_api_key(self, api_key):
         return self.model.objects.filter(build__project=api_key.project)
+
+
+class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
+
+    """
+    Create a notification attached to an object (User, Project, Build, Organization).
+
+    This endpoint is currently used only internally by the builder.
+    Notifications are attached to `Build` objects only when using this endpoint.
+    This limitation will change in the future when re-implementing this on APIv3 if neeed.
+    """
+
+    parser_classes = [JSONParser, MultiPartParser]
+    permission_classes = [HasBuildAPIKey]
+    renderer_classes = (JSONRenderer,)
+    serializer_class = NotificationSerializer
+    model = Notification
+
+    def perform_create(self, serializer):
+        """Restrict creation to notifications attached to the project's builds from the api key."""
+        attached_to = serializer.validated_data["attached_to"]
+
+        build_api_key = self.request.build_api_key
+
+        project_slug = None
+        if isinstance(attached_to, Build):
+            project_slug = attached_to.project.slug
+        elif isinstance(attached_to, Project):
+            project_slug = attached_to.slug
+
+        # Limit the permissions to create a notification on this object only if the API key
+        # is attached to the related project
+        if not project_slug or build_api_key.project.slug != project_slug:
+            raise PermissionDenied()
+
+        return super().perform_create(serializer)
 
 
 class DomainViewSet(DisableListEndpoint, UserSelectViewSet):

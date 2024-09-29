@@ -1,5 +1,5 @@
-Organizations: permissions for projects and teams
--------------------------------------------------
+Organizations
+-------------
 
 .. include:: /shared/admonition-rtd-business.rst
 

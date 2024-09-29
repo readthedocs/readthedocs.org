@@ -42,12 +42,6 @@ you can mark the choice in order to experiment and **preview** the final rule ge
 
 Here is a quick overview of the options available in :guilabel:`Redirect Type`:
 
-Prefix redirect
-  This option is often relevant when moving a project from a former host to Read the Docs.
-  In this case, often URL paths hierarchies are redirected.
-
-  Read more about this option in :ref:`user-defined-redirects:Prefix redirects`
-
 Page redirect
   With this option,
   you can specify a page in your documentation to redirect elsewhere.
@@ -64,18 +58,18 @@ Exact redirect
 
   Read more about this option in :ref:`user-defined-redirects:Exact redirects`
 
-Sphinx HTMLDir => HTML
-  If you choose to change your Sphinx builder from *DirHTML writer* to the default *html5writer*,
+Clean URL to HTML
+  If you choose to change the style of your URLs from *clean URLs* (``/en/latest/tutorial/``) to *HTML URLs* (``/en/latest/tutorial.html``),
   you can redirect all mismatches automatically.
 
-  Read more about this option in :ref:`user-defined-redirects:Sphinx redirects`
+  Read more about this option in :ref:`user-defined-redirects:Clean/HTML URLs redirects`
 
-Sphinx HTML => HTMLDir
+HTML to clean URL
   Similarly to the former option,
-  if you choose to change your Sphinx builder from the default *html5writer* to *DirHTML writer*,
+  if you choose to change the style of your URLs from *HTML URLs* (``/en/latest/tutorial.html``) to *clean URLs* (``/en/latest/tutorial/``),
   you can redirect all mismatches automatically.
 
-  Read more about this option in :ref:`user-defined-redirects:Sphinx redirects`
+  Read more about this option in :ref:`user-defined-redirects:Clean/HTML URLs redirects`
 
 .. note::
 
@@ -114,3 +108,15 @@ in order to delete a rule or edit it.
 
 When editing a rule,
 you can change its :guilabel:`Redirect Type` and its :guilabel:`From URL` or :guilabel:`To URL`.
+
+Changing the order of redirects
+-------------------------------
+
+The order of redirects is important,
+if you have multiple rules that match the same URL,
+the first redirect in the list will be used.
+
+You can change the order of the redirect from the :menuselection:`Admin > Redirects` page,
+by using the up and down arrow buttons.
+
+New redirects are added at the start of the list (i.e. they have the highest priority).

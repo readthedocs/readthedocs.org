@@ -1,6 +1,6 @@
-import structlog
 from unittest import mock
 
+import structlog
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -48,7 +48,6 @@ class PrivacyTests(TestCase):
             default_branch="",
             project_url="http://django-kong.rtfd.org",
             default_version=LATEST,
-            python_interpreter="python",
             description="OOHHH AH AH AH KONG SMASH",
             documentation_type="sphinx",
         )
@@ -79,11 +78,10 @@ class PrivacyTests(TestCase):
         r = self.client.get("/projects/django-kong/")
         self.assertEqual(r.status_code, 200)
         # Build button should appear here
-        self.assertContains(r, "Build a version")
+        self.assertTrue("build version" in r.content.decode().lower())
         r = self.client.get("/projects/django-kong/builds/")
         self.assertEqual(r.status_code, 200)
-        # Build button should appear here
-        self.assertContains(r, "Build Version:")
+
         r = self.client.get("/projects/django-kong/downloads/")
         self.assertEqual(r.status_code, 200)
 
@@ -106,11 +104,11 @@ class PrivacyTests(TestCase):
         r = self.client.get("/projects/django-kong/")
         self.assertEqual(r.status_code, 200)
         # Build button should appear here
-        self.assertContains(r, "Build a version")
+        self.assertTrue("build version" in r.content.decode().lower())
+
         r = self.client.get("/projects/django-kong/builds/")
         self.assertEqual(r.status_code, 200)
-        # Build button should appear here
-        self.assertContains(r, "Build Version:")
+
         r = self.client.get("/projects/django-kong/downloads/")
         self.assertEqual(r.status_code, 200)
 
@@ -122,7 +120,7 @@ class PrivacyTests(TestCase):
         r = self.client.get("/projects/django-kong/builds/")
         self.assertEqual(r.status_code, 200)
         # Build button shouldn't appear here
-        self.assertNotContains(r, "Build Version:")
+        self.assertFalse("build version" in r.content.decode().lower())
         r = self.client.get("/projects/django-kong/downloads/")
         self.assertEqual(r.status_code, 200)
 

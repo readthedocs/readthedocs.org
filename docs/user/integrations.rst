@@ -1,11 +1,13 @@
+.. TODO: This page could be a great overview of our build philosophy, but it's not quite there yet.
+
+:orphan:
+
 ..
    Some points we want to cover in this article:
    * Talk about the benefits of always up to date docs
    * Discuss versioning in here, since it relies directly on Git?
    * Have a small diagram that shows (You --push--> GitHub --webhook--> RTD --Build docs--> Deploy
        (Perhaps reuse this: https://about.readthedocs.com/images/homepage.png)
-
-
 
 Continuous Documentation Deployment
 ===================================

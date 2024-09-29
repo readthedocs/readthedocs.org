@@ -33,6 +33,7 @@ class VCSVersion:
         )
 
 
+# TODO: merge this class with Git VCS class to simplify the code.
 class BaseVCS:
 
     """
@@ -40,13 +41,6 @@ class BaseVCS:
 
     VCS commands are executed inside a ``BaseBuildEnvironment`` subclass.
     """
-
-    supports_tags = False  # Whether this VCS supports tags or not.
-    supports_branches = False  # Whether this VCS supports branches or not.
-    supports_submodules = False  # Whether this VCS supports submodules or not.
-
-    # Whether this VCS supports listing remotes (branches, tags) without cloning
-    supports_lsremote = False
 
     # =========================================================================
     # General methods
@@ -106,20 +100,16 @@ class BaseVCS:
             # Catch ``BuildCancelled`` here and re raise it. Otherwise, if we
             # raise a ``RepositoryError`` then the ``on_failure`` method from
             # Celery won't treat this problem as a ``BuildCancelled`` issue.
-            raise BuildCancelled from exc
+            raise BuildCancelled(message_id=BuildCancelled.CANCELLED_BY_USER) from exc
         except BuildUserError as exc:
             # Re raise as RepositoryError to handle it properly from outside
-            if hasattr(exc, "message"):
-                raise RepositoryError(exc.message) from exc
-            raise RepositoryError from exc
+            raise RepositoryError(message_id=RepositoryError.GENERIC) from exc
 
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)
 
     # =========================================================================
     # Tag / Branch related methods
-    # These methods only apply if supports_tags = True and/or
-    # support_branches = True
     # =========================================================================
 
     @property

@@ -2,6 +2,7 @@
 import structlog
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
@@ -12,6 +13,7 @@ from djstripe.enums import SubscriptionStatus
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
+from readthedocs.notifications.models import Notification
 
 from . import constants
 from .managers import TeamManager, TeamMemberManager
@@ -52,21 +54,21 @@ class Organization(models.Model):
         blank=False,
     )
     email = models.EmailField(
-        _("E-mail"),
-        help_text="How can we get in touch with you?",
+        _("Email"),
+        help_text="Best email address for billing related inquiries",
         max_length=255,
         blank=True,
         null=True,
     )
     description = models.TextField(
         _("Description"),
-        help_text="Tell us a little about yourself.",
+        help_text="A short description shown on your profile page",
         blank=True,
         null=True,
     )
     url = models.URLField(
         _("Home Page"),
-        help_text="The main website for your Organization",
+        help_text="The main website for your organization",
         max_length=255,
         blank=True,
         null=True,
@@ -116,6 +118,13 @@ class Organization(models.Model):
         related_name="rtd_organization",
         null=True,
         blank=True,
+    )
+
+    notifications = GenericRelation(
+        Notification,
+        related_query_name="organization",
+        content_type_field="attached_to_content_type",
+        object_id_field="attached_to_id",
     )
 
     # Managers
@@ -204,12 +213,6 @@ class OrganizationOwner(models.Model):
         Organization,
         on_delete=models.CASCADE,
     )
-
-    def __str__(self):
-        return _("{org} owner {owner}").format(
-            org=self.organization.name,
-            owner=self.owner.username,
-        )
 
 
 class Team(models.Model):
@@ -316,10 +319,7 @@ class TeamInvite(models.Model):
         unique_together = ("team", "email")
 
     def __str__(self):
-        return "{email} to {team}".format(
-            email=self.email,
-            team=self.team,
-        )
+        return self.email
 
     def save(self, *args, **kwargs):
         hash_ = salted_hmac(
@@ -389,16 +389,6 @@ class TeamMember(models.Model):
     )
 
     objects = TeamMemberManager()
-
-    def __str__(self):
-        state = ""
-        if self.is_invite:
-            state = " (pending)"
-        return "{username} to {team}{state}".format(
-            username=self.username,
-            team=self.team,
-            state=state,
-        )
 
     @property
     def username(self):

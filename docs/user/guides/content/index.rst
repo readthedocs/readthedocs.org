@@ -5,12 +5,8 @@ How-to guides: content, themes and SEO
     This article explains how documentation can be optimized to appear in search results,
     ultimately increasing traffic to your docs.
 
-⏩️ :doc:`Enabling canonical URLs </guides/canonical-urls>`
-    In this guide, we introduce relevant settings for enabling canonical URLs in popular documentation frameworks.
-
 ⏩️ :doc:`Using traffic analytics </analytics>`
     In this guide, you can learn to use Read the Docs' built-in traffic analytics for your documentation project.
-    You will also learn how to optionally add your own Google Analytics account or completely disable Google Analytics on your project.
 
 ⏩️ :doc:`Managing translations for Sphinx projects </guides/manage-translations-sphinx>`
     This guide walks through the process needed to manage translations of your documentation.
@@ -51,15 +47,10 @@ How-to guides: content, themes and SEO
     There are a number of use cases for embedding content,
     so we've built our integration in a way that enables users to build on top of it.
 
-⏩️ :doc:`Removing "Edit on ..." buttons from documentation </guides/remove-edit-buttons>`
-    When building your documentation,
-    Read the Docs automatically adds buttons at the top of your documentation and in the versions menu that point readers to your repository to make changes.
-    Here's how to remove it.
-
 ⏩️ :doc:`Adding "Edit Source" links on your Sphinx theme </guides/edit-source-links-sphinx>`
     Using your own theme?
-    Read the Docs injects some extra variables in the Sphinx ``html_context``,
-    some of which you can use to add an "edit source" link at the top of all pages.
+    Add some extra variables in the Sphinx ``html_context``,
+    to add an "edit source" link at the top of all pages.
 
 .. toctree::
    :maxdepth: 1
@@ -68,7 +59,6 @@ How-to guides: content, themes and SEO
    Search engine optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
    Using traffic analytics </analytics>
    Using search analytics </guides/search-analytics>
-   Enabling canonical URLs </guides/canonical-urls>
    Enabling offline formats </guides/enable-offline-formats>
    Embedding content from your documentation </guides/embedding-content>
    Managing translations for Sphinx projects </guides/manage-translations-sphinx>
@@ -78,5 +68,4 @@ How-to guides: content, themes and SEO
    Using Jupyter notebooks in Sphinx </guides/jupyter>
    Migrating from rST to MyST </guides/migrate-rest-myst>
    Adding custom CSS or JavaScript to Sphinx documentation </guides/adding-custom-css>
-   Removing "Edit on ..." buttons from documentation </guides/remove-edit-buttons>
    Adding "Edit Source" links on your Sphinx theme </guides/edit-source-links-sphinx>

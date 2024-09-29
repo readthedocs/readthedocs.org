@@ -3,7 +3,7 @@ import datetime
 
 import structlog
 from django.db import models
-from django.db.models import Q
+from django.db.models import OuterRef, Prefetch, Q, Subquery
 from django.utils import timezone
 
 from readthedocs.builds.constants import (
@@ -13,6 +13,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
@@ -23,7 +24,7 @@ log = structlog.get_logger(__name__)
 __all__ = ["VersionQuerySet", "BuildQuerySet", "RelatedBuildQuerySet"]
 
 
-class VersionQuerySetBase(models.QuerySet):
+class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
 
     """Versions take into account their own privacy_level setting."""
 
@@ -140,12 +141,36 @@ class VersionQuerySetBase(models.QuerySet):
             .distinct()
         )
 
+    def prefetch_subquery(self):
+        """
+        Prefetch related objects via subquery for each version.
+
+        .. note::
+
+            This should come after any filtering.
+        """
+        from readthedocs.builds.models import Build
+
+        # Prefetch the latest build for each project.
+        subquery_builds = Subquery(
+            Build.internal.filter(version=OuterRef("version_id"))
+            .order_by("-date")
+            .values_list("id", flat=True)[:1]
+        )
+        prefetch_builds = Prefetch(
+            "builds",
+            Build.internal.filter(pk__in=subquery_builds),
+            to_attr=self.model.LATEST_BUILD_CACHE,
+        )
+
+        return self.prefetch_related(prefetch_builds)
+
 
 class VersionQuerySet(SettingsOverrideObject):
     _default_class = VersionQuerySetBase
 
 
-class BuildQuerySet(models.QuerySet):
+class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     """
     Build objects that are privacy aware.
@@ -269,7 +294,7 @@ class BuildQuerySet(models.QuerySet):
         return (limit_reached, concurrent, max_concurrent)
 
 
-class RelatedBuildQuerySet(models.QuerySet):
+class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     """
     For models with association to a project through :py:class:`Build`.

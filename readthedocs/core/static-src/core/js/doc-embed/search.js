@@ -3,16 +3,50 @@
  */
 
 const rtddata = require('./rtd-data');
-const xss = require('xss/lib/index');
 const { createDomNode, domReady } = require("./utils");
 const MAX_RESULT_PER_SECTION = 3;
 const MAX_SUBSTRING_LIMIT = 100;
+
+/**
+ * Mark a string as safe to be used as HTML in setNodeContent.
+ * @class
+ */
+function SafeHtmlString(value) {
+  this.value = value;
+  this.isSafe = true;
+}
+
+/**
+ * Create a SafeHtmlString instance from a string.
+ *
+ * @param {String} value
+ */
+function markAsSafe(value) {
+  return new SafeHtmlString(value);
+}
+
+/**
+ * Set the content of an element as text or HTML.
+ *
+ * @param {Element} element
+ * @param {String|SafeHtmlString} content
+ */
+function setElementContent(element, content) {
+  if (content.isSafe) {
+    element.innerHTML = content.value;
+  } else {
+    element.innerText = content;
+  }
+}
 
 
 /*
  * Search query override for hitting our local API instead of the standard
  * Sphinx indexer. This will fall back to the standard indexer on an API
- * failure,
+ * failure.
+ *
+ * Except for highlights, which are HTML encoded, with `<span>` tags surrounding the highlight,
+ * all other data shouldn't be considered safe to be used as HTML.
  */
 function attach_elastic_search_query_sphinx(data) {
     var project = data.project;
@@ -54,20 +88,22 @@ function attach_elastic_search_query_sphinx(data) {
          *
          *   ...
          *
-         * @param {String} title.
+         * @param {String|SafeHtmlString} title.
          * @param {String} link.
-         * @param {Array} contents.
+         * @param {String[]|SafeHtmlString[]} contents.
          */
+        // Watch our for XSS in title and contents!
         const buildSection = function (title, link, contents) {
             var div_title = document.createElement("div");
             var a_element = document.createElement("a");
             a_element.href = link;
-            a_element.innerHTML = title;
+            setElementContent(a_element, title);
+
             div_title.appendChild(a_element);
             let elements = [div_title];
             for (let content of contents) {
                 let div_content = document.createElement("div");
-                div_content.innerHTML = content;
+                setElementContent(div_content, content);
                 elements.push(div_content);
             }
             return elements;
@@ -94,13 +130,13 @@ function attach_elastic_search_query_sphinx(data) {
                     var title = result.title;
                     // if highlighted title is present, use that.
                     if (result.highlights.title.length) {
-                        title = xss(result.highlights.title[0]);
+                        title = markAsSafe(result.highlights.title[0]);
                     }
 
                     var link = result.path + "?highlight=" + encodeURIComponent(query);
 
                     let item = createDomNode('a', {href: link});
-                    item.innerHTML = title;
+                    setElementContent(item, title);
                     for (let element of item.getElementsByTagName('span')) {
                         element.className = 'highlighted';
                     }
@@ -126,7 +162,7 @@ function attach_elastic_search_query_sphinx(data) {
                             var section_content = [section.content.substr(0, MAX_SUBSTRING_LIMIT) + " ..."];
 
                             if (section.highlights.title.length) {
-                                section_subtitle = xss(section.highlights.title[0]);
+                                section_subtitle = markAsSafe(section.highlights.title[0]);
                             }
 
                             if (section.highlights.content.length) {
@@ -137,43 +173,13 @@ function attach_elastic_search_query_sphinx(data) {
                                     k < content.length && k < MAX_RESULT_PER_SECTION;
                                     k += 1
                                 ) {
-                                    section_content.push("... " + xss(content[k]) + " ...");
+                                    section_content.push(markAsSafe("... " + content[k] + " ..."));
                                 }
                             }
                             let sections = buildSection(
                                 section_subtitle,
                                 section_subtitle_link,
                                 section_content
-                            );
-                            sections.forEach(element => { contents.appendChild(element); });
-                        }
-
-                        // if the result is a sphinx domain object
-                        if (current_block.type === "domain") {
-                            var domain = current_block;
-                            var domain_role_name = domain.role;
-                            var domain_subtitle_link = link + "#" + domain.id;
-                            var domain_name = domain.name;
-                            var domain_content = "";
-
-                            if (domain.content !== "") {
-                                domain_content = domain.content.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
-                            }
-
-                            if (domain.highlights.content.length) {
-                                domain_content = "... " + xss(domain.highlights.content[0]) + " ...";
-                            }
-
-                            if (domain.highlights.name.length) {
-                                domain_name = xss(domain.highlights.name[0]);
-                            }
-
-                            var domain_subtitle = "[" + domain_role_name + "]: " + domain_name;
-
-                            let sections = buildSection(
-                                domain_subtitle,
-                                domain_subtitle_link,
-                                [domain_content]
                             );
                             sections.forEach(element => { contents.appendChild(element); });
                         }

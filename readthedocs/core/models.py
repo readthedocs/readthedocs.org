@@ -4,7 +4,6 @@ from annoying.fields import AutoOneToOneField
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from simple_history import register
@@ -43,27 +42,8 @@ class UserProfile(TimeStampedModel):
     whitelisted = models.BooleanField(_("Whitelisted"), default=False)
     banned = models.BooleanField(_("Banned"), default=False)
 
-    # Opt-out on emails
-    # NOTE: this is a temporary field that we can remove after September 25, 2023
-    # See https://blog.readthedocs.com/migrate-configuration-v2/
-    optout_email_config_file_deprecation = models.BooleanField(
-        _("Opt-out from email about 'Config file deprecation'"),
-        default=False,
-        null=True,
-    )
-    # NOTE: this is a temporary field that we can remove after October 16, 2023
-    # See https://blog.readthedocs.com/use-build-os-config/
-    optout_email_build_image_deprecation = models.BooleanField(
-        _("Opt-out from email about '\"build.image\" config key deprecation'"),
-        default=False,
-        null=True,
-    )
-
     # Model history
     history = ExtraHistoricalRecords()
-
-    def __str__(self):
-        return gettext("%(username)s's profile") % {"username": self.user.username}
 
     def get_absolute_url(self):
         return reverse(

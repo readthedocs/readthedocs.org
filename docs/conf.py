@@ -21,10 +21,10 @@ extensions = [
     "hoverxref.extension",
     "multiproject",
     "myst_parser",
-    "notfound.extension",
+    # For testing, conditionally disable the custom 404 pages on dev docs
+    # "notfound.extension",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx_search.extension",
     "sphinx_tabs.tabs",
     "sphinx-prompt",
     "sphinx.ext.autodoc",
@@ -56,6 +56,10 @@ multiproject_projects = {
 
 docset = get_project(multiproject_projects)
 
+# Disable custom 404 on dev docs
+if docset == "user":
+    extensions.append("notfound.extension")
+
 ogp_site_name = "Read the Docs Documentation"
 ogp_use_first_image = True  # https://github.com/readthedocs/blog/pull/118
 ogp_image = "https://docs.readthedocs.io/en/latest/_static/img/logo-opengraph.png"
@@ -77,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "10.11.0"
+version = "11.8.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
@@ -97,7 +101,6 @@ intersphinx_mapping = {
     "jupytext": ("https://jupytext.readthedocs.io/en/stable/", None),
     "ipyleaflet": ("https://ipyleaflet.readthedocs.io/en/latest/", None),
     "poliastro": ("https://docs.poliastro.space/en/stable/", None),
-    "qiskit": ("https://qiskit.org/documentation/", None),
     "myst-parser": ("https://myst-parser.readthedocs.io/en/stable/", None),
     "writethedocs": ("https://www.writethedocs.org/", None),
     "jupyterbook": ("https://jupyterbook.org/en/stable/", None),
@@ -160,9 +163,6 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static", f"{docset}/_static"]
 html_css_files = ["css/custom.css", "css/sphinx_prompt_css.css"]
 html_js_files = ["js/expand_tabs.js"]
-
-if os.environ.get("READTHEDOCS_VERSION_TYPE") == "external":
-    html_js_files.append("js/readthedocs-doc-diff.js")
 
 html_logo = "img/logo.svg"
 html_theme_options = {

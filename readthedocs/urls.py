@@ -8,17 +8,15 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView, TemplateView
 
-from readthedocs.core.views import (
-    HomepageView,
-    SupportView,
-    do_not_track,
-    server_error_500,
-)
+from readthedocs.core.views import ErrorView, HomepageView, SupportView, do_not_track
 from readthedocs.search.views import GlobalSearchView
 
 admin.autodiscover()
 
-handler500 = server_error_500
+handler400 = ErrorView.as_view(status_code=400)
+handler403 = ErrorView.as_view(status_code=403)
+handler404 = ErrorView.as_view(status_code=404)
+handler500 = ErrorView.as_view(status_code=500)
 
 basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
@@ -47,13 +45,10 @@ rtd_urls = [
     path("profiles/", include("readthedocs.profiles.urls.public")),
     path("accounts/", include("readthedocs.profiles.urls.private")),
     path("accounts/", include("allauth.urls")),
-    path("notifications/", include("readthedocs.notifications.urls")),
     path("accounts/gold/", include("readthedocs.gold.urls")),
     path("invitations/", include("readthedocs.invitations.urls")),
     # For redirects
     path("builds/", include("readthedocs.builds.urls")),
-    # For testing the 500's with DEBUG on.
-    path("500/", handler500),
     # Put this as a unique path for the webhook, so we don't clobber existing Stripe URL's
     path("djstripe/", include("djstripe.urls", namespace="djstripe")),
 ]
@@ -125,6 +120,11 @@ debug_urls += [
     path(
         "style-catalog/",
         TemplateView.as_view(template_name="style_catalog.html"),
+    ),
+    # For testing error responses and templates
+    re_path(
+        r"^error/(?P<template_name>.*)$",
+        ErrorView.as_view(),
     ),
     # This must come last after the build output files
     path(

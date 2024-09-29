@@ -41,13 +41,15 @@ class OrganizationForm(SimpleHistoryModelForm):
             "name": _("Organization Name"),
             "email": _("Billing Email"),
         }
-
-    # Don't use a URLField as a widget, the validation is too strict on FF
-    url = forms.URLField(
-        widget=forms.TextInput(attrs={"placeholder": "http://"}),
-        label=_("Site URL"),
-        required=False,
-    )
+        widgets = {
+            "email": forms.EmailInput(attrs={"placeholder": "accounting@example.com"}),
+            # Make description less prominent on the page, we don't want long descriptions
+            "description": forms.TextInput(
+                attrs={"placeholder": "Engineering docs for Example company"}
+            ),
+            # Don't use a URLField as a widget, the validation is too strict on FF
+            "url": forms.TextInput(attrs={"placeholder": "https://"}),
+        }
 
     def __init__(self, *args, **kwargs):
         try:
@@ -208,6 +210,7 @@ class OrganizationTeamProjectForm(forms.ModelForm):
         self.fields["projects"] = forms.ModelMultipleChoiceField(
             queryset=self.organization.projects,
             widget=forms.CheckboxSelectMultiple,
+            required=False,
         )
 
 

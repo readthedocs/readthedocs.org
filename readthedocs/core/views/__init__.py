@@ -7,11 +7,12 @@ and server errors.
 
 import structlog
 from django.conf import settings
-from django.http import JsonResponse
-from django.shortcuts import redirect, render
+from django.http import Http404, JsonResponse
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, View
 
+from readthedocs.core.forms import SupportForm
 from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
 
 log = structlog.get_logger(__name__)
@@ -69,20 +70,81 @@ class HomepageView(TemplateView):
 
 
 class SupportView(PrivateViewMixin, TemplateView):
+    form_class = SupportForm
     template_name = "support/index.html"
 
     def get_context_data(self, **kwargs):
         """Pass along endpoint for support form."""
         context = super().get_context_data(**kwargs)
         context["SUPPORT_FORM_ENDPOINT"] = settings.SUPPORT_FORM_ENDPOINT
+
+        if settings.RTD_EXT_THEME_ENABLED:
+            context["form"] = self.form_class(self.request.user)
+
         return context
 
 
-def server_error_500(request, template_name="500.html"):
-    """A simple 500 handler so we get media."""
-    r = render(request, template_name)
-    r.status_code = 500
-    return r
+class ErrorView(TemplateView):
+
+    """
+    Render templated error pages.
+
+    This can be used both for testing and as a generic error view. This supports
+    multiple subpaths for errors, as we need to show application themed errors
+    for dashboard users and minimal error pages for documentation readers.
+
+    Template resolution also uses fallback to generic 4xx/5xx error templates.
+
+    View arguments:
+
+    status_code
+        This can also be a kwarg, like in the case of a testing view for all
+        errors. Set through ``as_view(status_code=504)``, this view will always
+        render the same template and status code.
+
+    base_path
+        Base path for templates. Dashboard templates can be loaded from a
+        separate path from Proxito error templates.
+    """
+
+    base_path = "errors/dashboard"
+    status_code = None
+    template_name = None
+
+    def get_status_code(self):
+        return self.kwargs.get("status_code", self.status_code)
+
+    def get_template_name(self):
+        return self.kwargs.get("template_name", self.template_name)
+
+    def get_template_names(self):
+        template_names = []
+        if (template_name := self.get_template_name()) is not None:
+            template_names.append(template_name.rstrip("/"))
+        if (status_code := self.get_status_code()) is not None:
+            template_names.append(str(status_code))
+        return [f"{self.base_path}/{file}.html" for file in template_names]
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data["status_code"] = self.get_status_code()
+        return context_data
+
+    def dispatch(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        status_code = self.get_status_code()
+        return self.render_to_response(
+            context,
+            status=status_code,
+        )
+
+
+class PageNotFoundView(View):
+
+    """Just a 404 view that ignores all URL parameters."""
+
+    def get(self, request, *args, **kwargs):
+        raise Http404()
 
 
 def do_not_track(request):
