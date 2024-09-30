@@ -16,6 +16,7 @@ from readthedocs.core.unresolver import (
     TranslationWithoutVersionError,
     VersionNotFoundError,
     unresolve,
+    unresolver,
 )
 from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Domain
@@ -372,8 +373,30 @@ class UnResolverTests(ResolverBase):
             "fttp://pip.readthedocs.io/en/latest/",
             "fttps://pip.readthedocs.io/en/latest/",
             "ssh://pip.readthedocs.io/en/latest/",
+            "javascript://pip.readthedocs.io/en/latest/",
             "://pip.readthedocs.io/en/latest/",
+            "https:///pip.readthedocs.io/en/latest/",
         ]
         for url in invalid_urls:
             with pytest.raises(InvalidSchemeError):
                 unresolve(url)
+
+    def test_unresolve_domain_with_full_url(self):
+        result = unresolver.unresolve_domain("https://pip.readthedocs.io/en/latest/")
+        self.assertIsNone(result.domain)
+        self.assertEqual(result.project, self.pip)
+        self.assertTrue(result.is_from_public_domain)
+        self.assertEqual(result.source_domain, "pip.readthedocs.io")
+
+    def test_unresolve_domain_with_full_url_invalid_protocol(self):
+        invalid_protocols = [
+            "fttp",
+            "fttps",
+            "ssh",
+            "javascript",
+        ]
+        for protocol in invalid_protocols:
+            with pytest.raises(InvalidSchemeError):
+                unresolver.unresolve_domain(
+                    f"{protocol}://pip.readthedocs.io/en/latest/"
+                )
