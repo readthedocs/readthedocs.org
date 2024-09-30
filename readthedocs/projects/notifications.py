@@ -100,8 +100,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-                Subversion, Mercurial and Bazaar are not supported anymore.
-                Read more about this deprecated in <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">our blog</a>.
+                Subversion, Mercurial, and Bazaar are not supported anymore.
+                Read more about this deprecation in <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">our blog</a>.
             """
             ).strip(),
         ),
