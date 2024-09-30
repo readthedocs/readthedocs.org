@@ -11,6 +11,7 @@ from readthedocs.core.unresolver import (
     InvalidExternalVersionError,
     InvalidPathForVersionedProjectError,
     InvalidSchemeError,
+    InvalidSubdomainError,
     SuspiciousHostnameError,
     TranslationNotFoundError,
     TranslationWithoutVersionError,
@@ -375,11 +376,13 @@ class UnResolverTests(ResolverBase):
             "ssh://pip.readthedocs.io/en/latest/",
             "javascript://pip.readthedocs.io/en/latest/",
             "://pip.readthedocs.io/en/latest/",
-            "https:///pip.readthedocs.io/en/latest/",
         ]
         for url in invalid_urls:
             with pytest.raises(InvalidSchemeError):
                 unresolve(url)
+
+        with pytest.raises(InvalidSubdomainError):
+            unresolve("https:///pip.readthedocs.io/en/latest/")
 
     def test_unresolve_domain_with_full_url(self):
         result = unresolver.unresolve_domain("https://pip.readthedocs.io/en/latest/")
