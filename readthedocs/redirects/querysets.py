@@ -41,6 +41,8 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
         return queryset
 
     def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
         return self.api(*args, **kwargs)
 
     def get_matching_redirect_with_path(
