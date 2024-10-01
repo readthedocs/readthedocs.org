@@ -95,6 +95,19 @@ messages = [
         type=ERROR,
     ),
     Message(
+        id=RepositoryError.UNSUPPORTED_VCS,
+        header=_("Repository type not suported"),
+        body=_(
+            textwrap.dedent(
+                """
+                Subversion, Mercurial, and Bazaar are not supported anymore.
+                Read more about this deprecation in <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">our blog</a>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=ProjectConfigurationError.NOT_FOUND,
         header=_("Sphinx configuration file is missing"),
         body=_(

@@ -13,7 +13,6 @@ import tarfile
 import structlog
 import yaml
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config.config import CONFIG_FILENAME_REGEX
@@ -78,11 +77,7 @@ class BuildDirector:
             os.makedirs(self.data.project.doc_path)
 
         if not self.data.project.vcs_class():
-            raise RepositoryError(
-                _('Repository type "{repo_type}" unknown').format(
-                    repo_type=self.data.project.repo_type,
-                ),
-            )
+            raise RepositoryError(RepositoryError.UNSUPPORTED_VCS)
 
         before_vcs.send(
             sender=self.data.version,
