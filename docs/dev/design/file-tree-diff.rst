@@ -59,8 +59,30 @@ When we need to compare two versions, we can just compare the manifests.
 
 This doesn't require downloading the files, but it requires building a version to generate the manifest.
 
+The manifest will be a JSON object with the following structure:
+
+.. code:: json
+
+   {
+       "build": {
+           "id": 1
+       },
+       "files": {
+          "index.html": {
+              "hash": "1234567890"
+          },
+          "path/to/file.html": {
+              "hash": "1234567890"
+          }
+       }
+   }
+
 Using rclone
 ~~~~~~~~~~~~
+
+.. note::
+
+   This solution won't be used in the final implementation, it's kept here for reference.
 
 We are already using ``rclone`` to speed up uploads to S3,
 ``rclone`` has a command (``rclone check``) to return the diff between two directories.
@@ -106,8 +128,14 @@ and use that hash to compare the files.
 
 This will allow us to better detect files that were modified in a meaningful way.
 
+Since we don't need a secure hash, we can use MD5, since it's built-in in Python.
+
 Lines changed between two files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+   This solution won't be used in the final implementation, it's kept here for reference.
 
 In order to provide more useful information, we can sort the files by some metrics,
 like the number of lines that changed.
@@ -158,6 +186,10 @@ and the result is easier to parse.
 
 Alternative metrics
 +++++++++++++++++++
+
+.. note::
+
+   This solution won't be used in the final implementation, it's kept here for reference.
 
 Checking the number of lines that changed is a good metric, but it requires downloading the files.
 Another metric we could use is the size of the files, that can be obtained from the metadata (no need of downloading the files),
@@ -277,6 +309,7 @@ For the initial implementation, we will:
   This will be done at the end of the build.
 - Generate the hash based on the main content of the file,
   not the whole file.
+- MD5 will be the hashing algorithm used.
 - Only expose the files that were added, removed, or modified (HTML files only).
   The number of lines that changed wont be exposed.
 - Don't store the results in the DB,
