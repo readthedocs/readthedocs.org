@@ -32,7 +32,8 @@ Enabling Traffic analytics
 #. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons`.
 #. Go to :guilabel:`Analytics` and check :guilabel:`Analytics enabled`.
 
-
+Data storage
+------------
 
 The amount of analytics data stored for download depends which site you're using:
 
@@ -43,4 +44,4 @@ The amount of analytics data stored for download depends which site you're using
 
 .. seealso::
 
-   You can also access analytics data from :doc:`search results </guides/search-analytics>`.
+   You can also access analytics data from :doc:`search results </search-analytics>`.

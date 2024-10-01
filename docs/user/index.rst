@@ -211,7 +211,7 @@ Keep your documentation up to date:
 :doc:`/user-defined-redirects`
   Redirect your old URLs to new ones.
 
-:doc:`/reference/analytics`
+:doc:`/traffic-analytics`
   Learn more about how users are interacting with your documentation.
 
 :doc:`/security-log`

@@ -50,3 +50,12 @@ The number of times the query has been used in a search is displayed as the **se
 In **Daily search totals**, you can see trends that might match special events in your project's publicity.
 If you wish to analyze these numbers in details, click :guilabel:`Download all data`
 to get a CSV formatted file with all available search analytics.
+
+Data storage
+------------
+
+The amount of analytics data stored for download depends which site you're using:
+
+* On |org_brand|, the last 90 days are stored.
+* On |com_brand|, it goes from 30 to infinite storage
+   (check out `the pricing page <https://about.readthedocs.com/pricing/>`_).

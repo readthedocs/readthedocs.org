@@ -550,7 +550,7 @@ and click the :guilabel:`Download all data` button.
 Understanding search analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As well as traffic analytics, Read the Docs shows :doc:`what terms your readers are searching for </guides/search-analytics>`.
+As well as traffic analytics, Read the Docs shows :doc:`what terms your readers are searching for </search-analytics>`.
 This can inform decisions on what areas to focus on,
 or what parts of your project are less understood or more difficult to find.
 
