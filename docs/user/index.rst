@@ -70,7 +70,8 @@ Read the Docs: documentation simplified
    :caption: Maintaining projects
 
    /user-defined-redirects
-   /reference/analytics
+   /traffic-analytics
+   /search-analytics
    /security-log
    /badges
    /explanation/documentation-structure

@@ -8,7 +8,6 @@ When someone reads your documentation,
 we collect data about the vist and the referer
 with full respect of the privacy of the visitor.
 
-
 Traffic analytics
 -----------------
 
