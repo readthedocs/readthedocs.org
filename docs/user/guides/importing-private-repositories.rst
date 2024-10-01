@@ -8,7 +8,7 @@ Here is how you set it up.
 
 ✅️ Logged in with |git_providers_or|?
   If you signed up or logged in to Read the Docs with your |git_providers_or| credentials,
-  *all you have to do* is to use the normal :doc:`project import </intro/import-guide>`.
+  *all you have to do* is to use the normal :doc:`project import </intro/add-project>`.
   Your Read the Docs account is connected to your Git provider and
   will let you choose from private Git repositories and configure them for you.
 
