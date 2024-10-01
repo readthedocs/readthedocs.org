@@ -45,7 +45,7 @@ You can change the states for each version of your documentation in the :guilabe
 **Public** or **Private** (only available on on :doc:`/commercial/index`)
   - Public versions are visible to everyone.
   - Private versions are available only to people who have permissions to see them.
-    They will not display on any list view, and will 404 when visted by people without viewing permissions.
+    They will not display on any list view, and will 404 when visited by people without viewing permissions.
     If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 
     In addition, if you want other users to view the build page of your public versions,
