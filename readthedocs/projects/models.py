@@ -575,7 +575,6 @@ class Project(models.Model):
 
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = "_latest_build"
-    LATEST_SUCCESSFUL_BUILD_CACHE = "_latest_successful_build"
 
     class Meta:
         ordering = ("slug",)
@@ -921,13 +920,6 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
-        # Check if there is `_latest_successful_build` attribute in the Queryset.
-        # Used for database optimization.
-        if hasattr(self, self.LATEST_SUCCESSFUL_BUILD_CACHE):
-            if build_successful := getattr(self, self.LATEST_SUCCESSFUL_BUILD_CACHE):
-                return build_successful[0]
-            return None
-
         # Check if there is `_good_build` annotation in the Queryset.
         # Used for Database optimization.
         if hasattr(self, "_good_build"):

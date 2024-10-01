@@ -696,7 +696,7 @@ class AddonsConfigForm(forms.ModelForm):
 
         # Keep the ability to disable addons completely on Read the Docs for Business
         if not settings.RTD_ALLOW_ORGANIZATIONS and addons_enabled_by_default:
-            self.fields.pop("enabled")
+            self.fields["enabled"].disabled = True
 
     def clean(self):
         if (

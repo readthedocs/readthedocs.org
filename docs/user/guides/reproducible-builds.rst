@@ -12,12 +12,18 @@ so that you can focus on content.
    :local:
    :depth: 3
 
+.. note::
+   This page explains how to pin the versions that correctly build your project.
+   The versions used in this page are just for illustrative purpose.
+   They are not the latest nor the recommended versions.
+   It is up to you to find those versions.
+
 Define OS and tool versions in the config file
 ----------------------------------------------
 
 We recommend defining the explicit version of the OS and tool versions used to build your documentation
 using the ``.readthedocs.yaml``.
-This file file *provides you per version settings*,
+This file *provides you per version settings*,
 and *those settings live in your Git repository*.
 
 This allows you to validate changes using :doc:`pull requests </pull-requests>`,
