@@ -148,7 +148,10 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
     def dashboard(self, user):
         """Get the projects for this user including the latest build."""
-        return self.for_user(user).prefetch_latest_build()
+        # Prefetching seems to cause some inconsistent performance issues,
+        # disabling for now. For more background, see:
+        # https://github.com/readthedocs/readthedocs.org/pull/11621
+        return self.for_user(user)
 
     def api(self, user=None):
         return self.public(user)

@@ -40,7 +40,7 @@ class CheckOrganizationsEnabled:
 
 
 # Mixins
-class OrganizationMixin(CheckOrganizationsEnabled):
+class OrganizationMixin(SuccessMessageMixin, CheckOrganizationsEnabled):
 
     """
     Mixin class that provides organization sublevel objects.
@@ -132,7 +132,7 @@ class OrganizationTeamMixin(OrganizationMixin):
 
 
 # Base views
-class OrganizationView(CheckOrganizationsEnabled):
+class OrganizationView(SuccessMessageMixin, CheckOrganizationsEnabled):
 
     """Mixin for an organization view that doesn't have nested components."""
 
@@ -168,7 +168,7 @@ class OrganizationView(CheckOrganizationsEnabled):
         )
 
 
-class OrganizationOwnerView(SuccessMessageMixin, OrganizationMixin):
+class OrganizationOwnerView(OrganizationMixin):
 
     """Mixin for views related to organization owners."""
 
@@ -209,7 +209,7 @@ class OrganizationOwnerView(SuccessMessageMixin, OrganizationMixin):
         )
 
 
-class OrganizationTeamView(SuccessMessageMixin, OrganizationTeamMixin):
+class OrganizationTeamView(OrganizationTeamMixin):
 
     """Mixin for views related to organization teams."""
 
@@ -232,7 +232,7 @@ class OrganizationTeamView(SuccessMessageMixin, OrganizationTeamMixin):
         )
 
 
-class OrganizationTeamMemberView(SuccessMessageMixin, OrganizationTeamMixin):
+class OrganizationTeamMemberView(OrganizationTeamMixin):
 
     """Mixin for views related to organization team members."""
 

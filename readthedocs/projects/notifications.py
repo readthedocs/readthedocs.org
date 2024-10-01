@@ -17,7 +17,7 @@ MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
 messages = [
     Message(
         id=MESSAGE_PROJECT_SKIP_BUILDS,
-        header=_("Build skipped for this project"),
+        header=_("Builds skipped for this project"),
         body=_(
             textwrap.dedent(
                 """
@@ -89,6 +89,19 @@ messages = [
             There was a problem connecting to your repository,
             ensure that your repository URL is correct and your repository is public.
             Private repositories are not supported.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=RepositoryError.UNSUPPORTED_VCS,
+        header=_("Repository type not suported"),
+        body=_(
+            textwrap.dedent(
+                """
+                Subversion, Mercurial, and Bazaar are not supported anymore.
+                Read more about this deprecation in <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">our blog</a>.
             """
             ).strip(),
         ),

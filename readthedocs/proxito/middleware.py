@@ -5,9 +5,11 @@ This is used to take the request and map the host to the proper project slug.
 
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
+import datetime
 import re
 from urllib.parse import urlparse
 
+import pytz
 import structlog
 from corsheaders.middleware import (
     ACCESS_CONTROL_ALLOW_METHODS,
@@ -17,6 +19,7 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.encoding import iri_to_uri
 from django.utils.html import escape
@@ -31,7 +34,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -289,23 +292,51 @@ class ProxitoMiddleware(MiddlewareMixin):
         version_slug = getattr(request, "path_version_slug", "")
 
         if project_slug:
-            force_addons = Project.objects.filter(
-                slug=project_slug,
-                addons__enabled=True,
-            ).exists()
-            if force_addons:
-                response["X-RTD-Force-Addons"] = "true"
-                return
-
-            if version_slug:
-                addons = Version.objects.filter(
-                    project__slug=project_slug,
-                    slug=version_slug,
-                    addons=True,
+            tzinfo = pytz.timezone("America/Los_Angeles")
+            addons_enabled_by_default = timezone.now() > datetime.datetime(
+                2024,
+                10,
+                7,
+                0,
+                0,
+                0,
+                tzinfo=tzinfo,
+            )
+            if addons_enabled_by_default:
+                addons = Project.objects.filter(
+                    slug=project_slug, addons__enabled=True
                 ).exists()
 
-            if addons:
-                response["X-RTD-Hosting-Integrations"] = "true"
+                if addons:
+                    response["X-RTD-Force-Addons"] = "true"
+                    return
+
+            else:
+                # TODO: remove "else" code once DISABLE_SPHINX_MANIPULATION and addons becomes the default
+                # https://about.readthedocs.com/blog/2024/07/addons-by-default/
+                disable_sphinx_manipulation_enabled = Feature.objects.filter(
+                    feature_id=Feature.DISABLE_SPHINX_MANIPULATION,
+                    projects__slug=Project.objects.filter(slug=project_slug).first(),
+                ).exists()
+
+                force_addons = Project.objects.filter(
+                    slug=project_slug,
+                    addons__enabled=True,
+                ).exists()
+
+                if force_addons or disable_sphinx_manipulation_enabled:
+                    response["X-RTD-Force-Addons"] = "true"
+                    return
+
+                if version_slug:
+                    addons = Version.objects.filter(
+                        project__slug=project_slug,
+                        slug=version_slug,
+                        addons=True,
+                    ).exists()
+
+                if addons:
+                    response["X-RTD-Hosting-Integrations"] = "true"
 
     def add_cors_headers(self, request, response):
         """
