@@ -9,7 +9,7 @@ Connecting your account provides the following features:
 
 🔁️ List your projects
   Select a project to automatically import from all your Git repositories and organizations.
-  See: :doc:`/intro/import-guide`.
+  See: :doc:`/intro/add-project`.
 
 ⚙️ Automatic configuration
   Have your Git repository automatically configured with your Read the Docs :term:`webhook`,

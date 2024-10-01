@@ -1,3 +1,61 @@
+Version 11.8.1
+--------------
+
+:Date: October 01, 2024
+
+* `@humitos <https://github.com/humitos>`__: Addons: disable the field instead of remove it (`#11628 <https://github.com/readthedocs/readthedocs.org/pull/11628>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: unsupported VCS (`#11627 <https://github.com/readthedocs/readthedocs.org/pull/11627>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Only use django-filters filtering on project dashboard (`#11622 <https://github.com/readthedocs/readthedocs.org/pull/11622>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Try reverting prefetch changes for project/version listing views (`#11621 <https://github.com/readthedocs/readthedocs.org/pull/11621>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.8.0 (`#11619 <https://github.com/readthedocs/readthedocs.org/pull/11619>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Prefetch build and project on version list (`#11616 <https://github.com/readthedocs/readthedocs.org/pull/11616>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add support for successful build prefetch (`#11613 <https://github.com/readthedocs/readthedocs.org/pull/11613>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Drop unnecessary CSP directives for gold view (`#11605 <https://github.com/readthedocs/readthedocs.org/pull/11605>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add exit_code to build errors (`#11597 <https://github.com/readthedocs/readthedocs.org/pull/11597>`__)
+* `@duboism <https://github.com/duboism>`__: Docs: update reproducible builds guide (`#10939 <https://github.com/readthedocs/readthedocs.org/pull/10939>`__)
+
+Version 11.8.0
+--------------
+
+:Date: September 25, 2024
+
+* `@agjohnson <https://github.com/agjohnson>`__: Prefetch build and project on version list (`#11616 <https://github.com/readthedocs/readthedocs.org/pull/11616>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add speed up indexes (`#11614 <https://github.com/readthedocs/readthedocs.org/pull/11614>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add support for successful build prefetch (`#11613 <https://github.com/readthedocs/readthedocs.org/pull/11613>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add date version index on build (`#11612 <https://github.com/readthedocs/readthedocs.org/pull/11612>`__)
+* `@humitos <https://github.com/humitos>`__: Use theme 3.0.0rc2 (version/language selector) (`#11611 <https://github.com/readthedocs/readthedocs.org/pull/11611>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11609 <https://github.com/readthedocs/readthedocs.org/pull/11609>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Make terminology and paths consistent for onboarding announcements (`#11608 <https://github.com/readthedocs/readthedocs.org/pull/11608>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: check YAML file for specific branch (`#11607 <https://github.com/readthedocs/readthedocs.org/pull/11607>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Drop unnecessary CSP directives for gold view (`#11605 <https://github.com/readthedocs/readthedocs.org/pull/11605>`__)
+* `@pllim <https://github.com/pllim>`__: Fix minor typo in "Version states" (`#11603 <https://github.com/readthedocs/readthedocs.org/pull/11603>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11602 <https://github.com/readthedocs/readthedocs.org/pull/11602>`__)
+* `@dbaston <https://github.com/dbaston>`__: Docs: Handle long commit messages in [skip ci] example (`#11601 <https://github.com/readthedocs/readthedocs.org/pull/11601>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add exit_code to build errors (`#11597 <https://github.com/readthedocs/readthedocs.org/pull/11597>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Conditionally disabled custom 404 pages on dev docs (`#11596 <https://github.com/readthedocs/readthedocs.org/pull/11596>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.7.2 (`#11595 <https://github.com/readthedocs/readthedocs.org/pull/11595>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: simplify "Add project" page (`#11559 <https://github.com/readthedocs/readthedocs.org/pull/11559>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: make translation section more generic (`#11549 <https://github.com/readthedocs/readthedocs.org/pull/11549>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Add list of supported tools (`#11547 <https://github.com/readthedocs/readthedocs.org/pull/11547>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: prepare Proxito and dashboard to enable them by default (`#11513 <https://github.com/readthedocs/readthedocs.org/pull/11513>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add success messages for Organization views (`#11480 <https://github.com/readthedocs/readthedocs.org/pull/11480>`__)
+
+Version 11.7.2
+--------------
+
+:Date: September 10, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11590 <https://github.com/readthedocs/readthedocs.org/pull/11590>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update common (`#11589 <https://github.com/readthedocs/readthedocs.org/pull/11589>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: final date for addons and link to blog post (`#11588 <https://github.com/readthedocs/readthedocs.org/pull/11588>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: small updates to sitemaps page (`#11585 <https://github.com/readthedocs/readthedocs.org/pull/11585>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: update docs (`#11583 <https://github.com/readthedocs/readthedocs.org/pull/11583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Email: use first recipient from email object (`#11581 <https://github.com/readthedocs/readthedocs.org/pull/11581>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.7.1 (`#11580 <https://github.com/readthedocs/readthedocs.org/pull/11580>`__)
+* `@stsewd <https://github.com/stsewd>`__: Admin: set raw field for SSOIntegration (`#11572 <https://github.com/readthedocs/readthedocs.org/pull/11572>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: skip config step if YAML file is present (`#11540 <https://github.com/readthedocs/readthedocs.org/pull/11540>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Standardize error template paths (`#11494 <https://github.com/readthedocs/readthedocs.org/pull/11494>`__)
+
 Version 11.7.1
 --------------
 
