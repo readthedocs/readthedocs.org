@@ -18,13 +18,17 @@ and the build output of *public versions* you can set the privacy level of your 
 You can set the project privacy level in your :term:`dashboard` by navigating to :menuselection:`Admin --> Settings`
 and changing :guilabel:`Privacy level` to `Public`.
 
+**Making a project public doesn't give access to any versions.**
+So if you want all your versions to be accessible,
+you need to configure those to be `Public` as well.
+
 Version privacy
 ~~~~~~~~~~~~~~~
 
 Each version of your documentation can be set to either `Public` or `Private`.
 This allows you to control who can see the documentation for a specific version.
 
-* Public versions are visible to everyone.
+* Documentation for public versions is visible to everyone.
 * Private versions are available only to people who have permissions to see them.
   They will not display on any list view, and will 404 when visited by people without viewing permissions.
   If you want to share your docs temporarily, see :doc:`/commercial/sharing`.

@@ -12,8 +12,8 @@ Organizations allow you to define both individual and team permissions for your 
    :doc:`/guides/manage-read-the-docs-teams`
      A step-by-step guide to managing teams.
 
-Important concepts
-~~~~~~~~~~~~~~~~~~
+Important objects
+~~~~~~~~~~~~~~~~~
 
 * **Owners** -- Get full access to both view and edit the organization and all projects
 * **Members** -- Get access to a subset of the organization projects

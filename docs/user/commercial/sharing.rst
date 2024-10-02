@@ -12,8 +12,8 @@ Common sharing use cases include:
 * Sharing documentation for your product only to specific customers.
 * Embedding documentation in a SaaS application dashboard.
 
-Creating a share
-----------------
+Creating a shared item
+----------------------
 
 * Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
 * Click on :guilabel:`New Share`
