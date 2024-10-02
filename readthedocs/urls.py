@@ -122,9 +122,9 @@ debug_urls += [
         TemplateView.as_view(template_name="style_catalog.html"),
     ),
     # For testing error responses and templates
-    path(
-        "error/<int:status_code>/",
-        ErrorView.as_view(base_path="errors/dashboard"),
+    re_path(
+        r"^error/(?P<template_name>.*)$",
+        ErrorView.as_view(),
     ),
     # This must come last after the build output files
     path(

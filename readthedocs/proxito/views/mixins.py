@@ -272,7 +272,9 @@ class ServeDocsMixin:
             from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
 
             if is_serve_docs_denied(project):
-                return render(request, template_name="spam.html", status=410)
+                return render(
+                    request, template_name="errors/proxito/spam.html", status=410
+                )
 
 
 class ServeRedirectMixin:

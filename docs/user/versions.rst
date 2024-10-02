@@ -39,7 +39,7 @@ You can change the states for each version of your documentation in the :guilabe
   - You no longer support a version, but you don't want to remove its docs.
   - You have a work in progress version and don't want to publish its docs just yet.
 
-  Hidden verions are listed as ``Disallow: /path/to/version/``
+  Hidden versions are listed as ``Disallow: /path/to/version/``
   in the default :doc:`/reference/robots` created by Read the Docs.
 
 **Public** or **Private** (only available on on :doc:`/commercial/index`)

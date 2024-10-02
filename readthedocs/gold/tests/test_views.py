@@ -1,7 +1,7 @@
 import re
 
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
 
@@ -11,17 +11,19 @@ class TestViews(TestCase):
         self.user = get(User)
 
     def test_csp_headers(self):
+        """
+        Test CSP headers aren't altered.
+
+        This view originally altered the CSP directives based on whether we were
+        using the new dashboard. We weren't using inline scripts in this view
+        however, so this was reverted. The tests remain for now, but aren't
+        super useful and will break when we change `script-src` in base settings.
+        """
         self.client.force_login(self.user)
         csp_header = "Content-Security-Policy"
         script_src_regex = re.compile(r".*\s+script-src [^;]*'unsafe-inline'")
         url = reverse("gold_detail")
 
-        with override_settings(RTD_EXT_THEME_ENABLED=False):
-            resp = self.client.get(url)
-            self.assertEqual(resp.status_code, 200)
-            self.assertIsNone(script_src_regex.match(resp[csp_header]))
-
-        with override_settings(RTD_EXT_THEME_ENABLED=True):
-            resp = self.client.get(url)
-            self.assertEqual(resp.status_code, 200)
-            self.assertTrue(script_src_regex.match(resp[csp_header]))
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsNone(script_src_regex.match(resp[csp_header]))
