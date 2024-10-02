@@ -23,11 +23,7 @@ and then click on :guilabel:`Traffic Analytics`.
 Enabling Traffic analytics
 --------------------------
 
-#. Go to the new dashboard:
-
-    * `Community <https://app.readthedocs.org>`_
-    * `Business <https://app.readthedocs.com>`_
-
+#. Go to the new :term:`dashboard`:
 #. Click on a project name.
 #. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons`.
 #. Go to :guilabel:`Analytics` and check :guilabel:`Analytics enabled`.
