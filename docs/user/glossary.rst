@@ -59,8 +59,6 @@ so that you have a reference for how we're using them.
 
       The *maintainer* role does not exist on |com_brand|, which instead provides :doc:`/commercial/organizations`.
 
-      Please see :ref:`/reference/git-integration:git provider integrations` for more information.
-
    pinning
       To *pin* a requirement means to explicitly specify which version should be used.
       *Pinning* software requirements is the most important technique to make a project :term:`reproducible`.

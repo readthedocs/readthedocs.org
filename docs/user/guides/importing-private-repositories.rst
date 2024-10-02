@@ -41,7 +41,7 @@ with the following exception:
 
 After importing your project the build will fail,
 because Read the Docs doesn't have access to clone your repository.
-To give access, you'll need to add your project's public SSH key to your VCS provider.
+To give access, you'll need to add your project's public SSH key to your Git provider.
 
 Copy your project's public key
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

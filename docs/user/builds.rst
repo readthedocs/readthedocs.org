@@ -97,7 +97,7 @@ Read the Docs supports three different mechanisms to cancel a running build:
    to check for your own cancellation condition and then return exit code ``183`` to cancel a build.
    You can exit with the code ``0`` to continue running the build.
 
-   When this happens, Read the Docs will notify your Git provider (GitHub/GitLab) that the build succeeded (✅),
+   When this happens, Read the Docs will notify your :doc:`Git provider </reference/git-integration>` the build succeeded (✅),
    so the pull request doesn't have any failing checks.
 
    .. tip::
