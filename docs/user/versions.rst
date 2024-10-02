@@ -70,7 +70,7 @@ Version syncing
 
 Versions are automatically synced when the following events happen:
 
-* A commit is pushed to your Git repository and you have a :doc:`Git integration </refernece/git-integration>` configured.
+* A commit is pushed to your Git repository and you have a :doc:`Git integration </reference/git-integration>` configured.
 * A build for any of your version is triggered.
 
 If you find that your versions are out of date,
