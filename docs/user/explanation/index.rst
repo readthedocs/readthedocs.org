@@ -5,9 +5,6 @@
 Explanation
 ===========
 
-⏩️ :doc:`/integrations`
-  A high-level introduction to *Continuous Documentation Deployment*.
-
 ⏩️ :doc:`/subprojects`
   Learn more about how several documentation projects can be combined and presented to the reader on the same website.
 

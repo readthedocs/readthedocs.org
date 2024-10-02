@@ -2,9 +2,9 @@ How to connect your Read the Docs account to your Git provider
 ==============================================================
 
 In this how to article,
-you are shown the steps to connect an account on |git_providers_or| with your Read the Docs account.
+we cover how to connect an account on |git_providers_or| with your Read the Docs account.
 This is relevant if you have signed up for Read the Docs with your email
-or if you have signed up using a Git provider account and want to connect additional providers.
+or want to connect additional providers.
 
 If you are going to import repositories from |git_providers_or|,
 you should connect your Read the Docs account to your Git provider first.
@@ -14,7 +14,6 @@ you should connect your Read the Docs account to your Git provider first.
    If you signed up or logged in to Read the Docs with your |git_providers_or| credentials,
    you're all done. Your account is connected ✅️.
    You only need this how-to if you want to connect additional Git providers.
-
 
 Adding a connection
 -------------------
@@ -47,7 +46,7 @@ Now your connection is ready and you will be able to import and configure Git re
 
 .. seealso::
 
-   :doc:`/guides/setup/git-repo-automatic`
+   :doc:`/reference/git-integration`
      Learn how the connected account is used for automatically configuring Git repositories and Read the Docs projects
      and which **permissions** that are required from your Git provider.
 

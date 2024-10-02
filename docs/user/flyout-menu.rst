@@ -48,7 +48,7 @@ The flyout menu provides access to the following bits of Read the Docs functiona
 * A :doc:`version switcher </versions>` that shows users all of the active, unhidden versions they have access to.
 * :doc:`Offline formats </downloadable-documentation>` for the current version, including HTML & PDF downloads that are enabled by the project.
 * Links to the Read the Docs dashboard for the project.
-* Links to your :doc:`VCS provider </integrations>` that allow the user to quickly find the exact file that the documentation was rendered from.
+* Links to your :doc:`VCS provider </reference/git-integration>` that allow the user to quickly find the exact file that the documentation was rendered from.
 * A search bar that gives users access to our :doc:`/server-side-search/index` of the current version.
 
 .. figure:: /_static/images/flyout-open.png

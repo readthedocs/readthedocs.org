@@ -6,7 +6,7 @@ The following how-to guides help you solve common tasks and challenges in the se
 ⏩️ :doc:`Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>`
     Steps to connect an account on |git_providers_or| with your Read the Docs account.
 
-⏩️ :doc:`Configuring a Git repository automatically </guides/setup/git-repo-automatic>`
+⏩️ :doc:`Configuring a Git repository automatically </reference/git-integration>`
     Once your account is connected to your Git provider,
     adding and configuring a Git repository **automatically** is possible for |git_providers_and|.
 
@@ -46,7 +46,7 @@ The following how-to guides help you solve common tasks and challenges in the se
    :hidden:
 
    Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>
-   Configuring a Git repository automatically </guides/setup/git-repo-automatic>
+   Configuring a Git repository automatically </reference/git-integration>
    Configuring a Git repository manually </guides/setup/git-repo-manual>
    Managing custom domains </guides/custom-domains>
    Managing subprojects </guides/subprojects>
