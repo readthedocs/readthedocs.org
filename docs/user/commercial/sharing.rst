@@ -9,7 +9,7 @@ It allows you to share specific projects or versions of a project with users who
 Common sharing use cases include:
 
 * Sharing a project with contractors or partners.
-* Sharing documentation for your product only to customers.
+* Sharing documentation for your product only to specific customers.
 * Embedding documentation in a SaaS application dashboard.
 
 Creating a share
@@ -18,7 +18,7 @@ Creating a share
 * Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
 * Click on :guilabel:`New Share`
 * Select access type (secret link, password, or HTTP header token),
-  add an expiration date and a :guilabel:`description` to help with managing access in the future.
+  add an expiration date and a *Description* to help with managing access in the future.
 * Check ``Allow access to all versions?`` if you want to grant access to all versions,
   or uncheck that option and select the specific versions you want grant access to.
 * Click :guilabel:`Save`.
@@ -26,13 +26,13 @@ Creating a share
 
   * **Secret link:** copy the link that is generated
   * **Password:** copy the link and password
-  * **HTTP header token**: Copy the Token, and then pass the ``Authorization`` header in your HTTP request.
+  * **HTTP header token**: Copy the token, and then pass the ``Authorization`` header in your HTTP request.
 
 * Give that information to the person who you want to give access.
 
 .. note::
 
-   You can always revoke access by removing the sharing token in this page.
+   You can always revoke access by removing the sharing item in this page.
 
 Sharing methods
 ---------------
@@ -98,8 +98,7 @@ Typical sharing configurations
 ------------------------------
 
 There are a few common ways to architect sharing,
-which we want to cover here.
-There are trade offs between them,
+with trade offs between them,
 and you should choose the one that best fits your use case.
 
 Bulk passwords
