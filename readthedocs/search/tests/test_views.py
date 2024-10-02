@@ -260,8 +260,10 @@ class TestPageSearch:
         # There are two results,
         # one from each version of the "kuma" project.
         assert len(results) == 2
-        assert results[0]["version"] == {"slug": "latest"}
-        assert results[1]["version"] == {"slug": "stable"}
+        # Both versions have the same exact content.
+        # Order of results is not deterministic anymore for some reason,
+        # so we use a set to compare the results.
+        assert {result["version"]["slug"] for result in results} == {"stable", "latest"}
         for result in results:
             assert result["project"] == {"alias": None, "slug": "kuma"}
             assert result["domain"] == "http://kuma.readthedocs.io"
