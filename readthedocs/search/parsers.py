@@ -431,13 +431,3 @@ class GenericParser:
             "sections": sections,
             "main_content_hash": main_content_hash,
         }
-
-    def get_main_content(self, page):
-        try:
-            content = self._get_page_content(page)
-            html = HTMLParser(content)
-            body = self._get_main_node(html)
-            return body.html
-        except Exception:
-            log.info("Failed to get main content from page.", path=page, exc_info=True)
-        return ""
