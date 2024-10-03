@@ -1524,19 +1524,12 @@ class HTMLFile(ImportedFile):
     objects = HTMLFileManager()
 
     def get_processed_json(self):
-        return self._parser.parse(self.path)
-
-    @cached_property
-    def _parser(self):
-        return GenericParser(self.version)
+        parser = GenericParser(self.version)
+        return parser.parse(self.path)
 
     @cached_property
     def processed_json(self):
         return self.get_processed_json()
-
-    @property
-    def main_content(self):
-        return self._parser.get_main_content(self.path)
 
 
 class Notification(TimeStampedModel):

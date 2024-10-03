@@ -1,4 +1,3 @@
-import hashlib
 from fnmatch import fnmatch
 
 import structlog
@@ -129,9 +128,7 @@ class FileManifestIndexer(Indexer):
         self._hashes = {}
 
     def process(self, html_file: HTMLFile, sync_id: int):
-        self._hashes[html_file.path] = hashlib.md5(
-            html_file.main_content.encode()
-        ).hexdigest()
+        self._hashes[html_file.path] = html_file.processed_json["main_content_hash"]
 
     def collect(self, sync_id: int):
         manifest = {
