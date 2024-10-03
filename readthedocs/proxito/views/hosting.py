@@ -23,6 +23,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
     ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
@@ -501,8 +502,27 @@ class AddonsResponseBase:
                         "trigger": "Slash",  # Could be something like "Ctrl + D"
                     },
                 },
+                "filetreediff": {
+                    "enabled": False,
+                },
             },
         }
+
+        if version.is_external:
+            latest_version = project.get_latest_version()
+            diff = get_diff(version_a=version, version_b=latest_version)
+            if diff:
+                diff_result = {
+                    "added": [{"file": file} for file in diff.added],
+                    "removed": [{"file": file} for file in diff.removed],
+                    "modified": [{"file": file} for file in diff.modified],
+                }
+                data["addons"]["filetreediff"].update(
+                    {
+                        "enabled": True,
+                        "diff": diff_result,
+                    }
+                )
 
         # DocDiff depends on `url=` GET attribute.
         # This attribute allows us to know the exact filename where the request was made.
