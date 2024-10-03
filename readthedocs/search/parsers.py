@@ -1,5 +1,5 @@
 """JSON/HTML parsers for search indexing."""
-
+import functools
 import itertools
 import re
 
@@ -20,6 +20,7 @@ class GenericParser:
         self.project = self.version.project
         self.storage = build_media_storage
 
+    @functools.cache
     def _get_page_content(self, page):
         """Gets the page content from storage."""
         content = None
@@ -34,7 +35,7 @@ class GenericParser:
                 content = f.read()
         except Exception:
             log.warning(
-                "Unhandled exception during search processing file.",
+                "Failed to get page content.",
                 page=page,
             )
         return content
@@ -427,3 +428,13 @@ class GenericParser:
             "title": title,
             "sections": sections,
         }
+
+    def get_main_content(self, page):
+        try:
+            content = self._get_page_content(page)
+            html = HTMLParser(content)
+            body = self._get_main_node(html)
+            return body.html
+        except Exception:
+            log.info("Failed to get main content from page.", path=page, exc_info=True)
+        return ""
