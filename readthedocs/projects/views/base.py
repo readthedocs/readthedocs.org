@@ -101,6 +101,12 @@ class ProjectSpamMixin:
     """
 
     def is_show_dashboard_denied_wrapper(self):
+        """
+        Determine if the project has reached dashboard denied treshold.
+
+        This function is wrapped just for testing purposes,
+        so we are able to mock it from outside.
+        """
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import (  # noqa
                 is_show_dashboard_denied,
