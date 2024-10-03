@@ -1,5 +1,4 @@
 """JSON/HTML parsers for search indexing."""
-import functools
 import hashlib
 import itertools
 import re
@@ -21,7 +20,6 @@ class GenericParser:
         self.project = self.version.project
         self.storage = build_media_storage
 
-    @functools.cache
     def _get_page_content(self, page):
         """Gets the page content from storage."""
         content = None
