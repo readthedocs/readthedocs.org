@@ -12,16 +12,13 @@ Choosing Read the Docs means opting for a user-friendly platform that prioritize
 
 - **Multi-Format Support**: 
   We support various documentation formats, including Sphinx (with reStructuredText) and MkDocs (with Markdown). This flexibility allows you to choose the tool that best suits your project's needs. 
-  - *Image suggestion*: An infographic comparing Sphinx and MkDocs, showcasing their features and use cases.
 
 - **Automatic Updates**: 
   With Read the Docs, every time you push updates to your GitHub repository, your documentation is automatically updated. This ensures that users always have access to the latest information without manual intervention. 
-  - *GIF suggestion*: A GIF demonstrating the process of a GitHub push triggering an update in Read the Docs.
-
+  
 - **Community-Driven**: 
   By joining Read the Docs, you become part of a vibrant community of open source enthusiasts and contributors. You can share your knowledge, get feedback, and collaborate with others who are passionate about improving documentation.
-  - *Image suggestion*: A community illustration depicting collaboration among developers.
-
+  
 Key Features 🔑
 ----------------
 
@@ -32,14 +29,12 @@ Read the Docs offers several features that enhance your documentation experience
   
 - **Customization**: 
   Tailor your documentation's look and feel to match your project’s branding. With options for themes, colors, and layouts, you can make your docs visually appealing and aligned with your project's identity. 🎨
-  - *Image suggestion*: Screenshots of different theme options available on Read the Docs.
 
 - **Versioning**: 
   Easily manage different versions of your documentation to keep track of changes over time. This is especially useful for projects with multiple releases, allowing users to access documentation for specific versions.
   
 - **Search Functionality**: 
   Enhance user experience with powerful search tools that help users find exactly what they need in your documentation. A well-implemented search function can greatly reduce frustration and improve user satisfaction.
-  - *GIF suggestion*: A GIF showing how the search functionality works in a sample documentation page.
 
 Documentation for Read the Docs 📝
 -------------------------------------
@@ -65,11 +60,9 @@ Follow these simple steps to set up your project and get automatic updates:
 
 1. **Create an account** on `Read the Docs`_ by signing up with GitHub. 🖥️
    - This is a quick process that will give you access to all our features.
-   - *Image suggestion*: Screenshot of the signup page.
 
 2. **Grant access** to your account when prompted. ✅
    - This allows Read the Docs to connect to your repositories and pull documentation updates automatically.
-   - *GIF suggestion*: A quick animation showing the permission grant process.
 
 3. **Log in** and click on "Add project". ➕
    - This takes you to the project creation page where you can start linking your GitHub repositories.
@@ -83,17 +76,6 @@ Follow these simple steps to set up your project and get automatic updates:
 6. **All done!** Now every commit will auto-update your documentation. 🎊
    - You can focus on writing and coding while we handle the documentation updates for you.
 
-Join the Community 🌍
----------------------
-
-By using Read the Docs, you're joining a thriving community of developers and documentation enthusiasts. Share your knowledge, collaborate on projects, and contribute to open source! Your engagement helps improve the tools and resources available for everyone. 🌟
-
-License 📜
------------
-
-`MIT`_ © 2010 Read the Docs, Inc. & contributors
-
-.. _MIT: LICENSE
 
 .. |build-status| image:: https://circleci.com/gh/readthedocs/readthedocs.org.svg?style=svg
    :alt: Build Status
@@ -108,3 +90,15 @@ License 📜
    :alt: Test Coverage
    :scale: 100%
    :target: https://codecov.io/gh/readthedocs/readthedocs.org
+
+Join the Community 🌍
+---------------------
+
+By using Read the Docs, you're joining a thriving community of developers and documentation enthusiasts. Share your knowledge, collaborate on projects, and contribute to open source! Your engagement helps improve the tools and resources available for everyone. 🌟
+
+License 📜
+-----------
+
+`MIT`_ © 2010 Read the Docs, Inc. & contributors
+
+.. _MIT: LICENSE
