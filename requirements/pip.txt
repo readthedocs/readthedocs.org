@@ -14,9 +14,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.24
+boto3==1.35.34
     # via django-storages
-botocore==1.35.24
+botocore==1.35.34
     # via
     #   boto3
     #   s3transfer
@@ -85,7 +85,7 @@ django==4.2.16
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==64.2.1
+django-allauth[mfa,saml,socialaccount]==65.0.2
     # via -r requirements/pip.in
 django-annoying==0.10.7
     # via -r requirements/pip.in
@@ -127,7 +127,7 @@ django-storages[boto3]==1.14.3
     # via -r requirements/pip.in
 django-structlog==2.2.0
     # via -r requirements/pip.in
-django-taggit==6.0.0
+django-taggit==6.1.0
     # via -r requirements/pip.in
 django-timezone-field==7.0
     # via django-celery-beat
@@ -208,11 +208,11 @@ packaging==24.1
     #   gunicorn
 platformdirs==4.3.6
     # via virtualenv
-prompt-toolkit==3.0.47
+prompt-toolkit==3.0.48
     # via click-repl
-psycopg[binary,pool]==3.2.2
+psycopg[binary,pool]==3.2.3
     # via -r requirements/pip.in
-psycopg-binary==3.2.2
+psycopg-binary==3.2.3
     # via psycopg
 psycopg-pool==3.2.3
     # via psycopg
@@ -222,8 +222,6 @@ pygments==2.18.0
     # via -r requirements/pip.in
 pyjwt[crypto]==2.9.0
     # via django-allauth
-pypng==0.20220715.0
-    # via qrcode
 pyquery==2.0.1
     # via -r requirements/pip.in
 python-crontab==3.2.0
@@ -242,9 +240,9 @@ pytz==2024.2
     #   celery
 pyyaml==6.0.2
     # via -r requirements/pip.in
-qrcode==7.4.2
+qrcode==8.0
     # via django-allauth
-redis==5.0.8
+redis==5.1.1
     # via
     #   -r requirements/pip.in
     #   django-cacheops
@@ -294,7 +292,7 @@ structlog==23.2.0
     #   django-structlog
 toml==0.10.2
     # via bumpver
-tomli==2.0.1
+tomli==2.0.2
     # via dparse
 typing-extensions==4.12.2
     # via
@@ -302,8 +300,7 @@ typing-extensions==4.12.2
     #   elasticsearch-dsl
     #   psycopg
     #   psycopg-pool
-    #   qrcode
-tzdata==2024.1
+tzdata==2024.2
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
@@ -327,7 +324,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.5
+virtualenv==20.26.6
     # via -r requirements/pip.in
 wcwidth==0.2.13
     # via prompt-toolkit

@@ -23,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.24
+boto3==1.35.34
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.24
+botocore==1.35.34
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -121,7 +121,7 @@ django==4.2.16
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==64.2.1
+django-allauth[mfa,saml,socialaccount]==65.0.2
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
@@ -163,7 +163,7 @@ django-storages[boto3]==1.14.3
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
-django-taggit==6.0.0
+django-taggit==6.1.0
     # via -r requirements/pip.txt
 django-timezone-field==7.0
     # via
@@ -224,7 +224,7 @@ idna==3.10
     # via
     #   -r requirements/pip.txt
     #   requests
-ipython==8.27.0
+ipython==8.28.0
     # via -r requirements/deploy.in
 isodate==0.6.1
     # via
@@ -263,7 +263,7 @@ markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==9.13.0
+newrelic==10.0.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
@@ -286,14 +286,14 @@ platformdirs==4.3.6
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-prompt-toolkit==3.0.47
+prompt-toolkit==3.0.48
     # via
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.2.2
+psycopg[binary,pool]==3.2.3
     # via -r requirements/pip.txt
-psycopg-binary==3.2.2
+psycopg-binary==3.2.3
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -317,10 +317,6 @@ pyjwt[crypto]==2.9.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pypng==0.20220715.0
-    # via
-    #   -r requirements/pip.txt
-    #   qrcode
 pyquery==2.0.1
     # via -r requirements/pip.txt
 python-crontab==3.2.0
@@ -343,11 +339,11 @@ pytz==2024.2
     #   celery
 pyyaml==6.0.2
     # via -r requirements/pip.txt
-qrcode==7.4.2
+qrcode==8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==5.0.8
+redis==5.1.1
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -376,7 +372,7 @@ s3transfer==0.10.2
     #   boto3
 selectolax==0.3.21
     # via -r requirements/pip.txt
-sentry-sdk==2.14.0
+sentry-sdk==2.15.0
     # via structlog-sentry
 six==1.16.0
     # via
@@ -411,7 +407,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tomli==2.0.1
+tomli==2.0.2
     # via
     #   -r requirements/pip.txt
     #   dparse
@@ -427,8 +423,7 @@ typing-extensions==4.12.2
     #   ipython
     #   psycopg
     #   psycopg-pool
-    #   qrcode
-tzdata==2024.1
+tzdata==2024.2
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -459,7 +454,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.5
+virtualenv==20.26.6
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via
