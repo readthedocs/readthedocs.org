@@ -83,11 +83,11 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Business features
 
-   /commercial/index
    /commercial/organizations
    /commercial/single-sign-on
    /commercial/sharing
    /commercial/subscriptions
+   /commercial/privacy-levels
 
 .. toctree::
    :maxdepth: 2
