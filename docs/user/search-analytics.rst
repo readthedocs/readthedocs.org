@@ -1,17 +1,17 @@
-Search Analytics
+Search analytics
 ================
 
 When someone visits your documentation and uses the built-in :doc:`server side search </server-side-search/index>` feature,
-Read the Docs will collect analytics on their search term.
+Read the Docs will collect analytics on their search queries.
 
-Those are aggregated into a simple view of the
+These are aggregated into a simple view of the
 "Top queries in the past 30 days".
 You can also download this data.
 
 This is helpful to optimize your documentation in alignment with your readers' interests.
 You can discover new trends and expand your documentation to new needs.
 
-Using Search Analytics
+Using search analytics
 ----------------------
 
 To see a list of the top queries and an overview from the last month,
@@ -54,8 +54,11 @@ to get a CSV formatted file with all available search analytics.
 Data storage
 ------------
 
-The amount of analytics data stored for download depends which site you're using:
+The duration of analytics data stored for download depends on which site you're using:
 
 * On |org_brand|, the last 90 days are stored.
-* On |com_brand|, it goes from 30 to infinite storage
-   (check out `the pricing page <https://about.readthedocs.com/pricing/>`_).
+* On |com_brand|, storage duration starts at 30 days and increases with plan level.
+.. seealso::
+   
+    `Our plan pricing <https://about.readthedocs.com/pricing/>`_
+        Compare our plan pricing and analytics storage duration.
