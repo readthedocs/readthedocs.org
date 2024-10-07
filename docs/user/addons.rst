@@ -38,11 +38,6 @@ All projects using ``mkdocs`` :ref:`mkdocs <config-file/v2:mkdocs>` or the ``bui
 #. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons`.
 #. Check :guilabel:`Enable Addons`, and then configure each Addon individually.
 
-.. note::
-
-    Read the Docs Addons will be enabled by default for all Read the Docs projects on October 7th.
-    Read the full announcement in our `blog post <https://about.readthedocs.com/blog/2024/07/addons-by-default/>`_.
-
 Configuring Read the Docs Addons
 --------------------------------
 
