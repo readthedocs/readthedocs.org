@@ -59,8 +59,6 @@ so that you have a reference for how we're using them.
 
       The *maintainer* role does not exist on |com_brand|, which instead provides :doc:`/commercial/organizations`.
 
-      Please see :ref:`guides/setup/git-repo-automatic:git provider integrations` for more information.
-
    pinning
       To *pin* a requirement means to explicitly specify which version should be used.
       *Pinning* software requirements is the most important technique to make a project :term:`reproducible`.
@@ -143,6 +141,9 @@ so that you have a reference for how we're using them.
 
    user-defined build jobs
       Commands defined by the user that Read the Docs will execute when performing the build process.
+
+   virtualenv
+      The default way for Python projects to create an isolated environment. This ensures that a :doc:`reproducible set of dependencies </guides/reproducible-builds>` are installed so that you project builds the same way each time.
 
    webhook
       A webhook is a special URL that can be called from another service,
