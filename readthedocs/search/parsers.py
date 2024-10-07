@@ -15,6 +15,45 @@ class GenericParser:
     # Limit that matches the ``index.mapping.nested_objects.limit`` ES setting.
     max_inner_documents = 10000
 
+    # Block level elements have an implicit line break before and after them.
+    # List taken from: https://www.w3schools.com/htmL/html_blocks.asp.
+    block_level_elements = [
+        "address",
+        "article",
+        "aside",
+        "blockquote",
+        "canvas",
+        "dd",
+        "div",
+        "dl",
+        "dt",
+        "fieldset",
+        "figcaption",
+        "figure",
+        "footer",
+        "form",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "header",
+        "hr",
+        "li",
+        "main",
+        "nav",
+        "noscript",
+        "ol",
+        "p",
+        "pre",
+        "section",
+        "table",
+        "tfoot",
+        "ul",
+        "video",
+    ]
+
     def __init__(self, version):
         self.version = version
         self.project = self.version.project
@@ -334,7 +373,12 @@ class GenericParser:
                 )
 
             if content:
-                contents.append(content)
+                is_block_level_element = next_tag.tag in self.block_level_elements
+                if is_block_level_element:
+                    # Add a line break before and after a block level element.
+                    contents.append(f"\n{content}\n")
+                else:
+                    contents.append(content)
             next_tag = next_tag.next
 
         return self._parse_content("".join(contents)), section_found
