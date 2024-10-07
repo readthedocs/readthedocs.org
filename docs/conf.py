@@ -167,7 +167,6 @@ html_js_files = ["js/expand_tabs.js"]
 html_logo = "img/logo.svg"
 html_theme_options = {
     "logo_only": True,
-    "display_version": False,
 }
 html_context = {
     # Fix the "edit on" links.
