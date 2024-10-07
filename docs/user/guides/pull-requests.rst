@@ -59,8 +59,7 @@ Limitations
 - Builds from pull requests have the same memory and time limitations
   :doc:`as regular builds </builds>`.
 - Additional formats like PDF aren't built in order to reduce build time.
-- Search queries will default to the default experience for your tool,
-  and won't use Read the Docs search.
+- Read the Docs doesn't index search on pull request builds. This means that Addons search and the Read the Docs Search API will return no results.
 - The built documentation is kept for 90 days after the pull request has been closed or merged.
 
 Troubleshooting
