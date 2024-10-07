@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/docs.txt requirements/docs.in
 #
-alabaster==1.0.0
+alabaster==0.7.16
     # via sphinx
 anyio==4.6.0
     # via
@@ -15,9 +15,7 @@ babel==2.16.0
     #   sphinx
     #   sphinx-intl
 certifi==2024.8.30
-    # via
-    #   requests
-    #   sphinx-prompt
+    # via requests
 charset-normalizer==3.3.2
     # via requests
 click==8.1.7
@@ -47,7 +45,6 @@ idna==3.10
     # via
     #   anyio
     #   requests
-    #   sphinx-prompt
 imagesize==1.4.1
     # via sphinx
 jinja2==3.1.4
@@ -103,7 +100,7 @@ sniffio==1.3.1
     # via anyio
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==8.0.2
+sphinx==7.4.7
     # via
     #   -r requirements/docs.in
     #   myst-parser
@@ -134,9 +131,9 @@ sphinx-multiproject==1.0.0rc1
     # via -r requirements/docs.in
 sphinx-notfound-page==1.0.4
     # via -r requirements/docs.in
-sphinx-prompt==1.9.0
+sphinx-prompt==1.8.0
     # via -r requirements/docs.in
-sphinx-rtd-theme==3.0.0rc4
+sphinx-rtd-theme==3.0.0
     # via -r requirements/docs.in
 sphinx-tabs==3.4.5
     # via -r requirements/docs.in
@@ -173,9 +170,7 @@ typing-extensions==4.12.2
     #   anyio
     #   uvicorn
 urllib3==2.2.3
-    # via
-    #   requests
-    #   sphinx-prompt
+    # via requests
 uvicorn==0.31.0
     # via sphinx-autobuild
 watchfiles==0.24.0
