@@ -54,11 +54,15 @@ to get a CSV formatted file with all available search analytics.
 Data storage
 ------------
 
-The duration of analytics data stored for download depends on which site you're using:
+The duration of analytics data stored depends on which site you're using:
 
 * On |org_brand|, the last 90 days are stored.
 * On |com_brand|, storage duration starts at 30 days and increases with plan level.
+
 .. seealso::
-   
-    `Our plan pricing <https://about.readthedocs.com/pricing/>`_
-        Compare our plan pricing and analytics storage duration.
+
+   `Our plan pricing <https://about.readthedocs.com/pricing/>`_
+      Compare our plan pricing and analytics storage duration.
+
+   :doc:`/traffic-analytics`
+      See how users are using your documentation.

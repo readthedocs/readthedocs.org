@@ -31,14 +31,15 @@ Enabling traffic analytics
 Data storage
 ------------
 
-The duration of analytics data stored for download depends which site you're using:
+The duration of analytics data stored depends on which site you're using:
 
 * On |org_brand|, the last 90 days are stored.
-* On |com_brand|, it goes from 30 to infinite storage
-   (check out `the pricing page <https://about.readthedocs.com/pricing/>`_).
-
+* On |com_brand|, storage duration starts at 30 days and increases with plan level.
 
 .. seealso::
 
-    :doc:`Search analytics </search-analytics>`
-        See what users are searching for in your documentation
+   `Our plan pricing <https://about.readthedocs.com/pricing/>`_
+      Compare our plan pricing and analytics storage duration.
+
+   :doc:`/search-analytics`
+      See what users are searching for in your documentation.
