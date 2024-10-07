@@ -509,6 +509,7 @@ class AddonsResponseBase:
         }
 
         if version.is_external:
+            # TODO: check if the user has access to this version.
             latest_version = project.get_latest_version()
             diff = get_diff(version_a=version, version_b=latest_version)
             if diff:
