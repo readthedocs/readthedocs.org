@@ -5,7 +5,7 @@ from django_dynamic_fixture import get
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.models import Domain, Project
 from readthedocs.subscriptions.constants import TYPE_CNAME
-from readthedocs.subscriptions.products import get_feature
+from readthedocs.subscriptions.products import RTDProductFeature, get_feature
 
 
 class ModelTests(TestCase):
