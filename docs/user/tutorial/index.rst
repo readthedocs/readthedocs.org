@@ -76,7 +76,7 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
    that ensure that the workflow is as smooth as possible,
    like installing :term:`webhooks <webhook>`.
    If you want to learn more,
-   check out :ref:`guides/setup/git-repo-automatic:permissions for connected accounts`.
+   check out :ref:`reference/git-integration:permissions for connected accounts`.
 
 After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
 open your :term:`dashboard`.
@@ -550,7 +550,7 @@ and click the :guilabel:`Download all data` button.
 Understanding search analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As well as traffic analytics, Read the Docs shows :doc:`what terms your readers are searching for </guides/search-analytics>`.
+As well as traffic analytics, Read the Docs shows :doc:`what terms your readers are searching for </search-analytics>`.
 This can inform decisions on what areas to focus on,
 or what parts of your project are less understood or more difficult to find.
 
