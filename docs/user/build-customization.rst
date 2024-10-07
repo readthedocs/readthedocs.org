@@ -377,7 +377,7 @@ Take a look at the following example:
        - asdf plugin add uv
        - asdf install uv latest
        - asdf global uv latest
-       - uv sync --extra docs
+       - uv sync --extra docs --frozen
        - uv run -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
 
 MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
