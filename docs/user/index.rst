@@ -87,7 +87,7 @@ Read the Docs: documentation simplified
    /commercial/single-sign-on
    /commercial/sharing
    /commercial/subscriptions
-   /commercial/privacy-levels
+   /commercial/privacy-level
 
 .. toctree::
    :maxdepth: 2
