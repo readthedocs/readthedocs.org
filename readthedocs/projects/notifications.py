@@ -163,7 +163,7 @@ messages = [
     Message(
         id=MESSAGE_PROJECT_ADDONS_BY_DEFAULT,
         header=_(
-            """Read the Docs Addons was enabled by default on October 7th, 2024"""
+            """Read the Docs Addons were enabled by default on October 7th, 2024"""
         ),
         body=_(
             textwrap.dedent(
