@@ -477,12 +477,22 @@ class AddonsResponseBase:
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,
-                    # TODO: figure it out where this data comes from
+                    # TODO: figure it out where this data comes from.
+                    #
+                    # Originally, this was thought to be customizable by the user
+                    # adding these filters from the Admin UI.
+                    #
+                    # I'm removing this feature for now until we implement it correctly.
                     "filters": [
-                        [
-                            "Include subprojects",
-                            f"subprojects:{project.slug}/{version.slug}",
-                        ],
+                        # NOTE: this is an example of the structure of the this object.
+                        # It contains the name of the filter and the search syntax to prepend
+                        # to the user's query.
+                        # It uses "Search query sintax":
+                        # https://docs.readthedocs.io/en/stable/server-side-search/syntax.html
+                        # [
+                        #     "Include subprojects",
+                        #     f"subprojects:{project.slug}/{version.slug}",
+                        # ],
                     ]
                     if version
                     else [],
