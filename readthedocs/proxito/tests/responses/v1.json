@@ -156,9 +156,7 @@
     "search": {
       "enabled": true,
       "default_filter": "project:project/latest",
-      "filters": [
-        ["Include subprojects", "subprojects:project/latest"]
-      ]
+      "filters": []
     }
   }
 }

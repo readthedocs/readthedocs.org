@@ -1,7 +1,7 @@
 Build process overview
 ======================
 
-Once a project has been imported and a build is triggered,
+Once a project has been added and a build is triggered,
 Read the Docs executes a set of :term:`pre-defined jobs <pre-defined build jobs>` to build and upload documentation.
 This page explains in detail what happens behind the scenes,
 and includes an overview of how you can change this process.
@@ -17,12 +17,11 @@ It also gives you the knowledge to customize the build process.
    All the steps are run inside a Docker container, using the image defined in :ref:`config-file/v2:build.os`.
    The build has access to all :doc:`pre-defined environment variables </reference/environment-variables>` and :doc:`custom environment variables </environment-variables>`.
 
-
 The build process includes the following jobs:
 
 :checkout:
 
-   Checks out a project's code from the repository URL.
+   Checks out a project's code from the Git repository.
    On |com_brand|,
    this environment includes the SSH deploy key that gives access to the repository.
 
@@ -38,11 +37,11 @@ The build process includes the following jobs:
 
    Creates a Python environment to install all the dependencies in an isolated and reproducible way.
    Depending on what's defined by the project,
-   a virtualenv or a conda environment (:ref:`config-file/v2:conda`) will be used.
+   a :term:`virtualenv` or a :ref:`conda environment <config-file/v2:conda>` will be used.
 
 :install:
 
-   Install :doc:`default and project dependencies </build-default-versions>`.
+   Installs :doc:`default and project dependencies </build-default-versions>`.
    This includes any requirements you have configured in :ref:`config-file/v2:requirements file`.
 
    If the project has extra Python requirements,
@@ -60,9 +59,8 @@ The build process includes the following jobs:
 :upload:
 
    Once the build process finishes successfully,
-   the resulting artifacts are uploaded to our servers.
+   the resulting artifacts (HTML, PDF, etc.) are uploaded to our servers.
    Our :doc:`CDN </reference/cdn>` is then purged so your docs are *always up to date*.
-
 
 .. seealso::
 
@@ -85,8 +83,7 @@ Read the Docs supports three different mechanisms to cancel a running build:
 
 :Manually:
 
-   Once a build was triggered,
-   project administrators can go to the build detail page
+   Project administrators can go to the build detail page
    and click :guilabel:`Cancel build`.
 
 :Automatically:
@@ -100,21 +97,17 @@ Read the Docs supports three different mechanisms to cancel a running build:
    to check for your own cancellation condition and then return exit code ``183`` to cancel a build.
    You can exit with the code ``0`` to continue running the build.
 
-   When this happens, Read the Docs will notify your Git platform (GitHub/GitLab) that the build succeeded (✅),
+   When this happens, Read the Docs will notify your :doc:`Git provider </reference/git-integration>` the build succeeded (✅),
    so the pull request doesn't have any failing checks.
 
    .. tip::
 
       Take a look at :ref:`build-customization:cancel build based on a condition` section for some examples.
 
-
 Build resources
 ---------------
 
 Every build has limited resources assigned to it.
-Generally, |com_brand| users get double the build resources,
-with the option to increase that.
-
 Our build limits are:
 
 .. tabs::
@@ -122,7 +115,7 @@ Our build limits are:
    .. tab:: |com_brand|
 
       * 30 minutes build time
-      * 7GB of memory
+      * 7GB of memory (upgradable)
       * Concurrent builds vary based on your pricing plan
 
       If you are having trouble with your documentation builds,
@@ -134,9 +127,9 @@ Our build limits are:
       * 7GB of memory
       * 2 concurrent builds
 
-      We can increase build limits on a per-project basis.
+      We can increase build length on a per-project basis.
       Send an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
 
       If your business is hitting build limits hosting documentation on Read the Docs,
       please consider :doc:`Read the Docs for Business </commercial/index>`
-      which has much higher build resources.
+      which has options for additional build resources.

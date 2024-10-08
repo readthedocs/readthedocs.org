@@ -1,3 +1,27 @@
+Version 11.9.0
+--------------
+
+:Date: October 08, 2024
+
+* `@humitos <https://github.com/humitos>`__: Notification: update copy since it's a past date (`#11657 <https://github.com/readthedocs/readthedocs.org/pull/11657>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: remove `X-RTD-Hosting-Integrations` HTTP header (`#11656 <https://github.com/readthedocs/readthedocs.org/pull/11656>`__)
+* `@humitos <https://github.com/humitos>`__: Metrics: don't rely on Embed APIv2 (`#11652 <https://github.com/readthedocs/readthedocs.org/pull/11652>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11650 <https://github.com/readthedocs/readthedocs.org/pull/11650>`__)
+* `@stsewd <https://github.com/stsewd>`__: ES: fix another flaky test (`#11647 <https://github.com/readthedocs/readthedocs.org/pull/11647>`__)
+* `@simonbowly <https://github.com/simonbowly>`__: Specify that hidden versions in RTD are blocked from indexing (`#11644 <https://github.com/readthedocs/readthedocs.org/pull/11644>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Large docs refactor (`#11641 <https://github.com/readthedocs/readthedocs.org/pull/11641>`__)
+* `@stsewd <https://github.com/stsewd>`__: ES: fix flaky test (`#11640 <https://github.com/readthedocs/readthedocs.org/pull/11640>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: add 429 handler (`#11639 <https://github.com/readthedocs/readthedocs.org/pull/11639>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: disable search filters for now (`#11638 <https://github.com/readthedocs/readthedocs.org/pull/11638>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use the latest Sphinx theme (`#11637 <https://github.com/readthedocs/readthedocs.org/pull/11637>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update Analytics pages in the docs (`#11636 <https://github.com/readthedocs/readthedocs.org/pull/11636>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update Business docs (`#11635 <https://github.com/readthedocs/readthedocs.org/pull/11635>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.8.1 (`#11634 <https://github.com/readthedocs/readthedocs.org/pull/11634>`__)
+* `@humitos <https://github.com/humitos>`__: Build: don't show listing or detail view if project is spam (`#11633 <https://github.com/readthedocs/readthedocs.org/pull/11633>`__)
+* `@humitos <https://github.com/humitos>`__: Domains: put a limit of 2 custom domains per project (`#11629 <https://github.com/readthedocs/readthedocs.org/pull/11629>`__)
+* `@stsewd <https://github.com/stsewd>`__: Addons: small improvements and privacy considerations (`#11561 <https://github.com/readthedocs/readthedocs.org/pull/11561>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: prepare Proxito and dashboard to enable them by default (`#11513 <https://github.com/readthedocs/readthedocs.org/pull/11513>`__)
+
 Version 11.8.1
 --------------
 

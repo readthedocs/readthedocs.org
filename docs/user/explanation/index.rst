@@ -5,7 +5,7 @@
 Explanation
 ===========
 
-⏩️ :doc:`/integrations`
+⏩️ :doc:`/continuous-deployment`
   A high-level introduction to *Continuous Documentation Deployment*.
 
 ⏩️ :doc:`/subprojects`

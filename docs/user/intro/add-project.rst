@@ -20,6 +20,12 @@ Automatically add your project
 #. Add a :term:`configuration file` to your repository if it's doesn't exist yet.
 #. Click on :guilabel:`This file exists`.
 
+.. seealso::
+
+   :doc:`/reference/git-integration`
+      Your project will be automatically configured with a Git integration.
+      Learn more about all the features enabled by that integration on this page.
+
 Manually add your project
 -------------------------
 

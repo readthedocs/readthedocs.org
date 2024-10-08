@@ -81,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "11.8.1"
+version = "11.9.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
@@ -167,7 +167,6 @@ html_js_files = ["js/expand_tabs.js"]
 html_logo = "img/logo.svg"
 html_theme_options = {
     "logo_only": True,
-    "display_version": False,
 }
 html_context = {
     # Fix the "edit on" links.
