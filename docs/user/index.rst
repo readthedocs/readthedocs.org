@@ -83,6 +83,7 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Business features
 
+   /commercial/index
    /commercial/organizations
    /commercial/single-sign-on
    /commercial/sharing
@@ -222,14 +223,14 @@ Business features
 
 Features for organizations and businesses:
 
-:doc:`/commercial/index`
-  Learn more about our commercial features.
-
 :doc:`/commercial/organizations`
   Learn how to manage your organization on Read the Docs.
 
 :doc:`/commercial/single-sign-on`
   Learn how to use single sign-on with Read the Docs.
+
+:doc:`/commercial/sharing`
+  Learn how to share your documentation with others.
 
 How-to guides
 -------------
