@@ -320,7 +320,7 @@ Analytics tools
 ~~~~~~~~~~~~~~~
 
 A tool like Google Analytics,
-along with our :doc:`integrated Read the Docs analytics </analytics>`,
+along with our :doc:`integrated Read the Docs analytics </traffic-analytics>`,
 can give you feedback about the search terms people use to find your docs,
 your most popular pages, and lots of other useful data.
 

@@ -239,9 +239,6 @@ Step-by-step guides for common tasks:
 :doc:`/guides/pull-requests`
   Setup pull request builds and enjoy previews of each commit.
 
-:doc:`/analytics`
-  Learn more about how users are interacting with your documentation.
-
 :doc:`/guides/cross-referencing-with-sphinx`
   Learn how to use cross-references in a Sphinx project.
 
