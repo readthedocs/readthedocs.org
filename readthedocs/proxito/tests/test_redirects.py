@@ -15,7 +15,7 @@ from .base import BaseDocServing
     PUBLIC_DOMAIN="dev.readthedocs.io",
     RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
     PUBLIC_DOMAIN_USES_HTTPS=True,
-    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME, value=2).to_item()]),
 )
 class RedirectTests(BaseDocServing):
     def test_root_url_no_slash(self):

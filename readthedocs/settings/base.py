@@ -170,7 +170,8 @@ class CommunityBaseSettings(Settings):
 
         return dict(
             (
-                RTDProductFeature(type=constants.TYPE_CNAME).to_item(),
+                # Max number of domains allowed per project.
+                RTDProductFeature(type=constants.TYPE_CNAME, value=2).to_item(),
                 RTDProductFeature(type=constants.TYPE_EMBED_API).to_item(),
                 # Retention days for search analytics.
                 RTDProductFeature(

@@ -36,6 +36,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
+from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -1808,6 +1809,9 @@ class Domain(TimeStampedModel):
         if not self.is_valid and self.validation_process_expired:
             self.validation_process_start = timezone.now()
             self.save()
+
+    def clean(self):
+        check_domains_limit(self.project)
 
     def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)

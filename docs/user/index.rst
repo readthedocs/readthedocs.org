@@ -70,7 +70,8 @@ Read the Docs: documentation simplified
    :caption: Maintaining projects
 
    /user-defined-redirects
-   /reference/analytics
+   /traffic-analytics
+   /search-analytics
    /security-log
    /badges
    /explanation/documentation-structure
@@ -82,11 +83,11 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Business features
 
-   /commercial/index
    /commercial/organizations
    /commercial/single-sign-on
    /commercial/sharing
    /commercial/subscriptions
+   /commercial/privacy-levels
 
 .. toctree::
    :maxdepth: 2
@@ -210,7 +211,7 @@ Keep your documentation up to date:
 :doc:`/user-defined-redirects`
   Redirect your old URLs to new ones.
 
-:doc:`/reference/analytics`
+:doc:`/traffic-analytics`
   Learn more about how users are interacting with your documentation.
 
 :doc:`/security-log`

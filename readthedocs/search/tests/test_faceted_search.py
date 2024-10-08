@@ -24,13 +24,14 @@ class TestPageSearch:
         results = page_search.execute()
 
         assert len(results) == 2
-        assert results[0]["project"] == "kuma"
-        assert results[0]["path"] == "testdocumentation"
-        assert results[0]["version"] == "latest"
 
-        assert results[1]["project"] == "kuma"
-        assert results[1]["path"] == "testdocumentation"
-        assert results[1]["version"] == "stable"
+        # Both versions have the same exact content.
+        # Order of results is not deterministic anymore for some reason,
+        # so we use a set to compare the results.
+        assert {result["version"] for result in results} == {"stable", "latest"}
+        for result in results:
+            assert result["project"] == "kuma"
+            assert result["path"] == "testdocumentation"
 
     def test_search_combined_result(self, client, project):
         """Check search result are combined of both `AND` and `OR` operator

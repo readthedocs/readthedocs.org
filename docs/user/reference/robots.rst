@@ -11,7 +11,7 @@ It's useful for:
 Read the Docs automatically generates one for you with a configuration that works for most projects.
 By default, the automatically created ``robots.txt``:
 
-* Hides versions which are set to :ref:`versions:Version states` from being indexed.
+* Hides versions which are set to :ref:`Hidden <versions:Version states>` from being indexed.
 * Allows indexing of all other versions.
 
 .. warning::

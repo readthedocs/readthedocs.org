@@ -479,7 +479,7 @@ class TestVersionCompareFooter(TestCase):
 @pytest.mark.proxito
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.io",
-    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME, value=2).to_item()]),
 )
 class TestFooterPerformance(TestCase):
     # The expected number of queries for generating the footer

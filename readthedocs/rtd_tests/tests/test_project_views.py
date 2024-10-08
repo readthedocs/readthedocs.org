@@ -372,6 +372,15 @@ class TestPublicViews(TestCase):
         self.assertNotIn(self.external_version, response.context["active_versions"])
         self.assertNotIn(self.external_version, response.context["inactive_versions"])
 
+    @mock.patch(
+        "readthedocs.projects.views.base.ProjectSpamMixin.is_show_dashboard_denied_wrapper",
+        mock.MagicMock(return_value=True),
+    )
+    def test_project_detail_view_spam_project(self):
+        url = reverse("projects_detail", args=[self.pip.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 410)
+
 
 @mock.patch("readthedocs.core.utils.trigger_build", mock.MagicMock())
 class TestPrivateViews(TestCase):
