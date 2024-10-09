@@ -527,7 +527,7 @@ Understanding traffic analytics
 
 The Traffic Analytics view gives you a simple overview of how your readers browse your documentation. It respects visitor privacy by not storing identifying information about your them.
 
-The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
+This page shows the most viewed documentation pages of the past 30 days,
 plus a visualization of the daily views during that period.
 
 To see the Traffic Analytics view, go back the :term:`project page` again,
