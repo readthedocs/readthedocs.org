@@ -2,13 +2,14 @@
 
 import textwrap
 
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.notifications.constants import INFO, WARNING
+from readthedocs.notifications.constants import TIP, WARNING
 from readthedocs.notifications.messages import Message, registry
 
 MESSAGE_EMAIL_VALIDATION_PENDING = "core:email:validation-pending"
-MESSAGE_BETA_DASHBOARD_AVAILABLE = "core:dashboard:beta-available"
+MESSAGE_NEW_DASHBOARD = "core:dashboard:new"
 messages = [
     Message(
         id=MESSAGE_EMAIL_VALIDATION_PENDING,
@@ -24,23 +25,35 @@ messages = [
         type=WARNING,
     ),
     Message(
-        id=MESSAGE_BETA_DASHBOARD_AVAILABLE,
-        header=_("New beta dashboard"),
-        body=_(
-            textwrap.dedent(
-                """
-                {% if RTD_EXT_THEME_ENABLED %}
-                This dashboard is currently in beta,
-                you can <a href="https://{{ PRODUCTION_DOMAIN }}">return to the legacy dashboard</a> if you encounter any problems.
-                Feel free to <a href="https://{{ PRODUCTION_DOMAIN }}/support/">report any feedback</a> you may have.
-                {% else %}
-                Our new <strong>beta dashboard</strong> is now available for testing.
-                <a href="https://app.{{ PRODUCTION_DOMAIN }}/">Give it a try</a> and send us feedback.
-                {% endif %}
+        id=MESSAGE_NEW_DASHBOARD,
+        # Skip translations on these because this has template logic inside the
+        # translation and we don't want to push that to our translations sources.
+        header=textwrap.dedent(
             """
-            ).strip(),
-        ),
-        type=INFO,
+            {% if RTD_EXT_THEME_ENABLED %}
+              Welcome to our new dashboard!
+            {% else %}
+              Try our new dashboard!
+            {% endif %}
+            """
+        ).strip(),
+        body=textwrap.dedent(
+            """
+            {% if RTD_EXT_THEME_ENABLED %}
+              Feel free to <a href="https://{{ PRODUCTION_DOMAIN }}/support/">contact us</a> if you have any questions or feedback.
+              If you encounter any problems, you can also <a href="https://{{ url_old_dashboard }}">return to the legacy dashboard</a>.
+            {% else %}
+              Our <strong>new dashboard</strong> is now available!
+              <a href="https://{{ url_new_dashboard }}">Try it out</a> and let us know what you think.
+            {% endif %}
+            """
+        ).strip(),
+        type=TIP,
+        icon_classes="fad fa-sparkles",
+        format_values={
+            "url_old_dashboard": settings.PRODUCTION_DOMAIN.removeprefix("app."),
+            "url_new_dashboard": f"app.{settings.PRODUCTION_DOMAIN}",
+        },
     ),
 ]
 

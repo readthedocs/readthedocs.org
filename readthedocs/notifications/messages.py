@@ -21,13 +21,15 @@ log = structlog.get_logger(__name__)
 
 
 class Message:
-    def __init__(self, id, header, body, type, icon_classes=None):
+    def __init__(self, id, header, body, type, icon_classes=None, format_values=None):
         self.id = id
         self.header = header
         self.body = body
         self.type = type  # (ERROR, WARNING, INFO, NOTE, TIP)
         self.icon_classes = icon_classes
-        self.format_values = {}
+        if format_values is None:
+            format_values = {}
+        self.format_values = format_values
 
     def __repr__(self):
         return f"<Message: {self.id}>"
@@ -36,7 +38,7 @@ class Message:
         return f"Message: {self.id} | {self.header}"
 
     def set_format_values(self, format_values):
-        self.format_values = format_values
+        self.format_values.update(format_values)
 
     def get_display_icon_classes(self):
         if self.icon_classes:
