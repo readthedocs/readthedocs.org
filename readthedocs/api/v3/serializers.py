@@ -785,6 +785,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             "translation_of",
             "urls",
             "tags",
+            "description",
             "privacy_level",
             "external_builds_privacy_level",
             "versioning_scheme",
