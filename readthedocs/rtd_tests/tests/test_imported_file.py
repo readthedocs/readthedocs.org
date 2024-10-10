@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
-from readthedocs.projects.tasks.search import _create_imported_files_and_search_index
+from readthedocs.projects.tasks.search import _get_indexers, _process_files
 from readthedocs.search.documents import PageDocument
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
@@ -46,11 +46,12 @@ class ImportedFileTests(TestCase):
         """Helper function for the tests to create and sync ImportedFiles."""
         search_ranking = search_ranking or {}
         search_ignore = search_ignore or []
-        return _create_imported_files_and_search_index(
+        indexers = _get_indexers(
             version=version,
             search_ranking=search_ranking,
             search_ignore=search_ignore,
         )
+        return _process_files(version=version, indexers=indexers)
 
     def _copy_storage_dir(self):
         """Copy the test directory (rtd_tests/files) to storage"""
