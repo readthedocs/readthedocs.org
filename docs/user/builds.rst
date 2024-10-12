@@ -91,7 +91,7 @@ Read the Docs supports three different mechanisms to cancel a running build:
    When Read the Docs detects a push to a version that is already building,
    it cancels the running build and starts a new build using the latest commit.
 
-:Programatically:
+:Programmatically:
 
    You can use user-defined commands on ``build.jobs`` or ``build.commands`` (see :doc:`build-customization`)
    to check for your own cancellation condition and then return exit code ``183`` to cancel a build.
