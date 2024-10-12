@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  codecov: codecov/codecov@3.2.2
-  node: circleci/node@5.1.0
+  codecov: codecov/codecov@4.2.0
+  node: circleci/node@6.2.0
 
 jobs:
   tests:
@@ -26,9 +26,11 @@ jobs:
       - run: git submodule update --init
       - run: sudo apt update
       - run: sudo apt install -y rclone
-      - run: pip install --user tox
+      - run: pipx install tox
       - run: tox -e py310
       - codecov/upload
+      - store_test_results:
+          path: test-results
 
   tests-ext-theme:
     docker:
@@ -50,8 +52,10 @@ jobs:
       - run: git submodule update --init
       - run: sudo apt update
       - run: sudo apt install -y rclone
-      - run: pip install --user tox
+      - run: pipx install tox
       - run: tox -e ext-theme
+      - store_test_results:
+          path: test-results
 
   tests-embedapi:
     docker:
@@ -60,9 +64,11 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run: pip install --user 'tox<4'
+      - run: pipx install 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
+      - store_test_results:
+          path: test-results
 
   checks:
     docker:
@@ -81,7 +87,7 @@ jobs:
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: pip install --user 'tox<5'
+      - run: pipx install 'tox<5'
       - run: tox -e pre-commit
       - run: tox -e migrations
       - node/install:
@@ -94,7 +100,6 @@ jobs:
           - ~/.cache/pre-commit
 
 workflows:
-  version: 2
   test:
     jobs:
       - checks
