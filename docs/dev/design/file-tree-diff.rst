@@ -311,7 +311,7 @@ For the initial implementation, we will:
   not the whole file.
 - MD5 will be the hashing algorithm used.
 - Only expose the files that were added, removed, or modified (HTML files only).
-  The number of lines that changed wont be exposed.
+  The number of lines that changed won't be exposed.
 - Don't store the results in the DB,
   we can store the results in a next iteration.
 - Expose this feature only via the addons feature.
@@ -320,7 +320,7 @@ For the initial implementation, we will:
 
 Other features that are not mentioned here, like exposing the number of lines that changed,
 or a public API, will not be implemented in the initial version,
-and may be considered in the future (and thier implementation is subject to change).
+and may be considered in the future (and their implementation is subject to change).
 
 Possible issues
 ---------------
@@ -350,7 +350,7 @@ Future improvements and ideas
   we would need to re-fetch that metadata from S3.
   Could be a feature request for rclone.
 - Detect changes in sections of HTML files.
-  We could re-use the code we have for search indexing.
+  We could reuse the code we have for search indexing.
 - Expand to other file types
 - Allow doing a diff between versions of different projects
 - Allow to configure how the main content of the file is detected
