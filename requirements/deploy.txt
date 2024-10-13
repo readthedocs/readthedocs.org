@@ -23,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.34
+boto3==1.35.39
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.34
+botocore==1.35.39
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -48,7 +48,7 @@ cffi==1.17.1
     # via
     #   -r requirements/pip.txt
     #   cryptography
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -91,7 +91,7 @@ cssselect==1.2.0
     #   pyquery
 decorator==5.1.1
     # via ipython
-distlib==0.3.8
+distlib==0.3.9
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -131,7 +131,7 @@ django-cacheops==7.0.2
     # via -r requirements/pip.txt
 django-celery-beat==2.7.0
     # via -r requirements/pip.txt
-django-cors-headers==4.4.0
+django-cors-headers==4.5.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -190,7 +190,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.15.0
+elastic-transport==8.15.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -198,7 +198,7 @@ elasticsearch==8.15.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.15.3
+elasticsearch-dsl==8.15.4
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -226,7 +226,7 @@ idna==3.10
     #   requests
 ipython==8.28.0
     # via -r requirements/deploy.in
-isodate==0.6.1
+isodate==0.7.2
     # via
     #   -r requirements/pip.txt
     #   python3-saml
@@ -263,7 +263,7 @@ markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==10.0.0
+newrelic==10.1.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
@@ -366,13 +366,13 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-s3transfer==0.10.2
+s3transfer==0.10.3
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.21
+selectolax==0.3.24
     # via -r requirements/pip.txt
-sentry-sdk==2.15.0
+sentry-sdk==2.16.0
     # via structlog-sentry
 six==1.16.0
     # via
@@ -380,7 +380,6 @@ six==1.16.0
     #   asttokens
     #   django-annoying
     #   django-elasticsearch-dsl
-    #   isodate
     #   python-dateutil
     #   unicode-slugify
 slumber==0.7.1
