@@ -85,7 +85,7 @@ jobs:
       - run: tox -e pre-commit
       - run: tox -e migrations
       - node/install:
-          node-version: '10.17.0'
+          node-version: '20.17.0'
       - run: npm ci
       - run: tox -e eslint
       - save_cache:
