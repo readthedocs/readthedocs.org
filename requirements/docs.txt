@@ -16,7 +16,7 @@ babel==2.16.0
     #   sphinx-intl
 certifi==2024.8.30
     # via requests
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 click==8.1.7
     # via
@@ -57,7 +57,7 @@ markdown-it-py==3.0.0
     # via
     #   mdit-py-plugins
     #   myst-parser
-markupsafe==2.1.5
+markupsafe==3.0.1
     # via jinja2
 matplotlib==3.9.2
     # via -r requirements/docs.in
@@ -133,9 +133,9 @@ sphinx-notfound-page==1.0.4
     # via -r requirements/docs.in
 sphinx-prompt==1.8.0
     # via -r requirements/docs.in
-sphinx-rtd-theme==3.0.0
+sphinx-rtd-theme==3.0.1
     # via -r requirements/docs.in
-sphinx-tabs==3.4.5
+sphinx-tabs==3.4.7
     # via -r requirements/docs.in
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
@@ -171,7 +171,7 @@ typing-extensions==4.12.2
     #   uvicorn
 urllib3==2.2.3
     # via requests
-uvicorn==0.31.0
+uvicorn==0.31.1
     # via sphinx-autobuild
 watchfiles==0.24.0
     # via sphinx-autobuild

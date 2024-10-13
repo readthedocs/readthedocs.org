@@ -14,9 +14,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.34
+boto3==1.35.39
     # via django-storages
-botocore==1.35.34
+botocore==1.35.39
     # via
     #   boto3
     #   s3transfer
@@ -32,7 +32,7 @@ certifi==2024.8.30
     #   requests
 cffi==1.17.1
     # via cryptography
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 click==8.1.7
     # via
@@ -57,7 +57,7 @@ cryptography==43.0.1
     #   pyjwt
 cssselect==1.2.0
     # via pyquery
-distlib==0.3.8
+distlib==0.3.9
     # via virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.in
@@ -95,7 +95,7 @@ django-cacheops==7.0.2
     # via -r requirements/pip.in
 django-celery-beat==2.7.0
     # via -r requirements/pip.in
-django-cors-headers==4.4.0
+django-cors-headers==4.5.0
     # via -r requirements/pip.in
 django-crispy-forms==1.14.0
     # via -r requirements/pip.in
@@ -152,13 +152,13 @@ drf-extensions==0.7.1
     # via -r requirements/pip.in
 drf-flex-fields==1.0.2
     # via -r requirements/pip.in
-elastic-transport==8.15.0
+elastic-transport==8.15.1
     # via elasticsearch
 elasticsearch==8.15.1
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
-elasticsearch-dsl==8.15.3
+elasticsearch-dsl==8.15.4
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -172,7 +172,7 @@ gunicorn==23.0.0
     # via -r requirements/pip.in
 idna==3.10
     # via requests
-isodate==0.6.1
+isodate==0.7.2
     # via python3-saml
 jmespath==1.0.1
     # via
@@ -265,15 +265,14 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
-s3transfer==0.10.2
+s3transfer==0.10.3
     # via boto3
-selectolax==0.3.21
+selectolax==0.3.24
     # via -r requirements/pip.in
 six==1.16.0
     # via
     #   django-annoying
     #   django-elasticsearch-dsl
-    #   isodate
     #   python-dateutil
     #   unicode-slugify
 slumber==0.7.1
