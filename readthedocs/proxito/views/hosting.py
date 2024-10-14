@@ -494,7 +494,8 @@ class AddonsResponseBase:
                             f"subprojects:{project.slug}/{version.slug}",
                         ],
                     ]
-                    if project.subprojects.exists()
+                    # Show the subprojects filter on the parent project and subproject
+                    if project.subprojects.exists() or project.superprojects.exists()
                     else [],
                     "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
