@@ -83,11 +83,12 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Business features
 
+   /commercial/index
    /commercial/organizations
    /commercial/single-sign-on
    /commercial/sharing
    /commercial/subscriptions
-   /commercial/privacy-levels
+   /commercial/privacy-level
 
 .. toctree::
    :maxdepth: 2
@@ -222,14 +223,14 @@ Business features
 
 Features for organizations and businesses:
 
-:doc:`/commercial/index`
-  Learn more about our commercial features.
-
 :doc:`/commercial/organizations`
   Learn how to manage your organization on Read the Docs.
 
 :doc:`/commercial/single-sign-on`
   Learn how to use single sign-on with Read the Docs.
+
+:doc:`/commercial/sharing`
+  Learn how to share your documentation with others.
 
 How-to guides
 -------------
@@ -238,9 +239,6 @@ Step-by-step guides for common tasks:
 
 :doc:`/guides/pull-requests`
   Setup pull request builds and enjoy previews of each commit.
-
-:doc:`/analytics`
-  Learn more about how users are interacting with your documentation.
 
 :doc:`/guides/cross-referencing-with-sphinx`
   Learn how to use cross-references in a Sphinx project.
