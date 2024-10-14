@@ -489,12 +489,12 @@ class AddonsResponseBase:
                         # to the user's query.
                         # It uses "Search query sintax":
                         # https://docs.readthedocs.io/en/stable/server-side-search/syntax.html
-                        # [
-                        #     "Include subprojects",
-                        #     f"subprojects:{project.slug}/{version.slug}",
-                        # ],
+                        [
+                            "Include subprojects",
+                            f"subprojects:{project.slug}/{version.slug}",
+                        ],
                     ]
-                    if version
+                    if project.subprojects.exists()
                     else [],
                     "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
