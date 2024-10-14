@@ -489,14 +489,11 @@ class AddonsResponseBase:
                         # to the user's query.
                         # It uses "Search query sintax":
                         # https://docs.readthedocs.io/en/stable/server-side-search/syntax.html
-                        [
-                            "Include subprojects",
-                            f"subprojects:{project.slug}/{version.slug}",
-                        ],
-                    ]
-                    # Show the subprojects filter on the parent project and subproject
-                    if project.subprojects.exists() or project.superprojects.exists()
-                    else [],
+                        # [
+                        #     "Include subprojects",
+                        #     f"subprojects:{project.slug}/{version.slug}",
+                        # ],
+                    ],
                     "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
                     else None,
@@ -514,6 +511,23 @@ class AddonsResponseBase:
                 },
             },
         }
+
+        # Show the subprojects filter on the parent project and subproject
+        if project.subprojects.exists():
+            data["addons"]["search"]["filters"].append(
+                [
+                    "Include subprojects",
+                    f"subprojects:{project.slug}/{version.slug}",
+                ]
+            )
+        if project.superprojects.exists():
+            superproject = project.superprojects.first()
+            data["addons"]["search"]["filters"].append(
+                [
+                    "Include subprojects",
+                    f"subprojects:{superproject.slug}/{version.slug}",
+                ]
+            )
 
         # DocDiff depends on `url=` GET attribute.
         # This attribute allows us to know the exact filename where the request was made.
