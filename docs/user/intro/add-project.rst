@@ -13,7 +13,7 @@ Automatically add your project
 
 #. Go to your :term:`dashboard`.
 #. Click on :guilabel:`Add project`.
-#. Type the name of the respository you want to add and click on it.
+#. Type the name of the repository you want to add and click on it.
 #. Click on :guilabel:`Continue`.
 #. Edit any of the pre-filled fields with information of the repository.
 #. Click on :guilabel:`Next`.

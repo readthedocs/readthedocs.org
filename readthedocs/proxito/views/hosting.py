@@ -493,9 +493,7 @@ class AddonsResponseBase:
                         #     "Include subprojects",
                         #     f"subprojects:{project.slug}/{version.slug}",
                         # ],
-                    ]
-                    if version
-                    else [],
+                    ],
                     "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
                     else None,
@@ -513,6 +511,28 @@ class AddonsResponseBase:
                 },
             },
         }
+
+        # Show the subprojects filter on the parent project and subproject
+        if version:
+            # TODO: Remove these queries and try to find a way to get this data
+            # from the resolver, which has already done these queries.
+            # TODO: Replace this fixed filters with the work proposed in
+            # https://github.com/readthedocs/addons/issues/22
+            if project.subprojects.exists():
+                data["addons"]["search"]["filters"].append(
+                    [
+                        "Include subprojects",
+                        f"subprojects:{project.slug}/{version.slug}",
+                    ]
+                )
+            if project.superprojects.exists():
+                superproject = project.superprojects.first().parent
+                data["addons"]["search"]["filters"].append(
+                    [
+                        "Include subprojects",
+                        f"subprojects:{superproject.slug}/{version.slug}",
+                    ]
+                )
 
         # DocDiff depends on `url=` GET attribute.
         # This attribute allows us to know the exact filename where the request was made.
