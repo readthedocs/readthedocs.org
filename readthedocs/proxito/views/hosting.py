@@ -515,6 +515,8 @@ class AddonsResponseBase:
         # Show the subprojects filter on the parent project and subproject
         # TODO: Remove these queries and try to find a way to get this data
         # from the resolver, which has already done these queries.
+        # TODO: Replace this fixed filters with the work proposed in
+        # https://github.com/readthedocs/addons/issues/22
         if project.subprojects.exists():
             data["addons"]["search"]["filters"].append(
                 [
