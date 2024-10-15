@@ -53,6 +53,11 @@
       "content": ""
     },
     {
+      "content": "Contributing How to contribute changes to the theme.",
+      "id": "development",
+      "title": "Development"
+    },
+    {
       "id": "subsub-title",
       "title": "Subsub title",
       "content": "This is a H3 title. Fig. 4 I'm a figure!"

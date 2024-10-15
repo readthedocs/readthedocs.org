@@ -118,7 +118,7 @@ Authenticated redirect
 If you want to share documentation with a group of users,
 you need to authenticate those users against your own system first.
 The simplest way to do this is to create an authenticated redirect on your site,
-which then redirects to the Read the Docs :ref:`Secret link`.
+which then redirects to the Read the Docs :ref:`commercial/sharing:secret link`.
 
 This should require very little customization,
 and will ensure that only authenticated users can access the documentation.
@@ -134,7 +134,7 @@ and then proxies the request to Read the Docs.
 This is more complex to set up,
 but will allow users to access the documentation directly from a bookmark,
 
-This approach would use a :ref:`HTTP Authorization Header` to authenticate users,
+This approach would use a :ref:`commercial/sharing:HTTP Authorization Header` to authenticate users,
 and would be configured in your proxy server.
 
 Proxy example
