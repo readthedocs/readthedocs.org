@@ -62,8 +62,8 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
-    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
     ADDONS_FLYOUT_SORTING_CHOICES,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -187,8 +187,9 @@ class AddonsConfig(TimeStampedModel):
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
     flyout_sorting = models.CharField(
+        verbose_name=_("Sorting of versions"),
         choices=ADDONS_FLYOUT_SORTING_CHOICES,
-        default=ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+        default=ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
         max_length=64,
     )
     flyout_sorting_custom_pattern = models.CharField(
@@ -196,12 +197,15 @@ class AddonsConfig(TimeStampedModel):
         default=None,
         null=True,
         blank=True,
+        verbose_name=_("Custom version sorting pattern"),
         help_text="Sorting pattern supported by BumpVer "
         '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
     )
     flyout_sorting_latest_stable_at_beginning = models.BooleanField(
+        verbose_name=_(
+            "Show <code>latest</code> and <code>stable</code> at the beginning"
+        ),
         default=True,
-        help_text="Show <code>latest</code> and <code>stable</code> at the beginning",
     )
 
     # Hotkeys
