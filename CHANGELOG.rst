@@ -1,3 +1,29 @@
+Version 11.10.0
+---------------
+
+:Date: October 15, 2024
+
+* `@humitos <https://github.com/humitos>`__: Docs: recover "Edit on GitHub" links (`#11681 <https://github.com/readthedocs/readthedocs.org/pull/11681>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: fix proxito header (`#11680 <https://github.com/readthedocs/readthedocs.org/pull/11680>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Accidentally a word (`#11679 <https://github.com/readthedocs/readthedocs.org/pull/11679>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Link to new dashboard Addons page in old dashboard settings. (`#11678 <https://github.com/readthedocs/readthedocs.org/pull/11678>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscription: better feature description (`#11676 <https://github.com/readthedocs/readthedocs.org/pull/11676>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sitemap: don't include hidden versions (`#11675 <https://github.com/readthedocs/readthedocs.org/pull/11675>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Enable subproject filters for projects with subprojects (`#11674 <https://github.com/readthedocs/readthedocs.org/pull/11674>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove session fallback cookie (`#11673 <https://github.com/readthedocs/readthedocs.org/pull/11673>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: make "pending configuration" dismissable (`#11670 <https://github.com/readthedocs/readthedocs.org/pull/11670>`__)
+* `@cclauss <https://github.com/cclauss>`__: codespell the docs directory (`#11664 <https://github.com/readthedocs/readthedocs.org/pull/11664>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix analytics links (`#11661 <https://github.com/readthedocs/readthedocs.org/pull/11661>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.9.0 (`#11659 <https://github.com/readthedocs/readthedocs.org/pull/11659>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: respect spacing from block elements when indexing (`#11658 <https://github.com/readthedocs/readthedocs.org/pull/11658>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: update copy since it's a past date (`#11657 <https://github.com/readthedocs/readthedocs.org/pull/11657>`__)
+* `@browniebroke <https://github.com/browniebroke>`__: Simplify instructions for installing dependencies with uv (`#11655 <https://github.com/readthedocs/readthedocs.org/pull/11655>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11650 <https://github.com/readthedocs/readthedocs.org/pull/11650>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: refactor search indexing process (`#11643 <https://github.com/readthedocs/readthedocs.org/pull/11643>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: disable search filters for now (`#11638 <https://github.com/readthedocs/readthedocs.org/pull/11638>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version file tree diff: design doc (`#11507 <https://github.com/readthedocs/readthedocs.org/pull/11507>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move parser tests from rtd-build repo (`#4225 <https://github.com/readthedocs/readthedocs.org/pull/4225>`__)
+
 Version 11.9.0
 --------------
 
