@@ -350,6 +350,7 @@ class AddonsResponseBase:
                         version.verbose_name,
                         repo_type=project.repo_type,
                     ),
+                    reverse=True,
                 )
             elif (
                 project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING

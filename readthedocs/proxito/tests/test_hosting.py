@@ -575,15 +575,15 @@ class TestReadTheDocsConfigJson(TestCase):
             r.json()["versions"]["active"][0]["urls"]["documentation"]
             == "https://project.dev.readthedocs.io/projects/subproject/en/latest/"
         )
-        assert r.json()["versions"]["active"][1]["slug"] == "v1"
+        assert r.json()["versions"]["active"][1]["slug"] == "v2.3"
         assert (
             r.json()["versions"]["active"][1]["urls"]["documentation"]
-            == "https://project.dev.readthedocs.io/projects/subproject/en/v1/"
+            == "https://project.dev.readthedocs.io/projects/subproject/en/v2.3/"
         )
-        assert r.json()["versions"]["active"][2]["slug"] == "v2.3"
+        assert r.json()["versions"]["active"][2]["slug"] == "v1"
         assert (
             r.json()["versions"]["active"][2]["urls"]["documentation"]
-            == "https://project.dev.readthedocs.io/projects/subproject/en/v2.3/"
+            == "https://project.dev.readthedocs.io/projects/subproject/en/v1/"
         )
 
         assert len(r.json()["projects"]["translations"]) == 1
