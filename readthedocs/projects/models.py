@@ -36,6 +36,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
+from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -61,8 +62,8 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
-    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
     ADDONS_FLYOUT_SORTING_CHOICES,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -186,8 +187,9 @@ class AddonsConfig(TimeStampedModel):
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
     flyout_sorting = models.CharField(
+        verbose_name=_("Sorting of versions"),
         choices=ADDONS_FLYOUT_SORTING_CHOICES,
-        default=ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+        default=ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
         max_length=64,
     )
     flyout_sorting_custom_pattern = models.CharField(
@@ -195,12 +197,15 @@ class AddonsConfig(TimeStampedModel):
         default=None,
         null=True,
         blank=True,
+        verbose_name=_("Custom version sorting pattern"),
         help_text="Sorting pattern supported by BumpVer "
         '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
     )
     flyout_sorting_latest_stable_at_beginning = models.BooleanField(
+        verbose_name=_(
+            "Show <code>latest</code> and <code>stable</code> at the beginning"
+        ),
         default=True,
-        help_text="Show <code>latest</code> and <code>stable</code> at the beginning",
     )
 
     # Hotkeys
@@ -1808,6 +1813,9 @@ class Domain(TimeStampedModel):
         if not self.is_valid and self.validation_process_expired:
             self.validation_process_start = timezone.now()
             self.save()
+
+    def clean(self):
+        check_domains_limit(self.project)
 
     def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)

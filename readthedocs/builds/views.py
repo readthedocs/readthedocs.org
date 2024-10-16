@@ -22,6 +22,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build, trigger_build
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import Project
+from readthedocs.projects.views.base import ProjectSpamMixin
 
 log = structlog.get_logger(__name__)
 
@@ -124,8 +125,19 @@ class BuildTriggerMixin:
         )
 
 
-class BuildList(FilterContextMixin, BuildBase, BuildTriggerMixin, ListView):
+class BuildList(
+    FilterContextMixin,
+    ProjectSpamMixin,
+    BuildBase,
+    BuildTriggerMixin,
+    ListView,
+):
     filterset_class = BuildListFilter
+
+    def get_project(self):
+        # Call ``.get_queryset()`` to get the current project from ``kwargs``
+        self.get_queryset()
+        return self.project
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -154,8 +166,11 @@ class BuildList(FilterContextMixin, BuildBase, BuildTriggerMixin, ListView):
         return context
 
 
-class BuildDetail(BuildBase, DetailView):
+class BuildDetail(BuildBase, ProjectSpamMixin, DetailView):
     pk_url_kwarg = "build_pk"
+
+    def get_project(self):
+        return self.get_object().project
 
     @method_decorator(login_required)
     def post(self, request, project_slug, build_pk):

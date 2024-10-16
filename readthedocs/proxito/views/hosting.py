@@ -351,6 +351,7 @@ class AddonsResponseBase:
                         version.verbose_name,
                         repo_type=project.repo_type,
                     ),
+                    reverse=True,
                 )
             elif (
                 project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
@@ -478,15 +479,23 @@ class AddonsResponseBase:
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,
-                    # TODO: figure it out where this data comes from
+                    # TODO: figure it out where this data comes from.
+                    #
+                    # Originally, this was thought to be customizable by the user
+                    # adding these filters from the Admin UI.
+                    #
+                    # I'm removing this feature for now until we implement it correctly.
                     "filters": [
-                        [
-                            "Include subprojects",
-                            f"subprojects:{project.slug}/{version.slug}",
-                        ],
-                    ]
-                    if version
-                    else [],
+                        # NOTE: this is an example of the structure of the this object.
+                        # It contains the name of the filter and the search syntax to prepend
+                        # to the user's query.
+                        # It uses "Search query sintax":
+                        # https://docs.readthedocs.io/en/stable/server-side-search/syntax.html
+                        # [
+                        #     "Include subprojects",
+                        #     f"subprojects:{project.slug}/{version.slug}",
+                        # ],
+                    ],
                     "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
                     else None,
@@ -523,6 +532,28 @@ class AddonsResponseBase:
                         "enabled": True,
                         "diff": diff_result,
                     }
+                )
+
+        # Show the subprojects filter on the parent project and subproject
+        if version:
+            # TODO: Remove these queries and try to find a way to get this data
+            # from the resolver, which has already done these queries.
+            # TODO: Replace this fixed filters with the work proposed in
+            # https://github.com/readthedocs/addons/issues/22
+            if project.subprojects.exists():
+                data["addons"]["search"]["filters"].append(
+                    [
+                        "Include subprojects",
+                        f"subprojects:{project.slug}/{version.slug}",
+                    ]
+                )
+            if project.superprojects.exists():
+                superproject = project.superprojects.first().parent
+                data["addons"]["search"]["filters"].append(
+                    [
+                        "Include subprojects",
+                        f"subprojects:{superproject.slug}/{version.slug}",
+                    ]
                 )
 
         # DocDiff depends on `url=` GET attribute.

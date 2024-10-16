@@ -17,7 +17,7 @@ It contains information such as:
 * What translations are available for a page.
 
 Read the Docs automatically generates a ``sitemap.xml`` for your project,
-by default the sitemap includes each version of your documentation and when it was last updated,
+the sitemap includes :ref:`public and not hidden versions <versions:Version states>` of your documentation and when it were last updated,
 sorted by version number.
 
 This allows search engines to prioritize results based on the version number,

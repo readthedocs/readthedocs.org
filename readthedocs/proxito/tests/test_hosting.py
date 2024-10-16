@@ -575,15 +575,15 @@ class TestReadTheDocsConfigJson(TestCase):
             r.json()["versions"]["active"][0]["urls"]["documentation"]
             == "https://project.dev.readthedocs.io/projects/subproject/en/latest/"
         )
-        assert r.json()["versions"]["active"][1]["slug"] == "v1"
+        assert r.json()["versions"]["active"][1]["slug"] == "v2.3"
         assert (
             r.json()["versions"]["active"][1]["urls"]["documentation"]
-            == "https://project.dev.readthedocs.io/projects/subproject/en/v1/"
+            == "https://project.dev.readthedocs.io/projects/subproject/en/v2.3/"
         )
-        assert r.json()["versions"]["active"][2]["slug"] == "v2.3"
+        assert r.json()["versions"]["active"][2]["slug"] == "v1"
         assert (
             r.json()["versions"]["active"][2]["urls"]["documentation"]
-            == "https://project.dev.readthedocs.io/projects/subproject/en/v2.3/"
+            == "https://project.dev.readthedocs.io/projects/subproject/en/v1/"
         )
 
         assert len(r.json()["projects"]["translations"]) == 1
@@ -736,7 +736,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(22):
+        with self.assertNumQueries(24):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -765,7 +765,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(26):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -801,7 +801,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(31):
+        with self.assertNumQueries(35):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -827,7 +827,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(60):
+        with self.assertNumQueries(62):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
