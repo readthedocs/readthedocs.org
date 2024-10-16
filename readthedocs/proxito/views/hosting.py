@@ -312,6 +312,15 @@ class AddonsResponseBase:
             include_hidden=False,
         )
 
+    def _has_permission(self, user, version):
+        """
+        Check if `user` is authorized to access `version`.
+
+        This is mainly to be overridden in .com to make use of
+        the auth backends in the proxied API.
+        """
+        return True
+
     def _v1(self, project, version, build, filename, url, request):
         """
         Initial JSON data structure consumed by the JavaScript client.
@@ -517,22 +526,11 @@ class AddonsResponseBase:
             },
         }
 
-        if version.is_external:
-            # TODO: check if the user has access to this version.
-            latest_version = project.get_latest_version()
-            diff = get_diff(version_a=version, version_b=latest_version)
-            if diff:
-                diff_result = {
-                    "added": [{"file": file} for file in diff.added],
-                    "removed": [{"file": file} for file in diff.removed],
-                    "modified": [{"file": file} for file in diff.modified],
-                }
-                data["addons"]["filetreediff"].update(
-                    {
-                        "enabled": True,
-                        "diff": diff_result,
-                    }
-                )
+        response = self._get_filetreediff_response(
+            user=user, project=project, version=version
+        )
+        if response:
+            data["addons"]["filetreediff"].update(response)
 
         # Show the subprojects filter on the parent project and subproject
         if version:
@@ -614,6 +612,30 @@ class AddonsResponseBase:
             )
 
         return data
+
+    def _get_filetreediff_response(self, *, user, project, version):
+        if not version or not version.is_external:
+            return None
+
+        latest_version = project.get_latest_version()
+        if not latest_version or not self._has_permission(
+            user=user, version=latest_version
+        ):
+            return None
+
+        diff = get_diff(version_a=version, version_b=latest_version)
+        if not diff:
+            return None
+
+        return {
+            "enabled": True,
+            "outdated": diff.outdated,
+            "diff": {
+                "added": [{"file": file} for file in diff.added],
+                "removed": [{"file": file} for file in diff.removed],
+                "modified": [{"file": file} for file in diff.modified],
+            },
+        }
 
     def _v2(self, project, version, build, filename, url, user):
         return {

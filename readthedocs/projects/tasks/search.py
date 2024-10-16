@@ -4,7 +4,7 @@ import structlog
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff import write_manifest
+from readthedocs.filetreediff import FileTreeFile, FileTreeManifest, write_manifest
 from readthedocs.projects.models import Feature, HTMLFile, Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
@@ -131,17 +131,13 @@ class FileManifestIndexer(Indexer):
         self._hashes[html_file.path] = html_file.processed_json["main_content_hash"]
 
     def collect(self, sync_id: int):
-        manifest = {
-            "build": {
-                "id": self.build.id,
-            },
-            "files": {
-                path: {
-                    "hash": hash,
-                }
+        manifest = FileTreeManifest(
+            build_id=self.build.id,
+            files=[
+                FileTreeFile(path=path, main_content_hash=hash)
                 for path, hash in self._hashes.items()
-            },
-        }
+            ],
+        )
         write_manifest(self.version, manifest)
 
 
