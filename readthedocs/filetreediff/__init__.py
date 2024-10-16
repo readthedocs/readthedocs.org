@@ -54,7 +54,7 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
         if not manifest:
             return None
 
-        latest_build = version_a.latest_successful_build
+        latest_build = version.latest_successful_build
         if not latest_build:
             return None
 

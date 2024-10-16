@@ -526,14 +526,14 @@ class AddonsResponseBase:
             },
         }
 
-        response = self._get_filetreediff_response(
-            user=user, project=project, version=version
-        )
-        if response:
-            data["addons"]["filetreediff"].update(response)
-
-        # Show the subprojects filter on the parent project and subproject
         if version:
+            response = self._get_filetreediff_response(
+                user=user, project=project, version=version
+            )
+            if response:
+                data["addons"]["filetreediff"].update(response)
+
+            # Show the subprojects filter on the parent project and subproject
             # TODO: Remove these queries and try to find a way to get this data
             # from the resolver, which has already done these queries.
             # TODO: Replace this fixed filters with the work proposed in
@@ -614,7 +614,7 @@ class AddonsResponseBase:
         return data
 
     def _get_filetreediff_response(self, *, user, project, version):
-        if not version or not version.is_external:
+        if not version.is_external:
             return None
 
         latest_version = project.get_latest_version()
