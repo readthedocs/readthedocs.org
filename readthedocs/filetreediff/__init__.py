@@ -41,7 +41,7 @@ class FileTreeManifest:
 @dataclass
 class FileTreeDiff:
     added: list[str]
-    removed: list[str]
+    deleted: list[str]
     modified: list[str]
     outdated: bool = False
 
@@ -68,7 +68,7 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
     files_b = set(version_b_manifest.files.keys())
 
     files_added = list(files_a - files_b)
-    files_removed = list(files_b - files_a)
+    files_deleted = list(files_b - files_a)
     files_modified = []
     for file_path in files_a & files_b:
         file_a = version_a_manifest.files[file_path]
@@ -78,7 +78,7 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
 
     return FileTreeDiff(
         added=files_added,
-        removed=files_removed,
+        deleted=files_deleted,
         modified=files_modified,
         outdated=outdated,
     )
