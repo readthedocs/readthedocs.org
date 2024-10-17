@@ -614,6 +614,12 @@ class AddonsResponseBase:
         return data
 
     def _get_filetreediff_response(self, *, user, project, version):
+        """
+        Get the file tree diff response for the given version.
+
+        This response is only enabled for external versions,
+        we do the comparison between the current version and the latest version.
+        """
         if not version.is_external:
             return None
 

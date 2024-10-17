@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 @dataclass(slots=True)
 class FileTreeBuild:
+
     """The build associated with a file tree manifest."""
 
     id: int
@@ -10,6 +11,7 @@ class FileTreeBuild:
 
 @dataclass(slots=True)
 class FileTreeFile:
+
     """A file in a file tree manifest."""
 
     path: str
@@ -18,6 +20,7 @@ class FileTreeFile:
 
 @dataclass(slots=True)
 class FileTreeManifest:
+
     """A list of files and the build associated with them."""
 
     files: dict[str, FileTreeFile]
@@ -45,6 +48,7 @@ class FileTreeManifest:
 
 @dataclass
 class FileTreeDiff:
+
     """Difference between two file tree manifests."""
 
     added: list[str]
