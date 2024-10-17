@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Build
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks.search import _get_indexers, _process_files
 from readthedocs.search.documents import PageDocument
@@ -44,12 +45,20 @@ class ImportedFileTests(TestCase):
 
     def _manage_imported_files(self, version, search_ranking=None, search_ignore=None):
         """Helper function for the tests to create and sync ImportedFiles."""
-        search_ranking = search_ranking or {}
-        search_ignore = search_ignore or []
+        # Create a temporal build object just to pass the search configuration.
+        build = Build(
+            project=self.project,
+            version=version,
+            config={
+                "search": {
+                    "ranking": search_ranking or {},
+                    "ignore": search_ignore or [],
+                }
+            },
+        )
         indexers = _get_indexers(
             version=version,
-            search_ranking=search_ranking,
-            search_ignore=search_ignore,
+            build=build,
         )
         return _process_files(version=version, indexers=indexers)
 
