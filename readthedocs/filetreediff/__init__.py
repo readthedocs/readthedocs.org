@@ -56,8 +56,7 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
 
         manifests.append(manifest)
 
-    # Just to make pylint happy
-    assert len(manifests) == 2
+    # pylint: disable=unbalanced-tuple-unpacking
     version_a_manifest, version_b_manifest = manifests
     files_a = set(version_a_manifest.files.keys())
     files_b = set(version_b_manifest.files.keys())
