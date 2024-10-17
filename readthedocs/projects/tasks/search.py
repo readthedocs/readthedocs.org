@@ -169,9 +169,7 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
     has_feature = version.project.has_feature(
         Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF
     )
-    create_manifest = has_feature and (
-        version.is_external or version == version.slug == LATEST
-    )
+    create_manifest = has_feature and (version.is_external or version.slug == LATEST)
     if create_manifest:
         file_manifest_indexer = FileManifestIndexer(
             version=version,
