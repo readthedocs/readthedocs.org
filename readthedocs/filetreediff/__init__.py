@@ -1,52 +1,45 @@
+"""
+Module for the file tree diff feature (FTD).
+
+This feature is used to compare the files of two versions of a project.
+
+The process is as follows:
+
+- A build is triggered for a version.
+- A task is triggered after the build has succeeded
+  to generate a manifest of the files of the version.
+  Currently, we only consider the latest version and pull request previews.
+- The manifest contains the hash of the main content of each file.
+  Only HTML files are considered for now.
+- The manifest is stored in the diff media storage.
+- Then our application can compare the manifest to get a list of added,
+  deleted, and modified files between two versions.
+"""
+
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 
 from readthedocs.builds.models import Version
+from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
 from readthedocs.storage import build_media_storage
 
 MANIFEST_FILE_NAME = "manifest.json"
 
 
-@dataclass(slots=True)
-class FileTreeBuild:
-    id: int
-
-
-@dataclass(slots=True)
-class FileTreeFile:
-    path: str
-    main_content_hash: str
-
-
-@dataclass(slots=True)
-class FileTreeManifest:
-    files: dict[str, FileTreeFile]
-    build: FileTreeBuild
-
-    def __init__(self, build_id: int, files: list[FileTreeFile]):
-        self.build = FileTreeBuild(id=build_id)
-        self.files = {file.path: file for file in files}
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "FileTreeManifest":
-        build_id = data["build"]["id"]
-        files = [
-            FileTreeFile(path=path, main_content_hash=file["main_content_hash"])
-            for path, file in data["files"].items()
-        ]
-        return cls(build_id, files)
-
-
-@dataclass
-class FileTreeDiff:
-    added: list[str]
-    deleted: list[str]
-    modified: list[str]
-    outdated: bool = False
-
-
 def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
+    """
+    Get the file tree diff between two versions.
+
+    If any of the versions don't have a manifest, return None.
+    If the latest build of any of the versions is different from the manifest build,
+    the diff is marked as outdated. The client is responsible for deciding
+    how to handle this case.
+
+    Set operations are used to calculate the added, deleted, and modified files.
+    To get the modified files, we compare the main content hash of each common file.
+    If there are no changes between the versions, all lists will be empty.
+    """
     outdated = False
     manifests: list[FileTreeManifest] = []
     for version in (version_a, version_b):
@@ -85,6 +78,11 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
 
 
 def get_manifest(version: Version) -> FileTreeManifest | None:
+    """
+    Get the file manifest for a version.
+
+    If the manifest file does not exist, return None.
+    """
     storage_path = version.project.get_storage_path(
         type_=MEDIA_TYPE_DIFF,
         version_slug=version.slug,

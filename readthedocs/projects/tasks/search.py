@@ -4,7 +4,8 @@ import structlog
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff import FileTreeFile, FileTreeManifest, write_manifest
+from readthedocs.filetreediff import write_manifest
+from readthedocs.filetreediff.dataclasses import FileTreeFile, FileTreeManifest
 from readthedocs.projects.models import Feature, HTMLFile, Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
