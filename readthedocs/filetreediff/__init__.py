@@ -20,7 +20,7 @@ import json
 from dataclasses import asdict
 
 from readthedocs.builds.models import Version
-from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeManifest
+from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
 from readthedocs.storage import build_media_storage
 
@@ -41,7 +41,7 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
     If there are no changes between the versions, all lists will be empty.
     """
     outdated = False
-    manifests: list[FileTreeManifest] = []
+    manifests: list[FileTreeDiffManifest] = []
     for version in (version_a, version_b):
         manifest = get_manifest(version)
         if not manifest:
@@ -78,7 +78,7 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
     )
 
 
-def get_manifest(version: Version) -> FileTreeManifest | None:
+def get_manifest(version: Version) -> FileTreeDiffManifest | None:
     """
     Get the file manifest for a version.
 
@@ -97,10 +97,10 @@ def get_manifest(version: Version) -> FileTreeManifest | None:
     except FileNotFoundError:
         return None
 
-    return FileTreeManifest.from_dict(manifest)
+    return FileTreeDiffManifest.from_dict(manifest)
 
 
-def write_manifest(version: Version, manifest: FileTreeManifest):
+def write_manifest(version: Version, manifest: FileTreeDiffManifest):
     storage_path = version.project.get_storage_path(
         type_=MEDIA_TYPE_DIFF,
         version_slug=version.slug,

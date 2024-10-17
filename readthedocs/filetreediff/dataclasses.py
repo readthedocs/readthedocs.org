@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass(slots=True)
-class FileTreeBuild:
+class FileTreeDiffBuild:
 
     """The build associated with a file tree manifest."""
 
@@ -10,7 +10,7 @@ class FileTreeBuild:
 
 
 @dataclass(slots=True)
-class FileTreeFile:
+class FileTreeDiffFile:
 
     """A file in a file tree manifest."""
 
@@ -19,19 +19,19 @@ class FileTreeFile:
 
 
 @dataclass(slots=True)
-class FileTreeManifest:
+class FileTreeDiffManifest:
 
     """A list of files and the build associated with them."""
 
-    files: dict[str, FileTreeFile]
-    build: FileTreeBuild
+    files: dict[str, FileTreeDiffFile]
+    build: FileTreeDiffBuild
 
-    def __init__(self, build_id: int, files: list[FileTreeFile]):
-        self.build = FileTreeBuild(id=build_id)
+    def __init__(self, build_id: int, files: list[FileTreeDiffFile]):
+        self.build = FileTreeDiffBuild(id=build_id)
         self.files = {file.path: file for file in files}
 
     @classmethod
-    def from_dict(cls, data: dict) -> "FileTreeManifest":
+    def from_dict(cls, data: dict) -> "FileTreeDiffManifest":
         """
         Create a FileTreeManifest from a dictionary.
 
@@ -40,7 +40,7 @@ class FileTreeManifest:
         """
         build_id = data["build"]["id"]
         files = [
-            FileTreeFile(path=path, main_content_hash=file["main_content_hash"])
+            FileTreeDiffFile(path=path, main_content_hash=file["main_content_hash"])
             for path, file in data["files"].items()
         ]
         return cls(build_id, files)
