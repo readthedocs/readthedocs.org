@@ -276,7 +276,7 @@ def index_build(build_id):
             version=version,
             build=build,
         )
-        _process_files(version=version, indexers=indexers)
+        return _process_files(version=version, indexers=indexers)
     except Exception:
         log.exception("Failed to index build")
 

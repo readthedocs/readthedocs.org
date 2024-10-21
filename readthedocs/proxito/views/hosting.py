@@ -312,9 +312,9 @@ class AddonsResponseBase:
             include_hidden=False,
         )
 
-    def _has_permission(self, user, version):
+    def _has_permission(self, request, version):
         """
-        Check if `user` is authorized to access `version`.
+        Check if user from the request is authorized to access `version`.
 
         This is mainly to be overridden in .com to make use of
         the auth backends in the proxied API.
@@ -528,7 +528,7 @@ class AddonsResponseBase:
 
         if version:
             response = self._get_filetreediff_response(
-                user=user, project=project, version=version
+                request=request, project=project, version=version
             )
             if response:
                 data["addons"]["filetreediff"].update(response)
@@ -613,7 +613,7 @@ class AddonsResponseBase:
 
         return data
 
-    def _get_filetreediff_response(self, *, user, project, version):
+    def _get_filetreediff_response(self, *, request, project, version):
         """
         Get the file tree diff response for the given version.
 
@@ -628,7 +628,7 @@ class AddonsResponseBase:
 
         latest_version = project.get_latest_version()
         if not latest_version or not self._has_permission(
-            user=user, version=latest_version
+            request=request, version=latest_version
         ):
             return None
 
