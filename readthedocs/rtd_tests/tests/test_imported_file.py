@@ -36,7 +36,7 @@ class ImportedFileTests(TestCase):
 
         self.test_dir = os.path.join(base_dir, "files")
         with override_settings(DOCROOT=self.test_dir):
-            self._copy_storage_dir()
+            self._copy_storage_dir(self.version)
 
         self._create_index()
 
@@ -51,15 +51,15 @@ class ImportedFileTests(TestCase):
         # Delete index
         PageDocument._index.delete(ignore=404)
 
-    def _copy_storage_dir(self):
+    def _copy_storage_dir(self, version):
         """Copy the test directory (rtd_tests/files) to storage"""
         self.storage.copy_directory(
             self.test_dir,
             self.project.get_storage_path(
                 type_="html",
-                version_slug=self.version.slug,
+                version_slug=version.slug,
                 include_file=False,
-                version_type=self.version.type,
+                version_type=version.type,
             ),
         )
 
@@ -108,7 +108,7 @@ class ImportedFileTests(TestCase):
         self.version.save()
 
         with override_settings(DOCROOT=self.test_dir):
-            self._copy_storage_dir()
+            self._copy_storage_dir(self.version)
 
         sync_id = index_build(self.build.pk)
         self.assertEqual(ImportedFile.objects.count(), 3)
@@ -314,7 +314,7 @@ class ImportedFileTests(TestCase):
             f.write("Woo")
 
         with override_settings(DOCROOT=self.test_dir):
-            self._copy_storage_dir()
+            self._copy_storage_dir(self.version)
 
         sync_id = index_build(self.build.pk)
         self.assertEqual(ImportedFile.objects.count(), 3)
@@ -333,7 +333,7 @@ class ImportedFileTests(TestCase):
             f.write("Something Else")
 
         with override_settings(DOCROOT=self.test_dir):
-            self._copy_storage_dir()
+            self._copy_storage_dir(self.version)
 
         sync_id = index_build(self.build.pk)
         self.assertEqual(ImportedFile.objects.count(), 3)
@@ -385,19 +385,21 @@ class ImportedFileTests(TestCase):
         write_manifest.assert_called_once_with(self.version, manifest)
 
         # The version is not the latest nor a PR.
-        invalid_version = get(
+        new_version = get(
             Version,
             project=self.project,
-            slug="invalid",
+            slug="new-version",
         )
-        self.build.version = invalid_version
+        self.build.version = new_version
         self.build.save()
         write_manifest.reset_mock()
         index_build(self.build.pk)
         write_manifest.assert_not_called()
 
         # Now it is a PR.
-        invalid_version.type = EXTERNAL
-        invalid_version.save()
+        new_version.type = EXTERNAL
+        new_version.save()
+        with override_settings(DOCROOT=self.test_dir):
+            self._copy_storage_dir(new_version)
         index_build(self.build.pk)
         write_manifest.assert_called_once()
