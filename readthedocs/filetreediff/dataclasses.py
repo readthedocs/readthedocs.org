@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 
 @dataclass(slots=True)
@@ -36,7 +36,7 @@ class FileTreeDiffManifest:
         Create a FileTreeManifest from a dictionary.
 
         The dictionary should follow the same structure as the one returned by
-        converting the object to a dictionary using the `asdict` function.
+        converting the object to a dictionary using the `as_dict` method.
         """
         build_id = data["build"]["id"]
         files = [
@@ -44,6 +44,10 @@ class FileTreeDiffManifest:
             for path, file in data["files"].items()
         ]
         return cls(build_id, files)
+
+    def as_dict(self) -> dict:
+        """Convert the object to a dictionary."""
+        return asdict(self)
 
 
 @dataclass

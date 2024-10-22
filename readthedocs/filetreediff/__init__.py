@@ -17,7 +17,6 @@ The process is as follows:
 """
 
 import json
-from dataclasses import asdict
 
 from readthedocs.builds.models import Version
 from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeDiffManifest
@@ -109,4 +108,4 @@ def write_manifest(version: Version, manifest: FileTreeDiffManifest):
     )
     manifest_path = build_media_storage.join(storage_path, MANIFEST_FILE_NAME)
     with build_media_storage.open(manifest_path, "w") as f:
-        json.dump(asdict(manifest), f)
+        json.dump(manifest.as_dict(), f)
