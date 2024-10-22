@@ -16,6 +16,9 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
 from readthedocs.projects.constants import (
+    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+    ADDONS_FLYOUT_SORTING_CALVER,
+    ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
@@ -929,3 +932,155 @@ class TestReadTheDocsConfigJson(TestCase):
                 "modified": [{"file": "tutorial/index.html"}],
             },
         }
+
+    def test_version_ordering(self):
+        for slug in ["1.0", "1.2", "1.12", "2.0", "2020.01.05", "a-slug", "z-slug"]:
+            fixture.get(
+                Version,
+                project=self.project,
+                privacy_level=PUBLIC,
+                slug=slug,
+                verbose_name=slug,
+                built=True,
+                active=True,
+            )
+        self.project.update_stable_version()
+        self.project.versions.update(
+            privacy_level=PUBLIC,
+            built=True,
+            active=True,
+        )
+
+        kwargs = {
+            "path": reverse("proxito_readthedocs_docs_addons"),
+            "data": {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            "secure": True,
+            "headers": {
+                "host": "project.dev.readthedocs.io",
+            },
+        }
+
+        # Default ordering (SemVer)
+        expected = [
+            "latest",
+            "stable",
+            "2020.01.05",
+            "2.0",
+            "1.12",
+            "1.2",
+            "1.0",
+            "z-slug",
+            "a-slug",
+        ]
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        self.project.refresh_from_db()
+        addons = self.project.addons
+
+        # The order of latest and stable doesn't change when using semver.
+        addons.flyout_sorting_latest_stable_at_beginning = False
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting = ADDONS_FLYOUT_SORTING_ALPHABETICALLY
+        addons.flyout_sorting_latest_stable_at_beginning = True
+        addons.save()
+        expected = [
+            "z-slug",
+            "stable",
+            "latest",
+            "a-slug",
+            "2020.01.05",
+            "2.0",
+            "1.2",
+            "1.12",
+            "1.0",
+        ]
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        # The order of latest and stable doesn't change when using alphabetical sorting.
+        addons.flyout_sorting_latest_stable_at_beginning = False
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting = ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
+        addons.flyout_sorting_latest_stable_at_beginning = True
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        expected = [
+            "latest",
+            "stable",
+            "2020.01.05",
+            "2.0",
+            "1.12",
+            "1.2",
+            "1.0",
+            "z-slug",
+            "a-slug",
+        ]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting_latest_stable_at_beginning = False
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        expected = [
+            "2020.01.05",
+            "2.0",
+            "1.12",
+            "1.2",
+            "1.0",
+            "z-slug",
+            "stable",
+            "latest",
+            "a-slug",
+        ]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting = ADDONS_FLYOUT_SORTING_CALVER
+        addons.flyout_sorting_latest_stable_at_beginning = True
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        expected = [
+            "latest",
+            "stable",
+            "2020.01.05",
+            "z-slug",
+            "a-slug",
+            "2.0",
+            "1.2",
+            "1.12",
+            "1.0",
+        ]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting_latest_stable_at_beginning = False
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        expected = [
+            "2020.01.05",
+            "z-slug",
+            "stable",
+            "latest",
+            "a-slug",
+            "2.0",
+            "1.2",
+            "1.12",
+            "1.0",
+        ]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected

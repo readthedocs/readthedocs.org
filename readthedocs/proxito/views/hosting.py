@@ -346,7 +346,7 @@ class AddonsResponseBase:
             versions_active_built_not_hidden = (
                 self._get_versions(request, project)
                 .select_related("project")
-                .order_by("slug")
+                .order_by("-slug")
             )
             sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
 
