@@ -86,6 +86,7 @@ If you're using a different theme, enable :doc:`Server side search </server-side
 
 
       // Trigger the Read the Docs Addons Search modal when clicking on "Search docs" input from the topnav.
+      // NOTE: The selector of the search input may need to be adjusted based on your theme.
       document.querySelector("[role='search'] input").addEventListener("focusin", () => {
          const event = new CustomEvent("readthedocs-search-show");
          document.dispatchEvent(event);
@@ -97,7 +98,7 @@ If you're using a different theme, enable :doc:`Server side search </server-side
         :caption: conf.py
 
          html_js_files = [
-             "readthedocs.js",
+             ("readthedocs.js", {"defer": "defer"}),
          ]
 
 
