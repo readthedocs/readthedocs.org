@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from unittest import mock
 
 import django_dynamic_fixture as fixture
 import pytest
@@ -9,9 +10,11 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
+from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
     ADDONS_FLYOUT_SORTING_CALVER,
@@ -21,7 +24,7 @@ from readthedocs.projects.constants import (
     PUBLIC,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
-from readthedocs.projects.models import AddonsConfig, Domain, Project
+from readthedocs.projects.models import AddonsConfig, Domain, Feature, Project
 
 
 @override_settings(
@@ -30,6 +33,7 @@ from readthedocs.projects.models import AddonsConfig, Domain, Project
     PUBLIC_DOMAIN_USES_HTTPS=True,
     GLOBAL_ANALYTICS_CODE=None,
     RTD_ALLOW_ORGANIZATIONS=False,
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 @pytest.mark.proxito
 class TestReadTheDocsConfigJson(TestCase):
@@ -844,6 +848,90 @@ class TestReadTheDocsConfigJson(TestCase):
                 },
             )
         assert r.status_code == 200
+
+    @mock.patch("readthedocs.filetreediff.get_manifest")
+    def test_file_tree_diff(self, get_manifest):
+        get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF,
+        )
+        pr_version = get(
+            Version,
+            project=self.project,
+            slug="123",
+            active=True,
+            built=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+        pr_build = get(
+            Build,
+            project=self.project,
+            version=pr_version,
+            commit="a1b2c3",
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+        get_manifest.side_effect = [
+            FileTreeDiffManifest(
+                build_id=pr_build.id,
+                files=[
+                    FileTreeDiffFile(
+                        path="index.html",
+                        main_content_hash="hash1",
+                    ),
+                    FileTreeDiffFile(
+                        path="tutorial/index.html",
+                        main_content_hash="hash1",
+                    ),
+                    FileTreeDiffFile(
+                        path="new-file.html",
+                        main_content_hash="hash1",
+                    ),
+                ],
+            ),
+            FileTreeDiffManifest(
+                build_id=self.build.id,
+                files=[
+                    FileTreeDiffFile(
+                        path="index.html",
+                        main_content_hash="hash1",
+                    ),
+                    FileTreeDiffFile(
+                        path="tutorial/index.html",
+                        main_content_hash="hash-changed",
+                    ),
+                    FileTreeDiffFile(
+                        path="deleted.html",
+                        main_content_hash="hash-deleted",
+                    ),
+                ],
+            ),
+        ]
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project--123.dev.readthedocs.build/en/123/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project--123.dev.readthedocs.build",
+            },
+        )
+        assert r.status_code == 200
+        filetreediff_response = r.json()["addons"]["filetreediff"]
+        assert filetreediff_response == {
+            "enabled": True,
+            "outdated": False,
+            "diff": {
+                "added": [{"file": "new-file.html"}],
+                "deleted": [{"file": "deleted.html"}],
+                "modified": [{"file": "tutorial/index.html"}],
+            },
+        }
 
     def test_version_ordering(self):
         for slug in ["1.0", "1.2", "1.12", "2.0", "2020.01.05", "a-slug", "z-slug"]:

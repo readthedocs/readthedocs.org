@@ -23,13 +23,14 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
     ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
     ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
 )
-from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.models import AddonsConfig, Feature, Project
 from readthedocs.projects.version_handling import (
     comparable_version,
     sort_versions_calver,
@@ -311,6 +312,15 @@ class AddonsResponseBase:
             include_hidden=False,
         )
 
+    def _has_permission(self, request, version):
+        """
+        Check if user from the request is authorized to access `version`.
+
+        This is mainly to be overridden in .com to make use of
+        the auth backends in the proxied API.
+        """
+        return True
+
     def _v1(self, project, version, build, filename, url, request):
         """
         Initial JSON data structure consumed by the JavaScript client.
@@ -510,11 +520,20 @@ class AddonsResponseBase:
                         "trigger": "Slash",  # Could be something like "Ctrl + D"
                     },
                 },
+                "filetreediff": {
+                    "enabled": False,
+                },
             },
         }
 
-        # Show the subprojects filter on the parent project and subproject
         if version:
+            response = self._get_filetreediff_response(
+                request=request, project=project, version=version
+            )
+            if response:
+                data["addons"]["filetreediff"].update(response)
+
+            # Show the subprojects filter on the parent project and subproject
             # TODO: Remove these queries and try to find a way to get this data
             # from the resolver, which has already done these queries.
             # TODO: Replace this fixed filters with the work proposed in
@@ -593,6 +612,39 @@ class AddonsResponseBase:
             )
 
         return data
+
+    def _get_filetreediff_response(self, *, request, project, version):
+        """
+        Get the file tree diff response for the given version.
+
+        This response is only enabled for external versions,
+        we do the comparison between the current version and the latest version.
+        """
+        if not version.is_external:
+            return None
+
+        if not project.has_feature(Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF):
+            return None
+
+        latest_version = project.get_latest_version()
+        if not latest_version or not self._has_permission(
+            request=request, version=latest_version
+        ):
+            return None
+
+        diff = get_diff(version_a=version, version_b=latest_version)
+        if not diff:
+            return None
+
+        return {
+            "enabled": True,
+            "outdated": diff.outdated,
+            "diff": {
+                "added": [{"file": file} for file in diff.added],
+                "deleted": [{"file": file} for file in diff.deleted],
+                "modified": [{"file": file} for file in diff.modified],
+            },
+        }
 
     def _v2(self, project, version, build, filename, url, user):
         return {
