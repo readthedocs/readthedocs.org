@@ -96,7 +96,6 @@ class SearchExecutor:
             if version and self._has_permission(self.request, version):
                 yield project, version
 
-        # TODO: respect the language of the project when including subprojects.
         for value in self.parser.arguments["subprojects"]:
             project, version = self._get_project_and_version(value)
 
