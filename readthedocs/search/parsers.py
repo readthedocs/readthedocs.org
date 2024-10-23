@@ -67,6 +67,7 @@ class GenericParser:
                 type_="html",
                 version_slug=self.version.slug,
                 include_file=False,
+                version_type=self.version.type,
             )
             file_path = self.storage.join(storage_path, page)
             with self.storage.open(file_path, mode="r") as f:
