@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Alessio Felicioni <alessio.felicioni@gmail.com>, 2015
 # Anthony <aj@ohess.org>, 2022
@@ -15,22 +15,25 @@
 # Nicola Marangon <nicolamarangon@gmail.com>, 2013
 # Riccardo Magliocchetti <riccardo.magliocchetti@gmail.com>, 2018
 # Stefano Campostrini, 2022
+#: notifications/messages.py:408
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-08 09:41+0000\n"
+"POT-Creation-Date: 2024-10-23 13:42+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Eugenia Baldoni, 2024\n"
-"Language-Team: Italian (http://app.transifex.com/readthedocs/readthedocs/language/it/)\n"
+"Language-Team: Italian (http://app.transifex.com/readthedocs/readthedocs/"
+"language/it/)\n"
+"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: it\n"
-"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
 
-#: analytics/models.py:69 builds/filters.py:41 builds/models.py:717
-#: projects/filters.py:196 projects/models.py:1480 search/models.py:27
+#: analytics/models.py:69 builds/filters.py:41 builds/models.py:728
+#: projects/filters.py:196 projects/models.py:1484 search/models.py:27
 #: templates/base.html:266
 msgid "Version"
 msgstr "Versione"
@@ -171,8 +174,8 @@ msgstr ""
 #: api/v3/serializers.py:1033
 #, python-brace-format
 msgid ""
-"Prefix redirects have been removed. Please use an exact redirect `/prefix/*`"
-" instead. See {blog_link}."
+"Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
+"instead. See {blog_link}."
 msgstr ""
 
 #: api/v3/serializers.py:1039
@@ -228,7 +231,7 @@ msgid "Invitation declined"
 msgstr ""
 
 #: audit/models.py:116 core/models.py:20 gold/models.py:33
-#: projects/models.py:246
+#: projects/models.py:250
 msgid "User"
 msgstr "Utente"
 
@@ -240,9 +243,9 @@ msgstr "Codice utente"
 msgid "Username"
 msgstr "Nome utente"
 
-#: audit/models.py:138 builds/models.py:95 builds/models.py:711
-#: organizations/filters.py:133 projects/filters.py:151
-#: projects/models.py:1474 redirects/models.py:48
+#: audit/models.py:138 builds/models.py:95 builds/models.py:722
+#: organizations/filters.py:133 projects/filters.py:151 projects/models.py:1478
+#: redirects/models.py:48
 msgid "Project"
 msgstr "Progetto"
 
@@ -266,7 +269,7 @@ msgstr "Codice organizzazione"
 msgid "Organization slug"
 msgstr ""
 
-#: audit/models.py:180 builds/models.py:1215
+#: audit/models.py:180 builds/models.py:1226
 msgid "Action"
 msgstr "Azione"
 
@@ -449,7 +452,7 @@ msgstr "Ramo"
 msgid "Tag"
 msgstr "Etichetta"
 
-#: builds/constants.py:56 projects/constants.py:412
+#: builds/constants.py:56 projects/constants.py:414
 msgid "Unknown"
 msgstr "Sconosciuto"
 
@@ -481,7 +484,7 @@ msgstr "Attivo"
 msgid "Build successful"
 msgstr ""
 
-#: builds/filters.py:29 projects/models.py:1579
+#: builds/filters.py:29 projects/models.py:1583
 #: templates/builds/build_detail.html:160
 msgid "Build failed"
 msgstr "Compilazione fallita"
@@ -498,7 +501,7 @@ msgstr ""
 msgid "All versions"
 msgstr ""
 
-#: builds/filters.py:48 builds/models.py:139 builds/models.py:733
+#: builds/filters.py:48 builds/models.py:139 builds/models.py:744
 msgid "State"
 msgstr "Stato"
 
@@ -507,7 +510,7 @@ msgstr "Stato"
 msgid "Any"
 msgstr "Qualsiasi"
 
-#: builds/filters.py:54 builds/models.py:100 builds/models.py:723
+#: builds/filters.py:54 builds/models.py:100 builds/models.py:734
 msgid "Type"
 msgstr "Tipo"
 
@@ -522,7 +525,8 @@ msgstr ""
 #: builds/forms.py:79
 #, python-brace-format
 msgid "{version} is the default version of the project, it should be active."
-msgstr "{version} è la versione di default del progetto, dovrebbe essere attiva."
+msgstr ""
+"{version} è la versione di default del progetto, dovrebbe essere attiva."
 
 #: builds/forms.py:170
 msgid "Custom match should not be empty."
@@ -541,7 +545,7 @@ msgid "Verbose Name"
 msgstr "Nome Dettagliato"
 
 #: builds/models.py:127 oauth/models.py:32 organizations/models.py:50
-#: projects/models.py:251
+#: projects/models.py:255
 msgid "Slug"
 msgstr "Slug"
 
@@ -561,7 +565,7 @@ msgstr "Compilato"
 msgid "Uploaded"
 msgstr "Caricato"
 
-#: builds/models.py:154 projects/models.py:479
+#: builds/models.py:154 projects/models.py:483
 msgid "Privacy Level"
 msgstr "Livello Dati Sensibili"
 
@@ -593,7 +597,7 @@ msgstr ""
 msgid "Has HTML Zip"
 msgstr ""
 
-#: builds/models.py:175 projects/models.py:564
+#: builds/models.py:175 projects/models.py:568
 msgid "Documentation type"
 msgstr "Tipo di documentazione"
 
@@ -602,207 +606,206 @@ msgid "Type of documentation the version was built with."
 msgstr ""
 
 #: builds/models.py:183
-msgid ""
-"Data generated at build time by the doctool (`readthedocs-build.yaml`)."
+msgid "Data generated at build time by the doctool (`readthedocs-build.yaml`)."
 msgstr ""
 
 #: builds/models.py:190
 msgid "Inject new addons js library for this version"
 msgstr ""
 
-#: builds/models.py:745
+#: builds/models.py:756
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:752 integrations/models.py:145
+#: builds/models.py:763 integrations/models.py:145
 msgid "Date"
 msgstr "Data"
 
-#: builds/models.py:753
+#: builds/models.py:764
 msgid "Success"
 msgstr "Successo"
 
-#: builds/models.py:758
+#: builds/models.py:769
 msgid "Setup"
 msgstr "Setup"
 
-#: builds/models.py:759
+#: builds/models.py:770
 msgid "Setup error"
 msgstr "Errore durante il setup"
 
-#: builds/models.py:760
+#: builds/models.py:771
 msgid "Output"
 msgstr "Canale di Uscita"
 
-#: builds/models.py:761 templates/builds/build_detail.html:261
+#: builds/models.py:772 templates/builds/build_detail.html:261
 msgid "Error"
 msgstr "Errore"
 
-#: builds/models.py:762
+#: builds/models.py:773
 msgid "Exit code"
 msgstr "Codice di uscita"
 
-#: builds/models.py:767 projects/models.py:1491
+#: builds/models.py:778 projects/models.py:1495
 msgid "Commit"
 msgstr "Commit"
 
-#: builds/models.py:773
+#: builds/models.py:784
 msgid "Version slug"
 msgstr ""
 
-#: builds/models.py:779
+#: builds/models.py:790
 msgid "Version name"
 msgstr ""
 
-#: builds/models.py:785 builds/models.py:1228
+#: builds/models.py:796 builds/models.py:1239
 msgid "Version type"
 msgstr ""
 
-#: builds/models.py:792
+#: builds/models.py:803
 msgid "Configuration used in the build"
 msgstr "Configurazione usata nella build"
 
-#: builds/models.py:797
+#: builds/models.py:808
 msgid "Custom build configuration file path used in this build"
 msgstr ""
 
-#: builds/models.py:805
+#: builds/models.py:816
 msgid "Build Length"
 msgstr "Lunghezza della compilazione"
 
-#: builds/models.py:808
+#: builds/models.py:819
 msgid "Builder"
 msgstr "Compilatore"
 
-#: builds/models.py:815
+#: builds/models.py:826
 msgid "Cold Storage"
 msgstr "Cold Storage"
 
-#: builds/models.py:821
+#: builds/models.py:832
 msgid "Celery task id"
 msgstr ""
 
-#: builds/models.py:1131
+#: builds/models.py:1142
 msgid "Build"
 msgstr "Compilazione"
 
-#: builds/models.py:1136
+#: builds/models.py:1147
 msgid "Command"
 msgstr "Comando"
 
-#: builds/models.py:1137 builds/models.py:1192 oauth/models.py:130
-#: organizations/models.py:64 projects/models.py:253 redirects/models.py:106
+#: builds/models.py:1148 builds/models.py:1203 oauth/models.py:130
+#: organizations/models.py:64 projects/models.py:257 redirects/models.py:106
 #: templates/core/project_details.html:78
 msgid "Description"
 msgstr "Descrizione"
 
-#: builds/models.py:1138
+#: builds/models.py:1149
 msgid "Command output"
 msgstr "Risultato del comando"
 
-#: builds/models.py:1139
+#: builds/models.py:1150
 msgid "Command exit code"
 msgstr "Codice di uscita del comando"
 
-#: builds/models.py:1141
+#: builds/models.py:1152
 msgid "Start time"
 msgstr "Ora di inizio"
 
-#: builds/models.py:1142
+#: builds/models.py:1153
 msgid "End time"
 msgstr "Ora di uscita"
 
-#: builds/models.py:1170
+#: builds/models.py:1181
 msgid "Activate version"
 msgstr ""
 
-#: builds/models.py:1171
+#: builds/models.py:1182
 msgid "Hide version"
 msgstr ""
 
-#: builds/models.py:1172
+#: builds/models.py:1183
 msgid "Make version public"
 msgstr ""
 
-#: builds/models.py:1173
+#: builds/models.py:1184
 msgid "Make version private"
 msgstr ""
 
-#: builds/models.py:1174
+#: builds/models.py:1185
 msgid "Set version as default"
 msgstr ""
 
-#: builds/models.py:1175
+#: builds/models.py:1186
 msgid "Delete version"
 msgstr ""
 
-#: builds/models.py:1187
+#: builds/models.py:1198
 msgid "Rule priority"
 msgstr ""
 
-#: builds/models.py:1188
+#: builds/models.py:1199
 msgid "A lower number (0) means a higher priority"
 msgstr ""
 
-#: builds/models.py:1198
+#: builds/models.py:1209
 msgid "Match argument"
 msgstr ""
 
-#: builds/models.py:1199
+#: builds/models.py:1210
 msgid "Value used for the rule to match the version"
 msgstr ""
 
-#: builds/models.py:1203
+#: builds/models.py:1214
 msgid "Predefined match argument"
 msgstr ""
 
-#: builds/models.py:1205
+#: builds/models.py:1216
 msgid ""
-"Match argument defined by us, it is used if is not None, otherwise match_arg"
-" will be used."
+"Match argument defined by us, it is used if is not None, otherwise match_arg "
+"will be used."
 msgstr ""
 
-#: builds/models.py:1216
+#: builds/models.py:1227
 msgid "Action to apply to matching versions"
 msgstr ""
 
-#: builds/models.py:1221
+#: builds/models.py:1232
 msgid "Action argument"
 msgstr ""
 
-#: builds/models.py:1222
+#: builds/models.py:1233
 msgid "Value used for the action to perfom an operation"
 msgstr ""
 
-#: builds/models.py:1229
+#: builds/models.py:1240
 msgid "Type of version the rule should be applied to"
 msgstr ""
 
-#: builds/models.py:1394
+#: builds/models.py:1405
 msgid "Version activated"
 msgstr ""
 
-#: builds/models.py:1395
+#: builds/models.py:1406
 msgid "Version hidden"
 msgstr ""
 
-#: builds/models.py:1397
+#: builds/models.py:1408
 msgid "Version set to public privacy"
 msgstr ""
 
-#: builds/models.py:1400
+#: builds/models.py:1411
 msgid "Version set to private privacy"
 msgstr ""
 
-#: builds/models.py:1402
+#: builds/models.py:1413
 msgid "Version set as default"
 msgstr ""
 
-#: builds/models.py:1403
+#: builds/models.py:1414
 msgid "Version deleted"
 msgstr ""
 
-#: builds/models.py:1408
+#: builds/models.py:1419
 msgid "Matched rule"
 msgstr ""
 
@@ -920,7 +923,7 @@ msgstr ""
 msgid "Please provide as much detail as possible."
 msgstr ""
 
-#: core/forms.py:198 projects/models.py:1594
+#: core/forms.py:198 projects/models.py:1598
 msgid "URL"
 msgstr ""
 
@@ -1037,8 +1040,8 @@ msgstr ""
 #: domains/validators.py:22
 #, python-brace-format
 msgid ""
-"Your organization has reached the limit of {feature.value} domains. Consider"
-" removing unused domains or upgrading your plan."
+"Your organization has reached the limit of {feature.value} domains. Consider "
+"removing unused domains or upgrading your plan."
 msgstr ""
 
 #: gold/forms.py:50
@@ -1050,12 +1053,12 @@ msgid "This project is already Ad-Free."
 msgstr ""
 
 #: gold/models.py:28 organizations/models.py:31 organizations/models.py:223
-#: organizations/models.py:297 projects/models.py:237
+#: organizations/models.py:297 projects/models.py:241
 msgid "Publication date"
 msgstr "Data di pubblicazione"
 
 #: gold/models.py:29 organizations/models.py:32 organizations/models.py:224
-#: organizations/models.py:298 projects/models.py:240 projects/models.py:1493
+#: organizations/models.py:298 projects/models.py:244 projects/models.py:1497
 msgid "Modified date"
 msgstr "Data di modifica"
 
@@ -1087,15 +1090,15 @@ msgstr ""
 #: gold/templates/gold/projects.html:20
 #: gold/templates/gold/subscription_detail.html:52
 msgid ""
-"For small businesses or personal projects, we ask for $5 per month to remove"
-" ads from a project."
+"For small businesses or personal projects, we ask for $5 per month to remove "
+"ads from a project."
 msgstr ""
 
 #: gold/templates/gold/projects.html:21
 #: gold/templates/gold/subscription_detail.html:53
 msgid ""
-"For corporate supported open source projects, we ask for a $50 membership in"
-" order to cover our support and operations costs."
+"For corporate supported open source projects, we ask for a $50 membership in "
+"order to cover our support and operations costs."
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
@@ -1150,22 +1153,23 @@ msgstr ""
 msgid ""
 "Supporting Read the Docs lets us work more on features that people love. "
 "Your money will go directly to maintenance and development of the product."
-msgstr "Il supporto a Read the Docs ci consente di lavorare di più sulle funzionalità che le persone amano. I tuoi soldi andranno direttamente alla manutenzione e allo sviluppo del prodotto."
+msgstr ""
+"Il supporto a Read the Docs ci consente di lavorare di più sulle "
+"funzionalità che le persone amano. I tuoi soldi andranno direttamente alla "
+"manutenzione e allo sviluppo del prodotto."
 
 #: gold/templates/gold/subscription_detail.html:57
 msgid ""
-"If you are a company using Read the Docs, please consider <a "
-"href=\"https://readthedocs.com/\">Read the Docs for Business</a>. This will "
-"help us cover our costs, and provide you with a better experience on the "
-"site."
+"If you are a company using Read the Docs, please consider <a href=\"https://"
+"readthedocs.com/\">Read the Docs for Business</a>. This will help us cover "
+"our costs, and provide you with a better experience on the site."
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:66
 #, python-format
 msgid ""
-"For any questions about our Gold membership program, please <a "
-"href=\"mailto:rev@readthedocs.org?subject=Gold%%20membership%%20questions\">email"
-" us</a>."
+"For any questions about our Gold membership program, please <a href=\"mailto:"
+"rev@readthedocs.org?subject=Gold%%20membership%%20questions\">email us</a>."
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:74
@@ -1292,8 +1296,8 @@ msgstr ""
 #: invitations/templates/invitations/invitation_detail.html:12
 #, python-format
 msgid ""
-"<a href=\"%(requestor_url)s\">%(requestor_name)s</a> has invited you to join"
-" the <code>%(target_name)s</code> %(target_type)s."
+"<a href=\"%(requestor_url)s\">%(requestor_name)s</a> has invited you to join "
+"the <code>%(target_name)s</code> %(target_type)s."
 msgstr ""
 
 #: invitations/templates/invitations/invitation_detail.html:22
@@ -1332,7 +1336,7 @@ msgid "Unknown problem"
 msgstr ""
 
 #: notifications/messages.py:101
-msgid "Build terminated due inactivity"
+msgid "Build terminated due to inactivity"
 msgstr ""
 
 #: notifications/messages.py:129
@@ -1458,7 +1462,7 @@ msgstr "Utenti"
 #: oauth/models.py:33 oauth/models.py:123 organizations/filters.py:54
 #: organizations/filters.py:60 organizations/models.py:48
 #: organizations/models.py:247 projects/filters.py:44 projects/filters.py:110
-#: projects/models.py:250 projects/models.py:1485
+#: projects/models.py:254 projects/models.py:1489
 msgid "Name"
 msgstr "Nome"
 
@@ -1556,7 +1560,8 @@ msgstr "Webhook attivato"
 #: oauth/utils.py:65
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
-msgstr "Attivazione Webhook fallita. Assicurarsi di avere i permessi necessari."
+msgstr ""
+"Attivazione Webhook fallita. Assicurarsi di avere i permessi necessari."
 
 #: organizations/constants.py:9
 msgid "Read-only"
@@ -1584,8 +1589,7 @@ msgstr ""
 msgid "All organizations"
 msgstr ""
 
-#: organizations/filters.py:103 projects/filters.py:161
-#: projects/filters.py:223
+#: organizations/filters.py:103 projects/filters.py:161 projects/filters.py:223
 msgid "Sort by"
 msgstr ""
 
@@ -1736,7 +1740,8 @@ msgstr ""
 msgid ""
 "\n"
 "        Deleting this organization will also remove all the organization's\n"
-"        teams, users, projects, and built documentation.  Are you sure that it\n"
+"        teams, users, projects, and built documentation.  Are you sure that "
+"it\n"
 "        is safe to remove this organization?\n"
 "      "
 msgstr ""
@@ -1819,8 +1824,10 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"            This is a list of all the team members and owners inside your organization.\n"
-"            To invite members, <a href=\"%(invite_url)s\">invite them to a team</a>\n"
+"            This is a list of all the team members and owners inside your "
+"organization.\n"
+"            To invite members, <a href=\"%(invite_url)s\">invite them to a "
+"team</a>\n"
 "          "
 msgstr ""
 
@@ -1868,7 +1875,8 @@ msgid ""
 "\n"
 "        Before you can add a project or build documentation,\n"
 "        we will help you create an organization.\n"
-"        Access to your documentation is limited to <b>only those inside your organization</b>,\n"
+"        Access to your documentation is limited to <b>only those inside your "
+"organization</b>,\n"
 "        or inside a team with access.\n"
 "        We'll help set up a team shortly,\n"
 "        <b>start by entering your organization details</b>.\n"
@@ -1910,14 +1918,16 @@ msgstr ""
 msgid ""
 "\n"
 "            Access to your documentation is limited to\n"
-"            <b>only those inside your organization</b>, or inside a team with access.\n"
+"            <b>only those inside your organization</b>, or inside a team "
+"with access.\n"
 "          "
 msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:50
 msgid ""
 "\n"
-"            No need to decide now, you can pick a plan that fits your organization\n"
+"            No need to decide now, you can pick a plan that fits your "
+"organization\n"
 "            after a <b>30 day trial</b>.\n"
 "          "
 msgstr ""
@@ -1948,15 +1958,15 @@ msgstr ""
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
 msgid ""
-"The <a href=\"%(docs_url)s\">organization security log</a> allows you to see"
-" what has happened recently in your organization."
+"The <a href=\"%(docs_url)s\">organization security log</a> allows you to see "
+"what has happened recently in your organization."
 msgstr ""
 
 #: organizations/templates/organizations/security_log.html:25
 #, python-format
 msgid ""
-"Showing logs from the last %(days_limit)s days. You can upgrade your plan to"
-" increase the time period that is stored."
+"Showing logs from the last %(days_limit)s days. You can upgrade your plan to "
+"increase the time period that is stored."
 msgstr ""
 
 #: organizations/templates/organizations/security_log.html:30
@@ -1979,7 +1989,8 @@ msgstr ""
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
 "\n"
-"        Deleting this team will revoke access for users that were in the team.\n"
+"        Deleting this team will revoke access for users that were in the "
+"team.\n"
 "        Are you sure that it is safe to remove these users?\n"
 "      "
 msgstr ""
@@ -2018,7 +2029,8 @@ msgstr ""
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
 "\n"
-"        Select the projects that you would like this team to have access to.\n"
+"        Select the projects that you would like this team to have access "
+"to.\n"
 "      "
 msgstr ""
 
@@ -2136,75 +2148,75 @@ msgstr ""
 msgid "Generic"
 msgstr ""
 
-#: projects/constants.py:79
+#: projects/constants.py:81
 msgid "Live"
 msgstr "Live"
 
-#: projects/constants.py:80
+#: projects/constants.py:82
 msgid "Deleted"
 msgstr "Eliminato"
 
-#: projects/constants.py:86
+#: projects/constants.py:88
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:92 projects/models.py:2068
+#: projects/constants.py:94 projects/models.py:2077
 msgid "Public"
 msgstr "Pubblico"
 
-#: projects/constants.py:93
+#: projects/constants.py:95
 msgid "Private"
 msgstr "Privato"
 
-#: projects/constants.py:104
+#: projects/constants.py:106
 msgid "CPython 2.x"
 msgstr "CPython 2.x"
 
-#: projects/constants.py:105
+#: projects/constants.py:107
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/constants.py:409
+#: projects/constants.py:411
 msgid "Valid and active"
 msgstr ""
 
-#: projects/constants.py:410
+#: projects/constants.py:412
 msgid "Invalid"
 msgstr ""
 
-#: projects/constants.py:411
+#: projects/constants.py:413
 msgid "Pending"
 msgstr ""
 
-#: projects/constants.py:421
+#: projects/constants.py:423
 msgid "Multiple versions with translations (/<language>/<version>/<filename>)"
 msgstr ""
 
-#: projects/constants.py:425
+#: projects/constants.py:427
 msgid "Multiple versions without translations (/<version>/<filename>)"
 msgstr ""
 
-#: projects/constants.py:429
+#: projects/constants.py:431
 msgid "Single version without translations (/<filename>)"
 msgstr ""
 
-#: projects/constants.py:446
+#: projects/constants.py:448
 msgid "Alphabetically"
 msgstr ""
 
-#: projects/constants.py:447
+#: projects/constants.py:449
 msgid "SemVer (Read the Docs)"
 msgstr ""
 
-#: projects/constants.py:450
+#: projects/constants.py:452
 msgid "Python Packaging (PEP 440 and PEP 425)"
 msgstr ""
 
-#: projects/constants.py:452
+#: projects/constants.py:454
 msgid "CalVer (YYYY.0M.0M)"
 msgstr ""
 
-#: projects/constants.py:453
+#: projects/constants.py:455
 msgid "Define your own pattern"
 msgstr ""
 
@@ -2319,15 +2331,14 @@ msgid ""
 "your organization."
 msgstr ""
 
-#: projects/forms.py:451 projects/models.py:255
+#: projects/forms.py:451 projects/models.py:259
 msgid "Short description of this project"
 msgstr ""
 
 #: projects/forms.py:473
 #, python-brace-format
 msgid ""
-"This setting is inherited from the <a href=\"{link}\">parent "
-"translation</a>."
+"This setting is inherited from the <a href=\"{link}\">parent translation</a>."
 msgstr ""
 
 #: projects/forms.py:548
@@ -2337,7 +2348,8 @@ msgstr "C'è già una traduzione \"{lang}\" per il progetto {proj}."
 
 #: projects/forms.py:577
 msgid "Length of each tag must be less than or equal to 100 characters."
-msgstr "La lunghezza di ciascun tag deve essere inferiore o uguale a 100 caratteri."
+msgstr ""
+"La lunghezza di ciascun tag deve essere inferiore o uguale a 100 caratteri."
 
 #: projects/forms.py:667
 msgid "Enable Addons"
@@ -2408,512 +2420,543 @@ msgstr ""
 msgid "Alias"
 msgstr "Alias"
 
-#: projects/models.py:258
+#: projects/models.py:190
+#, fuzzy
+#| msgid "Single version"
+msgid "Sorting of versions"
+msgstr "Versione unica"
+
+#: projects/models.py:200
+msgid "Custom version sorting pattern"
+msgstr ""
+
+#: projects/models.py:206
+msgid "Show <code>latest</code> and <code>stable</code> at the beginning"
+msgstr ""
+
+#: projects/models.py:262
 msgid "Repository URL"
 msgstr "URL del Deposito Codice"
 
-#: projects/models.py:261
+#: projects/models.py:265
 msgid "Git repository URL"
 msgstr ""
 
-#: projects/models.py:268
+#: projects/models.py:272
 msgid "Repository type"
 msgstr "Tipo del repository"
 
-#: projects/models.py:274
+#: projects/models.py:278
 msgid "Project homepage"
 msgstr "Homepage del progetto"
 
-#: projects/models.py:276
+#: projects/models.py:280
 msgid "The project's homepage"
 msgstr "Pagina iniziale del progetto"
 
-#: projects/models.py:279
+#: projects/models.py:283
 msgid "Canonical URL"
 msgstr "URL Canonico"
 
-#: projects/models.py:281
+#: projects/models.py:285
 msgid "URL that documentation is expected to serve from"
 msgstr "URL a cui la documentazione dovrebbe essere servita"
 
-#: projects/models.py:284
+#: projects/models.py:288
 msgid "URL versioning scheme"
 msgstr ""
 
-#: projects/models.py:291
+#: projects/models.py:295
 msgid ""
 "This affects URL your documentation is served from, and if it supports "
 "translations or versions. Changing the versioning scheme will break your "
 "current URLs, so you might need to create a redirect."
 msgstr ""
 
-#: projects/models.py:299
+#: projects/models.py:303
 msgid "Single version"
 msgstr "Versione unica"
 
-#: projects/models.py:302
+#: projects/models.py:306
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
-msgstr "Un sito a versione unica non ha traduzioni e fa riferimento alla versione «ultima» collegata alla radice del dominio. Utilizza questa opzione con cautela, attivandola solamente se non intenderai attivare <b>mai</b> versioni multiple dei tuoi documenti."
+msgstr ""
+"Un sito a versione unica non ha traduzioni e fa riferimento alla versione "
+"«ultima» collegata alla radice del dominio. Utilizza questa opzione con "
+"cautela, attivandola solamente se non intenderai attivare <b>mai</b> "
+"versioni multiple dei tuoi documenti."
 
-#: projects/models.py:309
+#: projects/models.py:313
 msgid "Default version"
 msgstr "Versione predefinita"
 
-#: projects/models.py:312
+#: projects/models.py:316
 msgid "The version of your project that / redirects to"
 msgstr "Versione del tuo progetto al quale / redirige"
 
-#: projects/models.py:317
+#: projects/models.py:321
 msgid "Default branch"
 msgstr "Ramo predefinito"
 
-#: projects/models.py:323
+#: projects/models.py:327
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS."
 msgstr ""
 
-#: projects/models.py:328
+#: projects/models.py:332
 msgid "Custom path prefix"
 msgstr ""
 
-#: projects/models.py:334
+#: projects/models.py:338
 msgid ""
 "A custom path prefix used when serving documentation from this project. By "
 "default we serve documentation at the root (/) of a domain."
 msgstr ""
 
-#: projects/models.py:339
+#: projects/models.py:343
 msgid "Custom subproject path prefix"
 msgstr ""
 
-#: projects/models.py:345
+#: projects/models.py:349
 msgid ""
 "A custom path prefix used when evaluating the root of a subproject. By "
 "default we serve documentation from subprojects under the `/projects/` "
 "prefix."
 msgstr ""
 
-#: projects/models.py:352
+#: projects/models.py:356
 msgid "Build pull requests for this project"
 msgstr ""
 
-#: projects/models.py:355
+#: projects/models.py:359
 msgid ""
-"More information in <a "
-"href=\"https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-"
-"requests.html\">our docs</a>."
+"More information in <a href=\"https://docs.readthedocs.io/page/guides/"
+"autobuild-docs-for-pull-requests.html\">our docs</a>."
 msgstr ""
 
-#: projects/models.py:359
+#: projects/models.py:363
 msgid "Privacy level of Pull Requests"
 msgstr ""
 
-#: projects/models.py:366
+#: projects/models.py:370
 msgid ""
 "Should builds from pull requests be public? <strong>If your repository is "
 "public, don't set this to private</strong>."
 msgstr ""
 
-#: projects/models.py:371
+#: projects/models.py:375
 msgid "CDN Enabled"
 msgstr "CDN abilitata"
 
-#: projects/models.py:373
+#: projects/models.py:377
 msgid "Analytics code"
 msgstr "Codice Analytics"
 
-#: projects/models.py:378
+#: projects/models.py:382
 msgid ""
-"Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow"
-" down your page loads."
-msgstr "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). Questo può rallentare il caricamento della pagina."
+"Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
+"down your page loads."
+msgstr ""
+"Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). Questo può "
+"rallentare il caricamento della pagina."
 
-#: projects/models.py:384
+#: projects/models.py:388
 msgid "Disable Analytics"
 msgstr ""
 
-#: projects/models.py:388
+#: projects/models.py:392
 msgid ""
 "Disable Google Analytics completely for this project (requires rebuilding "
 "documentation)"
 msgstr ""
 
-#: projects/models.py:393
+#: projects/models.py:397
 msgid "Alternative container image"
 msgstr "Immagine container alternativa"
 
-#: projects/models.py:399
+#: projects/models.py:403
 msgid "Container memory limit"
 msgstr "Limite di memoria del container"
 
-#: projects/models.py:404
+#: projects/models.py:408
 msgid ""
-"Memory limit in Docker format -- example: <code>512m</code> or "
+"Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
+"code>"
+msgstr ""
+"Limite di memoria nel formato Docker -- esempio: <code>512m</code> or "
 "<code>1g</code>"
-msgstr "Limite di memoria nel formato Docker -- esempio: <code>512m</code> or <code>1g</code>"
 
-#: projects/models.py:409
+#: projects/models.py:413
 msgid "Container time limit in seconds"
 msgstr "Limite temporale del container, in secondi"
 
-#: projects/models.py:414
+#: projects/models.py:418
 msgid "Alternate build queue id"
 msgstr "ID della coda della build alternativo"
 
-#: projects/models.py:420
+#: projects/models.py:424
 msgid "Maximum concurrent builds allowed for this project"
 msgstr ""
 
-#: projects/models.py:425
+#: projects/models.py:429
 msgid "Allow paid advertising"
 msgstr "Permetti annunci a pagamento"
 
-#: projects/models.py:427
+#: projects/models.py:431
 msgid "If unchecked, users will still see community ads."
-msgstr "Se non selezionato, gli utenti continueranno a vedere annunci della community."
+msgstr ""
+"Se non selezionato, gli utenti continueranno a vedere annunci della "
+"community."
 
-#: projects/models.py:430
+#: projects/models.py:434
 msgid "Ad-free"
 msgstr "Senza pubblicità"
 
-#: projects/models.py:435
+#: projects/models.py:439
 msgid "Is spam?"
 msgstr ""
 
-#: projects/models.py:438
+#: projects/models.py:442
 msgid "Manually marked as (not) spam"
 msgstr ""
 
-#: projects/models.py:441
+#: projects/models.py:445
 msgid "Show version warning"
 msgstr "Mostra warning di versione"
 
-#: projects/models.py:443
+#: projects/models.py:447
 msgid "Show warning banner in non-stable nor latest versions."
 msgstr "Mostra banner di warning nelle versioni non-stable o latest"
 
-#: projects/models.py:447
+#: projects/models.py:451
 msgid "Path for .readthedocs.yaml"
 msgstr ""
 
-#: projects/models.py:453
+#: projects/models.py:457
 msgid ""
 "<strong>Warning: experimental feature</strong>. Custom path from repository "
-"top-level to your <code>.readthedocs.yaml</code>, ex. "
-"<code>subpath/docs/.readthedocs.yaml</code>. Leave blank for default value: "
-"<code>.readthedocs.yaml</code>."
+"top-level to your <code>.readthedocs.yaml</code>, ex. <code>subpath/docs/."
+"readthedocs.yaml</code>. Leave blank for default value: <code>.readthedocs."
+"yaml</code>."
 msgstr ""
 
-#: projects/models.py:461
+#: projects/models.py:465
 msgid "Featured"
 msgstr "In Evidenza"
 
-#: projects/models.py:463
+#: projects/models.py:467
 msgid "Skip (disable) building this project"
 msgstr ""
 
-#: projects/models.py:471
+#: projects/models.py:475
 msgid "Delisted"
 msgstr ""
 
-#: projects/models.py:473
+#: projects/models.py:477
 msgid ""
 "Delisting a project removes it from Read the Docs search indexing and asks "
 "external search engines to remove it via robots.txt"
 msgstr ""
 
-#: projects/models.py:484
+#: projects/models.py:488
 msgid "Should the project dashboard be public?"
 msgstr ""
 
-#: projects/models.py:491
+#: projects/models.py:495
 msgid "Related projects"
 msgstr "Progetto correlati"
 
-#: projects/models.py:499 templates/search/elastic_search.html:57
+#: projects/models.py:503 templates/search/elastic_search.html:57
 msgid "Language"
 msgstr "Linguaggio"
 
-#: projects/models.py:503
+#: projects/models.py:507
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
-msgstr "Codice della lingua col quale è presentata la documentazione del progetto. Nota: condiziona l'URL del tuo progetto. "
+msgstr ""
+"Codice della lingua col quale è presentata la documentazione del progetto. "
+"Nota: condiziona l'URL del tuo progetto. "
 
-#: projects/models.py:511
+#: projects/models.py:515
 msgid "Programming Language"
 msgstr "Linguaggio di Programmazione"
 
-#: projects/models.py:515
+#: projects/models.py:519
 msgid "The primary programming language the project is written in."
-msgstr "Il linguaggio di programmazione principale in cui il progetto è stato scritto."
+msgstr ""
+"Il linguaggio di programmazione principale in cui il progetto è stato "
+"scritto."
 
-#: projects/models.py:531
+#: projects/models.py:535
 msgid "This project has been built with a webhook"
 msgstr "Il progetto è stato compilato con un webhook"
 
-#: projects/models.py:535
+#: projects/models.py:539
 msgid "This project has been successfully cloned"
 msgstr "Il progetto è stato clonato con successo"
 
-#: projects/models.py:544
+#: projects/models.py:548
 msgid "Connected repository"
 msgstr ""
 
-#: projects/models.py:545
+#: projects/models.py:549
 msgid "Repository connected to this project"
 msgstr ""
 
-#: projects/models.py:571
+#: projects/models.py:575
 msgid ""
-"Type of documentation you are building. <a href=\"http://www.sphinx-"
-"doc.org/en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More"
-" info on sphinx builders</a>."
+"Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
+"en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info on sphinx builders</a>."
 msgstr ""
 
-#: projects/models.py:582
+#: projects/models.py:586
 msgid "project"
 msgstr ""
 
-#: projects/models.py:593
+#: projects/models.py:597
 msgid "Model must have slug"
 msgstr "Il modello deve possedere uno slug"
 
-#: projects/models.py:1355
+#: projects/models.py:1359
 msgid "Subproject nesting is not supported"
 msgstr "L'annidamento di sottprogetti non è supportato"
 
-#: projects/models.py:1490
+#: projects/models.py:1494
 msgid "Path"
 msgstr "Percorso"
 
-#: projects/models.py:1492
+#: projects/models.py:1496
 msgid "Build id"
 msgstr ""
 
-#: projects/models.py:1495
+#: projects/models.py:1499
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1500
+#: projects/models.py:1504
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1543 projects/models.py:1708
+#: projects/models.py:1547 projects/models.py:1712
 msgid "created"
 msgstr ""
 
-#: projects/models.py:1548
+#: projects/models.py:1552
 msgid "modified"
 msgstr ""
 
-#: projects/models.py:1577
+#: projects/models.py:1581
 msgid "Build triggered"
 msgstr ""
 
-#: projects/models.py:1578
+#: projects/models.py:1582
 msgid "Build passed"
 msgstr ""
 
-#: projects/models.py:1596
+#: projects/models.py:1600
 msgid "URL to send the webhook to"
 msgstr "URL al quale inviare «webhook»"
 
-#: projects/models.py:1599
+#: projects/models.py:1603
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1607
+#: projects/models.py:1611
 msgid "Events to subscribe"
 msgstr ""
 
-#: projects/models.py:1610
+#: projects/models.py:1614
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1612
+#: projects/models.py:1616
 msgid ""
-"JSON payload to send to the webhook. Check <a "
-"href=\"https://docs.readthedocs.io/page/build-notifications.html#variable-"
-"substitutions-reference\">the docs</a> for available substitutions."
+"JSON payload to send to the webhook. Check <a href=\"https://docs."
+"readthedocs.io/page/build-notifications.html#variable-substitutions-"
+"reference\">the docs</a> for available substitutions."
 msgstr ""
 
-#: projects/models.py:1719
+#: projects/models.py:1723
 msgid "Domain"
 msgstr "Dominio"
 
-#: projects/models.py:1726
+#: projects/models.py:1730
 msgid "This domain was auto-created"
 msgstr ""
 
-#: projects/models.py:1730
+#: projects/models.py:1734
 msgid "This domain is a CNAME for the project"
 msgstr ""
 
-#: projects/models.py:1735
+#: projects/models.py:1739
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:1739
+#: projects/models.py:1743
 msgid "Use HTTPS"
 msgstr "Usa HTTPS"
 
-#: projects/models.py:1741
+#: projects/models.py:1745
 msgid "Always use HTTPS for this domain"
 msgstr "SSL è abilitato per questo dominio"
 
-#: projects/models.py:1745
+#: projects/models.py:1749
 msgid "Number of times this domain has been hit"
 msgstr "Numero delle volte che questo dominio è stato visitato"
 
-#: projects/models.py:1750 templates/projects/domain_form.html:49
+#: projects/models.py:1754 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1759
+#: projects/models.py:1763
 msgid "Skip validation process."
 msgstr ""
 
-#: projects/models.py:1763
+#: projects/models.py:1767
 msgid "Start date of the validation process."
 msgstr ""
 
-#: projects/models.py:1772
+#: projects/models.py:1776
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1777
+#: projects/models.py:1781
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1782
+#: projects/models.py:1786
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1919
+#: projects/models.py:1924
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1923
+#: projects/models.py:1928
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1928
+#: projects/models.py:1933
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 
-#: projects/models.py:1934
+#: projects/models.py:1939
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1938
+#: projects/models.py:1943
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:1942
+#: projects/models.py:1947
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:1947
+#: projects/models.py:1952
 msgid ""
 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
 "one (Project.custom_prefix)."
 msgstr ""
 
-#: projects/models.py:1952
+#: projects/models.py:1957
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:1957
+#: projects/models.py:1961
+msgid "Build: Generate a file manifest for file tree diff."
+msgstr ""
+
+#: projects/models.py:1966
 msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1961
+#: projects/models.py:1970
 msgid "Webhook: Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1965
+#: projects/models.py:1974
 msgid "Webhook: Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1968
+#: projects/models.py:1977
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:1969
+#: projects/models.py:1978
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1972
+#: projects/models.py:1981
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1976
+#: projects/models.py:1985
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:1981
+#: projects/models.py:1990
 msgid ""
 "Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 
-#: projects/models.py:1987
+#: projects/models.py:1996
 msgid ""
 "Sphinx: Don't append `conf.py` and don't install ``readthedocs-sphinx-ext``"
 msgstr ""
 
-#: projects/models.py:1993
+#: projects/models.py:2002
 msgid "Search: Disable server side search"
 msgstr ""
 
-#: projects/models.py:1997
+#: projects/models.py:2006
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:2001
+#: projects/models.py:2010
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:2006
+#: projects/models.py:2015
 msgid "Build: Set scale-in protection before/after building."
 msgstr ""
 
-#: projects/models.py:2019
+#: projects/models.py:2028
 msgid "Feature identifier"
 msgstr "Identificatore di funzionalità"
 
-#: projects/models.py:2024
+#: projects/models.py:2033
 msgid "Date feature was added"
 msgstr "È stata aggiunta la funzione data"
 
-#: projects/models.py:2030
+#: projects/models.py:2039
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2034
+#: projects/models.py:2043
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2056
+#: projects/models.py:2065
 msgid "Name of the environment variable"
 msgstr "Nome della variabile d'ambiente"
 
-#: projects/models.py:2060
+#: projects/models.py:2069
 msgid "Value of the environment variable"
 msgstr "Valore della variabile d'ambiente"
 
-#: projects/models.py:2065
+#: projects/models.py:2074
 msgid "Project where this variable will be used"
 msgstr "Progetto dove questa variabile sarà usata"
 
-#: projects/models.py:2071
+#: projects/models.py:2080
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
@@ -2991,8 +3034,8 @@ msgstr ""
 #: projects/validators.py:119
 #, python-brace-format
 msgid ""
-"Found invalid character. Avoid these characters: "
-"<code>{invalid_characters}</code>"
+"Found invalid character. Avoid these characters: <code>{invalid_characters}</"
+"code>"
 msgstr ""
 
 #: projects/validators.py:133
@@ -3036,7 +3079,9 @@ msgstr ""
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
 "account on your <a href=\"{url}\">connected services page</a>."
-msgstr "C'è un problema con il tuo {service} account, prova a riconnettere il tuo account alla <a href=\"{url}\">pagina dei servizi collegati</a>."
+msgstr ""
+"C'è un problema con il tuo {service} account, prova a riconnettere il tuo "
+"account alla <a href=\"{url}\">pagina dei servizi collegati</a>."
 
 #: projects/views/private.py:535
 msgid "Subproject created"
@@ -3187,9 +3232,11 @@ msgstr ""
 
 #: redirects/models.py:33
 msgid ""
-"Absolute path, excluding the domain. Example: <b>/docs/</b>  or "
-"<b>/install.html</b>"
-msgstr "Path assoluto, escluso il dominio. As esempio: <b>/docs/</b> o <b>/install.html</b>"
+"Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install."
+"html</b>"
+msgstr ""
+"Path assoluto, escluso il dominio. As esempio: <b>/docs/</b> o <b>/install."
+"html</b>"
 
 #: redirects/models.py:37
 msgid "Absolute or relative URL. Example: <b>/tutorial/install.html</b>"
@@ -3254,7 +3301,7 @@ msgstr ""
 #: redirects/templates/redirects/redirect_form.html:8
 #: redirects/templates/redirects/redirect_list.html:6
 #: redirects/templates/redirects/redirect_list.html:13
-#: templates/projects/project_edit_base.html:22
+#: templates/projects/project_edit_base.html:24
 msgid "Redirects"
 msgstr "Redirezioni"
 
@@ -3398,7 +3445,7 @@ msgid "Custom domain"
 msgstr ""
 
 #: subscriptions/constants.py:26
-msgid "CDN public documentation"
+msgid "CDN for public documentation"
 msgstr ""
 
 #: subscriptions/constants.py:27
@@ -3455,8 +3502,8 @@ msgstr ""
 
 #: subscriptions/forms.py:29
 msgid ""
-"Check our <a href=\"https://about.readthedocs.com/pricing/\">pricing "
-"page</a> for more information about each plan."
+"Check our <a href=\"https://about.readthedocs.com/pricing/\">pricing page</"
+"a> for more information about each plan."
 msgstr ""
 
 #: subscriptions/notifications.py:92
@@ -3492,8 +3539,7 @@ msgstr ""
 msgid "Signed up"
 msgstr ""
 
-#. Translators: this is the subscription start date, used here as "4 days ago"
-#. or "5 months ago"
+#. Translators: this is the subscription start date, used here as "4 days ago" or "5 months ago"
 #: subscriptions/templates/subscriptions/subscription_detail.html:75
 #, python-format
 msgid "%(time_since_signup)s ago"
@@ -3513,8 +3559,8 @@ msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:107
 msgid ""
-"Use the button above to see past invoices, change your plan, and update your"
-" billing information."
+"Use the button above to see past invoices, change your plan, and update your "
+"billing information."
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:115
@@ -3536,7 +3582,8 @@ msgstr ""
 #: subscriptions/views.py:98
 msgid ""
 "There was an error connecting to Stripe, please try again in a few minutes."
-msgstr "C'è stato un errore nel connettersi a Stripe, riprova tra qualche minuto."
+msgstr ""
+"C'è stato un errore nel connettersi a Stripe, riprova tra qualche minuto."
 
 #: templates/account/email.html:5 templates/account/email.html:9
 #: templates/profiles/base_profile_edit.html:51
@@ -3573,9 +3620,11 @@ msgstr "Attenzione:"
 
 #: templates/account/email.html:46
 msgid ""
-"You currently do not have any email address set up. You should really add an"
-" email address so you can receive notifications, reset your password, etc."
-msgstr "Non hai ancora impostato nessun indirizzo email. Dovresti aggiungerne uno per ricevere notifiche, resettare la password, ecc."
+"You currently do not have any email address set up. You should really add an "
+"email address so you can receive notifications, reset your password, etc."
+msgstr ""
+"Non hai ancora impostato nessun indirizzo email. Dovresti aggiungerne uno "
+"per ricevere notifiche, resettare la password, ecc."
 
 #: templates/account/email.html:50
 msgid "Add E-mail Address"
@@ -3594,27 +3643,35 @@ msgstr "Sei sicuro di voler rimuovere l'indirizzo email selezionato?"
 msgid ""
 "To verify your email address and finish setting up your account, please go "
 "to:"
-msgstr "Per verificare il tuo indirizzo email e completare il tuo account, per favore vai a:"
+msgstr ""
+"Per verificare il tuo indirizzo email e completare il tuo account, per "
+"favore vai a:"
 
 #: templates/account/email/email_confirmation_message.html:15
 #: templates/account/email/email_confirmation_message.txt:10
 msgid ""
 "If you did not sign up for an account with Read the Docs, you can disregard "
 "this email."
-msgstr "Se non ti sei registrato per un account su Read the Docs, puoi non considerare questa email."
+msgstr ""
+"Se non ti sei registrato per un account su Read the Docs, puoi non "
+"considerare questa email."
 
 #: templates/account/email/password_reset_key_message.html:7
 #: templates/account/email/password_reset_key_message.txt:6
 msgid ""
 "A request has been made to reset your Read the Docs password. To confirm "
 "this reset request, please go to:"
-msgstr "È stata effettuata una richiesta di reimpostazione della password Leggi la documentazione. Per confermare questa richiesta di ripristino, andare a:"
+msgstr ""
+"È stata effettuata una richiesta di reimpostazione della password Leggi la "
+"documentazione. Per confermare questa richiesta di ripristino, andare a:"
 
 #: templates/account/email/password_reset_key_message.html:15
 #: templates/account/email/password_reset_key_message.txt:10
 msgid ""
 "If you did not request to reset your password, you can disregard this email."
-msgstr "Se non hai richiesto tu di resettare la tua password, puoi non considerare questa email."
+msgstr ""
+"Se non hai richiesto tu di resettare la tua password, puoi non considerare "
+"questa email."
 
 #: templates/account/email/password_reset_key_subject.txt:3
 msgid "Password reset"
@@ -3649,14 +3706,17 @@ msgstr ""
 msgid ""
 "If you have not created an account yet, then please <a "
 "href=\"%(signup_url)s\">sign up</a> first."
-msgstr "Se non hai ancora creato un profilo, provvedi prima alla tua <a href=\"%(signup_url)s\">registrazione</a>."
+msgstr ""
+"Se non hai ancora creato un profilo, provvedi prima alla tua <a "
+"href=\"%(signup_url)s\">registrazione</a>."
 
 #: templates/account/login.html:55
 #, python-format
 msgid ""
-"If you forgot your password, <a href=\"%(password_reset_url)s\">reset "
-"it.</a>"
-msgstr "Se hai dimenticato la password, <a href=\"%(password_reset_url)s\">reimpostala.</a>"
+"If you forgot your password, <a href=\"%(password_reset_url)s\">reset it.</a>"
+msgstr ""
+"Se hai dimenticato la password, <a "
+"href=\"%(password_reset_url)s\">reimpostala.</a>"
 
 #: templates/account/login.html:78
 msgid "Log in using single sign-on"
@@ -3669,8 +3729,7 @@ msgstr ""
 msgid "Change Password"
 msgstr "Cambia Password"
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
-#. unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/account/signup.html:5 templates/core/home-header.html:17
 msgid "Sign up"
 msgstr "Registrati"
@@ -3679,7 +3738,8 @@ msgstr "Registrati"
 #, python-format
 msgid ""
 "Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
-msgstr "Hai già un account? Allora per favore <a href=\"%(login_url)s\">accedi</a>."
+msgstr ""
+"Hai già un account? Allora per favore <a href=\"%(login_url)s\">accedi</a>."
 
 #: templates/account/signup.html:19
 #, python-format
@@ -3694,16 +3754,15 @@ msgstr ""
 
 #: templates/account/signup.html:33
 msgid ""
-"Sign up using the following provider. If you don't have an account with this"
-" provider, please contact your organization owner and ask about this."
+"Sign up using the following provider. If you don't have an account with this "
+"provider, please contact your organization owner and ask about this."
 msgstr ""
 
 #: templates/account/signup.html:48
 msgid ""
-"By signing up, you agree to our <a "
-"href=\"https://docs.readthedocs.io/page/terms-of-service.html\">Terms of "
-"Service</a> and <a href=\"https://docs.readthedocs.io/page/privacy-"
-"policy.html\">Privacy Policy</a>."
+"By signing up, you agree to our <a href=\"https://docs.readthedocs.io/page/"
+"terms-of-service.html\">Terms of Service</a> and <a href=\"https://docs."
+"readthedocs.io/page/privacy-policy.html\">Privacy Policy</a>."
 msgstr ""
 
 #: templates/archive/index.html:5
@@ -3722,7 +3781,9 @@ msgstr "Blog"
 msgid ""
 "Sign up for our newsletter to get our latest blog updates delivered to your "
 "inbox weekly."
-msgstr "Iscriviti alla nostra newsletter per ricevere settimanalmente gli ultimi aggiornamenti del blog nella tua casella di posta."
+msgstr ""
+"Iscriviti alla nostra newsletter per ricevere settimanalmente gli ultimi "
+"aggiornamenti del blog nella tua casella di posta."
 
 #: templates/base.html:174
 msgid "Subscribe"
@@ -3799,8 +3860,8 @@ msgstr "Filtro"
 #: templates/builds/build_detail.html:39
 #, python-format
 msgid ""
-"Our new beta dashboard is now available for testing! <a href=\"%(url)s\">Try"
-" viewing this build on the new dashboard</a>."
+"Our new beta dashboard is now available for testing! <a href=\"%(url)s\">Try "
+"viewing this build on the new dashboard</a>."
 msgstr ""
 
 #: templates/builds/build_detail.html:53
@@ -3913,15 +3974,15 @@ msgstr "Etichette più comuni"
 
 #: templates/builds/versionautomationrule_list.html:6
 #: templates/builds/versionautomationrule_list.html:15
-#: templates/projects/project_edit_base.html:27
+#: templates/projects/project_edit_base.html:29
 msgid "Automation Rules"
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:20
 msgid ""
-"Automate actions on new branches and tags. Check the <a "
-"href=\"https://docs.readthedocs.io/page/automation-"
-"rules.html\">documentation on automation rules</a> for more information."
+"Automate actions on new branches and tags. Check the <a href=\"https://docs."
+"readthedocs.io/page/automation-rules.html\">documentation on automation "
+"rules</a> for more information."
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:32
@@ -3942,8 +4003,7 @@ msgstr "Attività recente"
 #, python-format
 msgid ""
 "%(type)s \"%(version)s\" matched the pattern <span>\"%(pattern)s\"</span>, "
-"and the action <a href=\"%(url)s\">%(action)s</a> was performed %(date)s "
-"ago."
+"and the action <a href=\"%(url)s\">%(action)s</a> was performed %(date)s ago."
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:101
@@ -4038,7 +4098,8 @@ msgstr "Deposito Codice"
 
 #: templates/core/project_detail_right.html:21
 msgid "Used in URL's and in code to represent the project name"
-msgstr "Utilizzato negli URL e nel codice per rappresentare il nome del progetto"
+msgstr ""
+"Utilizzato negli URL e nel codice per rappresentare il nome del progetto"
 
 #: templates/core/project_detail_right.html:22
 msgid "Project Slug"
@@ -4066,7 +4127,7 @@ msgid "No builds yet"
 msgstr "Ancora nessuna build"
 
 #: templates/core/project_detail_right.html:51
-#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_edit_base.html:23
 #: templates/projects/project_users.html:9
 msgid "Maintainers"
 msgstr "Gestori"
@@ -4086,14 +4147,15 @@ msgstr "Il progetto non ha tag."
 #: templates/core/project_detail_right.html:90
 #, python-format
 msgid "Add some in your <a href=\"%(edit_url)s\">project settings</a>."
-msgstr "Aggiungine nelle tue <a href=\"%(edit_url)s\">impostazioni di progetto</a>."
+msgstr ""
+"Aggiungine nelle tue <a href=\"%(edit_url)s\">impostazioni di progetto</a>."
 
 #: templates/core/project_detail_right.html:100
 msgid "Short URLs"
 msgstr "URL Brevi"
 
 #: templates/core/project_detail_right.html:111
-#: templates/projects/project_edit_base.html:23
+#: templates/projects/project_edit_base.html:25
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr "Traduzioni"
@@ -4158,8 +4220,7 @@ msgstr "Iniziamo."
 msgid "Maze Found"
 msgstr "Trovato Labirinto"
 
-#: templates/errors/dashboard/404.html:6
-#: templates/errors/dashboard/404.html:11
+#: templates/errors/dashboard/404.html:6 templates/errors/dashboard/404.html:11
 #: templates/errors/proxito/404/base.html:6
 #: templates/errors/proxito/404/base.html:11
 msgid "404 Not Found"
@@ -4176,9 +4237,8 @@ msgstr ""
 msgid "Too many requests"
 msgstr "Troppe richieste"
 
-#: templates/errors/dashboard/4xx.html:6
-#: templates/errors/dashboard/4xx.html:11 templates/errors/proxito/4xx.html:7
-#: templates/errors/proxito/4xx.html:11
+#: templates/errors/dashboard/4xx.html:6 templates/errors/dashboard/4xx.html:11
+#: templates/errors/proxito/4xx.html:7 templates/errors/proxito/4xx.html:11
 msgid "Bad request"
 msgstr ""
 
@@ -4205,7 +4265,14 @@ msgid ""
 "Read the Docs dashboard and we attempted to intelligently guess the correct "
 "project based on DNS settings. Now, we believe that explicit is better than "
 "implicit. Below are some steps to help you get your domain working again:"
-msgstr "Se controllando questo dominio credici ci sia un errore, per favore verifica la <a href=\"%(docsurl)s\">documentazione del custom domain</a>. In passato, abbiamo permesso a domini custom di indirizzare a noi senza configurare il dominio nella dashboard di Read the Docs e abbiamo provato a individuare il progetto corretto basandoci sulle impostazioni dei DNS. Ora, crediamo che esplicito sia meglio di implicito. Sotto ci sono alcuni passi per aiutarti a far funzionare il tuo dominio di nuovo:"
+msgstr ""
+"Se controllando questo dominio credici ci sia un errore, per favore verifica "
+"la <a href=\"%(docsurl)s\">documentazione del custom domain</a>. In passato, "
+"abbiamo permesso a domini custom di indirizzare a noi senza configurare il "
+"dominio nella dashboard di Read the Docs e abbiamo provato a individuare il "
+"progetto corretto basandoci sulle impostazioni dei DNS. Ora, crediamo che "
+"esplicito sia meglio di implicito. Sotto ci sono alcuni passi per aiutarti a "
+"far funzionare il tuo dominio di nuovo:"
 
 #: templates/errors/proxito/404/dns.html:23
 #: templates/errors/proxito/404/include_tips.html:3
@@ -4219,13 +4286,16 @@ msgstr ""
 
 #: templates/errors/proxito/404/dns.html:28
 msgid "Ensure you have a CNAME record pointing to <code>readthedocs.io</code>"
-msgstr "Assicurati di avere un record CNAME che punta a <code>readthedocs.io</code>"
+msgstr ""
+"Assicurati di avere un record CNAME che punta a <code>readthedocs.io</code>"
 
 #: templates/errors/proxito/404/dns.html:29
 msgid ""
 "Add your desired domain in the Read the Docs dashboard for your project "
 "(under Your Project &gt;&gt; Admin &gt;&gt; Domains)"
-msgstr "Aggiungi il tuo dominio nella dashboard di Read the Docs per il tuo progetto (sotto Il tuo progetto &gt;&gt; Amministrazioni &gt;&gt; Domini)"
+msgstr ""
+"Aggiungi il tuo dominio nella dashboard di Read the Docs per il tuo progetto "
+"(sotto Il tuo progetto &gt;&gt; Amministrazioni &gt;&gt; Domini)"
 
 #: templates/errors/proxito/404/include_error_message.html:4
 #, python-format
@@ -4265,8 +4335,8 @@ msgstr ""
 #: templates/errors/proxito/404/no_project.html:9
 #, python-format
 msgid ""
-"The project for <code>%(domain)s</code> that you are looking for either does"
-" not exist, has been deleted or doesn't have any successful builds yet."
+"The project for <code>%(domain)s</code> that you are looking for either does "
+"not exist, has been deleted or doesn't have any successful builds yet."
 msgstr ""
 
 #: templates/errors/proxito/418.html:7 templates/errors/proxito/418.html:11
@@ -4284,7 +4354,8 @@ msgstr "Quello che stai dicendo:"
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
 msgstr "Vuoi contrassegnare \"%(object)s\" come \"%(flag_type.title)s\"?"
 
 #: templates/flagging/flag_confirm.html:23
@@ -4304,7 +4375,8 @@ msgstr "Esito positivo per contrassegno"
 #: templates/flagging/flag_success.html:16
 #, python-format
 msgid "You have successfully flagged \"%(object)s\" as \"%(flag_type.title)s\""
-msgstr "Hai contrassegnato corettamente \"%(object)s\" come \"%(flag_type.title)s\""
+msgstr ""
+"Hai contrassegnato corettamente \"%(object)s\" come \"%(flag_type.title)s\""
 
 #: templates/flagging/flag_success.html:18
 msgid "Thank you for contributing to the quality of this site!"
@@ -4313,9 +4385,13 @@ msgstr "Grazie per il tuo contributo alla qualità di questo sito!"
 #: templates/homepage.html:9
 msgid ""
 "Read the Docs simplifies technical documentation by automating building, "
-"versioning, and hosting for you. Build up-to-date documentation for the web,"
-" print, and offline use on every version control push automatically."
-msgstr "Read the Docs semplifica la documentazione tecnica automatizzando la creazione, il controllo delle versioni e l'hosting per te. Crea documentazione aggiornata per il web, la stampa e l'uso offline su ogni push di controllo versione automaticamente."
+"versioning, and hosting for you. Build up-to-date documentation for the web, "
+"print, and offline use on every version control push automatically."
+msgstr ""
+"Read the Docs semplifica la documentazione tecnica automatizzando la "
+"creazione, il controllo delle versioni e l'hosting per te. Crea "
+"documentazione aggiornata per il web, la stampa e l'uso offline su ogni push "
+"di controllo versione automaticamente."
 
 #: templates/homepage.html:12
 msgid "Home"
@@ -4329,7 +4405,9 @@ msgstr "La documentazione tecnica vive qui"
 msgid ""
 "Read the Docs simplifies software documentation by automating building, "
 "versioning, and hosting of your docs for you."
-msgstr "Read the Docs semplifica la documentazione del software automatizzando la creazione, il versioning e l'hosting dei tuoi documenti per te."
+msgstr ""
+"Read the Docs semplifica la documentazione del software automatizzando la "
+"creazione, il versioning e l'hosting dei tuoi documenti per te."
 
 #: templates/homepage.html:58
 msgid "Free docs hosting for open source"
@@ -4359,8 +4437,8 @@ msgstr ""
 
 #: templates/homepage.html:86
 msgid ""
-"We build and host your docs for the web, but they are also viewable as PDFs,"
-" as single page HTML, and for eReaders. No additional configuration is "
+"We build and host your docs for the web, but they are also viewable as PDFs, "
+"as single page HTML, and for eReaders. No additional configuration is "
 "required."
 msgstr ""
 
@@ -4370,10 +4448,14 @@ msgstr ""
 
 #: templates/homepage.html:96
 msgid ""
-"We can host and build multiple versions of your docs so having a 1.0 version"
-" of your docs and a 2.0 version of your docs is as easy as having a separate"
-" branch or tag in your version control system."
-msgstr "Siamo in grado di ospitare e creare più versioni dei tuoi documenti, quindi avere una versione 1.0 e una versione 2.0 dei tuoi documenti è facile come avere un branch o un tag separato nel tuo sistema di controllo delle versioni."
+"We can host and build multiple versions of your docs so having a 1.0 version "
+"of your docs and a 2.0 version of your docs is as easy as having a separate "
+"branch or tag in your version control system."
+msgstr ""
+"Siamo in grado di ospitare e creare più versioni dei tuoi documenti, quindi "
+"avere una versione 1.0 e una versione 2.0 dei tuoi documenti è facile come "
+"avere un branch o un tag separato nel tuo sistema di controllo delle "
+"versioni."
 
 #: templates/homepage.html:109
 msgid "Read the Tutorial"
@@ -4394,10 +4476,10 @@ msgstr ""
 msgid ""
 "<ul class=\"donate-about\"> <li>Serve over <b>55 million pages</b> of "
 "documentation a month</li> <li>Serve over <b>40 TB</b> of documentation a "
-"month</li> <li>Host over <b>80,000 open source projects</b> and support over"
-" <b>100,000 users</b></li> <li>Are supported by a <a "
-"href=\"https://docs.readthedocs.io/en/latest/team.html\">very small team</a>"
-" of dedicated engineers</li> </ul>"
+"month</li> <li>Host over <b>80,000 open source projects</b> and support over "
+"<b>100,000 users</b></li> <li>Are supported by a <a href=\"https://docs."
+"readthedocs.io/en/latest/team.html\">very small team</a> of dedicated "
+"engineers</li> </ul>"
 msgstr ""
 
 #: templates/homepage.html:143
@@ -4407,30 +4489,28 @@ msgstr "Read the Docs è finanziato dalla community"
 #: templates/homepage.html:149
 #, python-format
 msgid ""
-"We fund our operations through <a "
-"href=\"https://www.ethicalads.io/advertisers/?ref=rtd\">advertising</a>, "
-"corporate-hosted documentation with <a href=\"https://readthedocs.com\">Read"
-" the Docs for Business</a>, <a href=\"%(donate_url)s\">donations</a>, and we"
-" are supported by a number of generous <a "
-"href=\"https://docs.readthedocs.io/page/sponsors.html\">sponsors</a>."
+"We fund our operations through <a href=\"https://www.ethicalads.io/"
+"advertisers/?ref=rtd\">advertising</a>, corporate-hosted documentation with "
+"<a href=\"https://readthedocs.com\">Read the Docs for Business</a>, <a "
+"href=\"%(donate_url)s\">donations</a>, and we are supported by a number of "
+"generous <a href=\"https://docs.readthedocs.io/page/sponsors."
+"html\">sponsors</a>."
 msgstr ""
 
 #: templates/homepage.html:158
 msgid ""
 "Read the Docs is open source and community supported. It depends on users "
 "like you to contribute to development, support, and operations. You can "
-"learn more about how to <a "
-"href=\"https://docs.readthedocs.io/page/contribute.html\">contribute</a> in "
-"our docs. Thanks so much to our wonderful <a "
-"href=\"https://docs.readthedocs.io/page/team.html\">team</a> who helps us "
-"run the site. Read the Docs wouldn't be possible without them."
+"learn more about how to <a href=\"https://docs.readthedocs.io/page/"
+"contribute.html\">contribute</a> in our docs. Thanks so much to our "
+"wonderful <a href=\"https://docs.readthedocs.io/page/team.html\">team</a> "
+"who helps us run the site. Read the Docs wouldn't be possible without them."
 msgstr ""
 
 #: templates/homepage.html:168
 msgid ""
-"Hosting for the project is graciously provided by <a "
-"href=\"https://aws.amazon.com/\">AWS</a> and <a "
-"href=\"https://cloudflare.com/\">Cloudflare</a>."
+"Hosting for the project is graciously provided by <a href=\"https://aws."
+"amazon.com/\">AWS</a> and <a href=\"https://cloudflare.com/\">Cloudflare</a>."
 msgstr ""
 
 #: templates/notifications/send_notification_form.html:6
@@ -4490,7 +4570,9 @@ msgstr "Approfondisci <a href=\"%(project_url)s\">qui</a>."
 msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
-msgstr "È un «post-commit hook». Configuralo nell'amministrazione del tuo progetto come metodo POST, ci consentirà di aggiornare automaticamente i cambiamenti."
+msgstr ""
+"È un «post-commit hook». Configuralo nell'amministrazione del tuo progetto "
+"come metodo POST, ci consentirà di aggiornare automaticamente i cambiamenti."
 
 #: templates/profiles/base_profile.html:27
 #: templates/profiles/base_profile_edit.html:30
@@ -4521,7 +4603,7 @@ msgid "Gold Membership"
 msgstr ""
 
 #: templates/profiles/base_profile_edit.html:57
-#: templates/projects/project_edit_base.html:33
+#: templates/projects/project_edit_base.html:35
 msgid "Advertising"
 msgstr "Pubblicità"
 
@@ -4539,15 +4621,17 @@ msgstr ""
 msgid ""
 "Read the Docs is an open source project. In order to maintain service, we "
 "rely on both the support of our users, and from sponsor support."
-msgstr "Read the Docs è un progetto open source. Per riuscire a mantenere il servizio, ci affidiamo sia al supporto dei nostri utenti, che a quello dei nostri sponsor."
+msgstr ""
+"Read the Docs è un progetto open source. Per riuscire a mantenere il "
+"servizio, ci affidiamo sia al supporto dei nostri utenti, che a quello dei "
+"nostri sponsor."
 
 #: templates/profiles/private/advertising_profile.html:30
 msgid ""
 "For more details on advertising on Read the Docs including the privacy "
 "protections we have in place for users and community advertising we run on "
-"behalf of the open source community, see <a "
-"href=\"https://docs.readthedocs.io/page/advertising/ethical-"
-"advertising.html\">our documentation</a>."
+"behalf of the open source community, see <a href=\"https://docs.readthedocs."
+"io/page/advertising/ethical-advertising.html\">our documentation</a>."
 msgstr ""
 
 #: templates/profiles/private/advertising_profile.html:41
@@ -4571,9 +4655,9 @@ msgstr ""
 
 #: templates/profiles/private/delete_account.html:34
 msgid ""
-"<strong>All organizations and its projects where you are the only owner will"
-" be deleted.</strong> If you want to keep an organization, add another owner"
-" or transfer ownership. The following organizations and all their projects "
+"<strong>All organizations and its projects where you are the only owner will "
+"be deleted.</strong> If you want to keep an organization, add another owner "
+"or transfer ownership. The following organizations and all their projects "
 "will be deleted."
 msgstr ""
 
@@ -4597,9 +4681,9 @@ msgstr ""
 #: templates/profiles/private/token_list.html:13
 msgid ""
 "Personal Access Token are tokens that allow you to use the Read the Docs "
-"APIv3 being authenticated as yourself. See <a "
-"href=\"https://docs.readthedocs.org/page/api/v3.html\">APIv3 "
-"documentation</a> for more information."
+"APIv3 being authenticated as yourself. See <a href=\"https://docs."
+"readthedocs.org/page/api/v3.html\">APIv3 documentation</a> for more "
+"information."
 msgstr ""
 
 #: templates/profiles/private/token_list.html:25
@@ -4639,8 +4723,8 @@ msgstr "Crea Dominio"
 #: templates/projects/domain_form.html:33
 #, python-format
 msgid ""
-"To configure this domain add a CNAME record in your DNS pointing your custom"
-" domain to <code>%(cname_target)s</code>."
+"To configure this domain add a CNAME record in your DNS pointing your custom "
+"domain to <code>%(cname_target)s</code>."
 msgstr ""
 
 #: templates/projects/domain_form.html:41
@@ -4658,7 +4742,7 @@ msgid "Saving the domain will revalidate the SSL certificate"
 msgstr ""
 
 #: templates/projects/domain_list.html:12
-#: templates/projects/project_edit_base.html:20
+#: templates/projects/project_edit_base.html:22
 msgid "Domains"
 msgstr "Domini"
 
@@ -4667,8 +4751,8 @@ msgstr "Domini"
 msgid ""
 "This project is a subproject of <a "
 "href=\"%(superproject_url)s\">%(superproject)s</a>, its documentation will "
-"always be served from the <code>%(domain)s</code> domain. <a "
-"href=\"https://docs.readthedocs.io/page/subprojects.html#custom-domain-on-"
+"always be served from the <code>%(domain)s</code> domain. <a href=\"https://"
+"docs.readthedocs.io/page/subprojects.html#custom-domain-on-"
 "subprojects\">Learn more</a>."
 msgstr ""
 
@@ -4703,7 +4787,7 @@ msgstr "Aggiungi"
 #: templates/projects/environmentvariable_form.html:12
 #: templates/projects/environmentvariable_list.html:5
 #: templates/projects/environmentvariable_list.html:12
-#: templates/projects/project_edit_base.html:26
+#: templates/projects/project_edit_base.html:28
 msgid "Environment Variables"
 msgstr "Variabili d'ambiente"
 
@@ -4742,8 +4826,8 @@ msgstr "I Dettagli del Progetto "
 msgid ""
 "To import a project, start by entering a few details about your repository. "
 "You can set additional configuration options for your documentation in a <a "
-"href=\"https://docs.readthedocs.io/en/stable/config-"
-"file/v2.html\">.readthedocs.yml</a> file."
+"href=\"https://docs.readthedocs.io/en/stable/config-file/v2.html\">."
+"readthedocs.yml</a> file."
 msgstr ""
 
 #: templates/projects/import_config.html:5
@@ -4753,10 +4837,10 @@ msgstr ""
 #: templates/projects/import_config.html:8
 msgid ""
 "Make sure your project has a <code>.readthedocs.yaml</code> configuration "
-"file at the root directory of your repository. This file is required by Read"
-" the Docs to build your documentation. You can <a "
-"href=\"https://docs.readthedocs.io/en/stable/config-file/v2.html\">read more"
-" about our configuration file in our documentation</a>."
+"file at the root directory of your repository. This file is required by Read "
+"the Docs to build your documentation. You can <a href=\"https://docs."
+"readthedocs.io/en/stable/config-file/v2.html\">read more about our "
+"configuration file in our documentation</a>."
 msgstr ""
 
 #: templates/projects/import_config.html:16
@@ -4778,8 +4862,7 @@ msgid ""
 "href=\"%(support_url)s\">contacting support</a>."
 msgstr ""
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate',
-#. 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr "Contrassegna progetto come"
@@ -4801,7 +4884,7 @@ msgstr "Duplicato"
 #: templates/projects/integration_form.html:12
 #: templates/projects/integration_list.html:5
 #: templates/projects/integration_list.html:12
-#: templates/projects/project_edit_base.html:25
+#: templates/projects/project_edit_base.html:27
 msgid "Integrations"
 msgstr "Integrazioni"
 
@@ -4861,16 +4944,15 @@ msgstr ""
 msgid ""
 "This integration does not have a secret, the authenticity of the incoming "
 "webhook cannot be verified. <strong>Click on \"Resync webhook\" to generate "
-"a secret.</strong> Read more in our <a "
-"href=\"https://blog.readthedocs.com/security-update-on-incoming-"
-"webhooks/\">blog post</a>."
+"a secret.</strong> Read more in our <a href=\"https://blog.readthedocs.com/"
+"security-update-on-incoming-webhooks/\">blog post</a>."
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:92
 msgid ""
 "For more information on manually configuring a webhook, refer to <a "
-"href=\"https://docs.readthedocs.io/page/guides/setup/git-repo-"
-"automatic.html\"> our webhook documentation. </a>"
+"href=\"https://docs.readthedocs.io/page/guides/setup/git-repo-automatic."
+"html\"> our webhook documentation. </a>"
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:104
@@ -4940,10 +5022,13 @@ msgstr "Inizia a compilare la tua documentazione"
 
 #: templates/projects/onboard_detail.html:10
 msgid ""
-"This project has not been built yet. Try building the latest version now, or"
-" if you would like to build a specific version, select the version below and"
-" your documentation build will be triggered."
-msgstr "Questo progetto non è ancora stato compilato. Prova a compilare l'ultima versione ora, oppure se desideri creare una versione specifica, seleziona la versione di seguito e verrà avviata la compilazione della documentazione."
+"This project has not been built yet. Try building the latest version now, or "
+"if you would like to build a specific version, select the version below and "
+"your documentation build will be triggered."
+msgstr ""
+"Questo progetto non è ancora stato compilato. Prova a compilare l'ultima "
+"versione ora, oppure se desideri creare una versione specifica, seleziona la "
+"versione di seguito e verrà avviata la compilazione della documentazione."
 
 #: templates/projects/onboard_detail.html:21
 msgid "Build latest version"
@@ -4956,9 +5041,8 @@ msgstr "La documentazione e' pronta di usare. "
 #: templates/projects/onboard_detail.html:33
 msgid ""
 "Your documentation has been built. Ensure your documentation is kept up to "
-"date with every commit to your repository, by <a "
-"href=\"http://docs.readthedocs.io/page/webhooks.html\">setting up a "
-"webhook</a>."
+"date with every commit to your repository, by <a href=\"http://docs."
+"readthedocs.io/page/webhooks.html\">setting up a webhook</a>."
 msgstr ""
 
 #: templates/projects/onboard_detail.html:41
@@ -4971,8 +5055,8 @@ msgstr "La compilazione della tua documentazione è fallita"
 
 #: templates/projects/onboard_detail.html:50
 msgid ""
-"There was a problem building your documentation, you can see what went wrong"
-" in the build output. If you need more help, check out some of the <a "
+"There was a problem building your documentation, you can see what went wrong "
+"in the build output. If you need more help, check out some of the <a "
 "href=\"http://docs.readthedocs.io/page/faq.html\">problems frequently "
 "encountered</a> during builds."
 msgstr ""
@@ -4989,7 +5073,9 @@ msgstr "La tua documentazione sta compilando"
 msgid ""
 "You'll be able to view your documentation in a minute or two, once your "
 "project is done building."
-msgstr "La tua documentazione sarà disponibile in un minuto o due, non appena il tuo progetto sarà compilato."
+msgstr ""
+"La tua documentazione sarà disponibile in un minuto o due, non appena il tuo "
+"progetto sarà compilato."
 
 #: templates/projects/onboard_import.html:5
 msgid "Ready to share your documentation"
@@ -4998,17 +5084,16 @@ msgstr "Pronto a condividere la tua documentazione"
 #: templates/projects/onboard_import.html:10
 #, python-format
 msgid ""
-"You don't have any projects yet, but you can start building documentation by"
-" importing one. Not sure how to start documenting your project? Check out "
-"the <a href=\"%(tutorial_url)s\">Tutorial</a> to learn how."
+"You don't have any projects yet, but you can start building documentation by "
+"importing one. Not sure how to start documenting your project? Check out the "
+"<a href=\"%(tutorial_url)s\">Tutorial</a> to learn how."
 msgstr ""
 
 #: templates/projects/onboard_import.html:19
 #, python-format
 msgid ""
-"In a hurry? <a href=\"%(template_project_url)s\">Fork our template "
-"project</a> on GitHub, and <a href=\"%(projects_import_url)s\">import "
-"it</a>."
+"In a hurry? <a href=\"%(template_project_url)s\">Fork our template project</"
+"a> on GitHub, and <a href=\"%(projects_import_url)s\">import it</a>."
 msgstr ""
 
 #: templates/projects/onboard_import.html:25
@@ -5025,7 +5110,9 @@ msgstr "Annunci della documentazione"
 msgid ""
 "We will periodically run advertisements on built documentation pages for "
 "sponsors, however we have strict guidelines on advertisements:"
-msgstr "Periodicamente pubblicheremo per conto degli sponsor degli annunci su pagine di documentazione, tuttavia abbiamo linee guida rigorose sulla pubblicità:"
+msgstr ""
+"Periodicamente pubblicheremo per conto degli sponsor degli annunci su pagine "
+"di documentazione, tuttavia abbiamo linee guida rigorose sulla pubblicità:"
 
 #: templates/projects/project_advertising.html:32
 msgid "We don't give sponsors access to user information."
@@ -5044,12 +5131,11 @@ msgstr ""
 #: templates/projects/project_advertising.html:50
 msgid ""
 "For more details on advertising on Read the Docs including the privacy "
-"protections we have in place for users and <a "
-"href=\"https://docs.readthedocs.io/page/advertising/ethical-"
-"advertising.html#community-ads\">community advertising</a> we run on behalf "
-"of the open source community, see <a "
-"href=\"https://docs.readthedocs.io/page/advertising/ethical-"
-"advertising.html\">our documentation</a>."
+"protections we have in place for users and <a href=\"https://docs."
+"readthedocs.io/page/advertising/ethical-advertising.html#community-"
+"ads\">community advertising</a> we run on behalf of the open source "
+"community, see <a href=\"https://docs.readthedocs.io/page/advertising/"
+"ethical-advertising.html\">our documentation</a>."
 msgstr ""
 
 #: templates/projects/project_advertising.html:59
@@ -5060,17 +5146,17 @@ msgstr "Rinuncia"
 #, python-format
 msgid ""
 "In addition to the advertising preferences we have for <a "
-"href=\"%(ads_preferences_url)s\">individual users</a>, we have multiple ways"
-" for projects to opt out of advertising on Read the Docs."
+"href=\"%(ads_preferences_url)s\">individual users</a>, we have multiple ways "
+"for projects to opt out of advertising on Read the Docs."
 msgstr ""
 
 #: templates/projects/project_advertising.html:71
 msgid ""
 "If you are part of a company that uses Read the Docs to host documentation "
-"for a commercial product, please consider <a "
-"href=\"https://readthedocs.com/\">Read the Docs for Business</a> which "
-"offers a completely ad-free experience, private repositories, private "
-"documentation, additional build resources, and dedicated support."
+"for a commercial product, please consider <a href=\"https://readthedocs.com/"
+"\">Read the Docs for Business</a> which offers a completely ad-free "
+"experience, private repositories, private documentation, additional build "
+"resources, and dedicated support."
 msgstr ""
 
 #: templates/projects/project_advertising.html:81
@@ -5092,15 +5178,15 @@ msgstr ""
 msgid ""
 "If you would like to completely remove advertising from your open source "
 "project, but both Read the Docs for Business and our Gold memberships don't "
-"seem like the right fit, please <a "
-"href=\"mailto:ads@readthedocs.org?subject=Alternatives%%20to%%20advertising\">get"
-" in touch</a> to discuss alternatives to advertising."
+"seem like the right fit, please <a href=\"mailto:ads@readthedocs.org?"
+"subject=Alternatives%%20to%%20advertising\">get in touch</a> to discuss "
+"alternatives to advertising."
 msgstr ""
 
 #: templates/projects/project_advertising.html:113
 msgid ""
-"If you are a company hosting commercial documentation on our community site,"
-" we do not allow removing paid advertisements on your documentation. Please "
+"If you are a company hosting commercial documentation on our community site, "
+"we do not allow removing paid advertisements on your documentation. Please "
 "consider Read the Docs for Business or a Gold membership."
 msgstr ""
 
@@ -5120,7 +5206,9 @@ msgstr "Crea un Nuovo Progetto"
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
-msgstr "Crea qui la nuova documentazione. Se hai già documenti in un deposito codice pubblico."
+msgstr ""
+"Crea qui la nuova documentazione. Se hai già documenti in un deposito codice "
+"pubblico."
 
 #: templates/projects/project_create.html:15
 msgid "import an existing project"
@@ -5168,9 +5256,8 @@ msgstr "Leggi di più"
 #: templates/projects/project_dashboard_base.html:146
 #, python-format
 msgid ""
-"Check out the <a href=\"%(rtd_docs_url)s\">documentation for Read the "
-"Docs</a>. It contains lots of information about how to get the most out of "
-"RTD."
+"Check out the <a href=\"%(rtd_docs_url)s\">documentation for Read the Docs</"
+"a>. It contains lots of information about how to get the most out of RTD."
 msgstr ""
 
 #: templates/projects/project_delete.html:4
@@ -5207,10 +5294,14 @@ msgid "Delete project"
 msgstr "Cancella progetto"
 
 #: templates/projects/project_edit_base.html:19
+msgid " Addons"
+msgstr ""
+
+#: templates/projects/project_edit_base.html:21
 msgid "Edit Versions"
 msgstr ""
 
-#: templates/projects/project_edit_base.html:24
+#: templates/projects/project_edit_base.html:26
 #: templates/projects/projectrelationship_form.html:5
 #: templates/projects/projectrelationship_form.html:12
 #: templates/projects/projectrelationship_list.html:5
@@ -5218,7 +5309,7 @@ msgstr ""
 msgid "Subprojects"
 msgstr "Sottoprogetti"
 
-#: templates/projects/project_edit_base.html:28
+#: templates/projects/project_edit_base.html:30
 #: templates/projects/webhook_exchange_detail.html:5
 #: templates/projects/webhook_form.html:5
 #: templates/projects/webhook_form.html:11
@@ -5227,19 +5318,19 @@ msgstr "Sottoprogetti"
 msgid "Webhooks"
 msgstr ""
 
-#: templates/projects/project_edit_base.html:29
+#: templates/projects/project_edit_base.html:31
 #: templates/projects/project_notifications.html:5
 #: templates/projects/project_notifications.html:12
 msgid "Email Notifications"
 msgstr ""
 
-#: templates/projects/project_edit_base.html:30
+#: templates/projects/project_edit_base.html:32
 #: templates/projects/project_traffic_analytics.html:6
 #: templates/projects/project_traffic_analytics.html:11
 msgid "Traffic Analytics"
 msgstr ""
 
-#: templates/projects/project_edit_base.html:31
+#: templates/projects/project_edit_base.html:33
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
 msgid "Search Analytics"
@@ -5273,17 +5364,22 @@ msgstr ""
 msgid ""
 "No remote repositories found, try <a href=\"#\" %(binding)s>refreshing your "
 "accounts</a>."
-msgstr "Non è stato trovato alcun repository, prova ad <a href=\"#\" %(binding)s>aggiornare i tuoi account</a>."
+msgstr ""
+"Non è stato trovato alcun repository, prova ad <a href=\"#\" "
+"%(binding)s>aggiornare i tuoi account</a>."
 
 #: templates/projects/project_import.html:104
 msgid ""
 "You don't currently have any connected accounts. Connect your account to be "
 "able to easily set up projects."
-msgstr "Non hai attualmente alcun account collegato. Collega il tuo account per iniziare a creare progetti."
+msgstr ""
+"Non hai attualmente alcun account collegato. Collega il tuo account per "
+"iniziare a creare progetti."
 
 #: templates/projects/project_import.html:143
 msgid "This repository requires admin access to import"
-msgstr "Questo repository richiede accesso di amministrazione per essere importato."
+msgstr ""
+"Questo repository richiede accesso di amministrazione per essere importato."
 
 #: templates/projects/project_import.html:152
 msgid "Locked"
@@ -5300,9 +5396,11 @@ msgstr ""
 
 #: templates/projects/project_import.html:214
 msgid ""
-"You can import your project manually if it isn't listed here or connected to"
-" one of your accounts."
-msgstr "Puoi importare il tuo progetto manualmente se non è listato qui o collegato ad uno dei tuoi account."
+"You can import your project manually if it isn't listed here or connected to "
+"one of your accounts."
+msgstr ""
+"Puoi importare il tuo progetto manualmente se non è listato qui o collegato "
+"ad uno dei tuoi account."
 
 #: templates/projects/project_import.html:221
 msgid "Import Manually"
@@ -5387,7 +5485,8 @@ msgstr ""
 msgid ""
 "\n"
 "    * The way that we track 404 pages is on our backend hosting.\n"
-"    It's possible the number of times each page is viewed is undercounted because of caching in the browser or in a CDN.\n"
+"    It's possible the number of times each page is viewed is undercounted "
+"because of caching in the browser or in a CDN.\n"
 "    "
 msgstr ""
 
@@ -5398,7 +5497,9 @@ msgstr "Modifica Traduzioni"
 #: templates/projects/project_translations.html:16
 #: templates/projects/project_translations_form.html:16
 msgid "To add a translation to your project, select a project below."
-msgstr "Per aggiungere una traduzione al tuo progetto, seleziona un progetto in basso."
+msgstr ""
+"Per aggiungere una traduzione al tuo progetto, seleziona un progetto in "
+"basso."
 
 #: templates/projects/project_translations.html:24
 #: templates/projects/project_translations_form.html:24
@@ -5414,7 +5515,10 @@ msgstr ""
 msgid ""
 "This project is already configured as the <code>%(language)s</code> "
 "translation of \"%(main_project)s\". Nested translations are not supported."
-msgstr "Questo progetto è già configurato come la <code>%(language)s</code> traduzione di \"%(main_project)s\". Le traduzioni innestate non sono supportate."
+msgstr ""
+"Questo progetto è già configurato come la <code>%(language)s</code> "
+"traduzione di \"%(main_project)s\". Le traduzioni innestate non sono "
+"supportate."
 
 #: templates/projects/project_translations.html:38
 #: templates/projects/project_translations_form.html:38
@@ -5448,7 +5552,9 @@ msgstr "Modifica Gestori"
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
-msgstr "Con questo puoi aggiungere gestori al tuo progetto. Da usare con cautela, da accesso come super utente al progetto!"
+msgstr ""
+"Con questo puoi aggiungere gestori al tuo progetto. Da usare con cautela, da "
+"accesso come super utente al progetto!"
 
 #: templates/projects/project_users.html:49
 msgid "Add maintainer"
@@ -5467,9 +5573,9 @@ msgstr "%(version_name)s"
 #: templates/projects/project_version_detail.html:28
 msgid ""
 "This version is inactive but its documentation is still available online. "
-"You can <a href=\"#\" "
-"onclick=\"document.forms['version_delete_html'].submit();\">delete this "
-"version's documentation</a> if you want to remove it completely."
+"You can <a href=\"#\" onclick=\"document.forms['version_delete_html']."
+"submit();\">delete this version's documentation</a> if you want to remove it "
+"completely."
 msgstr ""
 
 #: templates/projects/project_version_list.html:24
@@ -5511,10 +5617,9 @@ msgstr ""
 
 #: templates/projects/projectrelationship_form.html:16
 msgid ""
-"Using subprojects allows you to serve multiple projects from the same domain"
-" as your main project. <a "
-"href=\"https://docs.readthedocs.io/en/stable/subprojects.html\">Learn "
-"more</a>."
+"Using subprojects allows you to serve multiple projects from the same domain "
+"as your main project. <a href=\"https://docs.readthedocs.io/en/stable/"
+"subprojects.html\">Learn more</a>."
 msgstr ""
 
 #: templates/projects/projectrelationship_form.html:28
@@ -5534,14 +5639,19 @@ msgstr "Aggiungi sottoprogetto"
 msgid ""
 "Subprojects are projects hosted from the same URL as their parent project. "
 "This is useful for organizing multiple projects under a custom domain."
-msgstr "I sottoprogetti sono ospitati allo stesso URL del loro progetto padre. Questa cosa è utile per organizzare progetti multipli sotto un dominio custom."
+msgstr ""
+"I sottoprogetti sono ospitati allo stesso URL del loro progetto padre. "
+"Questa cosa è utile per organizzare progetti multipli sotto un dominio "
+"custom."
 
 #: templates/projects/projectrelationship_list.html:24
 #, python-format
 msgid ""
 "This project is already configured as a subproject of %(project)s. Nested "
 "subprojects are not currently supported."
-msgstr "Questo progetto è già configurato come sottoprogetto di %(project)s. Sottoprogetti innestati non sono attualmente supportati."
+msgstr ""
+"Questo progetto è già configurato come sottoprogetto di %(project)s. "
+"Sottoprogetti innestati non sono attualmente supportati."
 
 #: templates/projects/projectrelationship_list.html:31
 #, python-format
@@ -5635,9 +5745,9 @@ msgstr "Sicurezza a Read the Docs"
 
 #: templates/security.html:11
 msgid ""
-"For more details on security at Read the Docs or to report a security issue,"
-" please see our <a "
-"href=\"https://docs.readthedocs.io/page/security.html\">security policy</a>."
+"For more details on security at Read the Docs or to report a security issue, "
+"please see our <a href=\"https://docs.readthedocs.io/page/security."
+"html\">security policy</a>."
 msgstr ""
 
 #: templates/socialaccount/authentication_error.html:5
@@ -5648,15 +5758,17 @@ msgstr "Autenticazione da social network fallita"
 #: templates/socialaccount/authentication_error.html:10
 msgid ""
 "An error occurred while attempting to login via your social network account."
-msgstr "È avvenuto un errore durante l'autenticazione attraverso il tuo account social."
+msgstr ""
+"È avvenuto un errore durante l'autenticazione attraverso il tuo account "
+"social."
 
 #: templates/socialaccount/connections.html:22
 msgid ""
 "On this page, you can manage the integration with your Git provider(s) that "
 "enables automatic import and configuration of your repositories. <a "
 "href=\"https://docs.readthedocs.io/en/stable/connected-accounts.html\" "
-"target=\"_blank\">Read our documentation page about connecting Git "
-"providers.</a>"
+"target=\"_blank\">Read our documentation page about connecting Git providers."
+"</a>"
 msgstr ""
 
 #: templates/socialaccount/connections.html:37
@@ -5675,7 +5787,9 @@ msgstr "Sconnettere"
 msgid ""
 "The API version this connection uses is no longer supported, please "
 "reconnect your Bitbucket account."
-msgstr "La versione dell'API utilizzata da questa connessione non è più supportata, riconnetti il tuo account Bitbucket."
+msgstr ""
+"La versione dell'API utilizzata da questa connessione non è più supportata, "
+"riconnetti il tuo account Bitbucket."
 
 #: templates/socialaccount/connections.html:95
 msgid ""

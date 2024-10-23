@@ -93,14 +93,14 @@ class SearchExecutor:
 
         for value in self.parser.arguments["project"]:
             project, version = self._get_project_and_version(value)
-            if version and self._has_permission(self.request.user, version):
+            if version and self._has_permission(self.request, version):
                 yield project, version
 
         for value in self.parser.arguments["subprojects"]:
             project, version = self._get_project_and_version(value)
 
             # Add the project itself.
-            if version and self._has_permission(self.request.user, version):
+            if version and self._has_permission(self.request, version):
                 yield project, version
 
             if project:
@@ -124,7 +124,7 @@ class SearchExecutor:
                 version_slug=project.default_version,
                 include_hidden=False,
             )
-            if version and self._has_permission(self.request.user, version):
+            if version and self._has_permission(self.request, version):
                 yield project, version
 
     def _get_subprojects(self, project, version_slug=None):
@@ -153,10 +153,10 @@ class SearchExecutor:
                     include_hidden=False,
                 )
 
-            if version and self._has_permission(self.request.user, version):
+            if version and self._has_permission(self.request, version):
                 yield subproject, version
 
-    def _has_permission(self, user, version):
+    def _has_permission(self, request, version):
         """
         Check if `user` is authorized to access `version`.
 

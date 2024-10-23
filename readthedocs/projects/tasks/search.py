@@ -2,9 +2,11 @@ from fnmatch import fnmatch
 
 import structlog
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.filetreediff import write_manifest
+from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
+from readthedocs.projects.models import Feature, HTMLFile, Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.utils import index_objects, remove_indexed_files
@@ -120,7 +122,32 @@ class IndexFileIndexer(Indexer):
         self.version.imported_files.exclude(build=sync_id).delete()
 
 
-def _get_indexers(*, version, search_ranking, search_ignore, search_index_name=None):
+class FileManifestIndexer(Indexer):
+    def __init__(self, version: Version, build: Build):
+        self.version = version
+        self.build = build
+        self._hashes = {}
+
+    def process(self, html_file: HTMLFile, sync_id: int):
+        self._hashes[html_file.path] = html_file.processed_json["main_content_hash"]
+
+    def collect(self, sync_id: int):
+        manifest = FileTreeDiffManifest(
+            build_id=self.build.id,
+            files=[
+                FileTreeDiffFile(path=path, main_content_hash=hash)
+                for path, hash in self._hashes.items()
+            ],
+        )
+        write_manifest(self.version, manifest)
+
+
+def _get_indexers(*, version: Version, build: Build, search_index_name=None):
+    build_config = build.config or {}
+    search_config = build_config.get("search", {})
+    search_ranking = search_config.get("ranking", {})
+    search_ignore = search_config.get("ignore", [])
+
     indexers = []
     # NOTE: The search indexer must be before the index file indexer.
     # This is because saving the objects in the DB will give them an id,
@@ -136,6 +163,20 @@ def _get_indexers(*, version, search_ranking, search_ignore, search_index_name=N
             search_index_name=search_index_name,
         )
         indexers.append(search_indexer)
+
+    # File tree diff is under a feature flag for now,
+    # and we only allow to compare PR previous against the latest version.
+    has_feature = version.project.has_feature(
+        Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF
+    )
+    create_manifest = has_feature and (version.is_external or version.slug == LATEST)
+    if create_manifest:
+        file_manifest_indexer = FileManifestIndexer(
+            version=version,
+            build=build,
+        )
+        indexers.append(file_manifest_indexer)
+
     index_file_indexer = IndexFileIndexer(
         project=version.project,
         version=version,
@@ -230,18 +271,12 @@ def index_build(build_id):
         build_id=build.id,
     )
 
-    build_config = build.config or {}
-    search_config = build_config.get("search", {})
-    search_ranking = search_config.get("ranking", {})
-    search_ignore = search_config.get("ignore", [])
-
     try:
         indexers = _get_indexers(
             version=version,
-            search_ranking=search_ranking,
-            search_ignore=search_ignore,
+            build=build,
         )
-        _process_files(version=version, indexers=indexers)
+        return _process_files(version=version, indexers=indexers)
     except Exception:
         log.exception("Failed to index build")
 
@@ -280,17 +315,10 @@ def reindex_version(version_id, search_index_name=None):
         version_slug=version.slug,
         build_id=latest_successful_build.id,
     )
-
-    build_config = latest_successful_build.config or {}
-    search_config = build_config.get("search", {})
-    search_ranking = search_config.get("ranking", {})
-    search_ignore = search_config.get("ignore", [])
-
     try:
         indexers = _get_indexers(
             version=version,
-            search_ranking=search_ranking,
-            search_ignore=search_ignore,
+            build=latest_successful_build,
             search_index_name=search_index_name,
         )
         _process_files(version=version, indexers=indexers)
