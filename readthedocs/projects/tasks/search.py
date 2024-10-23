@@ -165,7 +165,7 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
         indexers.append(search_indexer)
 
     # File tree diff is under a feature flag for now,
-    # and we only allow to compare PR previous against the latest version.
+    # and we only allow to compare PR previews against the latest version.
     has_feature = version.project.has_feature(
         Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF
     )
