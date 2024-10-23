@@ -1,4 +1,5 @@
 """Models for the response of the configuration object."""
+from pydantic import BaseModel
 
 from readthedocs.config.utils import to_dict
 
@@ -37,33 +38,39 @@ class BuildTool(Base):
     __slots__ = ("version", "full_version")
 
 
-class BuildJobs(Base):
+class BuildJobsBuildTypes(BaseModel):
+
+    """Object used for `build.jobs.build` key."""
+
+    html: list[str]
+    pdf: list[str] = []
+
+    def as_dict(self):
+        # Just to keep compatibility with the old implementation.
+        return self.model_dump()
+
+
+class BuildJobs(BaseModel):
 
     """Object used for `build.jobs` key."""
 
-    __slots__ = (
-        "pre_checkout",
-        "post_checkout",
-        "pre_system_dependencies",
-        "post_system_dependencies",
-        "pre_create_environment",
-        "post_create_environment",
-        "pre_install",
-        "post_install",
-        "pre_build",
-        "post_build",
-    )
+    pre_checkout: list[str] = []
+    post_checkout: list[str] = []
+    pre_system_dependencies: list[str] = []
+    post_system_dependencies: list[str] = []
+    pre_create_environment: list[str] = []
+    create_environment: list[str] | None = None
+    post_create_environment: list[str] = []
+    pre_install: list[str] = []
+    install: list[str] | None = None
+    post_install: list[str] = []
+    pre_build: list[str] = []
+    build: BuildJobsBuildTypes | None = None
+    post_build: list[str] = []
 
-    def __init__(self, **kwargs):
-        """
-        Create an empty list as a default for all possible builds.jobs configs.
-
-        This is necessary because it makes the code cleaner when we add items to these lists,
-        without having to check for a dict to be created first.
-        """
-        for step in self.__slots__:
-            kwargs.setdefault(step, [])
-        super().__init__(**kwargs)
+    def as_dict(self):
+        # Just to keep compatibility with the old implementation.
+        return self.model_dump()
 
 
 class Python(Base):

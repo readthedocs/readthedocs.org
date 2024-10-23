@@ -18,6 +18,7 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config.config import CONFIG_FILENAME_REGEX
 from readthedocs.config.find import find_one
 from readthedocs.core.utils.filesystem import safe_open
+from readthedocs.core.utils.objects import get_dotted_attribute
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
@@ -159,6 +160,7 @@ class BuildDirector:
             sender=self.data.version,
             environment=self.build_environment,
         )
+        config = self.data.config
 
         self.run_build_job("pre_system_dependencies")
         self.system_dependencies()
@@ -168,11 +170,17 @@ class BuildDirector:
         self.install_build_tools()
 
         self.run_build_job("pre_create_environment")
-        self.create_environment()
+        if config.build.jobs.create_environment is not None:
+            self.run_build_job("create_environment")
+        else:
+            self.create_environment()
         self.run_build_job("post_create_environment")
 
         self.run_build_job("pre_install")
-        self.install()
+        if self.data.config.build.jobs.install is not None:
+            self.run_build_job("install")
+        else:
+            self.install()
         self.run_build_job("post_install")
 
     def build(self):
@@ -184,14 +192,20 @@ class BuildDirector:
         3. build PDF
         4. build ePub
         """
+        config = self.data.config
 
         self.run_build_job("pre_build")
 
         # Build all formats
-        self.build_html()
-        self.build_htmlzip()
-        self.build_pdf()
-        self.build_epub()
+        build_overridden = config.build.jobs.build is not None
+        if build_overridden:
+            self.run_build_job("build.html")
+            self.run_build_job("build.pdf")
+        else:
+            self.build_html()
+            self.build_htmlzip()
+            self.build_pdf()
+            self.build_epub()
 
         self.run_build_job("post_build")
         self.store_readthedocs_build_yaml()
@@ -372,14 +386,17 @@ class BuildDirector:
                 - python path/to/myscript.py
               pre_build:
                 - sed -i **/*.rst -e "s|{version}|v3.5.1|g"
+              build:
+                html:
+                  - make html
+                pdf:
+                  - make pdf
 
         In this case, `self.data.config.build.jobs.pre_build` will contains
         `sed` command.
         """
-        if (
-            getattr(self.data.config.build, "jobs", None) is None
-            or getattr(self.data.config.build.jobs, job, None) is None
-        ):
+        commands = get_dotted_attribute(self.data.config, f"build.jobs.{job}", [])
+        if not commands:
             return
 
         cwd = self.data.project.checkout_path(self.data.version.slug)
@@ -387,7 +404,6 @@ class BuildDirector:
         if job not in ("pre_checkout", "post_checkout"):
             environment = self.build_environment
 
-        commands = getattr(self.data.config.build.jobs, job, [])
         for command in commands:
             environment.run(command, escape_command=False, cwd=cwd)
 

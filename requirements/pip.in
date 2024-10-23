@@ -45,6 +45,7 @@ requests-toolbelt
 slumber
 pyyaml
 Pygments
+pydantic
 
 # Used for Redis cache Django backend (`django.core.cache.backends.redis.RedisCache`)
 redis
