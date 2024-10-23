@@ -1,3 +1,23 @@
+Version 11.11.0
+---------------
+
+:Date: October 23, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Remove unrelated change (`#11704 <https://github.com/readthedocs/readthedocs.org/pull/11704>`__)
+* `@stsewd <https://github.com/stsewd>`__: Addons: always sort versions in descending order (`#11691 <https://github.com/readthedocs/readthedocs.org/pull/11691>`__)
+* `@stsewd <https://github.com/stsewd>`__: Addons: default to semver for sorting versions (`#11686 <https://github.com/readthedocs/readthedocs.org/pull/11686>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.10.0 (`#11685 <https://github.com/readthedocs/readthedocs.org/pull/11685>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix second Content Type header (`#11684 <https://github.com/readthedocs/readthedocs.org/pull/11684>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: recover "Edit on GitHub" links (`#11681 <https://github.com/readthedocs/readthedocs.org/pull/11681>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: fix proxito header (`#11680 <https://github.com/readthedocs/readthedocs.org/pull/11680>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Accidentally a word (`#11679 <https://github.com/readthedocs/readthedocs.org/pull/11679>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscription: better feature description (`#11676 <https://github.com/readthedocs/readthedocs.org/pull/11676>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Enable subproject filters for projects with subprojects (`#11674 <https://github.com/readthedocs/readthedocs.org/pull/11674>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove session fallback cookie (`#11673 <https://github.com/readthedocs/readthedocs.org/pull/11673>`__)
+* `@stsewd <https://github.com/stsewd>`__: File tree diff (`#11646 <https://github.com/readthedocs/readthedocs.org/pull/11646>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: refactor search indexing process (`#11643 <https://github.com/readthedocs/readthedocs.org/pull/11643>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Add list of supported tools (`#11547 <https://github.com/readthedocs/readthedocs.org/pull/11547>`__)
+
 Version 11.10.0
 ---------------
 
