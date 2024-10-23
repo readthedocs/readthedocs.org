@@ -366,19 +366,19 @@ class ImportedFileTests(TestCase):
             files=[
                 FileTreeDiffFile(
                     path="index.html",
-                    main_content_hash=mock.ANY,
+                    main_content_hash="f3336aabed1ae8057ffb0cca20d23d4c",
                 ),
                 FileTreeDiffFile(
                     path="404.html",
-                    main_content_hash=mock.ANY,
+                    main_content_hash="b855c3d54f84e075b70faa9958123377",
                 ),
                 FileTreeDiffFile(
                     path="test.html",
-                    main_content_hash=mock.ANY,
+                    main_content_hash="04e5dc4003413e36b8bec86bc5e28b07",
                 ),
                 FileTreeDiffFile(
                     path="api/index.html",
-                    main_content_hash=mock.ANY,
+                    main_content_hash="15958dc725d925c8524b1766cde73d66",
                 ),
             ],
         )
@@ -402,4 +402,4 @@ class ImportedFileTests(TestCase):
         with override_settings(DOCROOT=self.test_dir):
             self._copy_storage_dir(new_version)
         index_build(self.build.pk)
-        write_manifest.assert_called_once()
+        write_manifest.assert_called_once_with(new_version, manifest)
