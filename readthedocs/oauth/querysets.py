@@ -16,6 +16,11 @@ class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
             return self.none()
         return self.filter(users=user)
 
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
+
 
 class RemoteRepositoryQuerySet(RelatedUserQuerySet):
     def for_project_linking(self, user):
