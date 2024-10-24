@@ -125,6 +125,30 @@ messages = [
         type=ERROR,
     ),
     Message(
+        id=ConfigError.FORMATS_AND_BUILD_JOBS_BUILD,
+        header=_("Invalid configuration option"),
+        body=_(
+            textwrap.dedent(
+                """
+                The keys <code>build.jobs.build</code> and <code>formats</code> can't be used together.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.HTML_BUILD_STEP_REQUIRED,
+        header=_("Missing configuration option"),
+        body=_(
+            textwrap.dedent(
+                """
+                The key <code>build.jobs.build.html</code> is required when using <code>build.jobs.build</code>.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=ConfigError.APT_INVALID_PACKAGE_NAME_PREFIX,
         header=_("Invalid APT package name"),
         body=_(

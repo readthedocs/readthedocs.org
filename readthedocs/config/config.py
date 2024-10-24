@@ -16,6 +16,7 @@ from .exceptions import ConfigError, ConfigValidationError
 from .find import find_one
 from .models import (
     BuildJobs,
+    BuildJobsBuildTypes,
     BuildTool,
     BuildWithOs,
     Conda,
@@ -101,6 +102,9 @@ class BuildConfigBase:
 
         self._config = {}
 
+        self.is_using_build_commands = False
+        self.is_using_build_jobs = False
+
     @contextmanager
     def catch_validation_error(self, key):
         """Catch a ``ConfigValidationError`` and raises a ``ConfigError`` error."""
@@ -176,10 +180,6 @@ class BuildConfigBase:
         return self.python_interpreter in ("conda", "mamba")
 
     @property
-    def is_using_build_commands(self):
-        return self.build.commands != []
-
-    @property
     def is_using_setup_py_install(self):
         """Check if this project is using `setup.py install` as installation method."""
         for install in self.python.install:
@@ -250,6 +250,7 @@ class BuildConfigV2(BuildConfigBase):
         self._config["sphinx"] = self.validate_sphinx()
         self._config["submodules"] = self.validate_submodules()
         self._config["search"] = self.validate_search()
+        self.validate_incompatible_keys()
         self.validate_keys()
 
     def validate_formats(self):
@@ -318,11 +319,9 @@ class BuildConfigV2(BuildConfigBase):
             # ones, we could validate the value of each of them is a list of
             # commands. However, I don't think we should validate the "command"
             # looks like a real command.
+            valid_jobs = list(BuildJobs.model_fields.keys())
             for job in jobs.keys():
-                validate_choice(
-                    job,
-                    BuildJobs.__slots__,
-                )
+                validate_choice(job, valid_jobs)
 
         commands = []
         with self.catch_validation_error("build.commands"):
@@ -345,7 +344,20 @@ class BuildConfigV2(BuildConfigBase):
                 },
             )
 
+        if commands:
+            self.is_using_build_commands = True
+        else:
+            self.is_using_build_jobs = True
+
         build["jobs"] = {}
+
+        with self.catch_validation_error("build.jobs.build"):
+            build["jobs"]["build"] = self.validate_build_jobs_build(jobs)
+        # Remove the build.jobs.build key from the build.jobs dict,
+        # since it's the only key that should be a dictionary,
+        # it was already validated above.
+        jobs.pop("build", None)
+
         for job, job_commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [
@@ -369,6 +381,29 @@ class BuildConfigV2(BuildConfigBase):
 
         build["apt_packages"] = self.validate_apt_packages()
         return build
+
+    def validate_build_jobs_build(self, build_jobs):
+        # The build.jobs.build key is optional.
+        if "build" not in build_jobs:
+            return None
+
+        result = {}
+        build_jobs_build = build_jobs["build"]
+        validate_dict(build_jobs_build)
+
+        if not "html" in build_jobs_build:
+            raise ConfigError(message_id=ConfigError.HTML_BUILD_STEP_REQUIRED)
+
+        allowed_build_types = list(BuildJobsBuildTypes.model_fields.keys())
+        for build_type, build_commands in build_jobs_build.items():
+            validate_choice(build_type, allowed_build_types)
+            with self.catch_validation_error(f"build.jobs.build.{build_type}"):
+                result[build_type] = [
+                    validate_string(build_command)
+                    for build_command in validate_list(build_commands)
+                ]
+
+        return result
 
     def validate_apt_packages(self):
         apt_packages = []
@@ -691,6 +726,15 @@ class BuildConfigV2(BuildConfigBase):
             search["ignore"] = final_ignore
 
         return search
+
+    def validate_incompatible_keys(self):
+        # `formats` and `build.jobs.build.*` can't be used together.
+        build_overridden = (
+            self.is_using_build_jobs and self.build.jobs.build is not None
+        )
+        with self.catch_validation_error("formats"):
+            if build_overridden and "formats" in self.source_config:
+                raise ConfigError(message_id=ConfigError.FORMATS_AND_BUILD_JOBS_BUILD)
 
     def validate_keys(self):
         """

@@ -627,16 +627,132 @@ class TestBuildConfigV2:
         assert build.build.jobs.pre_create_environment == [
             "echo pre_create_environment"
         ]
+        assert build.build.jobs.create_environment is None
         assert build.build.jobs.post_create_environment == [
             "echo post_create_environment"
         ]
         assert build.build.jobs.pre_install == ["echo pre_install", "echo `date`"]
+        assert build.build.jobs.install is None
         assert build.build.jobs.post_install == ["echo post_install"]
         assert build.build.jobs.pre_build == [
             "echo pre_build",
             'sed -i -e "s|{VERSION}|${READTHEDOCS_VERSION_NAME}|g"',
         ]
+        assert build.build.jobs.build is None
         assert build.build.jobs.post_build == ["echo post_build"]
+
+    def test_build_jobs_partial_override(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3"},
+                    "jobs": {
+                        "create_environment": ["echo make_environment"],
+                        "install": ["echo install"],
+                        "build": {
+                            "html": ["echo build html"],
+                            "pdf": ["echo build pdf"],
+                            "epub": ["echo build epub"],
+                            "htmlzip": ["echo build htmlzip"],
+                        },
+                    },
+                },
+            },
+        )
+        build.validate()
+        assert isinstance(build.build, BuildWithOs)
+        assert isinstance(build.build.jobs, BuildJobs)
+        assert build.build.jobs.create_environment == ["echo make_environment"]
+        assert build.build.jobs.install == ["echo install"]
+        assert build.build.jobs.build.html == ["echo build html"]
+        assert build.build.jobs.build.pdf == ["echo build pdf"]
+        assert build.build.jobs.build.epub == ["echo build epub"]
+        assert build.build.jobs.build.htmlzip == ["echo build htmlzip"]
+
+    def test_build_jobs_build_html_is_required(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3"},
+                    "jobs": {
+                        "build": {
+                            "pdf": ["echo build pdf"],
+                        },
+                    },
+                },
+            },
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.HTML_BUILD_STEP_REQUIRED
+
+    def test_build_jobs_build_defaults(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3"},
+                    "jobs": {
+                        "build": {
+                            "html": ["echo build html"],
+                        },
+                    },
+                },
+            },
+        )
+        build.validate()
+        assert build.build.jobs.build.html == ["echo build html"]
+        assert build.build.jobs.build.pdf == []
+
+    def test_build_jobs_partial_override_empty_commands(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3"},
+                    "jobs": {
+                        "create_environment": [],
+                        "install": [],
+                        "build": {
+                            "html": [],
+                            "pdf": [],
+                        },
+                    },
+                },
+            },
+        )
+        build.validate()
+        assert isinstance(build.build, BuildWithOs)
+        assert isinstance(build.build.jobs, BuildJobs)
+        assert build.build.jobs.create_environment == []
+        assert build.build.jobs.install == []
+        assert build.build.jobs.build.html == []
+        assert build.build.jobs.build.pdf == []
+        assert build.build.jobs.build.epub == []
+        assert build.build.jobs.build.htmlzip == []
+
+    def test_build_jobs_build_cant_be_used_with_formats(self):
+        build = get_build_config(
+            {
+                "formats": ["pdf"],
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3"},
+                    "jobs": {
+                        "build": {
+                            "html": ["echo build html"],
+                        },
+                    },
+                },
+            },
+        )
+
+        with raises(ConfigError) as excinfo:
+            build.validate()
+
+        assert excinfo.value.message_id == ConfigError.FORMATS_AND_BUILD_JOBS_BUILD
 
     @pytest.mark.parametrize(
         "value",
@@ -1757,10 +1873,13 @@ class TestBuildConfigV2:
                     "pre_system_dependencies": [],
                     "post_system_dependencies": [],
                     "pre_create_environment": [],
+                    "create_environment": None,
                     "post_create_environment": [],
                     "pre_install": [],
+                    "install": None,
                     "post_install": [],
                     "pre_build": [],
+                    "build": None,
                     "post_build": [],
                 },
                 "apt_packages": [],

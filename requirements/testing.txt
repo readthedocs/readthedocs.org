@@ -10,6 +10,10 @@ amqp==5.2.0
     # via
     #   -r requirements/pip.txt
     #   kombu
+annotated-types==0.7.0
+    # via
+    #   -r requirements/pip.txt
+    #   pydantic
 asgiref==3.8.1
     # via
     #   -r requirements/pip.txt
@@ -311,6 +315,12 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
+pydantic==2.9.2
+    # via -r requirements/pip.txt
+pydantic-core==2.23.4
+    # via
+    #   -r requirements/pip.txt
+    #   pydantic
 pygments==2.18.0
     # via
     #   -r requirements/pip.txt
@@ -453,6 +463,8 @@ typing-extensions==4.12.2
     #   elasticsearch-dsl
     #   psycopg
     #   psycopg-pool
+    #   pydantic
+    #   pydantic-core
     #   sphinx
 tzdata==2024.2
     # via
