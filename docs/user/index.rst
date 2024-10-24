@@ -20,9 +20,9 @@ Read the Docs: documentation simplified
 
    /config-file/index
    /config-file/v2
+   /addons
    /automation-rules
    /guides/reproducible-builds
-   /addons
 
 .. toctree::
    :maxdepth: 2
@@ -124,10 +124,11 @@ Read the Docs: documentation simplified
 
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
-Read the Docs simplifies software documentation
-by building, versioning, and hosting of your docs, automatically.
+Read the Docs simplifies managing software documentation
+by building and hosting your docs automatically,
+using the Git workflow you already use for code.
 Treating documentation like code keeps your team in the same tools,
-and your documentation up to date.
+and makes keeping your docs updated easier.
 
 Up to date documentation
     Whenever you push code to Git,
@@ -145,9 +146,9 @@ Open source and user focused
     Our company is bootstrapped and 100% user-focused,
     so our product gets better for our users instead of our investors.
     |org_brand| hosts documentation for over 100,000 large
-    and small open source projects.
+    and small open source projects for free.
     |com_brand| supports hundreds of organizations with product and internal documentation.
-    Learn more about these differences on `the pricing page <https://about.readthedocs.com/pricing/>`_.
+    Learn more about these differences on `our pricing page <https://about.readthedocs.com/pricing/>`_.
 
 First time here?
 ----------------
@@ -157,7 +158,7 @@ We have a few places for you to get started:
 .. descriptions here are active
 
 :doc:`/tutorial/index`
-  Take the first practical steps with Read the Docs.
+  Take the first steps with Read the Docs in 30 minutes.
 
 :doc:`/examples`
   Start your journey with an example project to hit the ground running.
@@ -171,7 +172,7 @@ Start with the basics of setting up your project:
   Learn how to configure your project with a ``.readthedocs.yaml`` file.
 
 :doc:`/guides/reproducible-builds`
-  Learn how to make your builds reproducible.
+  Keep your builds working over time by making them reproducible.
 
 Build process
 -------------
@@ -179,7 +180,7 @@ Build process
 Build your documentation with ease:
 
 :doc:`/builds`
-  Overview of how documentation builds happen.
+  Understand how documentation builds happen.
 
 :doc:`/pull-requests`
   Setup pull request builds and enjoy previews of each commit.
@@ -190,24 +191,24 @@ Hosting documentation
 Learn more about our hosting features:
 
 :doc:`/versions`
-  Host multiple versions of your documentation.
+  Give your readers multiple versions of your documentation.
 
 :doc:`/subprojects`
   Host multiple projects under a single domain.
 
 :doc:`/localization`
-  Host your documentation in multiple languages.
+  Translate your documentation into multiple languages.
 
 :doc:`/versioning-schemes`
   Learn about different URL versioning schemes.
 
 :doc:`/custom-domains`
-  Host your documentation on your own domain.
+  Brand your documentation on your own domain.
 
 Maintaining projects
 --------------------
 
-Keep your documentation up to date:
+All the tools you need as your project matures:
 
 :doc:`/user-defined-redirects`
   Redirect your old URLs to new ones.
@@ -221,16 +222,16 @@ Keep your documentation up to date:
 Business features
 -----------------
 
-Features for organizations and businesses:
+Our Business hosting has everything your business needs:
 
 :doc:`/commercial/organizations`
-  Learn how to manage your organization on Read the Docs.
+  Control permissions across multiple teams.
 
 :doc:`/commercial/single-sign-on`
-  Learn how to use single sign-on with Read the Docs.
+  Stay secure with Single Sign On.
 
 :doc:`/commercial/sharing`
-  Learn how to share your documentation with others.
+  Share your docs easily with contractors or customers.
 
 How-to guides
 -------------
@@ -244,7 +245,7 @@ Step-by-step guides for common tasks:
   Learn how to use cross-references in a Sphinx project.
 
 :doc:`All how-to guides </guides/index>`
-  Browser the entire catalog for many more how-to guides.
+  Browse all our how-to guides.
 
 Reference
 ---------
@@ -252,7 +253,7 @@ Reference
 More detailed information about Read the Docs:
 
 :doc:`/api/index`
-  Automate your documentation with our API and save yourself some work.
+  Integrate Read the Docs into your other workflows.
 
 :doc:`/changelog`
   See what's new in Read the Docs.
