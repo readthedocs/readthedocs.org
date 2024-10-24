@@ -1225,7 +1225,10 @@ class TestBuildTask(BuildEnvironmentBase):
                         "build": {
                             "html": ["echo build html"],
                             "pdf": ["echo build pdf"],
+                            "epub": ["echo build epub"],
+                            "htmlzip": ["echo build htmlzip"],
                         },
+                        "post_build": ["echo end of build"],
                     },
                 },
             },
@@ -1265,7 +1268,22 @@ class TestBuildTask(BuildEnvironmentBase):
                     cwd=mock.ANY,
                 ),
                 mock.call(
+                    "echo build htmlzip",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
                     "echo build pdf",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo build epub",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo end of build",
                     escape_command=False,
                     cwd=mock.ANY,
                 ),

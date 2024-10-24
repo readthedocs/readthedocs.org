@@ -145,7 +145,21 @@
                     "type": "string"
                   }
                 },
+                "htmlzip": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
                 "pdf": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "epub": {
                   "type": "array",
                   "items": {
                     "title": "Custom commands",

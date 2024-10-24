@@ -1,3 +1,6 @@
+# Sentinel value to check if a default value was provided,
+# so we can differentiate when None is provided as a default value
+# and when it was not provided at all.
 _DEFAULT = object()
 
 
@@ -17,12 +20,3 @@ def get_dotted_attribute(obj, attribute, default=_DEFAULT):
         else:
             raise AttributeError(f"Object {obj} has no attribute {attr}")
     return obj
-
-
-def has_dotted_attribute(obj, attribute):
-    """Check if an object has a nested attribute using a dot notation."""
-    try:
-        get_dotted_attribute(obj, attribute)
-        return True
-    except AttributeError:
-        return False

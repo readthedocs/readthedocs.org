@@ -653,6 +653,8 @@ class TestBuildConfigV2:
                         "build": {
                             "html": ["echo build html"],
                             "pdf": ["echo build pdf"],
+                            "epub": ["echo build epub"],
+                            "htmlzip": ["echo build htmlzip"],
                         },
                     },
                 },
@@ -665,6 +667,8 @@ class TestBuildConfigV2:
         assert build.build.jobs.install == ["echo install"]
         assert build.build.jobs.build.html == ["echo build html"]
         assert build.build.jobs.build.pdf == ["echo build pdf"]
+        assert build.build.jobs.build.epub == ["echo build epub"]
+        assert build.build.jobs.build.htmlzip == ["echo build htmlzip"]
 
     def test_build_jobs_build_html_is_required(self):
         build = get_build_config(
@@ -726,6 +730,8 @@ class TestBuildConfigV2:
         assert build.build.jobs.install == []
         assert build.build.jobs.build.html == []
         assert build.build.jobs.build.pdf == []
+        assert build.build.jobs.build.epub == []
+        assert build.build.jobs.build.htmlzip == []
 
     def test_build_jobs_build_cant_be_used_with_formats(self):
         build = get_build_config(

@@ -200,7 +200,9 @@ class BuildDirector:
         build_overridden = config.build.jobs.build is not None
         if build_overridden:
             self.run_build_job("build.html")
+            self.run_build_job("build.htmlzip")
             self.run_build_job("build.pdf")
+            self.run_build_job("build.epub")
         else:
             self.build_html()
             self.build_htmlzip()

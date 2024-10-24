@@ -44,6 +44,8 @@ class BuildJobsBuildTypes(BaseModel):
 
     html: list[str]
     pdf: list[str] = []
+    epub: list[str] = []
+    htmlzip: list[str] = []
 
     def as_dict(self):
         # Just to keep compatibility with the old implementation.
