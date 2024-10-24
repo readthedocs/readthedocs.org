@@ -1,3 +1,89 @@
+Version 11.11.0
+---------------
+
+:Date: October 23, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Remove unrelated change (`#11704 <https://github.com/readthedocs/readthedocs.org/pull/11704>`__)
+* `@stsewd <https://github.com/stsewd>`__: Addons: always sort versions in descending order (`#11691 <https://github.com/readthedocs/readthedocs.org/pull/11691>`__)
+* `@stsewd <https://github.com/stsewd>`__: Addons: default to semver for sorting versions (`#11686 <https://github.com/readthedocs/readthedocs.org/pull/11686>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.10.0 (`#11685 <https://github.com/readthedocs/readthedocs.org/pull/11685>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix second Content Type header (`#11684 <https://github.com/readthedocs/readthedocs.org/pull/11684>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: recover "Edit on GitHub" links (`#11681 <https://github.com/readthedocs/readthedocs.org/pull/11681>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: fix proxito header (`#11680 <https://github.com/readthedocs/readthedocs.org/pull/11680>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Accidentally a word (`#11679 <https://github.com/readthedocs/readthedocs.org/pull/11679>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscription: better feature description (`#11676 <https://github.com/readthedocs/readthedocs.org/pull/11676>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Enable subproject filters for projects with subprojects (`#11674 <https://github.com/readthedocs/readthedocs.org/pull/11674>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove session fallback cookie (`#11673 <https://github.com/readthedocs/readthedocs.org/pull/11673>`__)
+* `@stsewd <https://github.com/stsewd>`__: File tree diff (`#11646 <https://github.com/readthedocs/readthedocs.org/pull/11646>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: refactor search indexing process (`#11643 <https://github.com/readthedocs/readthedocs.org/pull/11643>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Add list of supported tools (`#11547 <https://github.com/readthedocs/readthedocs.org/pull/11547>`__)
+
+Version 11.10.0
+---------------
+
+:Date: October 15, 2024
+
+* `@humitos <https://github.com/humitos>`__: Docs: recover "Edit on GitHub" links (`#11681 <https://github.com/readthedocs/readthedocs.org/pull/11681>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: fix proxito header (`#11680 <https://github.com/readthedocs/readthedocs.org/pull/11680>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Accidentally a word (`#11679 <https://github.com/readthedocs/readthedocs.org/pull/11679>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Link to new dashboard Addons page in old dashboard settings. (`#11678 <https://github.com/readthedocs/readthedocs.org/pull/11678>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscription: better feature description (`#11676 <https://github.com/readthedocs/readthedocs.org/pull/11676>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sitemap: don't include hidden versions (`#11675 <https://github.com/readthedocs/readthedocs.org/pull/11675>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Enable subproject filters for projects with subprojects (`#11674 <https://github.com/readthedocs/readthedocs.org/pull/11674>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove session fallback cookie (`#11673 <https://github.com/readthedocs/readthedocs.org/pull/11673>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: make "pending configuration" dismissable (`#11670 <https://github.com/readthedocs/readthedocs.org/pull/11670>`__)
+* `@cclauss <https://github.com/cclauss>`__: codespell the docs directory (`#11664 <https://github.com/readthedocs/readthedocs.org/pull/11664>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix analytics links (`#11661 <https://github.com/readthedocs/readthedocs.org/pull/11661>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.9.0 (`#11659 <https://github.com/readthedocs/readthedocs.org/pull/11659>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: respect spacing from block elements when indexing (`#11658 <https://github.com/readthedocs/readthedocs.org/pull/11658>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: update copy since it's a past date (`#11657 <https://github.com/readthedocs/readthedocs.org/pull/11657>`__)
+* `@browniebroke <https://github.com/browniebroke>`__: Simplify instructions for installing dependencies with uv (`#11655 <https://github.com/readthedocs/readthedocs.org/pull/11655>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11650 <https://github.com/readthedocs/readthedocs.org/pull/11650>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: refactor search indexing process (`#11643 <https://github.com/readthedocs/readthedocs.org/pull/11643>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: disable search filters for now (`#11638 <https://github.com/readthedocs/readthedocs.org/pull/11638>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version file tree diff: design doc (`#11507 <https://github.com/readthedocs/readthedocs.org/pull/11507>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move parser tests from rtd-build repo (`#4225 <https://github.com/readthedocs/readthedocs.org/pull/4225>`__)
+
+Version 11.9.0
+--------------
+
+:Date: October 08, 2024
+
+* `@humitos <https://github.com/humitos>`__: Notification: update copy since it's a past date (`#11657 <https://github.com/readthedocs/readthedocs.org/pull/11657>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: remove `X-RTD-Hosting-Integrations` HTTP header (`#11656 <https://github.com/readthedocs/readthedocs.org/pull/11656>`__)
+* `@humitos <https://github.com/humitos>`__: Metrics: don't rely on Embed APIv2 (`#11652 <https://github.com/readthedocs/readthedocs.org/pull/11652>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11650 <https://github.com/readthedocs/readthedocs.org/pull/11650>`__)
+* `@stsewd <https://github.com/stsewd>`__: ES: fix another flaky test (`#11647 <https://github.com/readthedocs/readthedocs.org/pull/11647>`__)
+* `@simonbowly <https://github.com/simonbowly>`__: Specify that hidden versions in RTD are blocked from indexing (`#11644 <https://github.com/readthedocs/readthedocs.org/pull/11644>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Large docs refactor (`#11641 <https://github.com/readthedocs/readthedocs.org/pull/11641>`__)
+* `@stsewd <https://github.com/stsewd>`__: ES: fix flaky test (`#11640 <https://github.com/readthedocs/readthedocs.org/pull/11640>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: add 429 handler (`#11639 <https://github.com/readthedocs/readthedocs.org/pull/11639>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: disable search filters for now (`#11638 <https://github.com/readthedocs/readthedocs.org/pull/11638>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use the latest Sphinx theme (`#11637 <https://github.com/readthedocs/readthedocs.org/pull/11637>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update Analytics pages in the docs (`#11636 <https://github.com/readthedocs/readthedocs.org/pull/11636>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update Business docs (`#11635 <https://github.com/readthedocs/readthedocs.org/pull/11635>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.8.1 (`#11634 <https://github.com/readthedocs/readthedocs.org/pull/11634>`__)
+* `@humitos <https://github.com/humitos>`__: Build: don't show listing or detail view if project is spam (`#11633 <https://github.com/readthedocs/readthedocs.org/pull/11633>`__)
+* `@humitos <https://github.com/humitos>`__: Domains: put a limit of 2 custom domains per project (`#11629 <https://github.com/readthedocs/readthedocs.org/pull/11629>`__)
+* `@stsewd <https://github.com/stsewd>`__: Addons: small improvements and privacy considerations (`#11561 <https://github.com/readthedocs/readthedocs.org/pull/11561>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: prepare Proxito and dashboard to enable them by default (`#11513 <https://github.com/readthedocs/readthedocs.org/pull/11513>`__)
+
+Version 11.8.1
+--------------
+
+:Date: October 01, 2024
+
+* `@humitos <https://github.com/humitos>`__: Addons: disable the field instead of remove it (`#11628 <https://github.com/readthedocs/readthedocs.org/pull/11628>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: unsupported VCS (`#11627 <https://github.com/readthedocs/readthedocs.org/pull/11627>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Only use django-filters filtering on project dashboard (`#11622 <https://github.com/readthedocs/readthedocs.org/pull/11622>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Try reverting prefetch changes for project/version listing views (`#11621 <https://github.com/readthedocs/readthedocs.org/pull/11621>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.8.0 (`#11619 <https://github.com/readthedocs/readthedocs.org/pull/11619>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Prefetch build and project on version list (`#11616 <https://github.com/readthedocs/readthedocs.org/pull/11616>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add support for successful build prefetch (`#11613 <https://github.com/readthedocs/readthedocs.org/pull/11613>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Drop unnecessary CSP directives for gold view (`#11605 <https://github.com/readthedocs/readthedocs.org/pull/11605>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add exit_code to build errors (`#11597 <https://github.com/readthedocs/readthedocs.org/pull/11597>`__)
+* `@duboism <https://github.com/duboism>`__: Docs: update reproducible builds guide (`#10939 <https://github.com/readthedocs/readthedocs.org/pull/10939>`__)
+
 Version 11.8.0
 --------------
 

@@ -13,12 +13,18 @@ Automatically add your project
 
 #. Go to your :term:`dashboard`.
 #. Click on :guilabel:`Add project`.
-#. Type the name of the respository you want to add and click on it.
+#. Type the name of the repository you want to add and click on it.
 #. Click on :guilabel:`Continue`.
 #. Edit any of the pre-filled fields with information of the repository.
 #. Click on :guilabel:`Next`.
 #. Add a :term:`configuration file` to your repository if it's doesn't exist yet.
 #. Click on :guilabel:`This file exists`.
+
+.. seealso::
+
+   :doc:`/reference/git-integration`
+      Your project will be automatically configured with a Git integration.
+      Learn more about all the features enabled by that integration on this page.
 
 Manually add your project
 -------------------------

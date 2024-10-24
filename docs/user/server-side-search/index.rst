@@ -62,7 +62,7 @@ API
 
 Analytics
    Know what your users are searching for.
-   See :doc:`/guides/search-analytics`
+   See :doc:`/search-analytics`
 
 .. _"full-text search": https://docs.readthedocs.io/en/latest/search.html?q=%22full-text+search%22
 .. _"project:docs project:dev search": https://docs.readthedocs.io/en/latest/search.html?q=project:docs+project:dev+search
@@ -72,7 +72,7 @@ Analytics
    :align: center
    :alt: Search analytics demo
 
-   Search analytics demo. Read more in :doc:`/guides/search-analytics`.
+   Search analytics demo. Read more in :doc:`/search-analytics`.
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 

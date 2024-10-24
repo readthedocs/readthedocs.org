@@ -74,7 +74,7 @@ and it's manually created by the RTD core team.
 To create a custom plan, you need to create a new product in Stripe,
 and add the product id to the ``RTD_PRODUCTS`` setting mapped to the features that the plan will provide.
 After that, you can create a subscription for the organization with the custom product,
-our appliction will automatically relate this new product to the organization.
+our application will automatically relate this new product to the organization.
 
 Extra products
 --------------
@@ -87,4 +87,4 @@ extra product will provide, this product should have the ``extra`` attribute set
 
 To subscribe an organization to an extra product,
 you just need to add the product to its subscription with the desired quantity,
-our appliction will automatically relate this new product to the organization.
+our application will automatically relate this new product to the organization.

@@ -39,7 +39,7 @@ and mark the :guilabel:`Hidden` option. Check :ref:`versions:Version States` for
 .. note::
 
    If the versions of your project follow the semver_ convention,
-   you can activate the :ref:`versions:version warning` option for your project.
+   you can activate the :ref:`versions:version warning notifications` option for your project.
    A banner with a warning and linking to the stable version
    will be shown on all versions that are lower than the stable one.
 

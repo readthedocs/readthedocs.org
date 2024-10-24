@@ -17,6 +17,10 @@ handler400 = ErrorView.as_view(status_code=400)
 handler403 = ErrorView.as_view(status_code=403)
 handler404 = ErrorView.as_view(status_code=404)
 handler500 = ErrorView.as_view(status_code=500)
+# Rate limit handler for allauth views,
+# this isn't a Django built-in handler.
+# https://docs.allauth.org/en/latest/account/rate_limits.html.
+handler429 = ErrorView.as_view(status_code=429)
 
 basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
