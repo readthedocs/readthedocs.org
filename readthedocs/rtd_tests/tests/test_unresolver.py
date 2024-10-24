@@ -381,6 +381,8 @@ class UnResolverTests(ResolverBase):
             with pytest.raises(InvalidSchemeError):
                 unresolve(url)
 
+        # A triple slash is interpreted as a URL without domain,
+        # we don't support that.
         with pytest.raises(InvalidSubdomainError):
             unresolve("https:///pip.readthedocs.io/en/latest/")
 

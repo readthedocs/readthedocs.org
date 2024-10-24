@@ -560,13 +560,13 @@ class Unresolver:
                 raise InvalidSchemeError(parsed_domain.scheme)
             domain = parsed_domain.hostname
 
+        if not domain:
+            raise InvalidSubdomainError(domain)
+
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
         external_domain = self.get_domain_from_host(
             settings.RTD_EXTERNAL_VERSION_DOMAIN
         )
-
-        if not domain:
-            raise InvalidSubdomainError(domain)
 
         subdomain, *root_domain = domain.split(".", maxsplit=1)
         root_domain = root_domain[0] if root_domain else ""
