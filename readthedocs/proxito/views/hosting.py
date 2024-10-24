@@ -545,7 +545,7 @@ class AddonsResponseBase:
                         f"subprojects:{project.slug}/{version.slug}",
                     ]
                 )
-            if project.superprojects.exists():
+            elif project.superprojects.exists():
                 superproject = project.superprojects.first().parent
                 data["addons"]["search"]["filters"].append(
                     [
