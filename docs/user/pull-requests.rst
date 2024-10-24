@@ -28,7 +28,7 @@ Pull request notifications
     A pull request notifications is shown at the top of preview pages,
     which let readers know they aren't viewing an active version of the project.
 
-DocDiff
+:doc:`DocDiff </doc-diff>``
     DocDiff shows proposed changes by visually highlighting the differences between the current pull request and the latest version of the project's documentation.
 
     Press ``d`` to toggle between DocDiff and normal pull request preview.

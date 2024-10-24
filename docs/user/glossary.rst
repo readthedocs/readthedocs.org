@@ -31,6 +31,10 @@ so that you have a reference for how we're using them.
       Projects have a *default version*, usually the latest stable version of a project.
       The *default version* is the URL that is redirected to when a users loads the `/` URL for your project.
 
+   diff
+      A way to see the changes between two pieces of text,
+      which shows the added and removed content with a green and red color respectively.
+
    discoverability
       A documentation page is said to be *discoverable* when a user that needs it can find it through various methods:
       Navigation, search, and links from other pages are the most typical ways of making content *discoverable*.
