@@ -1211,6 +1211,67 @@ class TestBuildTask(BuildEnvironmentBase):
             any_order=True,
         )
 
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "create_environment": ["echo create_environment"],
+                        "install": ["echo install"],
+                        "build": {
+                            "html": ["echo build html"],
+                            "pdf": ["echo build pdf"],
+                        },
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "echo create_environment",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo install",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo build html",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo build pdf",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
     @mock.patch("readthedocs.doc_builder.director.tarfile")
     @mock.patch("readthedocs.doc_builder.director.build_tools_storage")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")

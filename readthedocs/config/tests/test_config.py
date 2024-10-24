@@ -702,6 +702,31 @@ class TestBuildConfigV2:
         assert build.build.jobs.build.html == ["echo build html"]
         assert build.build.jobs.build.pdf == []
 
+    def test_build_jobs_partial_override_empty_commands(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3"},
+                    "jobs": {
+                        "create_environment": [],
+                        "install": [],
+                        "build": {
+                            "html": [],
+                            "pdf": [],
+                        },
+                    },
+                },
+            },
+        )
+        build.validate()
+        assert isinstance(build.build, BuildWithOs)
+        assert isinstance(build.build.jobs, BuildJobs)
+        assert build.build.jobs.create_environment == []
+        assert build.build.jobs.install == []
+        assert build.build.jobs.build.html == []
+        assert build.build.jobs.build.pdf == []
+
     def test_build_jobs_build_cant_be_used_with_formats(self):
         build = get_build_config(
             {
