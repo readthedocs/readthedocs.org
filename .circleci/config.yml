@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  codecov: codecov/codecov@4.2.0
-  node: circleci/node@6.2.0
+  codecov: codecov/codecov@5.0.0
+  node: circleci/node@6.3.0
 
 jobs:
   tests:
