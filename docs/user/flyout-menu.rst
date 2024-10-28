@@ -43,7 +43,7 @@ You can sort by:
 
 .. TODO: Define how these work better..
 
-* :guilabel:`SemVer` - **Default**. As defined by semver.org.
+* :guilabel:`SemVer (Read the Docs)` - **Default**. Read the Docs custom implementation of semver.org.
 * :guilabel:`Python Packaging` - Sort by Python packaging sorting.
 * :guilabel:`CalVer` - Sort by calendar date.
 * :guilabel:`Alphabetically` - Only useful if you aren't using numeric versions.
