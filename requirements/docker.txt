@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.34
+boto3==1.35.49
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.34
+botocore==1.35.49
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -53,7 +53,7 @@ cffi==1.17.1
     #   cryptography
 chardet==5.2.0
     # via tox
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -86,7 +86,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==43.0.1
+cryptography==43.0.3
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -101,7 +101,7 @@ decorator==5.1.1
     # via
     #   ipdb
     #   ipython
-distlib==0.3.8
+distlib==0.3.9
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -141,7 +141,7 @@ django-cacheops==7.0.2
     # via -r requirements/pip.txt
 django-celery-beat==2.7.0
     # via -r requirements/pip.txt
-django-cors-headers==4.4.0
+django-cors-headers==4.5.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -200,7 +200,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.15.0
+elastic-transport==8.15.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -208,7 +208,7 @@ elasticsearch==8.15.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.15.3
+elasticsearch-dsl==8.15.4
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -239,9 +239,9 @@ idna==3.10
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.28.0
+ipython==8.29.0
     # via ipdb
-isodate==0.6.1
+isodate==0.7.2
     # via
     #   -r requirements/pip.txt
     #   python3-saml
@@ -286,7 +286,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.7
+orjson==3.10.10
     # via -r requirements/pip.txt
 packaging==24.1
     # via
@@ -373,7 +373,7 @@ qrcode==8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==5.1.1
+redis==5.2.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -396,13 +396,13 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-rich==13.9.2
+rich==13.9.3
     # via -r requirements/docker.in
-s3transfer==0.10.2
+s3transfer==0.10.3
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.21
+selectolax==0.3.25
     # via -r requirements/pip.txt
 six==1.16.0
     # via
@@ -410,7 +410,6 @@ six==1.16.0
     #   asttokens
     #   django-annoying
     #   django-elasticsearch-dsl
-    #   isodate
     #   python-dateutil
     #   unicode-slugify
 slumber==0.7.1
@@ -441,7 +440,7 @@ tomli==2.0.2
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.21.2
+tox==4.23.2
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -487,7 +486,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.6
+virtualenv==20.27.0
     # via
     #   -r requirements/pip.txt
     #   tox
