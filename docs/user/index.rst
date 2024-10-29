@@ -59,6 +59,7 @@ Read the Docs: documentation simplified
    :caption: Reading documentation
 
    /downloadable-documentation
+   /doc-diff
    /guides/embedding-content
    /server-side-search/index
    /server-side-search/syntax
@@ -70,7 +71,8 @@ Read the Docs: documentation simplified
    :caption: Maintaining projects
 
    /user-defined-redirects
-   /reference/analytics
+   /traffic-analytics
+   /search-analytics
    /security-log
    /badges
    /explanation/documentation-structure
@@ -87,6 +89,7 @@ Read the Docs: documentation simplified
    /commercial/single-sign-on
    /commercial/sharing
    /commercial/subscriptions
+   /commercial/privacy-level
 
 .. toctree::
    :maxdepth: 2
@@ -210,7 +213,7 @@ Keep your documentation up to date:
 :doc:`/user-defined-redirects`
   Redirect your old URLs to new ones.
 
-:doc:`/reference/analytics`
+:doc:`/traffic-analytics`
   Learn more about how users are interacting with your documentation.
 
 :doc:`/security-log`
@@ -221,14 +224,14 @@ Business features
 
 Features for organizations and businesses:
 
-:doc:`/commercial/index`
-  Learn more about our commercial features.
-
 :doc:`/commercial/organizations`
   Learn how to manage your organization on Read the Docs.
 
 :doc:`/commercial/single-sign-on`
   Learn how to use single sign-on with Read the Docs.
+
+:doc:`/commercial/sharing`
+  Learn how to share your documentation with others.
 
 How-to guides
 -------------
@@ -237,9 +240,6 @@ Step-by-step guides for common tasks:
 
 :doc:`/guides/pull-requests`
   Setup pull request builds and enjoy previews of each commit.
-
-:doc:`/analytics`
-  Learn more about how users are interacting with your documentation.
 
 :doc:`/guides/cross-referencing-with-sphinx`
   Learn how to use cross-references in a Sphinx project.

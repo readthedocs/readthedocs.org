@@ -859,6 +859,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
         public_versions = Version.internal.public(
             project=project,
             only_active=True,
+            include_hidden=False,
         )
         if not public_versions.exists():
             raise Http404()

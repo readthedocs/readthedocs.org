@@ -325,7 +325,7 @@ According to `its own documentation <https://jupyterbook.org/>`_,
 
 Even though `Jupyter Book leverages Sphinx "for almost everything that it
 does" <https://jupyterbook.org/explain/sphinx.html#jupyter-book-is-a-distribution-of-sphinx>`_,
-it purposedly hides Sphinx ``conf.py`` files from the user,
+it purposely hides Sphinx ``conf.py`` files from the user,
 and instead generates them on the fly from its declarative ``_config.yml``.
 As a result, you need to follow some extra steps
 to make Jupyter Book work on Read the Docs.

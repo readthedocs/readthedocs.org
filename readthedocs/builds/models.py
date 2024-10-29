@@ -300,6 +300,17 @@ class Version(TimeStampedModel):
         return self.builds.order_by("-date").first()
 
     @property
+    def latest_successful_build(self):
+        return (
+            self.builds.filter(
+                state=BUILD_STATE_FINISHED,
+                success=True,
+            )
+            .order_by("-date")
+            .first()
+        )
+
+    @property
     def config(self):
         """
         Proxy to the configuration of the build.

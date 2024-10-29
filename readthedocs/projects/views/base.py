@@ -100,14 +100,25 @@ class ProjectSpamMixin:
     project's dashboard is denied.
     """
 
-    def get(self, request, *args, **kwargs):
+    def is_show_dashboard_denied_wrapper(self):
+        """
+        Determine if the project has reached dashboard denied treshold.
+
+        This function is wrapped just for testing purposes,
+        so we are able to mock it from outside.
+        """
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import (  # noqa
                 is_show_dashboard_denied,
             )
 
             if is_show_dashboard_denied(self.get_project()):
-                template_name = "errors/dashboard/spam.html"
-                return render(request, template_name=template_name, status=410)
+                return True
+        return False
+
+    def get(self, request, *args, **kwargs):
+        if self.is_show_dashboard_denied_wrapper():
+            template_name = "errors/dashboard/spam.html"
+            return render(request, template_name=template_name, status=410)
 
         return super().get(request, *args, **kwargs)
