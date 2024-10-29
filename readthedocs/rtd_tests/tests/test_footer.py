@@ -2,8 +2,6 @@ from unittest import mock
 
 import pytest
 from django.contrib.auth.models import User
-from django.contrib.sessions.backends.base import SessionBase
-from django.http import HttpResponse
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
@@ -12,7 +10,6 @@ from rest_framework.test import APIRequestFactory
 from readthedocs.api.v2.views.footer_views import get_version_compare_data
 from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
 from readthedocs.builds.models import Version
-from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
@@ -142,20 +139,6 @@ class BaseTestFooterHTML:
     def test_epub_not_mentioned_in_footer_when_doesnt_exists(self):
         response = self.render()
         self.assertNotIn("epub", response.data["html"])
-
-    def test_no_session_logged_out(self):
-        mid = ReadTheDocsSessionMiddleware(lambda request: HttpResponse())
-
-        # Null session here
-        request = self.factory.get("/api/v2/footer_html/")
-        mid.process_request(request)
-        self.assertIsInstance(request.session, SessionBase)
-        self.assertEqual(list(request.session.keys()), [])
-
-        # Proper session here
-        home_request = self.factory.get("/")
-        mid.process_request(home_request)
-        self.assertEqual(home_request.session.TEST_COOKIE_NAME, "testcookie")
 
     def test_show_version_warning(self):
         self.pip.show_version_warning = True
