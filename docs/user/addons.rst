@@ -8,8 +8,8 @@ and can be accessed via hotkeys or on screen UI elements.
 :doc:`DocDiff </pull-requests>`
     Highlight changed output from pull requests
 
-:doc:`Pull request notification </pull-requests>`
-    Notify readers that they are reading docs from a pull request
+:doc:`Documentation notification </doc-notifications>`
+    Alert users to various documentation states
 
 :doc:`Flyout </flyout-menu>`
     Easily switch between versions and translations
