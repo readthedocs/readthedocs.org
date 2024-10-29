@@ -322,7 +322,7 @@ class CommunityBaseSettings(Settings):
     def MIDDLEWARE(self):
         middlewares = [
             "readthedocs.core.middleware.NullCharactersMiddleware",
-            "readthedocs.core.middleware.ReadTheDocsSessionMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
             "django.middleware.locale.LocaleMiddleware",
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
@@ -334,7 +334,6 @@ class CommunityBaseSettings(Settings):
             "allauth.account.middleware.AccountMiddleware",
             "dj_pagination.middleware.PaginationMiddleware",
             "csp.middleware.CSPMiddleware",
-            "readthedocs.core.middleware.ReferrerPolicyMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
             "django_structlog.middlewares.CeleryMiddleware",
