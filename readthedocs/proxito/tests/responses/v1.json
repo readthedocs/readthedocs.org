@@ -150,6 +150,9 @@
       "base_host": "",
       "base_page": ""
     },
+    "filetreediff": {
+      "enabled": false
+    },
     "flyout": {
       "enabled": true
     },

@@ -1958,7 +1958,7 @@ Remote repository listing
     The ``results`` in response is an array of remote repositories data.
 
     :query string name: return remote repositories containing the name
-    :query string full_name: return remote repositories containing the full name (it inclues the username/organization the project belongs to)
+    :query string full_name: return remote repositories containing the full name (it includes the username/organization the project belongs to)
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
     :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
     :query string expand: Add additional fields in the response.

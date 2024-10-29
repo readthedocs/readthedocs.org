@@ -81,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "11.9.0"
+version = "11.11.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
@@ -173,6 +173,10 @@ html_context = {
     # TODO: remove once we support different rtd config
     # files per project.
     "conf_py_path": f"/docs/{docset}/",
+    "display_github": True,
+    "github_user": "readthedocs",
+    "github_repo": "readthedocs.org",
+    "github_version": "main",
     # Use to generate the Plausible "data-domain" attribute from the template
     "plausible_domain": f"{os.environ.get('READTHEDOCS_PROJECT')}.readthedocs.io",
 }

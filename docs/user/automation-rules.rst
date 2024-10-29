@@ -46,7 +46,8 @@ Predefined matches
 Automation rules support two predefined version matches:
 
 - **Any version**: All new versions will match the rule.
-- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__ will match the rule.
+- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__
+  (with or without a `v` prefix) will match the rule.
 
 Custom matches
 ~~~~~~~~~~~~~~
