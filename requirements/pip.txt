@@ -9,6 +9,7 @@ amqp==5.2.0
 asgiref==3.8.1
     # via
     #   django
+    #   django-allauth
     #   django-cors-headers
 async-timeout==4.0.3
     # via redis
@@ -85,7 +86,7 @@ django==4.2.16
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==64.2.1
+django-allauth[mfa,saml,socialaccount]==65.1.0
     # via -r requirements/pip.in
 django-annoying==0.10.7
     # via -r requirements/pip.in

@@ -12,6 +12,7 @@ asgiref==3.8.1
     # via
     #   -r requirements/pip.txt
     #   django
+    #   django-allauth
     #   django-cors-headers
 asttokens==2.4.1
     # via stack-data
@@ -131,7 +132,7 @@ django==4.2.16
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==64.2.1
+django-allauth[mfa,saml,socialaccount]==65.1.0
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
