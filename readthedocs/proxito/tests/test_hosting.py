@@ -149,7 +149,10 @@ class TestReadTheDocsConfigJson(TestCase):
         addons.flyout_enabled = False
         addons.hotkeys_enabled = False
         addons.search_enabled = False
-        addons.stable_latest_version_warning_enabled = False
+        addons.notifications_enabled = False
+        addons.notifications_show_on_latest = False
+        addons.notifications_show_on_non_stable = False
+        addons.notifications_show_on_external = False
         addons.save()
 
         r = self.client.get(
@@ -166,8 +169,10 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
         assert r.json()["addons"]["analytics"]["enabled"] is False
-        assert r.json()["addons"]["external_version_warning"]["enabled"] is False
-        assert r.json()["addons"]["non_latest_version_warning"]["enabled"] is False
+        assert r.json()["addons"]["notifications"]["enabled"] is False
+        assert r.json()["addons"]["notifications"]["show_on_latest"] is False
+        assert r.json()["addons"]["notifications"]["show_on_non_stable"] is False
+        assert r.json()["addons"]["notifications"]["show_on_external"] is False
         assert r.json()["addons"]["doc_diff"]["enabled"] is False
         assert r.json()["addons"]["flyout"]["enabled"] is False
         assert r.json()["addons"]["search"]["enabled"] is False
