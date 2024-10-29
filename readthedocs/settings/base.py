@@ -104,16 +104,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = False
-
-    @property
-    def SESSION_COOKIE_SAMESITE(self):
-        """
-        Cookie used in cross-origin API requests from *.rtd.io to rtd.org/api/v2/sustainability/.
-        """
-        if self.USE_PROMOS:
-            return "None"
-        # This is django's default.
-        return "Lax"
+    SESSION_COOKIE_SAMESITE = "Lax"
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
@@ -723,17 +714,12 @@ class CommunityBaseSettings(Settings):
     # CORS
     # Don't allow sending cookies in cross-domain requests, this is so we can
     # relax our CORS headers for more views, but at the same time not opening
-    # users to CSRF attacks. The sustainability API is the only view that requires
-    # cookies to be send cross-site, we override that for that view only.
+    # users to CSRF attacks.
     CORS_ALLOW_CREDENTIALS = False
 
     # Allow cross-site requests from any origin,
     # all information from our allowed endpoits is public.
-    #
-    # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
-    # since that will set the `Access-Control-Allow-Origin` header to `*`,
-    # we won't be able to pass credentials fo the sustainability API with that value.
-    CORS_ALLOWED_ORIGIN_REGEXES = [re.compile(".+")]
+    CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_HEADERS = list(default_headers) + [
         "x-hoverxref-version",
     ]
