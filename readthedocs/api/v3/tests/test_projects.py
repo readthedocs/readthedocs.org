@@ -284,7 +284,6 @@ class ProjectsEndpointTests(APIEndpointMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-    # NOTE: this test is slow
     def test_projects_sync_versions(self):
         # Ensure a default version exists to sync
         self.project.update_latest_version()
