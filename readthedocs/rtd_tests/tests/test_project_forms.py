@@ -1167,10 +1167,9 @@ class TestAddonsConfigForm(TestCase):
         self.assertEqual(self.project.addons.flyout_sorting_custom_pattern, None)
         self.assertEqual(self.project.addons.hotkeys_enabled, False)
         self.assertEqual(self.project.addons.search_enabled, False)
-        self.assertEqual(
-            self.project.addons.stable_latest_version_warning_enabled,
-            True,
-        )
+        self.assertEqual(self.project.addons.notifications_show_on_latest, True)
+        self.assertEqual(self.project.addons.notifications_show_on_non_stable, True)
+        self.assertEqual(self.project.addons.notifications_show_on_external, True)
 
     def test_addonsconfig_form_invalid_sorting_custom_pattern(self):
         data = {
