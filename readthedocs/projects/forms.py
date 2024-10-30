@@ -673,7 +673,7 @@ class AddonsConfigForm(forms.ModelForm):
             "notifications_show_on_non_stable": _(
                 "Show a notification on non-stable versions"
             ),
-            "notifications_show_on_latest": _("Show a notification on latest versions"),
+            "notifications_show_on_latest": _("Show a notification on latest version"),
         }
         widgets = {
             "doc_diff_root_selector": forms.TextInput(
