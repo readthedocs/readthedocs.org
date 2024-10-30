@@ -13,9 +13,7 @@ def forward_add_fields(apps, schema_editor):
         addons.notifications_show_on_non_stable = (
             addons.stable_latest_version_warning_enabled
         )
-        addons.notifications_show_on_external = (
-            addons.external_version_warning_enabled
-        )
+        addons.notifications_show_on_external = addons.external_version_warning_enabled
         addons.save()
 
 
