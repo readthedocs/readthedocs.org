@@ -8,24 +8,24 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy
 
     dependencies = [
-        ('projects', '0128_addons_notifications'),
+        ("projects", "0128_addons_notifications"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='addonsconfig',
-            name='external_version_warning_enabled',
+            model_name="addonsconfig",
+            name="external_version_warning_enabled",
         ),
         migrations.RemoveField(
-            model_name='addonsconfig',
-            name='stable_latest_version_warning_enabled',
+            model_name="addonsconfig",
+            name="stable_latest_version_warning_enabled",
         ),
         migrations.RemoveField(
-            model_name='historicaladdonsconfig',
-            name='external_version_warning_enabled',
+            model_name="historicaladdonsconfig",
+            name="external_version_warning_enabled",
         ),
         migrations.RemoveField(
-            model_name='historicaladdonsconfig',
-            name='stable_latest_version_warning_enabled',
+            model_name="historicaladdonsconfig",
+            name="stable_latest_version_warning_enabled",
         ),
     ]

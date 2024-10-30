@@ -25,48 +25,48 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy
 
     dependencies = [
-        ('projects', '0127_default_to_semver'),
+        ("projects", "0127_default_to_semver"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='addonsconfig',
-            name='notifications_enabled',
+            model_name="addonsconfig",
+            name="notifications_enabled",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='addonsconfig',
-            name='notifications_show_on_external',
+            model_name="addonsconfig",
+            name="notifications_show_on_external",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='addonsconfig',
-            name='notifications_show_on_latest',
+            model_name="addonsconfig",
+            name="notifications_show_on_latest",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='addonsconfig',
-            name='notifications_show_on_non_stable',
+            model_name="addonsconfig",
+            name="notifications_show_on_non_stable",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='historicaladdonsconfig',
-            name='notifications_enabled',
+            model_name="historicaladdonsconfig",
+            name="notifications_enabled",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='historicaladdonsconfig',
-            name='notifications_show_on_external',
+            model_name="historicaladdonsconfig",
+            name="notifications_show_on_external",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='historicaladdonsconfig',
-            name='notifications_show_on_latest',
+            model_name="historicaladdonsconfig",
+            name="notifications_show_on_latest",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='historicaladdonsconfig',
-            name='notifications_show_on_non_stable',
+            model_name="historicaladdonsconfig",
+            name="notifications_show_on_non_stable",
             field=models.BooleanField(default=True),
         ),
         migrations.RunPython(forward_add_fields, reverse_remove_fields),
