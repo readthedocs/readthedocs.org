@@ -12,7 +12,7 @@ without having to have the documentation theme integrate it directly.
    The flyout menu is a default implementation that works for every site.
    You can access the full data used to construct the flyout,
    and use that to integrate the data directly into your documentation theme for a nicer user experience.
-   See the :ref:`Custom event integration` for more information.
+   See the :ref:`flyout-menu:Custom event integration` for more information.
 
 Addons flyout menu
 ------------------
@@ -20,7 +20,7 @@ Addons flyout menu
 The :doc:`addons` flyout provides a place for a number of Read the Docs features:
 
 * A :doc:`version switcher </versions>` that shows users all of the active versions they have access to.
-* A :doc:`translation switcher </internationalization>` that shows all the documentation languages provided.
+* A :doc:`translation switcher </localization>` that shows all the documentation languages provided.
 * A list of :doc:`offline formats </downloadable-documentation>` for the current version, including HTML & PDF downloads.
 * Links to the Read the Docs dashboard for the project.
 * A search bar that gives users access to the :doc:`/server-side-search/index` of the current version.
@@ -57,7 +57,7 @@ Custom event integration
 
 Read the Docs Addons exposes all the data used to construct the flyout menu via a JavaScript ``CustomEvent``.
 If you'd like to integrate the data,
-you can use the :ref:`mkdocs:Integrate the Read the Docs version menu into your site navigation` example as a starting point.
+you can use the :ref:`intro/mkdocs:Integrate the Read the Docs version menu into your site navigation` example as a starting point.
 
 .. warning::
    We have not formally documented the API response returned from the Addons API,
