@@ -127,7 +127,7 @@ Read the Docs: documentation simplified
 Read the Docs simplifies managing software documentation
 by building and hosting your docs automatically,
 using the Git workflow you already use for code.
-Treating documentation like code keeps your team in the same tools,
+Treating documentation like code lets your team use tools they already know,
 and makes keeping your docs updated easier.
 
 Up to date documentation
