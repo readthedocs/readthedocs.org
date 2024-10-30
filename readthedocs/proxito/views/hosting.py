@@ -342,14 +342,14 @@ class AddonsResponseBase:
         # projects that don't have one already
         AddonsConfig.objects.get_or_create(project=project)
 
-        if project.supports_multiple_versions:
-            versions_active_built_not_hidden = (
-                self._get_versions(request, project)
-                .select_related("project")
-                .order_by("-slug")
-            )
-            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
+        versions_active_built_not_hidden = (
+            self._get_versions(request, project)
+            .select_related("project")
+            .order_by("-slug")
+        )
+        sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
 
+        if project.supports_multiple_versions:
             if (
                 project.addons.flyout_sorting
                 == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
