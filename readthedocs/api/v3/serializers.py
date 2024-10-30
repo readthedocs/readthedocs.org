@@ -1214,6 +1214,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class RestrictedOrganizationSerializer(serializers.ModelSerializer):
+
     """
     Stripped version of the OrganizationSerializer to be used when listing projects.
 
