@@ -1860,12 +1860,12 @@ Remote repository listing
 
         .. code-tab:: bash
 
-            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=projects,remote_organization
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=remote_organization
 
         .. code-tab:: python
 
             import requests
-            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=projects,remote_organization'
+            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=remote_organization'
             TOKEN = '<token>'
             HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.get(URL, headers=HEADERS)
@@ -1877,7 +1877,7 @@ Remote repository listing
 
         {
             "count": 20,
-            "next": "api/v3/remote/repositories/?expand=projects,remote_organization&limit=10&offset=10",
+            "next": "api/v3/remote/repositories/?expand=remote_organization&limit=10&offset=10",
             "previous": null,
             "results": [
                 {
@@ -1891,7 +1891,7 @@ Remote repository listing
                         "url": "https://github.com/organization",
                         "vcs_provider": "github"
                     },
-                    "project": [{
+                    "projects": [{
                         "id": 12345,
                         "name": "project",
                         "slug": "project",
@@ -1962,7 +1962,7 @@ Remote repository listing
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
     :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
     :query string expand: Add additional fields in the response.
-                          Allowed values are ``projects`` and ``remote_organization``.
+                          Allowed values are: ``remote_organization``.
                           Multiple fields can be passed separated by commas.
 
     :requestheader Authorization: token to authenticate.
