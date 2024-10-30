@@ -357,8 +357,6 @@ class VersionSerializer(FlexFieldsModelSerializer):
             "privacy_level",
         ]
 
-        expandable_fields = {"last_build": (BuildSerializer,)}
-
     def __init__(self, *args, resolver=None, version_serializer=None, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -753,6 +751,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     programming_language = ProgrammingLanguageSerializer()
     repository = RepositorySerializer(source="*")
     urls = ProjectURLsSerializer(source="*")
+    # These should check for permissions!
     subproject_of = serializers.SerializerMethodField()
     translation_of = serializers.SerializerMethodField()
     default_branch = serializers.CharField(source="get_default_branch")
