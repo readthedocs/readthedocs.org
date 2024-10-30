@@ -1,0 +1,60 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+
+requires = [ "setuptools>=61.2" ]
+
+[project]
+name = "readthedocs"
+version = "11.11.0"
+description = "Read the Docs builds and hosts documentation"
+license = { text = "MIT" }
+authors = [ { name = "Read the Docs, Inc", email = "dev@readthedocs.com" } ]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Web Environment",
+  "Framework :: Django",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 2.7",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+urls = { Homepage = "http://readthedocs.org" }
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages]
+find = { namespaces = false }
+
+[tool.release]
+github_owner = "readthedocs"
+github_repo = "readthedocs.org"
+
+[tool.bumpver]
+current_version = "11.11.0"
+version_pattern = "MAJOR.MINOR.PATCH[TAGNUM]"
+commit_message = "Bump version {old_version} -> {new_version}"
+commit = "False"
+tag = "False"
+push = "False"
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+  'current_version = "{version}"',
+]
+"package.json" = [
+  '"version": "{version}"',
+]
+"docs/conf.py" = [
+  'version = "{version}"',
+]
+"readthedocs/__init__.py" = [
+  '__version__ = "{version}"',
+]
