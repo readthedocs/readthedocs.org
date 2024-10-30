@@ -158,7 +158,7 @@ We have a few places for you to get started:
 .. descriptions here are active
 
 :doc:`/tutorial/index`
-  Take the first steps with Read the Docs in 30 minutes.
+  Follow the Read the Docs tutorial.
 
 :doc:`/examples`
   Start your journey with an example project to hit the ground running.
@@ -172,7 +172,7 @@ Start with the basics of setting up your project:
   Learn how to configure your project with a ``.readthedocs.yaml`` file.
 
 :doc:`/guides/reproducible-builds`
-  Keep your builds working over time by making them reproducible.
+  Keep your builds working by making them reproducible.
 
 Build process
 -------------
@@ -225,13 +225,13 @@ Business features
 Our Business hosting has everything your business needs:
 
 :doc:`/commercial/organizations`
-  Control permissions across multiple teams.
+  Manage permissions across multiple teams.
 
 :doc:`/commercial/single-sign-on`
   Stay secure with Single Sign On.
 
 :doc:`/commercial/sharing`
-  Share your docs easily with contractors or customers.
+  Share your private docs easily with contractors or customers.
 
 How-to guides
 -------------
