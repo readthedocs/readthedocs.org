@@ -384,6 +384,18 @@ class TestReadTheDocsConfigJson(TestCase):
         self.version.has_htmlzip = True
         self.version.save()
 
+        # Add extra built and active versions to emulate a project that went
+        # from multiple versions to single version.
+        # These versions shouldn't be included in the `versions.active` field.
+        for i in range(5):
+            fixture.get(
+                Version,
+                privacy_level=PUBLIC,
+                active=True,
+                built=True,
+                project=self.project,
+            )
+
         self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
 
@@ -400,9 +412,8 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         )
         assert r.status_code == 200
-
-        expected = []
-        assert r.json()["versions"]["active"] == expected
+        expected = ["latest"]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
 
         expected = {
             "pdf": "https://project.dev.readthedocs.io/_/downloads/en/latest/pdf/",
