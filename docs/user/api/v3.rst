@@ -287,8 +287,8 @@ Project details
         }
 
     :query string expand: Add additional fields in the response.
-                          Allowed values are ``active_versions``, ``active_versions.last_build`` and
-                          ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
+                          Allowed values are: ``active_versions``.
+                          Multiple fields can be passed separated by commas.
 
     .. note::
 
@@ -588,7 +588,6 @@ Version detail
             "aliases": ["VERSION"],
             "hidden": false,
             "type": "tag",
-            "last_build": "{BUILD}",
             "privacy_level": "public",
             "downloads": {
                 "pdf": "https://pip.readthedocs.io/_/downloads/pdf/pip/stable/",
@@ -612,10 +611,6 @@ Version detail
     :>json string ref: the version slug where the ``stable`` version points to.
                        ``null`` when it's not the stable version.
     :>json boolean built: the version has at least one successful build.
-
-    :query string expand: Add additional fields in the response.
-                          Allowed values are ``last_build`` and ``last_build.config``.
-                          Multiple fields can be passed separated by commas.
 
 Version update
 ++++++++++++++

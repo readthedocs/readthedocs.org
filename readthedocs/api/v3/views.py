@@ -133,8 +133,6 @@ class ProjectsViewSetBase(
     filterset_class = ProjectFilter
     permit_list_expands = [
         "active_versions",
-        "active_versions.last_build",
-        "active_versions.last_build.config",
         "organization",
         "permissions",
         "teams",
@@ -356,10 +354,6 @@ class VersionsViewSet(
 
     filterset_class = VersionFilter
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
-    permit_list_expands = [
-        "last_build",
-        "last_build.config",
-    ]
 
     def get_serializer_class(self):
         """
