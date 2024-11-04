@@ -572,7 +572,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.12.3",
+                            "full_version": "3.13.0",
                             "version": "3",
                         }
                     },
