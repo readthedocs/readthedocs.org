@@ -125,9 +125,6 @@
       "enabled": false,
       "code": null
     },
-    "external_version_warning": {
-      "enabled": true
-    },
     "hotkeys": {
       "enabled": true,
       "doc_diff": {
@@ -139,8 +136,11 @@
         "trigger": "Slash"
       }
     },
-    "non_latest_version_warning": {
-      "enabled": true
+    "notifications": {
+      "enabled": true,
+      "show_on_external": true,
+      "show_on_latest": true,
+      "show_on_non_stable": true
     },
     "doc_diff": {
       "enabled": true,
