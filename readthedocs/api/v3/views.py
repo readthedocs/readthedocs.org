@@ -594,7 +594,7 @@ class RemoteRepositoryViewSet(
     serializer_class = RemoteRepositorySerializer
     filterset_class = RemoteRepositoryFilter
     permission_classes = (IsAuthenticated,)
-    permit_list_expands = ["remote_organization", "projects"]
+    permit_list_expands = ["remote_organization"]
 
     def get_queryset(self):
         queryset = (
@@ -614,9 +614,6 @@ class RemoteRepositoryViewSet(
 
         if is_expanded(self.request, "remote_organization"):
             queryset = queryset.select_related("organization")
-
-        if is_expanded(self.request, "projects"):
-            queryset = queryset.prefetch_related("projects__users")
 
         return queryset.order_by("organization__name", "full_name").distinct()
 
