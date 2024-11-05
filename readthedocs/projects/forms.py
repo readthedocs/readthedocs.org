@@ -1044,8 +1044,9 @@ class DomainForm(forms.ModelForm):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 timeout=1,
+                check=True,
             )
-        except subprocess.TimeoutExpired:
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             return False
         return bool(result.stdout.strip())
 
