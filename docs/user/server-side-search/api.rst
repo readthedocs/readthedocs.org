@@ -153,7 +153,7 @@ with the following changes:
 
 When searching on a parent project,
 results from their subprojects won't be included automatically,
-to include results from subprojects use the ``subprojects`` paramater.
+to include results from subprojects use the ``subprojects`` parameter.
 
 Authentication and authorization
 --------------------------------

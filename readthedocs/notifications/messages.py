@@ -98,7 +98,7 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
-        header=_("Build terminated due inactivity"),
+        header=_("Build terminated due to inactivity"),
         body=_(
             textwrap.dedent(
                 """

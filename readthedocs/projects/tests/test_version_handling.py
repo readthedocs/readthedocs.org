@@ -40,12 +40,12 @@ class TestVersionHandling:
             # `latest` and `stable` are at the beginning
             "latest",
             "2.5.3",
-            "1.1",
             "1.1.0",
+            "1.1",
             "v1.0",
             # Invalid versions are at the end sorted alphabetically.
-            "another-invalid",
             "invalid",
+            "another-invalid",
         ]
 
         for slug in slugs:
@@ -73,13 +73,13 @@ class TestVersionHandling:
 
         expected = [
             "2.5.3",
-            "1.1",
             "1.1.0",
+            "1.1",
             "v1.0",
             # Invalid versions are at the end sorted alphabetically.
-            "another-invalid",
-            "invalid",
             "latest",
+            "invalid",
+            "another-invalid",
         ]
 
         for slug in slugs:
@@ -121,14 +121,14 @@ class TestVersionHandling:
             "2022.01.22",
             "2021.01.22",
             # invalid ones (alphabetically)
-            "1.1",
-            "1.1.0",
-            "2.5.3",
-            "2001-02-27",
-            "2001.02.2",
-            "2001.16.32",
-            "another-invalid",
             "invalid",
+            "another-invalid",
+            "2001.16.32",
+            "2001.02.2",
+            "2001-02-27",
+            "2.5.3",
+            "1.1.0",
+            "1.1",
         ]
 
         for slug in slugs:
@@ -175,13 +175,13 @@ class TestVersionHandling:
             "v1.1",
             "v1.0",
             # invalid ones (alphabetically)
-            "1.1",
-            "2.5.3",
-            "2022.01.22",
-            "another-invalid",
-            "invalid",
-            "v1.1.0",
             "v2.3rc1",
+            "v1.1.0",
+            "invalid",
+            "another-invalid",
+            "2022.01.22",
+            "2.5.3",
+            "1.1",
         ]
 
         for slug in slugs:

@@ -6,9 +6,7 @@ formats:
 
 sphinx:
   configuration: docs/conf.py
-
-  # Disabled due to temporary issue with Django docs
-  fail_on_warning: false
+  fail_on_warning: true
 
 python:
   install:

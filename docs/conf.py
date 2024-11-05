@@ -81,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "11.8.1"
+version = "11.11.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
@@ -167,13 +167,16 @@ html_js_files = ["js/expand_tabs.js"]
 html_logo = "img/logo.svg"
 html_theme_options = {
     "logo_only": True,
-    "display_version": False,
 }
 html_context = {
     # Fix the "edit on" links.
     # TODO: remove once we support different rtd config
     # files per project.
     "conf_py_path": f"/docs/{docset}/",
+    "display_github": True,
+    "github_user": "readthedocs",
+    "github_repo": "readthedocs.org",
+    "github_version": "main",
     # Use to generate the Plausible "data-domain" attribute from the template
     "plausible_domain": f"{os.environ.get('READTHEDOCS_PROJECT')}.readthedocs.io",
 }

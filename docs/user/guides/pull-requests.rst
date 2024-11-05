@@ -53,15 +53,13 @@ Privacy levels work the same way as :ref:`normal versions <versions:Version stat
 Limitations
 -----------
 
-- Only available for **GitHub** and **GitLab** currently. Bitbucket is not yet supported.
+- Pull requests are only available for **GitHub** and **GitLab** currently. Bitbucket is not yet supported.
 - To enable this feature, your Read the Docs account needs to be connected to an
   account with your Git provider.
 - Builds from pull requests have the same memory and time limitations
   :doc:`as regular builds </builds>`.
-- Additional formats like PDF and EPUB aren't built, to reduce build time.
-- Search queries will default to the default experience for your tool.
-  This is a feature we plan to add,
-  but don't want to overwhelm our search indexes used in production.
+- Additional formats like PDF aren't built in order to reduce build time.
+- Read the Docs doesn't index search on pull request builds. This means that Addons search and the Read the Docs Search API will return no results.
 - The built documentation is kept for 90 days after the pull request has been closed or merged.
 
 Troubleshooting
@@ -72,9 +70,9 @@ No new builds are started when I open a pull request
    send Read the Docs pull request events. You'll need to re-sync your project's
    webhook integration to reconfigure the Read the Docs webhook.
 
-   To resync your project's webhook, go to your project's admin dashboard,
+   To re-sync your project's webhook, go to your project's admin dashboard,
    :guilabel:`Integrations`, and then select the webhook integration for your
-   provider. Follow the directions on to re-sync the webhook, or create a new
+   provider. Follow the directions to re-sync the webhook, or create a new
    webhook integration.
 
    You may also notice this behavior if your Read the Docs account is not
@@ -82,18 +80,16 @@ No new builds are started when I open a pull request
    You can (re)connect your account by going to your :guilabel:`<Username dropdown>`,
    :guilabel:`Settings`, then to :guilabel:`Connected Services`.
 
-
 Build status is not being reported to your Git provider
    If opening a pull request does start a new build, but the build status is not
    being updated with your Git provider, then your connected account may have out
-   dated or insufficient permisisons.
+   dated or insufficient permissions.
 
-   Make sure that you have granted access to the Read the Docs `OAuth App`_ for
-   your personal or organization GitHub account. You can also try reconnecting
-   your account with your Git provider.
+   Make sure that you have granted access to the Read the Docs `GitHub OAuth App`_ for
+   your personal or organization GitHub account.
 
 .. seealso::
    - :ref:`guides/setup/git-repo-manual:Debugging webhooks`
    - :ref:`github-permission-troubleshooting`
 
-.. _OAuth App: https://github.com/settings/applications
+.. _GitHub OAuth App: https://github.com/settings/applications

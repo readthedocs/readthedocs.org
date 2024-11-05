@@ -1133,14 +1133,16 @@ class TestAddonsConfigForm(TestCase):
             "enabled": True,
             "analytics_enabled": False,
             "doc_diff_enabled": False,
-            "external_version_warning_enabled": True,
             "flyout_enabled": True,
             "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
             "flyout_sorting_latest_stable_at_beginning": True,
             "flyout_sorting_custom_pattern": None,
             "hotkeys_enabled": False,
             "search_enabled": False,
-            "stable_latest_version_warning_enabled": True,
+            "notifications_enabled": True,
+            "notifications_show_on_latest": True,
+            "notifications_show_on_non_stable": True,
+            "notifications_show_on_external": True,
         }
         form = AddonsConfigForm(data=data, project=self.project)
         self.assertTrue(form.is_valid())
@@ -1149,7 +1151,10 @@ class TestAddonsConfigForm(TestCase):
         self.assertEqual(self.project.addons.enabled, True)
         self.assertEqual(self.project.addons.analytics_enabled, False)
         self.assertEqual(self.project.addons.doc_diff_enabled, False)
-        self.assertEqual(self.project.addons.external_version_warning_enabled, True)
+        self.assertEqual(self.project.addons.notifications_enabled, True)
+        self.assertEqual(self.project.addons.notifications_show_on_latest, True)
+        self.assertEqual(self.project.addons.notifications_show_on_non_stable, True)
+        self.assertEqual(self.project.addons.notifications_show_on_external, True)
         self.assertEqual(self.project.addons.flyout_enabled, True)
         self.assertEqual(
             self.project.addons.flyout_sorting,
@@ -1162,24 +1167,25 @@ class TestAddonsConfigForm(TestCase):
         self.assertEqual(self.project.addons.flyout_sorting_custom_pattern, None)
         self.assertEqual(self.project.addons.hotkeys_enabled, False)
         self.assertEqual(self.project.addons.search_enabled, False)
-        self.assertEqual(
-            self.project.addons.stable_latest_version_warning_enabled,
-            True,
-        )
+        self.assertEqual(self.project.addons.notifications_show_on_latest, True)
+        self.assertEqual(self.project.addons.notifications_show_on_non_stable, True)
+        self.assertEqual(self.project.addons.notifications_show_on_external, True)
 
     def test_addonsconfig_form_invalid_sorting_custom_pattern(self):
         data = {
             "enabled": True,
             "analytics_enabled": False,
             "doc_diff_enabled": False,
-            "external_version_warning_enabled": True,
             "flyout_enabled": True,
             "flyout_sorting": ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
             "flyout_sorting_latest_stable_at_beginning": True,
             "flyout_sorting_custom_pattern": None,
             "hotkeys_enabled": False,
             "search_enabled": False,
-            "stable_latest_version_warning_enabled": True,
+            "notifications_enabled": True,
+            "notifications_show_on_latest": True,
+            "notifications_show_on_non_stable": True,
+            "notifications_show_on_external": True,
         }
         form = AddonsConfigForm(data=data, project=self.project)
         self.assertFalse(form.is_valid())
