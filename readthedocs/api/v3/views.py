@@ -133,8 +133,6 @@ class ProjectsViewSetBase(
     filterset_class = ProjectFilter
     permit_list_expands = [
         "active_versions",
-        "active_versions.last_build",
-        "active_versions.last_build.config",
         "organization",
         "permissions",
         "teams",
@@ -356,10 +354,6 @@ class VersionsViewSet(
 
     filterset_class = VersionFilter
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
-    permit_list_expands = [
-        "last_build",
-        "last_build.config",
-    ]
 
     def get_serializer_class(self):
         """
@@ -600,7 +594,7 @@ class RemoteRepositoryViewSet(
     serializer_class = RemoteRepositorySerializer
     filterset_class = RemoteRepositoryFilter
     permission_classes = (IsAuthenticated,)
-    permit_list_expands = ["remote_organization", "projects"]
+    permit_list_expands = ["remote_organization"]
 
     def get_queryset(self):
         queryset = (
@@ -620,9 +614,6 @@ class RemoteRepositoryViewSet(
 
         if is_expanded(self.request, "remote_organization"):
             queryset = queryset.select_related("organization")
-
-        if is_expanded(self.request, "projects"):
-            queryset = queryset.prefetch_related("projects__users")
 
         return queryset.order_by("organization__name", "full_name").distinct()
 

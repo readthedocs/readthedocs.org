@@ -33,7 +33,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-23 13:42+0000\n"
+"POT-Creation-Date: 2024-11-05 11:23+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: JY3, 2022-2023\n"
 "Language-Team: Chinese (China) (http://app.transifex.com/readthedocs/"
@@ -164,12 +164,12 @@ msgstr "托管于"
 msgid "Privacy Policy"
 msgstr "隐私政策"
 
-#: api/v3/serializers.py:636
+#: api/v3/serializers.py:634
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "无效的项目名称「{0}」：未生成网址标识。"
 
-#: api/v3/serializers.py:640
+#: api/v3/serializers.py:638
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "网址标识为「{0}」的项目已存在。"
@@ -476,15 +476,15 @@ msgstr "打开"
 msgid "Closed"
 msgstr "关闭"
 
-#: builds/constants.py:137
+#: builds/constants.py:139
 msgid "Any version"
 msgstr "任意版本"
 
-#: builds/constants.py:138
+#: builds/constants.py:140
 msgid "SemVer versions"
 msgstr "语义化版本(SemVer)"
 
-#: builds/constants.py:139
+#: builds/constants.py:141
 msgid "Custom match"
 msgstr "自定义匹配"
 
@@ -1534,23 +1534,19 @@ msgstr ""
 msgid "Has admin privilege"
 msgstr "拥有管理员权限"
 
-#: oauth/notifications.py:22 oauth/notifications.py:35
+#: oauth/notifications.py:19 oauth/notifications.py:32
 msgid "Unable to attach webhook to this project"
 msgstr ""
 
-#: oauth/notifications.py:48
+#: oauth/notifications.py:45
 msgid "The project doesn't have a valid webhook set up"
 msgstr ""
 
-#: oauth/notifications.py:62
+#: oauth/notifications.py:59
 msgid "{{provider_name}} build status report failed"
 msgstr ""
 
-#: oauth/notifications.py:77
-msgid "Deploy key added successfully"
-msgstr ""
-
-#: oauth/notifications.py:89
+#: oauth/notifications.py:74
 msgid "Failed to add deploy key to project"
 msgstr ""
 
@@ -1644,11 +1640,11 @@ msgstr ""
 msgid "Organization %(name)s already exists"
 msgstr ""
 
-#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:721
+#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:724
 msgid "Email address or username"
 msgstr ""
 
-#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:736
+#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:739
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr ""
@@ -2100,35 +2096,35 @@ msgstr ""
 msgid "Updated your advertising preferences"
 msgstr "更新您的广告偏好设置"
 
-#: projects/admin.py:110
+#: projects/admin.py:112
 msgid "Yes"
 msgstr "是"
 
-#: projects/admin.py:111
+#: projects/admin.py:113
 msgid "No"
 msgstr "否"
 
-#: projects/admin.py:140
+#: projects/admin.py:142
 msgid "Not spam (1-{})"
 msgstr ""
 
-#: projects/admin.py:146
+#: projects/admin.py:148
 msgid "Don't show Ads ({}-{})"
 msgstr ""
 
-#: projects/admin.py:153
+#: projects/admin.py:155
 msgid "Deny on robots ({}-{})"
 msgstr ""
 
-#: projects/admin.py:160
+#: projects/admin.py:162
 msgid "Don't show dashboard ({}-{})"
 msgstr ""
 
-#: projects/admin.py:167
+#: projects/admin.py:169
 msgid "Don't serve docs ({}-{})"
 msgstr ""
 
-#: projects/admin.py:174
+#: projects/admin.py:176
 msgid "Delete project (>={})"
 msgstr ""
 
@@ -2358,60 +2354,68 @@ msgstr ""
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "每个标签的长度必须小于等于 100 个字符。"
 
-#: projects/forms.py:667
+#: projects/forms.py:669
 msgid "Enable Addons"
 msgstr ""
 
-#: projects/forms.py:669
+#: projects/forms.py:671
 msgid "Show a notification on builds from pull requests"
 msgstr ""
 
-#: projects/forms.py:672
-msgid "Show a notification on non-stable and latest versions"
-msgstr ""
+#: projects/forms.py:674
+#, fuzzy
+#| msgid "Show warning banner in non-stable nor latest versions."
+msgid "Show a notification on non-stable versions"
+msgstr "在非 stable（稳定）或 latest（最新）版本中展示警告横幅。"
 
-#: projects/forms.py:708
+#: projects/forms.py:676
+#, fuzzy
+#| msgid "Show warning banner in non-stable nor latest versions."
+msgid "Show a notification on latest version"
+msgstr "在非 stable（稳定）或 latest（最新）版本中展示警告横幅。"
+
+#: projects/forms.py:711
 msgid ""
 "The flyout sorting custom pattern is required when selecting a custom "
 "pattern."
 msgstr ""
 
-#: projects/forms.py:740
+#: projects/forms.py:743
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr ""
 
-#: projects/forms.py:825
+#: projects/forms.py:828
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:858
+#: projects/forms.py:861
 msgid ""
 "This project is configured with a versioning scheme that doesn't support "
 "translations."
 msgstr ""
 
-#: projects/forms.py:1037
+#: projects/forms.py:1040
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:1140
+#: projects/forms.py:1143
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "变量名不能以__开头(双下划线)"
 
-#: projects/forms.py:1144
+#: projects/forms.py:1147
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "变量名不能以 READTHEDOCS 开头"
 
-#: projects/forms.py:1149
+#: projects/forms.py:1152
 msgid "There is already a variable with this name for this project"
 msgstr "该项目已经有一个具有此名称的变量"
 
-#: projects/forms.py:1154
+#: projects/forms.py:1157
 msgid "Variable name can't contain spaces"
 msgstr ""
 
-#: projects/forms.py:1158
+#: projects/forms.py:1161
 msgid "Only letters, numbers and underscore are allowed"
 msgstr ""
 
@@ -2427,17 +2431,15 @@ msgstr ""
 msgid "Alias"
 msgstr "别名"
 
-#: projects/models.py:190
-#, fuzzy
-#| msgid "Single version"
+#: projects/models.py:187
 msgid "Sorting of versions"
-msgstr "单一版本"
+msgstr ""
 
-#: projects/models.py:200
+#: projects/models.py:197
 msgid "Custom version sorting pattern"
 msgstr ""
 
-#: projects/models.py:206
+#: projects/models.py:203
 msgid "Show <code>latest</code> and <code>stable</code> at the beginning"
 msgstr ""
 
@@ -3371,67 +3373,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:471
+#: settings/base.py:461
 msgid "Catalan"
 msgstr "加泰罗尼亚语"
 
-#: settings/base.py:472
+#: settings/base.py:462
 msgid "English"
 msgstr "英语"
 
-#: settings/base.py:473
+#: settings/base.py:463
 msgid "Spanish"
 msgstr "西班牙语"
 
-#: settings/base.py:474
+#: settings/base.py:464
 msgid "Brazilian Portuguese"
 msgstr "巴西葡萄牙语"
 
-#: settings/base.py:475
+#: settings/base.py:465
 msgid "Norwegian Bokmål"
 msgstr "挪威语"
 
-#: settings/base.py:476
+#: settings/base.py:466
 msgid "French"
 msgstr "法语"
 
-#: settings/base.py:477
+#: settings/base.py:467
 msgid "Russian"
 msgstr "俄语"
 
-#: settings/base.py:478
+#: settings/base.py:468
 msgid "German"
 msgstr "德语"
 
-#: settings/base.py:479
+#: settings/base.py:469
 msgid "Galician"
 msgstr "加利西亚语"
 
-#: settings/base.py:480
+#: settings/base.py:470
 msgid "Vietnamese"
 msgstr "越南语"
 
-#: settings/base.py:481
+#: settings/base.py:471
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
-#: settings/base.py:482
+#: settings/base.py:472
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: settings/base.py:483
+#: settings/base.py:473
 msgid "Japanese"
 msgstr "日语"
 
-#: settings/base.py:484
+#: settings/base.py:474
 msgid "Ukrainian"
 msgstr "乌克兰语"
 
-#: settings/base.py:485
+#: settings/base.py:475
 msgid "Italian"
 msgstr "意大利语"
 
-#: settings/base.py:486
+#: settings/base.py:476
 msgid "Korean"
 msgstr "韩语"
 

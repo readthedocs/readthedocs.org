@@ -342,14 +342,21 @@ class AddonsResponseBase:
         # projects that don't have one already
         AddonsConfig.objects.get_or_create(project=project)
 
-        if project.supports_multiple_versions:
-            versions_active_built_not_hidden = (
-                self._get_versions(request, project)
-                .select_related("project")
-                .order_by("-slug")
+        versions_active_built_not_hidden = (
+            self._get_versions(request, project)
+            .select_related("project")
+            .order_by("-slug")
+        )
+        sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
+        if not project.supports_multiple_versions:
+            # Return only one version when the project doesn't support multiple versions.
+            # That version is the only one the project serves.
+            sorted_versions_active_built_not_hidden = (
+                sorted_versions_active_built_not_hidden.filter(
+                    slug=project.get_default_version()
+                )
             )
-            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
-
+        else:
             if (
                 project.addons.flyout_sorting
                 == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
@@ -455,17 +462,11 @@ class AddonsResponseBase:
                     # https://github.com/readthedocs/readthedocs.org/issues/9530
                     "code": project.analytics_code,
                 },
-                "external_version_warning": {
-                    "enabled": project.addons.external_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
-                },
-                "non_latest_version_warning": {
-                    "enabled": project.addons.stable_latest_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
+                "notifications": {
+                    "enabled": project.addons.notifications_enabled,
+                    "show_on_latest": project.addons.notifications_show_on_latest,
+                    "show_on_non_stable": project.addons.notifications_show_on_non_stable,
+                    "show_on_external": project.addons.notifications_show_on_external,
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,

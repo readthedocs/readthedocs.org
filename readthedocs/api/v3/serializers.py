@@ -357,8 +357,6 @@ class VersionSerializer(FlexFieldsModelSerializer):
             "privacy_level",
         ]
 
-        expandable_fields = {"last_build": (BuildSerializer,)}
-
     def __init__(self, *args, resolver=None, version_serializer=None, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -808,10 +806,12 @@ class ProjectSerializer(FlexFieldsModelSerializer):
                     "many": True,
                 },
             ),
-            # NOTE: we use a serializer without expandable fields to avoid
-            # leaking information about the organization through the project.
+            # NOTE: we use a different serializer with just a subset of fields
+            # to avoid leaking information about the organization through a public project.
+            # Users can use the /api/v3/organizations/ endpoint to get more information
+            # about the organization.
             "organization": (
-                "readthedocs.api.v3.serializers.OrganizationSerializer",
+                "readthedocs.api.v3.serializers.RestrictedOrganizationSerializer",
                 # NOTE: we cannot have a Project with multiple organizations.
                 {"source": "organizations.first"},
             ),
@@ -1211,6 +1211,26 @@ class OrganizationSerializer(serializers.ModelSerializer):
         )
 
 
+class RestrictedOrganizationSerializer(serializers.ModelSerializer):
+
+    """
+    Stripped version of the OrganizationSerializer to be used when listing projects.
+
+    This serializer is used to avoid leaking information about the organization through a public project.
+    Instead of checking if user has access to the organization, we just show the name and slug.
+    """
+
+    _links = OrganizationLinksSerializer(source="*")
+
+    class Meta:
+        model = Organization
+        fields = (
+            "name",
+            "slug",
+            "_links",
+        )
+
+
 class RemoteOrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = RemoteOrganization
@@ -1229,6 +1249,7 @@ class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
 class RemoteRepositorySerializer(FlexFieldsModelSerializer):
     admin = serializers.SerializerMethodField("is_admin")
+    projects = serializers.SerializerMethodField()
 
     class Meta:
         model = RemoteRepository
@@ -1248,6 +1269,7 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
             "default_branch",
             "created",
             "modified",
+            "projects",
         ]
         read_only_fields = fields
         expandable_fields = {
@@ -1255,7 +1277,6 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
                 RemoteOrganizationSerializer,
                 {"source": "organization"},
             ),
-            "projects": (ProjectSerializer, {"many": True}),
         }
 
     def is_admin(self, obj):
@@ -1268,3 +1289,12 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
         return obj.remote_repository_relations.filter(
             user=request.user, admin=True
         ).exists()
+
+    def get_projects(self, obj):
+        request = self.context["request"]
+        projects = (
+            Project.objects.public(user=request.user)
+            .filter(remote_repository=obj)
+            .prefetch_related("users")
+        )
+        return ProjectSerializer(projects, many=True).data
