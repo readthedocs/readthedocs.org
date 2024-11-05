@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
@@ -108,6 +110,20 @@ class TestDomainViews(TestCase):
         domain = self.subproject.domains.first()
         self.assertEqual(domain.domain, "test.example.com")
         self.assertEqual(domain.canonical, False)
+
+    @mock.patch("readthedocs.projects.forms.subprocess")
+    def test_create_domain_with_active_cname_record(self, subprocess_mock):
+        subprocess_mock.run.return_value = mock.MagicMock(
+            returncode=0, stdout="example.com."
+        )
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "www.example.com"},
+        )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert "CNAME already exists" in form.errors["domain"][0]
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

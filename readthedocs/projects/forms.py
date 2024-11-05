@@ -2,6 +2,7 @@
 
 import datetime
 import json
+import subprocess
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
@@ -1025,7 +1026,28 @@ class DomainForm(forms.ModelForm):
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(f"{invalid_domain} is not a valid domain.")
 
+        # Validate that the domain doesn't have a CNAME
+        if self._has_cname(domain_string):
+            raise forms.ValidationError(
+                _(
+                    "This domain has a CNAME record. "
+                    "Please remove it before adding the domain.",
+                ),
+            )
+
         return domain_string
+
+    def _has_cname(self, domain):
+        try:
+            result = subprocess.run(
+                ["dig", "-t", "CNAME", "+short", domain],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=1,
+            )
+        except subprocess.TimeoutExpired:
+            return False
+        return bool(result.stdout.strip())
 
     def clean_canonical(self):
         canonical = self.cleaned_data["canonical"]
