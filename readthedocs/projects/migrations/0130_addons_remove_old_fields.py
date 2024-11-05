@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy
 
     dependencies = [
-        ("projects", "0128_addons_notifications"),
+        ("projects", "0129_addons_notification_data_migration"),
     ]
 
     operations = [
