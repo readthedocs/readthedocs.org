@@ -510,6 +510,14 @@ class AddonsResponseBase:
                     if version
                     else None,
                 },
+                "tooltips": {
+                    "enabled": True,
+                    "css_selector": "[role=main] a.internal",
+                    "doctool": {
+                        "name": "sphinx",
+                        "version": "8.0.3",
+                    },
+                },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,
                     "doc_diff": {
