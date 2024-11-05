@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-23 13:42+0000\n"
+"POT-Creation-Date: 2024-11-05 11:23+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2020,2022-2024\n"
 "Language-Team: Portuguese (Brazil) (http://app.transifex.com/readthedocs/"
@@ -156,12 +156,12 @@ msgstr "Hospedado por"
 msgid "Privacy Policy"
 msgstr "Política de Privacidade"
 
-#: api/v3/serializers.py:636
+#: api/v3/serializers.py:634
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Nome de projeto \"{0}\" inválido: nenhum slug gerado."
 
-#: api/v3/serializers.py:640
+#: api/v3/serializers.py:638
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "Um projeto com slug \"{0}\" já existe."
@@ -476,15 +476,15 @@ msgstr "Aberto"
 msgid "Closed"
 msgstr "Fechado"
 
-#: builds/constants.py:137
+#: builds/constants.py:139
 msgid "Any version"
 msgstr "Qualquer versão"
 
-#: builds/constants.py:138
+#: builds/constants.py:140
 msgid "SemVer versions"
 msgstr "Versões SemVer"
 
-#: builds/constants.py:139
+#: builds/constants.py:141
 msgid "Custom match"
 msgstr "Correspondência personalizada"
 
@@ -1574,23 +1574,19 @@ msgstr "Branch padrão do repositório"
 msgid "Has admin privilege"
 msgstr "Possui privilégios de administrador"
 
-#: oauth/notifications.py:22 oauth/notifications.py:35
+#: oauth/notifications.py:19 oauth/notifications.py:32
 msgid "Unable to attach webhook to this project"
 msgstr "Não foi possível anexar o webhook a este projeto"
 
-#: oauth/notifications.py:48
+#: oauth/notifications.py:45
 msgid "The project doesn't have a valid webhook set up"
 msgstr "O projeto não tem um webhook válido configurado"
 
-#: oauth/notifications.py:62
+#: oauth/notifications.py:59
 msgid "{{provider_name}} build status report failed"
 msgstr "Falha no relatório de status de construção de {{provider_name}}"
 
-#: oauth/notifications.py:77
-msgid "Deploy key added successfully"
-msgstr "Chave de implantação adicionada com sucesso"
-
-#: oauth/notifications.py:89
+#: oauth/notifications.py:74
 msgid "Failed to add deploy key to project"
 msgstr "Falha ao adicionar chave de implantação ao projeto"
 
@@ -1688,11 +1684,11 @@ msgstr "Nome organização inválido: nenhum slug gerado"
 msgid "Organization %(name)s already exists"
 msgstr "Organização %(name)s já existe"
 
-#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:721
+#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:724
 msgid "Email address or username"
 msgstr "Endereço de e-mail ou nome de usuário"
 
-#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:736
+#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:739
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr "Usuário %(username)s não existe"
@@ -2200,35 +2196,35 @@ msgstr "Você excluiu sua conta com sucesso"
 msgid "Updated your advertising preferences"
 msgstr "Suas preferências de anúncios foram atualizadas"
 
-#: projects/admin.py:110
+#: projects/admin.py:112
 msgid "Yes"
 msgstr "Sim"
 
-#: projects/admin.py:111
+#: projects/admin.py:113
 msgid "No"
 msgstr "Não"
 
-#: projects/admin.py:140
+#: projects/admin.py:142
 msgid "Not spam (1-{})"
 msgstr "Não é spam (1-{})"
 
-#: projects/admin.py:146
+#: projects/admin.py:148
 msgid "Don't show Ads ({}-{})"
 msgstr "Não mostrar anúncios ({}-{})"
 
-#: projects/admin.py:153
+#: projects/admin.py:155
 msgid "Deny on robots ({}-{})"
 msgstr "Negar acesso a robôs ({}-{})"
 
-#: projects/admin.py:160
+#: projects/admin.py:162
 msgid "Don't show dashboard ({}-{})"
 msgstr "Não mostrar o painel ({}-{})"
 
-#: projects/admin.py:167
+#: projects/admin.py:169
 msgid "Don't serve docs ({}-{})"
 msgstr "Não servir documentação ({}-{})"
 
-#: projects/admin.py:174
+#: projects/admin.py:176
 msgid "Delete project (>={})"
 msgstr "Excluir projeto (>={})"
 
@@ -2468,20 +2464,29 @@ msgstr "Há há uma tradução \"{lang}\" para o projeto {proj}."
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "O comprimento de cada tag deve ser menor ou igual a 100 caracteres."
 
-#: projects/forms.py:667
+#: projects/forms.py:669
 msgid "Enable Addons"
 msgstr "Ativar addons"
 
-#: projects/forms.py:669
+#: projects/forms.py:671
 msgid "Show a notification on builds from pull requests"
 msgstr "Mostrar uma notificação em construções de pull requests"
 
-#: projects/forms.py:672
-msgid "Show a notification on non-stable and latest versions"
+#: projects/forms.py:674
+#, fuzzy
+#| msgid "Show a notification on non-stable and latest versions"
+msgid "Show a notification on non-stable versions"
 msgstr ""
 "Mostrar uma notificação em versões não estáveis e mais recentes (latest)"
 
-#: projects/forms.py:708
+#: projects/forms.py:676
+#, fuzzy
+#| msgid "Show a notification on non-stable and latest versions"
+msgid "Show a notification on latest version"
+msgstr ""
+"Mostrar uma notificação em versões não estáveis e mais recentes (latest)"
+
+#: projects/forms.py:711
 msgid ""
 "The flyout sorting custom pattern is required when selecting a custom "
 "pattern."
@@ -2489,16 +2494,16 @@ msgstr ""
 "O padrão personalizado de classificação do menu flutuante é necessário ao "
 "selecionar um padrão personalizado."
 
-#: projects/forms.py:740
+#: projects/forms.py:743
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr "O usuário %(username)s já é um mantenedor"
 
-#: projects/forms.py:825
+#: projects/forms.py:828
 msgid "The payload must be a valid JSON object."
 msgstr "A carga útil deve ser um objeto JSON válido."
 
-#: projects/forms.py:858
+#: projects/forms.py:861
 msgid ""
 "This project is configured with a versioning scheme that doesn't support "
 "translations."
@@ -2506,27 +2511,27 @@ msgstr ""
 "Este projeto está configurado com um esquema de versionamento que não "
 "oferece suporte a traduções."
 
-#: projects/forms.py:1037
+#: projects/forms.py:1040
 msgid "Only one domain can be canonical at a time."
 msgstr "Apenas um domínio pode ser canônico por vez."
 
-#: projects/forms.py:1140
+#: projects/forms.py:1143
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Nome de variável não pode iniciar com __ (sublinhado duplo)"
 
-#: projects/forms.py:1144
+#: projects/forms.py:1147
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Nome de variável não pode começar com READTHEDOCS"
 
-#: projects/forms.py:1149
+#: projects/forms.py:1152
 msgid "There is already a variable with this name for this project"
 msgstr "Já existe uma variável com esse nome para este projeto"
 
-#: projects/forms.py:1154
+#: projects/forms.py:1157
 msgid "Variable name can't contain spaces"
 msgstr "Nome de variável não pode conter espaços"
 
-#: projects/forms.py:1158
+#: projects/forms.py:1161
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Apenas letras, números e sublinhados são permitidos"
 
@@ -2542,19 +2547,17 @@ msgstr "Subprojeto"
 msgid "Alias"
 msgstr "Apelido"
 
-#: projects/models.py:190
-#, fuzzy
-#| msgid "Single version"
+#: projects/models.py:187
 msgid "Sorting of versions"
-msgstr "Versão única"
+msgstr "Classificação de versões"
 
-#: projects/models.py:200
+#: projects/models.py:197
 msgid "Custom version sorting pattern"
-msgstr ""
+msgstr "Padrão personalizado de classificação de versão"
 
-#: projects/models.py:206
+#: projects/models.py:203
 msgid "Show <code>latest</code> and <code>stable</code> at the beginning"
-msgstr ""
+msgstr "Mostrar <code>latest</code> e <code>stable</code> no início"
 
 #: projects/models.py:262
 msgid "Repository URL"
@@ -3031,6 +3034,8 @@ msgstr "Painel: Permite que o projeto use o banner de aviso de versão."
 #: projects/models.py:1961
 msgid "Build: Generate a file manifest for file tree diff."
 msgstr ""
+"Construção: Gera um manifesto de arquivo para a comparação de árvore de "
+"arquivos."
 
 #: projects/models.py:1966
 msgid "Webhook: Skip syncing branches"
@@ -3556,67 +3561,67 @@ msgstr "Consulta"
 msgid "Total results"
 msgstr "Resultados totais"
 
-#: settings/base.py:471
+#: settings/base.py:461
 msgid "Catalan"
 msgstr "Catalão"
 
-#: settings/base.py:472
+#: settings/base.py:462
 msgid "English"
 msgstr "Inglês"
 
-#: settings/base.py:473
+#: settings/base.py:463
 msgid "Spanish"
 msgstr "Espanhol"
 
-#: settings/base.py:474
+#: settings/base.py:464
 msgid "Brazilian Portuguese"
 msgstr "Português do Brasil"
 
-#: settings/base.py:475
+#: settings/base.py:465
 msgid "Norwegian Bokmål"
 msgstr "Norueguês"
 
-#: settings/base.py:476
+#: settings/base.py:466
 msgid "French"
 msgstr "Frances"
 
-#: settings/base.py:477
+#: settings/base.py:467
 msgid "Russian"
 msgstr "Russo"
 
-#: settings/base.py:478
+#: settings/base.py:468
 msgid "German"
 msgstr "Alemão"
 
-#: settings/base.py:479
+#: settings/base.py:469
 msgid "Galician"
 msgstr "Galego"
 
-#: settings/base.py:480
+#: settings/base.py:470
 msgid "Vietnamese"
 msgstr "Vietnamita"
 
-#: settings/base.py:481
+#: settings/base.py:471
 msgid "Simplified Chinese"
 msgstr "Chinês Simplificado"
 
-#: settings/base.py:482
+#: settings/base.py:472
 msgid "Traditional Chinese"
 msgstr "Chinês Tradicional"
 
-#: settings/base.py:483
+#: settings/base.py:473
 msgid "Japanese"
 msgstr "Japonês"
 
-#: settings/base.py:484
+#: settings/base.py:474
 msgid "Ukrainian"
 msgstr "Ucraniano"
 
-#: settings/base.py:485
+#: settings/base.py:475
 msgid "Italian"
 msgstr "Italiano"
 
-#: settings/base.py:486
+#: settings/base.py:476
 msgid "Korean"
 msgstr "Coreano"
 
@@ -6231,3 +6236,6 @@ msgstr ""
 "desconectar um serviço, você também deverá visitar seu provedor Git para "
 "excluir a conexão OAuth do Read the Docs. No GitHub, isso está localizado em "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
+
+#~ msgid "Deploy key added successfully"
+#~ msgstr "Chave de implantação adicionada com sucesso"
