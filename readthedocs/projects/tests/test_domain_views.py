@@ -123,7 +123,7 @@ class TestDomainViews(TestCase):
         assert resp.status_code == 200
         form = resp.context_data["form"]
         assert not form.is_valid()
-        assert "CNAME already exists" in form.errors["domain"][0]
+        assert "This domain has a CNAME record" in form.errors["domain"][0]
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
