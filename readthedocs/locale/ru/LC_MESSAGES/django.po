@@ -25,7 +25,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-23 13:42+0000\n"
+"POT-Creation-Date: 2024-11-05 11:23+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Roman Paltsev, 2023\n"
 "Language-Team: Russian (http://app.transifex.com/readthedocs/readthedocs/"
@@ -158,12 +158,12 @@ msgstr "Размещено благодаря"
 msgid "Privacy Policy"
 msgstr "Политика конфиденциальности"
 
-#: api/v3/serializers.py:636
+#: api/v3/serializers.py:634
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Неправильное имя проекта \"{0}\": не сгенерирован URL."
 
-#: api/v3/serializers.py:640
+#: api/v3/serializers.py:638
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "Проект с URL \"{0}\" уже существует."
@@ -470,15 +470,15 @@ msgstr "Открыта"
 msgid "Closed"
 msgstr "Закрыта"
 
-#: builds/constants.py:137
+#: builds/constants.py:139
 msgid "Any version"
 msgstr "Любая версия"
 
-#: builds/constants.py:138
+#: builds/constants.py:140
 msgid "SemVer versions"
 msgstr "Версии SemVer"
 
-#: builds/constants.py:139
+#: builds/constants.py:141
 msgid "Custom match"
 msgstr "Свой подбор"
 
@@ -1541,23 +1541,19 @@ msgstr ""
 msgid "Has admin privilege"
 msgstr "Имеет права администратора"
 
-#: oauth/notifications.py:22 oauth/notifications.py:35
+#: oauth/notifications.py:19 oauth/notifications.py:32
 msgid "Unable to attach webhook to this project"
 msgstr ""
 
-#: oauth/notifications.py:48
+#: oauth/notifications.py:45
 msgid "The project doesn't have a valid webhook set up"
 msgstr ""
 
-#: oauth/notifications.py:62
+#: oauth/notifications.py:59
 msgid "{{provider_name}} build status report failed"
 msgstr ""
 
-#: oauth/notifications.py:77
-msgid "Deploy key added successfully"
-msgstr ""
-
-#: oauth/notifications.py:89
+#: oauth/notifications.py:74
 msgid "Failed to add deploy key to project"
 msgstr ""
 
@@ -1653,11 +1649,11 @@ msgstr ""
 msgid "Organization %(name)s already exists"
 msgstr ""
 
-#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:721
+#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:724
 msgid "Email address or username"
 msgstr ""
 
-#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:736
+#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:739
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr ""
@@ -2108,35 +2104,35 @@ msgstr ""
 msgid "Updated your advertising preferences"
 msgstr "Обновлены наши настройки рекламы"
 
-#: projects/admin.py:110
+#: projects/admin.py:112
 msgid "Yes"
 msgstr "Да"
 
-#: projects/admin.py:111
+#: projects/admin.py:113
 msgid "No"
 msgstr ""
 
-#: projects/admin.py:140
+#: projects/admin.py:142
 msgid "Not spam (1-{})"
 msgstr ""
 
-#: projects/admin.py:146
+#: projects/admin.py:148
 msgid "Don't show Ads ({}-{})"
 msgstr ""
 
-#: projects/admin.py:153
+#: projects/admin.py:155
 msgid "Deny on robots ({}-{})"
 msgstr ""
 
-#: projects/admin.py:160
+#: projects/admin.py:162
 msgid "Don't show dashboard ({}-{})"
 msgstr ""
 
-#: projects/admin.py:167
+#: projects/admin.py:169
 msgid "Don't serve docs ({}-{})"
 msgstr ""
 
-#: projects/admin.py:174
+#: projects/admin.py:176
 msgid "Delete project (>={})"
 msgstr ""
 
@@ -2366,60 +2362,70 @@ msgstr "Уже существует перевод “{lang}” для прое�
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "Длина каждой метки не должна превышать 100 символов."
 
-#: projects/forms.py:667
+#: projects/forms.py:669
 msgid "Enable Addons"
 msgstr ""
 
-#: projects/forms.py:669
+#: projects/forms.py:671
 msgid "Show a notification on builds from pull requests"
 msgstr ""
 
-#: projects/forms.py:672
-msgid "Show a notification on non-stable and latest versions"
+#: projects/forms.py:674
+#, fuzzy
+#| msgid "Show warning banner in non-stable nor latest versions."
+msgid "Show a notification on non-stable versions"
 msgstr ""
+"Показывать предупреждения как для нестабильных, так и для не свежих версий."
 
-#: projects/forms.py:708
+#: projects/forms.py:676
+#, fuzzy
+#| msgid "Show warning banner in non-stable nor latest versions."
+msgid "Show a notification on latest version"
+msgstr ""
+"Показывать предупреждения как для нестабильных, так и для не свежих версий."
+
+#: projects/forms.py:711
 msgid ""
 "The flyout sorting custom pattern is required when selecting a custom "
 "pattern."
 msgstr ""
 
-#: projects/forms.py:740
+#: projects/forms.py:743
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr ""
 
-#: projects/forms.py:825
+#: projects/forms.py:828
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:858
+#: projects/forms.py:861
 msgid ""
 "This project is configured with a versioning scheme that doesn't support "
 "translations."
 msgstr ""
 
-#: projects/forms.py:1037
+#: projects/forms.py:1040
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:1140
+#: projects/forms.py:1143
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Имя переменной не должно начинаться с __ (двойное подчёркивание)"
 
-#: projects/forms.py:1144
+#: projects/forms.py:1147
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Имя переменной не должно начинаться с READTHEDOCS."
 
-#: projects/forms.py:1149
+#: projects/forms.py:1152
 msgid "There is already a variable with this name for this project"
 msgstr "В этом проекте уже имеется переменная с таким именем"
 
-#: projects/forms.py:1154
+#: projects/forms.py:1157
 msgid "Variable name can't contain spaces"
 msgstr "Имя переменной не должно содержать пробелы"
 
-#: projects/forms.py:1158
+#: projects/forms.py:1161
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Разрешены только буквы, цифры и подчеркивание"
 
@@ -2435,17 +2441,15 @@ msgstr ""
 msgid "Alias"
 msgstr "Псевдоним"
 
-#: projects/models.py:190
-#, fuzzy
-#| msgid "Single version"
+#: projects/models.py:187
 msgid "Sorting of versions"
-msgstr "Единственная версия"
+msgstr ""
 
-#: projects/models.py:200
+#: projects/models.py:197
 msgid "Custom version sorting pattern"
 msgstr ""
 
-#: projects/models.py:206
+#: projects/models.py:203
 msgid "Show <code>latest</code> and <code>stable</code> at the beginning"
 msgstr ""
 
@@ -3393,67 +3397,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:471
+#: settings/base.py:461
 msgid "Catalan"
 msgstr "каталонский"
 
-#: settings/base.py:472
+#: settings/base.py:462
 msgid "English"
 msgstr "Английский"
 
-#: settings/base.py:473
+#: settings/base.py:463
 msgid "Spanish"
 msgstr "Испанский"
 
-#: settings/base.py:474
+#: settings/base.py:464
 msgid "Brazilian Portuguese"
 msgstr "бразильский португальский"
 
-#: settings/base.py:475
+#: settings/base.py:465
 msgid "Norwegian Bokmål"
 msgstr "Норвежский"
 
-#: settings/base.py:476
+#: settings/base.py:466
 msgid "French"
 msgstr "Французский"
 
-#: settings/base.py:477
+#: settings/base.py:467
 msgid "Russian"
 msgstr "Русский"
 
-#: settings/base.py:478
+#: settings/base.py:468
 msgid "German"
 msgstr "Немецкий"
 
-#: settings/base.py:479
+#: settings/base.py:469
 msgid "Galician"
 msgstr "Галисийский"
 
-#: settings/base.py:480
+#: settings/base.py:470
 msgid "Vietnamese"
 msgstr "Вьетнамский"
 
-#: settings/base.py:481
+#: settings/base.py:471
 msgid "Simplified Chinese"
 msgstr "упрощённый китайский"
 
-#: settings/base.py:482
+#: settings/base.py:472
 msgid "Traditional Chinese"
 msgstr "традиционный китайский"
 
-#: settings/base.py:483
+#: settings/base.py:473
 msgid "Japanese"
 msgstr "Японский"
 
-#: settings/base.py:484
+#: settings/base.py:474
 msgid "Ukrainian"
 msgstr "Украинский"
 
-#: settings/base.py:485
+#: settings/base.py:475
 msgid "Italian"
 msgstr "Итальянский"
 
-#: settings/base.py:486
+#: settings/base.py:476
 msgid "Korean"
 msgstr "Корейский"
 

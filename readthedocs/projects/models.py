@@ -178,9 +178,6 @@ class AddonsConfig(TimeStampedModel):
         help_text="CSS selector for the main content of the page",
     )
 
-    # External version warning
-    external_version_warning_enabled = models.BooleanField(default=True)
-
     # EthicalAds
     ethicalads_enabled = models.BooleanField(default=True)
 
@@ -215,8 +212,11 @@ class AddonsConfig(TimeStampedModel):
     search_enabled = models.BooleanField(default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
 
-    # Stable/Latest version warning
-    stable_latest_version_warning_enabled = models.BooleanField(default=True)
+    # Notifications
+    notifications_enabled = models.BooleanField(default=True)
+    notifications_show_on_latest = models.BooleanField(default=True)
+    notifications_show_on_non_stable = models.BooleanField(default=True)
+    notifications_show_on_external = models.BooleanField(default=True)
 
 
 class AddonSearchFilter(TimeStampedModel):

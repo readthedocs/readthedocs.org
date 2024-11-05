@@ -108,12 +108,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         data = {
-            "expand": (
-                "active_versions,"
-                "active_versions.last_build,"
-                "active_versions.last_build.config,"
-                "permissions"
-            ),
+            "expand": ("active_versions," "permissions"),
         }
         expected_response = self._get_response_dict("projects-detail")
         expected_response["permissions"]["admin"] = False
@@ -138,12 +133,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         data = {
-            "expand": (
-                "active_versions,"
-                "active_versions.last_build,"
-                "active_versions.last_build.config,"
-                "permissions"
-            ),
+            "expand": ("active_versions," "permissions"),
         }
         expected_response = self._get_response_dict("projects-detail")
 
@@ -170,12 +160,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         data = {
-            "expand": (
-                "active_versions,"
-                "active_versions.last_build,"
-                "active_versions.last_build.config,"
-                "permissions"
-            ),
+            "expand": ("active_versions," "permissions"),
         }
         expected_response = self._get_response_dict("projects-detail")
         expected_response["permissions"]["admin"] = False
@@ -203,12 +188,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         query_params = {
-            "expand": (
-                "active_versions,"
-                "active_versions.last_build,"
-                "active_versions.last_build.config,"
-                "permissions"
-            ),
+            "expand": ("active_versions," "permissions"),
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")

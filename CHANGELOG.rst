@@ -1,3 +1,37 @@
+Version 11.12.0
+---------------
+
+:Date: November 05, 2024
+
+* `@cclauss <https://github.com/cclauss>`__: Do not automatically create pip-tools pull requests on forks of this repo (`#11738 <https://github.com/readthedocs/readthedocs.org/pull/11738>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11737 <https://github.com/readthedocs/readthedocs.org/pull/11737>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update common (`#11736 <https://github.com/readthedocs/readthedocs.org/pull/11736>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: use a restricted serializer for when showing org info from a project (`#11732 <https://github.com/readthedocs/readthedocs.org/pull/11732>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: always return projects when listing remote repositories (`#11731 <https://github.com/readthedocs/readthedocs.org/pull/11731>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: remove last_build expandable field (`#11730 <https://github.com/readthedocs/readthedocs.org/pull/11730>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: return all active versions on single version project (`#11727 <https://github.com/readthedocs/readthedocs.org/pull/11727>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: fix slow test (`#11725 <https://github.com/readthedocs/readthedocs.org/pull/11725>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix docs warnings and broken links (`#11723 <https://github.com/readthedocs/readthedocs.org/pull/11723>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove unused middlewares (`#11722 <https://github.com/readthedocs/readthedocs.org/pull/11722>`__)
+* `@stsewd <https://github.com/stsewd>`__: Set session cookie `SameSite` attribute to `Lax` for main site (`#11721 <https://github.com/readthedocs/readthedocs.org/pull/11721>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow users to show/hide notifications on latest/non-stable (`#11718 <https://github.com/readthedocs/readthedocs.org/pull/11718>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Admin: Make large inlines collapse by default (`#11717 <https://github.com/readthedocs/readthedocs.org/pull/11717>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: document 2fa (`#11716 <https://github.com/readthedocs/readthedocs.org/pull/11716>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11714 <https://github.com/readthedocs/readthedocs.org/pull/11714>`__)
+* `@laymonage <https://github.com/laymonage>`__: Clarify support for an optional `v`-prefix in branch and tag names (`#11712 <https://github.com/readthedocs/readthedocs.org/pull/11712>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update sphinx (`#11711 <https://github.com/readthedocs/readthedocs.org/pull/11711>`__)
+* `@stsewd <https://github.com/stsewd>`__: File indexers: correctly get page content from PR previews (`#11709 <https://github.com/readthedocs/readthedocs.org/pull/11709>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.11.0 (`#11708 <https://github.com/readthedocs/readthedocs.org/pull/11708>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clean up Addons & Flyout menu docs (`#11706 <https://github.com/readthedocs/readthedocs.org/pull/11706>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clean up front page copy (`#11705 <https://github.com/readthedocs/readthedocs.org/pull/11705>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update Sphinx instructions to override search (`#11702 <https://github.com/readthedocs/readthedocs.org/pull/11702>`__)
+* `@stsewd <https://github.com/stsewd>`__: Addons: always sort versions in descending order (`#11691 <https://github.com/readthedocs/readthedocs.org/pull/11691>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix analytics links (`#11661 <https://github.com/readthedocs/readthedocs.org/pull/11661>`__)
+* `@browniebroke <https://github.com/browniebroke>`__: Simplify instructions for installing dependencies with uv (`#11655 <https://github.com/readthedocs/readthedocs.org/pull/11655>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: allow a full URL when un-resolving a domain (`#11632 <https://github.com/readthedocs/readthedocs.org/pull/11632>`__)
+* `@stsewd <https://github.com/stsewd>`__: Notifications: remove unused notification (`#11573 <https://github.com/readthedocs/readthedocs.org/pull/11573>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Add list of supported tools (`#11547 <https://github.com/readthedocs/readthedocs.org/pull/11547>`__)
+
 Version 11.11.0
 ---------------
 
