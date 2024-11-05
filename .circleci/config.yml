@@ -49,7 +49,7 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run: sudo apt update
-      - run: sudo apt install -y rclone
+      - run: sudo apt install -y rclone dnsutils
       - run: pip install --user tox
       - run: tox -e ext-theme
 
