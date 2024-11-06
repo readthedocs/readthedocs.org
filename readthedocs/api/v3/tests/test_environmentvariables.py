@@ -196,13 +196,13 @@ class EnvironmentVariablessEndpointTests(APIEndpointMixin):
 
         resp = self.client.post(
             url,
-            data={"name": "NEWENVVAR", "value": "a" * (size // 2), "public": True},
+            data={"name": "A", "value": "a" * (size // 2), "public": True},
         )
         assert resp.status_code == 201
 
         resp = self.client.post(
             url,
-            data={"name": "NEWENVVAR", "value": "a" * size, "public": True},
+            data={"name": "B", "value": "a" * size, "public": True},
         )
         assert resp.status_code == 400
         assert resp.json() == [
