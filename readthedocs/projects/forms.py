@@ -1026,7 +1026,6 @@ class DomainForm(forms.ModelForm):
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(f"{invalid_domain} is not a valid domain.")
 
-        # Validate that the domain doesn't have a CNAME
         if self._has_cname(domain_string):
             raise forms.ValidationError(
                 _(
@@ -1038,6 +1037,12 @@ class DomainForm(forms.ModelForm):
         return domain_string
 
     def _has_cname(self, domain):
+        """
+        Check if a domain has a CNAME record.
+
+        We make use of `dig` to check if a domain has a CNAME record,
+        if it doesn't return an empty string, it means it has a CNAME record.
+        """
         try:
             result = subprocess.run(
                 ["dig", "-t", "CNAME", "+short", domain],
