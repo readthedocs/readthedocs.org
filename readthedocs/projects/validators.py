@@ -6,11 +6,14 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.db.models.functions import Length
 from django.utils.deconstruct import deconstructible
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.projects.constants import LANGUAGES
+
+MAX_SIZE_ENV_VARS_PER_PROJECT = 256000
 
 
 @deconstructible
@@ -227,3 +230,19 @@ def _clean_prefix(prefix):
     if not prefix:
         return "/"
     return f"/{prefix}/"
+
+
+def validate_environment_variable_size(
+    project, new_env_value, error_class=ValidationError
+):
+    existing_size = sum(
+        project.environmentvariable_set.annotate(size=Length("value")).values_list(
+            "size", flat=True
+        )
+    )
+    if existing_size + len(new_env_value) > MAX_SIZE_ENV_VARS_PER_PROJECT:
+        raise error_class(
+            _(
+                "The total size of all environment variables in the project cannot exceed 256 KB."
+            )
+        )

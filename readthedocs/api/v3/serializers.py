@@ -31,6 +31,7 @@ from readthedocs.projects.models import (
     Project,
     ProjectRelationship,
 )
+from readthedocs.projects.validators import validate_environment_variable_size
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
 from readthedocs.redirects.validators import validate_redirect
@@ -1115,7 +1116,6 @@ class EnvironmentVariableLinksSerializer(BaseLinksSerializer):
 
 
 class EnvironmentVariableSerializer(serializers.ModelSerializer):
-    value = serializers.CharField(write_only=True)
     project = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     _links = EnvironmentVariableLinksSerializer(source="*", read_only=True)
 
@@ -1131,6 +1131,25 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
             "project",
             "_links",
         ]
+        extra_kwargs = {
+            "value": {"write_only": True},
+        }
+
+    def create(self, validated_data):
+        validate_environment_variable_size(
+            project=validated_data["project"],
+            new_env_value=validated_data["value"],
+            error_class=serializers.ValidationError,
+        )
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validate_environment_variable_size(
+            project=instance.project,
+            new_env_value=validated_data["value"],
+            error_class=serializers.ValidationError,
+        )
+        return super().update(instance, validated_data)
 
 
 class OrganizationLinksSerializer(BaseLinksSerializer):
