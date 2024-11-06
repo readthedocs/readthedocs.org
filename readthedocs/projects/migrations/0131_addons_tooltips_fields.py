@@ -12,10 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.AlterField(
             model_name='addonsconfig',
             name='tooltips_doctool_name',
-            field=models.CharField(blank=True, max_length=128, null=True),
+            field=models.CharField(blank=True, choices=[('sphinx', 'Sphinx'), ('other', 'Other')], max_length=128, null=True),
         ),
         migrations.AddField(
             model_name='addonsconfig',
@@ -32,10 +32,10 @@ class Migration(migrations.Migration):
             name='tooltips_root_selector',
             field=models.CharField(blank=True, max_length=128, null=True),
         ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='historicaladdonsconfig',
             name='tooltips_doctool_name',
-            field=models.CharField(blank=True, max_length=128, null=True),
+            field=models.CharField(blank=True, choices=[('sphinx', 'Sphinx'), ('other', 'Other')], max_length=128, null=True),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
