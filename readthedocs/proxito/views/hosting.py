@@ -511,11 +511,12 @@ class AddonsResponseBase:
                     else None,
                 },
                 "tooltips": {
-                    "enabled": True,
-                    "css_selector": "[role=main] a.internal",
+                    "enabled": project.addons.tooltips_enabled,
+                    "root_selector": project.addons.tooltips_root_selector
+                    or project.addons.TOOLTIPS_DEFAULT_ROOT_SELECTOR,
                     "doctool": {
-                        "name": "sphinx",
-                        "version": "8.0.3",
+                        "name": project.addons.tooltips_doctool_name,
+                        "version": project.addons.tooltips_doctool_version,
                     },
                 },
                 "hotkeys": {
