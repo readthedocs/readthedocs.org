@@ -660,6 +660,10 @@ class AddonsConfigForm(forms.ModelForm):
             "flyout_sorting_custom_pattern",
             "hotkeys_enabled",
             "search_enabled",
+            "tooltips_enabled",
+            "tooltips_root_selector",
+            "tooltips_doctool_name",
+            "tooltips_doctool_version",
             "notifications_enabled",
             "notifications_show_on_latest",
             "notifications_show_on_non_stable",
@@ -677,7 +681,10 @@ class AddonsConfigForm(forms.ModelForm):
         }
         widgets = {
             "doc_diff_root_selector": forms.TextInput(
-                attrs={"placeholder": "[role=main]"}
+                attrs={"placeholder": AddonsConfig.DOC_DIFF_DEFAULT_ROOT_SELECTOR}
+            ),
+            "tooltips_root_selector": forms.TextInput(
+                attrs={"placeholder": AddonsConfig.TOOLTIPS_DEFAULT_ROOT_SELECTOR}
             ),
         }
 
