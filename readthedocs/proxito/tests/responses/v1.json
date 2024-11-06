@@ -160,6 +160,14 @@
       "enabled": true,
       "default_filter": "project:project/latest",
       "filters": []
+    },
+    "tooltips": {
+      "enabled": false,
+      "root_selector": "[role=main] a.internal",
+      "doctool": {
+        "name": null,
+        "version": null
+      }
     }
   }
 }

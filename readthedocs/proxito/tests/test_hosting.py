@@ -722,6 +722,42 @@ class TestReadTheDocsConfigJson(TestCase):
             == "https://docs.example.com/en/latest/"
         )
 
+    def test_tooltips(self):
+        addons = fixture.get(
+            AddonsConfig,
+            project=self.project,
+        )
+
+        addons.tooltips_enabled = True
+        addons.tooltips_root_selector = "[role=main] a"
+        addons.tooltips_doctool_name = "sphinx"
+        addons.tooltips_doctool_version = "8.0.1"
+        addons.save()
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "1.0.0",
+                "client-version": "0.6.0",
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        expected = {
+            "enabled": True,
+            "root_selector": "[role=main] a",
+            "doctool": {
+                "name": "sphinx",
+                "version": "8.0.1",
+            },
+        }
+
+        assert r.status_code == 200
+        assert r.json()["addons"]["tooltips"] == expected
+
     def test_non_existent_project(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
