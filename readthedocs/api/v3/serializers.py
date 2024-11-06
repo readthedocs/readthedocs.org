@@ -36,7 +36,7 @@ from readthedocs.redirects.models import Redirect
 from readthedocs.redirects.validators import validate_redirect
 
 
-class UserSerializer(FlexFieldsModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
@@ -331,7 +331,7 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         )
 
 
-class VersionSerializer(FlexFieldsModelSerializer):
+class VersionSerializer(serializers.ModelSerializer):
     aliases = serializers.SerializerMethodField()
     ref = serializers.CharField()
     downloads = serializers.SerializerMethodField()
@@ -586,7 +586,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
+class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer):
 
     """Serializer used to Import a Project."""
 
@@ -679,7 +679,7 @@ class ProjectCreateSerializer(SettingsOverrideObject):
     _default_class = ProjectCreateSerializerBase
 
 
-class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
+class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer):
 
     """Serializer used to modify a Project once imported."""
 
@@ -936,7 +936,7 @@ class ChildProjectSerializer(ProjectSerializer):
         ]
 
 
-class SubprojectSerializer(FlexFieldsModelSerializer):
+class SubprojectSerializer(serializers.ModelSerializer):
 
     """Serializer to render a subproject (``ProjectRelationship``)."""
 
@@ -952,7 +952,7 @@ class SubprojectSerializer(FlexFieldsModelSerializer):
         ]
 
 
-class SubprojectDestroySerializer(FlexFieldsModelSerializer):
+class SubprojectDestroySerializer(serializers.ModelSerializer):
 
     """Serializer used to remove a subproject relationship to a Project."""
 
