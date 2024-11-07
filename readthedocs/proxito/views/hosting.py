@@ -653,8 +653,7 @@ class AddonsResponseBase:
                                 filename=filename,
                                 version_slug=version.slug,
                             ),
-                            # origin ?
-                            "other": resolver.resolve(
+                            "source": resolver.resolve(
                                 project=project,
                                 filename=filename,
                                 version_slug=latest_version.slug,
@@ -663,8 +662,42 @@ class AddonsResponseBase:
                     }
                     for filename in diff.added
                 ],
-                "deleted": [{"file": f} for f in diff.deleted],
-                "modified": [{"file": f} for f in diff.modified],
+                "deleted": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve(
+                                project=project,
+                                filename=filename,
+                                version_slug=version.slug,
+                            ),
+                            "source": resolver.resolve(
+                                project=project,
+                                filename=filename,
+                                version_slug=latest_version.slug,
+                            ),
+                        },
+                    }
+                    for filename in diff.deleted
+                ],
+                "modified": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve(
+                                project=project,
+                                filename=filename,
+                                version_slug=version.slug,
+                            ),
+                            "source": resolver.resolve(
+                                project=project,
+                                filename=filename,
+                                version_slug=latest_version.slug,
+                            ),
+                        },
+                    }
+                    for filename in diff.modified
+                ],
             },
         }
 
