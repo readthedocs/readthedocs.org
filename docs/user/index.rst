@@ -10,6 +10,7 @@ Read the Docs: documentation simplified
    /intro/doctools
    /intro/mkdocs
    /intro/sphinx
+   /intro/docusaurus
    /intro/add-project
    /examples
 
