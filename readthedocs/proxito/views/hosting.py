@@ -529,7 +529,10 @@ class AddonsResponseBase:
 
         if version:
             response = self._get_filetreediff_response(
-                request=request, project=project, version=version
+                request=request,
+                project=project,
+                version=version,
+                resolver=resolver,
             )
             if response:
                 data["addons"]["filetreediff"].update(response)
@@ -614,7 +617,7 @@ class AddonsResponseBase:
 
         return data
 
-    def _get_filetreediff_response(self, *, request, project, version):
+    def _get_filetreediff_response(self, *, request, project, version, resolver):
         """
         Get the file tree diff response for the given version.
 
@@ -641,9 +644,27 @@ class AddonsResponseBase:
             "enabled": True,
             "outdated": diff.outdated,
             "diff": {
-                "added": [{"file": file} for file in diff.added],
-                "deleted": [{"file": file} for file in diff.deleted],
-                "modified": [{"file": file} for file in diff.modified],
+                "added": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve(
+                                project=project,
+                                filename=filename,
+                                version_slug=version.slug,
+                            ),
+                            # origin ?
+                            "other": resolver.resolve(
+                                project=project,
+                                filename=filename,
+                                version_slug=latest_version.slug,
+                            ),
+                        },
+                    }
+                    for filename in diff.added
+                ],
+                "deleted": [{"file": f} for f in diff.deleted],
+                "modified": [{"file": f} for f in diff.modified],
             },
         }
 
