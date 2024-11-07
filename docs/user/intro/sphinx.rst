@@ -100,28 +100,16 @@ If you're using a different theme, enable :doc:`Server side search </server-side
              "readthedocs.js",
          ]
 
+Integrate the Read the Docs version menu into your site navigation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. TODO: adapt and uncomment this section.
-   We've changed `flyout_display` to be `hidden` by default;
-   If people want to use the integrated version of it, they should declare it as `attached`.
-   However, as we have the version/language selectors now,
-   we want to promote that more and keep the Addons flyout enabled by default.
+The :ref:`flyout-menu:Addons flyout menu` displays differently depending to which Sphinx theme your documentation uses.
 
-   Integrate the Read the Docs version menu into your site navigation
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- If you're using the `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`__, the :ref:`flyout-menu:Addons flyout menu` is already fully integrated into the theme. Use the theme options `flyout_display <https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html#confval-flyout_display>`__, `version_selector <https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html#confval-version_selector>`__, `language_selector <https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html#confval-language_selector>`__ to configure it.
 
-   If you're using the `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`__, the :ref:`flyout-menu:Addons flyout menu` is already fully integrated.
+- If you're using another theme, the flyout menu displays in the bottom right of the docs.
 
-   You *may* need to set `flyout_display` to `hidden <https://sphinx-rtd-theme.readthedocs.io/en/latest/configuring.html#confval-flyout_display>`_ in your ``conf.py`` so as not to display two identical menus:
-
-   .. code-block:: py
-      :caption: conf.py
-
-       html_theme_options = {
-           "flyout_display": "hidden",
-       }
-
-   If you're using a different theme, the flyout menu will display in the default bottom right side of your docs.
+In either case, you can configure the flyout menu sorting and display options in :guilabel:`Settings`, under :guilabel:`Addons`.
 
 Using Markdown with Sphinx
 --------------------------
