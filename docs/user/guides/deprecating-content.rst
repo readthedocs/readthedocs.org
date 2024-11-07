@@ -11,10 +11,6 @@ and you don't necessary want to make the content inaccessible.
 Here you'll find some tips on how to use Read the Docs to deprecate your content
 progressively and in non harmful ways.
 
-.. seealso::
-
-   :doc:`/guides/best-practice/links`
-     More information about handling URL structures, renaming and removing content.
 
 Deprecating versions
 --------------------

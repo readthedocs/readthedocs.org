@@ -9,10 +9,6 @@ which means that the reader is automatically redirected to a *new URL*.
 
 .. seealso::
 
-   :doc:`/guides/best-practice/links`
-     The need for a redirect often comes from external links to your documentation.
-     Read more about handling links in this explanation of best practices.
-
    :doc:`/user-defined-redirects`
      If you want to know more about our implementation of redirects,
      you can look up more examples in our reference before continuing with the how-to.

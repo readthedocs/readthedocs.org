@@ -6,6 +6,7 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Getting started
 
+   /added
    /tutorial/index
    /intro/doctools
    /intro/mkdocs
@@ -77,7 +78,6 @@ Read the Docs: documentation simplified
    /security-log
    /badges
    /explanation/documentation-structure
-   /guides/best-practice/links
    /security-implications
 
 .. toctree::
@@ -103,7 +103,6 @@ Read the Docs: documentation simplified
    Content, themes and SEO </guides/content/index>
    Security and access </guides/access/index>
    Account management </guides/management/index>
-   Best practice </guides/best-practice/index>
    Troubleshooting problems </guides/troubleshooting/index>
 
 .. toctree::
@@ -125,6 +124,8 @@ Read the Docs: documentation simplified
 .. raw:: html
 
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
+
+I'm changing this file.
 
 Read the Docs simplifies managing software documentation
 by building and hosting your docs automatically,

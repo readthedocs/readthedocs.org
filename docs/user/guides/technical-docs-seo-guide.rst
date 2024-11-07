@@ -198,10 +198,6 @@ Read the Docs supports a few different kinds of :doc:`user defined redirects </u
 that should cover all the different cases such as redirecting a certain page for all project versions,
 or redirecting one version to another.
 
-.. seealso:
-
-   :doc:`/guides/best-practice/links`
-      Following best practices to avoid broken links is great for search engine ranking.
 
 Canonical URLs ✅️
 ~~~~~~~~~~~~~~~~~~

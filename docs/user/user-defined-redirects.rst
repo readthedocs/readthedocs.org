@@ -19,8 +19,6 @@ the bad user experience of a 404 page is usually best to avoid.
 
    :doc:`/guides/redirects`
      This guide shows you how to add redirects with practical examples.
-   :doc:`/guides/best-practice/links`
-     Information and tips about creating and handling external references.
    :doc:`/guides/deprecating-content`
      A guide to deprecating features and other topics in a documentation.
 
@@ -29,7 +27,6 @@ Built-in redirects
 
 This section explains the redirects that are automatically active for all projects and how they are useful.
 Built-in redirects are especially useful for creating and sharing incoming links,
-which is discussed in depth in :doc:`/guides/best-practice/links`.
 
 .. _page_redirects:
 
