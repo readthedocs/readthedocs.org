@@ -69,10 +69,15 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
         if file_a.main_content_hash != file_b.main_content_hash:
             files_modified.append(file_path)
 
+    def sortpath(filename):
+        # Sort the files based on the amount of /.
+        # It will show the top level filenames first.
+        return filename.count("/")
+
     return FileTreeDiff(
-        added=files_added,
-        deleted=files_deleted,
-        modified=files_modified,
+        added=sorted(files_added, key=sortpath),
+        deleted=sorted(files_deleted, key=sortpath),
+        modified=sorted(files_modified, key=sortpath),
         outdated=outdated,
     )
 
