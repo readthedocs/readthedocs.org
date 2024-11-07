@@ -53,6 +53,7 @@ from readthedocs.projects.validators import (
     validate_custom_prefix,
     validate_custom_subproject_prefix,
     validate_domain_name,
+    validate_environment_variable_size,
     validate_no_ip,
     validate_repository_url,
 )
@@ -2065,7 +2066,7 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         help_text=_("Name of the environment variable"),
     )
     value = models.CharField(
-        max_length=2048,
+        max_length=48000,
         help_text=_("Value of the environment variable"),
     )
     project = models.ForeignKey(
@@ -2088,3 +2089,9 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     def save(self, *args, **kwargs):
         self.value = quote(self.value)
         return super().save(*args, **kwargs)
+
+    def clean(self):
+        validate_environment_variable_size(
+            project=self.project, new_env_value=self.value
+        )
+        return super().clean()
