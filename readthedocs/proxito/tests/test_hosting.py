@@ -943,9 +943,33 @@ class TestReadTheDocsConfigJson(TestCase):
             "enabled": True,
             "outdated": False,
             "diff": {
-                "added": [{"file": "new-file.html"}],
-                "deleted": [{"file": "deleted.html"}],
-                "modified": [{"file": "tutorial/index.html"}],
+                "added": [
+                    {
+                        "filename": "new-file.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/new-file.html",
+                            "source": "https://project.dev.readthedocs.io/en/latest/new-file.html",
+                        },
+                    },
+                ],
+                "deleted": [
+                    {
+                        "filename": "deleted.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/deleted.html",
+                            "source": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                        },
+                    },
+                ],
+                "modified": [
+                    {
+                        "filename": "tutorial/index.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/tutorial/index.html",
+                            "source": "https://project.dev.readthedocs.io/en/latest/tutorial/index.html",
+                        },
+                    },
+                ],
             },
         }
 
