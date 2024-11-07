@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.AddField(
             model_name='addonsconfig',
             name='tooltips_doctool_name',
             field=models.CharField(blank=True, choices=[('sphinx', 'Sphinx'), ('other', 'Other')], max_length=128, null=True),
