@@ -130,7 +130,7 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
             # the ability to evaluate local storage. Until we add the ability to
             # dynamically change the announcement, this is going to be the only
             # announcement shown.
-            if True:
+            if True:  # pylint: disable=using-constant-test
                 template_name = "new-dashboard.html"
             elif n_projects == 0 or (
                 n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
