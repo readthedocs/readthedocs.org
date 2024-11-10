@@ -74,7 +74,7 @@ numpy==2.1.3
     # via
     #   contourpy
     #   matplotlib
-packaging==24.1
+packaging==24.2
     # via
     #   matplotlib
     #   sphinx
@@ -180,7 +180,7 @@ uvicorn==0.32.0
     # via sphinx-autobuild
 watchfiles==0.24.0
     # via sphinx-autobuild
-websockets==13.1
+websockets==14.0
     # via sphinx-autobuild
 
 # The following packages are considered to be unsafe in a requirements file:
