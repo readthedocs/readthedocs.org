@@ -13,6 +13,8 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
 from readthedocs.projects.models import Project
+from readthedocs.projects.tasks.builds import sync_repository_task
+from readthedocs.rtd_tests.utils import create_git_branch, create_git_tag
 
 
 class TestCeleryBuilding(TestCase):
