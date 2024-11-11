@@ -23,13 +23,14 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
     ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
     ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
 )
-from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.models import AddonsConfig, Feature, Project
 from readthedocs.projects.version_handling import (
     comparable_version,
     sort_versions_calver,
@@ -311,6 +312,15 @@ class AddonsResponseBase:
             include_hidden=False,
         )
 
+    def _has_permission(self, request, version):
+        """
+        Check if user from the request is authorized to access `version`.
+
+        This is mainly to be overridden in .com to make use of
+        the auth backends in the proxied API.
+        """
+        return True
+
     def _v1(self, project, version, build, filename, url, request):
         """
         Initial JSON data structure consumed by the JavaScript client.
@@ -332,14 +342,21 @@ class AddonsResponseBase:
         # projects that don't have one already
         AddonsConfig.objects.get_or_create(project=project)
 
-        if project.supports_multiple_versions:
-            versions_active_built_not_hidden = (
-                self._get_versions(request, project)
-                .select_related("project")
-                .order_by("slug")
+        versions_active_built_not_hidden = (
+            self._get_versions(request, project)
+            .select_related("project")
+            .order_by("-slug")
+        )
+        sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
+        if not project.supports_multiple_versions:
+            # Return only one version when the project doesn't support multiple versions.
+            # That version is the only one the project serves.
+            sorted_versions_active_built_not_hidden = (
+                sorted_versions_active_built_not_hidden.filter(
+                    slug=project.get_default_version()
+                )
             )
-            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
-
+        else:
             if (
                 project.addons.flyout_sorting
                 == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
@@ -350,6 +367,7 @@ class AddonsResponseBase:
                         version.verbose_name,
                         repo_type=project.repo_type,
                     ),
+                    reverse=True,
                 )
             elif (
                 project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
@@ -444,17 +462,11 @@ class AddonsResponseBase:
                     # https://github.com/readthedocs/readthedocs.org/issues/9530
                     "code": project.analytics_code,
                 },
-                "external_version_warning": {
-                    "enabled": project.addons.external_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
-                },
-                "non_latest_version_warning": {
-                    "enabled": project.addons.stable_latest_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
+                "notifications": {
+                    "enabled": project.addons.notifications_enabled,
+                    "show_on_latest": project.addons.notifications_show_on_latest,
+                    "show_on_non_stable": project.addons.notifications_show_on_non_stable,
+                    "show_on_external": project.addons.notifications_show_on_external,
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
@@ -477,15 +489,23 @@ class AddonsResponseBase:
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,
-                    # TODO: figure it out where this data comes from
+                    # TODO: figure it out where this data comes from.
+                    #
+                    # Originally, this was thought to be customizable by the user
+                    # adding these filters from the Admin UI.
+                    #
+                    # I'm removing this feature for now until we implement it correctly.
                     "filters": [
-                        [
-                            "Include subprojects",
-                            f"subprojects:{project.slug}/{version.slug}",
-                        ],
-                    ]
-                    if version
-                    else [],
+                        # NOTE: this is an example of the structure of the this object.
+                        # It contains the name of the filter and the search syntax to prepend
+                        # to the user's query.
+                        # It uses "Search query sintax":
+                        # https://docs.readthedocs.io/en/stable/server-side-search/syntax.html
+                        # [
+                        #     "Include subprojects",
+                        #     f"subprojects:{project.slug}/{version.slug}",
+                        # ],
+                    ],
                     "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
                     else None,
@@ -501,8 +521,39 @@ class AddonsResponseBase:
                         "trigger": "Slash",  # Could be something like "Ctrl + D"
                     },
                 },
+                "filetreediff": {
+                    "enabled": False,
+                },
             },
         }
+
+        if version:
+            response = self._get_filetreediff_response(
+                request=request, project=project, version=version
+            )
+            if response:
+                data["addons"]["filetreediff"].update(response)
+
+            # Show the subprojects filter on the parent project and subproject
+            # TODO: Remove these queries and try to find a way to get this data
+            # from the resolver, which has already done these queries.
+            # TODO: Replace this fixed filters with the work proposed in
+            # https://github.com/readthedocs/addons/issues/22
+            if project.subprojects.exists():
+                data["addons"]["search"]["filters"].append(
+                    [
+                        "Include subprojects",
+                        f"subprojects:{project.slug}/{version.slug}",
+                    ]
+                )
+            if project.superprojects.exists():
+                superproject = project.superprojects.first().parent
+                data["addons"]["search"]["filters"].append(
+                    [
+                        "Include subprojects",
+                        f"subprojects:{superproject.slug}/{version.slug}",
+                    ]
+                )
 
         # DocDiff depends on `url=` GET attribute.
         # This attribute allows us to know the exact filename where the request was made.
@@ -562,6 +613,39 @@ class AddonsResponseBase:
             )
 
         return data
+
+    def _get_filetreediff_response(self, *, request, project, version):
+        """
+        Get the file tree diff response for the given version.
+
+        This response is only enabled for external versions,
+        we do the comparison between the current version and the latest version.
+        """
+        if not version.is_external:
+            return None
+
+        if not project.has_feature(Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF):
+            return None
+
+        latest_version = project.get_latest_version()
+        if not latest_version or not self._has_permission(
+            request=request, version=latest_version
+        ):
+            return None
+
+        diff = get_diff(version_a=version, version_b=latest_version)
+        if not diff:
+            return None
+
+        return {
+            "enabled": True,
+            "outdated": diff.outdated,
+            "diff": {
+                "added": [{"file": file} for file in diff.added],
+                "deleted": [{"file": file} for file in diff.deleted],
+                "modified": [{"file": file} for file in diff.modified],
+            },
+        }
 
     def _v2(self, project, version, build, filename, url, user):
         return {

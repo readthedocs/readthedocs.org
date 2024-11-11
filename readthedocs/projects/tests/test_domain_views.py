@@ -12,7 +12,7 @@ from readthedocs.subscriptions.products import RTDProductFeature
 
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=False,
-    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME, value=2).to_item()]),
 )
 class TestDomainViews(TestCase):
     def setUp(self):

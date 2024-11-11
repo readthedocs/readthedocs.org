@@ -18,6 +18,7 @@ from readthedocs.projects.tasks.search import reindex_version
 class BuildCommandResultInline(admin.TabularInline):
     model = BuildCommandResult
     fields = ("command", "exit_code", "output")
+    classes = ["collapse"]
 
 
 @admin.register(Build)

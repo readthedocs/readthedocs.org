@@ -377,11 +377,10 @@ Take a look at the following example:
        - asdf plugin add uv
        - asdf install uv latest
        - asdf global uv latest
-       - uv venv
-       - uv pip install .[docs]
-       - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
+       - uv sync --extra docs --frozen
+       - uv run -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
 
-You can use ``-r docs/requirements.txt``, etc. instead as needed. MkDocs projects could use ``NO_COLOR=1 .venv/bin/mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
+MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
 
 Update Conda version
 ^^^^^^^^^^^^^^^^^^^^

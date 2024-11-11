@@ -5,7 +5,7 @@ How-to guides: content, themes and SEO
     This article explains how documentation can be optimized to appear in search results,
     ultimately increasing traffic to your docs.
 
-⏩️ :doc:`Using traffic analytics </analytics>`
+⏩️ :doc:`Using traffic analytics </traffic-analytics>`
     In this guide, you can learn to use Read the Docs' built-in traffic analytics for your documentation project.
 
 ⏩️ :doc:`Managing translations for Sphinx projects </guides/manage-translations-sphinx>`
@@ -34,7 +34,7 @@ How-to guides: content, themes and SEO
 ⏩️ :doc:`Enabling offline formats </guides/enable-offline-formats>`
     This guide provides step-by-step instructions to enabling offline formats of your documentation.
 
-⏩️ :doc:`Using search analytics </guides/search-analytics>`
+⏩️ :doc:`Using search analytics </search-analytics>`
     In this guide, you can learn to use Read the Docs' built-in search analytics for your documentation project.
 
 ⏩️ :doc:`Adding custom CSS or JavaScript to Sphinx documentation </guides/adding-custom-css>`
@@ -57,8 +57,8 @@ How-to guides: content, themes and SEO
    :hidden:
 
    Search engine optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
-   Using traffic analytics </analytics>
-   Using search analytics </guides/search-analytics>
+   Using traffic analytics </traffic-analytics>
+   Using search analytics </search-analytics>
    Enabling offline formats </guides/enable-offline-formats>
    Embedding content from your documentation </guides/embedding-content>
    Managing translations for Sphinx projects </guides/manage-translations-sphinx>
