@@ -31,7 +31,6 @@ RUN apt-get -y install \
         telnet \
         lsb-release \
         npm \
-        dnsutils \
         rclone
 
 # Dependencies for django-allauth SAML support.
