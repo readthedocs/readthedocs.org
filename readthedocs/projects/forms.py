@@ -6,6 +6,7 @@ from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
+import dns.name
 import dns.resolver
 import pytz
 from allauth.socialaccount.models import SocialAccount
@@ -1085,6 +1086,10 @@ class DomainForm(forms.ModelForm):
                 _(
                     "DNS resolution timed out. Make sure the domain is correct, or try again later."
                 ),
+            )
+        except dns.name.EmptyLabel:
+            raise forms.ValidationError(
+                _("The domain is not valid."),
             )
 
     def clean_canonical(self):
