@@ -648,15 +648,15 @@ class AddonsResponseBase:
                     {
                         "filename": filename,
                         "urls": {
-                            "current": resolver.resolve(
+                            "current": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version_slug=version.slug,
+                                version=version,
                             ),
-                            "source": resolver.resolve(
+                            "source": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version_slug=latest_version.slug,
+                                version=latest_version,
                             ),
                         },
                     }
@@ -666,15 +666,15 @@ class AddonsResponseBase:
                     {
                         "filename": filename,
                         "urls": {
-                            "current": resolver.resolve(
+                            "current": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version_slug=version.slug,
+                                version=version,
                             ),
-                            "source": resolver.resolve(
+                            "source": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version_slug=latest_version.slug,
+                                version=latest_version,
                             ),
                         },
                     }
@@ -684,15 +684,15 @@ class AddonsResponseBase:
                     {
                         "filename": filename,
                         "urls": {
-                            "current": resolver.resolve(
+                            "current": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version_slug=version.slug,
+                                version=version,
                             ),
-                            "source": resolver.resolve(
+                            "source": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version_slug=latest_version.slug,
+                                version=latest_version,
                             ),
                         },
                     }
