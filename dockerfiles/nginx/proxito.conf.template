@@ -125,6 +125,8 @@ server {
         add_header X-RTD-Hosting-Integrations $rtd_hosting_integrations always;
         set $rtd_force_addons $upstream_http_x_rtd_force_addons;
         add_header X-RTD-Force-Addons $rtd_force_addons always;
+        set $rtd_user_js_file $upstream_http_x_rtd_user_js_file;
+        add_header X-RTD-User-Js-File $rtd_user_js_file always;
     }
 
     # Serve 404 pages here

@@ -162,6 +162,15 @@ class AddonsConfig(TimeStampedModel):
         help_text="Enable/Disable all the addons on this project",
     )
 
+    # This is a user-defined file that will be injected at serve time by our
+    # Cloudflare Worker if defined
+    js_file = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        help_text="URL to a JavaScript file to inject at serve time",
+    )
+
     # Analytics
 
     # NOTE: we keep analytics disabled by default to save resources.
