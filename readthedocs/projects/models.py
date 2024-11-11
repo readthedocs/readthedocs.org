@@ -36,6 +36,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
+from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -52,6 +53,7 @@ from readthedocs.projects.validators import (
     validate_custom_prefix,
     validate_custom_subproject_prefix,
     validate_domain_name,
+    validate_environment_variable_size,
     validate_no_ip,
     validate_repository_url,
 )
@@ -61,8 +63,8 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
-    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
     ADDONS_FLYOUT_SORTING_CHOICES,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -177,17 +179,15 @@ class AddonsConfig(TimeStampedModel):
         help_text="CSS selector for the main content of the page",
     )
 
-    # External version warning
-    external_version_warning_enabled = models.BooleanField(default=True)
-
     # EthicalAds
     ethicalads_enabled = models.BooleanField(default=True)
 
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
     flyout_sorting = models.CharField(
+        verbose_name=_("Sorting of versions"),
         choices=ADDONS_FLYOUT_SORTING_CHOICES,
-        default=ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+        default=ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
         max_length=64,
     )
     flyout_sorting_custom_pattern = models.CharField(
@@ -195,12 +195,15 @@ class AddonsConfig(TimeStampedModel):
         default=None,
         null=True,
         blank=True,
+        verbose_name=_("Custom version sorting pattern"),
         help_text="Sorting pattern supported by BumpVer "
         '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
     )
     flyout_sorting_latest_stable_at_beginning = models.BooleanField(
+        verbose_name=_(
+            "Show <code>latest</code> and <code>stable</code> at the beginning"
+        ),
         default=True,
-        help_text="Show <code>latest</code> and <code>stable</code> at the beginning",
     )
 
     # Hotkeys
@@ -210,8 +213,11 @@ class AddonsConfig(TimeStampedModel):
     search_enabled = models.BooleanField(default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
 
-    # Stable/Latest version warning
-    stable_latest_version_warning_enabled = models.BooleanField(default=True)
+    # Notifications
+    notifications_enabled = models.BooleanField(default=True)
+    notifications_show_on_latest = models.BooleanField(default=True)
+    notifications_show_on_non_stable = models.BooleanField(default=True)
+    notifications_show_on_external = models.BooleanField(default=True)
 
 
 class AddonSearchFilter(TimeStampedModel):
@@ -575,7 +581,6 @@ class Project(models.Model):
 
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = "_latest_build"
-    LATEST_SUCCESSFUL_BUILD_CACHE = "_latest_successful_build"
 
     class Meta:
         ordering = ("slug",)
@@ -921,13 +926,6 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
-        # Check if there is `_latest_successful_build` attribute in the Queryset.
-        # Used for database optimization.
-        if hasattr(self, self.LATEST_SUCCESSFUL_BUILD_CACHE):
-            if build_successful := getattr(self, self.LATEST_SUCCESSFUL_BUILD_CACHE):
-                return build_successful[0]
-            return None
-
         # Check if there is `_good_build` annotation in the Queryset.
         # Used for Database optimization.
         if hasattr(self, "_good_build"):
@@ -1817,6 +1815,9 @@ class Domain(TimeStampedModel):
             self.validation_process_start = timezone.now()
             self.save()
 
+    def clean(self):
+        check_domains_limit(self.project)
+
     def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
@@ -1895,6 +1896,7 @@ class Feature(models.Model):
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
+    GENERATE_MANIFEST_FOR_FILE_TREE_DIFF = "generate_manifest_for_file_tree_diff"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1954,6 +1956,10 @@ class Feature(models.Model):
         (
             ALLOW_VERSION_WARNING_BANNER,
             _("Dashboard: Allow project to use the version warning banner."),
+        ),
+        (
+            GENERATE_MANIFEST_FOR_FILE_TREE_DIFF,
+            _("Build: Generate a file manifest for file tree diff."),
         ),
         # Versions sync related features
         (
@@ -2060,7 +2066,7 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         help_text=_("Name of the environment variable"),
     )
     value = models.CharField(
-        max_length=2048,
+        max_length=48000,
         help_text=_("Value of the environment variable"),
     )
     project = models.ForeignKey(
@@ -2083,3 +2089,9 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     def save(self, *args, **kwargs):
         self.value = quote(self.value)
         return super().save(*args, **kwargs)
+
+    def clean(self):
+        validate_environment_variable_size(
+            project=self.project, new_env_value=self.value
+        )
+        return super().clean()

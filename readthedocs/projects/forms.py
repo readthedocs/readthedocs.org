@@ -654,23 +654,26 @@ class AddonsConfigForm(forms.ModelForm):
             "analytics_enabled",
             "doc_diff_enabled",
             "doc_diff_root_selector",
-            "external_version_warning_enabled",
             "flyout_enabled",
             "flyout_sorting",
             "flyout_sorting_latest_stable_at_beginning",
             "flyout_sorting_custom_pattern",
             "hotkeys_enabled",
             "search_enabled",
-            "stable_latest_version_warning_enabled",
+            "notifications_enabled",
+            "notifications_show_on_latest",
+            "notifications_show_on_non_stable",
+            "notifications_show_on_external",
         )
         labels = {
             "enabled": _("Enable Addons"),
-            "external_version_warning_enabled": _(
+            "notifications_show_on_external": _(
                 "Show a notification on builds from pull requests"
             ),
-            "stable_latest_version_warning_enabled": _(
-                "Show a notification on non-stable and latest versions"
+            "notifications_show_on_non_stable": _(
+                "Show a notification on non-stable versions"
             ),
+            "notifications_show_on_latest": _("Show a notification on latest version"),
         }
         widgets = {
             "doc_diff_root_selector": forms.TextInput(
@@ -696,7 +699,7 @@ class AddonsConfigForm(forms.ModelForm):
 
         # Keep the ability to disable addons completely on Read the Docs for Business
         if not settings.RTD_ALLOW_ORGANIZATIONS and addons_enabled_by_default:
-            self.fields.pop("enabled")
+            self.fields["enabled"].disabled = True
 
     def clean(self):
         if (

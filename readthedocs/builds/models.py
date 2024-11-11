@@ -207,9 +207,6 @@ class Version(TimeStampedModel):
         unique_together = [("project", "slug")]
         ordering = ["-verbose_name"]
 
-    # Property used for prefetching version related fields
-    LATEST_BUILD_CACHE = "_latest_build"
-
     def __str__(self):
         return self.verbose_name
 
@@ -300,14 +297,18 @@ class Version(TimeStampedModel):
 
     @property
     def latest_build(self):
-        # Check if there is `_latest_build` prefetch in the Queryset.
-        # Used for database optimization.
-        if hasattr(self, self.LATEST_BUILD_CACHE):
-            if latest_build := getattr(self, self.LATEST_BUILD_CACHE):
-                return latest_build[0]
-            return None
-
         return self.builds.order_by("-date").first()
+
+    @property
+    def latest_successful_build(self):
+        return (
+            self.builds.filter(
+                state=BUILD_STATE_FINISHED,
+                success=True,
+            )
+            .order_by("-date")
+            .first()
+        )
 
     @property
     def config(self):

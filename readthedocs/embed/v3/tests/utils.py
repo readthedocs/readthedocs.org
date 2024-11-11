@@ -21,3 +21,18 @@ def get_anchor_link_title(thing):
     else:
         title = f"Permalink to this {thing}"
     return title
+
+
+def compare_content_without_blank_lines(text_a, text_b):
+    lines_a = _split_lines_without_blank_lines(text_a)
+    lines_b = _split_lines_without_blank_lines(text_b)
+    assert lines_a == lines_b
+
+
+def _split_lines_without_blank_lines(text):
+    lines = []
+    for line in text.split("\n"):
+        line = line.strip()
+        if line:
+            lines.append(line)
+    return lines

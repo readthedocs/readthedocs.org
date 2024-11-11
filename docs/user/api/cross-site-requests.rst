@@ -22,15 +22,13 @@ We implement it such way that it strictly match the intention of the API endpoin
 Cookies
 -------
 
-On |org_brand|, our session cookies have the ``SameSite`` attribute set to ``None``,
-this means they can be sent in cross site requests.
-This is needed for our sustainability API only,
-to not show ads if the current user is a :ref:`Gold User <advertising/ad-blocking:Going ad-free>`.
+On |org_brand|, our session cookies have the ``SameSite`` attribute set to ``Lax``,
+This means that browsers will not include them in cross site requests.
 All resources in |org_brand| are public, you don't need to pass cookies to make use
 of our allowed APIs from other sites.
 
-On |com_brand|, our session cookies have the ``SameSite`` attribute set to ``Lax``.
-This means that browsers will not include them in cross site requests.
+On |com_brand|, our session cookies have the ``SameSite`` attribute set to ``Lax``,
+this means that browsers will not include them in cross site requests.
 If you need to have access to versions that the current user has permissions over,
 you can make use of our proxied APIs, they can be accessed from docs domains with the `/_/` prefix.
 For example, you can make use of our search API from `<your-docs-domain>/_/api/v2/search/`.
