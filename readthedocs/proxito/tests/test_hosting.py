@@ -925,18 +925,19 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        r = self.client.get(
-            reverse("proxito_readthedocs_docs_addons"),
-            {
-                "url": "https://project--123.dev.readthedocs.build/en/123/",
-                "client-version": "0.6.0",
-                "api-version": "1.0.0",
-            },
-            secure=True,
-            headers={
-                "host": "project--123.dev.readthedocs.build",
-            },
-        )
+        with self.assertNumQueries(30):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project--123.dev.readthedocs.build/en/123/",
+                    "client-version": "0.6.0",
+                    "api-version": "1.0.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project--123.dev.readthedocs.build",
+                },
+            )
         assert r.status_code == 200
         filetreediff_response = r.json()["addons"]["filetreediff"]
         assert filetreediff_response == {
