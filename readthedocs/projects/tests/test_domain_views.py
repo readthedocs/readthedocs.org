@@ -1,5 +1,6 @@
 from unittest import mock
 
+import dns.resolver
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
@@ -111,11 +112,29 @@ class TestDomainViews(TestCase):
         self.assertEqual(domain.domain, "test.example.com")
         self.assertEqual(domain.canonical, False)
 
-    @mock.patch("readthedocs.projects.forms.subprocess")
-    def test_create_domain_with_active_cname_record(self, subprocess_mock):
-        subprocess_mock.run.return_value = mock.MagicMock(
-            returncode=0, stdout="example.com."
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_create_domain_with_chained_cname_record(self, dns_resolve_mock):
+        dns_resolve_mock.side_effect = [
+            [mock.MagicMock(target="docs.example.com.")],
+            [mock.MagicMock(target="readthedocs.io.")],
+        ]
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "docs2.example.com"},
         )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert (
+            "This domain has a CNAME record pointing to another CNAME"
+            in form.errors["domain"][0]
+        )
+
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_create_domain_with_cname_record_to_apex_domain(self, dns_resolve_mock):
+        dns_resolve_mock.side_effect = [
+            [mock.MagicMock(target="example.com.")],
+        ]
         resp = self.client.post(
             reverse("projects_domains_create", args=[self.project.slug]),
             data={"domain": "www.example.com"},
@@ -123,7 +142,36 @@ class TestDomainViews(TestCase):
         assert resp.status_code == 200
         form = resp.context_data["form"]
         assert not form.is_valid()
-        assert "This domain has a CNAME record" in form.errors["domain"][0]
+        assert (
+            "This domain has a CNAME record pointing to the APEX domain"
+            in form.errors["domain"][0]
+        )
+
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_create_domain_cname_timeout(self, dns_resolve_mock):
+        dns_resolve_mock.side_effect = dns.resolver.LifetimeTimeout
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "docs.example.com"},
+        )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert "DNS resolution timed out" in form.errors["domain"][0]
+
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_create_domain_with_single_cname(self, dns_resolve_mock):
+        dns_resolve_mock.side_effect = [
+            [mock.MagicMock(target="readthedocs.io.")],
+            dns.resolver.NoAnswer,
+        ]
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "docs.example.com"},
+        )
+        assert resp.status_code == 302
+        domain = self.project.domains.first()
+        assert domain.domain == "docs.example.com"
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
