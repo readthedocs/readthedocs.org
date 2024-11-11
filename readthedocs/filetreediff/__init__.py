@@ -70,9 +70,8 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
             files_modified.append(file_path)
 
     def sortpath(filename):
-        # Sort the files based on the amount of /.
-        # It will show the top level filenames first.
-        return filename.count("/")
+        parts = filename.split("/")
+        return len(parts), parts
 
     return FileTreeDiff(
         added=sorted(files_added, key=sortpath),
