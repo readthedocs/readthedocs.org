@@ -54,6 +54,7 @@ class NotificationTests(TestCase):
                 "DO_NOT_TRACK_ENABLED": mock.ANY,
                 "GLOBAL_ANALYTICS_CODE": mock.ANY,
                 "PRODUCTION_DOMAIN": "readthedocs.org",
+                "SWITCH_PRODUCTION_DOMAIN": "app.readthedocs.org",
                 "PUBLIC_DOMAIN": mock.ANY,
                 "PUBLIC_API_URL": mock.ANY,
                 "RTD_EXT_THEME_ENABLED": mock.ANY,
