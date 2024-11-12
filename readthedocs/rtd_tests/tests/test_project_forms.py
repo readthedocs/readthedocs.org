@@ -35,6 +35,7 @@ from readthedocs.projects.forms import (
     WebHookForm,
 )
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
+from readthedocs.projects.validators import MAX_SIZE_ENV_VARS_PER_PROJECT
 
 
 class TestProjectForms(TestCase):
@@ -1122,6 +1123,42 @@ class TestProjectEnvironmentVariablesForm(TestCase):
             EnvironmentVariable.objects.latest().value,
             r"'string escaped here: #$\1[]{}\|'",
         )
+
+    def test_create_env_variable_with_long_value(self):
+        data = {
+            "name": "MYTOKEN",
+            "value": "a" * (48000 + 1),
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        assert not form.is_valid()
+        assert form.errors["value"] == [
+            "Ensure this value has at most 48000 characters (it has 48001)."
+        ]
+
+    def test_create_env_variable_over_total_project_size(self):
+        size = 2000
+        for i in range((MAX_SIZE_ENV_VARS_PER_PROJECT - size) // size):
+            get(
+                EnvironmentVariable,
+                project=self.project,
+                name=f"ENVVAR{i}",
+                value="a" * size,
+                public=False,
+            )
+
+        form = EnvironmentVariableForm(
+            {"name": "A", "value": "a" * (size // 2)}, project=self.project
+        )
+        assert form.is_valid()
+        form.save()
+
+        form = EnvironmentVariableForm(
+            {"name": "B", "value": "a" * size}, project=self.project
+        )
+        assert not form.is_valid()
+        assert form.errors["__all__"] == [
+            "The total size of all environment variables in the project cannot exceed 256 KB."
+        ]
 
 
 class TestAddonsConfigForm(TestCase):
