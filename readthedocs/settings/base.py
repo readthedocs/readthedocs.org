@@ -86,6 +86,12 @@ class CommunityBaseSettings(Settings):
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
 
+    @property
+    def SWITCH_PRODUCTION_DOMAIN(self):
+        if self.RTD_EXT_THEME_ENABLED:
+            return self.PRODUCTION_DOMAIN.removeprefix("app.")
+        return f"app.{self.PRODUCTION_DOMAIN}"
+
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
     SPHINX_BACKEND = "readthedocs.doc_builder.backends.sphinx"

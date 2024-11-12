@@ -59,6 +59,12 @@ Pull Request builds
 .. with a few more scenarios,
 .. once there is better options for environment variables in config files
 
+Limitations
+-----------
+
+- Individual environment variables are limited to 48 KB in size.
+- The total size of all environment variables in a project is limited to 256 KB.
+
 Patterns of using environment variables
 ---------------------------------------
 
