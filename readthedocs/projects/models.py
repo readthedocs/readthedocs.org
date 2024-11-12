@@ -145,6 +145,11 @@ class AddonsConfig(TimeStampedModel):
     """
 
     DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
+    LINKPREVIEWS_DEFAULT_ROOT_SELECTOR = "[role=main] a.internal"
+    LINKPREVIEWS_DOCTOOL_NAME_CHOICES = (
+        ("sphinx", "Sphinx"),
+        ("other", "Other"),
+    )
 
     # Model history
     history = ExtraHistoricalRecords()
@@ -218,6 +223,21 @@ class AddonsConfig(TimeStampedModel):
     notifications_show_on_latest = models.BooleanField(default=True)
     notifications_show_on_non_stable = models.BooleanField(default=True)
     notifications_show_on_external = models.BooleanField(default=True)
+
+    # Link Previews
+    linkpreviews_enabled = models.BooleanField(default=False)
+    linkpreviews_root_selector = models.CharField(null=True, blank=True, max_length=128)
+    linkpreviews_doctool_name = models.CharField(
+        choices=LINKPREVIEWS_DOCTOOL_NAME_CHOICES,
+        null=True,
+        blank=True,
+        max_length=128,
+    )
+    linkpreviews_doctool_version = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+    )
 
 
 class AddonSearchFilter(TimeStampedModel):

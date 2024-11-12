@@ -510,6 +510,15 @@ class AddonsResponseBase:
                     if version
                     else None,
                 },
+                "linkpreviews": {
+                    "enabled": project.addons.linkpreviews_enabled,
+                    "root_selector": project.addons.linkpreviews_root_selector
+                    or project.addons.LINKPREVIEWS_DEFAULT_ROOT_SELECTOR,
+                    "doctool": {
+                        "name": project.addons.linkpreviews_doctool_name,
+                        "version": project.addons.linkpreviews_doctool_version,
+                    },
+                },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,
                     "doc_diff": {
