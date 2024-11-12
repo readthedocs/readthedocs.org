@@ -510,13 +510,13 @@ class AddonsResponseBase:
                     if version
                     else None,
                 },
-                "tooltips": {
-                    "enabled": project.addons.tooltips_enabled,
-                    "root_selector": project.addons.tooltips_root_selector
-                    or project.addons.TOOLTIPS_DEFAULT_ROOT_SELECTOR,
+                "linkpreviews": {
+                    "enabled": project.addons.linkpreviews_enabled,
+                    "root_selector": project.addons.linkpreviews_root_selector
+                    or project.addons.LINKPREVIEWS_DEFAULT_ROOT_SELECTOR,
                     "doctool": {
-                        "name": project.addons.tooltips_doctool_name,
-                        "version": project.addons.tooltips_doctool_version,
+                        "name": project.addons.linkpreviews_doctool_name,
+                        "version": project.addons.linkpreviews_doctool_version,
                     },
                 },
                 "hotkeys": {

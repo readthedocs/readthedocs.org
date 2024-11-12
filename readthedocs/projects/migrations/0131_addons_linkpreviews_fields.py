@@ -14,42 +14,42 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='addonsconfig',
-            name='tooltips_doctool_name',
+            name='linkpreviews_doctool_name',
             field=models.CharField(blank=True, choices=[('sphinx', 'Sphinx'), ('other', 'Other')], max_length=128, null=True),
         ),
         migrations.AddField(
             model_name='addonsconfig',
-            name='tooltips_doctool_version',
+            name='linkpreviews_doctool_version',
             field=models.CharField(blank=True, max_length=128, null=True),
         ),
         migrations.AddField(
             model_name='addonsconfig',
-            name='tooltips_enabled',
+            name='linkpreviews_enabled',
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
             model_name='addonsconfig',
-            name='tooltips_root_selector',
+            name='linkpreviews_root_selector',
             field=models.CharField(blank=True, max_length=128, null=True),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
-            name='tooltips_doctool_name',
+            name='linkpreviews_doctool_name',
             field=models.CharField(blank=True, choices=[('sphinx', 'Sphinx'), ('other', 'Other')], max_length=128, null=True),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
-            name='tooltips_doctool_version',
+            name='linkpreviews_doctool_version',
             field=models.CharField(blank=True, max_length=128, null=True),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
-            name='tooltips_enabled',
+            name='linkpreviews_enabled',
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
-            name='tooltips_root_selector',
+            name='linkpreviews_root_selector',
             field=models.CharField(blank=True, max_length=128, null=True),
         ),
     ]

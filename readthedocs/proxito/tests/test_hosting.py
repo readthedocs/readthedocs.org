@@ -722,16 +722,16 @@ class TestReadTheDocsConfigJson(TestCase):
             == "https://docs.example.com/en/latest/"
         )
 
-    def test_tooltips(self):
+    def test_linkpreviews(self):
         addons = fixture.get(
             AddonsConfig,
             project=self.project,
         )
 
-        addons.tooltips_enabled = True
-        addons.tooltips_root_selector = "[role=main] a"
-        addons.tooltips_doctool_name = "sphinx"
-        addons.tooltips_doctool_version = "8.0.1"
+        addons.linkpreviews_enabled = True
+        addons.linkpreviews_root_selector = "[role=main] a"
+        addons.linkpreviews_doctool_name = "sphinx"
+        addons.linkpreviews_doctool_version = "8.0.1"
         addons.save()
 
         r = self.client.get(
@@ -756,7 +756,7 @@ class TestReadTheDocsConfigJson(TestCase):
         }
 
         assert r.status_code == 200
-        assert r.json()["addons"]["tooltips"] == expected
+        assert r.json()["addons"]["linkpreviews"] == expected
 
     def test_non_existent_project(self):
         r = self.client.get(
