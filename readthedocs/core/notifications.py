@@ -46,11 +46,11 @@ messages = [
             {% if RTD_EXT_THEME_ENABLED %}
               We are beginning to direct users to our new dashboard as we work to retire our legacy dashboard.
             {% else %}
-              You are currently using our legacy dashboard, which will be retired on <time datetime="2025-03-01">March 1st, 2025</time>.
+              You are currently using our legacy dashboard, which will be retired on <time datetime="2025-03-11">March 11th, 2025</time>.
               You should <a href="//{{ SWITCH_PRODUCTION_DOMAIN }}{% url "account_login" %}">switch to our new dashboard</a> before then.
             {% endif %}
             For more information on this change and what to expect,
-            <a href="https://about.readthedocs.com/blog/2024/11/new-dashboard/">read our blog post</a>.
+            <a href="https://about.readthedocs.com/blog/2024/11/rollout-of-our-new-dashboard/">read our blog post</a>.
             """
         ).strip(),
         type=TIP,
