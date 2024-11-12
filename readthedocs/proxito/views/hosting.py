@@ -648,12 +648,12 @@ class AddonsResponseBase:
                     {
                         "filename": filename,
                         "urls": {
-                            "current": resolver.resolve_version(
+                            "version_a": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
                                 version=version,
                             ),
-                            "source": resolver.resolve_version(
+                            "version_b": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
                                 version=latest_version,
@@ -666,12 +666,12 @@ class AddonsResponseBase:
                     {
                         "filename": filename,
                         "urls": {
-                            "current": resolver.resolve_version(
+                            "version_a": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
                                 version=version,
                             ),
-                            "source": resolver.resolve_version(
+                            "version_b": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
                                 version=latest_version,
@@ -684,12 +684,12 @@ class AddonsResponseBase:
                     {
                         "filename": filename,
                         "urls": {
-                            "current": resolver.resolve_version(
+                            "version_a": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
                                 version=version,
                             ),
-                            "source": resolver.resolve_version(
+                            "version_b": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
                                 version=latest_version,
