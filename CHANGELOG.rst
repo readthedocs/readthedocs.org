@@ -1,3 +1,25 @@
+Version 11.13.0
+---------------
+
+:Date: November 12, 2024
+
+* `@humitos <https://github.com/humitos>`__: Pin pip for pip-tools for now (`#11756 <https://github.com/readthedocs/readthedocs.org/pull/11756>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Clarify flyout options (`#11750 <https://github.com/readthedocs/readthedocs.org/pull/11750>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: resolve URLs for file tree diff API response (`#11749 <https://github.com/readthedocs/readthedocs.org/pull/11749>`__)
+* `@stsewd <https://github.com/stsewd>`__: Env variables: increase size limit (`#11748 <https://github.com/readthedocs/readthedocs.org/pull/11748>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: API response for tooltips (`#11746 <https://github.com/readthedocs/readthedocs.org/pull/11746>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: don't inherit from flex fields when no needed (`#11745 <https://github.com/readthedocs/readthedocs.org/pull/11745>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: split model and data migrations (`#11744 <https://github.com/readthedocs/readthedocs.org/pull/11744>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.12.0 (`#11743 <https://github.com/readthedocs/readthedocs.org/pull/11743>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update allauth (`#11719 <https://github.com/readthedocs/readthedocs.org/pull/11719>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow users to show/hide notifications on latest/non-stable (`#11718 <https://github.com/readthedocs/readthedocs.org/pull/11718>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Admin: Make large inlines collapse by default (`#11717 <https://github.com/readthedocs/readthedocs.org/pull/11717>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: remove old `X-RTD-Hosting-Integrations` HTTP header (`#11653 <https://github.com/readthedocs/readthedocs.org/pull/11653>`__)
+* `@stsewd <https://github.com/stsewd>`__: Notifications: remove unused notification (`#11573 <https://github.com/readthedocs/readthedocs.org/pull/11573>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix site-wide new dashboard notification (`#11543 <https://github.com/readthedocs/readthedocs.org/pull/11543>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use new Docker images from design document (`#8453 <https://github.com/readthedocs/readthedocs.org/pull/8453>`__)
+* `@humitos <https://github.com/humitos>`__: Embed APIv3: initial implementation (`#8319 <https://github.com/readthedocs/readthedocs.org/pull/8319>`__)
+
 Version 11.12.0
 ---------------
 
