@@ -454,6 +454,9 @@ class AddonsResponseBase:
             # Mainly, all the fields including a Project, Version or Build will use the exact same
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
+                "configs": {
+                    "load_when_embedded": project.addons.load_when_embedded,
+                },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
                     # TODO: consider adding this field into the ProjectSerializer itself.

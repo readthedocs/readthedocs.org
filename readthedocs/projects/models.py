@@ -176,6 +176,10 @@ class AddonsConfig(TimeStampedModel):
         help_text="URL to a JavaScript file to inject at serve time",
     )
 
+    # Whether or not load addons library when the requested page is embedded (e.g. inside an iframe)
+    # https://github.com/readthedocs/addons/pull/415
+    load_when_embedded = models.BooleanField(default=False)
+
     # Analytics
 
     # NOTE: we keep analytics disabled by default to save resources.

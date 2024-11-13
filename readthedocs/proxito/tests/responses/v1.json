@@ -121,6 +121,9 @@
     }
   },
   "addons": {
+    "configs": {
+      "load_when_embedded": false
+    },
     "analytics": {
       "enabled": false,
       "code": null
