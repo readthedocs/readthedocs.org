@@ -722,6 +722,42 @@ class TestReadTheDocsConfigJson(TestCase):
             == "https://docs.example.com/en/latest/"
         )
 
+    def test_linkpreviews(self):
+        addons = fixture.get(
+            AddonsConfig,
+            project=self.project,
+        )
+
+        addons.linkpreviews_enabled = True
+        addons.linkpreviews_root_selector = "[role=main] a"
+        addons.linkpreviews_doctool_name = "sphinx"
+        addons.linkpreviews_doctool_version = "8.0.1"
+        addons.save()
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "1.0.0",
+                "client-version": "0.6.0",
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        expected = {
+            "enabled": True,
+            "root_selector": "[role=main] a",
+            "doctool": {
+                "name": "sphinx",
+                "version": "8.0.1",
+            },
+        }
+
+        assert r.status_code == 200
+        assert r.json()["addons"]["linkpreviews"] == expected
+
     def test_non_existent_project(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -925,27 +961,52 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        r = self.client.get(
-            reverse("proxito_readthedocs_docs_addons"),
-            {
-                "url": "https://project--123.dev.readthedocs.build/en/123/",
-                "client-version": "0.6.0",
-                "api-version": "1.0.0",
-            },
-            secure=True,
-            headers={
-                "host": "project--123.dev.readthedocs.build",
-            },
-        )
+        with self.assertNumQueries(30):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project--123.dev.readthedocs.build/en/123/",
+                    "client-version": "0.6.0",
+                    "api-version": "1.0.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project--123.dev.readthedocs.build",
+                },
+            )
         assert r.status_code == 200
         filetreediff_response = r.json()["addons"]["filetreediff"]
         assert filetreediff_response == {
             "enabled": True,
             "outdated": False,
             "diff": {
-                "added": [{"file": "new-file.html"}],
-                "deleted": [{"file": "deleted.html"}],
-                "modified": [{"file": "tutorial/index.html"}],
+                "added": [
+                    {
+                        "filename": "new-file.html",
+                        "urls": {
+                            "version_a": "https://project--123.dev.readthedocs.build/en/123/new-file.html",
+                            "version_b": "https://project.dev.readthedocs.io/en/latest/new-file.html",
+                        },
+                    },
+                ],
+                "deleted": [
+                    {
+                        "filename": "deleted.html",
+                        "urls": {
+                            "version_a": "https://project--123.dev.readthedocs.build/en/123/deleted.html",
+                            "version_b": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                        },
+                    },
+                ],
+                "modified": [
+                    {
+                        "filename": "tutorial/index.html",
+                        "urls": {
+                            "version_a": "https://project--123.dev.readthedocs.build/en/123/tutorial/index.html",
+                            "version_b": "https://project.dev.readthedocs.io/en/latest/tutorial/index.html",
+                        },
+                    },
+                ],
             },
         }
 
