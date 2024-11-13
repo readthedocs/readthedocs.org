@@ -167,6 +167,10 @@ class AddonsConfig(TimeStampedModel):
         help_text="Enable/Disable all the addons on this project",
     )
 
+    # Whether or not load addons library when the requested page is embedded (e.g. inside an iframe)
+    # https://github.com/readthedocs/addons/pull/415
+    load_when_embedded = models.BooleanField(default=False)
+
     # Analytics
 
     # NOTE: we keep analytics disabled by default to save resources.
