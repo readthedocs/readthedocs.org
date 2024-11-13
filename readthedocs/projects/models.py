@@ -169,7 +169,7 @@ class AddonsConfig(TimeStampedModel):
 
     # This is a user-defined file that will be injected at serve time by our
     # Cloudflare Worker if defined
-    js_file = models.CharField(
+    user_js_file = models.CharField(
         max_length=512,
         null=True,
         blank=True,

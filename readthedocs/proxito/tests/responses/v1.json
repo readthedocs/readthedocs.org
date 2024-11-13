@@ -122,7 +122,8 @@
   },
   "addons": {
     "configs": {
-      "load_when_embedded": false
+      "load_when_embedded": false,
+      "user_js_file": null
     },
     "analytics": {
       "enabled": false,

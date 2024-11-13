@@ -8,18 +8,18 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy
 
     dependencies = [
-        ('projects', '0131_increase_env_var_size'),
+        ('projects', '0134_addons_load_when_embedded_notnull'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='addonsconfig',
-            name='js_file',
+            name='user_js_file',
             field=models.CharField(blank=True, help_text='URL to a JavaScript file to inject at serve time', max_length=512, null=True),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
-            name='js_file',
+            name='user_js_file',
             field=models.CharField(blank=True, help_text='URL to a JavaScript file to inject at serve time', max_length=512, null=True),
         ),
     ]

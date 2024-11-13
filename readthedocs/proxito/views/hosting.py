@@ -456,6 +456,7 @@ class AddonsResponseBase:
             "addons": {
                 "configs": {
                     "load_when_embedded": project.addons.load_when_embedded,
+                    "user_js_file": project.addons.user_js_file,
                 },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
