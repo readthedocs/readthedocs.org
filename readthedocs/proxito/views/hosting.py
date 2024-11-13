@@ -456,7 +456,6 @@ class AddonsResponseBase:
             "addons": {
                 "configs": {
                     "load_when_embedded": project.addons.load_when_embedded,
-                    "user_js_file": project.addons.user_js_file,
                 },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
@@ -490,6 +489,10 @@ class AddonsResponseBase:
                     #     "branch": version.identifier if version else None,
                     #     "filepath": "/docs/index.rst",
                     # },
+                },
+                "userjsfile": {
+                    "enabled": project.addons.userjsfile_enabled,
+                    "src": project.addons.userjsfile_src,
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,

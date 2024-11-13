@@ -122,8 +122,7 @@
   },
   "addons": {
     "configs": {
-      "load_when_embedded": false,
-      "user_js_file": null
+      "load_when_embedded": false
     },
     "analytics": {
       "enabled": false,
@@ -164,6 +163,10 @@
       "enabled": true,
       "default_filter": "project:project/latest",
       "filters": []
+    },
+    "userjsfile": {
+      "enabled": false,
+      "src": null
     },
     "linkpreviews": {
       "enabled": false,
