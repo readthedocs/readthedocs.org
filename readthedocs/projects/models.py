@@ -144,10 +144,11 @@ class AddonsConfig(TimeStampedModel):
     Everything is enabled by default.
     """
 
-    DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
-    LINKPREVIEWS_DEFAULT_ROOT_SELECTOR = "[role=main] a.internal"
-    LINKPREVIEWS_DOCTOOL_NAME_CHOICES = (
+    DEFAULT_ROOT_SELECTOR = ":is([role=main],main,div.body,div.document)"
+    DOCTOOL_NAME_CHOICES = (
         ("sphinx", "Sphinx"),
+        ("mkdocs", "MkDocs"),
+        ("docusaurus", "Docusaurus"),
         ("other", "Other"),
     )
 
@@ -167,6 +168,20 @@ class AddonsConfig(TimeStampedModel):
         help_text="Enable/Disable all the addons on this project",
     )
 
+    options_doctool_name = models.CharField(
+        choices=DOCTOOL_NAME_CHOICES,
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="Name of the documentation tool used by this project",
+    )
+    options_doctool_root_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector for the main content of the page",
+    )
+
     # Analytics
 
     # NOTE: we keep analytics disabled by default to save resources.
@@ -177,12 +192,6 @@ class AddonsConfig(TimeStampedModel):
     doc_diff_enabled = models.BooleanField(default=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(
-        null=True,
-        blank=True,
-        max_length=128,
-        help_text="CSS selector for the main content of the page",
-    )
 
     # EthicalAds
     ethicalads_enabled = models.BooleanField(default=True)
@@ -226,18 +235,6 @@ class AddonsConfig(TimeStampedModel):
 
     # Link Previews
     linkpreviews_enabled = models.BooleanField(default=False)
-    linkpreviews_root_selector = models.CharField(null=True, blank=True, max_length=128)
-    linkpreviews_doctool_name = models.CharField(
-        choices=LINKPREVIEWS_DOCTOOL_NAME_CHOICES,
-        null=True,
-        blank=True,
-        max_length=128,
-    )
-    linkpreviews_doctool_version = models.CharField(
-        null=True,
-        blank=True,
-        max_length=128,
-    )
 
 
 class AddonSearchFilter(TimeStampedModel):

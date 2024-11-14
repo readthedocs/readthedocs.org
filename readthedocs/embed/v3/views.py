@@ -19,6 +19,7 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.permissions import HasEmbedAPIAccess
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_references
+from readthedocs.projects.models import AddonsConfig
 from readthedocs.storage import build_media_storage
 
 log = structlog.get_logger(__name__)
@@ -137,20 +138,10 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         )
 
     def _find_main_node(self, html):
-        main_node = html.css_first("[role=main]")
+        # TODO: find a way to get access to ``project.addons.options_doctool_root_selector``
+        main_node = html.css_first(AddonsConfig.DEFAULT_ROOT_SELECTOR)
         if main_node:
-            log.debug("Main node found. selector=[role=main]")
             return main_node
-
-        main_node = html.css_first("main")
-        if main_node:
-            log.debug("Main node found. selector=main")
-            return main_node
-
-        first_header = html.body.css_first("h1")
-        if first_header:
-            log.debug("Main node found. selector=h1")
-            return first_header.parent
 
     def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
         # pylint: disable=unused-argument disable=too-many-nested-blocks

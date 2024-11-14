@@ -651,9 +651,10 @@ class AddonsConfigForm(forms.ModelForm):
         fields = (
             "enabled",
             "project",
+            "options_doctool_name",
+            "options_doctool_root_selector",
             "analytics_enabled",
             "doc_diff_enabled",
-            "doc_diff_root_selector",
             "flyout_enabled",
             "flyout_sorting",
             "flyout_sorting_latest_stable_at_beginning",
@@ -661,9 +662,6 @@ class AddonsConfigForm(forms.ModelForm):
             "hotkeys_enabled",
             "search_enabled",
             "linkpreviews_enabled",
-            "linkpreviews_root_selector",
-            "linkpreviews_doctool_name",
-            "linkpreviews_doctool_version",
             "notifications_enabled",
             "notifications_show_on_latest",
             "notifications_show_on_non_stable",
@@ -679,17 +677,8 @@ class AddonsConfigForm(forms.ModelForm):
             ),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
-            "linkpreviews_root_selector": _("Root selector"),
-            "linkpreviews_doctool_name": _("Documentation tool name"),
-            "linkpreviews_doctool_version": _("Documentation tool version"),
-        }
-        widgets = {
-            "doc_diff_root_selector": forms.TextInput(
-                attrs={"placeholder": AddonsConfig.DOC_DIFF_DEFAULT_ROOT_SELECTOR}
-            ),
-            "linkpreviews_root_selector": forms.TextInput(
-                attrs={"placeholder": AddonsConfig.LINKPREVIEWS_DEFAULT_ROOT_SELECTOR}
-            ),
+            "options_doctool_name": _("Documentation tool"),
+            "options_doctool_root_selector": _("CSS root selector"),
         }
 
     def __init__(self, *args, **kwargs):
