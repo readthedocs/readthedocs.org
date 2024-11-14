@@ -14,12 +14,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='addonsconfig',
-            name='load_when_embedded',
+            name='options_load_when_embedded',
             field=models.BooleanField(default=False, null=True),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
-            name='load_when_embedded',
+            name='options_load_when_embedded',
             field=models.BooleanField(default=False, null=True),
         ),
     ]

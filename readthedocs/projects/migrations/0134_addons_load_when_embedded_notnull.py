@@ -8,18 +8,18 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy
 
     dependencies = [
-        ('projects', '0133_addons_load_when_embedded'),
+        ('projects', '0133_addons_options_load_when_embedded'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='addonsconfig',
-            name='load_when_embedded',
+            name='options_load_when_embedded',
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
             model_name='historicaladdonsconfig',
-            name='load_when_embedded',
+            name='options_load_when_embedded',
             field=models.BooleanField(default=False),
         ),
     ]

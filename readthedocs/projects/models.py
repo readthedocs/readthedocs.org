@@ -169,7 +169,7 @@ class AddonsConfig(TimeStampedModel):
 
     # Whether or not load addons library when the requested page is embedded (e.g. inside an iframe)
     # https://github.com/readthedocs/addons/pull/415
-    load_when_embedded = models.BooleanField(default=False)
+    options_load_when_embedded = models.BooleanField(default=False)
 
     # Analytics
 
