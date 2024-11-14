@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='addonsconfig',
             name='customscript_enabled',
-            field=models.BooleanField(default=True, null=True),
+            field=models.BooleanField(default=False, null=True),
         ),
         migrations.AddField(
             model_name='addonsconfig',
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicaladdonsconfig',
             name='customscript_enabled',
-            field=models.BooleanField(default=True, null=True),
+            field=models.BooleanField(default=False, null=True),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',

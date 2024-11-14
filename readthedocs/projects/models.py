@@ -223,7 +223,7 @@ class AddonsConfig(TimeStampedModel):
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
 
     # User JavaScript File
-    customscript_enabled = models.BooleanField(default=True)
+    customscript_enabled = models.BooleanField(default=False)
 
     # This is a user-defined file that will be injected at serve time by our
     # Cloudflare Worker if defined
