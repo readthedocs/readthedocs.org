@@ -490,9 +490,9 @@ class AddonsResponseBase:
                     #     "filepath": "/docs/index.rst",
                     # },
                 },
-                "userjsfile": {
-                    "enabled": project.addons.userjsfile_enabled,
-                    "src": project.addons.userjsfile_src,
+                "customscript": {
+                    "enabled": project.addons.customscript_enabled,
+                    "src": project.addons.customscript_src,
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,

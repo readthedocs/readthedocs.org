@@ -164,7 +164,7 @@
       "default_filter": "project:project/latest",
       "filters": []
     },
-    "userjsfile": {
+    "customscript": {
       "enabled": false,
       "src": null
     },

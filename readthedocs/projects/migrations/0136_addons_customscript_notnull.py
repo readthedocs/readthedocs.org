@@ -8,18 +8,18 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy
 
     dependencies = [
-        ('projects', '0135_addons_userjsfile'),
+        ('projects', '0135_addons_customscript'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='addonsconfig',
-            name='userjsfile_enabled',
+            name='customscript_enabled',
             field=models.BooleanField(default=True),
         ),
         migrations.AlterField(
             model_name='historicaladdonsconfig',
-            name='userjsfile_enabled',
+            name='customscript_enabled',
             field=models.BooleanField(default=True),
         ),
     ]

@@ -14,22 +14,22 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='addonsconfig',
-            name='userjsfile_enabled',
+            name='customscript_enabled',
             field=models.BooleanField(default=True, null=True),
         ),
         migrations.AddField(
             model_name='addonsconfig',
-            name='userjsfile_src',
+            name='customscript_src',
             field=models.CharField(blank=True, help_text='URL to a JavaScript file to inject at serve time', max_length=512, null=True),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
-            name='userjsfile_enabled',
+            name='customscript_enabled',
             field=models.BooleanField(default=True, null=True),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
-            name='userjsfile_src',
+            name='customscript_src',
             field=models.CharField(blank=True, help_text='URL to a JavaScript file to inject at serve time', max_length=512, null=True),
         ),
     ]
