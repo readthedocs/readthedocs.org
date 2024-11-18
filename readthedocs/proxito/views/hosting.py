@@ -490,6 +490,10 @@ class AddonsResponseBase:
                     #     "filepath": "/docs/index.rst",
                     # },
                 },
+                "customscript": {
+                    "enabled": project.addons.customscript_enabled,
+                    "src": project.addons.customscript_src,
+                },
                 "search": {
                     "enabled": project.addons.search_enabled,
                     # TODO: figure it out where this data comes from.

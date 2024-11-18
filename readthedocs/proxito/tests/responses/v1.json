@@ -164,6 +164,10 @@
       "default_filter": "project:project/latest",
       "filters": []
     },
+    "customscript": {
+      "enabled": false,
+      "src": null
+    },
     "linkpreviews": {
       "enabled": false,
       "root_selector": "[role=main] a.internal",
