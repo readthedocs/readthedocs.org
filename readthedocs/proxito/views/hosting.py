@@ -455,7 +455,7 @@ class AddonsResponseBase:
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
                 "options": {
-                    "load_when_embedded": project.addons.load_when_embedded,
+                    "load_when_embedded": project.addons.options_load_when_embedded,
                 },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
