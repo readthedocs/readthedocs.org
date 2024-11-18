@@ -454,6 +454,9 @@ class AddonsResponseBase:
             # Mainly, all the fields including a Project, Version or Build will use the exact same
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
+                "options": {
+                    "load_when_embedded": project.addons.options_load_when_embedded,
+                },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
                     # TODO: consider adding this field into the ProjectSerializer itself.
@@ -486,6 +489,10 @@ class AddonsResponseBase:
                     #     "branch": version.identifier if version else None,
                     #     "filepath": "/docs/index.rst",
                     # },
+                },
+                "customscript": {
+                    "enabled": project.addons.customscript_enabled,
+                    "src": project.addons.customscript_src,
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,
