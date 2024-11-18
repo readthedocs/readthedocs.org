@@ -1049,15 +1049,15 @@ class DomainForm(forms.ModelForm):
         The domain is suspicious if:
 
         - Has a CNAME pointing to another CNAME.
-          This prevents the subdomain from being hijacked if the last subdomain is already on RTD,
+          This prevents the subdomain from being hijacked if the last subdomain is on RTD,
           but the user didn't register the other subdomain.
           Example: doc.example.com -> docs.example.com -> readthedocs.io,
           We don't want to allow doc.example.com to be added.
         - Has a CNAME pointing to the APEX domain.
-          This prevents a subdomain from being hijacked if the APEX domain is already on RTD.
+          This prevents a subdomain from being hijacked if the APEX domain is on RTD.
           A common case is `www` pointing to the APEX domain, but users didn't register the
           `www` subdomain, only the APEX domain.
-          Example: www.example.com -> example.com,
+          Example: www.example.com -> example.com -> readthedocs.io,
           we don't want to allow www.example.com to be added.
         """
         cname = self._get_cname(domain)
@@ -1089,6 +1089,8 @@ class DomainForm(forms.ModelForm):
     def _get_cname(self, domain):
         try:
             answers = dns.resolver.resolve(domain, "CNAME", lifetime=1)
+            # dnspython doesn't recursively resolve CNAME records.
+            # We always have one response or none.
             return str(answers[0].target)
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             return None

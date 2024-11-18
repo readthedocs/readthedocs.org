@@ -112,6 +112,24 @@ this can cause a delay in validating because there is an exponential back-off in
 
     Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.
 
+Disallowed DNS configurations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to prevent some common cases of domain hijacking, we disallow some DNS configurations:
+
+- CNAME records pointing to another CNAME record.
+- CNAME records pointing to the APEX domain.
+
+This prevents attackers from taking over unused domains with CNAME records pointing to domains that are on Read the Docs.
+A common case is a ``www`` subdomain that isn't on Read the Docs, but it's pointing to another domain that is.
+
+.. warning::
+
+   Users shouldn't rely on these restrictions to prevent domain hijacking.
+   We recommend regularly reviewing your DNS records,
+   removing any that are no longer needed or that don't exist on Read the Docs,
+   or registering all valid domains in your project.
+
 The validation process period has ended
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
