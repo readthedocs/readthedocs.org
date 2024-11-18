@@ -8,7 +8,7 @@ Here is how you set it up.
 
 ✅️ Logged in with |git_providers_or|?
   If you signed up or logged in to Read the Docs with your |git_providers_or| credentials,
-  *all you have to do* is to use the normal :doc:`project import </intro/import-guide>`.
+  *all you have to do* is to use the normal :doc:`project import </intro/add-project>`.
   Your Read the Docs account is connected to your Git provider and
   will let you choose from private Git repositories and configure them for you.
 
@@ -41,7 +41,7 @@ with the following exception:
 
 After importing your project the build will fail,
 because Read the Docs doesn't have access to clone your repository.
-To give access, you'll need to add your project's public SSH key to your VCS provider.
+To give Read the Docs access to your repository, add your project's public SSH key to your Git provider.
 
 Copy your project's public key
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,0 +1,12 @@
+{% extends "errors/proxito/4xx.html" %}
+
+{% load core_tags %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "418. I'm a teapot" %}
+{% endblock %}
+
+{% block content %}
+<h1>{% trans "418. I'm a teapot" %}</h1>
+{% endblock %}

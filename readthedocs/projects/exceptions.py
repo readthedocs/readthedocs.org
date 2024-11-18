@@ -25,6 +25,7 @@ class RepositoryError(BuildUserError):
     DUPLICATED_RESERVED_VERSIONS = "project:repository:duplicated-reserved-versions"
     FAILED_TO_CHECKOUT = "project:repository:checkout-failed"
     GENERIC = "project:repository:generic-error"
+    UNSUPPORTED_VCS = "project:repository:unsupported-vcs"
 
 
 class SyncRepositoryLocked(BuildAppError):

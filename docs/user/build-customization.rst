@@ -183,7 +183,7 @@ This other example shows how to cancel a build if the commit message contains ``
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",
          # in that case exit the command with 183 to cancel the build
-         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | grep -viq "skip ci") || exit 183
+         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | paste -s -d " " | grep -viq "skip ci") || exit 183
 
 
 Generate documentation from annotated sources with Doxygen
@@ -377,11 +377,10 @@ Take a look at the following example:
        - asdf plugin add uv
        - asdf install uv latest
        - asdf global uv latest
-       - uv venv
-       - uv pip install .[docs]
-       - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
+       - uv sync --extra docs --frozen
+       - uv run -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
 
-You can use ``-r docs/requirements.txt``, etc. instead as needed. MkDocs projects could use ``NO_COLOR=1 .venv/bin/mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
+MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
 
 Update Conda version
 ^^^^^^^^^^^^^^^^^^^^
@@ -418,7 +417,7 @@ Override the build process
 
    We are using :ref:`our new addons integration <rtd-blog:addons-flyout-menu-beta>`
    on projects using ``build.commands``.
-   This will become the default soon,
+   `This will become the default soon <https://about.readthedocs.com/blog/2024/07/addons-by-default/>`_,
    but has some slight differences from our previous flyout.
 
 If your project requires full control of the build process,

@@ -41,6 +41,9 @@ class SearchQuery(TimeStampedModel):
     class Meta:
         verbose_name = "Search query"
         verbose_name_plural = "Search queries"
+        indexes = [
+            models.Index(fields=["modified", "project", "version"]),
+        ]
 
     def __str__(self):
         return self.query

@@ -13,10 +13,11 @@ from readthedocs.projects.exceptions import (
 )
 
 MESSAGE_PROJECT_SKIP_BUILDS = "project:invalid:skip-builds"
+MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
 messages = [
     Message(
         id=MESSAGE_PROJECT_SKIP_BUILDS,
-        header=_("Build skipped for this project"),
+        header=_("Builds skipped for this project"),
         body=_(
             textwrap.dedent(
                 """
@@ -94,6 +95,19 @@ messages = [
         type=ERROR,
     ),
     Message(
+        id=RepositoryError.UNSUPPORTED_VCS,
+        header=_("Repository type not suported"),
+        body=_(
+            textwrap.dedent(
+                """
+                Subversion, Mercurial, and Bazaar are not supported anymore.
+                Read more about this deprecation in <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">our blog</a>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=ProjectConfigurationError.NOT_FOUND,
         header=_("Sphinx configuration file is missing"),
         body=_(
@@ -144,6 +158,22 @@ messages = [
             ).strip(),
         ),
         type=WARNING,
+    ),
+    # Temporary notification until October 7th.
+    Message(
+        id=MESSAGE_PROJECT_ADDONS_BY_DEFAULT,
+        header=_(
+            """Read the Docs Addons were enabled by default on October 7th, 2024"""
+        ),
+        body=_(
+            textwrap.dedent(
+                """
+                Read the <a href="https://about.readthedocs.com/blog/2024/07/addons-by-default/" target="_blank">full announcement in our blog</a>
+                to know if your project is affected and how to update.
+                """
+            ).strip(),
+        ),
+        type=INFO,
     ),
 ]
 registry.add(messages)

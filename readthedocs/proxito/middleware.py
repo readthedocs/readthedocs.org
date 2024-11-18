@@ -21,7 +21,6 @@ from django.utils.deprecation import MiddlewareMixin
 from django.utils.encoding import iri_to_uri
 from django.utils.html import escape
 
-from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
@@ -31,7 +30,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import AddonsConfig
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -275,37 +274,20 @@ class ProxitoMiddleware(MiddlewareMixin):
         the old flyout integration based on HTTP headers.
         This method uses two different headers for these purposes:
 
-        - ``X-RTD-Hosting-Integrations``: inject ``readthedocs-addons.js`` to enable addons.
-          Enabled by default on projects using ``build.commands``.
         - ``X-RTD-Force-Addons``: inject ``readthedocs-addons.js``
           and remove old flyout integration (via ``readthedocs-doc-embed.js``).
-          Enabled only on projects that opted-in via the admin settings.
+          Enabled on all projects by default starting on Oct 7, 2024.
 
-        Note these headers will not be required anymore eventually
-        since all the project will be using the new addons once we fully roll them out.
         """
         addons = False
         project_slug = getattr(request, "path_project_slug", "")
-        version_slug = getattr(request, "path_version_slug", "")
 
         if project_slug:
-            force_addons = Project.objects.filter(
-                slug=project_slug,
-                addons__enabled=True,
-            ).exists()
-            if force_addons:
-                response["X-RTD-Force-Addons"] = "true"
-                return
-
-            if version_slug:
-                addons = Version.objects.filter(
-                    project__slug=project_slug,
-                    slug=version_slug,
-                    addons=True,
-                ).exists()
+            addons = AddonsConfig.objects.filter(project__slug=project_slug).first()
 
             if addons:
-                response["X-RTD-Hosting-Integrations"] = "true"
+                if addons.enabled:
+                    response["X-RTD-Force-Addons"] = "true"
 
     def add_cors_headers(self, request, response):
         """

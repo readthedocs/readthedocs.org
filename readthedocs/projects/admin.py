@@ -74,6 +74,7 @@ class VersionInline(ReadOnlyInlineMixin, admin.TabularInline):
 
     formset = VersionInlineFormSet
     model = Version
+    classes = ["collapse"]
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("project")
@@ -84,6 +85,7 @@ class RedirectInline(admin.TabularInline):
     """Redirect inline relationship view for :py:class:`ProjectAdmin`."""
 
     model = Redirect
+    classes = ["collapse"]
 
 
 class DomainInline(admin.TabularInline):

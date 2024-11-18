@@ -84,7 +84,7 @@ django-celery-beat
 # TODO: remove this dependency once we upgrade Celery. It should auto-install it.
 tzdata
 
-django-allauth[socialaccount,saml]
+django-allauth[socialaccount,saml,mfa]
 
 requests-oauthlib
 
@@ -152,7 +152,10 @@ django-cors-headers
 # User agent parsing - used for analytics purposes
 user-agents
 
-django-storages[boto3]
+# Pinned because we need to remove the usage of
+# `get_available_overwrite_name` first
+# See https://github.com/readthedocs/readthedocs.org/pull/11505
+django-storages[boto3]==1.14.3
 
 
 # Required only in development and linting

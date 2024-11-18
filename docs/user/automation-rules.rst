@@ -46,7 +46,8 @@ Predefined matches
 Automation rules support two predefined version matches:
 
 - **Any version**: All new versions will match the rule.
-- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__ will match the rule.
+- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__
+  (with or without a `v` prefix) will match the rule.
 
 Custom matches
 ~~~~~~~~~~~~~~
@@ -73,11 +74,11 @@ Hide version
 
 Make version public
   Sets the version's privacy level to public.
-  See :ref:`versions:Privacy levels`.
+  See :ref:`versions:Version states`.
 
 Make version private
   Sets the version's privacy level to private.
-  See :ref:`versions:Privacy levels`.
+  See :ref:`versions:Version states`.
 
 Set version as default
   Sets the version as the :term:`default version`.

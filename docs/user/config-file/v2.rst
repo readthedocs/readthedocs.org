@@ -211,7 +211,7 @@ Configuration for Conda support.
    version: 2
 
    build:
-     os: "ubuntu-22.04"
+     os: "ubuntu-24.04"
      tools:
        python: "mambaforge-22.9"
 
@@ -244,12 +244,12 @@ Python, Node.js, Rust, and Go.
    version: 2
 
    build:
-     os: ubuntu-22.04
+     os: ubuntu-24.04
      tools:
-       python: "3.12"
-       nodejs: "18"
-       rust: "1.64"
-       golang: "1.19"
+       python: "3.13"
+       nodejs: "22"
+       rust: "1.82"
+       golang: "1.23"
 
 build.os
 ````````
@@ -316,9 +316,11 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``3.10``
   - ``3.11``
   - ``3.12``
+  - ``3.13``
   - ``latest`` (alias for the latest version available on Read the Docs)
   - ``miniconda3-4.7``
   - ``miniconda3-3.12-24.1``
+  - ``miniconda3-3.12-24.9``
   - ``miniconda-latest`` (alias for the latest version available on Read the Docs)
   - ``mambaforge-4.10``
   - ``mambaforge-22.9``
@@ -337,6 +339,8 @@ Node.js version to use.
    - ``18``
    - ``19``
    - ``20``
+   - ``22``
+   - ``23``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.ruby
@@ -362,6 +366,7 @@ Rust version to use.
    - ``1.70``
    - ``1.75``
    - ``1.78``
+   - ``1.82``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.golang
@@ -377,6 +382,7 @@ Go version to use.
    - ``1.20``
    - ``1.21``
    - ``1.22``
+   - ``1.23``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.apt_packages
@@ -423,9 +429,9 @@ See :doc:`/build-customization` for more details.
    version: 2
 
    build:
-     os: ubuntu-22.04
+     os: ubuntu-24.04
      tools:
-       python: "3.12"
+       python: "3.13"
      jobs:
        pre_create_environment:
          - echo "Command run at 'pre_create_environment' step"
@@ -460,7 +466,7 @@ The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read t
 
    We are using :ref:`our new addons integration <rtd-blog:addons-flyout-menu-beta>`
    on projects using ``build.commands``.
-   This will become the default soon,
+   `This will become the default soon <https://about.readthedocs.com/blog/2024/07/addons-by-default/>`_,
    but has some slight differences from our previous flyout.
 
 .. code-block:: yaml
@@ -468,9 +474,9 @@ The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read t
    version: 2
 
    build:
-     os: ubuntu-22.04
+     os: ubuntu-24.04
      tools:
-       python: "3.12"
+       python: "3.13"
      commands:
        - pip install pelican
        - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
@@ -776,7 +782,7 @@ Patterns can include one or more of the following special characters:
         - search.html
         - search/index.html
         - 404.html
-        - 404/index.html'
+        - 404/index.html
 
 .. note::
 

@@ -36,10 +36,8 @@ A custom build configuration file path is applied to all versions of your docume
 Adding an additional project from the same repository
 -----------------------------------------------------
 
-Once you have added the first project from the :ref:`Import Wizard <intro/import-guide:Automatically import your docs>`,
-it will show as if it has already been imported and cannot be imported again.
-In order to add another project with the same repository,
-you will need to use the :ref:`Manual Import <intro/import-guide:Manually import your docs>`.
+Once you have added the first project from the :ref:`Import Wizard <intro/add-project:Automatically add your project>`,
+you will need to repeat this process again to add the additional project from the same repository.
 
 Setting the custom build configuration file
 -------------------------------------------
@@ -72,7 +70,7 @@ For each project, it's now possible to configure:
 * :doc:`Custom redirect rules </guides/custom-domains>`
 * :doc:`Custom domains </guides/custom-domains>`
 * :doc:`Automation rules </automation-rules>`
-* :doc:`Traffic and search analytics </reference/analytics>`
+* :doc:`Traffic analytics </traffic-analytics>`
 * Additional documentation tools with individual :doc:`build processes </build-customization>`:
   One project might use :doc:`Sphinx <sphinx:index>`,
   while another project setup might use `Asciidoctor <https://asciidoctor.org/>`__.

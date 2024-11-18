@@ -12,15 +12,36 @@ so that you can focus on content.
    :local:
    :depth: 3
 
-Use a ``.readthedocs.yaml`` configuration file
+.. note::
+   This page explains how to pin the versions that correctly build your project.
+   The versions used in this page are just for illustrative purpose.
+   They are not the latest nor the recommended versions.
+   It is up to you to find those versions.
+
+Define OS and tool versions in the config file
 ----------------------------------------------
 
-We recommend using a :doc:`configuration file </config-file/v2>` to manage your documentation.
-Our config file *provides you per version settings*,
+We recommend defining the explicit version of the OS and tool versions used to build your documentation
+using the ``.readthedocs.yaml``.
+This file *provides you per version settings*,
 and *those settings live in your Git repository*.
 
 This allows you to validate changes using :doc:`pull requests </pull-requests>`,
 and ensures that all your versions can be rebuilt from a reproducible configuration.
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 5,7-8
+
+   version: 2
+
+   # Explicitly set the OS and Python versions
+   build:
+     os: "ubuntu-24.04"
+     tools:
+       nodejs: "20"
+       python: "3.12"
 
 Use a requirements file for Python dependencies
 -----------------------------------------------
@@ -32,17 +53,7 @@ A configuration file with explicit dependencies looks like this:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-
-   version: 2
-
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       python: "3.12"
-
-   # Build from the docs/ directory with Sphinx
-   sphinx:
-     configuration: docs/conf.py
+   :emphasize-lines: 4
 
    # Explicitly set the version of Python and its requirements
    python:
@@ -72,13 +83,9 @@ and they can upgrade without warning if you do not pin these packages as well.
 
 We recommend `pip-tools`_ to help address this problem.
 It allows you to specify a ``requirements.in`` file with your top-level dependencies,
-and it generates a ``requirements.txt`` file with the full set of transitive dependencies.
+and it generates a ``requirements.txt`` file with the full set of transitive dependencies pinned.
 
 .. _pip-tools: https://pip-tools.readthedocs.io/en/latest/
-
-✅ Good:
-    All your transitive dependencies are defined,
-    which ensures new package releases will not break your docs.
 
    .. code-block::
       :caption: docs/requirements.in
@@ -138,21 +145,6 @@ and it generates a ``requirements.txt`` file with the full set of transitive dep
           # via sphinx
       urllib3==1.26.13
           # via requests
-
-Check list ✅
--------------
-
-If you followed this guide,
-you have :term:`pinned <pinning>`:
-
-* tool versions (Python, Node)
-* top-level dependencies (Sphinx, Sphinx extensions)
-* transitive dependencies (Pytz, Jinja2)
-
-This will protect your builds from failures because of a random tool or dependency update.
-
-You do still need to upgrade your dependencies from time to time,
-but you should do that on your own schedule.
 
 .. seealso::
 

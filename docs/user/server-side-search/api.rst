@@ -153,12 +153,12 @@ with the following changes:
 
 When searching on a parent project,
 results from their subprojects won't be included automatically,
-to include results from subprojects use the ``subprojects`` paramater.
+to include results from subprojects use the ``subprojects`` parameter.
 
 Authentication and authorization
 --------------------------------
 
-If you are using :ref:`private versions <versions:privacy levels>`,
+If you are using :ref:`private versions <versions:Version states>`,
 users will only be allowed to search projects they have permissions over.
 Authentication and authorization is done using the current session,
 or any of the valid :doc:`sharing methods </commercial/sharing>`.
