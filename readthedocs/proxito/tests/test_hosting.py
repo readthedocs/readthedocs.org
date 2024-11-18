@@ -984,8 +984,8 @@ class TestReadTheDocsConfigJson(TestCase):
                     {
                         "filename": "new-file.html",
                         "urls": {
-                            "version_a": "https://project--123.dev.readthedocs.build/en/123/new-file.html",
-                            "version_b": "https://project.dev.readthedocs.io/en/latest/new-file.html",
+                            "current": "https://project--123.dev.readthedocs.build/en/123/new-file.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/new-file.html",
                         },
                     },
                 ],
@@ -993,8 +993,8 @@ class TestReadTheDocsConfigJson(TestCase):
                     {
                         "filename": "deleted.html",
                         "urls": {
-                            "version_a": "https://project--123.dev.readthedocs.build/en/123/deleted.html",
-                            "version_b": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                            "current": "https://project--123.dev.readthedocs.build/en/123/deleted.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/deleted.html",
                         },
                     },
                 ],
@@ -1002,8 +1002,8 @@ class TestReadTheDocsConfigJson(TestCase):
                     {
                         "filename": "tutorial/index.html",
                         "urls": {
-                            "version_a": "https://project--123.dev.readthedocs.build/en/123/tutorial/index.html",
-                            "version_b": "https://project.dev.readthedocs.io/en/latest/tutorial/index.html",
+                            "current": "https://project--123.dev.readthedocs.build/en/123/tutorial/index.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/tutorial/index.html",
                         },
                     },
                 ],
