@@ -121,7 +121,7 @@
     }
   },
   "addons": {
-    "configs": {
+    "options": {
       "load_when_embedded": false
     },
     "analytics": {
