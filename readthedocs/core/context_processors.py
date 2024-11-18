@@ -13,9 +13,12 @@ def readthedocs_processor(request):
     If you need to add something that depends on the request,
     create a new context processor.
     """
+
     exports = {
         "PUBLIC_DOMAIN": settings.PUBLIC_DOMAIN,
         "PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
+        # TODO this can be removed with RTD_EXT_THEME_ENABLED
+        "SWITCH_PRODUCTION_DOMAIN": settings.SWITCH_PRODUCTION_DOMAIN,
         "GLOBAL_ANALYTICS_CODE": settings.GLOBAL_ANALYTICS_CODE,
         "DASHBOARD_ANALYTICS_CODE": settings.DASHBOARD_ANALYTICS_CODE,
         "SITE_ROOT": settings.SITE_ROOT + "/",

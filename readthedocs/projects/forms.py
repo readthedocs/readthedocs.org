@@ -662,6 +662,10 @@ class AddonsConfigForm(forms.ModelForm):
             "flyout_sorting_custom_pattern",
             "hotkeys_enabled",
             "search_enabled",
+            "linkpreviews_enabled",
+            "linkpreviews_root_selector",
+            "linkpreviews_doctool_name",
+            "linkpreviews_doctool_version",
             "notifications_enabled",
             "notifications_show_on_latest",
             "notifications_show_on_non_stable",
@@ -676,10 +680,17 @@ class AddonsConfigForm(forms.ModelForm):
                 "Show a notification on non-stable versions"
             ),
             "notifications_show_on_latest": _("Show a notification on latest version"),
+            "linkpreviews_enabled": _("Enabled"),
+            "linkpreviews_root_selector": _("Root selector"),
+            "linkpreviews_doctool_name": _("Documentation tool name"),
+            "linkpreviews_doctool_version": _("Documentation tool version"),
         }
         widgets = {
             "doc_diff_root_selector": forms.TextInput(
-                attrs={"placeholder": "[role=main]"}
+                attrs={"placeholder": AddonsConfig.DOC_DIFF_DEFAULT_ROOT_SELECTOR}
+            ),
+            "linkpreviews_root_selector": forms.TextInput(
+                attrs={"placeholder": AddonsConfig.LINKPREVIEWS_DEFAULT_ROOT_SELECTOR}
             ),
         }
 
