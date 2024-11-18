@@ -149,7 +149,10 @@ class TestReadTheDocsConfigJson(TestCase):
         addons.flyout_enabled = False
         addons.hotkeys_enabled = False
         addons.search_enabled = False
-        addons.stable_latest_version_warning_enabled = False
+        addons.notifications_enabled = False
+        addons.notifications_show_on_latest = False
+        addons.notifications_show_on_non_stable = False
+        addons.notifications_show_on_external = False
         addons.save()
 
         r = self.client.get(
@@ -166,8 +169,10 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
         assert r.json()["addons"]["analytics"]["enabled"] is False
-        assert r.json()["addons"]["external_version_warning"]["enabled"] is False
-        assert r.json()["addons"]["non_latest_version_warning"]["enabled"] is False
+        assert r.json()["addons"]["notifications"]["enabled"] is False
+        assert r.json()["addons"]["notifications"]["show_on_latest"] is False
+        assert r.json()["addons"]["notifications"]["show_on_non_stable"] is False
+        assert r.json()["addons"]["notifications"]["show_on_external"] is False
         assert r.json()["addons"]["doc_diff"]["enabled"] is False
         assert r.json()["addons"]["flyout"]["enabled"] is False
         assert r.json()["addons"]["search"]["enabled"] is False
@@ -384,6 +389,18 @@ class TestReadTheDocsConfigJson(TestCase):
         self.version.has_htmlzip = True
         self.version.save()
 
+        # Add extra built and active versions to emulate a project that went
+        # from multiple versions to single version.
+        # These versions shouldn't be included in the `versions.active` field.
+        for i in range(5):
+            fixture.get(
+                Version,
+                privacy_level=PUBLIC,
+                active=True,
+                built=True,
+                project=self.project,
+            )
+
         self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
 
@@ -400,9 +417,8 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         )
         assert r.status_code == 200
-
-        expected = []
-        assert r.json()["versions"]["active"] == expected
+        expected = ["latest"]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
 
         expected = {
             "pdf": "https://project.dev.readthedocs.io/_/downloads/en/latest/pdf/",
@@ -706,6 +722,42 @@ class TestReadTheDocsConfigJson(TestCase):
             == "https://docs.example.com/en/latest/"
         )
 
+    def test_linkpreviews(self):
+        addons = fixture.get(
+            AddonsConfig,
+            project=self.project,
+        )
+
+        addons.linkpreviews_enabled = True
+        addons.linkpreviews_root_selector = "[role=main] a"
+        addons.linkpreviews_doctool_name = "sphinx"
+        addons.linkpreviews_doctool_version = "8.0.1"
+        addons.save()
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "1.0.0",
+                "client-version": "0.6.0",
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        expected = {
+            "enabled": True,
+            "root_selector": "[role=main] a",
+            "doctool": {
+                "name": "sphinx",
+                "version": "8.0.1",
+            },
+        }
+
+        assert r.status_code == 200
+        assert r.json()["addons"]["linkpreviews"] == expected
+
     def test_non_existent_project(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -909,27 +961,52 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        r = self.client.get(
-            reverse("proxito_readthedocs_docs_addons"),
-            {
-                "url": "https://project--123.dev.readthedocs.build/en/123/",
-                "client-version": "0.6.0",
-                "api-version": "1.0.0",
-            },
-            secure=True,
-            headers={
-                "host": "project--123.dev.readthedocs.build",
-            },
-        )
+        with self.assertNumQueries(30):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project--123.dev.readthedocs.build/en/123/",
+                    "client-version": "0.6.0",
+                    "api-version": "1.0.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project--123.dev.readthedocs.build",
+                },
+            )
         assert r.status_code == 200
         filetreediff_response = r.json()["addons"]["filetreediff"]
         assert filetreediff_response == {
             "enabled": True,
             "outdated": False,
             "diff": {
-                "added": [{"file": "new-file.html"}],
-                "deleted": [{"file": "deleted.html"}],
-                "modified": [{"file": "tutorial/index.html"}],
+                "added": [
+                    {
+                        "filename": "new-file.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/new-file.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/new-file.html",
+                        },
+                    },
+                ],
+                "deleted": [
+                    {
+                        "filename": "deleted.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/deleted.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                        },
+                    },
+                ],
+                "modified": [
+                    {
+                        "filename": "tutorial/index.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/tutorial/index.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/tutorial/index.html",
+                        },
+                    },
+                ],
             },
         }
 

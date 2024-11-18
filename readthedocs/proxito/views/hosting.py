@@ -342,14 +342,21 @@ class AddonsResponseBase:
         # projects that don't have one already
         AddonsConfig.objects.get_or_create(project=project)
 
-        if project.supports_multiple_versions:
-            versions_active_built_not_hidden = (
-                self._get_versions(request, project)
-                .select_related("project")
-                .order_by("-slug")
+        versions_active_built_not_hidden = (
+            self._get_versions(request, project)
+            .select_related("project")
+            .order_by("-slug")
+        )
+        sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
+        if not project.supports_multiple_versions:
+            # Return only one version when the project doesn't support multiple versions.
+            # That version is the only one the project serves.
+            sorted_versions_active_built_not_hidden = (
+                sorted_versions_active_built_not_hidden.filter(
+                    slug=project.get_default_version()
+                )
             )
-            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
-
+        else:
             if (
                 project.addons.flyout_sorting
                 == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
@@ -447,6 +454,9 @@ class AddonsResponseBase:
             # Mainly, all the fields including a Project, Version or Build will use the exact same
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
+                "options": {
+                    "load_when_embedded": project.addons.options_load_when_embedded,
+                },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
                     # TODO: consider adding this field into the ProjectSerializer itself.
@@ -455,17 +465,11 @@ class AddonsResponseBase:
                     # https://github.com/readthedocs/readthedocs.org/issues/9530
                     "code": project.analytics_code,
                 },
-                "external_version_warning": {
-                    "enabled": project.addons.external_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
-                },
-                "non_latest_version_warning": {
-                    "enabled": project.addons.stable_latest_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
+                "notifications": {
+                    "enabled": project.addons.notifications_enabled,
+                    "show_on_latest": project.addons.notifications_show_on_latest,
+                    "show_on_non_stable": project.addons.notifications_show_on_non_stable,
+                    "show_on_external": project.addons.notifications_show_on_external,
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
@@ -485,6 +489,10 @@ class AddonsResponseBase:
                     #     "branch": version.identifier if version else None,
                     #     "filepath": "/docs/index.rst",
                     # },
+                },
+                "customscript": {
+                    "enabled": project.addons.customscript_enabled,
+                    "src": project.addons.customscript_src,
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,
@@ -509,6 +517,15 @@ class AddonsResponseBase:
                     if version
                     else None,
                 },
+                "linkpreviews": {
+                    "enabled": project.addons.linkpreviews_enabled,
+                    "root_selector": project.addons.linkpreviews_root_selector
+                    or project.addons.LINKPREVIEWS_DEFAULT_ROOT_SELECTOR,
+                    "doctool": {
+                        "name": project.addons.linkpreviews_doctool_name,
+                        "version": project.addons.linkpreviews_doctool_version,
+                    },
+                },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,
                     "doc_diff": {
@@ -528,7 +545,10 @@ class AddonsResponseBase:
 
         if version:
             response = self._get_filetreediff_response(
-                request=request, project=project, version=version
+                request=request,
+                project=project,
+                version=version,
+                resolver=resolver,
             )
             if response:
                 data["addons"]["filetreediff"].update(response)
@@ -613,7 +633,7 @@ class AddonsResponseBase:
 
         return data
 
-    def _get_filetreediff_response(self, *, request, project, version):
+    def _get_filetreediff_response(self, *, request, project, version, resolver):
         """
         Get the file tree diff response for the given version.
 
@@ -640,9 +660,60 @@ class AddonsResponseBase:
             "enabled": True,
             "outdated": diff.outdated,
             "diff": {
-                "added": [{"file": file} for file in diff.added],
-                "deleted": [{"file": file} for file in diff.deleted],
-                "modified": [{"file": file} for file in diff.modified],
+                "added": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=latest_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.added
+                ],
+                "deleted": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=latest_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.deleted
+                ],
+                "modified": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=latest_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.modified
+                ],
             },
         }
 

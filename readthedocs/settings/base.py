@@ -86,6 +86,12 @@ class CommunityBaseSettings(Settings):
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
 
+    @property
+    def SWITCH_PRODUCTION_DOMAIN(self):
+        if self.RTD_EXT_THEME_ENABLED:
+            return self.PRODUCTION_DOMAIN.removeprefix("app.")
+        return f"app.{self.PRODUCTION_DOMAIN}"
+
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
     SPHINX_BACKEND = "readthedocs.doc_builder.backends.sphinx"
@@ -104,16 +110,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = False
-
-    @property
-    def SESSION_COOKIE_SAMESITE(self):
-        """
-        Cookie used in cross-origin API requests from *.rtd.io to rtd.org/api/v2/sustainability/.
-        """
-        if self.USE_PROMOS:
-            return "None"
-        # This is django's default.
-        return "Lax"
+    SESSION_COOKIE_SAMESITE = "Lax"
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
@@ -322,7 +319,7 @@ class CommunityBaseSettings(Settings):
     def MIDDLEWARE(self):
         middlewares = [
             "readthedocs.core.middleware.NullCharactersMiddleware",
-            "readthedocs.core.middleware.ReadTheDocsSessionMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
             "django.middleware.locale.LocaleMiddleware",
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
@@ -334,7 +331,6 @@ class CommunityBaseSettings(Settings):
             "allauth.account.middleware.AccountMiddleware",
             "dj_pagination.middleware.PaginationMiddleware",
             "csp.middleware.CSPMiddleware",
-            "readthedocs.core.middleware.ReferrerPolicyMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
             "django_structlog.middlewares.CeleryMiddleware",
@@ -724,17 +720,12 @@ class CommunityBaseSettings(Settings):
     # CORS
     # Don't allow sending cookies in cross-domain requests, this is so we can
     # relax our CORS headers for more views, but at the same time not opening
-    # users to CSRF attacks. The sustainability API is the only view that requires
-    # cookies to be send cross-site, we override that for that view only.
+    # users to CSRF attacks.
     CORS_ALLOW_CREDENTIALS = False
 
     # Allow cross-site requests from any origin,
     # all information from our allowed endpoits is public.
-    #
-    # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
-    # since that will set the `Access-Control-Allow-Origin` header to `*`,
-    # we won't be able to pass credentials fo the sustainability API with that value.
-    CORS_ALLOWED_ORIGIN_REGEXES = [re.compile(".+")]
+    CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_HEADERS = list(default_headers) + [
         "x-hoverxref-version",
     ]

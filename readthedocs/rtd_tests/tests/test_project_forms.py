@@ -35,6 +35,7 @@ from readthedocs.projects.forms import (
     WebHookForm,
 )
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
+from readthedocs.projects.validators import MAX_SIZE_ENV_VARS_PER_PROJECT
 
 
 class TestProjectForms(TestCase):
@@ -1123,6 +1124,42 @@ class TestProjectEnvironmentVariablesForm(TestCase):
             r"'string escaped here: #$\1[]{}\|'",
         )
 
+    def test_create_env_variable_with_long_value(self):
+        data = {
+            "name": "MYTOKEN",
+            "value": "a" * (48000 + 1),
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        assert not form.is_valid()
+        assert form.errors["value"] == [
+            "Ensure this value has at most 48000 characters (it has 48001)."
+        ]
+
+    def test_create_env_variable_over_total_project_size(self):
+        size = 2000
+        for i in range((MAX_SIZE_ENV_VARS_PER_PROJECT - size) // size):
+            get(
+                EnvironmentVariable,
+                project=self.project,
+                name=f"ENVVAR{i}",
+                value="a" * size,
+                public=False,
+            )
+
+        form = EnvironmentVariableForm(
+            {"name": "A", "value": "a" * (size // 2)}, project=self.project
+        )
+        assert form.is_valid()
+        form.save()
+
+        form = EnvironmentVariableForm(
+            {"name": "B", "value": "a" * size}, project=self.project
+        )
+        assert not form.is_valid()
+        assert form.errors["__all__"] == [
+            "The total size of all environment variables in the project cannot exceed 256 KB."
+        ]
+
 
 class TestAddonsConfigForm(TestCase):
     def setUp(self):
@@ -1133,14 +1170,16 @@ class TestAddonsConfigForm(TestCase):
             "enabled": True,
             "analytics_enabled": False,
             "doc_diff_enabled": False,
-            "external_version_warning_enabled": True,
             "flyout_enabled": True,
             "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
             "flyout_sorting_latest_stable_at_beginning": True,
             "flyout_sorting_custom_pattern": None,
             "hotkeys_enabled": False,
             "search_enabled": False,
-            "stable_latest_version_warning_enabled": True,
+            "notifications_enabled": True,
+            "notifications_show_on_latest": True,
+            "notifications_show_on_non_stable": True,
+            "notifications_show_on_external": True,
         }
         form = AddonsConfigForm(data=data, project=self.project)
         self.assertTrue(form.is_valid())
@@ -1149,7 +1188,10 @@ class TestAddonsConfigForm(TestCase):
         self.assertEqual(self.project.addons.enabled, True)
         self.assertEqual(self.project.addons.analytics_enabled, False)
         self.assertEqual(self.project.addons.doc_diff_enabled, False)
-        self.assertEqual(self.project.addons.external_version_warning_enabled, True)
+        self.assertEqual(self.project.addons.notifications_enabled, True)
+        self.assertEqual(self.project.addons.notifications_show_on_latest, True)
+        self.assertEqual(self.project.addons.notifications_show_on_non_stable, True)
+        self.assertEqual(self.project.addons.notifications_show_on_external, True)
         self.assertEqual(self.project.addons.flyout_enabled, True)
         self.assertEqual(
             self.project.addons.flyout_sorting,
@@ -1162,24 +1204,25 @@ class TestAddonsConfigForm(TestCase):
         self.assertEqual(self.project.addons.flyout_sorting_custom_pattern, None)
         self.assertEqual(self.project.addons.hotkeys_enabled, False)
         self.assertEqual(self.project.addons.search_enabled, False)
-        self.assertEqual(
-            self.project.addons.stable_latest_version_warning_enabled,
-            True,
-        )
+        self.assertEqual(self.project.addons.notifications_show_on_latest, True)
+        self.assertEqual(self.project.addons.notifications_show_on_non_stable, True)
+        self.assertEqual(self.project.addons.notifications_show_on_external, True)
 
     def test_addonsconfig_form_invalid_sorting_custom_pattern(self):
         data = {
             "enabled": True,
             "analytics_enabled": False,
             "doc_diff_enabled": False,
-            "external_version_warning_enabled": True,
             "flyout_enabled": True,
             "flyout_sorting": ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
             "flyout_sorting_latest_stable_at_beginning": True,
             "flyout_sorting_custom_pattern": None,
             "hotkeys_enabled": False,
             "search_enabled": False,
-            "stable_latest_version_warning_enabled": True,
+            "notifications_enabled": True,
+            "notifications_show_on_latest": True,
+            "notifications_show_on_non_stable": True,
+            "notifications_show_on_external": True,
         }
         form = AddonsConfigForm(data=data, project=self.project)
         self.assertFalse(form.is_valid())

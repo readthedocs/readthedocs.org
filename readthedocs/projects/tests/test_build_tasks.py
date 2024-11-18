@@ -535,11 +535,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "builder": mock.ANY,
         }
 
-        # NOTE: `request_history[5]` is a temporal notification that will be removed after October 7th
-        # https://github.com/readthedocs/readthedocs.org/pull/11514
-
         # Update build state: installing
-        assert self.requests_mock.request_history[6].json() == {
+        assert self.requests_mock.request_history[5].json() == {
             "id": 1,
             "state": "installing",
             "commit": "a1b2c3",
@@ -575,7 +572,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.12.3",
+                            "full_version": "3.13.0",
                             "version": "3",
                         }
                     },
@@ -605,7 +602,7 @@ class TestBuildTask(BuildEnvironmentBase):
             },
         }
         # Update build state: building
-        assert self.requests_mock.request_history[7].json() == {
+        assert self.requests_mock.request_history[6].json() == {
             "id": 1,
             "state": "building",
             "commit": "a1b2c3",
@@ -615,7 +612,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "error": "",
         }
         # Update build state: uploading
-        assert self.requests_mock.request_history[8].json() == {
+        assert self.requests_mock.request_history[7].json() == {
             "id": 1,
             "state": "uploading",
             "commit": "a1b2c3",
@@ -625,9 +622,9 @@ class TestBuildTask(BuildEnvironmentBase):
             "error": "",
         }
         # Update version state
-        assert self.requests_mock.request_history[9]._request.method == "PATCH"
-        assert self.requests_mock.request_history[9].path == "/api/v2/version/1/"
-        assert self.requests_mock.request_history[9].json() == {
+        assert self.requests_mock.request_history[8]._request.method == "PATCH"
+        assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
+        assert self.requests_mock.request_history[8].json() == {
             "addons": False,
             "build_data": None,
             "built": True,
@@ -637,13 +634,11 @@ class TestBuildTask(BuildEnvironmentBase):
             "has_htmlzip": True,
         }
         # Set project has valid clone
-        assert self.requests_mock.request_history[10]._request.method == "PATCH"
-        assert self.requests_mock.request_history[10].path == "/api/v2/project/1/"
-        assert self.requests_mock.request_history[10].json() == {
-            "has_valid_clone": True
-        }
+        assert self.requests_mock.request_history[9]._request.method == "PATCH"
+        assert self.requests_mock.request_history[9].path == "/api/v2/project/1/"
+        assert self.requests_mock.request_history[9].json() == {"has_valid_clone": True}
         # Update build state: finished, success and builder
-        assert self.requests_mock.request_history[11].json() == {
+        assert self.requests_mock.request_history[10].json() == {
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
@@ -655,8 +650,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "error": "",
         }
 
-        assert self.requests_mock.request_history[12]._request.method == "POST"
-        assert self.requests_mock.request_history[12].path == "/api/v2/revoke/"
+        assert self.requests_mock.request_history[11]._request.method == "POST"
+        assert self.requests_mock.request_history[11].path == "/api/v2/revoke/"
 
         assert BuildData.objects.all().exists()
 

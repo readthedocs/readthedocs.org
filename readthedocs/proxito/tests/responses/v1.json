@@ -121,12 +121,12 @@
     }
   },
   "addons": {
+    "options": {
+      "load_when_embedded": false
+    },
     "analytics": {
       "enabled": false,
       "code": null
-    },
-    "external_version_warning": {
-      "enabled": true
     },
     "hotkeys": {
       "enabled": true,
@@ -139,8 +139,11 @@
         "trigger": "Slash"
       }
     },
-    "non_latest_version_warning": {
-      "enabled": true
+    "notifications": {
+      "enabled": true,
+      "show_on_external": true,
+      "show_on_latest": true,
+      "show_on_non_stable": true
     },
     "doc_diff": {
       "enabled": true,
@@ -160,6 +163,18 @@
       "enabled": true,
       "default_filter": "project:project/latest",
       "filters": []
+    },
+    "customscript": {
+      "enabled": false,
+      "src": null
+    },
+    "linkpreviews": {
+      "enabled": false,
+      "root_selector": "[role=main] a.internal",
+      "doctool": {
+        "name": null,
+        "version": null
+      }
     }
   }
 }
