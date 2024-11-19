@@ -39,9 +39,7 @@ class CommunityMetrics5mTask(Metrics5mTaskBase):
             project="time-test",
             queue_name="build-default",
             version="latency-test",
-            doc="index",
-            section="Time",
-            doc_url=None,
+            doc_url="https://time-test.readthedocs.io/en/latency-test/",
             webhook_url="{api_host}/api/v2/webhook/{project}/{webhook_id}/",
         ),
     ]

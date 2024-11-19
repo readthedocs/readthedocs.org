@@ -14,6 +14,8 @@ from corsheaders.defaults import default_headers
 from readthedocs.core.settings import Settings
 from readthedocs.builds import constants_docker
 
+from django.conf.global_settings import PASSWORD_HASHERS
+
 try:
     import readthedocsext.cdn  # noqa
 
@@ -84,6 +86,12 @@ class CommunityBaseSettings(Settings):
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
 
+    @property
+    def SWITCH_PRODUCTION_DOMAIN(self):
+        if self.RTD_EXT_THEME_ENABLED:
+            return self.PRODUCTION_DOMAIN.removeprefix("app.")
+        return f"app.{self.PRODUCTION_DOMAIN}"
+
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
     SPHINX_BACKEND = "readthedocs.doc_builder.backends.sphinx"
@@ -102,16 +110,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = False
-
-    @property
-    def SESSION_COOKIE_SAMESITE(self):
-        """
-        Cookie used in cross-origin API requests from *.rtd.io to rtd.org/api/v2/sustainability/.
-        """
-        if self.USE_PROMOS:
-            return "None"
-        # This is django's default.
-        return "Lax"
+    SESSION_COOKIE_SAMESITE = "Lax"
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
@@ -168,7 +167,8 @@ class CommunityBaseSettings(Settings):
 
         return dict(
             (
-                RTDProductFeature(type=constants.TYPE_CNAME).to_item(),
+                # Max number of domains allowed per project.
+                RTDProductFeature(type=constants.TYPE_CNAME, value=2).to_item(),
                 RTDProductFeature(type=constants.TYPE_EMBED_API).to_item(),
                 # Retention days for search analytics.
                 RTDProductFeature(
@@ -285,6 +285,7 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount.providers.github",
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
+            "allauth.mfa",
             "cacheops",
         ]
         if ext:
@@ -318,7 +319,7 @@ class CommunityBaseSettings(Settings):
     def MIDDLEWARE(self):
         middlewares = [
             "readthedocs.core.middleware.NullCharactersMiddleware",
-            "readthedocs.core.middleware.ReadTheDocsSessionMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
             "django.middleware.locale.LocaleMiddleware",
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
@@ -330,7 +331,6 @@ class CommunityBaseSettings(Settings):
             "allauth.account.middleware.AccountMiddleware",
             "dj_pagination.middleware.PaginationMiddleware",
             "csp.middleware.CSPMiddleware",
-            "readthedocs.core.middleware.ReferrerPolicyMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
             "django_structlog.middlewares.CeleryMiddleware",
@@ -363,6 +363,10 @@ class CommunityBaseSettings(Settings):
             "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
         },
     ]
+
+    # Explicitly set the password hashers to the default ones,
+    # so we can change them in our test settings.
+    PASSWORD_HASHERS = PASSWORD_HASHERS
 
     # Paths
     SITE_ROOT = os.path.dirname(
@@ -539,11 +543,11 @@ class CommunityBaseSettings(Settings):
                 "delete": True,
             },
         },
-        "every-three-hours-delete-inactive-external-versions": {
+        "every-30m-delete-inactive-external-versions": {
             "task": "readthedocs.builds.tasks.delete_closed_external_versions",
             # Increase the frequency because we have 255k closed versions and they keep growing.
             # It's better to increase this frequency than the `limit=` of the task.
-            "schedule": crontab(minute=0, hour="*/3"),
+            "schedule": crontab(minute="*/30", hour="*"),
             "options": {"queue": "web"},
         },
         "every-day-resync-remote-repositories": {
@@ -655,7 +659,7 @@ class CommunityBaseSettings(Settings):
         )
         return limits
 
-    # All auth
+    # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
     ACCOUNT_EMAIL_REQUIRED = True
 
@@ -716,17 +720,12 @@ class CommunityBaseSettings(Settings):
     # CORS
     # Don't allow sending cookies in cross-domain requests, this is so we can
     # relax our CORS headers for more views, but at the same time not opening
-    # users to CSRF attacks. The sustainability API is the only view that requires
-    # cookies to be send cross-site, we override that for that view only.
+    # users to CSRF attacks.
     CORS_ALLOW_CREDENTIALS = False
 
     # Allow cross-site requests from any origin,
     # all information from our allowed endpoits is public.
-    #
-    # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
-    # since that will set the `Access-Control-Allow-Origin` header to `*`,
-    # we won't be able to pass credentials fo the sustainability API with that value.
-    CORS_ALLOWED_ORIGIN_REGEXES = [re.compile(".+")]
+    CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_HEADERS = list(default_headers) + [
         "x-hoverxref-version",
     ]
@@ -1004,6 +1003,7 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS = 200
     RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD = 300
     RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS = 500
+    RTD_SPAM_THRESHOLD_REMOVE_FROM_SEARCH_INDEX = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
 

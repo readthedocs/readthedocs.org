@@ -291,7 +291,24 @@ class Version(TimeStampedModel):
 
     @property
     def last_build(self):
+        # TODO deprecated in favor of `latest_build`, which matches naming on
+        # the Project model
+        return self.latest_build
+
+    @property
+    def latest_build(self):
         return self.builds.order_by("-date").first()
+
+    @property
+    def latest_successful_build(self):
+        return (
+            self.builds.filter(
+                state=BUILD_STATE_FINISHED,
+                success=True,
+            )
+            .order_by("-date")
+            .first()
+        )
 
     @property
     def config(self):
@@ -846,6 +863,7 @@ class Build(models.Model):
         ]
         indexes = [
             models.Index(fields=["project", "date"]),
+            models.Index(fields=["version", "date"]),
         ]
 
     def __init__(self, *args, **kwargs):

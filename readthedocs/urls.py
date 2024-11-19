@@ -17,6 +17,10 @@ handler400 = ErrorView.as_view(status_code=400)
 handler403 = ErrorView.as_view(status_code=403)
 handler404 = ErrorView.as_view(status_code=404)
 handler500 = ErrorView.as_view(status_code=500)
+# Rate limit handler for allauth views,
+# this isn't a Django built-in handler.
+# https://docs.allauth.org/en/latest/account/rate_limits.html.
+handler429 = ErrorView.as_view(status_code=429)
 
 basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
@@ -122,9 +126,9 @@ debug_urls += [
         TemplateView.as_view(template_name="style_catalog.html"),
     ),
     # For testing error responses and templates
-    path(
-        "error/<int:status_code>/",
-        ErrorView.as_view(base_path="errors/dashboard"),
+    re_path(
+        r"^error/(?P<template_name>.*)$",
+        ErrorView.as_view(),
     ),
     # This must come last after the build output files
     path(

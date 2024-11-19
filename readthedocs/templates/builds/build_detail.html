@@ -189,7 +189,7 @@ $(document).ready(function () {
     {% for notification in notifications %}
     {% if notification.get_message.type != "error" %}
     <p class="build-ideas">
-      {{ notification.get_message.get_rendered_body|safe }}
+        <strong>{{ notification.get_message.get_rendered_header|safe }}</strong> — {{ notification.get_message.get_rendered_body|safe }}
     </p>
     {% endif %}
     {% endfor %}

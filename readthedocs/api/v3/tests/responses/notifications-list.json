@@ -12,7 +12,7 @@
       "dismissable": false,
       "id": 1,
       "message": {
-        "body": "The organization \"organization\" is currently disabled. You need to <a href=\"\">renew your subscription</a> to keep using Read the Docs",
+        "body": "The organization \"organization\" is currently disabled. You need to <a href=\"/organizations/organization/subscription/\">renew your subscription</a> to keep using Read the Docs",
         "header": "Your organization has been disabled",
         "icon_classes": "fas fa-circle-info",
         "id": "organization:disabled",
@@ -31,7 +31,7 @@
       "id": 2,
       "message": {
         "body": "Your project is currently disabled for abuse of the system.\nPlease make sure it isn't using unreasonable amounts of resources or triggering lots of builds in a short amount of time.\nPlease <a href=\"mailto:None\">contact support</a> to get your project re-enabled.",
-        "header": "Build skipped for this project",
+        "header": "Builds skipped for this project",
         "icon_classes": "fas fa-circle-info",
         "id": "project:invalid:skip-builds",
         "type": "info"
@@ -48,7 +48,7 @@
       "dismissable": false,
       "id": 4,
       "message": {
-        "body": "Your primary email address is not verified.\nPlease <a href=\"\">verify it here</a>.",
+        "body": "Your primary email address is not verified.\nPlease <a href=\"/accounts/email/\">verify it here</a>.",
         "header": "Email address not verified",
         "icon_classes": "fas fa-circle-exclamation",
         "id": "core:email:validation-pending",

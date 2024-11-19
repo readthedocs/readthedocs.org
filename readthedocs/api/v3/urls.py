@@ -8,6 +8,7 @@ from .views import (
     NotificationsOrganizationViewSet,
     NotificationsProjectViewSet,
     NotificationsUserViewSet,
+    OrganizationsTeamsViewSet,
     OrganizationsViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
@@ -24,6 +25,7 @@ router = DefaultRouterWithNesting()
 # allows /api/v3/projects/
 # allows /api/v3/projects/pip/
 # allows /api/v3/projects/pip/superproject/
+# allows /api/v3/projects/pip/sync-versions/
 projects = router.register(
     r"projects",
     ProjectsViewSet,
@@ -137,6 +139,13 @@ organizations.register(
     r"notifications",
     NotificationsOrganizationViewSet,
     basename="organizations-notifications",
+    parents_query_lookups=["organization__slug"],
+)
+
+organizations.register(
+    "teams",
+    OrganizationsTeamsViewSet,
+    basename="organizations-teams",
     parents_query_lookups=["organization__slug"],
 )
 

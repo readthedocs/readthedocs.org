@@ -7,7 +7,7 @@
   "dismissable": false,
   "id": 4,
   "message": {
-    "body": "Your primary email address is not verified.\nPlease <a href=\"\">verify it here</a>.",
+    "body": "Your primary email address is not verified.\nPlease <a href=\"/accounts/email/\">verify it here</a>.",
     "header": "Email address not verified",
     "icon_classes": "fas fa-circle-exclamation",
     "id": "core:email:validation-pending",

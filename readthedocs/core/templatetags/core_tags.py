@@ -1,8 +1,6 @@
 """Template tags for core app."""
 
-import hashlib
 import json
-from urllib.parse import urlencode
 
 from django import template
 from django.core.serializers.json import DjangoJSONEncoder
@@ -13,26 +11,6 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Project
 
 register = template.Library()
-
-
-@register.filter
-def gravatar(email, size=48):
-    """
-    Hacked from djangosnippets.org, but basically given an email address.
-
-    render an img tag with the hashed up bits needed for leetness
-    omgwtfstillreading
-    """
-    url = "http://www.gravatar.com/avatar.php?%s" % urlencode(
-        {
-            "gravatar_id": hashlib.md5(email).hexdigest(),
-            "size": str(size),
-        }
-    )
-    return (
-        '<img src="%s" width="%s" height="%s" alt="gravatar" '
-        'class="gravatar" border="0" />' % (url, size, size)
-    )
 
 
 @register.simple_tag(name="doc_url")

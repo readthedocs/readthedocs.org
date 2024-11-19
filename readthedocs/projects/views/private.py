@@ -49,7 +49,8 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.services import registry
+from readthedocs.oauth.constants import GITHUB
+from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
@@ -73,6 +74,7 @@ from readthedocs.projects.forms import (
     WebHookForm,
 )
 from readthedocs.projects.models import (
+    AddonsConfig,
     Domain,
     EmailHook,
     EnvironmentVariable,
@@ -121,7 +123,16 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
             template_name = None
             projects = AdminPermission.projects(user=self.request.user, admin=True)
             n_projects = projects.count()
-            if n_projects == 0 or (
+
+            # TODO remove this with RTD_EXT_THEME_ENABLED
+            # This is going to try hard to show the new dashboard announcement.
+            # We can't yet back down to another announcement as we don't have
+            # the ability to evaluate local storage. Until we add the ability to
+            # dynamically change the announcement, this is going to be the only
+            # announcement shown.
+            if True:  # pylint: disable=using-constant-test
+                template_name = "new-dashboard.html"
+            elif n_projects == 0 or (
                 n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
             ):
                 template_name = "example-projects.html"
@@ -142,7 +153,9 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 template_name = "security-logs.html"
 
             if template_name:
-                context["promotion"] = f"projects/partials/dashboard/{template_name}"
+                context[
+                    "announcement"
+                ] = f"projects/partials/announcements/{template_name}"
 
         return context
 
@@ -161,16 +174,18 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 attached_to=user,
                 message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
                 dismissable=True,
-                format_values={
-                    "account_email_url": reverse("account_email"),
-                },
             )
 
     def get_queryset(self):
+        queryset = Project.objects.dashboard(self.request.user)
+        if settings.RTD_EXT_THEME_ENABLED:
+            return queryset
+        # The new dashboard uses django-filters, this is a manual filter for the
+        # old dashboard and it can be removed with the old dashboard.
         sort = self.request.GET.get("sort")
         if sort not in ["modified_date", "-modified_date", "slug", "-slug"]:
             sort = "slug"
-        return Project.objects.dashboard(self.request.user).order_by(sort)
+        return queryset.order_by(sort)
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
@@ -199,6 +214,10 @@ class ProjectUpdate(ProjectMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("projects_detail", args=[self.object.slug])
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["user"] = self.request.user
+        return super().get_form(data, files, **kwargs)
 
 
 class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteViewWithMessage):
@@ -346,7 +365,61 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
 
     def get_template_names(self):
         """Return template names based on step name."""
-        return "projects/import_{}.html".format(self.steps.current)
+        return f"projects/import_{self.steps.current}.html"
+
+    def process_step(self, form):
+        # pylint: disable=too-many-nested-blocks
+        if isinstance(form, ProjectBasicsForm):
+            remote_repository = form.cleaned_data.get("remote_repository")
+            default_branch = form.cleaned_data.get("default_branch")
+            if remote_repository and remote_repository.vcs_provider == GITHUB:
+                remote_repository_relations = (
+                    remote_repository.remote_repository_relations.filter(
+                        user=self.request.user,
+                        account__isnull=False,
+                    )
+                    .select_related("account", "user")
+                    .only("user", "account")
+                )
+                for relation in remote_repository_relations:
+                    service = GitHubService(relation.user, relation.account)
+                    session = service.get_session()
+
+                    for yaml in [
+                        ".readthedocs.yaml",
+                        ".readthedocs.yml",
+                        "readthedocs.yaml",
+                        "readthedocs.yml",
+                    ]:
+                        try:
+                            querystrings = (
+                                f"?ref={default_branch}" if default_branch else ""
+                            )
+                            response = session.head(
+                                f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}{querystrings}",
+                                timeout=1,
+                            )
+                            if response.ok:
+                                log.info(
+                                    "Read the Docs YAML file found for this repository.",
+                                    filename=yaml,
+                                )
+                                messages.success(
+                                    self.request,
+                                    _(
+                                        "We detected a configuration file in your repository and started your project's first build."
+                                    ),
+                                )
+                                self.form_list.pop("config")
+                                break
+                        except Exception:
+                            log.warning(
+                                "Failed when hitting GitHub API to check for .readthedocs.yaml file.",
+                                filename=yaml,
+                            )
+                            continue
+
+        return super().process_step(form)
 
     def done(self, form_list, **kwargs):
         """
@@ -356,10 +429,21 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         other side effects for now, by signalling a save without commit. Then,
         finish by added the members to the project and saving.
         """
-        basics_form = form_list[0]
+
+        # We need to find the "basics" for here by iterating the list of bounded instance forms
+        # because community and business have different steps -- it's not always the first one.
+        basics_form = None
+        for form in form_list:
+            if isinstance(form, self.form_list.get("basics")):
+                basics_form = form
+                break
+
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
+
+        # Create an AddonsConfig object for this project.
+        AddonsConfig.objects.get_or_create(project=project)
 
         self.finish_import_project(self.request, project)
 

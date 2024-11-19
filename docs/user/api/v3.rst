@@ -15,7 +15,7 @@ Authentication and authorization
 --------------------------------
 
 Requests to the Read the Docs public API are for public and private information.
-All endpoints require authentication.
+Endpoints that return public information do not require authentication.
 
 
 Token
@@ -45,16 +45,7 @@ to authenticate as a user and have the same permissions that the user itself.
 Session
 ~~~~~~~
 
-.. warning::
-
-   Authentication via session is not enabled yet.
-
-Session authentication is allowed on very specific endpoints,
-to allow hitting the API when reading documentation.
-
-When a user is trying to authenticate via session,
-:abbr:`CSRF (Cross-site request forgery)` check is performed.
-
+Session authentication is allowed, so the API can be used by our dashboard and other internal services.
 
 Resources
 ---------
@@ -202,7 +193,8 @@ Projects list
 
       :Query Parameters:
 
-         * **expand** (*string*) -- with ``organization`` and ``teams``.
+         * **expand** (*string*) -- Add additional fields in the response.
+           Allowed values are: ``organization``.
 
 
 
@@ -294,9 +286,9 @@ Project details
             }
         }
 
-    :query string expand: allows to add/expand some extra fields in the response.
-                          Allowed values are ``active_versions``, ``active_versions.last_build`` and
-                          ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
+    :query string expand: Add additional fields in the response.
+                          Allowed values are: ``active_versions``.
+                          Multiple fields can be passed separated by commas.
 
     .. note::
 
@@ -314,7 +306,8 @@ Project details
 
       :Query Parameters:
 
-         * **expand** (*string*) -- with ``organization`` and ``teams``.
+         * **expand** (*string*) -- Add additional fields in the response.
+           Allowed values are: ``organization``.
 
     .. note::
 
@@ -468,6 +461,39 @@ Project update
     :statuscode 204: Updated successfully
 
 
+Project versions sync
++++++++++++++++++++++
+
+.. http:post:: /api/v3/projects/(string:project_slug)/sync-versions/
+
+    Trigger a background task to sync the versions of the project.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" \
+              https://readthedocs.org/api/v3/projects/pip/sync-versions/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/sync-versions/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.post(
+                URL,
+                headers=HEADERS,
+            )
+            print(response.json())
+
+    :statuscode 202: Task created successfully
+    :statuscode 400: Bad request, task not created
+
 Versions
 ~~~~~~~~
 
@@ -562,7 +588,6 @@ Version detail
             "aliases": ["VERSION"],
             "hidden": false,
             "type": "tag",
-            "last_build": "{BUILD}",
             "privacy_level": "public",
             "downloads": {
                 "pdf": "https://pip.readthedocs.io/_/downloads/pdf/pip/stable/",
@@ -586,10 +611,6 @@ Version detail
     :>json string ref: the version slug where the ``stable`` version points to.
                        ``null`` when it's not the stable version.
     :>json boolean built: the version has at least one successful build.
-
-    :query string expand: allows to add/expand some extra fields in the response.
-                          Allowed values are ``last_build`` and ``last_build.config``.
-                          Multiple fields can be passed separated by commas.
 
 Version update
 ++++++++++++++
@@ -749,7 +770,7 @@ Build details
     :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, ``finished`` or ``cancelled``)
     :>json string error: An error message if the build was unsuccessful
 
-    :query string expand: allows to add/expand some extra fields in the response.
+    :query string expand: Add additional fields in the response.
                           Allowed value is ``config``.
 
 
@@ -1697,6 +1718,58 @@ Organization projects list
            ]
        }
 
+Organization teams list
++++++++++++++++++++++++
+
+.. http:get:: /api/v3/organizations/(string:organization_slug)/teams/
+
+    Retrieve list of teams under an organization.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.com/api/v3/organizations/pypa/teams/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.com/api/v3/organizations/pypa/teams/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+       {
+          "count": 2,
+          "next": null,
+          "previous": null,
+          "results": [
+             {
+                   "access": "admin",
+                   "created": "2024-07-01T21:19:55.573819Z",
+                   "modified": "2024-07-01T21:19:55.573837Z",
+                   "name": "Admins",
+                   "slug": "admins"
+             },
+             {
+                   "access": "readonly",
+                   "created": "2024-07-01T21:19:55.593815Z",
+                   "modified": "2024-07-01T21:19:55.593829Z",
+                   "name": "Read Only",
+                   "slug": "read-only"
+             }
+          ]
+       }
+
+    :query string expand: Add additional fields in the response.
+                          Allowed values are: ``members``.
 
 Remote organizations
 ~~~~~~~~~~~~~~~~~~~~
@@ -1782,12 +1855,12 @@ Remote repository listing
 
         .. code-tab:: bash
 
-            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=projects,remote_organization
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=remote_organization
 
         .. code-tab:: python
 
             import requests
-            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=projects,remote_organization'
+            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=remote_organization'
             TOKEN = '<token>'
             HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.get(URL, headers=HEADERS)
@@ -1799,7 +1872,7 @@ Remote repository listing
 
         {
             "count": 20,
-            "next": "api/v3/remote/repositories/?expand=projects,remote_organization&limit=10&offset=10",
+            "next": "api/v3/remote/repositories/?expand=remote_organization&limit=10&offset=10",
             "previous": null,
             "results": [
                 {
@@ -1813,7 +1886,7 @@ Remote repository listing
                         "url": "https://github.com/organization",
                         "vcs_provider": "github"
                     },
-                    "project": [{
+                    "projects": [{
                         "id": 12345,
                         "name": "project",
                         "slug": "project",
@@ -1880,11 +1953,11 @@ Remote repository listing
     The ``results`` in response is an array of remote repositories data.
 
     :query string name: return remote repositories containing the name
-    :query string full_name: return remote repositories containing the full name (it inclues the username/organization the project belongs to)
+    :query string full_name: return remote repositories containing the full name (it includes the username/organization the project belongs to)
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
     :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
-    :query string expand: allows to add/expand some extra fields in the response.
-                          Allowed values are ``projects`` and ``remote_organization``.
+    :query string expand: Add additional fields in the response.
+                          Allowed values are: ``remote_organization``.
                           Multiple fields can be passed separated by commas.
 
     :requestheader Authorization: token to authenticate.
