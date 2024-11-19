@@ -257,10 +257,7 @@ For others, the webhook will simply fail to connect when there are new commits t
   For each of these, the callback URI is ``http://devthedocs.org/accounts/<provider>/login/callback/``
   where ``<provider>`` is one of ``github``, ``gitlab``, or ``bitbucket_oauth2``.
   When setup, you will be given a "Client ID" (also called an "Application ID" or just "Key") and a "Secret".
-* Take the "Client ID" and "Secret" for each service and enter it in your local Django admin at:
-  ``http://devthedocs.org/admin/socialaccount/socialapp/``.
-  Make sure to apply it to the "Site".
-
+* Take the "Client ID" and "Secret" for each service and set them as :ref:`environment variables <settings:Allauth secrets>`.
 
 Troubleshooting
 ---------------

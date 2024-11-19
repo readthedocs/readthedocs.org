@@ -121,6 +121,9 @@
     }
   },
   "addons": {
+    "options": {
+      "load_when_embedded": false
+    },
     "analytics": {
       "enabled": false,
       "code": null
@@ -160,6 +163,10 @@
       "enabled": true,
       "default_filter": "project:project/latest",
       "filters": []
+    },
+    "customscript": {
+      "enabled": false,
+      "src": null
     },
     "linkpreviews": {
       "enabled": false,
