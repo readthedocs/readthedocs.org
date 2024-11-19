@@ -1,3 +1,25 @@
+Version 11.14.0
+---------------
+
+:Date: November 19, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Docs: update connected accounts steps to use env vars (`#11777 <https://github.com/readthedocs/readthedocs.org/pull/11777>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix ext-theme test (`#11776 <https://github.com/readthedocs/readthedocs.org/pull/11776>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11771 <https://github.com/readthedocs/readthedocs.org/pull/11771>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: `load_when_embedded` config (`#11765 <https://github.com/readthedocs/readthedocs.org/pull/11765>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: rename fields on API response (`#11764 <https://github.com/readthedocs/readthedocs.org/pull/11764>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: disable `sphinx-hoverxref` in our docs (`#11762 <https://github.com/readthedocs/readthedocs.org/pull/11762>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update migration to not conflict (`#11761 <https://github.com/readthedocs/readthedocs.org/pull/11761>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.13.0 (`#11760 <https://github.com/readthedocs/readthedocs.org/pull/11760>`__)
+* `@humitos <https://github.com/humitos>`__: Adddons: allow injecting an "always live" JavaScript file (`#11758 <https://github.com/readthedocs/readthedocs.org/pull/11758>`__)
+* `@humitos <https://github.com/humitos>`__: Pin pip for pip-tools for now (`#11756 <https://github.com/readthedocs/readthedocs.org/pull/11756>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: resolve URLs for file tree diff API response (`#11749 <https://github.com/readthedocs/readthedocs.org/pull/11749>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: API response for tooltips (`#11746 <https://github.com/readthedocs/readthedocs.org/pull/11746>`__)
+* `@laymonage <https://github.com/laymonage>`__: Build tools: update `latest` versions (`#11742 <https://github.com/readthedocs/readthedocs.org/pull/11742>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: remove old `X-RTD-Hosting-Integrations` HTTP header (`#11653 <https://github.com/readthedocs/readthedocs.org/pull/11653>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove "addons enabled by default" notification (`#11651 <https://github.com/readthedocs/readthedocs.org/pull/11651>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix site-wide new dashboard notification (`#11543 <https://github.com/readthedocs/readthedocs.org/pull/11543>`__)
+
 Version 11.13.0
 ---------------
 
