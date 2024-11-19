@@ -654,13 +654,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # TODO: remove this condition and *always* update the DB Version instance
         if "html" in valid_artifacts:
             if settings.READ_THE_DOCS_EXTENSIONS:
-                from readthedocsext.cdn.tasks import purge_tags
+                from readthedocsext.cdn.tasks import purge_tags  # noqa
 
                 if not self.data.version.built:
                     # When the version was previously NOT built and now this build was successful,
-                    # we purge the Addons API cache at this point.
+                    # we purge the Addons API cache for this project at this point.
                     # There is a new version that has to be shown in the flyout.
-                    purge_tags.delay(["rtd-addons"])
+                    purge_tags.delay([self.data.project.slug, "rtd-addons"])
 
             try:
                 self.data.api_client.version(self.data.version.pk).patch(
