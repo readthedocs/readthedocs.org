@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy
 
     dependencies = [
-        ('projects', '0134_addons_load_when_embedded_notnull'),
+        ('projects', '0133_addons_load_when_embedded'),
     ]
 
     operations = [
