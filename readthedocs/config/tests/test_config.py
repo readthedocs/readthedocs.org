@@ -689,7 +689,10 @@ class TestBuildConfigV2:
         )
         with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.message_id == ConfigError.BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS
+        assert (
+            excinfo.value.message_id
+            == ConfigError.BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS
+        )
 
     def test_build_jobs_build_defaults(self):
         build = get_build_config(
