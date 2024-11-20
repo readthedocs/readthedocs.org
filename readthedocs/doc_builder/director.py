@@ -177,7 +177,7 @@ class BuildDirector:
         self.run_build_job("post_create_environment")
 
         self.run_build_job("pre_install")
-        if self.data.config.build.jobs.install is not None:
+        if config.build.jobs.install is not None:
             self.run_build_job("install")
         else:
             self.install()
@@ -192,22 +192,13 @@ class BuildDirector:
         3. build PDF
         4. build ePub
         """
-        config = self.data.config
-
         self.run_build_job("pre_build")
 
         # Build all formats
-        build_overridden = config.build.jobs.build is not None
-        if build_overridden:
-            self.run_build_job("build.html")
-            self.run_build_job("build.htmlzip")
-            self.run_build_job("build.pdf")
-            self.run_build_job("build.epub")
-        else:
-            self.build_html()
-            self.build_htmlzip()
-            self.build_pdf()
-            self.build_epub()
+        self.build_html()
+        self.build_htmlzip()
+        self.build_pdf()
+        self.build_epub()
 
         self.run_build_job("post_build")
         self.store_readthedocs_build_yaml()
@@ -331,11 +322,16 @@ class BuildDirector:
 
     # Build
     def build_html(self):
+        if self.run_build_job("build.html"):
+            return True
         return self.build_docs_class(self.data.config.doctype)
 
     def build_pdf(self):
         if "pdf" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
+
+        if self.run_build_job("build.pdf"):
+            return True
 
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
@@ -350,6 +346,9 @@ class BuildDirector:
         ):
             return False
 
+        if self.run_build_job("build.htmlzip"):
+            return True
+
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
             return self.build_docs_class("sphinx_singlehtmllocalmedia")
@@ -358,6 +357,9 @@ class BuildDirector:
     def build_epub(self):
         if "epub" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
+
+        if self.run_build_job("build.epub"):
+            return True
 
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
@@ -397,9 +399,14 @@ class BuildDirector:
         In this case, `self.data.config.build.jobs.pre_build` will contains
         `sed` command.
         """
-        commands = get_dotted_attribute(self.data.config, f"build.jobs.{job}", [])
+        commands = get_dotted_attribute(self.data.config, f"build.jobs.{job}", None)
+        # If it's None, the job wasn't defined.
+        if commands is None:
+            return False
+
+        # The job was defined, but it's empty.
         if not commands:
-            return
+            return True
 
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.vcs_environment
@@ -408,6 +415,8 @@ class BuildDirector:
 
         for command in commands:
             environment.run(command, escape_command=False, cwd=cwd)
+
+        return True
 
     def check_old_output_directory(self):
         """

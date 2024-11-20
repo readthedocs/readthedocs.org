@@ -136,7 +136,6 @@
               "description": "Override the default build process.",
               "type": "object",
               "additionalProperties": false,
-              "required": ["html"],
               "properties": {
                 "html": {
                   "type": "array",

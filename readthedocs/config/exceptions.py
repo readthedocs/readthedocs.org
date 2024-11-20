@@ -13,8 +13,9 @@ class ConfigError(BuildUserError):
     INVALID_VERSION = "config:base:invalid-version"
     NOT_BUILD_TOOLS_OR_COMMANDS = "config:build:missing-build-tools-commands"
     BUILD_JOBS_AND_COMMANDS = "config:build:jobs-and-commands"
-    FORMATS_AND_BUILD_JOBS_BUILD = "config:formats:formats-and-build"
-    HTML_BUILD_STEP_REQUIRED = "config:build:jobs:build:html-build-step-required"
+    BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS = (
+        "config:build:jobs:build:missing-in-formats"
+    )
     APT_INVALID_PACKAGE_NAME_PREFIX = "config:apt:invalid-package-name-prefix"
     APT_INVALID_PACKAGE_NAME = "config:apt:invalid-package-name"
     USE_PIP_FOR_EXTRA_REQUIREMENTS = "config:python:pip-required"

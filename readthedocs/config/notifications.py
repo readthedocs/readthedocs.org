@@ -125,24 +125,12 @@ messages = [
         type=ERROR,
     ),
     Message(
-        id=ConfigError.FORMATS_AND_BUILD_JOBS_BUILD,
+        id=ConfigError.BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS,
         header=_("Invalid configuration option"),
         body=_(
             textwrap.dedent(
                 """
-                The keys <code>build.jobs.build</code> and <code>formats</code> can't be used together.
-                """
-            ).strip(),
-        ),
-        type=ERROR,
-    ),
-    Message(
-        id=ConfigError.HTML_BUILD_STEP_REQUIRED,
-        header=_("Missing configuration option"),
-        body=_(
-            textwrap.dedent(
-                """
-                The key <code>build.jobs.build.html</code> is required when using <code>build.jobs.build</code>.
+                The <code>{{ build_type }}</code> build type was defined in <code>build.jobs.build</code>, but it wasn't included in <code>formats</code>.
                 """
             ).strip(),
         ),

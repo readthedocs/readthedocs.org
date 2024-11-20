@@ -567,7 +567,12 @@ class TestBuildTask(BuildEnvironmentBase):
                         "install": None,
                         "post_install": [],
                         "pre_build": [],
-                        "build": None,
+                        "build": {
+                            "html": None,
+                            "pdf": None,
+                            "epub": None,
+                            "htmlzip": None,
+                        },
                         "post_build": [],
                     },
                     "tools": {
@@ -1211,6 +1216,7 @@ class TestBuildTask(BuildEnvironmentBase):
         config = BuildConfigV2(
             {
                 "version": 2,
+                "formats": ["pdf", "epub", "htmlzip"],
                 "build": {
                     "os": "ubuntu-24.04",
                     "tools": {"python": "3.12"},
@@ -1290,6 +1296,7 @@ class TestBuildTask(BuildEnvironmentBase):
         config = BuildConfigV2(
             {
                 "version": 2,
+                "formats": ["pdf"],
                 "build": {
                     "os": "ubuntu-24.04",
                     "tools": {"python": "3.12"},

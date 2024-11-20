@@ -42,10 +42,10 @@ class BuildJobsBuildTypes(BaseModel):
 
     """Object used for `build.jobs.build` key."""
 
-    html: list[str]
-    pdf: list[str] = []
-    epub: list[str] = []
-    htmlzip: list[str] = []
+    html: list[str] | None = None
+    pdf: list[str] | None = None
+    epub: list[str] | None = None
+    htmlzip: list[str] | None = None
 
     def as_dict(self):
         # Just to keep compatibility with the old implementation.
@@ -67,7 +67,7 @@ class BuildJobs(BaseModel):
     install: list[str] | None = None
     post_install: list[str] = []
     pre_build: list[str] = []
-    build: BuildJobsBuildTypes | None = None
+    build: BuildJobsBuildTypes = BuildJobsBuildTypes()
     post_build: list[str] = []
 
     def as_dict(self):

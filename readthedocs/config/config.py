@@ -250,7 +250,6 @@ class BuildConfigV2(BuildConfigBase):
         self._config["sphinx"] = self.validate_sphinx()
         self._config["submodules"] = self.validate_submodules()
         self._config["search"] = self.validate_search()
-        self.validate_incompatible_keys()
         self.validate_keys()
 
     def validate_formats(self):
@@ -383,20 +382,20 @@ class BuildConfigV2(BuildConfigBase):
         return build
 
     def validate_build_jobs_build(self, build_jobs):
-        # The build.jobs.build key is optional.
-        if "build" not in build_jobs:
-            return None
-
         result = {}
-        build_jobs_build = build_jobs["build"]
+        build_jobs_build = build_jobs.get("build", {})
         validate_dict(build_jobs_build)
-
-        if not "html" in build_jobs_build:
-            raise ConfigError(message_id=ConfigError.HTML_BUILD_STEP_REQUIRED)
 
         allowed_build_types = list(BuildJobsBuildTypes.model_fields.keys())
         for build_type, build_commands in build_jobs_build.items():
             validate_choice(build_type, allowed_build_types)
+            if build_type != "html" and build_type not in self.formats:
+                raise ConfigError(
+                    message_id=ConfigError.BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS,
+                    format_values={
+                        "build_type": build_type,
+                    },
+                )
             with self.catch_validation_error(f"build.jobs.build.{build_type}"):
                 result[build_type] = [
                     validate_string(build_command)
@@ -726,15 +725,6 @@ class BuildConfigV2(BuildConfigBase):
             search["ignore"] = final_ignore
 
         return search
-
-    def validate_incompatible_keys(self):
-        # `formats` and `build.jobs.build.*` can't be used together.
-        build_overridden = (
-            self.is_using_build_jobs and self.build.jobs.build is not None
-        )
-        with self.catch_validation_error("formats"):
-            if build_overridden and "formats" in self.source_config:
-                raise ConfigError(message_id=ConfigError.FORMATS_AND_BUILD_JOBS_BUILD)
 
     def validate_keys(self):
         """
