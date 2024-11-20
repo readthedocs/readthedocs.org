@@ -6,6 +6,8 @@ from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
+import dns.name
+import dns.resolver
 import pytz
 from allauth.socialaccount.models import SocialAccount
 from django import forms
@@ -1036,7 +1038,72 @@ class DomainForm(forms.ModelForm):
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(f"{invalid_domain} is not a valid domain.")
 
+        self._check_for_suspicious_cname(domain_string)
+
         return domain_string
+
+    def _check_for_suspicious_cname(self, domain):
+        """
+        Check if a domain has a suspicious CNAME record.
+
+        The domain is suspicious if:
+
+        - Has a CNAME pointing to another CNAME.
+          This prevents the subdomain from being hijacked if the last subdomain is on RTD,
+          but the user didn't register the other subdomain.
+          Example: doc.example.com -> docs.example.com -> readthedocs.io,
+          We don't want to allow doc.example.com to be added.
+        - Has a CNAME pointing to the APEX domain.
+          This prevents a subdomain from being hijacked if the APEX domain is on RTD.
+          A common case is `www` pointing to the APEX domain, but users didn't register the
+          `www` subdomain, only the APEX domain.
+          Example: www.example.com -> example.com -> readthedocs.io,
+          we don't want to allow www.example.com to be added.
+        """
+        cname = self._get_cname(domain)
+        # Doesn't have a CNAME record, we are good.
+        if not cname:
+            return
+
+        # If the domain has a CNAME pointing to the APEX domain, that's not good.
+        # This check isn't perfect, but it's a good enoug heuristic
+        # to dectect CNAMES like www.example.com -> example.com.
+        if f"{domain}.".endswith(f".{cname}"):
+            raise forms.ValidationError(
+                _(
+                    "This domain has a CNAME record pointing to the APEX domain. "
+                    "Please remove the CNAME before adding the domain.",
+                ),
+            )
+
+        second_cname = self._get_cname(cname)
+        # The domain has a CNAME pointing to another CNAME, That's not good.
+        if second_cname:
+            raise forms.ValidationError(
+                _(
+                    "This domain has a CNAME record pointing to another CNAME. "
+                    "Please remove the CNAME before adding the domain.",
+                ),
+            )
+
+    def _get_cname(self, domain):
+        try:
+            answers = dns.resolver.resolve(domain, "CNAME", lifetime=1)
+            # dnspython doesn't recursively resolve CNAME records.
+            # We always have one response or none.
+            return str(answers[0].target)
+        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+            return None
+        except dns.resolver.LifetimeTimeout:
+            raise forms.ValidationError(
+                _(
+                    "DNS resolution timed out. Make sure the domain is correct, or try again later."
+                ),
+            )
+        except dns.name.EmptyLabel:
+            raise forms.ValidationError(
+                _("The domain is not valid."),
+            )
 
     def clean_canonical(self):
         canonical = self.cleaned_data["canonical"]

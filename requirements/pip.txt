@@ -143,6 +143,8 @@ djangorestframework-api-key==3.0.0
     # via -r requirements/pip.in
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.in
+dnspython==2.7.0
+    # via -r requirements/pip.in
 docker==6.1.2
     # via -r requirements/pip.in
 docutils==0.21.2
