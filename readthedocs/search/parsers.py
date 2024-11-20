@@ -111,15 +111,23 @@ class GenericParser:
           so they are children of the same parent node.
         - Return the body element itself if all checks above fail.
         """
-        from readthedocs.projects.models import AddonsConfig
+        # TODO: make usage of `AddonsConfig.DEFAULT_ROOT_SELECTOR` here.
+        # I wasn't able due to some tests that were failing.
 
         body = html.body
-        main_node = body.css_first(
-            self.project.addons.options_root_selector
-            or AddonsConfig.DEFAULT_ROOT_SELECTOR
-        )
+        main_node = body.css_first("[role=main]")
         if main_node:
             return main_node
+
+        main_node = body.css_first("main")
+        if main_node:
+            return main_node
+
+        # TODO: this could be done in smarter way,
+        # checking for common parents between all h nodes.
+        first_header = body.css_first("h1")
+        if first_header:
+            return self._get_header_container(first_header).parent
 
         return body
 
