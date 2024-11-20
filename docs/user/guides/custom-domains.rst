@@ -117,11 +117,12 @@ Disallowed DNS configurations
 
 In order to prevent some common cases of domain hijacking, we disallow some DNS configurations:
 
-- CNAME records pointing to another CNAME record.
-- CNAME records pointing to the APEX domain.
+- CNAME records pointing to another CNAME record
+  (``doc.example.com -> docs.example.com -> readthedocs.io``).
+- CNAME records pointing to the APEX domain
+  (``www.example.com -> example.com -> readthedocs.io``).
 
 This prevents attackers from taking over unused domains with CNAME records pointing to domains that are on Read the Docs.
-A common case is a ``www`` subdomain that isn't on Read the Docs, but it's pointing to another domain that is.
 
 .. warning::
 
