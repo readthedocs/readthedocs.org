@@ -144,7 +144,7 @@ class AddonsConfig(TimeStampedModel):
     Everything is enabled by default.
     """
 
-    DEFAULT_ROOT_SELECTOR = ":is([role=main],main,div.body,div.document)"
+    DEFAULT_ROOT_SELECTOR = "[role=main],main,div.body,div.document"
     DOCTOOL_NAME_CHOICES = (
         ("sphinx", "Sphinx"),
         ("mkdocs", "MkDocs"),
