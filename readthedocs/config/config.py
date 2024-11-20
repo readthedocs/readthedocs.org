@@ -103,7 +103,6 @@ class BuildConfigBase:
         self._config = {}
 
         self.is_using_build_commands = False
-        self.is_using_build_jobs = False
 
     @contextmanager
     def catch_validation_error(self, key):
@@ -345,8 +344,6 @@ class BuildConfigV2(BuildConfigBase):
 
         if commands:
             self.is_using_build_commands = True
-        else:
-            self.is_using_build_jobs = True
 
         build["jobs"] = {}
 
