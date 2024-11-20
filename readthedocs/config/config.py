@@ -102,8 +102,6 @@ class BuildConfigBase:
 
         self._config = {}
 
-        self.is_using_build_commands = False
-
     @contextmanager
     def catch_validation_error(self, key):
         """Catch a ``ConfigValidationError`` and raises a ``ConfigError`` error."""
@@ -177,6 +175,10 @@ class BuildConfigBase:
     @property
     def is_using_conda(self):
         return self.python_interpreter in ("conda", "mamba")
+
+    @property
+    def is_using_build_commands(self):
+        return self.build.commands != []
 
     @property
     def is_using_setup_py_install(self):
@@ -341,9 +343,6 @@ class BuildConfigV2(BuildConfigBase):
                     "key": "build",
                 },
             )
-
-        if commands:
-            self.is_using_build_commands = True
 
         build["jobs"] = {}
 
