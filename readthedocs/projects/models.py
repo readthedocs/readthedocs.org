@@ -144,12 +144,18 @@ class AddonsConfig(TimeStampedModel):
     Everything is enabled by default.
     """
 
-    DEFAULT_ROOT_SELECTOR = "[role=main],main,div.body,div.document"
-    DOCTOOL_NAME_CHOICES = (
-        ("sphinx", "Sphinx"),
-        ("mkdocs", "MkDocs"),
-        ("docusaurus", "Docusaurus"),
-        ("other", "Other"),
+    DEFAULT_ROOT_SELECTOR = ", ".join(
+        [
+            "[role=main]",
+            "main",
+            "article",  # Pelican, Docusaurus, Antora, Jekyll
+            "div#content",  # AsciiDoctor
+            "main > div > div.md-content",  # Material for MkDocs
+            "article#main",  # Docsify
+            "div.body",
+            "div.document",
+            "h1",  # Very generic fallback
+        ]
     )
 
     # Model history
@@ -168,18 +174,11 @@ class AddonsConfig(TimeStampedModel):
         help_text="Enable/Disable all the addons on this project",
     )
 
-    options_doctool_name = models.CharField(
-        choices=DOCTOOL_NAME_CHOICES,
+    options_root_selector = models.CharField(
         null=True,
         blank=True,
         max_length=128,
-        help_text="Name of the documentation tool used by this project",
-    )
-    options_doctool_root_selector = models.CharField(
-        null=True,
-        blank=True,
-        max_length=128,
-        help_text="CSS selector for the main content of the page",
+        help_text="CSS selector for the main content of the page. Leave it blank for auto-detect.",
     )
 
     # Whether or not load addons library when the requested page is embedded (e.g. inside an iframe)

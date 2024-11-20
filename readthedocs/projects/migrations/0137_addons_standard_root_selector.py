@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy
 
     dependencies = [
-        ('projects', '0132_addons_linkpreviews_fields'),
+        ('projects', '0136_addons_customscript_notnull'),
     ]
 
     operations = [
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='addonsconfig',
-            name='options_doctool_root_selector',
+            name='options_root_selector',
             field=models.CharField(blank=True, help_text='CSS selector for the main content of the page', max_length=128, null=True),
         ),
         migrations.AddField(
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
-            name='options_doctool_root_selector',
+            name='options_root_selector',
             field=models.CharField(blank=True, help_text='CSS selector for the main content of the page', max_length=128, null=True),
         ),
     ]

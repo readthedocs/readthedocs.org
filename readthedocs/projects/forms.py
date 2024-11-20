@@ -653,8 +653,7 @@ class AddonsConfigForm(forms.ModelForm):
         fields = (
             "enabled",
             "project",
-            "options_doctool_name",
-            "options_doctool_root_selector",
+            "options_root_selector",
             "analytics_enabled",
             "doc_diff_enabled",
             "flyout_enabled",
@@ -679,8 +678,7 @@ class AddonsConfigForm(forms.ModelForm):
             ),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
-            "options_doctool_name": _("Documentation tool"),
-            "options_doctool_root_selector": _("CSS root selector"),
+            "options_root_selector": _("CSS main content selector"),
         }
 
     def __init__(self, *args, **kwargs):

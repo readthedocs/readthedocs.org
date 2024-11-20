@@ -138,7 +138,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         )
 
     def _find_main_node(self, html):
-        # TODO: find a way to get access to ``project.addons.options_doctool_root_selector``
+        # TODO: find a way to get access to ``project.addons.options_root_selector``
         main_node = html.css_first(AddonsConfig.DEFAULT_ROOT_SELECTOR)
         if main_node:
             return main_node

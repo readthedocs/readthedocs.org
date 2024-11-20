@@ -456,6 +456,8 @@ class AddonsResponseBase:
             "addons": {
                 "options": {
                     "load_when_embedded": project.addons.options_load_when_embedded,
+                    "root_selector": project.addons.options_root_selector
+                    or AddonsConfig.DEFAULT_ROOT_SELECTOR,
                 },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
@@ -519,12 +521,6 @@ class AddonsResponseBase:
                 },
                 "linkpreviews": {
                     "enabled": project.addons.linkpreviews_enabled,
-                    "root_selector": project.addons.linkpreviews_root_selector
-                    or project.addons.DEFAULT_ROOT_SELECTOR,
-                    "doctool": {
-                        "name": project.addons.linkpreviews_doctool_name,
-                        "version": project.addons.linkpreviews_doctool_version,
-                    },
                 },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,
@@ -594,8 +590,6 @@ class AddonsResponseBase:
                         )
                         if filename
                         else None,
-                        "root_selector": project.addons.doc_diff_root_selector
-                        or AddonsConfig.DEFAULT_ROOT_SELECTOR,
                         "inject_styles": True,
                         # NOTE: `base_host` and `base_page` are not required, since
                         # we are constructing the `base_url` in the backend instead

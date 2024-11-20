@@ -115,7 +115,7 @@ class GenericParser:
 
         body = html.body
         main_node = body.css_first(
-            self.project.addons.options_doctool_root_selector
+            self.project.addons.options_root_selector
             or AddonsConfig.DEFAULT_ROOT_SELECTOR
         )
         if main_node:
