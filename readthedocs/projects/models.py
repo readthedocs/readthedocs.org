@@ -146,15 +146,16 @@ class AddonsConfig(TimeStampedModel):
 
     DEFAULT_ROOT_SELECTOR = ", ".join(
         [
-            "[role=main]",
-            "main",
-            "article",  # Pelican, Docusaurus, Antora, Jekyll
-            "div#content",  # AsciiDoctor
             "main > div > div.md-content",  # Material for MkDocs
             "article#main",  # Docsify
+            "article",  # Pelican, Docusaurus, Antora, Jekyll
+            "div#content",  # AsciiDoctor
+            "[role=main]",
+            "main",
             "div.body",
             "div.document",
             "h1",  # Very generic fallback
+            "body",  # Fallback
         ]
     )
 
