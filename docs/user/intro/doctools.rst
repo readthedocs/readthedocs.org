@@ -48,4 +48,4 @@ with more coming soon.
         Supported formats
              :bdg-success:`adoc`
         Written in
-             :bdg-info:`javascript` `ruby`
+             :bdg-info:`javascript`

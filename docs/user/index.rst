@@ -11,6 +11,7 @@ Read the Docs: documentation simplified
    /intro/mkdocs
    /intro/sphinx
    /intro/markdoc
+   /intro/antora
    /intro/add-project
    /examples
 
