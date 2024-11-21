@@ -46,8 +46,7 @@ you need to generate static HTML from the Next JS build:
         // Optional: Change links `/me` -> `/me/` and emit `/me.html` -> `/me/index.html`
         trailingSlash: true,
         
-        // TODO: Make this dynamic with the Read the Docs base path,
-        // so PR builds work nicely
+        // Use the proper base path for prod and PR builds.
         basePath: process.env.READTHEDOCS_CANONICAL_URL || '',```
     }
 
