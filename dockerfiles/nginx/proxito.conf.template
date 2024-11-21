@@ -20,6 +20,15 @@ server {
         rewrite ^ http://$project--$version.org.dev.readthedocs.build/page/$path;
     }
 
+    # Proxy the "readthedocs-addons.js" to be downloaded from GitHub
+    location /_/static/javascript/readthedocs-addons.js {
+        proxy_pass http://addons:8000/readthedocs-addons.js;
+    }
+
+    location /_/static/javascript/readthedocs-addons.js.map {
+        proxy_pass http://addons:8000/readthedocs-addons.js.map;
+    }
+
     # Proxito doc serving
     location / {
         proxy_pass http://proxito:8000;
