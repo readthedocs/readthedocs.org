@@ -91,7 +91,7 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.up  ----ext-theme --webpack --init
+      inv docker.up  --ext-theme --webpack --init
 
    .. warning::
 
