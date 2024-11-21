@@ -111,9 +111,6 @@ class GenericParser:
           so they are children of the same parent node.
         - Return the body element itself if all checks above fail.
         """
-        # TODO: make usage of `AddonsConfig.DEFAULT_ROOT_SELECTOR` here.
-        # I wasn't able due to some tests that were failing.
-
         body = html.body
         main_node = body.css_first("[role=main]")
         if main_node:

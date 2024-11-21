@@ -144,21 +144,6 @@ class AddonsConfig(TimeStampedModel):
     Everything is enabled by default.
     """
 
-    DEFAULT_ROOT_SELECTOR = ", ".join(
-        [
-            "main > div > div.md-content",  # Material for MkDocs
-            "article#main",  # Docsify
-            "article",  # Pelican, Docusaurus, Antora, Jekyll
-            "div#content",  # AsciiDoctor
-            "[role=main]",
-            "main",
-            "div.body",
-            "div.document",
-            "h1",  # Very generic fallback
-            "body",  # Fallback
-        ]
-    )
-
     # Model history
     history = ExtraHistoricalRecords()
 

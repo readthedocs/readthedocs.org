@@ -456,8 +456,7 @@ class AddonsResponseBase:
             "addons": {
                 "options": {
                     "load_when_embedded": project.addons.options_load_when_embedded,
-                    "root_selector": project.addons.options_root_selector
-                    or AddonsConfig.DEFAULT_ROOT_SELECTOR,
+                    "root_selector": project.addons.options_root_selector,
                 },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
