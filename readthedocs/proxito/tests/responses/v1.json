@@ -123,7 +123,7 @@
   "addons": {
     "options": {
       "load_when_embedded": false,
-      "root_selector": "[role=main], main, article, div#content, main > div > div.md-content, article#main, div.body, div.document, h1"
+      "root_selector": null
     },
     "analytics": {
       "enabled": false,
