@@ -69,7 +69,7 @@ class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         return False
 
     def _is_disabled_for_deprecation(self):
-        if settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
+        if not settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
             return False
 
         tzinfo = pytz.timezone("America/Los_Angeles")
@@ -80,7 +80,7 @@ class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             # 12 hours brownout.
             datetime.datetime(2024, 12, 9, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 12, 9, 12, 0, 0, tzinfo=tzinfo)
             # 24 hours brownout.
-            or datetime.datetime(2025, 1, 13, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 13, 0, 0, 0, tzinfo=tzinfo)
+            or datetime.datetime(2025, 1, 13, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 14, 0, 0, 0, tzinfo=tzinfo)
             # Permanent removal.
             or datetime.datetime(2025, 1, 20, 0, 0, 0, tzinfo=tzinfo) < now
         )
