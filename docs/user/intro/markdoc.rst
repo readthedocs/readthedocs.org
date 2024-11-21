@@ -16,7 +16,7 @@ Minimal configuration is required to build an existing Markdoc project on Read t
     build:
         os: ubuntu-24.04
         tools:
-            nodejs: "18"
+            nodejs: "22"
         commands:
             # Install dependencies
             - cd docs/ && npm install

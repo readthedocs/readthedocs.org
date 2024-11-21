@@ -33,7 +33,7 @@ with more coming soon.
     .. grid-item-card::  Markdoc
         :link: markdoc.html
 
-        Markdoc is documentation tool developed by Stripe that allows you to write documentation in a custom Markdown flavor.
+        Markdoc is a documentation tool developed by Stripe that allows you to write documentation in a custom Markdown flavor.
 
         Supported formats
              :bdg-success:`md`
