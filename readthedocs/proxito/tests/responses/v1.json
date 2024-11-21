@@ -122,7 +122,8 @@
   },
   "addons": {
     "options": {
-      "load_when_embedded": false
+      "load_when_embedded": false,
+      "root_selector": null
     },
     "analytics": {
       "enabled": false,
@@ -148,7 +149,6 @@
     "doc_diff": {
       "enabled": true,
       "base_url": "https://project.dev.readthedocs.io/en/latest/index.html",
-      "root_selector": null,
       "inject_styles": true,
       "base_host": "",
       "base_page": ""
@@ -169,12 +169,7 @@
       "src": null
     },
     "linkpreviews": {
-      "enabled": false,
-      "root_selector": "[role=main] a.internal",
-      "doctool": {
-        "name": null,
-        "version": null
-      }
+      "enabled": false
     }
   }
 }

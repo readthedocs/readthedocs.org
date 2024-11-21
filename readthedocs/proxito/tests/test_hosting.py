@@ -729,9 +729,6 @@ class TestReadTheDocsConfigJson(TestCase):
         )
 
         addons.linkpreviews_enabled = True
-        addons.linkpreviews_root_selector = "[role=main] a"
-        addons.linkpreviews_doctool_name = "sphinx"
-        addons.linkpreviews_doctool_version = "8.0.1"
         addons.save()
 
         r = self.client.get(
@@ -748,11 +745,6 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         expected = {
             "enabled": True,
-            "root_selector": "[role=main] a",
-            "doctool": {
-                "name": "sphinx",
-                "version": "8.0.1",
-            },
         }
 
         assert r.status_code == 200
