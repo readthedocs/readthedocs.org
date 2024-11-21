@@ -681,6 +681,12 @@ class AddonsConfigForm(forms.ModelForm):
             "options_root_selector": _("CSS main content selector"),
         }
 
+        widgets = {
+            "options_root_selector": forms.TextInput(
+                attrs={"placeholder": "[role=main]"}
+            ),
+        }
+
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
 
