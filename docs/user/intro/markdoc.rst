@@ -52,7 +52,7 @@ you need to generate static HTML from the Next JS build:
         // Ensure links are relative
         // TODO: Make this dynamic with the Read the Docs base path,
         // so PR builds work nicely
-        basePath: '/en/markdoc',
+        basePath: process.env.READTHEDOCS_CANONICAL_URL || '',```
     }
 
     module.exports =
