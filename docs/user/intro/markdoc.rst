@@ -45,7 +45,7 @@ you need to generate static HTML from the Next JS build:
 
         // Optional: Change links `/me` -> `/me/` and emit `/me.html` -> `/me/index.html`
         trailingSlash: true,
-        
+
         // Use Canonical URL, but only the path and with no trailing /
         basePath: process.env.READTHEDOCS_CANONICAL_URL
           ? new URL(process.env.READTHEDOCS_CANONICAL_URL).pathname.replace(/\/$/, "")
