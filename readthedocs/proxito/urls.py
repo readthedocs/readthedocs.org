@@ -111,13 +111,13 @@ proxied_urls = [
     # Serve static files
     # /_/static/file.js
     path(
-        f"{DOC_PATH_PREFIX}static/<path:filename>",
+        f"^{DOC_PATH_PREFIX}static/<path:filename>",
         ServeStaticFiles.as_view(),
         name="proxito_static_files",
     ),
     # readthedocs-docs-addons.js
     path(
-        f"{DOC_PATH_PREFIX}addons/",
+        f"^{DOC_PATH_PREFIX}addons/",
         ReadTheDocsConfigJson.as_view(),
         name="proxito_readthedocs_docs_addons",
     ),
