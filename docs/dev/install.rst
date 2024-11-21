@@ -34,11 +34,13 @@ Install external dependencies (Docker, Docker Compose, gVisor)
 Set up your environment
 -----------------------
 
-#. Clone the ``readthedocs.org`` repository:
+#. Clone all the required repositories:
 
    .. prompt:: bash
 
       git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
+      git clone --recurse-submodules https://github.com/readthedocs/ext-theme/
+      git clone --recurse-submodules https://github.com/readthedocs/addons/
 
 #. Install or clone additional repositories:
 
@@ -55,7 +57,7 @@ Set up your environment
       export GITHUB_USER="..."
 
    In order to make development changes on any of our private repositories,
-   such as ``readthedocs-ext`` or ``ext-theme``, you will also need to check these repositories out:
+   such as ``readthedocs-ext``, you will also need to check these repositories out:
 
    .. prompt:: bash
 
@@ -89,7 +91,12 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.up  --init  # --init is only needed the first time
+      inv docker.up  ----ext-theme --webpack --init
+
+   .. warning::
+
+      ``--init`` is only needed the first time.
+
 
 #. Go to http://devthedocs.org to access your local instance of Read the Docs.
 
