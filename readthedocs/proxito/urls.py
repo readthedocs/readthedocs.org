@@ -37,7 +37,7 @@ from functools import reduce
 from operator import add
 
 from django.conf import settings
-from django.urls import include, path, re_path
+from django.urls import include, re_path
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core.views import HealthCheckView
