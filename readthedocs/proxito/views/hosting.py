@@ -732,7 +732,7 @@ class AddonsResponseBase:
 
         return {
             "enabled": True,
-            "sections": [
+            "pages": [
                 {
                     "path": page.path,
                     "sections": [
