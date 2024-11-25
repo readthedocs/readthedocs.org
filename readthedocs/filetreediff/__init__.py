@@ -69,10 +69,24 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
         if file_a.main_content_hash != file_b.main_content_hash:
             files_modified.append(file_path)
 
+    def sortpath(filename):
+        """
+        Function to use as `key=` argument for `sorted`.
+
+        It sorts the file names by the less deep directories first.
+        However, it doesn't group the results by directory.
+
+        Ideally, this should sort file names by hierarchy (less deep directory
+        first), groupping them by directory and alphabetically. We should update
+        this function to achieve that goal if we find a simple way to do it.
+        """
+        parts = filename.split("/")
+        return len(parts), parts
+
     return FileTreeDiff(
-        added=files_added,
-        deleted=files_deleted,
-        modified=files_modified,
+        added=sorted(files_added, key=sortpath),
+        deleted=sorted(files_deleted, key=sortpath),
+        modified=sorted(files_modified, key=sortpath),
         outdated=outdated,
     )
 

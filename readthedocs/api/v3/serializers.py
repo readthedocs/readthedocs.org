@@ -31,12 +31,13 @@ from readthedocs.projects.models import (
     Project,
     ProjectRelationship,
 )
+from readthedocs.projects.validators import validate_environment_variable_size
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
 from readthedocs.redirects.validators import validate_redirect
 
 
-class UserSerializer(FlexFieldsModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
@@ -331,7 +332,7 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         )
 
 
-class VersionSerializer(FlexFieldsModelSerializer):
+class VersionSerializer(serializers.ModelSerializer):
     aliases = serializers.SerializerMethodField()
     ref = serializers.CharField()
     downloads = serializers.SerializerMethodField()
@@ -586,7 +587,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
+class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer):
 
     """Serializer used to Import a Project."""
 
@@ -679,7 +680,7 @@ class ProjectCreateSerializer(SettingsOverrideObject):
     _default_class = ProjectCreateSerializerBase
 
 
-class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
+class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer):
 
     """Serializer used to modify a Project once imported."""
 
@@ -936,7 +937,7 @@ class ChildProjectSerializer(ProjectSerializer):
         ]
 
 
-class SubprojectSerializer(FlexFieldsModelSerializer):
+class SubprojectSerializer(serializers.ModelSerializer):
 
     """Serializer to render a subproject (``ProjectRelationship``)."""
 
@@ -952,7 +953,7 @@ class SubprojectSerializer(FlexFieldsModelSerializer):
         ]
 
 
-class SubprojectDestroySerializer(FlexFieldsModelSerializer):
+class SubprojectDestroySerializer(serializers.ModelSerializer):
 
     """Serializer used to remove a subproject relationship to a Project."""
 
@@ -1115,7 +1116,6 @@ class EnvironmentVariableLinksSerializer(BaseLinksSerializer):
 
 
 class EnvironmentVariableSerializer(serializers.ModelSerializer):
-    value = serializers.CharField(write_only=True)
     project = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     _links = EnvironmentVariableLinksSerializer(source="*", read_only=True)
 
@@ -1131,6 +1131,25 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
             "project",
             "_links",
         ]
+        extra_kwargs = {
+            "value": {"write_only": True},
+        }
+
+    def create(self, validated_data):
+        validate_environment_variable_size(
+            project=validated_data["project"],
+            new_env_value=validated_data["value"],
+            error_class=serializers.ValidationError,
+        )
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validate_environment_variable_size(
+            project=instance.project,
+            new_env_value=validated_data["value"],
+            error_class=serializers.ValidationError,
+        )
+        return super().update(instance, validated_data)
 
 
 class OrganizationLinksSerializer(BaseLinksSerializer):
@@ -1249,6 +1268,7 @@ class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
 class RemoteRepositorySerializer(FlexFieldsModelSerializer):
     admin = serializers.SerializerMethodField("is_admin")
+    projects = serializers.SerializerMethodField()
 
     class Meta:
         model = RemoteRepository
@@ -1268,6 +1288,7 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
             "default_branch",
             "created",
             "modified",
+            "projects",
         ]
         read_only_fields = fields
         expandable_fields = {
@@ -1275,7 +1296,6 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
                 RemoteOrganizationSerializer,
                 {"source": "organization"},
             ),
-            "projects": (ProjectSerializer, {"many": True}),
         }
 
     def is_admin(self, obj):
@@ -1288,3 +1308,12 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
         return obj.remote_repository_relations.filter(
             user=request.user, admin=True
         ).exists()
+
+    def get_projects(self, obj):
+        request = self.context["request"]
+        projects = (
+            Project.objects.public(user=request.user)
+            .filter(remote_repository=obj)
+            .prefetch_related("users")
+        )
+        return ProjectSerializer(projects, many=True).data

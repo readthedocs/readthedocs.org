@@ -11,6 +11,7 @@ Read the Docs: documentation simplified
    /intro/mkdocs
    /intro/sphinx
    /intro/docusaurus
+   /intro/markdoc
    /intro/add-project
    /examples
 
@@ -48,6 +49,7 @@ Read the Docs: documentation simplified
    /localization
    /versioning-schemes
    /custom-domains
+   /doc-notifications
    /canonical-urls
    /reference/cdn
    /reference/sitemaps

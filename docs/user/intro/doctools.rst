@@ -39,3 +39,13 @@ with more coming soon.
              :bdg-success:`mdx` :bdg-success:`md`
         Written in
              :bdg-info:`React`
+
+     .. grid-item-card::  Markdoc
+        :link: markdoc.html
+
+        Markdoc is a documentation tool developed by Stripe that allows you to write documentation in a custom Markdown flavor.
+
+        Supported formats
+             :bdg-success:`md`
+        Written in
+             :bdg-info:`javascript`

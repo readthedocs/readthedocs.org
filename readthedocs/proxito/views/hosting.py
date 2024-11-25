@@ -454,6 +454,10 @@ class AddonsResponseBase:
             # Mainly, all the fields including a Project, Version or Build will use the exact same
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
+                "options": {
+                    "load_when_embedded": project.addons.options_load_when_embedded,
+                    "root_selector": project.addons.options_root_selector,
+                },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
                     # TODO: consider adding this field into the ProjectSerializer itself.
@@ -462,17 +466,11 @@ class AddonsResponseBase:
                     # https://github.com/readthedocs/readthedocs.org/issues/9530
                     "code": project.analytics_code,
                 },
-                "external_version_warning": {
-                    "enabled": project.addons.external_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
-                },
-                "non_latest_version_warning": {
-                    "enabled": project.addons.stable_latest_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
+                "notifications": {
+                    "enabled": project.addons.notifications_enabled,
+                    "show_on_latest": project.addons.notifications_show_on_latest,
+                    "show_on_non_stable": project.addons.notifications_show_on_non_stable,
+                    "show_on_external": project.addons.notifications_show_on_external,
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
@@ -492,6 +490,10 @@ class AddonsResponseBase:
                     #     "branch": version.identifier if version else None,
                     #     "filepath": "/docs/index.rst",
                     # },
+                },
+                "customscript": {
+                    "enabled": project.addons.customscript_enabled,
+                    "src": project.addons.customscript_src,
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,
@@ -516,6 +518,9 @@ class AddonsResponseBase:
                     if version
                     else None,
                 },
+                "linkpreviews": {
+                    "enabled": project.addons.linkpreviews_enabled,
+                },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,
                     "doc_diff": {
@@ -535,7 +540,10 @@ class AddonsResponseBase:
 
         if version:
             response = self._get_filetreediff_response(
-                request=request, project=project, version=version
+                request=request,
+                project=project,
+                version=version,
+                resolver=resolver,
             )
             if response:
                 data["addons"]["filetreediff"].update(response)
@@ -581,7 +589,6 @@ class AddonsResponseBase:
                         )
                         if filename
                         else None,
-                        "root_selector": project.addons.doc_diff_root_selector,
                         "inject_styles": True,
                         # NOTE: `base_host` and `base_page` are not required, since
                         # we are constructing the `base_url` in the backend instead
@@ -620,7 +627,7 @@ class AddonsResponseBase:
 
         return data
 
-    def _get_filetreediff_response(self, *, request, project, version):
+    def _get_filetreediff_response(self, *, request, project, version, resolver):
         """
         Get the file tree diff response for the given version.
 
@@ -647,9 +654,60 @@ class AddonsResponseBase:
             "enabled": True,
             "outdated": diff.outdated,
             "diff": {
-                "added": [{"file": file} for file in diff.added],
-                "deleted": [{"file": file} for file in diff.deleted],
-                "modified": [{"file": file} for file in diff.modified],
+                "added": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=latest_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.added
+                ],
+                "deleted": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=latest_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.deleted
+                ],
+                "modified": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=latest_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.modified
+                ],
             },
         }
 

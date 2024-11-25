@@ -45,6 +45,9 @@ requests-toolbelt
 slumber
 pyyaml
 Pygments
+pydantic
+
+dnspython
 
 # Used for Redis cache Django backend (`django.core.cache.backends.redis.RedisCache`)
 redis
@@ -84,9 +87,7 @@ django-celery-beat
 # TODO: remove this dependency once we upgrade Celery. It should auto-install it.
 tzdata
 
-# We need to update some 2FA templates to update to 65+
-# https://github.com/readthedocs/ext-theme/issues/501
-django-allauth[socialaccount,saml,mfa]<65
+django-allauth[socialaccount,saml,mfa]
 
 requests-oauthlib
 
