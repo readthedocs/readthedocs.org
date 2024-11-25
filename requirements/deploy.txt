@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.63
+boto3==1.35.68
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.63
+botocore==1.35.68
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -263,13 +263,13 @@ markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==10.2.0
+newrelic==10.3.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.11
+orjson==3.10.12
     # via -r requirements/pip.txt
 packaging==24.2
     # via
@@ -313,7 +313,7 @@ pygments==2.18.0
     # via
     #   -r requirements/pip.txt
     #   ipython
-pyjwt[crypto]==2.9.0
+pyjwt[crypto]==2.10.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -366,13 +366,13 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-s3transfer==0.10.3
+s3transfer==0.10.4
     # via
     #   -r requirements/pip.txt
     #   boto3
 selectolax==0.3.26
     # via -r requirements/pip.txt
-sentry-sdk==2.18.0
+sentry-sdk==2.19.0
     # via structlog-sentry
 six==1.16.0
     # via
