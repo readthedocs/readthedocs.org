@@ -47,6 +47,7 @@ you need to generate static HTML from the Next JS build:
         trailingSlash: true,
 
         // Use Canonical URL, but only the path and with no trailing /
+        // End result is like: `/en/latest`
         basePath: process.env.READTHEDOCS_CANONICAL_URL
           ? new URL(process.env.READTHEDOCS_CANONICAL_URL).pathname.replace(/\/$/, "")
           : "",
@@ -68,8 +69,8 @@ Supported features
    "Versioning", "Supports multiple versions of your documentation.", "✅"
    "Search", "Provides full-text search capabilities.", "✅"
    "Flyout menu", "Provides a flyout menu for navigation.", "✅"
-   "Offline formats", "Generates PDF and EPUB formats.", "❌"
-   "Localization", "Supports multiple languages.", "❌"
+   "Offline formats", "Generates PDF and EPUB formats.", "✅"
+   "Localization", "Supports multiple languages.", "✅"
 
 Getting started
 ---------------
