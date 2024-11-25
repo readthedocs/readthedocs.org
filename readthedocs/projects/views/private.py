@@ -324,12 +324,18 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     per session (since it's per class).
     """
 
-    form_list = [
-        ("basics", ProjectBasicsForm),
-        ("config", ProjectConfigForm),
-    ]
-
     initial_dict_key = "initial-data"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # README: declare ``form_list`` as an instance variable because we are
+        # removing the "config" form/step if the config file already exists in
+        # the repository.
+        # https://github.com/readthedocs/ext-theme/issues/477
+        self.form_list = [
+            ("basics", ProjectBasicsForm),
+            ("config", ProjectConfigForm),
+        ]
 
     def get(self, *args, **kwargs):
         # The method from the parent should run first,
