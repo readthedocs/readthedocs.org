@@ -170,7 +170,7 @@ The following secrets are required to use ``djstripe`` and our Stripe integratio
 .. envvar:: RTD_DJSTRIPE_WEBHOOK_SECRET
 
 Ethical Ads variables
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 The following variables are required to use ``ethicalads`` in dev:
 
