@@ -9,9 +9,11 @@ def forwards_func(apps, schema_editor):
     Enable FileTreeDiff on those projects with the feature flag enabled.
     """
     Feature = apps.get_model("projects", "Feature")
-    for project in Feature.objects.get(feature_id="generate_manifest_for_file_tree_diff").projects.all().iterator():
-        project.addons.filetreediff_enabled = True
-        project.addons.save()
+    feature = Feature.objects.filter(feature_id="generate_manifest_for_file_tree_diff").first()
+    if feature:
+        for project in feature.projects.all().iterator():
+            project.addons.filetreediff_enabled = True
+            project.addons.save()
 
 class Migration(migrations.Migration):
     safe = Safe.before_deploy
