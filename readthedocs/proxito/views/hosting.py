@@ -574,6 +574,11 @@ class AddonsResponseBase:
         # If we don't know the filename, we cannot return the data required by DocDiff to work.
         # In that case, we just don't include the `doc_diff` object in the response.
         if url:
+            base_version_slug = (
+                project.addons.options_base_version.slug
+                if project.addons.options_base_version
+                else LATEST
+            )
             data["addons"].update(
                 {
                     "doc_diff": {
@@ -581,20 +586,13 @@ class AddonsResponseBase:
                         # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                         "base_url": resolver.resolve(
                             project=project,
-                            # NOTE: we are using LATEST version to compare against to for now.
-                            # Ideally, this should be configurable by the user.
-                            version_slug=LATEST,
+                            version_slug=base_version_slug,
                             language=project.language,
                             filename=filename,
                         )
                         if filename
                         else None,
                         "inject_styles": True,
-                        # NOTE: `base_host` and `base_page` are not required, since
-                        # we are constructing the `base_url` in the backend instead
-                        # of the frontend, as the doc-diff extension does.
-                        "base_host": "",
-                        "base_page": "",
                     },
                 }
             )
@@ -640,13 +638,15 @@ class AddonsResponseBase:
         if not project.addons.filetreediff_enabled:
             return None
 
-        latest_version = project.get_latest_version()
-        if not latest_version or not self._has_permission(
-            request=request, version=latest_version
+        base_version = (
+            project.addons.options_base_version or project.get_latest_version()
+        )
+        if not base_version or not self._has_permission(
+            request=request, version=base_version
         ):
             return None
 
-        diff = get_diff(version_a=version, version_b=latest_version)
+        diff = get_diff(version_a=version, version_b=base_version)
         if not diff:
             return None
 
@@ -666,7 +666,7 @@ class AddonsResponseBase:
                             "base": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version=latest_version,
+                                version=base_version,
                             ),
                         },
                     }
@@ -684,7 +684,7 @@ class AddonsResponseBase:
                             "base": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version=latest_version,
+                                version=base_version,
                             ),
                         },
                     }
@@ -702,7 +702,7 @@ class AddonsResponseBase:
                             "base": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version=latest_version,
+                                version=base_version,
                             ),
                         },
                     }
