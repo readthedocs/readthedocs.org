@@ -160,7 +160,6 @@ class BuildDirector:
             sender=self.data.version,
             environment=self.build_environment,
         )
-        config = self.data.config
 
         self.run_build_job("pre_system_dependencies")
         self.system_dependencies()
