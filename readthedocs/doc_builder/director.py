@@ -170,17 +170,11 @@ class BuildDirector:
         self.install_build_tools()
 
         self.run_build_job("pre_create_environment")
-        if config.build.jobs.create_environment is not None:
-            self.run_build_job("create_environment")
-        else:
-            self.create_environment()
+        self.create_environment()
         self.run_build_job("post_create_environment")
 
         self.run_build_job("pre_install")
-        if config.build.jobs.install is not None:
-            self.run_build_job("install")
-        else:
-            self.install()
+        self.install()
         self.run_build_job("post_install")
 
     def build(self):
@@ -313,10 +307,17 @@ class BuildDirector:
 
     # Language environment
     def create_environment(self):
+        if self.config.build.jobs.create_environment is not None:
+            self.run_build_job("create_environment")
+            return
         self.language_environment.setup_base()
 
     # Install
     def install(self):
+        if self.config.build.jobs.install is not None:
+            self.run_build_job("install")
+            return
+
         self.language_environment.install_core_requirements()
         self.language_environment.install_requirements()
 
