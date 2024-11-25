@@ -34,18 +34,19 @@ build the site, and copy the output to $READTHEDOCS_OUTPUT:
 
 .. _Docusaurus: https://docusaurus.io/
 
-Supported Features
+Supported features
 ------------------
 
-.. csv-table:: Supported Features
+.. csv-table:: Supported features
    :header: "Feature", "Description", "Supported"
 
    "Pull request previews", "Preview changes to your documentation before merging.", "✅"
    "Versioning", "Supports multiple versions of your documentation.", "✅"
    "Flyout menu", "Provides a flyout menu for navigation.", "✅"
+   "Offline formats", "Generates PDF and EPUB formats.", "✅"
+   "Localization", "Supports multiple languages.", "✅"
    "Search", "Provides full-text search capabilities.", "❌"
-   "Offline formats", "Generates PDF and ePub formats.", "❌"
-   "Localization", "Supports multiple languages.", "❌"
+   "Files changed", "Ability to see what HTML files changes in pull request previews", "❌"
 
 
 Quick start
