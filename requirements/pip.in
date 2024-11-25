@@ -45,6 +45,7 @@ requests-toolbelt
 slumber
 pyyaml
 Pygments
+pydantic
 
 dnspython
 
