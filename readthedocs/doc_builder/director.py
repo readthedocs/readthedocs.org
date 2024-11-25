@@ -306,14 +306,14 @@ class BuildDirector:
 
     # Language environment
     def create_environment(self):
-        if self.config.build.jobs.create_environment is not None:
+        if self.data.config.build.jobs.create_environment is not None:
             self.run_build_job("create_environment")
             return
         self.language_environment.setup_base()
 
     # Install
     def install(self):
-        if self.config.build.jobs.install is not None:
+        if self.data.config.build.jobs.install is not None:
             self.run_build_job("install")
             return
 
