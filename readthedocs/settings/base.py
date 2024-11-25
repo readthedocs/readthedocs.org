@@ -636,8 +636,8 @@ class CommunityBaseSettings(Settings):
         """
         # Our normal default
         limits = {
-            "memory": "1g",
-            "time": 600,
+            "memory": "2g",
+            "time": 900,
         }
 
         # Only run on our servers
