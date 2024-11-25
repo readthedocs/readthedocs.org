@@ -30,7 +30,7 @@ from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
 )
-from readthedocs.projects.models import AddonsConfig, Feature, Project
+from readthedocs.projects.models import AddonsConfig, Project
 from readthedocs.projects.version_handling import (
     comparable_version,
     sort_versions_calver,
@@ -637,7 +637,7 @@ class AddonsResponseBase:
         if not version.is_external:
             return None
 
-        if not project.has_feature(Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF):
+        if not project.addons.filetreediff_enabled:
             return None
 
         latest_version = project.get_latest_version()

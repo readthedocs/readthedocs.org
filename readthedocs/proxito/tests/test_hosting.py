@@ -24,7 +24,7 @@ from readthedocs.projects.constants import (
     PUBLIC,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
-from readthedocs.projects.models import AddonsConfig, Domain, Feature, Project
+from readthedocs.projects.models import AddonsConfig, Domain, Project
 
 
 @override_settings(
@@ -895,11 +895,8 @@ class TestReadTheDocsConfigJson(TestCase):
 
     @mock.patch("readthedocs.filetreediff.get_manifest")
     def test_file_tree_diff(self, get_manifest):
-        get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF,
-        )
+        self.project.addons.filetreediff_enabled = True
+        self.project.addons.save()
         pr_version = get(
             Version,
             project=self.project,
