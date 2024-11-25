@@ -322,16 +322,18 @@ class BuildDirector:
 
     # Build
     def build_html(self):
-        if self.run_build_job("build.html"):
-            return True
+        if self.data.config.build.jobs.build.html is not None:
+            self.run_build_job("build.html")
+            return
         return self.build_docs_class(self.data.config.doctype)
 
     def build_pdf(self):
         if "pdf" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
 
-        if self.run_build_job("build.pdf"):
-            return True
+        if self.data.config.build.jobs.build.pdf is not None:
+            self.run_build_job("build.pdf")
+            return
 
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
@@ -346,8 +348,9 @@ class BuildDirector:
         ):
             return False
 
-        if self.run_build_job("build.htmlzip"):
-            return True
+        if self.data.config.build.jobs.build.htmlzip is not None:
+            self.run_build_job("build.htmlzip")
+            return
 
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
@@ -358,8 +361,9 @@ class BuildDirector:
         if "epub" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
 
-        if self.run_build_job("build.epub"):
-            return True
+        if self.data.config.build.jobs.build.epub is not None:
+            self.run_build_job("build.epub")
+            return
 
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
@@ -400,13 +404,8 @@ class BuildDirector:
         `sed` command.
         """
         commands = get_dotted_attribute(self.data.config, f"build.jobs.{job}", None)
-        # If it's None, the job wasn't defined.
-        if commands is None:
-            return False
-
-        # The job was defined, but it's empty.
         if not commands:
-            return True
+            return
 
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.vcs_environment
@@ -415,8 +414,6 @@ class BuildDirector:
 
         for command in commands:
             environment.run(command, escape_command=False, cwd=cwd)
-
-        return True
 
     def check_old_output_directory(self):
         """
