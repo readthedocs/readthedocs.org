@@ -58,17 +58,17 @@ you need to generate static HTML from the Next JS build:
             ...nextConfig,
     });
 
-Supported Features
+Supported features
 ------------------
 
-.. csv-table:: Supported Features
+.. csv-table:: Supported features
    :header: "Feature", "Description", "Supported"
 
    "Pull request previews", "Preview changes to your documentation before merging.", "✅"
    "Versioning", "Supports multiple versions of your documentation.", "✅"
    "Search", "Provides full-text search capabilities.", "✅"
    "Flyout menu", "Provides a flyout menu for navigation.", "✅"
-   "Offline formats", "Generates PDF and ePub formats.", "❌"
+   "Offline formats", "Generates PDF and EPUB formats.", "❌"
    "Localization", "Supports multiple languages.", "❌"
 
 Getting started
