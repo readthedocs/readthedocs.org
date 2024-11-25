@@ -57,6 +57,8 @@ class TestReadTheDocsConfigJson(TestCase):
             versioning_scheme=MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
         )
 
+        fixture.get(AddonsConfig, project=self.project)
+
         for tag in ("tag", "project", "test"):
             self.project.tags.add(tag)
 
@@ -138,10 +140,6 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.json() == self._get_response_dict("v3")
 
     def test_disabled_addons_via_addons_config(self):
-        addons = fixture.get(
-            AddonsConfig,
-            project=self.project,
-        )
         addons.analytics_enabled = False
         addons.doc_diff_enabled = False
         addons.external_version_warning_enabled = False
@@ -723,11 +721,6 @@ class TestReadTheDocsConfigJson(TestCase):
         )
 
     def test_linkpreviews(self):
-        addons = fixture.get(
-            AddonsConfig,
-            project=self.project,
-        )
-
         addons.linkpreviews_enabled = True
         addons.save()
 
