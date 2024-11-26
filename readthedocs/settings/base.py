@@ -636,8 +636,8 @@ class CommunityBaseSettings(Settings):
         """
         # Our normal default
         limits = {
-            "memory": "1g",
-            "time": 600,
+            "memory": "2g",
+            "time": 900,
         }
 
         # Only run on our servers
@@ -662,6 +662,11 @@ class CommunityBaseSettings(Settings):
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
     ACCOUNT_EMAIL_REQUIRED = True
+    # By preventing enumeration, we will always send an email,
+    # even if the email is not registered, that's hurting
+    # our email reputation. We are okay with people knowing
+    # if an email is registered or not.
+    ACCOUNT_PREVENT_ENUMERATION = False
 
     # Make email verification mandatory.
     # Users won't be able to login until they verify the email address.
