@@ -169,11 +169,10 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
     base_version = (
         version.project.addons.options_base_version.slug
         if version.project.addons.options_base_version
-        else None
+        else LATEST
     )
-    default_version = version.project.get_default_version()
     create_manifest = version.project.addons.filetreediff_enabled and (
-        version.is_external or version.slug in (LATEST, base_version, default_version)
+        version.is_external or version.slug == base_version
     )
     if create_manifest:
         file_manifest_indexer = FileManifestIndexer(
