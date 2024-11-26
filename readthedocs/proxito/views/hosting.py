@@ -30,7 +30,7 @@ from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
 )
-from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     comparable_version,
     sort_versions_calver,
@@ -337,10 +337,6 @@ class AddonsResponseBase:
         versions_active_built_not_hidden = Version.objects.none()
         sorted_versions_active_built_not_hidden = Version.objects.none()
         user = request.user
-
-        # Automatically create an AddonsConfig with the default values for
-        # projects that don't have one already
-        AddonsConfig.objects.get_or_create(project=project)
 
         versions_active_built_not_hidden = (
             self._get_versions(request, project)
