@@ -6,6 +6,8 @@
 #
 amqp==5.3.1
     # via kombu
+annotated-types==0.7.0
+    # via pydantic
 asgiref==3.8.1
     # via
     #   django
@@ -15,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.63
+boto3==1.35.68
     # via django-storages
-botocore==1.35.63
+botocore==1.35.68
     # via
     #   boto3
     #   s3transfer
@@ -143,6 +145,8 @@ djangorestframework-api-key==3.0.0
     # via -r requirements/pip.in
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.in
+dnspython==2.7.0
+    # via -r requirements/pip.in
 docker==6.1.2
     # via -r requirements/pip.in
 docutils==0.21.2
@@ -198,7 +202,7 @@ markdown==3.7
     # via -r requirements/pip.in
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.10.11
+orjson==3.10.12
     # via -r requirements/pip.in
 packaging==24.2
     # via
@@ -219,9 +223,13 @@ psycopg-pool==3.2.4
     # via psycopg
 pycparser==2.22
     # via cffi
+pydantic==2.9.2
+    # via -r requirements/pip.in
+pydantic-core==2.23.4
+    # via pydantic
 pygments==2.18.0
     # via -r requirements/pip.in
-pyjwt[crypto]==2.9.0
+pyjwt[crypto]==2.10.0
     # via django-allauth
 pyquery==2.0.1
     # via -r requirements/pip.in
@@ -266,7 +274,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
-s3transfer==0.10.3
+s3transfer==0.10.4
     # via boto3
 selectolax==0.3.26
     # via -r requirements/pip.in
@@ -300,6 +308,8 @@ typing-extensions==4.12.2
     #   elasticsearch-dsl
     #   psycopg
     #   psycopg-pool
+    #   pydantic
+    #   pydantic-core
 tzdata==2024.2
     # via
     #   -r requirements/pip.in
