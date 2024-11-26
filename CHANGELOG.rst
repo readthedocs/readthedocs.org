@@ -1,3 +1,26 @@
+Version 11.15.0
+---------------
+
+:Date: November 26, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Allauth: disable account enumeration protection (`#11797 <https://github.com/readthedocs/readthedocs.org/pull/11797>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11792 <https://github.com/readthedocs/readthedocs.org/pull/11792>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Support RTD_USE_PROMOS for setting USE_PROMOS in dev (`#11790 <https://github.com/readthedocs/readthedocs.org/pull/11790>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Increase default docker limits (`#11788 <https://github.com/readthedocs/readthedocs.org/pull/11788>`__)
+* `@stsewd <https://github.com/stsewd>`__: Set brownouts for deprecated embed API v2 (`#11786 <https://github.com/readthedocs/readthedocs.org/pull/11786>`__)
+* `@humitos <https://github.com/humitos>`__: Use addons JavaScript file from Docker container (`#11785 <https://github.com/readthedocs/readthedocs.org/pull/11785>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Markdoc to the doc tools (`#11782 <https://github.com/readthedocs/readthedocs.org/pull/11782>`__)
+* `@humitos <https://github.com/humitos>`__: Migrations: re-order them for deploy (`#11779 <https://github.com/readthedocs/readthedocs.org/pull/11779>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.14.0 (`#11778 <https://github.com/readthedocs/readthedocs.org/pull/11778>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update connected accounts steps to use env vars (`#11777 <https://github.com/readthedocs/readthedocs.org/pull/11777>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: make default root CSS selector a shared option (`#11767 <https://github.com/readthedocs/readthedocs.org/pull/11767>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: `load_when_embedded` config (`#11765 <https://github.com/readthedocs/readthedocs.org/pull/11765>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domain: check CNAME when adding domains (`#11747 <https://github.com/readthedocs/readthedocs.org/pull/11747>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update custom domains docs (`#11734 <https://github.com/readthedocs/readthedocs.org/pull/11734>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: allow partial override of build steps (`#11710 <https://github.com/readthedocs/readthedocs.org/pull/11710>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: use GitHub Action + pip-tools (`#9479 <https://github.com/readthedocs/readthedocs.org/pull/9479>`__)
+* `@humitos <https://github.com/humitos>`__: GitHub Action: add link to Pull Request preview (`#9450 <https://github.com/readthedocs/readthedocs.org/pull/9450>`__)
+
 Version 11.14.0
 ---------------
 
