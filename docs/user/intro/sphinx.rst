@@ -133,9 +133,7 @@ You can now continue writing your docs in ``.md`` files and it will work with Sp
 .. seealso::
 
    `Getting started with MyST in Sphinx <https://myst-parser.readthedocs.io/en/latest/sphinx/intro.html>`_
-
-   :doc:`/guides/migrate-rest-myst`
-     Learn how to use references between different Sphinx projects, for instance between subprojects
+     Learn how to use MyST to write Markdown documentation in your Sphinx project.
 
    :doc:`/guides/migrate-rest-myst`
      Start writing Markdown in your existing reStructuredText project, or migrate it completely.
