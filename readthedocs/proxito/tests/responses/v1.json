@@ -149,9 +149,7 @@
     "doc_diff": {
       "enabled": true,
       "base_url": "https://project.dev.readthedocs.io/en/latest/index.html",
-      "inject_styles": true,
-      "base_host": "",
-      "base_page": ""
+      "inject_styles": true
     },
     "filetreediff": {
       "enabled": false
