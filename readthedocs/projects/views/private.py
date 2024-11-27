@@ -1,5 +1,7 @@
 """Project views for authenticated users."""
 
+from collections import OrderedDict
+
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django import forms
@@ -341,10 +343,12 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         # removing the "config" form/step if the config file already exists in
         # the repository.
         # https://github.com/readthedocs/ext-theme/issues/477
-        self.form_list = [
-            ("basics", ProjectBasicsForm),
-            ("config", ProjectConfigForm),
-        ]
+        self.form_list = OrderedDict(
+            [
+                ("basics", ProjectBasicsForm),
+                ("config", ProjectConfigForm),
+            ]
+        )
 
     def get(self, *args, **kwargs):
         # The method from the parent should run first,
