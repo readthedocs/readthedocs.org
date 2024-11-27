@@ -63,6 +63,15 @@ class CommunityBaseSettings(Settings):
 
         return {
             "SHOW_TOOLBAR_CALLBACK": _show_debug_toolbar,
+            "DISABLE_PANELS": [
+                # Default ones
+                "debug_toolbar.panels.profiling.ProfilingPanel",
+                "debug_toolbar.panels.redirects.RedirectsPanel",
+                # Custome ones
+                # We are disabling these because they take a lot of time to execute in the new dashboard
+                "debug_toolbar.panels.sql.SQLPanel",
+                "debug_toolbar.panels.templates.TemplatesPanel",
+            ]
         }
 
     @property
