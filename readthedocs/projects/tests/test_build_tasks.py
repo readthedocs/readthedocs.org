@@ -556,16 +556,24 @@ class TestBuildTask(BuildEnvironmentBase):
                     "os": "ubuntu-22.04",
                     "commands": [],
                     "jobs": {
-                        "post_build": [],
-                        "post_checkout": [],
-                        "post_create_environment": [],
-                        "post_install": [],
-                        "post_system_dependencies": [],
-                        "pre_build": [],
                         "pre_checkout": [],
-                        "pre_create_environment": [],
-                        "pre_install": [],
+                        "post_checkout": [],
                         "pre_system_dependencies": [],
+                        "post_system_dependencies": [],
+                        "pre_create_environment": [],
+                        "create_environment": None,
+                        "post_create_environment": [],
+                        "pre_install": [],
+                        "install": None,
+                        "post_install": [],
+                        "pre_build": [],
+                        "build": {
+                            "html": None,
+                            "pdf": None,
+                            "epub": None,
+                            "htmlzip": None,
+                        },
+                        "post_build": [],
                     },
                     "tools": {
                         "python": {
@@ -1201,6 +1209,130 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call("echo `date`", escape_command=False, cwd=mock.ANY),
             ],
             any_order=True,
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "formats": ["pdf", "epub", "htmlzip"],
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "create_environment": ["echo create_environment"],
+                        "install": ["echo install"],
+                        "build": {
+                            "html": ["echo build html"],
+                            "pdf": ["echo build pdf"],
+                            "epub": ["echo build epub"],
+                            "htmlzip": ["echo build htmlzip"],
+                        },
+                        "post_build": ["echo end of build"],
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "echo create_environment",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo install",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo build html",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo build htmlzip",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo build pdf",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo build epub",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo end of build",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override_empty_commands(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "formats": ["pdf"],
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "create_environment": [],
+                        "install": [],
+                        "build": {
+                            "html": [],
+                            "pdf": [],
+                        },
+                        "post_build": ["echo end of build"],
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call("echo end of build", escape_command=False, cwd=mock.ANY),
+            ]
         )
 
     @mock.patch("readthedocs.doc_builder.director.tarfile")
