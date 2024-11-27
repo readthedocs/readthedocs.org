@@ -57,6 +57,8 @@ class TestReadTheDocsConfigJson(TestCase):
             versioning_scheme=MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
         )
 
+        fixture.get(AddonsConfig, project=self.project)
+
         for tag in ("tag", "project", "test"):
             self.project.tags.add(tag)
 
