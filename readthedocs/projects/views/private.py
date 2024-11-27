@@ -75,7 +75,6 @@ from readthedocs.projects.forms import (
     WebHookForm,
 )
 from readthedocs.projects.models import (
-    AddonsConfig,
     Domain,
     EmailHook,
     EnvironmentVariable,
@@ -457,9 +456,6 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
-
-        # Create an AddonsConfig object for this project.
-        AddonsConfig.objects.get_or_create(project=project)
 
         self.finish_import_project(self.request, project)
 

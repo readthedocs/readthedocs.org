@@ -11,7 +11,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
-from readthedocs.projects.models import Feature, HTMLFile, ImportedFile, Project
+from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks.search import index_build
 from readthedocs.search.documents import PageDocument
 
@@ -352,14 +352,11 @@ class ImportedFileTests(TestCase):
     def test_create_file_tree_manifest(self, write_manifest):
         assert self.version.slug == LATEST
         index_build(self.build.pk)
-        # Feature flag is not enabled.
+        # File Tree Diff is not enabled by default
         write_manifest.assert_not_called()
 
-        get(
-            Feature,
-            feature_id=Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF,
-            projects=[self.project],
-        )
+        self.project.addons.filetreediff_enabled = True
+        self.project.addons.save()
         index_build(self.build.pk)
         manifest = FileTreeDiffManifest(
             build_id=self.build.pk,
@@ -401,5 +398,6 @@ class ImportedFileTests(TestCase):
         new_version.save()
         with override_settings(DOCROOT=self.test_dir):
             self._copy_storage_dir(new_version)
+        write_manifest.reset_mock()
         index_build(self.build.pk)
         write_manifest.assert_called_once_with(new_version, manifest)
