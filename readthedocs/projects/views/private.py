@@ -2,6 +2,7 @@
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
+from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -325,6 +326,15 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     """
 
     initial_dict_key = "initial-data"
+
+    class DummyForm(forms.Form):
+        pass
+
+    # We have to declare it at class level, so we are defining it with just a dummy form.
+    # Then we are overriding it on ``__init__`` with the real forms.
+    form_list = [
+        ("dummy", DummyForm),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
