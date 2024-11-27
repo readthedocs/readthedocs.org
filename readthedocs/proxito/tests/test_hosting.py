@@ -24,7 +24,7 @@ from readthedocs.projects.constants import (
     PUBLIC,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
-from readthedocs.projects.models import AddonsConfig, Domain, Project
+from readthedocs.projects.models import Domain, Project
 
 
 @override_settings(
@@ -56,8 +56,6 @@ class TestReadTheDocsConfigJson(TestCase):
             project_url="http://project.com",
             versioning_scheme=MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
         )
-
-        fixture.get(AddonsConfig, project=self.project)
 
         for tag in ("tag", "project", "test"):
             self.project.tags.add(tag)
@@ -140,18 +138,18 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.json() == self._get_response_dict("v3")
 
     def test_disabled_addons_via_addons_config(self):
-        addons.analytics_enabled = False
-        addons.doc_diff_enabled = False
-        addons.external_version_warning_enabled = False
-        addons.ethicalads_enabled = False
-        addons.flyout_enabled = False
-        addons.hotkeys_enabled = False
-        addons.search_enabled = False
-        addons.notifications_enabled = False
-        addons.notifications_show_on_latest = False
-        addons.notifications_show_on_non_stable = False
-        addons.notifications_show_on_external = False
-        addons.save()
+        self.project.addons.analytics_enabled = False
+        self.project.addons.doc_diff_enabled = False
+        self.project.addons.external_version_warning_enabled = False
+        self.project.addons.ethicalads_enabled = False
+        self.project.addons.flyout_enabled = False
+        self.project.addons.hotkeys_enabled = False
+        self.project.addons.search_enabled = False
+        self.project.addons.notifications_enabled = False
+        self.project.addons.notifications_show_on_latest = False
+        self.project.addons.notifications_show_on_non_stable = False
+        self.project.addons.notifications_show_on_external = False
+        self.project.addons.save()
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -721,8 +719,8 @@ class TestReadTheDocsConfigJson(TestCase):
         )
 
     def test_linkpreviews(self):
-        addons.linkpreviews_enabled = True
-        addons.save()
+        self.project.addons.linkpreviews_enabled = True
+        self.project.addons.save()
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -780,7 +778,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(20):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -809,7 +807,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(22):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -845,7 +843,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(35):
+        with self.assertNumQueries(31):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -871,7 +869,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(62):
+        with self.assertNumQueries(58):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -943,7 +941,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        with self.assertNumQueries(30):
+        with self.assertNumQueries(25):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

@@ -11,7 +11,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
-from readthedocs.projects.models import AddonsConfig, HTMLFile, ImportedFile, Project
+from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks.search import index_build
 from readthedocs.search.documents import PageDocument
 
@@ -25,7 +25,6 @@ class ImportedFileTests(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-        get(AddonsConfig, project=self.project)
         self.version = self.project.versions.get(slug=LATEST)
         self.build = get(
             Build,

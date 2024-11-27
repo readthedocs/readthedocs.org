@@ -166,8 +166,13 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
 
     # File tree diff is under a feature flag for now,
     # and we only allow to compare PR previews against the latest version.
+    base_version = (
+        version.project.addons.options_base_version.slug
+        if version.project.addons.options_base_version
+        else LATEST
+    )
     create_manifest = version.project.addons.filetreediff_enabled and (
-        version.is_external or version.slug == LATEST
+        version.is_external or version.slug == base_version
     )
     if create_manifest:
         file_manifest_indexer = FileManifestIndexer(

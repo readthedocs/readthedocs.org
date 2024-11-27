@@ -171,6 +171,13 @@ class AddonsConfig(TimeStampedModel):
     # https://github.com/readthedocs/addons/pull/415
     options_load_when_embedded = models.BooleanField(default=False)
 
+    options_base_version = models.ForeignKey(
+        "builds.Version",
+        verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
     # Analytics
 
     # NOTE: we keep analytics disabled by default to save resources.
