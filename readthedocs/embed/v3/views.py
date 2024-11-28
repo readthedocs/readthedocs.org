@@ -50,6 +50,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
     * url (with fragment) (required)
     * doctool
     * doctoolversion
+    * selector
 
     ### Example
 
@@ -121,7 +122,14 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
         return None
 
-    def _get_content_by_fragment(self, url, fragment, doctool, doctoolversion):
+    def _get_content_by_fragment(
+        self,
+        url,
+        fragment,
+        doctool,
+        doctoolversion,
+        selector,
+    ):
         if self.external:
             page_content = self._download_page_content(url)
         else:
@@ -133,10 +141,17 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             )
 
         return self._parse_based_on_doctool(
-            page_content, fragment, doctool, doctoolversion
+            page_content,
+            fragment,
+            doctool,
+            doctoolversion,
+            selector,
         )
 
-    def _find_main_node(self, html):
+    def _find_main_node(self, html, selector):
+        if selector:
+            return html.css_first(selector)
+
         main_node = html.css_first("[role=main]")
         if main_node:
             log.debug("Main node found. selector=[role=main]")
@@ -152,7 +167,14 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             log.debug("Main node found. selector=h1")
             return first_header.parent
 
-    def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
+    def _parse_based_on_doctool(
+        self,
+        page_content,
+        fragment,
+        doctool,
+        doctoolversion,
+        selector,
+    ):
         # pylint: disable=unused-argument disable=too-many-nested-blocks
         if not page_content:
             return
@@ -167,7 +189,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             node = HTMLParser(page_content).css_first(selector)
         else:
             html = HTMLParser(page_content)
-            node = self._find_main_node(html)
+            node = self._find_main_node(html, selector)
 
         if not node:
             return
@@ -284,6 +306,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         url = request.GET.get("url")
         doctool = request.GET.get("doctool")
         doctoolversion = request.GET.get("doctoolversion")
+        selector = request.GET.get("selector")
 
         if not url:
             return Response(
@@ -338,6 +361,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                 fragment,
                 doctool,
                 doctoolversion,
+                selector,
             )
         except requests.exceptions.TooManyRedirects:
             log.exception("Too many redirects.", url=url)
