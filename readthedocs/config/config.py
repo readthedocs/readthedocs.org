@@ -828,7 +828,14 @@ class BuildConfigV2(BuildConfigBase):
 
         if self.mkdocs:
             return "mkdocs"
-        return self.sphinx.builder
+
+        # NOTE: we need to use "source config" here because `_config` is
+        # auto-populated with Sphinx if no `sphinx` and no `mkdocs` keys are
+        # declared.
+        if self.source_config.get("sphinx"):
+            return self.sphinx.builder
+
+        return GENERIC
 
     @property
     def submodules(self):
