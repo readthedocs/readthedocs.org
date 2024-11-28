@@ -70,7 +70,10 @@ urlpatterns = [
     ),
     path(
         "import/manual/",
-        ImportWizardView.as_view(),
+        ImportWizardView.as_view(
+            ImportWizardView.form_list,
+            condition_dict={"config": ImportWizardView.show_config_step},
+        ),
         name="projects_import_manual",
     ),
     re_path(
