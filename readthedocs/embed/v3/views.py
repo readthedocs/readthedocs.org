@@ -1,5 +1,6 @@
 """Views for the EmbedAPI v3 app."""
 
+import os
 import re
 import urllib.parse
 from urllib.parse import urlparse
@@ -112,10 +113,11 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         )
 
         try:
-            with build_media_storage.open(
-                file_path
-            ) as fd:  # pylint: disable=invalid-name
-                return fd.read()
+            tryfiles = [file_path, os.path.join(file_path, "index.html")]
+            for tryfile in tryfiles:
+                if build_media_storage.exists(tryfile):
+                    with build_media_storage.open(tryfile) as fd:
+                        return fd.read()
         except Exception:  # noqa
             log.warning("Unable to read file.", file_path=file_path)
 
