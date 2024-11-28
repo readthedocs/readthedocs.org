@@ -4,6 +4,7 @@ import textwrap
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.notifications.constants import ERROR, INFO, WARNING
+from readthedocs.notifications.email import EmailNotification
 from readthedocs.notifications.messages import Message, registry
 from readthedocs.projects.exceptions import (
     ProjectConfigurationError,
@@ -11,6 +12,13 @@ from readthedocs.projects.exceptions import (
     SyncRepositoryLocked,
     UserFileNotFound,
 )
+
+
+class NewDashboardNotification(EmailNotification):
+    app_templates = "projects"
+    name = "new_dashboard"
+    subject = "Upcoming changes to our dashboard"
+
 
 MESSAGE_PROJECT_SKIP_BUILDS = "project:invalid:skip-builds"
 MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
