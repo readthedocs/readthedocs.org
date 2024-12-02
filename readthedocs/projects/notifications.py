@@ -26,10 +26,9 @@ class NewDashboardNotification(EmailNotification):
 
     To send:
 
-        for project in NewDashboardNotification.for_projects():
-            for user in NewDashboardNotification.for_admins(project):
-                notify = NewDashboardNotificaiton(project, user)
-                notify.send()
+        for user in NewDashboardNotification.for_admins():
+            notify = NewDashboardNotificaiton(user, user)
+            notify.send()
 
     NOTE: This can be removed with RTD_EXT_THEME_ENABLED.
     """
@@ -49,13 +48,17 @@ class NewDashboardNotification(EmailNotification):
             .order_by("slug")
         )
 
-        # Filter out projects that are spam
-        from readthedocsext.spamfighting.utils import spam_score
+        # Filter out projects that are spam. This is conditional as this module
+        # doesn't seem available in our tests.
+        try:
+            from readthedocsext.spamfighting.utils import spam_score
 
-        projects = filter(lambda p: spam_score(p) < 200, projects)
+            projects = filter(lambda p: spam_score(p) < 200, projects)
 
-        # Convert back to queryset
-        return Project.objects.filter(slug__in=[p.slug for p in projects])
+            # Convert back to queryset
+            return Project.objects.filter(slug__in=[p.slug for p in projects])
+        except ImportError:
+            return projects
 
     @staticmethod
     def for_admins(projects=None):
