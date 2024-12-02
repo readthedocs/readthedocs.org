@@ -18,7 +18,7 @@ changing and when to expect these changes in more detail on our website:
 On *Dec 10th* we will make our new dashboard the default dashboard for
 users logging into Read the Docs Business from our website.
 This change will mainly affect project maintainers,
-especially users that have not yet switched to the new dashboard.
+especially maintainers that have not yet switched to the new dashboard.
 
 At this same time, we will also begin using the new dashboard for
 documentation authentication and documentation error pages.
