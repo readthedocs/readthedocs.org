@@ -86,6 +86,45 @@ from readthedocs.projects.version_handling import determine_stable_version
 log = structlog.get_logger(__name__)
 
 
+class VersionOverride(TimeStampedModel):
+    """
+    User-modified ``Version`` of a ``Project``.
+
+    We use this model to store all the fields the user has override from the
+    original ``Version`` and also to keep those original values.
+
+    This model allows us to perform a re-sync of VCS versions.
+    """
+
+    version = models.OneToOneField(
+        "Version",
+        related_name="override",
+        on_delete=models.CASCADE,
+    )
+    # TODO: add validations to `_slug` fields. We can't use `VersionSlugField`
+    # because it requires the `populate_from` field that we don't need here.
+    original_slug = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    user_slug = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    original_identifier = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    user_identifier = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+
+
 class Version(TimeStampedModel):
 
     """Version of a ``Project``."""

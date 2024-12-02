@@ -21,6 +21,7 @@ from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
     VersionAutomationRule,
+    VersionOverride,
 )
 
 
@@ -30,6 +31,8 @@ class VersionForm(forms.ModelForm):
         states_fields = ["active", "hidden"]
         privacy_fields = ["privacy_level"]
         fields = (
+            "slug",
+            "identifier",
             *states_fields,
             *privacy_fields,
         )
@@ -89,6 +92,15 @@ class VersionForm(forms.ModelForm):
         return project.default_version == self.instance.slug
 
     def save(self, commit=True):
+        # Recover the original data from DB to save it as backup
+        version = Version.objects.get(pk=self.instance.pk)
+        override, _ = VersionOverride.objects.get_or_create(version=version)
+        override.user_slug = self.instance.slug
+        override.user_identifier = self.instance.identifier
+        override.original_slug = version.slug
+        override.original_identifier = version.identifier
+        override.save()
+
         obj = super().save(commit=commit)
         obj.post_save(was_active=self._was_active)
         return obj
