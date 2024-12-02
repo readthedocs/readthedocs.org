@@ -41,16 +41,17 @@ class NewDashboardNotification(EmailNotification):
     @staticmethod
     def for_projects():
         # Only send to admin users of recently built projects
-        projects = Project.objects.filter(
-            builds__date__gte=timezone.datetime(2023, 1, 1)
-        ).annotate(
-            successful_builds=Count("builds__success")
-        ).filter(
-            successful_builds__gte=3
-        ).distinct().order_by("slug")
+        projects = (
+            Project.objects.filter(builds__date__gte=timezone.datetime(2023, 1, 1))
+            .annotate(successful_builds=Count("builds__success"))
+            .filter(successful_builds__gte=3)
+            .distinct()
+            .order_by("slug")
+        )
 
         # Filter out projects that are spam
         from readthedocsext.spamfighting.utils import spam_score
+
         projects = filter(lambda p: spam_score(p) < 200, projects)
 
         # Convert back to queryset
@@ -62,7 +63,9 @@ class NewDashboardNotification(EmailNotification):
             projects = NewDashboardNotification.for_projects()
         usernames = set()
         for project in projects:
-            usernames.update(set(AdminPermission.admins(project).values_list('username', flat=True)))
+            usernames.update(
+                set(AdminPermission.admins(project).values_list("username", flat=True))
+            )
 
         return User.objects.filter(username__in=usernames)
 
