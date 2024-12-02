@@ -19,6 +19,32 @@ class NewDashboardNotification(EmailNotification):
     name = "new_dashboard"
     subject = "Upcoming changes to our dashboard"
 
+    @staticmethod
+    def for_projects():
+        # Only send to admin users of recently built projects
+        projects = Project.objects.filter(
+            builds__date__gte=timezone.datetime(2023, 1, 1)
+        ).annotate(
+            successful_builds=Count("builds__success")
+        ).filter(
+            successful_builds__gte=3
+        ).distinct().order_by("slug")
+
+        # Filter out projects that are spam
+        from readthedocsext.spamfighting.utils import spam_score
+        projects = filter(lambda p: spam_score(p) < 200, projects)
+
+        # Convert back to queryset
+        return Project.objects.filter(slug__in=[p.slug for p in projects])
+
+    @staticmethod
+    def for_users():
+        users = set()
+        for project in NewDashboardNotification.projects():
+            users.update(set(AdminPermission.admins(project).values_list('username', flat=True)))
+
+        return User.objects.filter(username__in=usernames)
+
 
 MESSAGE_PROJECT_SKIP_BUILDS = "project:invalid:skip-builds"
 MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
