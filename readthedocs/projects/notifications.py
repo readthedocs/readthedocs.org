@@ -1,8 +1,12 @@
 """Notifications related to projects."""
 import textwrap
 
+from django.contrib.auth.models import User
+from django.db.models import Count
+from django.utils import timezone
 from django.utils.translation import gettext_noop as _
 
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.notifications.constants import ERROR, INFO, WARNING
 from readthedocs.notifications.email import EmailNotification
 from readthedocs.notifications.messages import Message, registry
@@ -12,9 +16,24 @@ from readthedocs.projects.exceptions import (
     SyncRepositoryLocked,
     UserFileNotFound,
 )
+from readthedocs.projects.models import Project
 
 
 class NewDashboardNotification(EmailNotification):
+
+    """
+    Notification about new dashboard rollout and changes for Business users.
+
+    To send:
+
+        for project in NewDashboardNotification.for_projects():
+            for user in NewDashboardNotification.for_admins(project):
+                notify = NewDashboardNotificaiton(project, user)
+                notify.send()
+
+    NOTE: This can be removed with RTD_EXT_THEME_ENABLED.
+    """
+
     app_templates = "projects"
     name = "new_dashboard"
     subject = "Upcoming changes to our dashboard"
@@ -38,10 +57,12 @@ class NewDashboardNotification(EmailNotification):
         return Project.objects.filter(slug__in=[p.slug for p in projects])
 
     @staticmethod
-    def for_users():
-        users = set()
-        for project in NewDashboardNotification.projects():
-            users.update(set(AdminPermission.admins(project).values_list('username', flat=True)))
+    def for_admins(projects=None):
+        if projects is None:
+            projects = NewDashboardNotification.for_projects()
+        usernames = set()
+        for project in projects:
+            usernames.update(set(AdminPermission.admins(project).values_list('username', flat=True)))
 
         return User.objects.filter(username__in=usernames)
 
