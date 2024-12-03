@@ -7,8 +7,9 @@ from contextlib import contextmanager
 from functools import lru_cache
 
 from django.conf import settings
+from pydantic import BaseModel
 
-from readthedocs.config.utils import list_to_dict, to_dict
+from readthedocs.config.utils import list_to_dict
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
 
@@ -23,7 +24,6 @@ from .models import (
     Mkdocs,
     Python,
     PythonInstall,
-    PythonInstallRequirements,
     Search,
     Sphinx,
     Submodules,
@@ -207,7 +207,7 @@ class BuildConfigBase:
         config = {}
         for name in self.PUBLIC_ATTRIBUTES:
             attr = getattr(self, name)
-            config[name] = to_dict(attr)
+            config[name] = attr.model_dump() if isinstance(attr, BaseModel) else attr
         return config
 
     def __getattr__(self, name):
@@ -793,21 +793,7 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def python(self):
-        python_install = []
-        python = self._config["python"]
-        for install in python["install"]:
-            if "requirements" in install:
-                python_install.append(
-                    PythonInstallRequirements(**install),
-                )
-            elif "path" in install:
-                python_install.append(
-                    PythonInstall(**install),
-                )
-
-        return Python(
-            install=python_install,
-        )
+        return Python(**self._config["python"])
 
     @property
     def sphinx(self):
