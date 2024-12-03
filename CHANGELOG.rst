@@ -1,3 +1,22 @@
+Version 11.16.0
+---------------
+
+:Date: December 03, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11813 <https://github.com/readthedocs/readthedocs.org/pull/11813>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add email for business projects and new dashboard change (`#11809 <https://github.com/readthedocs/readthedocs.org/pull/11809>`__)
+* `@humitos <https://github.com/humitos>`__: Development: try `uv` on Docker images (`#11807 <https://github.com/readthedocs/readthedocs.org/pull/11807>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix Sphinx tutorial seealso links (`#11806 <https://github.com/readthedocs/readthedocs.org/pull/11806>`__)
+* `@stsewd <https://github.com/stsewd>`__: Requirements: install unicode-slugify from pypi (`#11805 <https://github.com/readthedocs/readthedocs.org/pull/11805>`__)
+* `@humitos <https://github.com/humitos>`__: Django Debug Toolbar: disable slow panels (`#11804 <https://github.com/readthedocs/readthedocs.org/pull/11804>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Upgrade NR to fix issue (`#11802 <https://github.com/readthedocs/readthedocs.org/pull/11802>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.15.0 (`#11800 <https://github.com/readthedocs/readthedocs.org/pull/11800>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: create `AddonsConfig` on `Project.post_save` (`#11799 <https://github.com/readthedocs/readthedocs.org/pull/11799>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: disable account enumeration protection (`#11797 <https://github.com/readthedocs/readthedocs.org/pull/11797>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: base version to compare against (DocDiff and File Tree Diff) (`#11794 <https://github.com/readthedocs/readthedocs.org/pull/11794>`__)
+* `@humitos <https://github.com/humitos>`__: File tree diff: migrate feature flag to model field (`#11793 <https://github.com/readthedocs/readthedocs.org/pull/11793>`__)
+* `@plaindocs <https://github.com/plaindocs>`__: Docusaurus basics (`#11752 <https://github.com/readthedocs/readthedocs.org/pull/11752>`__)
+
 Version 11.15.0
 ---------------
 
