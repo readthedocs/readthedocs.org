@@ -171,6 +171,13 @@ class AddonsConfig(TimeStampedModel):
     # https://github.com/readthedocs/addons/pull/415
     options_load_when_embedded = models.BooleanField(default=False)
 
+    options_base_version = models.ForeignKey(
+        "builds.Version",
+        verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
     # Analytics
 
     # NOTE: we keep analytics disabled by default to save resources.
@@ -184,6 +191,9 @@ class AddonsConfig(TimeStampedModel):
 
     # EthicalAds
     ethicalads_enabled = models.BooleanField(default=True)
+
+    # File Tree Diff
+    filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
 
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
@@ -1914,7 +1924,6 @@ class Feature(models.Model):
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
-    GENERATE_MANIFEST_FOR_FILE_TREE_DIFF = "generate_manifest_for_file_tree_diff"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1974,10 +1983,6 @@ class Feature(models.Model):
         (
             ALLOW_VERSION_WARNING_BANNER,
             _("Dashboard: Allow project to use the version warning banner."),
-        ),
-        (
-            GENERATE_MANIFEST_FOR_FILE_TREE_DIFF,
-            _("Build: Generate a file manifest for file tree diff."),
         ),
         # Versions sync related features
         (
