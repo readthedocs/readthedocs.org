@@ -389,12 +389,17 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             )
 
         if not content_requested:
-            log.warning("Identifier not found.", url=url, fragment=fragment)
+            log.warning(
+                "Identifier not found.",
+                url=url,
+                fragment=fragment,
+                maincontent=selector,
+            )
             return Response(
                 {
                     "error": (
                         "Can't find content for section: "
-                        f"url={url} fragment={fragment}"
+                        f"url={url} fragment={fragment} maincontent={selector}"
                     )
                 },
                 status=status.HTTP_404_NOT_FOUND,
