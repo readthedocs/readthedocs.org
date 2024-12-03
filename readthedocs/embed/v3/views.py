@@ -50,7 +50,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
     * url (with fragment) (required)
     * doctool
     * doctoolversion
-    * selector
+    * maincontent
 
     ### Example
 
@@ -306,7 +306,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         url = request.GET.get("url")
         doctool = request.GET.get("doctool")
         doctoolversion = request.GET.get("doctoolversion")
-        selector = request.GET.get("selector")
+        selector = request.GET.get("maincontent")
 
         if not url:
             return Response(
