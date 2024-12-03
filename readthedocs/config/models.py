@@ -1,4 +1,13 @@
-"""Models for the response of the configuration object."""
+"""
+Models for the response of the configuration object.
+
+We make use of pydantic to define the models/dataclasses for all the
+options that the user can define in the configuration file.
+
+Pydantic does runtime type checking and validation,
+but we aren't using it yet, and instead we are doing the validation
+in a separate step.
+"""
 from typing import Literal
 
 from pydantic import BaseModel
