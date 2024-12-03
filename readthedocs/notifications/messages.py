@@ -102,8 +102,8 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-                Make sure your files are in the correct directory, or try again later.
-                If this problem persists, report this error to us with your build id ({{instance.pk}}).
+                Make sure this project is outputting files to the correct directory, or try again later.
+                If this problem persists, report this error to us with your build id ({{ instance.pk }}).
                 """
             ).strip(),
         ),
