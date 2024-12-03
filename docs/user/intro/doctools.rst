@@ -29,3 +29,23 @@ with more coming soon.
              :bdg-success:`rst` :bdg-success:`md`
         Written in
              :bdg-info:`python`
+
+    .. grid-item-card::  Docusarus
+        :link: docusaurus.html
+
+        Docusaurus is a static-site generator that builds a single-page application with fast client-side navigation and out-of-the-box documentation features.
+
+        Supported formats
+             :bdg-success:`mdx` :bdg-success:`md`
+        Written in
+             :bdg-info:`React`
+
+    .. grid-item-card::  Markdoc
+        :link: markdoc.html
+
+        Markdoc is a documentation tool developed by Stripe that allows you to write documentation in a custom Markdown flavor.
+
+        Supported formats
+             :bdg-success:`md`
+        Written in
+             :bdg-info:`javascript`

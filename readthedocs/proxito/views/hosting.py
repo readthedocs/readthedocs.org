@@ -30,7 +30,7 @@ from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
 )
-from readthedocs.projects.models import AddonsConfig, Feature, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     comparable_version,
     sort_versions_calver,
@@ -338,10 +338,6 @@ class AddonsResponseBase:
         sorted_versions_active_built_not_hidden = Version.objects.none()
         user = request.user
 
-        # Automatically create an AddonsConfig with the default values for
-        # projects that don't have one already
-        AddonsConfig.objects.get_or_create(project=project)
-
         versions_active_built_not_hidden = (
             self._get_versions(request, project)
             .select_related("project")
@@ -454,6 +450,10 @@ class AddonsResponseBase:
             # Mainly, all the fields including a Project, Version or Build will use the exact same
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
+                "options": {
+                    "load_when_embedded": project.addons.options_load_when_embedded,
+                    "root_selector": project.addons.options_root_selector,
+                },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
                     # TODO: consider adding this field into the ProjectSerializer itself.
@@ -487,6 +487,10 @@ class AddonsResponseBase:
                     #     "filepath": "/docs/index.rst",
                     # },
                 },
+                "customscript": {
+                    "enabled": project.addons.customscript_enabled,
+                    "src": project.addons.customscript_src,
+                },
                 "search": {
                     "enabled": project.addons.search_enabled,
                     # TODO: figure it out where this data comes from.
@@ -512,12 +516,6 @@ class AddonsResponseBase:
                 },
                 "linkpreviews": {
                     "enabled": project.addons.linkpreviews_enabled,
-                    "root_selector": project.addons.linkpreviews_root_selector
-                    or project.addons.LINKPREVIEWS_DEFAULT_ROOT_SELECTOR,
-                    "doctool": {
-                        "name": project.addons.linkpreviews_doctool_name,
-                        "version": project.addons.linkpreviews_doctool_version,
-                    },
                 },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,
@@ -572,6 +570,11 @@ class AddonsResponseBase:
         # If we don't know the filename, we cannot return the data required by DocDiff to work.
         # In that case, we just don't include the `doc_diff` object in the response.
         if url:
+            base_version_slug = (
+                project.addons.options_base_version.slug
+                if project.addons.options_base_version
+                else LATEST
+            )
             data["addons"].update(
                 {
                     "doc_diff": {
@@ -579,21 +582,13 @@ class AddonsResponseBase:
                         # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                         "base_url": resolver.resolve(
                             project=project,
-                            # NOTE: we are using LATEST version to compare against to for now.
-                            # Ideally, this should be configurable by the user.
-                            version_slug=LATEST,
+                            version_slug=base_version_slug,
                             language=project.language,
                             filename=filename,
                         )
                         if filename
                         else None,
-                        "root_selector": project.addons.doc_diff_root_selector,
                         "inject_styles": True,
-                        # NOTE: `base_host` and `base_page` are not required, since
-                        # we are constructing the `base_url` in the backend instead
-                        # of the frontend, as the doc-diff extension does.
-                        "base_host": "",
-                        "base_page": "",
                     },
                 }
             )
@@ -636,16 +631,18 @@ class AddonsResponseBase:
         if not version.is_external:
             return None
 
-        if not project.has_feature(Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF):
+        if not project.addons.filetreediff_enabled:
             return None
 
-        latest_version = project.get_latest_version()
-        if not latest_version or not self._has_permission(
-            request=request, version=latest_version
+        base_version = (
+            project.addons.options_base_version or project.get_latest_version()
+        )
+        if not base_version or not self._has_permission(
+            request=request, version=base_version
         ):
             return None
 
-        diff = get_diff(version_a=version, version_b=latest_version)
+        diff = get_diff(version_a=version, version_b=base_version)
         if not diff:
             return None
 
@@ -657,15 +654,15 @@ class AddonsResponseBase:
                     {
                         "filename": filename,
                         "urls": {
-                            "version_a": resolver.resolve_version(
+                            "current": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
                                 version=version,
                             ),
-                            "version_b": resolver.resolve_version(
+                            "base": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version=latest_version,
+                                version=base_version,
                             ),
                         },
                     }
@@ -675,15 +672,15 @@ class AddonsResponseBase:
                     {
                         "filename": filename,
                         "urls": {
-                            "version_a": resolver.resolve_version(
+                            "current": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
                                 version=version,
                             ),
-                            "version_b": resolver.resolve_version(
+                            "base": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version=latest_version,
+                                version=base_version,
                             ),
                         },
                     }
@@ -693,15 +690,15 @@ class AddonsResponseBase:
                     {
                         "filename": filename,
                         "urls": {
-                            "version_a": resolver.resolve_version(
+                            "current": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
                                 version=version,
                             ),
-                            "version_b": resolver.resolve_version(
+                            "base": resolver.resolve_version(
                                 project=project,
                                 filename=filename,
-                                version=latest_version,
+                                version=base_version,
                             ),
                         },
                     }

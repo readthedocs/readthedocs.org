@@ -144,13 +144,6 @@ class AddonsConfig(TimeStampedModel):
     Everything is enabled by default.
     """
 
-    DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
-    LINKPREVIEWS_DEFAULT_ROOT_SELECTOR = "[role=main] a.internal"
-    LINKPREVIEWS_DOCTOOL_NAME_CHOICES = (
-        ("sphinx", "Sphinx"),
-        ("other", "Other"),
-    )
-
     # Model history
     history = ExtraHistoricalRecords()
 
@@ -167,6 +160,24 @@ class AddonsConfig(TimeStampedModel):
         help_text="Enable/Disable all the addons on this project",
     )
 
+    options_root_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector for the main content of the page. Leave it blank for auto-detect.",
+    )
+
+    # Whether or not load addons library when the requested page is embedded (e.g. inside an iframe)
+    # https://github.com/readthedocs/addons/pull/415
+    options_load_when_embedded = models.BooleanField(default=False)
+
+    options_base_version = models.ForeignKey(
+        "builds.Version",
+        verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
     # Analytics
 
     # NOTE: we keep analytics disabled by default to save resources.
@@ -177,15 +188,12 @@ class AddonsConfig(TimeStampedModel):
     doc_diff_enabled = models.BooleanField(default=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(
-        null=True,
-        blank=True,
-        max_length=128,
-        help_text="CSS selector for the main content of the page",
-    )
 
     # EthicalAds
     ethicalads_enabled = models.BooleanField(default=True)
+
+    # File Tree Diff
+    filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
 
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
@@ -218,6 +226,18 @@ class AddonsConfig(TimeStampedModel):
     search_enabled = models.BooleanField(default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
 
+    # User JavaScript File
+    customscript_enabled = models.BooleanField(default=False)
+
+    # This is a user-defined file that will be injected at serve time by our
+    # Cloudflare Worker if defined
+    customscript_src = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        help_text="URL to a JavaScript file to inject at serve time",
+    )
+
     # Notifications
     notifications_enabled = models.BooleanField(default=True)
     notifications_show_on_latest = models.BooleanField(default=True)
@@ -226,18 +246,6 @@ class AddonsConfig(TimeStampedModel):
 
     # Link Previews
     linkpreviews_enabled = models.BooleanField(default=False)
-    linkpreviews_root_selector = models.CharField(null=True, blank=True, max_length=128)
-    linkpreviews_doctool_name = models.CharField(
-        choices=LINKPREVIEWS_DOCTOOL_NAME_CHOICES,
-        null=True,
-        blank=True,
-        max_length=128,
-    )
-    linkpreviews_doctool_version = models.CharField(
-        null=True,
-        blank=True,
-        max_length=128,
-    )
 
 
 class AddonSearchFilter(TimeStampedModel):
@@ -1916,7 +1924,6 @@ class Feature(models.Model):
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
-    GENERATE_MANIFEST_FOR_FILE_TREE_DIFF = "generate_manifest_for_file_tree_diff"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1976,10 +1983,6 @@ class Feature(models.Model):
         (
             ALLOW_VERSION_WARNING_BANNER,
             _("Dashboard: Allow project to use the version warning banner."),
-        ),
-        (
-            GENERATE_MANIFEST_FOR_FILE_TREE_DIFF,
-            _("Build: Generate a file manifest for file tree diff."),
         ),
         # Versions sync related features
         (
