@@ -34,11 +34,13 @@ Install external dependencies (Docker, Docker Compose, gVisor)
 Set up your environment
 -----------------------
 
-#. Clone the ``readthedocs.org`` repository:
+#. Clone all the required repositories:
 
    .. prompt:: bash
 
       git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
+      git clone --recurse-submodules https://github.com/readthedocs/ext-theme/
+      git clone --recurse-submodules https://github.com/readthedocs/addons/
 
 #. Install or clone additional repositories:
 
@@ -55,7 +57,7 @@ Set up your environment
       export GITHUB_USER="..."
 
    In order to make development changes on any of our private repositories,
-   such as ``readthedocs-ext`` or ``ext-theme``, you will also need to check these repositories out:
+   such as ``readthedocs-ext``, you will also need to check these repositories out:
 
    .. prompt:: bash
 
@@ -89,7 +91,12 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.up  --init  # --init is only needed the first time
+      inv docker.up  --ext-theme --webpack --init
+
+   .. warning::
+
+      ``--init`` is only needed the first time.
+
 
 #. Go to http://devthedocs.org to access your local instance of Read the Docs.
 
@@ -243,7 +250,7 @@ using your GitHub, Bitbucket, or GitLab credentials
 and this makes the process of importing repositories easier.
 
 However, because these services will not be able to connect back to your local development instance,
-:doc:`incoming webhooks <rtd:integrations>` will not function correctly.
+:doc:`incoming webhooks <rtd:reference/git-integration>` will not function correctly.
 For some services, the webhooks will fail to be added when the repository is imported.
 For others, the webhook will simply fail to connect when there are new commits to the repository.
 
@@ -257,10 +264,7 @@ For others, the webhook will simply fail to connect when there are new commits t
   For each of these, the callback URI is ``http://devthedocs.org/accounts/<provider>/login/callback/``
   where ``<provider>`` is one of ``github``, ``gitlab``, or ``bitbucket_oauth2``.
   When setup, you will be given a "Client ID" (also called an "Application ID" or just "Key") and a "Secret".
-* Take the "Client ID" and "Secret" for each service and enter it in your local Django admin at:
-  ``http://devthedocs.org/admin/socialaccount/socialapp/``.
-  Make sure to apply it to the "Site".
-
+* Take the "Client ID" and "Secret" for each service and set them as :ref:`environment variables <settings:Allauth secrets>`.
 
 Troubleshooting
 ---------------

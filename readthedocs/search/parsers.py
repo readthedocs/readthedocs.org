@@ -1,5 +1,5 @@
 """JSON/HTML parsers for search indexing."""
-
+import hashlib
 import itertools
 import re
 
@@ -15,6 +15,45 @@ class GenericParser:
     # Limit that matches the ``index.mapping.nested_objects.limit`` ES setting.
     max_inner_documents = 10000
 
+    # Block level elements have an implicit line break before and after them.
+    # List taken from: https://www.w3schools.com/htmL/html_blocks.asp.
+    block_level_elements = [
+        "address",
+        "article",
+        "aside",
+        "blockquote",
+        "canvas",
+        "dd",
+        "div",
+        "dl",
+        "dt",
+        "fieldset",
+        "figcaption",
+        "figure",
+        "footer",
+        "form",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "header",
+        "hr",
+        "li",
+        "main",
+        "nav",
+        "noscript",
+        "ol",
+        "p",
+        "pre",
+        "section",
+        "table",
+        "tfoot",
+        "ul",
+        "video",
+    ]
+
     def __init__(self, version):
         self.version = version
         self.project = self.version.project
@@ -28,13 +67,14 @@ class GenericParser:
                 type_="html",
                 version_slug=self.version.slug,
                 include_file=False,
+                version_type=self.version.type,
             )
             file_path = self.storage.join(storage_path, page)
             with self.storage.open(file_path, mode="r") as f:
                 content = f.read()
         except Exception:
             log.warning(
-                "Unhandled exception during search processing file.",
+                "Failed to get page content.",
                 page=page,
             )
         return content
@@ -334,7 +374,12 @@ class GenericParser:
                 )
 
             if content:
-                contents.append(content)
+                is_block_level_element = next_tag.tag in self.block_level_elements
+                if is_block_level_element:
+                    # Add a line break before and after a block level element.
+                    contents.append(f"\n{content}\n")
+                else:
+                    contents.append(content)
             next_tag = next_tag.next
 
         return self._parse_content("".join(contents)), section_found
@@ -405,6 +450,7 @@ class GenericParser:
             "path": page,
             "title": "",
             "sections": [],
+            "main_content_hash": None,
         }
 
     def _process_content(self, page, content):
@@ -413,7 +459,9 @@ class GenericParser:
         body = self._get_main_node(html)
         title = ""
         sections = []
+        main_content_hash = None
         if body:
+            main_content_hash = hashlib.md5(body.html.encode()).hexdigest()
             body = self._clean_body(body)
             title = self._get_page_title(body, html) or page
             sections = self._get_sections(title=title, body=body)
@@ -426,4 +474,5 @@ class GenericParser:
             "path": page,
             "title": title,
             "sections": sections,
+            "main_content_hash": main_content_hash,
         }

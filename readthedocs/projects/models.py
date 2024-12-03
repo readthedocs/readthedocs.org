@@ -36,6 +36,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
+from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -52,6 +53,7 @@ from readthedocs.projects.validators import (
     validate_custom_prefix,
     validate_custom_subproject_prefix,
     validate_domain_name,
+    validate_environment_variable_size,
     validate_no_ip,
     validate_repository_url,
 )
@@ -61,8 +63,8 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
-    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
     ADDONS_FLYOUT_SORTING_CHOICES,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -142,8 +144,6 @@ class AddonsConfig(TimeStampedModel):
     Everything is enabled by default.
     """
 
-    DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
-
     # Model history
     history = ExtraHistoricalRecords()
 
@@ -160,6 +160,24 @@ class AddonsConfig(TimeStampedModel):
         help_text="Enable/Disable all the addons on this project",
     )
 
+    options_root_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector for the main content of the page. Leave it blank for auto-detect.",
+    )
+
+    # Whether or not load addons library when the requested page is embedded (e.g. inside an iframe)
+    # https://github.com/readthedocs/addons/pull/415
+    options_load_when_embedded = models.BooleanField(default=False)
+
+    options_base_version = models.ForeignKey(
+        "builds.Version",
+        verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
     # Analytics
 
     # NOTE: we keep analytics disabled by default to save resources.
@@ -170,24 +188,19 @@ class AddonsConfig(TimeStampedModel):
     doc_diff_enabled = models.BooleanField(default=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(
-        null=True,
-        blank=True,
-        max_length=128,
-        help_text="CSS selector for the main content of the page",
-    )
-
-    # External version warning
-    external_version_warning_enabled = models.BooleanField(default=True)
 
     # EthicalAds
     ethicalads_enabled = models.BooleanField(default=True)
 
+    # File Tree Diff
+    filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
+
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
     flyout_sorting = models.CharField(
+        verbose_name=_("Sorting of versions"),
         choices=ADDONS_FLYOUT_SORTING_CHOICES,
-        default=ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+        default=ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
         max_length=64,
     )
     flyout_sorting_custom_pattern = models.CharField(
@@ -195,12 +208,15 @@ class AddonsConfig(TimeStampedModel):
         default=None,
         null=True,
         blank=True,
+        verbose_name=_("Custom version sorting pattern"),
         help_text="Sorting pattern supported by BumpVer "
         '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
     )
     flyout_sorting_latest_stable_at_beginning = models.BooleanField(
+        verbose_name=_(
+            "Show <code>latest</code> and <code>stable</code> at the beginning"
+        ),
         default=True,
-        help_text="Show <code>latest</code> and <code>stable</code> at the beginning",
     )
 
     # Hotkeys
@@ -210,8 +226,26 @@ class AddonsConfig(TimeStampedModel):
     search_enabled = models.BooleanField(default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
 
-    # Stable/Latest version warning
-    stable_latest_version_warning_enabled = models.BooleanField(default=True)
+    # User JavaScript File
+    customscript_enabled = models.BooleanField(default=False)
+
+    # This is a user-defined file that will be injected at serve time by our
+    # Cloudflare Worker if defined
+    customscript_src = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        help_text="URL to a JavaScript file to inject at serve time",
+    )
+
+    # Notifications
+    notifications_enabled = models.BooleanField(default=True)
+    notifications_show_on_latest = models.BooleanField(default=True)
+    notifications_show_on_non_stable = models.BooleanField(default=True)
+    notifications_show_on_external = models.BooleanField(default=True)
+
+    # Link Previews
+    linkpreviews_enabled = models.BooleanField(default=False)
 
 
 class AddonSearchFilter(TimeStampedModel):
@@ -1809,6 +1843,9 @@ class Domain(TimeStampedModel):
             self.validation_process_start = timezone.now()
             self.save()
 
+    def clean(self):
+        check_domains_limit(self.project)
+
     def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
@@ -2052,7 +2089,7 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         help_text=_("Name of the environment variable"),
     )
     value = models.CharField(
-        max_length=2048,
+        max_length=48000,
         help_text=_("Value of the environment variable"),
     )
     project = models.ForeignKey(
@@ -2075,3 +2112,9 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     def save(self, *args, **kwargs):
         self.value = quote(self.value)
         return super().save(*args, **kwargs)
+
+    def clean(self):
+        validate_environment_variable_size(
+            project=self.project, new_env_value=self.value
+        )
+        return super().clean()

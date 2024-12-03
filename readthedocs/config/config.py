@@ -7,8 +7,9 @@ from contextlib import contextmanager
 from functools import lru_cache
 
 from django.conf import settings
+from pydantic import BaseModel
 
-from readthedocs.config.utils import list_to_dict, to_dict
+from readthedocs.config.utils import list_to_dict
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
 
@@ -16,13 +17,13 @@ from .exceptions import ConfigError, ConfigValidationError
 from .find import find_one
 from .models import (
     BuildJobs,
+    BuildJobsBuildTypes,
     BuildTool,
     BuildWithOs,
     Conda,
     Mkdocs,
     Python,
     PythonInstall,
-    PythonInstallRequirements,
     Search,
     Sphinx,
     Submodules,
@@ -206,7 +207,7 @@ class BuildConfigBase:
         config = {}
         for name in self.PUBLIC_ATTRIBUTES:
             attr = getattr(self, name)
-            config[name] = to_dict(attr)
+            config[name] = attr.model_dump() if isinstance(attr, BaseModel) else attr
         return config
 
     def __getattr__(self, name):
@@ -318,11 +319,9 @@ class BuildConfigV2(BuildConfigBase):
             # ones, we could validate the value of each of them is a list of
             # commands. However, I don't think we should validate the "command"
             # looks like a real command.
+            valid_jobs = list(BuildJobs.model_fields.keys())
             for job in jobs.keys():
-                validate_choice(
-                    job,
-                    BuildJobs.__slots__,
-                )
+                validate_choice(job, valid_jobs)
 
         commands = []
         with self.catch_validation_error("build.commands"):
@@ -346,6 +345,14 @@ class BuildConfigV2(BuildConfigBase):
             )
 
         build["jobs"] = {}
+
+        with self.catch_validation_error("build.jobs.build"):
+            build["jobs"]["build"] = self.validate_build_jobs_build(jobs)
+        # Remove the build.jobs.build key from the build.jobs dict,
+        # since it's the only key that should be a dictionary,
+        # it was already validated above.
+        jobs.pop("build", None)
+
         for job, job_commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [
@@ -369,6 +376,29 @@ class BuildConfigV2(BuildConfigBase):
 
         build["apt_packages"] = self.validate_apt_packages()
         return build
+
+    def validate_build_jobs_build(self, build_jobs):
+        result = {}
+        build_jobs_build = build_jobs.get("build", {})
+        validate_dict(build_jobs_build)
+
+        allowed_build_types = list(BuildJobsBuildTypes.model_fields.keys())
+        for build_type, build_commands in build_jobs_build.items():
+            validate_choice(build_type, allowed_build_types)
+            if build_type != "html" and build_type not in self.formats:
+                raise ConfigError(
+                    message_id=ConfigError.BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS,
+                    format_values={
+                        "build_type": build_type,
+                    },
+                )
+            with self.catch_validation_error(f"build.jobs.build.{build_type}"):
+                result[build_type] = [
+                    validate_string(build_command)
+                    for build_command in validate_list(build_commands)
+                ]
+
+        return result
 
     def validate_apt_packages(self):
         apt_packages = []
@@ -763,21 +793,7 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def python(self):
-        python_install = []
-        python = self._config["python"]
-        for install in python["install"]:
-            if "requirements" in install:
-                python_install.append(
-                    PythonInstallRequirements(**install),
-                )
-            elif "path" in install:
-                python_install.append(
-                    PythonInstall(**install),
-                )
-
-        return Python(
-            install=python_install,
-        )
+        return Python(**self._config["python"])
 
     @property
     def sphinx(self):

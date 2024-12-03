@@ -86,6 +86,7 @@ If you're using a different theme, enable :doc:`Server side search </server-side
 
 
       // Trigger the Read the Docs Addons Search modal when clicking on "Search docs" input from the topnav.
+      // NOTE: The selector of the search input may need to be adjusted based on your theme.
       document.querySelector("[role='search'] input").addEventListener("focusin", () => {
          const event = new CustomEvent("readthedocs-search-show");
          document.dispatchEvent(event);
@@ -97,31 +98,19 @@ If you're using a different theme, enable :doc:`Server side search </server-side
         :caption: conf.py
 
          html_js_files = [
-             "readthedocs.js",
+             ("readthedocs.js", {"defer": "defer"}),
          ]
 
+Integrate the Read the Docs version menu into your site navigation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. TODO: adapt and uncomment this section.
-   We've changed `flyout_display` to be `hidden` by default;
-   If people want to use the integrated version of it, they should declare it as `attached`.
-   However, as we have the version/language selectors now,
-   we want to promote that more and keep the Addons flyout enabled by default.
+The :ref:`flyout-menu:Addons flyout menu` displays differently depending to which Sphinx theme your documentation uses.
 
-   Integrate the Read the Docs version menu into your site navigation
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- If you're using the `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`__, the :ref:`flyout-menu:Addons flyout menu` is already fully integrated into the theme. Use the theme options `flyout_display <https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html#confval-flyout_display>`__, `version_selector <https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html#confval-version_selector>`__, `language_selector <https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html#confval-language_selector>`__ to configure it.
 
-   If you're using the `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`__, the :ref:`flyout-menu:Addons flyout menu` is already fully integrated.
+- If you're using another theme, the flyout menu displays in the bottom right of the docs.
 
-   You *may* need to set `flyout_display` to `hidden <https://sphinx-rtd-theme.readthedocs.io/en/latest/configuring.html#confval-flyout_display>`_ in your ``conf.py`` so as not to display two identical menus:
-
-   .. code-block:: py
-      :caption: conf.py
-
-       html_theme_options = {
-           "flyout_display": "hidden",
-       }
-
-   If you're using a different theme, the flyout menu will display in the default bottom right side of your docs.
+In either case, you can configure the flyout menu sorting and display options in :guilabel:`Settings`, under :guilabel:`Addons`.
 
 Using Markdown with Sphinx
 --------------------------
@@ -144,9 +133,7 @@ You can now continue writing your docs in ``.md`` files and it will work with Sp
 .. seealso::
 
    `Getting started with MyST in Sphinx <https://myst-parser.readthedocs.io/en/latest/sphinx/intro.html>`_
-
-   :doc:`/guides/migrate-rest-myst`
-     Learn how to use references between different Sphinx projects, for instance between subprojects
+     Learn how to use MyST to write Markdown documentation in your Sphinx project.
 
    :doc:`/guides/migrate-rest-myst`
      Start writing Markdown in your existing reStructuredText project, or migrate it completely.

@@ -12,7 +12,7 @@ from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import AddonsConfig, Domain, HTTPHeader
+from readthedocs.projects.models import Domain, HTTPHeader
 
 from .base import BaseDocServing
 
@@ -199,21 +199,7 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r[http_header], http_header_value)
         self.assertEqual(r[http_header_secure], http_header_value)
 
-    def test_hosting_integrations_header(self):
-        version = self.project.versions.get(slug=LATEST)
-        version.addons = True
-        version.save()
-
-        r = self.client.get(
-            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
-        )
-        self.assertEqual(r.status_code, 200)
-        self.assertIsNotNone(r.get("X-RTD-Hosting-Integrations"))
-        self.assertEqual(r["X-RTD-Hosting-Integrations"], "true")
-
     def test_force_addons_header(self):
-        fixture.get(AddonsConfig, project=self.project, enabled=True)
-
         r = self.client.get(
             "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
         )

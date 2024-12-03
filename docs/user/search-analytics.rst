@@ -1,7 +1,18 @@
-How to use search analytics
-===========================
+Search analytics
+================
 
-In this guide, you can learn to use Read the Docs' built-in search analytics for your documentation project.
+When someone visits your documentation and uses the built-in :doc:`server side search </server-side-search/index>` feature,
+Read the Docs will collect analytics on their search queries.
+
+These are aggregated into a simple view of the
+"Top queries in the past 30 days".
+You can also download this data.
+
+This is helpful to optimize your documentation in alignment with your readers' interests.
+You can discover new trends and expand your documentation to new needs.
+
+Using search analytics
+----------------------
 
 To see a list of the top queries and an overview from the last month,
 go to the :guilabel:`Admin` tab of your project,
@@ -39,3 +50,19 @@ The number of times the query has been used in a search is displayed as the **se
 In **Daily search totals**, you can see trends that might match special events in your project's publicity.
 If you wish to analyze these numbers in details, click :guilabel:`Download all data`
 to get a CSV formatted file with all available search analytics.
+
+Data storage
+------------
+
+The duration of analytics data stored depends on which site you're using:
+
+* On |org_brand|, the last 90 days are stored.
+* On |com_brand|, storage duration starts at 30 days and increases with plan level.
+
+.. seealso::
+
+   `Our plan pricing <https://about.readthedocs.com/pricing/>`_
+      Compare our plan pricing and analytics storage duration.
+
+   :doc:`/traffic-analytics`
+      See how users are using your documentation.

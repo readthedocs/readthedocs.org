@@ -4,14 +4,13 @@ sphinx
 
 matplotlib  # opengraph social cards
 
-sphinx_rtd_theme==3.0.0rc2
+sphinx_rtd_theme
 sphinx-tabs
 sphinx-intl
 sphinx-design
 sphinx-multiproject
 
 # RTD deps :)
-sphinx-hoverxref
 sphinx-notfound-page
 
 # Docs
