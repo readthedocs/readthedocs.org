@@ -846,13 +846,38 @@ class ProjectSerializer(FlexFieldsModelSerializer):
 
     def get_translation_of(self, obj):
         if obj.main_language_project:
-            return self.__class__(obj.main_language_project).data
+            # Since the related project can be private, we use a restricted serializer.
+            return RestrictedProjectSerializer(obj.main_language_project).data
+        return None
 
     def get_subproject_of(self, obj):
-        try:
-            return self.__class__(obj.superprojects.first().parent).data
-        except Exception:
-            return None
+        parent_relationshipt = obj.superprojects.first()
+        if parent_relationshipt:
+            # Since the related project can be private, we use a restricted serializer.
+            return RestrictedProjectSerializer(parent_relationshipt.parent).data
+        return None
+
+
+class RestrictedProjectSerializer(serializers.ModelSerializer):
+
+    """
+    Stripped version of the ProjectSerializer to be used when including related projects.
+
+    This serializer is used to avoid leaking information about a private project through
+    a public project. Instead of checking if user has access to the project,
+    we just show the name and slug.
+    """
+
+    _links = ProjectLinksSerializer(source="*")
+
+    class Meta:
+        model = Project
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "_links",
+        ]
 
 
 class SubprojectCreateSerializer(FlexFieldsModelSerializer):
