@@ -59,18 +59,11 @@ you need to generate static HTML from the Next JS build:
             ...nextConfig,
     });
 
-Supported features
-------------------
+Limitations
+-----------
 
-.. csv-table:: Supported features
-   :header: "Feature", "Description", "Supported"
-
-   "Pull request previews", "Preview changes to your documentation before merging.", "✅"
-   "Versioning", "Supports multiple versions of your documentation.", "✅"
-   "Search", "Provides full-text search capabilities.", "✅"
-   "Flyout menu", "Provides a flyout menu for navigation.", "✅"
-   "Offline formats", "Generates PDF and EPUB formats.", "✅"
-   "Localization", "Supports multiple languages.", "✅"
+All Read the Docs features are supported for Markdoc projects.
+There may be some Markdoc features that depend on server-side rendering that are not supported.
 
 Getting started
 ---------------

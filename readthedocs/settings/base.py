@@ -63,6 +63,17 @@ class CommunityBaseSettings(Settings):
 
         return {
             "SHOW_TOOLBAR_CALLBACK": _show_debug_toolbar,
+            "DISABLE_PANELS": [
+                # Default ones
+                "debug_toolbar.panels.profiling.ProfilingPanel",
+                "debug_toolbar.panels.redirects.RedirectsPanel",
+                # Custome ones
+                # We are disabling these because they take a lot of time to execute in the new dashboard.
+                # We make an intensive usage of the ``include`` template tag there.
+                # It's a "known issue/bug" and there is no solution as far as we can tell.
+                "debug_toolbar.panels.sql.SQLPanel",
+                "debug_toolbar.panels.templates.TemplatesPanel",
+            ]
         }
 
     @property

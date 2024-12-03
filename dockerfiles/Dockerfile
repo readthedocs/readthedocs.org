@@ -56,16 +56,16 @@ RUN npm install -g nodemon
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
 
-RUN pip3 install --no-cache-dir --upgrade pip
+# Install ``uv`` package manager
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Ensure that ``python`` is in the PATH so that ``./manage.py`` works
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 WORKDIR /tmp
 
-COPY requirements/pip.txt pip.txt
 COPY requirements/docker.txt docker.txt
-RUN pip3 install --no-cache-dir -r docker.txt
+RUN ~/.local/bin/uv pip sync --system docker.txt
 
 # Install readthedocs-ext only if GITHUB_TOKEN is provided
 WORKDIR /usr/src/app/checkouts/
