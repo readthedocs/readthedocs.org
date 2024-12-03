@@ -69,6 +69,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 WORKDIR /tmp
 
+ARG PRUNE_PACKAGE_CACHE=0
 COPY requirements/docker.txt docker.txt
 RUN uv pip sync docker.txt
 
