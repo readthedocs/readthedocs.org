@@ -1089,7 +1089,7 @@ class DomainForm(forms.ModelForm):
         try:
             return urlparse(url)
         except ValueError:
-            raise forms.ValidationError(f"Invalid domain")
+            raise forms.ValidationError("Invalid domain")
 
     def clean_canonical(self):
         canonical = self.cleaned_data["canonical"]
