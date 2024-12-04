@@ -106,19 +106,21 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         # Decode encoded URLs (e.g. convert %20 into a whitespace)
         filename = urllib.parse.unquote(filename)
 
+        # If the filename starts with `/`, the join will fail,
+        # so we strip it before joining it.
         relative_filename = filename.lstrip("/")
         file_path = build_media_storage.join(
             storage_path,
             relative_filename,
         )
 
-        try:
-            with build_media_storage.open(
-                file_path
-            ) as fd:  # pylint: disable=invalid-name
-                return fd.read()
-        except Exception:  # noqa
-            log.warning("Unable to read file.", file_path=file_path)
+        tryfiles = [file_path, build_media_storage.join(file_path, "index.html")]
+        for tryfile in tryfiles:
+            try:
+                with build_media_storage.open(tryfile) as fd:
+                    return fd.read()
+            except Exception:  # noqa
+                log.warning("Unable to read file.", file_path=file_path)
 
         return None
 
