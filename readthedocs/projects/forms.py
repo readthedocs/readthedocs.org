@@ -65,7 +65,13 @@ class ProjectForm(SimpleHistoryModelForm):
             coerce=lambda x: RemoteRepository.objects.get(pk=x),
             required=False,
             empty_value=None,
+            help_text=self.fields["remote_repository"].help_text,
+            label=self.fields["remote_repository"].label,
         )
+
+        # The clone URL will be set from the remote repository.
+        if self.instance.remote_repository:
+            self.fields.pop("repo")
 
     def _get_remote_repository_choices(self):
         """
@@ -395,6 +401,9 @@ class ProjectBasicsForm(ProjectForm):
         super().__init__(*args, **kwargs)
         self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
         self.fields["repo"].widget.attrs["required"] = True
+        if self.initial.get("remote_repository"):
+            # make the repo field readonly if a remote repository is connected
+            self.fields["repo"].widget.attrs["readonly"] = True
         self.fields["remote_repository"].widget = forms.HiddenInput()
 
 

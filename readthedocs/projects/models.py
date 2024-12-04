@@ -632,6 +632,11 @@ class Project(models.Model):
         if self.remote_repository and not self.remote_repository.private:
             self.external_builds_privacy_level = PUBLIC
 
+        # If the project is linked to a remote repository,
+        # make sure to use the clone URL from the repository.
+        if self.remote_repository:
+            self.repo = self.remote_repository.clone_url
+
         super().save(*args, **kwargs)
 
         try:
@@ -647,7 +652,9 @@ class Project(models.Model):
         log.debug(
             "Updating default branch.", slug=LATEST, identifier=self.default_branch
         )
-        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
+        self.versions.filter(slug=LATEST, machine=True).update(
+            identifier=self.default_branch
+        )
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
