@@ -347,6 +347,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
             # I don't know why `show_config_step` is called multiple times (at least 4).
             # This is a problem for us because we perform external calls here and add messages to the request.
             # Due to that, we are adding this instance variable to prevent this function to run multiple times.
+            # Maybe related to https://github.com/jazzband/django-formtools/issues/134
             if hasattr(wizard, "_show_config_step_executed"):
                 return False
 
