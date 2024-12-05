@@ -158,7 +158,7 @@ django-extensions==3.2.3
     # via -r requirements/pip.txt
 django-filter==24.3
     # via -r requirements/pip.txt
-django-formtools==2.3
+django-formtools==2.5.1
     # via -r requirements/pip.txt
 django-gravatar2==1.4.5
     # via -r requirements/pip.txt
