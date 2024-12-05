@@ -19,7 +19,7 @@ Tooltips on your own documentation are really useful to add more context to the 
 You can embed any content that is available via an HTML id.
 
 We built an addon called :doc:`Links Previews </links-preview>` on top of our Embed API
-that you can enable from addons settings of your project using the :term:`dashboard`.
+that you can enable from the addons settings of your project using the :term:`dashboard`.
 
 Inline help on application website
 ----------------------------------
