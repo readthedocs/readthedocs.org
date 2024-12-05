@@ -28,6 +28,7 @@ def sync_versions_to_db(project, versions, type):
 
     - check if user has a ``stable`` / ``latest`` version and disable ours
     - update old versions with newer configs (identifier, type, machine)
+    - take into account ``VersionOverride`` for versions modified by the user
     - create new versions that do not exist on DB (in bulk)
     - it does not delete versions
 
@@ -77,17 +78,20 @@ def sync_versions_to_db(project, versions, type):
                 # Version is correct
                 continue
 
-            # Update slug with new identifier
-            Version.objects.filter(
+            # Update slug with new identifier if it differs
+            v = Version.objects.filter(
                 project=project,
                 verbose_name=version_name,
                 # Always filter by type, a tag and a branch
                 # can share the same verbose_name.
                 type=type,
-            ).update(
-                identifier=version_id,
-                machine=False,
-            )
+            ).first()
+
+            # Update the version with VCS data only if the version is not
+            # overridden by the user
+            if v and not v.active or (not v.override or not v.override.user_identifier):
+                v.machine = False
+                v.identifier = version_id
 
             log.info(
                 "Re-syncing versions: version updated.",
