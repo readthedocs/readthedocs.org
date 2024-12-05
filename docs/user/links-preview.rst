@@ -4,7 +4,7 @@ Links preview
 Links previews allows you to see the content of the link you are about to click when you hover it.
 This content will be rendered inside a popup that disappears after moving the mouse outside of it.
 
-.. figure:: /img/addons-links-preview.gif
+.. figure:: /img/addons-links-preview.png
    :width: 80%
 
    Example of links preview addon
