@@ -7,7 +7,7 @@ This content will be rendered inside a popup that disappears after moving the mo
 .. figure:: /img/addons-links-preview.gif
    :width: 80%
 
-   Example of Links preview
+   Example of links preview addon
 
 
 
