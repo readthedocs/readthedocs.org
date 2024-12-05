@@ -401,9 +401,11 @@ class ProjectBasicsForm(ProjectForm):
         super().__init__(*args, **kwargs)
         self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
         self.fields["repo"].widget.attrs["required"] = True
+        # Make the repo field readonly if a remote repository is given,
+        # since it will be derived from the remote repository.
+        # In the form we already populate this field with the remote repository's clone URL.
         if self.initial.get("remote_repository"):
-            # make the repo field readonly if a remote repository is connected
-            self.fields["repo"].widget.attrs["readonly"] = True
+            self.fields["repo"].disabled = True
         self.fields["remote_repository"].widget = forms.HiddenInput()
 
 
