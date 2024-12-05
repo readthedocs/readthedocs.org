@@ -147,6 +147,7 @@ class APIEndpointMixin(TestCase):
             has_pdf=True,
             has_epub=True,
             has_htmlzip=True,
+            privacy_level=PUBLIC,
         )
 
         self.organization = fixture.get(
