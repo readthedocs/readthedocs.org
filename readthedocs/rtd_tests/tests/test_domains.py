@@ -154,6 +154,7 @@ class FormTests(TestCase):
             "1.23.45.67",
             "127.0.0.1",
             "127.0.0.10",
+            "[1.2.3.4.com",
         ]
         for domain in domains:
             form = DomainForm(
