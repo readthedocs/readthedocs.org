@@ -87,6 +87,32 @@ class TestEmbedAPIv3ExternalPages:
         compare_content_without_blank_lines(json_response["content"], content)
 
     @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=True)
+    def test_specific_main_content_selector(self, app, client, requests_mock):
+        app.build()
+        path = app.outdir / "index.html"
+        assert path.exists() is True
+        content = open(path).read()
+        requests_mock.get("https://docs.project.com", text=content)
+
+        params = {
+            "url": "https://docs.project.com",
+            "maincontent": "#invalid-selector",
+        }
+        response = client.get(self.api_url, params)
+        assert response.status_code == 404
+
+        params = {
+            "url": "https://docs.project.com",
+            "maincontent": "section",
+        }
+        response = client.get(self.api_url, params)
+        assert response.status_code == 200
+        # Check the main three sections are returned.
+        assert "Title" in response.json()["content"]
+        assert "Sub-title" in response.json()["content"]
+        assert "Manual Reference Section" in response.json()["content"]
+
+    @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=True)
     def test_specific_identifier(self, app, client, requests_mock):
         app.build()
         path = app.outdir / "index.html"

@@ -2,7 +2,7 @@ import django_dynamic_fixture as fixture
 import pytest
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     sort_versions_calver,
     sort_versions_custom_pattern,
@@ -18,7 +18,6 @@ class TestVersionHandling:
         self.requests_mock = requests_mock
 
         self.project = fixture.get(Project, slug="project")
-        self.addons = fixture.get(AddonsConfig, project=self.project)
         self.version = self.project.versions.get(slug="latest")
         self.build = fixture.get(
             Build,

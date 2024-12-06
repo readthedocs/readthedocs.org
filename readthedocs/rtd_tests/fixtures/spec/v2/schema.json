@@ -9,9 +9,7 @@
       "title": "Version",
       "description": "The version of the spec to use.",
       "type": "number",
-      "enum": [
-        2
-      ]
+      "enum": [2]
     },
     "formats": {
       "title": "Formats",
@@ -20,17 +18,11 @@
         {
           "type": "array",
           "items": {
-            "enum": [
-              "htmlzip",
-              "pdf",
-              "epub"
-            ]
+            "enum": ["htmlzip", "pdf", "epub"]
           }
         },
         {
-          "enum": [
-            "all"
-          ]
+          "enum": ["all"]
         }
       ],
       "default": []
@@ -46,9 +38,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "environment"
-      ]
+      "required": ["environment"]
     },
     "build": {
       "title": "Build",
@@ -98,6 +88,14 @@
                 "type": "string"
               }
             },
+            "create_environment": {
+              "description": "Override the default environment creation process.",
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
+            },
             "post_create_environment": {
               "type": "array",
               "items": {
@@ -106,6 +104,14 @@
               }
             },
             "pre_install": {
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
+            },
+            "install": {
+              "description": "Override the default installation process.",
               "type": "array",
               "items": {
                 "title": "Custom commands",
@@ -124,6 +130,41 @@
               "items": {
                 "title": "Custom commands",
                 "type": "string"
+              }
+            },
+            "build": {
+              "description": "Override the default build process.",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "html": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "htmlzip": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "pdf": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "epub": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                }
               }
             },
             "post_build": {
@@ -165,22 +206,10 @@
               ]
             },
             "nodejs": {
-              "enum": [
-                "14",
-                "16",
-                "18",
-                "19",
-                "20",
-                "22",
-                "23",
-                "latest"
-              ]
+              "enum": ["14", "16", "18", "19", "20", "22", "23", "latest"]
             },
             "ruby": {
-              "enum": [
-                "3.3",
-                "latest"
-              ]
+              "enum": ["3.3", "latest"]
             },
             "rust": {
               "enum": [
@@ -230,10 +259,7 @@
           }
         }
       },
-      "required": [
-        "os",
-        "tools"
-      ],
+      "required": ["os", "tools"],
       "additionalProperties": false
     },
     "python": {
@@ -255,9 +281,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "requirements"
-                ]
+                "required": ["requirements"]
               },
               {
                 "properties": {
@@ -269,10 +293,7 @@
                   "method": {
                     "title": "Method",
                     "description": "Install using python setup.py install or pip.",
-                    "enum": [
-                      "pip",
-                      "setuptools"
-                    ],
+                    "enum": ["pip", "setuptools"],
                     "default": "pip"
                   },
                   "extra_requirements": {
@@ -285,9 +306,7 @@
                     "default": []
                   }
                 },
-                "required": [
-                  "path"
-                ]
+                "required": ["path"]
               }
             ]
           }
@@ -303,11 +322,7 @@
         "builder": {
           "title": "Builder",
           "description": "The builder type for the sphinx documentation.",
-          "enum": [
-            "html",
-            "dirhtml",
-            "singlehtml"
-          ],
+          "enum": ["html", "dirhtml", "singlehtml"],
           "default": "html"
         },
         "configuration": {
@@ -359,9 +374,7 @@
               }
             },
             {
-              "enum": [
-                "all"
-              ]
+              "enum": ["all"]
             }
           ],
           "default": []
@@ -377,9 +390,7 @@
               }
             },
             {
-              "enum": [
-                "all"
-              ]
+              "enum": ["all"]
             }
           ],
           "default": []
@@ -425,8 +436,6 @@
       "additionalProperties": false
     }
   },
-  "required": [
-    "version"
-  ],
+  "required": ["version"],
   "additionalProperties": false
 }

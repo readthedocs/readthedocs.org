@@ -1,6 +1,5 @@
 """Project forms."""
 
-import datetime
 import json
 from random import choice
 from re import fullmatch
@@ -8,14 +7,12 @@ from urllib.parse import urlparse
 
 import dns.name
 import dns.resolver
-import pytz
 from allauth.socialaccount.models import SocialAccount
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
@@ -689,22 +686,11 @@ class AddonsConfigForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
-
-        tzinfo = pytz.timezone("America/Los_Angeles")
-        addons_enabled_by_default = timezone.now() > datetime.datetime(
-            2024, 10, 7, 0, 0, 0, tzinfo=tzinfo
-        )
-
-        addons, created = AddonsConfig.objects.get_or_create(project=self.project)
-        if created:
-            addons.enabled = addons_enabled_by_default
-            addons.save()
-
-        kwargs["instance"] = addons
+        kwargs["instance"] = self.project.addons
         super().__init__(*args, **kwargs)
 
         # Keep the ability to disable addons completely on Read the Docs for Business
-        if not settings.RTD_ALLOW_ORGANIZATIONS and addons_enabled_by_default:
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields["enabled"].disabled = True
 
     def clean(self):
@@ -1008,11 +994,11 @@ class DomainForm(forms.ModelForm):
     def clean_domain(self):
         """Validates domain."""
         domain = self.cleaned_data["domain"].lower()
-        parsed = urlparse(domain)
+        parsed = self._safe_urlparse(domain)
 
         # Force the scheme to have a valid netloc.
         if not parsed.scheme:
-            parsed = urlparse(f"https://{domain}")
+            parsed = self._safe_urlparse(f"https://{domain}")
 
         if not parsed.netloc:
             raise forms.ValidationError(f"{domain} is not a valid domain.")
@@ -1097,6 +1083,13 @@ class DomainForm(forms.ModelForm):
             raise forms.ValidationError(
                 _("The domain is not valid."),
             )
+
+    def _safe_urlparse(self, url):
+        """Wrapper around urlparse to throw ValueError exceptions as ValidationError."""
+        try:
+            return urlparse(url)
+        except ValueError:
+            raise forms.ValidationError("Invalid domain")
 
     def clean_canonical(self):
         canonical = self.cleaned_data["canonical"]

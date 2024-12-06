@@ -63,6 +63,7 @@ from our own docs and will populate the content of it into the ``#help-container
       'url': 'https://docs.readthedocs.io/en/latest/automation-rules.html%23creating-an-automation-rule',
       // 'doctool': 'sphinx',
       // 'doctoolversion': '4.2.0',
+      // 'maincontent': 'div#main',
     };
     var url = 'https://readthedocs.org/api/v3/embed/?' + $.param(params);
     $.get(url, function(data) {

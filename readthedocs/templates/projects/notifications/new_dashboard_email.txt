@@ -1,0 +1,37 @@
+{% extends "core/email/common.txt" %}
+{% block content %}
+Earlier this month we began the last phase of a project to retire our
+original user interface and replace it with a completely new dashboard.
+
+Documentation hosted on Read the Docs Business will display this new dashboard
+in several places where documentation readers interact with our application:
+documentation authentication and our default documentation error pages.
+
+Below is a summary of what is changing, however we cover what will be
+changing and when to expect these changes in more detail on our website:
+
+  Rollout of our new dashboard
+  https://about.readthedocs.com/blog/2024/11/rollout-of-our-new-dashboard/
+
+----
+
+On *Dec 10th* we will make our new dashboard the default dashboard for
+users logging into Read the Docs Business from our website.
+This change will mainly affect project maintainers,
+especially maintainers that have not yet switched to the new dashboard.
+
+At this same time, we will also begin using the new dashboard for
+documentation authentication and documentation error pages.
+Documentation readers will notice the new dashboard as they log in to
+view private documentation and might notice updated error pages if they
+encounter an HTTP error.
+
+*There will be no changes to user generated documentation otherwise.*
+
+Projects can update to use these new pages in their documentation at any
+point. If you would like to update your project to use these pages
+before then, contact us:
+
+https://app.readthedocs.com/support
+
+{% endblock content %}

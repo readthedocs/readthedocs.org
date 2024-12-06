@@ -125,6 +125,18 @@ messages = [
         type=ERROR,
     ),
     Message(
+        id=ConfigError.BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS,
+        header=_("Invalid configuration option"),
+        body=_(
+            textwrap.dedent(
+                """
+                The <code>{{ build_type }}</code> build type was defined in <code>build.jobs.build</code>, but it wasn't included in <code>formats</code>.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=ConfigError.APT_INVALID_PACKAGE_NAME_PREFIX,
         header=_("Invalid APT package name"),
         body=_(
@@ -142,7 +154,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            The name of the package <code>{{pacakge}}</name> is invalid.
+            The name of the package <code>{{pacakge}}</code> is invalid.
             """
             ).strip(),
         ),

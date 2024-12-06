@@ -1,9 +1,11 @@
 """Views for the embed app."""
-
+import datetime
 import json
 import re
 
+import pytz
 import structlog
+from django.conf import settings
 from django.template.defaultfilters import slugify
 from docutils.nodes import make_id
 from pyquery import PyQuery as PQ  # noqa
@@ -66,8 +68,39 @@ class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         # Always return False because APIv2 does not support external domains
         return False
 
+    def _is_disabled_for_deprecation(self):
+        if not settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
+            return False
+
+        tzinfo = pytz.timezone("America/Los_Angeles")
+        now = datetime.datetime.now(tz=tzinfo)
+        # Dates as per https://about.readthedocs.com/blog/2024/11/embed-api-v2-deprecated/.
+        # fmt: off
+        is_disabled = (
+            # 12 hours brownout.
+            datetime.datetime(2024, 12, 9, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2024, 12, 9, 12, 0, 0, tzinfo=tzinfo)
+            # 24 hours brownout.
+            or datetime.datetime(2025, 1, 13, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 14, 0, 0, 0, tzinfo=tzinfo)
+            # Permanent removal.
+            or datetime.datetime(2025, 1, 20, 0, 0, 0, tzinfo=tzinfo) < now
+        )
+        # fmt: on
+        return is_disabled
+
     def get(self, request):
         """Handle the get request."""
+
+        if self._is_disabled_for_deprecation():
+            return Response(
+                {
+                    "error": (
+                        "Embed API v2 has been deprecated and is no longer available, please use embed API v3 instead. "
+                        "Read our blog post for more information: https://about.readthedocs.com/blog/2024/11/embed-api-v2-deprecated/."
+                    )
+                },
+                status=status.HTTP_410_GONE,
+            )
+
         project = self._get_project()
         version = self._get_version()
 

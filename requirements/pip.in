@@ -10,9 +10,7 @@ django-autoslug
 # https://www.psycopg.org/psycopg3/docs/basic/install.html
 psycopg[binary,pool]
 
-# 3.1.0 includes changes that require running `makemigrations`
-# https://django-simple-history.readthedocs.io/en/latest/#changes
-django-simple-history==3.0.0
+django-simple-history
 
 djangorestframework
 djangorestframework-api-key
@@ -45,6 +43,7 @@ requests-toolbelt
 slumber
 pyyaml
 Pygments
+pydantic
 
 dnspython
 
@@ -125,8 +124,7 @@ dj-stripe==2.6.3
 
 markdown
 
-# unicode-slugify==0.1.5 is not released on PyPI yet
-git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
+unicode-slugify
 
 # Version 2.4 makes tests to fail with:
 # "RecursionError: maximum recursion depth exceeded in comparison"
