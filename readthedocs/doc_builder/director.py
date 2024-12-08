@@ -107,6 +107,8 @@ class BuildDirector:
         # self.run_build_job("pre_checkout")
         self.checkout()
 
+        self.run_default_commands = self.is_type_mkdocs() or self.is_type_sphinx()
+
         self.run_build_job("post_checkout")
 
         commit = self.data.build_commit or self.vcs_repository.commit
@@ -309,7 +311,9 @@ class BuildDirector:
         if self.data.config.build.jobs.create_environment is not None:
             self.run_build_job("create_environment")
             return
-        self.language_environment.setup_base()
+
+        if self.run_default_commands or self.data.config.source_config.get("python"):
+            self.language_environment.setup_base()
 
     # Install
     def install(self):
@@ -317,15 +321,18 @@ class BuildDirector:
             self.run_build_job("install")
             return
 
-        self.language_environment.install_core_requirements()
-        self.language_environment.install_requirements()
+        if self.run_default_commands or self.data.config.source_config.get("python"):
+            self.language_environment.install_core_requirements()
+            self.language_environment.install_requirements()
 
     # Build
     def build_html(self):
         if self.data.config.build.jobs.build.html is not None:
             self.run_build_job("build.html")
             return
-        return self.build_docs_class(self.data.config.doctype)
+
+        if self.run_default_commands:
+            return self.build_docs_class(self.data.config.doctype)
 
     def build_pdf(self):
         if "pdf" not in self.data.config.formats or self.data.version.type == EXTERNAL:
@@ -336,7 +343,7 @@ class BuildDirector:
             return
 
         # Mkdocs has no pdf generation currently.
-        if self.is_type_sphinx():
+        if self.is_type_sphinx() and self.run_default_commands:
             return self.build_docs_class("sphinx_pdf")
 
         return False
@@ -353,7 +360,7 @@ class BuildDirector:
             return
 
         # We don't generate a zip for mkdocs currently.
-        if self.is_type_sphinx():
+        if self.is_type_sphinx() and self.run_default_commands:
             return self.build_docs_class("sphinx_singlehtmllocalmedia")
         return False
 
@@ -366,7 +373,7 @@ class BuildDirector:
             return
 
         # Mkdocs has no epub generation currently.
-        if self.is_type_sphinx():
+        if self.is_type_sphinx() and self.run_default_commands:
             return self.build_docs_class("sphinx_epub")
         return False
 
@@ -743,6 +750,10 @@ class BuildDirector:
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
         return "sphinx" in self.data.config.doctype
+
+    def is_type_mkdocs(self):
+        """Is documentation type MkDocs."""
+        return "mkdocs" in self.data.config.doctype
 
     def store_readthedocs_build_yaml(self):
         # load YAML from user
