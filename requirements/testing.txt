@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.71
+boto3==1.35.76
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.71
+botocore==1.35.76
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -82,7 +82,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.6.8
+coverage[toml]==7.6.9
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
@@ -109,7 +109,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.16
+django==4.2.17
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -316,7 +316,7 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.2
+pydantic==2.10.3
     # via -r requirements/pip.txt
 pydantic-core==2.27.1
     # via
@@ -332,7 +332,7 @@ pyjwt[crypto]==2.10.1
     #   django-allauth
 pyquery==2.0.1
     # via -r requirements/pip.txt
-pytest==8.3.3
+pytest==8.3.4
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -374,7 +374,7 @@ qrcode==8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==5.2.0
+redis==5.2.1
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -407,7 +407,7 @@ s3transfer==0.10.4
     #   boto3
 selectolax==0.3.26
     # via -r requirements/pip.txt
-six==1.16.0
+six==1.17.0
     # via
     #   -r requirements/pip.txt
     #   django-annoying
@@ -474,9 +474,8 @@ tzdata==2024.2
 ua-parser==1.0.0
     # via
     #   -r requirements/pip.txt
-    #   ua-parser-builtins
     #   user-agents
-ua-parser-builtins==0.18.0
+ua-parser-builtins==0.18.0.post1
     # via
     #   -r requirements/pip.txt
     #   ua-parser

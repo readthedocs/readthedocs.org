@@ -6,7 +6,7 @@
 #
 alabaster==1.0.0
     # via sphinx
-anyio==4.6.2.post1
+anyio==4.7.0
     # via
     #   starlette
     #   watchfiles
@@ -39,7 +39,7 @@ docutils==0.21.2
     #   sphinx-tabs
 exceptiongroup==1.2.2
     # via anyio
-fonttools==4.55.0
+fonttools==4.55.2
     # via matplotlib
 h11==0.14.0
     # via uvicorn
@@ -95,7 +95,7 @@ pyyaml==6.0.2
     # via myst-parser
 requests==2.32.3
     # via sphinx
-six==1.16.0
+six==1.17.0
     # via
     #   python-dateutil
     #   sphinxcontrib-httpdomain
@@ -125,7 +125,7 @@ sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
 sphinx-design==0.6.1
     # via -r requirements/docs.in
-sphinx-intl==2.3.0
+sphinx-intl==2.3.1
     # via -r requirements/docs.in
 sphinx-multiproject==1.0.0
     # via -r requirements/docs.in
