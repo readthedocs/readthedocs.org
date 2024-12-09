@@ -19,7 +19,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
-from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
@@ -110,7 +109,7 @@ class APIv3Settings:
     LimitOffsetPagination.default_limit = 10
 
     renderer_classes = (AlphabeticalSortedJSONRenderer, BrowsableAPIRenderer)
-    throttle_classes = (UserRateThrottle, AnonRateThrottle)
+    # throttle_classes = (UserRateThrottle, AnonRateThrottle)
     filter_backends = (filters.DjangoFilterBackend,)
     metadata_class = SimpleMetadata
 
