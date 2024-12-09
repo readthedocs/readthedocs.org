@@ -8,7 +8,7 @@ and can be accessed via hotkeys or on screen UI elements.
 :doc:`DocDiff </doc-diff>`
     Highlight changed output from pull requests
 
-:doc:`Links preview </links-preview>`
+:doc:`Link previews </link-previews>`
     See the content the link points to before clicking on it
 
 :doc:`Documentation notification </doc-notifications>`

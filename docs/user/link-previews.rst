@@ -3,9 +3,9 @@ Link previews
 
 Link previews allows you to see the content of the link you are about to click when you hover over it.
 This gives you the ability to quickly preview where a link points,
-so you can keep your context while reading but learn more from other resources. 
+so you can keep your context while reading but learn more from other resources.
 
-.. figure:: /_static/images/addons-links-preview.png
+.. figure:: /_static/images/addons-link-previews.png
    :width: 80%
 
    Example of link previews addon
