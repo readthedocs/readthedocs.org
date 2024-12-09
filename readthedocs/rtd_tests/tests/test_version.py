@@ -83,6 +83,8 @@ class TestVersionModel(VersionMixin, TestCase):
         assert "https://github.com/pypa/pip/tree/latest/" == latest.vcs_url
 
     def test_vcs_url_for_stable_version(self):
+        self.pip.update_stable_version()
+        self.branch_version.refresh_from_db()
         expected_url = f"https://github.com/pypa/pip/tree/{self.branch_version.ref}/"
         self.assertEqual(self.branch_version.vcs_url, expected_url)
 
