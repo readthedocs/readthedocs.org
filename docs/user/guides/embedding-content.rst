@@ -1,5 +1,3 @@
-.. TODO: Write feature page for hoverxref
-
 How to embed content from your documentation
 ============================================
 
@@ -18,27 +16,10 @@ Contextualized tooltips on documentation pages
 ----------------------------------------------
 
 Tooltips on your own documentation are really useful to add more context to the current page the user is reading.
-You can embed any content that is available via reference in Sphinx, including:
+You can embed any content that is available via an HTML id.
 
-* Python object references
-* Full documentation pages
-* Sphinx references
-* Term definitions
-
-We built a Sphinx extension called ``sphinx-hoverxref`` on top of our Embed API
-you can install in your project with minimal configuration.
-
-Here is an example showing a tooltip when you hover with the mouse a reference:
-
-.. figure:: /_static/images/guides/sphinx-hoverxref-example.png
-   :width: 80%
-   :align: center
-
-   Tooltip shown when hovering on a reference using ``sphinx-hoverxref``.
-
-You can find more information about this extension, how to install and configure it in the `hoverxref documentation`_.
-
-.. _hoverxref documentation: https://sphinx-hoverxref.readthedocs.io/
+We built an addon called :doc:`Link previews </link-previews>` on top of our Embed API
+that you can enable from the addons settings of your project using the :term:`dashboard`.
 
 Inline help on application website
 ----------------------------------
