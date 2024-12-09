@@ -262,18 +262,25 @@ class Version(TimeStampedModel):
 
     @property
     def ref(self):
+        """
+        The version slug where the ``stable`` version points to.
+
+        It returns None when the version is not stable (machine created).
+        """
         if self.slug == STABLE and self.machine:
             stable = determine_stable_version(
                 self.project.versions(manager=INTERNAL).all()
             )
             if stable:
-                return stable.verbose_name
+                return stable.slug
 
     @property
     def vcs_url(self):
         version_name = self.verbose_name
         if self.slug == STABLE and self.machine:
-            version_name = self.ref
+            stable_version = self.project.get_original_stable_version()
+            if stable_version:
+                version_name = stable_version.verbose_name
         elif self.slug == LATEST and self.machine:
             version_name = self.project.get_default_branch()
 
