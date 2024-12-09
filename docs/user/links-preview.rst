@@ -1,23 +1,24 @@
-Links preview
+Link previews
 =============
 
-Links previews allows you to see the content of the link you are about to click when you hover it.
-This content will be rendered inside a popup that disappears after moving the mouse outside of it.
+Link previews allows you to see the content of the link you are about to click when you hover over it.
+This gives you the ability to quickly preview where a link points,
+so you can keep your context while reading but learn more from other resources. 
 
 .. figure:: /_static/images/addons-links-preview.png
    :width: 80%
 
-   Example of links preview addon
+   Example of link previews addon
 
 
 
-Enabling links previews
------------------------
+Enabling link previews
+----------------------
 
-In your dashboard, you can go to the links preview tag in :guilabel:`Settings > Addons > Links preview` and enable it.
+In your dashboard, you can go to the links preview tag in :guilabel:`Settings > Addons > Link previews` and enable it.
 
-Troubleshooting links previews
-------------------------------
+Troubleshooting link previews
+-----------------------------
 
 We perform some heuristic to detect the documentation tool used to generate the page based on its HTML structure.
 This auto-detection may fail, resulting in the content rendered inside the popup being incorrect.
