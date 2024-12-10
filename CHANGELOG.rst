@@ -1,3 +1,26 @@
+Version 11.17.0
+---------------
+
+:Date: December 10, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: API v2: disallow empty strings as filters (`#11832 <https://github.com/readthedocs/readthedocs.org/pull/11832>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11830 <https://github.com/readthedocs/readthedocs.org/pull/11830>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: minimal docs for links preview addons (`#11828 <https://github.com/readthedocs/readthedocs.org/pull/11828>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix bug with notification HTML (`#11827 <https://github.com/readthedocs/readthedocs.org/pull/11827>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix AddonsConfig admin base_version. (`#11825 <https://github.com/readthedocs/readthedocs.org/pull/11825>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: check for urlparse errors (`#11824 <https://github.com/readthedocs/readthedocs.org/pull/11824>`__)
+* `@humitos <https://github.com/humitos>`__:  Requirements: update django-formtools  (`#11822 <https://github.com/readthedocs/readthedocs.org/pull/11822>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock dns queries to avoid flaky tests (`#11821 <https://github.com/readthedocs/readthedocs.org/pull/11821>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.16.0 (`#11817 <https://github.com/readthedocs/readthedocs.org/pull/11817>`__)
+* `@humitos <https://github.com/humitos>`__: Development: use `uv` to install everything (`#11815 <https://github.com/readthedocs/readthedocs.org/pull/11815>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: main content based on documentation tool (`#11812 <https://github.com/readthedocs/readthedocs.org/pull/11812>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: support "pretty URLs" (`#11811 <https://github.com/readthedocs/readthedocs.org/pull/11811>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add email for business projects and new dashboard change (`#11809 <https://github.com/readthedocs/readthedocs.org/pull/11809>`__)
+* `@stsewd <https://github.com/stsewd>`__: Dependencies: update django-simple-history (`#11808 <https://github.com/readthedocs/readthedocs.org/pull/11808>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: use pydantic for all config models (`#11798 <https://github.com/readthedocs/readthedocs.org/pull/11798>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: better error message when rclone fails (`#11796 <https://github.com/readthedocs/readthedocs.org/pull/11796>`__)
+* `@humitos <https://github.com/humitos>`__: Add project: use an instance variable to avoid 500 (`#11795 <https://github.com/readthedocs/readthedocs.org/pull/11795>`__)
+
 Version 11.16.0
 ---------------
 

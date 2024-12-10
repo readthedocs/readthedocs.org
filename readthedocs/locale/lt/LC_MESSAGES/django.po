@@ -4,12 +4,12 @@
 #
 # Translators:
 # Tomas Straupis, 2021,2023
-#: notifications/messages.py:408
+#: notifications/messages.py:421
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-03 10:46+0000\n"
+"POT-Creation-Date: 2024-12-10 15:33+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Tomas Straupis, 2021,2023\n"
 "Language-Team: Lithuanian (http://app.transifex.com/readthedocs/readthedocs/"
@@ -204,7 +204,7 @@ msgid "Log out"
 msgstr "Atsijungti"
 
 #: audit/models.py:91 organizations/views/private.py:148
-#: organizations/views/private.py:209 projects/views/private.py:587
+#: organizations/views/private.py:209 projects/views/private.py:607
 msgid "Invitation sent"
 msgstr "Pakvietimas išsiųstas"
 
@@ -990,7 +990,7 @@ msgstr "Uždraustas"
 msgid "Email address not verified"
 msgstr ""
 
-#: doc_builder/environments.py:349
+#: doc_builder/environments.py:352
 msgid ""
 "\n"
 "\n"
@@ -1000,11 +1000,11 @@ msgstr ""
 "\n"
 "Komanda nutraukta dėl per didelio atminties naudojimo\n"
 
-#: doc_builder/environments.py:355
+#: doc_builder/environments.py:358
 msgid "Command exited abnormally"
 msgstr "Komanda nenormaliai baigta"
 
-#: doc_builder/environments.py:620
+#: doc_builder/environments.py:627
 msgid "A build environment is currently running for this version"
 msgstr "Šiai versijai šiuo metu veikia kūrimo aplinka"
 
@@ -1343,123 +1343,129 @@ msgstr "Atmesti"
 msgid "Undefined error"
 msgstr ""
 
-#: notifications/messages.py:84 notifications/messages.py:115
+#: notifications/messages.py:84 notifications/messages.py:128
 msgid "Unknown problem"
 msgstr ""
 
 #: notifications/messages.py:101
+#, fuzzy
+#| msgid "Start building your documentation"
+msgid "There was a problem while updating your documentation"
+msgstr "Pradėkite kurti savo dokumentaciją"
+
+#: notifications/messages.py:114
 msgid "Build terminated due to inactivity"
 msgstr ""
 
-#: notifications/messages.py:129
+#: notifications/messages.py:142
 msgid "Maximum concurrency limit reached."
 msgstr ""
 
-#: notifications/messages.py:142
+#: notifications/messages.py:155
 msgid "Build cancelled manually."
 msgstr ""
 
-#: notifications/messages.py:154
+#: notifications/messages.py:167
 msgid "Build skipped."
 msgstr ""
 
-#: notifications/messages.py:167
+#: notifications/messages.py:180
 msgid "Build terminated due to time out."
 msgstr ""
 
-#: notifications/messages.py:180
+#: notifications/messages.py:193
 msgid "Build terminated due to excessive memory consumption."
 msgstr ""
 
-#: notifications/messages.py:193
+#: notifications/messages.py:206
 msgid "Build used a deprecated VCS is not supported: {{vcs}}."
 msgstr ""
 
-#: notifications/messages.py:206
+#: notifications/messages.py:219
 msgid "Build terminated due to unknown error."
 msgstr ""
 
-#: notifications/messages.py:218
+#: notifications/messages.py:231
 msgid "Builds are temporary disabled for this project."
 msgstr ""
 
-#: notifications/messages.py:232
+#: notifications/messages.py:245
 msgid "No HTML content found"
 msgstr ""
 
-#: notifications/messages.py:245
+#: notifications/messages.py:258
 msgid "Build output directory is not a directory"
 msgstr ""
 
-#: notifications/messages.py:258
+#: notifications/messages.py:271
 msgid "Build output directory doesn't contain any file"
 msgstr ""
 
-#: notifications/messages.py:271
+#: notifications/messages.py:284
 msgid "Build output directory contains multiple files"
 msgstr ""
 
-#: notifications/messages.py:285
+#: notifications/messages.py:298
 msgid "Index file is not present in HTML output directory"
 msgstr ""
 
-#: notifications/messages.py:298
+#: notifications/messages.py:311
 msgid "Your project is outputing files in an old directory"
 msgstr ""
 
-#: notifications/messages.py:312
+#: notifications/messages.py:325
 msgid "Your project doesn't have a <code>.readthedocs.yaml</code> file"
 msgstr ""
 
-#: notifications/messages.py:326
+#: notifications/messages.py:339
 msgid "Configuration key <code>build.image</code> is deprecated"
 msgstr ""
 
-#: notifications/messages.py:340
+#: notifications/messages.py:353
 msgid "Configuration key <code>build.os</code> is required"
 msgstr ""
 
-#: notifications/messages.py:354
+#: notifications/messages.py:367
 msgid "There is at least one file that exceeds the size limit"
 msgstr ""
 
-#: notifications/messages.py:367
+#: notifications/messages.py:380
 msgid "There is no PDF file in output directory"
 msgstr ""
 
-#: notifications/messages.py:380
+#: notifications/messages.py:393
 msgid "Config key <code>build.commands</code> is in beta"
 msgstr ""
 
-#: notifications/messages.py:393
+#: notifications/messages.py:406
 msgid "No TeX files were found"
 msgstr ""
 
-#: notifications/messages.py:420
+#: notifications/messages.py:433
 msgid "MkDocs <code>docs_dir</code> configuration option is invalid"
 msgstr ""
 
-#: notifications/messages.py:433
+#: notifications/messages.py:446
 msgid "MkDocs <code>docs_dir</code> path not found"
 msgstr ""
 
-#: notifications/messages.py:447
+#: notifications/messages.py:460
 msgid "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
 msgstr ""
 
-#: notifications/messages.py:461
+#: notifications/messages.py:474
 msgid "MkDocs configuration file is empty"
 msgstr ""
 
-#: notifications/messages.py:473
+#: notifications/messages.py:486
 msgid "MkDocs configuration file not found"
 msgstr ""
 
-#: notifications/messages.py:487
+#: notifications/messages.py:500
 msgid "Unknown error when loading your MkDocs configuration file"
 msgstr ""
 
-#: notifications/messages.py:501
+#: notifications/messages.py:514
 msgid "Syntax error in <code>mkdocs.yml</code>"
 msgstr ""
 
@@ -2460,27 +2466,27 @@ msgstr ""
 msgid "The domain is not valid."
 msgstr ""
 
-#: projects/forms.py:1097
+#: projects/forms.py:1104
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:1200
+#: projects/forms.py:1207
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Kintamojo pavadinimas negali prasidėti __ (dvigubu pabraukimu)"
 
-#: projects/forms.py:1204
+#: projects/forms.py:1211
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Kintamojo pavadinimas negali prasidėti READTHEDOCS"
 
-#: projects/forms.py:1209
+#: projects/forms.py:1216
 msgid "There is already a variable with this name for this project"
 msgstr "Šiame projekte jau yra kintamasis tokiu pavadinimu"
 
-#: projects/forms.py:1214
+#: projects/forms.py:1221
 msgid "Variable name can't contain spaces"
 msgstr "Kintamojo pavadinime negali būti tarpų"
 
-#: projects/forms.py:1218
+#: projects/forms.py:1225
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Leidžiamos tik raidės, skaitmenys ir pabraukimai"
 
@@ -3122,33 +3128,33 @@ msgid ""
 "KB."
 msgstr ""
 
-#: projects/views/private.py:211
+#: projects/views/private.py:212
 msgid "Project settings updated"
 msgstr "Projekto nustatymai pakeisti"
 
-#: projects/views/private.py:223
+#: projects/views/private.py:224
 msgid "Project deleted"
 msgstr "Projektas ištrintas"
 
-#: projects/views/private.py:237
+#: projects/views/private.py:238
 msgid "Project addons updated"
 msgstr ""
 
-#: projects/views/private.py:288
+#: projects/views/private.py:289
 msgid "Version created"
 msgstr ""
 
-#: projects/views/private.py:293
+#: projects/views/private.py:294
 msgid "Version updated"
 msgstr ""
 
-#: projects/views/private.py:409
+#: projects/views/private.py:377
 msgid ""
 "We detected a configuration file in your repository and started your "
 "project's first build."
 msgstr ""
 
-#: projects/views/private.py:482
+#: projects/views/private.py:502
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
@@ -3157,116 +3163,116 @@ msgstr ""
 "Yra problemų su jūsų {service} paskyra, bandykite prijungti iš naujo jūsų <a "
 "href=\"{url}\">prijungtų paslaugų puslapyje</a>."
 
-#: projects/views/private.py:540
+#: projects/views/private.py:560
 msgid "Subproject created"
 msgstr ""
 
-#: projects/views/private.py:544
+#: projects/views/private.py:564
 msgid "Subproject updated"
 msgstr ""
 
-#: projects/views/private.py:549
+#: projects/views/private.py:569
 msgid "Subproject deleted"
 msgstr ""
 
-#: projects/views/private.py:592
+#: projects/views/private.py:612
 msgid "User deleted"
 msgstr ""
 
-#: projects/views/private.py:603
+#: projects/views/private.py:623
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:668
+#: projects/views/private.py:688
 msgid "Notification created"
 msgstr ""
 
-#: projects/views/private.py:673
+#: projects/views/private.py:693
 msgid "Notification deleted"
 msgstr ""
 
-#: projects/views/private.py:708
+#: projects/views/private.py:728
 msgid "Webhook created"
 msgstr ""
 
-#: projects/views/private.py:718
+#: projects/views/private.py:738
 msgid "Webhook updated"
 msgstr ""
 
-#: projects/views/private.py:728
+#: projects/views/private.py:748
 msgid "Webhook deleted"
 msgstr ""
 
-#: projects/views/private.py:783
+#: projects/views/private.py:803
 msgid "Translation created"
 msgstr ""
 
-#: projects/views/private.py:788
+#: projects/views/private.py:808
 msgid "Translation deleted"
 msgstr ""
 
-#: projects/views/private.py:831
+#: projects/views/private.py:851
 msgid "Redirect created"
 msgstr ""
 
-#: projects/views/private.py:835
+#: projects/views/private.py:855
 msgid "Redirect updated"
 msgstr ""
 
-#: projects/views/private.py:865
+#: projects/views/private.py:885
 msgid "Redirect deleted"
 msgstr ""
 
-#: projects/views/private.py:898
+#: projects/views/private.py:918
 msgid "Domain created"
 msgstr ""
 
-#: projects/views/private.py:918
+#: projects/views/private.py:938
 msgid "Domain updated"
 msgstr ""
 
-#: projects/views/private.py:933
+#: projects/views/private.py:953
 msgid "Domain deleted"
 msgstr ""
 
-#: projects/views/private.py:978
+#: projects/views/private.py:998
 msgid "Integration created"
 msgstr ""
 
-#: projects/views/private.py:1005
+#: projects/views/private.py:1025
 msgid "Integration deleted"
 msgstr ""
 
-#: projects/views/private.py:1053
+#: projects/views/private.py:1073
 msgid "Project has been opted out from advertisement support"
 msgstr "Projektas buvo išimtas iš reklamos palaikymo"
 
-#: projects/views/private.py:1085
+#: projects/views/private.py:1105
 msgid "Environment variable created"
 msgstr ""
 
-#: projects/views/private.py:1089
+#: projects/views/private.py:1109
 msgid "Environment variable deleted"
 msgstr ""
 
-#: projects/views/private.py:1114
+#: projects/views/private.py:1134
 msgid "Automation rule moved"
 msgstr ""
 
-#: projects/views/private.py:1130
+#: projects/views/private.py:1150
 msgid "Automation rule deleted"
 msgstr ""
 
-#: projects/views/private.py:1140
+#: projects/views/private.py:1160
 msgid "Automation rule created"
 msgstr ""
 
-#: projects/views/private.py:1144
+#: projects/views/private.py:1164
 msgid "Automation rule updated"
 msgstr ""
 
-#: projects/views/private.py:1332
+#: projects/views/private.py:1352
 msgid "Pull request settings have been updated"
 msgstr ""
 
