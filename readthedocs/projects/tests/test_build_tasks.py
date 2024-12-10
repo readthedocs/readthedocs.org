@@ -159,13 +159,13 @@ class TestBuildTask(BuildEnvironmentBase):
         "formats,builders",
         (
             (["pdf"], ["latex"]),
-            (["htmlzip"], ["readthedocssinglehtmllocalmedia"]),
+            (["htmlzip"], ["singlehtml"]),
             (["epub"], ["epub"]),
             (
                 ["pdf", "htmlzip", "epub"],
-                ["latex", "readthedocssinglehtmllocalmedia", "epub"],
+                ["latex", "singlehtml", "epub"],
             ),
-            ("all", ["latex", "readthedocssinglehtmllocalmedia", "nepub"]),
+            ("all", ["latex", "singlehtml", "epub"]),
         ),
     )
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
@@ -304,7 +304,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[8]._request.method == "PATCH"
         assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[8].json() == {
-            "addons": False,
+            "addons": True,
             "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
@@ -630,7 +630,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[8]._request.method == "PATCH"
         assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[8].json() == {
-            "addons": False,
+            "addons": True,
             "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
@@ -912,7 +912,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--upgrade",
                     "--no-cache-dir",
                     "sphinx",
-                    "readthedocs-sphinx-ext",
                     bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),
@@ -947,7 +946,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "sphinx",
                     "-T",
                     "-b",
-                    "readthedocssinglehtmllocalmedia",
+                    "singlehtml",
                     "-d",
                     "_build/doctrees",
                     "-D",
@@ -1567,7 +1566,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "-U",
                     "--no-cache-dir",
-                    "readthedocs-sphinx-ext",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
@@ -1664,7 +1662,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "-U",
                     "--no-cache-dir",
-                    "readthedocs-sphinx-ext",
                     bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),

@@ -77,16 +77,8 @@ class BaseMkdocs(BaseBuilder):
             mkdocs_path,
         )
 
-    def append_conf(self):
-        """
-        Call `cat mkdocs.yaml` only.
-
-        This behavior has changed. We used to parse the YAML file and append
-        some configs automatically, but we have been removing that magic from
-        our builders as much as we can.
-
-        This method will eventually removed completely.
-        """
+    def show_conf(self):
+        """Show the current ``mkdocs.yaml`` being used."""
         # Write the mkdocs.yml to the build logs
         self.run(
             "cat",

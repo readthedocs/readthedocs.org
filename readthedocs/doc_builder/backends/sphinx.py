@@ -10,24 +10,14 @@ from glob import glob
 from pathlib import Path
 
 import structlog
-from django.conf import settings
-from django.template import loader as template_loader
-from django.urls import reverse
-from requests.exceptions import ConnectionError
 
-from readthedocs.builds import utils as version_utils
-from readthedocs.builds.models import APIVersion
-from readthedocs.core.utils.filesystem import safe_open
-from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PUBLIC
+from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
-from readthedocs.projects.models import Feature
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 
 from ..base import BaseBuilder
 from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildUserError
-from ..signals import finalize_sphinx_context_data
 
 log = structlog.get_logger(__name__)
 
@@ -115,142 +105,8 @@ class BaseSphinx(BaseBuilder):
         language = project.language
         return OLD_LANGUAGES_CODE_MAPPING.get(language, language)
 
-    def get_config_params(self):
-        """Get configuration parameters to be rendered into the conf file."""
-        # TODO this should be handled better in the theme
-        conf_py_path = os.path.join(
-            os.path.sep,
-            os.path.dirname(
-                os.path.relpath(
-                    self.config_file,
-                    self.project_path,
-                ),
-            ),
-            "",
-        )
-        remote_version = self.version.commit_name
-
-        github_user, github_repo = version_utils.get_github_username_repo(
-            url=self.project.repo,
-        )
-        github_version_is_editable = self.version.type == "branch"
-        display_github = github_user is not None
-
-        (
-            bitbucket_user,
-            bitbucket_repo,
-        ) = version_utils.get_bitbucket_username_repo(  # noqa
-            url=self.project.repo,
-        )
-        bitbucket_version_is_editable = self.version.type == "branch"
-        display_bitbucket = bitbucket_user is not None
-
-        gitlab_user, gitlab_repo = version_utils.get_gitlab_username_repo(
-            url=self.project.repo,
-        )
-        gitlab_version_is_editable = self.version.type == "branch"
-        display_gitlab = gitlab_user is not None
-
-        versions = []
-        downloads = []
-        subproject_urls = []
-        try:
-            active_versions_data = self.api_client.project(
-                self.project.pk
-            ).active_versions.get()["versions"]
-            versions = sort_version_aware(
-                [APIVersion(**version_data) for version_data in active_versions_data]
-            )
-            if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
-                versions = [v for v in versions if v.privacy_level == PUBLIC]
-            downloads = self.api_client.version(self.version.pk).get()["downloads"]
-            subproject_urls = [
-                (project["slug"], project["canonical_url"])
-                for project in self.api_client.project(self.project.pk)
-                .subprojects()
-                .get()["subprojects"]
-            ]
-        except ConnectionError:
-            log.exception(
-                "Timeout while fetching versions/downloads/subproject_urls for Sphinx context.",
-                project_slug=self.project.slug,
-                version_slug=self.version.slug,
-            )
-
-        build_id = self.build_env.build.get("id")
-        build_url = None
-        if build_id:
-            build_url = reverse(
-                "builds_detail",
-                kwargs={
-                    "project_slug": self.project.slug,
-                    "build_pk": build_id,
-                },
-            )
-            protocol = "http" if settings.DEBUG else "https"
-            build_url = f"{protocol}://{settings.PRODUCTION_DOMAIN}{build_url}"
-
-        vcs_url = None
-        if self.version.is_external:
-            vcs_url = self.version.vcs_url
-
-        commit = self.project.vcs_repo(
-            version=self.version.slug,
-            environment=self.build_env,
-        ).commit
-
-        data = {
-            "current_version": self.version.verbose_name,
-            "project": self.project,
-            "version": self.version,
-            "settings": settings,
-            "conf_py_path": conf_py_path,
-            "api_host": settings.PUBLIC_API_URL,
-            "commit": commit,
-            "versions": versions,
-            "downloads": downloads,
-            "subproject_urls": subproject_urls,
-            "build_url": build_url,
-            "vcs_url": vcs_url,
-            "proxied_static_path": self.project.proxied_static_path,
-            # GitHub
-            "github_user": github_user,
-            "github_repo": github_repo,
-            "github_version": remote_version,
-            "github_version_is_editable": github_version_is_editable,
-            "display_github": display_github,
-            # Bitbucket
-            "bitbucket_user": bitbucket_user,
-            "bitbucket_repo": bitbucket_repo,
-            "bitbucket_version": remote_version,
-            "bitbucket_version_is_editable": bitbucket_version_is_editable,
-            "display_bitbucket": display_bitbucket,
-            # GitLab
-            "gitlab_user": gitlab_user,
-            "gitlab_repo": gitlab_repo,
-            "gitlab_version": remote_version,
-            "gitlab_version_is_editable": gitlab_version_is_editable,
-            "display_gitlab": display_gitlab,
-            # Features
-            "docsearch_disabled": self.project.has_feature(
-                Feature.DISABLE_SERVER_SIDE_SEARCH
-            ),
-        }
-
-        finalize_sphinx_context_data.send(
-            sender=self.__class__,
-            build_env=self.build_env,
-            data=data,
-        )
-
-        return data
-
-    def append_conf(self):
-        """
-        Find a ``conf.py`` and appends default content.
-
-        The default content is rendered from ``doc_builder/conf.py.tmpl``.
-        """
+    def show_conf(self):
+        """Show the current ``conf.py`` being used."""
         if self.config_file is None:
             raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
@@ -263,22 +119,6 @@ class BaseSphinx(BaseBuilder):
                     "filename": os.path.relpath(self.config_file, self.project_path),
                 },
             )
-
-        if not self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
-            # Allow symlinks, but only the ones that resolve inside the base directory.
-            # NOTE: if something goes wrong,
-            # `safe_open` raises an exception that's clearly communicated to the user.
-            outfile = safe_open(
-                self.config_file, "a", allow_symlinks=True, base_path=self.project_path
-            )
-
-            # Append config to project conf file
-            tmpl = template_loader.get_template("doc_builder/conf.py.tmpl")
-            rendered = tmpl.render(self.get_config_params())
-
-            with outfile:
-                outfile.write("\n")
-                outfile.write(rendered)
 
         # Print the contents of conf.py in order to make the rendered
         # configfile visible in the build logs
@@ -357,17 +197,8 @@ class SingleHtmlBuilder(HtmlBuilder):
 
 
 class LocalMediaBuilder(BaseSphinx):
-    sphinx_builder = "readthedocssinglehtmllocalmedia"
+    sphinx_builder = "singlehtml"
     relative_output_dir = "htmlzip"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # The builder `readthedocssinglehtmllocalmedia` is defined by our
-        # `readthedocs-sphinx-ext` extension that we are not installing
-        # anymore; so we want to use the default Sphinx `singlehtml` builder
-        if self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
-            self.sphinx_builder = "singlehtml"
 
     def _post_build(self):
         """Internal post build to create the ZIP file from the HTML output."""
