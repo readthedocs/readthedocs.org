@@ -4,12 +4,12 @@
 #
 # Translators:
 # Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022-2024
-#: notifications/messages.py:408
+#: notifications/messages.py:421
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-03 10:46+0000\n"
+"POT-Creation-Date: 2024-12-10 15:33+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022-2024\n"
 "Language-Team: Hebrew (http://app.transifex.com/readthedocs/readthedocs/"
@@ -207,7 +207,7 @@ msgid "Log out"
 msgstr "יציאה"
 
 #: audit/models.py:91 organizations/views/private.py:148
-#: organizations/views/private.py:209 projects/views/private.py:587
+#: organizations/views/private.py:209 projects/views/private.py:607
 msgid "Invitation sent"
 msgstr "נשלחה הזמנה"
 
@@ -991,7 +991,7 @@ msgstr "נחסם"
 msgid "Email address not verified"
 msgstr "כתובת הדוא״ל לא אומתה"
 
-#: doc_builder/environments.py:349
+#: doc_builder/environments.py:352
 msgid ""
 "\n"
 "\n"
@@ -1001,11 +1001,11 @@ msgstr ""
 "\n"
 "הפקודה חוסלה עקב חריגה ממגבלות הזמן או צריכת זיכרון מוגזמת\n"
 
-#: doc_builder/environments.py:355
+#: doc_builder/environments.py:358
 msgid "Command exited abnormally"
 msgstr "הפקודה יצאה באופן חריג"
 
-#: doc_builder/environments.py:620
+#: doc_builder/environments.py:627
 msgid "A build environment is currently running for this version"
 msgstr "יש כרגע סביבת בנייה רצה לגרסה זו"
 
@@ -1345,123 +1345,129 @@ msgstr "דחייה"
 msgid "Undefined error"
 msgstr "שגיאה לא מוגדרת"
 
-#: notifications/messages.py:84 notifications/messages.py:115
+#: notifications/messages.py:84 notifications/messages.py:128
 msgid "Unknown problem"
 msgstr "תקלה לא ידועה"
 
 #: notifications/messages.py:101
+#, fuzzy
+#| msgid "Start building your documentation"
+msgid "There was a problem while updating your documentation"
+msgstr "התחלת בניית התיעוד שלך"
+
+#: notifications/messages.py:114
 msgid "Build terminated due to inactivity"
 msgstr "הבנייה חוסלה עקב חוסר פעילות"
 
-#: notifications/messages.py:129
+#: notifications/messages.py:142
 msgid "Maximum concurrency limit reached."
 msgstr "הגעת לגבול המקביליות העליון."
 
-#: notifications/messages.py:142
+#: notifications/messages.py:155
 msgid "Build cancelled manually."
 msgstr "הבנייה בוטלה ידנית."
 
-#: notifications/messages.py:154
+#: notifications/messages.py:167
 msgid "Build skipped."
 msgstr "בנייה דולגה."
 
-#: notifications/messages.py:167
+#: notifications/messages.py:180
 msgid "Build terminated due to time out."
 msgstr "הבנייה הושמדה כי עבר יותר מדי זמן."
 
-#: notifications/messages.py:180
+#: notifications/messages.py:193
 msgid "Build terminated due to excessive memory consumption."
 msgstr "הבנייה הושמדה כי השתמשה ביותר מדי זיכרון."
 
-#: notifications/messages.py:193
+#: notifications/messages.py:206
 msgid "Build used a deprecated VCS is not supported: {{vcs}}."
 msgstr "בנייה שהשתמשה במערכת ניהול גרסאות מיושנת לא נתמכת: {{vcs}}."
 
-#: notifications/messages.py:206
+#: notifications/messages.py:219
 msgid "Build terminated due to unknown error."
 msgstr "הבנייה הושמדה עקב שגיאה לא ידועה."
 
-#: notifications/messages.py:218
+#: notifications/messages.py:231
 msgid "Builds are temporary disabled for this project."
 msgstr "בניות מושבתות זמנית למיזם הזה."
 
-#: notifications/messages.py:232
+#: notifications/messages.py:245
 msgid "No HTML content found"
 msgstr "לא נמצא תוכן HTML"
 
-#: notifications/messages.py:245
+#: notifications/messages.py:258
 msgid "Build output directory is not a directory"
 msgstr "תיקיית פלט הבנייה אינה תיקייה"
 
-#: notifications/messages.py:258
+#: notifications/messages.py:271
 msgid "Build output directory doesn't contain any file"
 msgstr "תיקיית פלט הבנייה לא מכילה קבצים כלל"
 
-#: notifications/messages.py:271
+#: notifications/messages.py:284
 msgid "Build output directory contains multiple files"
 msgstr "תיקיית פלט הבנייה מכילה מגוון קבצים"
 
-#: notifications/messages.py:285
+#: notifications/messages.py:298
 msgid "Index file is not present in HTML output directory"
 msgstr "קובץ המפתח (index) לא קיים בתיקיית פלט ה־HTML"
 
-#: notifications/messages.py:298
+#: notifications/messages.py:311
 msgid "Your project is outputing files in an old directory"
 msgstr "המיזם שלך מוציא קבצים לתיקייה ישנה"
 
-#: notifications/messages.py:312
+#: notifications/messages.py:325
 msgid "Your project doesn't have a <code>.readthedocs.yaml</code> file"
 msgstr "למיזם שלך אין קובץ <code>‎.readthedocs.yaml</code>."
 
-#: notifications/messages.py:326
+#: notifications/messages.py:339
 msgid "Configuration key <code>build.image</code> is deprecated"
 msgstr "מפתח ההגדרה <code>build.image</code> לא בשימוש עוד"
 
-#: notifications/messages.py:340
+#: notifications/messages.py:353
 msgid "Configuration key <code>build.os</code> is required"
 msgstr "מפתח ההגדרה <code>build.os</code> נחוץ"
 
-#: notifications/messages.py:354
+#: notifications/messages.py:367
 msgid "There is at least one file that exceeds the size limit"
 msgstr "יש לפחות קובץ אחד שחורג ממגבלת הגודל"
 
-#: notifications/messages.py:367
+#: notifications/messages.py:380
 msgid "There is no PDF file in output directory"
 msgstr "אין קובץ PDF בתיקיית הפלט"
 
-#: notifications/messages.py:380
+#: notifications/messages.py:393
 msgid "Config key <code>build.commands</code> is in beta"
 msgstr "מפתח ההגדרה <code>build.commands</code> בשלבי ניסוי"
 
-#: notifications/messages.py:393
+#: notifications/messages.py:406
 msgid "No TeX files were found"
 msgstr "לא נמצאו קובצי טך (TeX)"
 
-#: notifications/messages.py:420
+#: notifications/messages.py:433
 msgid "MkDocs <code>docs_dir</code> configuration option is invalid"
 msgstr "אפשרות ההגדרה <code>docs_dir</code> של MkDocs שגויה"
 
-#: notifications/messages.py:433
+#: notifications/messages.py:446
 msgid "MkDocs <code>docs_dir</code> path not found"
 msgstr "נתיב ה־<code>docs_dir</code> של MkDocs לא נמצא"
 
-#: notifications/messages.py:447
+#: notifications/messages.py:460
 msgid "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
 msgstr "אפשרות ההגדרה <code>{{extra_config}}</code> של MkDocs שגויה"
 
-#: notifications/messages.py:461
+#: notifications/messages.py:474
 msgid "MkDocs configuration file is empty"
 msgstr "קובץ ההגדרות של MkDocs ריק"
 
-#: notifications/messages.py:473
+#: notifications/messages.py:486
 msgid "MkDocs configuration file not found"
 msgstr "קובץ ההגדרות של MkDocs לא נמצא"
 
-#: notifications/messages.py:487
+#: notifications/messages.py:500
 msgid "Unknown error when loading your MkDocs configuration file"
 msgstr "שגיאה לא ידועה בעת טעינת קובץ ההגדרות שלך ב־MkDocs"
 
-#: notifications/messages.py:501
+#: notifications/messages.py:514
 msgid "Syntax error in <code>mkdocs.yml</code>"
 msgstr "שגיאת תחביר ב־<code>mkdocs.yml</code>"
 
@@ -2482,27 +2488,27 @@ msgstr ""
 msgid "The domain is not valid."
 msgstr "שם התחום שגוי."
 
-#: projects/forms.py:1097
+#: projects/forms.py:1104
 msgid "Only one domain can be canonical at a time."
 msgstr "רק שם תחום אחד יכול להיות ייצוגי בכל פעם."
 
-#: projects/forms.py:1200
+#: projects/forms.py:1207
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "שם משתנה לא יכול להתחיל ב־__ (פעמיים קו תחתון)"
 
-#: projects/forms.py:1204
+#: projects/forms.py:1211
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "שם משתנה לא יכול להתחיל ב־READTHEDOCS"
 
-#: projects/forms.py:1209
+#: projects/forms.py:1216
 msgid "There is already a variable with this name for this project"
 msgstr "כבר יש משתנה עם השם הזה במיזם הזה"
 
-#: projects/forms.py:1214
+#: projects/forms.py:1221
 msgid "Variable name can't contain spaces"
 msgstr "שם משתנה לא יכול להכיל רווחים"
 
-#: projects/forms.py:1218
+#: projects/forms.py:1225
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "מותר אותיות באנגלית, ספרות וקווים תחתיים בלבד"
 
@@ -2520,7 +2526,7 @@ msgstr "כינוי"
 
 #: projects/models.py:176
 msgid "Base version to compare against (eg. DocDiff, File Tree Diff)"
-msgstr ""
+msgstr "גרסת בסיס להשוות אליה (למשל: הבדל בין מסמכים, הבדל בעץ תיקיות)"
 
 #: projects/models.py:201
 msgid "Sorting of versions"
@@ -3176,33 +3182,33 @@ msgid ""
 "KB."
 msgstr "גודל משתני הסביבה הכולל במיזם לא יכול לחרוג מ־256 ק״ב."
 
-#: projects/views/private.py:211
+#: projects/views/private.py:212
 msgid "Project settings updated"
 msgstr "הגדרות המיזם עודכנו"
 
-#: projects/views/private.py:223
+#: projects/views/private.py:224
 msgid "Project deleted"
 msgstr "המיזם נמחק"
 
-#: projects/views/private.py:237
+#: projects/views/private.py:238
 msgid "Project addons updated"
 msgstr "תוספי המיזם עודכנו"
 
-#: projects/views/private.py:288
+#: projects/views/private.py:289
 msgid "Version created"
 msgstr "גרסה נוצרה"
 
-#: projects/views/private.py:293
+#: projects/views/private.py:294
 msgid "Version updated"
 msgstr "גרסה עודכנה"
 
-#: projects/views/private.py:409
+#: projects/views/private.py:377
 msgid ""
 "We detected a configuration file in your repository and started your "
 "project's first build."
 msgstr "גילינו קובץ הגדרות במאגר שלך והתחלנו את הבנייה של המיזם הראשון שלך."
 
-#: projects/views/private.py:482
+#: projects/views/private.py:502
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
@@ -3211,116 +3217,116 @@ msgstr ""
 "קרתה תקלה עם החשבון שלך אצל {service}, כדאי לנסות לחבר את החשבון שלך מחדש "
 "ב<a href=\"{url}\">עמוד השירותים המחוברים</a> שלך."
 
-#: projects/views/private.py:540
+#: projects/views/private.py:560
 msgid "Subproject created"
 msgstr "תת־מיזם נוצר"
 
-#: projects/views/private.py:544
+#: projects/views/private.py:564
 msgid "Subproject updated"
 msgstr "תת־מיזם עודכן"
 
-#: projects/views/private.py:549
+#: projects/views/private.py:569
 msgid "Subproject deleted"
 msgstr "תת־מיזם נמחק"
 
-#: projects/views/private.py:592
+#: projects/views/private.py:612
 msgid "User deleted"
 msgstr "משתמש נמחק"
 
-#: projects/views/private.py:603
+#: projects/views/private.py:623
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr "{username} הוא הבעלים האחרונים, לא ניתן להסיר"
 
-#: projects/views/private.py:668
+#: projects/views/private.py:688
 msgid "Notification created"
 msgstr "התראה נוצרה"
 
-#: projects/views/private.py:673
+#: projects/views/private.py:693
 msgid "Notification deleted"
 msgstr "התראה נמחקה"
 
-#: projects/views/private.py:708
+#: projects/views/private.py:728
 msgid "Webhook created"
 msgstr "התלייה נוצרה"
 
-#: projects/views/private.py:718
+#: projects/views/private.py:738
 msgid "Webhook updated"
 msgstr "התלייה עודכנה"
 
-#: projects/views/private.py:728
+#: projects/views/private.py:748
 msgid "Webhook deleted"
 msgstr "התלייה נמחקה"
 
-#: projects/views/private.py:783
+#: projects/views/private.py:803
 msgid "Translation created"
 msgstr "תרגום נוצר"
 
-#: projects/views/private.py:788
+#: projects/views/private.py:808
 msgid "Translation deleted"
 msgstr "תרגום נמחק"
 
-#: projects/views/private.py:831
+#: projects/views/private.py:851
 msgid "Redirect created"
 msgstr "הפניה נוצרה"
 
-#: projects/views/private.py:835
+#: projects/views/private.py:855
 msgid "Redirect updated"
 msgstr "הפניה עודכנה"
 
-#: projects/views/private.py:865
+#: projects/views/private.py:885
 msgid "Redirect deleted"
 msgstr "הפניה נמחקה"
 
-#: projects/views/private.py:898
+#: projects/views/private.py:918
 msgid "Domain created"
 msgstr "שם תחום נוצר"
 
-#: projects/views/private.py:918
+#: projects/views/private.py:938
 msgid "Domain updated"
 msgstr "שם תחום עודכן"
 
-#: projects/views/private.py:933
+#: projects/views/private.py:953
 msgid "Domain deleted"
 msgstr "שם תחום נמחק"
 
-#: projects/views/private.py:978
+#: projects/views/private.py:998
 msgid "Integration created"
 msgstr "שילוב נוצר"
 
-#: projects/views/private.py:1005
+#: projects/views/private.py:1025
 msgid "Integration deleted"
 msgstr "שילוב נמחק"
 
-#: projects/views/private.py:1053
+#: projects/views/private.py:1073
 msgid "Project has been opted out from advertisement support"
 msgstr "המיזם ביטל תמיכה עם פרסומות"
 
-#: projects/views/private.py:1085
+#: projects/views/private.py:1105
 msgid "Environment variable created"
 msgstr "משתנה סביבה נוצר"
 
-#: projects/views/private.py:1089
+#: projects/views/private.py:1109
 msgid "Environment variable deleted"
 msgstr "משתנה סביבה נמחק"
 
-#: projects/views/private.py:1114
+#: projects/views/private.py:1134
 msgid "Automation rule moved"
 msgstr "כלל אוטומטציה הועבר"
 
-#: projects/views/private.py:1130
+#: projects/views/private.py:1150
 msgid "Automation rule deleted"
 msgstr "כלל אוטומציה נמחק"
 
-#: projects/views/private.py:1140
+#: projects/views/private.py:1160
 msgid "Automation rule created"
 msgstr "כלל אוטומציה נוצר"
 
-#: projects/views/private.py:1144
+#: projects/views/private.py:1164
 msgid "Automation rule updated"
 msgstr "כלל אוטומציה עודכן"
 
-#: projects/views/private.py:1332
+#: projects/views/private.py:1352
 msgid "Pull request settings have been updated"
 msgstr "הגדרות בקשות הדחיפה עודכנו"
 
@@ -6102,6 +6108,3 @@ msgstr ""
 "מספיקה ועליך גם לבקר בהגדרות אצל ספק ה־Git שלך כדי למחוק את חיבור ה־OAuth של "
 "Read the Docs. ב־GitHub, הוא ממוקם תחת <code>Settings > Applications > "
 "Authorized OAuth Apps</code>."
-
-#~ msgid "Build: Generate a file manifest for file tree diff."
-#~ msgstr "בנייה: יצירת קובץ הצהרה (manifest) להבדל בעץ הקבצים."

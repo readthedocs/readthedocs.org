@@ -10,9 +10,7 @@ django-autoslug
 # https://www.psycopg.org/psycopg3/docs/basic/install.html
 psycopg[binary,pool]
 
-# 3.1.0 includes changes that require running `makemigrations`
-# https://django-simple-history.readthedocs.io/en/latest/#changes
-django-simple-history==3.0.0
+django-simple-history
 
 djangorestframework
 djangorestframework-api-key
@@ -128,9 +126,7 @@ markdown
 
 unicode-slugify
 
-# Version 2.4 makes tests to fail with:
-# "RecursionError: maximum recursion depth exceeded in comparison"
-django-formtools<2.4
+django-formtools
 
 # We cannot upgrade to >=2 because it fails with
 # django.template.exceptions.TemplateDoesNotExist: bootstrap/field.html

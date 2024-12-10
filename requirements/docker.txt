@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.71
+boto3==1.35.76
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.71
+botocore==1.35.76
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -114,7 +114,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.16
+django==4.2.17
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -130,6 +130,7 @@ django==4.2.16
     #   django-formtools
     #   django-polymorphic
     #   django-safemigrate
+    #   django-simple-history
     #   django-storages
     #   django-structlog
     #   django-taggit
@@ -160,7 +161,7 @@ django-extensions==3.2.3
     # via -r requirements/pip.txt
 django-filter==24.3
     # via -r requirements/pip.txt
-django-formtools==2.3
+django-formtools==2.5.1
     # via -r requirements/pip.txt
 django-gravatar2==1.4.5
     # via -r requirements/pip.txt
@@ -172,7 +173,7 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-safemigrate==4.3
     # via -r requirements/pip.txt
-django-simple-history==3.0.0
+django-simple-history==3.7.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.14.3
     # via -r requirements/pip.txt
@@ -337,7 +338,7 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.2
+pydantic==2.10.3
     # via -r requirements/pip.txt
 pydantic-core==2.27.1
     # via
@@ -383,7 +384,7 @@ qrcode==8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==5.2.0
+redis==5.2.1
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -414,7 +415,7 @@ s3transfer==0.10.4
     #   boto3
 selectolax==0.3.26
     # via -r requirements/pip.txt
-six==1.16.0
+six==1.17.0
     # via
     #   -r requirements/pip.txt
     #   django-annoying
@@ -475,9 +476,8 @@ tzdata==2024.2
 ua-parser==1.0.0
     # via
     #   -r requirements/pip.txt
-    #   ua-parser-builtins
     #   user-agents
-ua-parser-builtins==0.18.0
+ua-parser-builtins==0.18.0.post1
     # via
     #   -r requirements/pip.txt
     #   ua-parser

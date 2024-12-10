@@ -12,7 +12,9 @@ class NotificationBaseException(Exception):
 
     default_message = _("Undefined error")
 
-    def __init__(self, message_id, format_values=None, **kwargs):
+    def __init__(
+        self, message_id, format_values=None, exception_message=None, **kwargs
+    ):
         self.message_id = message_id
         self.format_values = format_values
-        super().__init__(self.default_message, **kwargs)
+        super().__init__(exception_message or self.default_message, **kwargs)

@@ -64,6 +64,7 @@ Read the Docs: documentation simplified
 
    /downloadable-documentation
    /doc-diff
+   /link-previews
    /guides/embedding-content
    /server-side-search/index
    /server-side-search/syntax

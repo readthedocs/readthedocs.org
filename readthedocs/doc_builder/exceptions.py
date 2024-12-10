@@ -24,6 +24,7 @@ class BuildAppError(BuildBaseException):
     default_message = _("Build application exception")
 
     GENERIC_WITH_BUILD_ID = "build:app:generic-with-build-id"
+    UPLOAD_FAILED = "build:app:upload-failed"
     BUILDS_DISABLED = "build:app:project-builds-disabled"
     BUILD_DOCKER_UNKNOWN_ERROR = "build:app:docker:unknown-error"
     BUILD_TERMINATED_DUE_INACTIVITY = "build:app:terminated-due-inactivity"
