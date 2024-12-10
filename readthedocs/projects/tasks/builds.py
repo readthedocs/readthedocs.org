@@ -479,7 +479,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Known errors in our application code (e.g. we couldn't connect to
         # Docker API). Report a generic message to the user.
         if isinstance(exc, BuildAppError):
-            message_id = BuildAppError.GENERIC_WITH_BUILD_ID
+            message_id = exc.message_id
 
         # Known errors in the user's project (e.g. invalid config file, invalid
         # repository, command failed, etc). Report the error back to the user
@@ -951,7 +951,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # Re-raise the exception to fail the build and handle it
                 # automatically at `on_failure`.
                 # It will clearly communicate the error to the user.
-                raise BuildAppError("Error uploading files to the storage.") from exc
+                raise BuildAppError(
+                    BuildAppError.UPLOAD_FAILED,
+                    exception_message="Error uploading files to the storage.",
+                ) from exc
 
         # Delete formats
         for media_type in types_to_delete:
@@ -973,7 +976,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # Re-raise the exception to fail the build and handle it
                 # automatically at `on_failure`.
                 # It will clearly communicate the error to the user.
-                raise BuildAppError("Error deleting files from storage.") from exc
+                raise BuildAppError(
+                    BuildAppError.GENERIC_WITH_BUILD_ID,
+                    exception_message="Error deleting files from storage.",
+                ) from exc
 
         log.info(
             "Store build artifacts finished.",

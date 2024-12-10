@@ -2001,10 +2001,11 @@ Embed
     :query string url: full URL of the document (with optional fragment) to fetch content from.
     :query string doctool: *optional* documentation tool key name used to generate the target documentation (currently, only ``sphinx`` is accepted)
     :query string doctoolversion: *optional* documentation tool version used to generate the target documentation (e.g. ``4.2.0``).
+    :query string maincontent: *optional* CSS selector for the main content of the page (e.g. ``div#main``).
 
     .. note::
 
-       Passing ``?doctool=`` and ``?doctoolversion=`` may improve the response,
+       Passing ``?doctool=``, ``?doctoolversion=`` and ``?maincontent=`` may improve the response
        since the endpoint will know more about the exact structure of the HTML and can make better decisions.
 
 Additional APIs
