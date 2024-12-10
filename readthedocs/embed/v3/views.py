@@ -50,6 +50,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
     * url (with fragment) (required)
     * doctool
     * doctoolversion
+    * maincontent
 
     ### Example
 
@@ -105,23 +106,32 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         # Decode encoded URLs (e.g. convert %20 into a whitespace)
         filename = urllib.parse.unquote(filename)
 
+        # If the filename starts with `/`, the join will fail,
+        # so we strip it before joining it.
         relative_filename = filename.lstrip("/")
         file_path = build_media_storage.join(
             storage_path,
             relative_filename,
         )
 
-        try:
-            with build_media_storage.open(
-                file_path
-            ) as fd:  # pylint: disable=invalid-name
-                return fd.read()
-        except Exception:  # noqa
-            log.warning("Unable to read file.", file_path=file_path)
+        tryfiles = [file_path, build_media_storage.join(file_path, "index.html")]
+        for tryfile in tryfiles:
+            try:
+                with build_media_storage.open(tryfile) as fd:
+                    return fd.read()
+            except Exception:  # noqa
+                log.warning("Unable to read file.", file_path=file_path)
 
         return None
 
-    def _get_content_by_fragment(self, url, fragment, doctool, doctoolversion):
+    def _get_content_by_fragment(
+        self,
+        url,
+        fragment,
+        doctool,
+        doctoolversion,
+        selector,
+    ):
         if self.external:
             page_content = self._download_page_content(url)
         else:
@@ -133,10 +143,17 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             )
 
         return self._parse_based_on_doctool(
-            page_content, fragment, doctool, doctoolversion
+            page_content,
+            fragment,
+            doctool,
+            doctoolversion,
+            selector,
         )
 
-    def _find_main_node(self, html):
+    def _find_main_node(self, html, selector):
+        if selector:
+            return html.css_first(selector)
+
         main_node = html.css_first("[role=main]")
         if main_node:
             log.debug("Main node found. selector=[role=main]")
@@ -152,7 +169,14 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             log.debug("Main node found. selector=h1")
             return first_header.parent
 
-    def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
+    def _parse_based_on_doctool(
+        self,
+        page_content,
+        fragment,
+        doctool,
+        doctoolversion,
+        selector,
+    ):
         # pylint: disable=unused-argument disable=too-many-nested-blocks
         if not page_content:
             return
@@ -167,7 +191,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             node = HTMLParser(page_content).css_first(selector)
         else:
             html = HTMLParser(page_content)
-            node = self._find_main_node(html)
+            node = self._find_main_node(html, selector)
 
         if not node:
             return
@@ -284,6 +308,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         url = request.GET.get("url")
         doctool = request.GET.get("doctool")
         doctoolversion = request.GET.get("doctoolversion")
+        selector = request.GET.get("maincontent")
 
         if not url:
             return Response(
@@ -338,6 +363,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                 fragment,
                 doctool,
                 doctoolversion,
+                selector,
             )
         except requests.exceptions.TooManyRedirects:
             log.exception("Too many redirects.", url=url)
@@ -365,12 +391,17 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             )
 
         if not content_requested:
-            log.warning("Identifier not found.", url=url, fragment=fragment)
+            log.warning(
+                "Identifier not found.",
+                url=url,
+                fragment=fragment,
+                maincontent=selector,
+            )
             return Response(
                 {
                     "error": (
                         "Can't find content for section: "
-                        f"url={url} fragment={fragment}"
+                        f"url={url} fragment={fragment} maincontent={selector}"
                     )
                 },
                 status=status.HTTP_404_NOT_FOUND,
