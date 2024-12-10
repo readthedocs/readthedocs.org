@@ -439,9 +439,6 @@ class APIMixin(URLAccessMixin):
             "buildcommandresult-detail": {"pk": self.build_command_result.pk},
             "version-detail": {"pk": self.pip.versions.all()[0].pk},
             "domain-detail": {"pk": self.domain.pk},
-            "footer_html": {
-                "data": {"project": "pip", "version": "latest", "page": "index"}
-            },
             "remoteorganization-detail": {"pk": self.remote_org.pk},
             "remoterepository-detail": {"pk": self.remote_repo.pk},
             "remoteaccount-detail": {"pk": self.social_account.pk},

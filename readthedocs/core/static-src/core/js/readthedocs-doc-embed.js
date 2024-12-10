@@ -1,4 +1,3 @@
-const sponsorship = require('./doc-embed/sponsorship');
 // grokthedocs = require('./doc-embed/grokthedocs-client'),
 // mkdocs = require('./doc-embed/mkdocs'),
 const sphinx = require('./doc-embed/sphinx');
@@ -40,7 +39,6 @@ function injectJQuery(init) {
         injectJQuery(function () {
             sphinx.init();
             search.init();
-            sponsorship.init();
         });
     });
 }());
