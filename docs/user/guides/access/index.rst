@@ -27,6 +27,9 @@ How-to guides: security and access
     a :ref:`private Git repository <guides/private-python-packages:From a Git repository>` or
     a :ref:`private repository manager <guides/private-python-packages:From a repository manager other than PyPI>`.
 
+⏩️ :doc:`Manage Maintainers </guides/managing-maintainers>`
+    Learn how to manage maintainers for your projects on |org_brand|.
+
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -38,3 +41,4 @@ How-to guides: security and access
    Manually importing private repositories </guides/importing-private-repositories>
    Using private Git submodules </guides/private-submodules>
    Installing private python packages </guides/private-python-packages>
+   Manage Maintainers </guides/managing-maintainers>
