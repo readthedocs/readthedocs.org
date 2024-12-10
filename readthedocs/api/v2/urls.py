@@ -4,7 +4,7 @@ from django.conf import settings
 from django.urls import include, path, re_path
 from rest_framework import routers
 
-from readthedocs.api.v2.views import core_views, footer_views, integrations, task_views
+from readthedocs.api.v2.views import core_views, integrations, task_views
 from readthedocs.constants import pattern_opts
 from readthedocs.gold.views import StripeEventView
 
@@ -57,7 +57,6 @@ urlpatterns += [
 
 function_urls = [
     path("docurl/", core_views.docurl, name="docurl"),
-    path("footer_html/", footer_views.FooterHTML.as_view(), name="footer_html"),
 ]
 
 task_urls = [
