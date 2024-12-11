@@ -49,3 +49,13 @@ with more coming soon.
              :bdg-success:`md`
         Written in
              :bdg-info:`javascript`
+
+    .. grid-item-card::  mdBook
+        :link: mdbook.html
+
+        mdBook is a command line tool to create books with Markdown built in Rust.
+
+        Supported formats
+             :bdg-success:`md`
+        Written in
+             :bdg-info:`rust`
