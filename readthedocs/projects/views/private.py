@@ -323,7 +323,9 @@ def show_config_step(wizard):
     don't show this step.
     """
 
-    # Try to get the cleaned data of step 1,
+    # Try to get the cleaned data from the "basics" step only if
+    # we are in a step after it, otherwise, return True since we don't
+    # have the data yet.
     basics_step = "basics"
     if wizard.get_step_index() < wizard.get_step_index(basics_step):
         return True
