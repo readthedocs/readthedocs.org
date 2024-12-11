@@ -323,8 +323,12 @@ def show_config_step(wizard):
     don't show this step.
     """
 
-    # try to get the cleaned data of step 1
-    cleaned_data = wizard.get_cleaned_data_for_step("basics") or {}
+    # Try to get the cleaned data of step 1,
+    # if it's None, it means the user didn't pass through the first step yet.
+    cleaned_data = wizard.get_cleaned_data_for_step("basics")
+    if cleaned_data is None:
+        return False
+
     repo = cleaned_data.get("repo")
     remote_repository = cleaned_data.get("remote_repository")
     default_branch = cleaned_data.get("default_branch")
