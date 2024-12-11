@@ -1917,7 +1917,6 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     API_LARGE_DATA = "api_large_data"
-    CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
@@ -1947,10 +1946,6 @@ class Feature(models.Model):
         (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            CONDA_APPEND_CORE_REQUIREMENTS,
-            _("Conda: Append Read the Docs core requirements to environment.yml file"),
         ),
         (
             RECORD_404_PAGE_VIEWS,
