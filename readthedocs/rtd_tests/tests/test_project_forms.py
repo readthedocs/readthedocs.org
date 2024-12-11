@@ -336,10 +336,11 @@ class TestProjectAdvancedForm(TestCase):
             version=default_branch,
         )
 
+    @mock.patch("readthedocs.projects.forms.trigger_build", mock.MagicMock())
     def test_set_remote_repository(self):
         data = {
             "name": "Project",
-            "repo": "https://github.com/readthedocs/readthedocs.org/",
+            "repo": "https://github.com/readthedocs/readthedocs.org",
             "repo_type": self.project.repo_type,
             "default_version": LATEST,
             "language": self.project.language,
@@ -354,10 +355,15 @@ class TestProjectAdvancedForm(TestCase):
             ssh_url="git@github.com:rtfd/template.git",
             private=False,
         )
+        self.assertNotEqual(remote_repository.clone_url, data["repo"])
 
         # No remote repository attached.
         form = UpdateProjectForm(data, instance=self.project, user=self.user)
         self.assertTrue(form.is_valid())
+        form.save()
+        self.project.refresh_from_db()
+        self.assertIsNone(self.project.remote_repository)
+        self.assertEqual(self.project.repo, data["repo"])
 
         # Remote repository attached, but it doesn't belong to the user.
         data["remote_repository"] = remote_repository.pk
@@ -375,6 +381,10 @@ class TestProjectAdvancedForm(TestCase):
         data["remote_repository"] = remote_repository.pk
         form = UpdateProjectForm(data, instance=self.project, user=self.user)
         self.assertTrue(form.is_valid())
+        form.save()
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.remote_repository, remote_repository)
+        self.assertEqual(self.project.repo, remote_repository.clone_url)
 
         # The project has the remote repository attached.
         # And the user doesn't have access to it anymore, but still can use it.
