@@ -1,5 +1,3 @@
-.. TODO: We should documentation how community team management works
-
 How to manage Read the Docs teams
 =================================
 

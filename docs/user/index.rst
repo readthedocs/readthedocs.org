@@ -14,6 +14,7 @@ Read the Docs: documentation simplified
    /intro/markdoc
    /intro/add-project
    /examples
+   /intro/accounts
 
 .. toctree::
    :maxdepth: 2

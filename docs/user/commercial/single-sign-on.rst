@@ -31,6 +31,8 @@ including any two-factor authentication and additional Single Sign-on that they 
 
 Learn how to configure this SSO method with our :doc:`/guides/setup-single-sign-on-github-gitlab-bitbucket`.
 
+.. _sso_google_workspace:
+
 SSO with Google Workspace
 -------------------------
 
@@ -41,6 +43,8 @@ permissions are managed by the :ref:`internal Read the Docs's teams <commercial/
 
 This feature is only available on the **Pro plan** and above.
 Learn how to configure this SSO method with our :doc:`/guides/setup-single-sign-on-google-email`.
+
+.. _sso_saml:
 
 SSO with SAML
 -------------
