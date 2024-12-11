@@ -327,11 +327,7 @@ def show_config_step(wizard):
     # we are in a step after it, otherwise, return True since we don't
     # have the data yet, and django-forms calls this function multiple times.
     basics_step = "basics"
-    if wizard.get_step_index() < wizard.get_step_index(basics_step):
-        return True
-
     cleaned_data = wizard.get_cleaned_data_for_step(basics_step) or {}
-
     repo = cleaned_data.get("repo")
     remote_repository = cleaned_data.get("remote_repository")
     default_branch = cleaned_data.get("default_branch")
