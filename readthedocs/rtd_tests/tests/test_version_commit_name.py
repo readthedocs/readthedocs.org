@@ -62,11 +62,25 @@ class VersionCommitNameTests(TestCase):
             slug=STABLE,
             verbose_name=STABLE,
             type=TAG,
+            machine=True,
         )
         self.assertEqual(
             version.commit_name,
             "3d92b728b7d7b842259ac2020c2fa389f13aff0d",
         )
+
+    def test_manual_stable_version(self):
+        project = get(Project)
+        version = get(
+            Version,
+            project=project,
+            identifier="stable",
+            slug=STABLE,
+            verbose_name=STABLE,
+            type=BRANCH,
+            machine=False,
+        )
+        self.assertEqual(version.commit_name, "stable")
 
     def test_git_latest_branch(self):
         git_project = get(Project, repo_type=REPO_TYPE_GIT)
@@ -77,8 +91,16 @@ class VersionCommitNameTests(TestCase):
             slug=LATEST,
             verbose_name=LATEST,
             type=BRANCH,
+            machine=True,
         )
         self.assertEqual(version.commit_name, "master")
+
+    def test_manual_latest_version(self):
+        project = get(Project)
+        version = project.versions.get(slug=LATEST)
+        version.machine = False
+        version.save()
+        self.assertEqual(version.commit_name, "latest")
 
     def test_external_version(self):
         identifier = "ec26de721c3235aad62de7213c562f8c821"
