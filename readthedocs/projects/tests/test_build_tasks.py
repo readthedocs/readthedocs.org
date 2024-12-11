@@ -1538,6 +1538,11 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call("asdf", "global", "python", python_version),
                 mock.call("asdf", "reshim", "python", record=False),
                 mock.call(
+                    "cat",
+                    "environment.yaml",
+                    cwd=mock.ANY,
+                ),
+                mock.call(
                     "conda",
                     "env",
                     "create",
@@ -1558,16 +1563,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     self.version.slug,
                     "sphinx",
                     cwd=mock.ANY,
-                ),
-                mock.call(
-                    mock.ANY,
-                    "-m",
-                    "pip",
-                    "install",
-                    "-U",
-                    "--no-cache-dir",
-                    cwd=mock.ANY,
-                    bin_path=mock.ANY,
                 ),
                 mock.call("test", "-x", "_build/html", cwd=mock.ANY, record=False),
                 mock.call("lsb_release", "--description", record=False, demux=True),
