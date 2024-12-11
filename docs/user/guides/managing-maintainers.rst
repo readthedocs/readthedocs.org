@@ -2,7 +2,9 @@ How to manage maintainers for your project
 ==========================================
 
 |org_brand| allows you to manage maintainers for your projects.
-Maintainers have admin access to the project, so be careful when adding them.
+Every project is configured with its own list of maintainers
+who will all have admin privileges to the project,
+so be careful when adding new maintainers.
 
 When you add a maintainer to your project,
 they will be invited to join the project as a maintainer.
@@ -17,8 +19,8 @@ Adding a maintainer gives them admin access to your project.
 Follow these steps:
 
 * Navigate to the :guilabel:`Settings` tab of your project.
-* Click on the :guilabel:`Setup > Maintainers` tab.
-* Click the :guilabel:`Add Maintainer` button.
+* Under :guilabel:`Setup`, click on the :guilabel:`Maintainers` tab.
+* Click the :guilabel:`Add maintainer` button.
 * Fill out the form with the new maintainer's username or email address.
 * Click :guilabel:`Invite`.
 
@@ -30,7 +32,7 @@ Removing a maintainer revokes their admin access to your project.
 Follow these steps:
 
 * Navigate to the :guilabel:`Settings` tab of your project.
-* Click on the :guilabel:`Setup > Maintainers` tab.
+* Under :guilabel:`Setup`, click on the :guilabel:`Maintainers` tab.
 * Find the maintainer you want to remove in the list.
 * Click the :guilabel:`Remove` button next to their name.
 * Confirm the removal in the dialog that appears.

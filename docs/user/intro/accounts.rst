@@ -24,8 +24,8 @@ and provides access to additional features like automatic repository syncing.
 VCS provider authentication is required for the following features:
 
 * :doc:`/pull-requests`
-* Automatic repository syncing for easy project import
-* Automatic webhook creation on project import
+* Automatic repository syncing for easy project creation
+* Automatic webhook creation on project creation
 
 .. seealso::
 
@@ -61,22 +61,22 @@ This is only available on Enterprise plans,
 and requires custom integration to be enabled.
 
 SAML provides authentication, but not authorization.
-This means that you can login to Read the Docs with this method,
-but we aren't able to determine which projects you have access to automatically.
+This means that users can login to Read the Docs with this method,
+but we aren't able to determine which projects each user has access to automatically.
 
 .. seealso::
 
    :ref:`sso_saml`
     Learn how to configure SAML authentication for your organization.
 
-Two factor authentication
+Two-factor authentication
 -------------------------
 
-Read the Docs supports Two Factor Authentication (2FA) for added security on all authentication methods.
+Read the Docs supports two-factor authentication (2FA) for added security on all authentication methods.
 If you have 2FA enabled on your account, you will be prompted to enter a code
 when logging in.
 
 .. seealso::
 
     :doc:`/guides/management/2fa`
-      Learn how to enable and disable Two Factor Authentication on your account.
+      Learn how to enable and disable two-factor authentication on your account.

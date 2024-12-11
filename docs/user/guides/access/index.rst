@@ -41,4 +41,4 @@ How-to guides: security and access
    Manually importing private repositories </guides/importing-private-repositories>
    Using private Git submodules </guides/private-submodules>
    Installing private python packages </guides/private-python-packages>
-   Manage Maintainers </guides/managing-maintainers>
+   Manage maintainers </guides/managing-maintainers>
