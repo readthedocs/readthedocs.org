@@ -304,7 +304,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[8]._request.method == "PATCH"
         assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[8].json() == {
-            "addons": True,
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
@@ -630,7 +630,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[8]._request.method == "PATCH"
         assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[8].json() == {
-            "addons": True,
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
