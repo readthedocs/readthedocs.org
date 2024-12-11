@@ -324,8 +324,11 @@ def show_config_step(wizard):
     """
 
     # Try to get the cleaned data of step 1,
-    # if it's None, it means the user didn't pass through the first step yet.
-    cleaned_data = wizard.get_cleaned_data_for_step("basics")
+    basics_step = "basics"
+    if wizard.get_step_index() < wizard.get_step_index(basics_step):
+        return True
+
+    cleaned_data = wizard.get_cleaned_data_for_step(basics_step)
     if cleaned_data is None:
         return False
 
