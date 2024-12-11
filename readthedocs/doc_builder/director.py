@@ -442,7 +442,7 @@ class BuildDirector:
     def run_build_commands(self):
         """Runs each build command in the build environment."""
 
-        reshim_commands = (
+        python_reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},
             {"conda", "install"},
@@ -450,6 +450,8 @@ class BuildDirector:
             {"mamba", "install"},
             {"poetry", "install"},
         )
+        rust_reshim_commands = ({"cargo", "install"},)
+
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.build_environment
         for command in self.data.config.build.commands:
@@ -458,13 +460,23 @@ class BuildDirector:
             # Execute ``asdf reshim python`` if the user is installing a
             # package since the package may contain an executable
             # See https://github.com/readthedocs/readthedocs.org/pull/9150#discussion_r882849790
-            for reshim_command in reshim_commands:
+            for reshim_command in python_reshim_commands:
                 # Convert tuple/list into set to check reshim command is a
                 # subset of the command itself. This is to find ``pip install``
                 # but also ``pip -v install`` and ``python -m pip install``
-                if reshim_command.issubset(command.split()):
+                if python_reshim_command.issubset(command.split()):
                     environment.run(
                         *["asdf", "reshim", "python"],
+                        escape_command=False,
+                        cwd=cwd,
+                        record=False,
+                    )
+
+            # Do same for Rust
+            for reshim_command in rust_reshim_commands:
+                if rust_reshim_command.issubset(command.split()):
+                    environment.run(
+                        *["asdf", "reshim", "rust"],
                         escape_command=False,
                         cwd=cwd,
                         record=False,
