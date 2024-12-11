@@ -176,10 +176,6 @@ class Virtualenv(PythonEnvironment):
         else:
             requirements.append("sphinx")
 
-            # Install ``readthedocs-sphinx-ext`` only on old projects
-            if not self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
-                requirements.append("readthedocs-sphinx-ext")
-
         cmd = copy.copy(pip_install_cmd)
         cmd.extend(requirements)
         self.build_env.run(
@@ -356,9 +352,6 @@ class Conda(PythonEnvironment):
         if self.config.doctype == "mkdocs":
             pip_requirements.append("mkdocs")
         else:
-            if not self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
-                pip_requirements.append("readthedocs-sphinx-ext")
-
             conda_requirements.extend(["sphinx"])
 
         return pip_requirements, conda_requirements
