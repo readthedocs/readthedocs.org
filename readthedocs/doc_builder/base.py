@@ -41,7 +41,7 @@ class BaseBuilder:
         return self.config.doctype
 
     def show_conf(self):
-        """Set custom configurations for this builder."""
+        """Show the configuration used for this builder."""
 
     def build(self):
         """Do the actual building of the documentation."""
