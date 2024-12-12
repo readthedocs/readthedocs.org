@@ -365,6 +365,10 @@ class TestProjectAdvancedForm(TestCase):
         self.assertIsNone(self.project.remote_repository)
         self.assertEqual(self.project.repo, data["repo"])
 
+        # Since there is no remote repository attached, the repo field should be enabled.
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertFalse(form.fields["repo"].disabled)
+
         # Remote repository attached, but it doesn't belong to the user.
         data["remote_repository"] = remote_repository.pk
         form = UpdateProjectForm(data, instance=self.project, user=self.user)
@@ -385,6 +389,10 @@ class TestProjectAdvancedForm(TestCase):
         self.project.refresh_from_db()
         self.assertEqual(self.project.remote_repository, remote_repository)
         self.assertEqual(self.project.repo, remote_repository.clone_url)
+
+        # Since a remote repository is attached, the repo field should be disabled.
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertTrue(form.fields["repo"].disabled)
 
         # The project has the remote repository attached.
         # And the user doesn't have access to it anymore, but still can use it.
