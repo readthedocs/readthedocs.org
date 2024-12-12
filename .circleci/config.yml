@@ -26,7 +26,8 @@ jobs:
       - run: git submodule update --init
       - run: sudo apt update
       - run: sudo apt install -y rclone
-      - run: pip install --user tox
+      - run: pip install --user tox tox-uv
+      - run: tox --version
       - run: tox -e py310
       - codecov/upload
 
@@ -50,7 +51,7 @@ jobs:
       - run: git submodule update --init
       - run: sudo apt update
       - run: sudo apt install -y rclone
-      - run: pip install --user tox
+      - run: pip install --user tox tox-uv
       - run: tox -e ext-theme
 
   tests-embedapi:
