@@ -19,12 +19,12 @@
 # Rafael Vanat <rafaelvant@hotmail.com>, 2018
 # Rafael Vieira <vieira.rrafael@outlook.com>, 2019
 # Rodrigo <rprior@infranology.com.br>, 2014-2015,2018
-#: notifications/messages.py:408
+#: notifications/messages.py:421
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-03 10:46+0000\n"
+"POT-Creation-Date: 2024-12-10 15:33+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2020,2022-2024\n"
 "Language-Team: Portuguese (Brazil) (http://app.transifex.com/readthedocs/"
@@ -224,7 +224,7 @@ msgid "Log out"
 msgstr "Sair"
 
 #: audit/models.py:91 organizations/views/private.py:148
-#: organizations/views/private.py:209 projects/views/private.py:587
+#: organizations/views/private.py:209 projects/views/private.py:607
 msgid "Invitation sent"
 msgstr "Convite enviado"
 
@@ -1014,7 +1014,7 @@ msgstr "Banido"
 msgid "Email address not verified"
 msgstr "Endereço de e-mail não verificado"
 
-#: doc_builder/environments.py:349
+#: doc_builder/environments.py:352
 msgid ""
 "\n"
 "\n"
@@ -1025,11 +1025,11 @@ msgstr ""
 "Comando encerrado em ter excedido o tempo limite ou consumo excessivo de "
 "memória\n"
 
-#: doc_builder/environments.py:355
+#: doc_builder/environments.py:358
 msgid "Command exited abnormally"
 msgstr "O comando encerrado de forma anormal"
 
-#: doc_builder/environments.py:620
+#: doc_builder/environments.py:627
 msgid "A build environment is currently running for this version"
 msgstr "Um ambiente de construção está atualmente em execução para esta versão"
 
@@ -1374,124 +1374,130 @@ msgstr "Recusar"
 msgid "Undefined error"
 msgstr "Erro indefinido"
 
-#: notifications/messages.py:84 notifications/messages.py:115
+#: notifications/messages.py:84 notifications/messages.py:128
 msgid "Unknown problem"
 msgstr "Problema desconhecido"
 
 #: notifications/messages.py:101
+#, fuzzy
+#| msgid "Start building your documentation"
+msgid "There was a problem while updating your documentation"
+msgstr "Começar a construir sua documentação"
+
+#: notifications/messages.py:114
 msgid "Build terminated due to inactivity"
 msgstr "Construção encerrada devido a inatividade"
 
-#: notifications/messages.py:129
+#: notifications/messages.py:142
 msgid "Maximum concurrency limit reached."
 msgstr "Limite máximo de simultaneidade atingido."
 
-#: notifications/messages.py:142
+#: notifications/messages.py:155
 msgid "Build cancelled manually."
 msgstr "Construção cancelada manualmente."
 
-#: notifications/messages.py:154
+#: notifications/messages.py:167
 msgid "Build skipped."
 msgstr "Construção ignorada."
 
-#: notifications/messages.py:167
+#: notifications/messages.py:180
 msgid "Build terminated due to time out."
 msgstr "Construção encerrada devido ao tempo limite ter sido alcançado."
 
-#: notifications/messages.py:180
+#: notifications/messages.py:193
 msgid "Build terminated due to excessive memory consumption."
 msgstr "Construção encerrada devido ao consumo excessivo de memória."
 
-#: notifications/messages.py:193
+#: notifications/messages.py:206
 msgid "Build used a deprecated VCS is not supported: {{vcs}}."
 msgstr "A construção usada em um VCS descontinuado não é suportada: {{vcs}}."
 
-#: notifications/messages.py:206
+#: notifications/messages.py:219
 msgid "Build terminated due to unknown error."
 msgstr "A construção foi encerrada devido a um erro desconhecido."
 
-#: notifications/messages.py:218
+#: notifications/messages.py:231
 msgid "Builds are temporary disabled for this project."
 msgstr "As construções estão temporariamente desativadas para este projeto."
 
-#: notifications/messages.py:232
+#: notifications/messages.py:245
 msgid "No HTML content found"
 msgstr "Nenhum conteúdo HTML encontrado"
 
-#: notifications/messages.py:245
+#: notifications/messages.py:258
 msgid "Build output directory is not a directory"
 msgstr "O diretório de saída da construção não é um diretório"
 
-#: notifications/messages.py:258
+#: notifications/messages.py:271
 msgid "Build output directory doesn't contain any file"
 msgstr "O diretório de saída da construção não contém nenhum arquivo"
 
-#: notifications/messages.py:271
+#: notifications/messages.py:284
 msgid "Build output directory contains multiple files"
 msgstr "O diretório de saída da construção contém vários arquivos"
 
-#: notifications/messages.py:285
+#: notifications/messages.py:298
 msgid "Index file is not present in HTML output directory"
 msgstr "O arquivo de índice não está presente no diretório de saída HTML"
 
-#: notifications/messages.py:298
+#: notifications/messages.py:311
 msgid "Your project is outputing files in an old directory"
 msgstr "Seu projeto está gerando arquivos em um diretório antigo"
 
-#: notifications/messages.py:312
+#: notifications/messages.py:325
 msgid "Your project doesn't have a <code>.readthedocs.yaml</code> file"
 msgstr "Seu projeto não possui um arquivo <code>.readthedocs.yaml</code>"
 
-#: notifications/messages.py:326
+#: notifications/messages.py:339
 msgid "Configuration key <code>build.image</code> is deprecated"
 msgstr "A chave de configuração <code>build.image</code> foi descontinuada"
 
-#: notifications/messages.py:340
+#: notifications/messages.py:353
 msgid "Configuration key <code>build.os</code> is required"
 msgstr "A chave de configuração <code>build.os</code> é necessária"
 
-#: notifications/messages.py:354
+#: notifications/messages.py:367
 msgid "There is at least one file that exceeds the size limit"
 msgstr "Há pelo menos um arquivo que excede o limite de tamanho"
 
-#: notifications/messages.py:367
+#: notifications/messages.py:380
 msgid "There is no PDF file in output directory"
 msgstr "Não há arquivo PDF no diretório de saída"
 
-#: notifications/messages.py:380
+#: notifications/messages.py:393
 msgid "Config key <code>build.commands</code> is in beta"
 msgstr "A chave de configuração <code>build.commands</code> está em beta"
 
-#: notifications/messages.py:393
+#: notifications/messages.py:406
 msgid "No TeX files were found"
 msgstr "Nenhum arquivo TeX foi encontrado"
 
-#: notifications/messages.py:420
+#: notifications/messages.py:433
 msgid "MkDocs <code>docs_dir</code> configuration option is invalid"
 msgstr "A opção de configuração de MkDocs <code>docs_dir</code> é inválida"
 
-#: notifications/messages.py:433
+#: notifications/messages.py:446
 msgid "MkDocs <code>docs_dir</code> path not found"
 msgstr "Caminho de MkDocs <code>docs_dir</code> não encontrado"
 
-#: notifications/messages.py:447
+#: notifications/messages.py:460
 msgid "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
 msgstr ""
 "A opção de configuração de MkDocs <code>{{extra_config}}</code> é inválida"
 
-#: notifications/messages.py:461
+#: notifications/messages.py:474
 msgid "MkDocs configuration file is empty"
 msgstr "O arquivo de configuração de MkDocs está vazio"
 
-#: notifications/messages.py:473
+#: notifications/messages.py:486
 msgid "MkDocs configuration file not found"
 msgstr "Arquivo de configuração de MkDocs não encontrado"
 
-#: notifications/messages.py:487
+#: notifications/messages.py:500
 msgid "Unknown error when loading your MkDocs configuration file"
 msgstr "Erro desconhecido ao carregar seu arquivo de configuração de MkDocs"
 
-#: notifications/messages.py:501
+#: notifications/messages.py:514
 msgid "Syntax error in <code>mkdocs.yml</code>"
 msgstr "Erro de sintaxe em <code>mkdocs.yml</code>"
 
@@ -2537,27 +2543,27 @@ msgstr ""
 msgid "The domain is not valid."
 msgstr "O domínio não é válido."
 
-#: projects/forms.py:1097
+#: projects/forms.py:1104
 msgid "Only one domain can be canonical at a time."
 msgstr "Apenas um domínio pode ser canônico por vez."
 
-#: projects/forms.py:1200
+#: projects/forms.py:1207
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Nome de variável não pode iniciar com __ (sublinhado duplo)"
 
-#: projects/forms.py:1204
+#: projects/forms.py:1211
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Nome de variável não pode começar com READTHEDOCS"
 
-#: projects/forms.py:1209
+#: projects/forms.py:1216
 msgid "There is already a variable with this name for this project"
 msgstr "Já existe uma variável com esse nome para este projeto"
 
-#: projects/forms.py:1214
+#: projects/forms.py:1221
 msgid "Variable name can't contain spaces"
 msgstr "Nome de variável não pode conter espaços"
 
-#: projects/forms.py:1218
+#: projects/forms.py:1225
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Apenas letras, números e sublinhados são permitidos"
 
@@ -2575,7 +2581,7 @@ msgstr "Apelido"
 
 #: projects/models.py:176
 msgid "Base version to compare against (eg. DocDiff, File Tree Diff)"
-msgstr ""
+msgstr "Versão base para comparar (por exemplo, DocDiff, File Tree Diff)"
 
 #: projects/models.py:201
 msgid "Sorting of versions"
@@ -3254,27 +3260,27 @@ msgstr ""
 "O tamanho total de todas as variáveis ​​de ambiente no projeto não pode "
 "exceder 256 KB."
 
-#: projects/views/private.py:211
+#: projects/views/private.py:212
 msgid "Project settings updated"
 msgstr "Configurações do projeto atualizadas"
 
-#: projects/views/private.py:223
+#: projects/views/private.py:224
 msgid "Project deleted"
 msgstr "Projeto excluído"
 
-#: projects/views/private.py:237
+#: projects/views/private.py:238
 msgid "Project addons updated"
 msgstr "Addons do projeto atualizados"
 
-#: projects/views/private.py:288
+#: projects/views/private.py:289
 msgid "Version created"
 msgstr "Versão criada"
 
-#: projects/views/private.py:293
+#: projects/views/private.py:294
 msgid "Version updated"
 msgstr "Versão atualizada"
 
-#: projects/views/private.py:409
+#: projects/views/private.py:377
 msgid ""
 "We detected a configuration file in your repository and started your "
 "project's first build."
@@ -3282,7 +3288,7 @@ msgstr ""
 "Detectamos um arquivo de configuração em seu repositório e iniciamos a "
 "primeira construção do seu projeto."
 
-#: projects/views/private.py:482
+#: projects/views/private.py:502
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
@@ -3291,116 +3297,116 @@ msgstr ""
 "Há um problema com sua conta do {service}, tente reconectar sua conta na sua "
 "<a href=\"{url}\">página de serviços conectados</a>."
 
-#: projects/views/private.py:540
+#: projects/views/private.py:560
 msgid "Subproject created"
 msgstr "Subprojeto criado"
 
-#: projects/views/private.py:544
+#: projects/views/private.py:564
 msgid "Subproject updated"
 msgstr "Subprojeto atualizado"
 
-#: projects/views/private.py:549
+#: projects/views/private.py:569
 msgid "Subproject deleted"
 msgstr "Subprojeto excluído"
 
-#: projects/views/private.py:592
+#: projects/views/private.py:612
 msgid "User deleted"
 msgstr "Usuário excluído"
 
-#: projects/views/private.py:603
+#: projects/views/private.py:623
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr "{username} é o último dono, não pode ser removido"
 
-#: projects/views/private.py:668
+#: projects/views/private.py:688
 msgid "Notification created"
 msgstr "Notificação criada"
 
-#: projects/views/private.py:673
+#: projects/views/private.py:693
 msgid "Notification deleted"
 msgstr "Notificação excluída"
 
-#: projects/views/private.py:708
+#: projects/views/private.py:728
 msgid "Webhook created"
 msgstr "Webhook criado"
 
-#: projects/views/private.py:718
+#: projects/views/private.py:738
 msgid "Webhook updated"
 msgstr "Webhook atualizado"
 
-#: projects/views/private.py:728
+#: projects/views/private.py:748
 msgid "Webhook deleted"
 msgstr "Webhook excluído"
 
-#: projects/views/private.py:783
+#: projects/views/private.py:803
 msgid "Translation created"
 msgstr "Tradução criada"
 
-#: projects/views/private.py:788
+#: projects/views/private.py:808
 msgid "Translation deleted"
 msgstr "Tradução excluída"
 
-#: projects/views/private.py:831
+#: projects/views/private.py:851
 msgid "Redirect created"
 msgstr "Redirecionamento criado"
 
-#: projects/views/private.py:835
+#: projects/views/private.py:855
 msgid "Redirect updated"
 msgstr "Redirecionamento atualizado"
 
-#: projects/views/private.py:865
+#: projects/views/private.py:885
 msgid "Redirect deleted"
 msgstr "Redirecionamento excluído"
 
-#: projects/views/private.py:898
+#: projects/views/private.py:918
 msgid "Domain created"
 msgstr "Domínio criado"
 
-#: projects/views/private.py:918
+#: projects/views/private.py:938
 msgid "Domain updated"
 msgstr "Domínio atualizado"
 
-#: projects/views/private.py:933
+#: projects/views/private.py:953
 msgid "Domain deleted"
 msgstr "Domínio excluído"
 
-#: projects/views/private.py:978
+#: projects/views/private.py:998
 msgid "Integration created"
 msgstr "Integração criada"
 
-#: projects/views/private.py:1005
+#: projects/views/private.py:1025
 msgid "Integration deleted"
 msgstr "Integração excluída"
 
-#: projects/views/private.py:1053
+#: projects/views/private.py:1073
 msgid "Project has been opted out from advertisement support"
 msgstr "O projeto optou por desativar apoio por anúncios"
 
-#: projects/views/private.py:1085
+#: projects/views/private.py:1105
 msgid "Environment variable created"
 msgstr "Variável ambiente criada"
 
-#: projects/views/private.py:1089
+#: projects/views/private.py:1109
 msgid "Environment variable deleted"
 msgstr "Variável ambiente excluída"
 
-#: projects/views/private.py:1114
+#: projects/views/private.py:1134
 msgid "Automation rule moved"
 msgstr "Regra de automação movida"
 
-#: projects/views/private.py:1130
+#: projects/views/private.py:1150
 msgid "Automation rule deleted"
 msgstr "Regra de automação excluída"
 
-#: projects/views/private.py:1140
+#: projects/views/private.py:1160
 msgid "Automation rule created"
 msgstr "Regra de automação criada"
 
-#: projects/views/private.py:1144
+#: projects/views/private.py:1164
 msgid "Automation rule updated"
 msgstr "Regra de automação atualizada"
 
-#: projects/views/private.py:1332
+#: projects/views/private.py:1352
 msgid "Pull request settings have been updated"
 msgstr "As configurações de pull request foram atualizadas"
 
@@ -6264,8 +6270,3 @@ msgstr ""
 "desconectar um serviço, você também deverá visitar seu provedor Git para "
 "excluir a conexão OAuth do Read the Docs. No GitHub, isso está localizado em "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
-
-#~ msgid "Build: Generate a file manifest for file tree diff."
-#~ msgstr ""
-#~ "Construção: Gera um manifesto de arquivo para a comparação de árvore de "
-#~ "arquivos."
