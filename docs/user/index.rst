@@ -7,12 +7,8 @@ Read the Docs: documentation simplified
    :caption: Getting started
 
    /tutorial/index
-   /intro/doctools
-   /intro/mkdocs
-   /intro/sphinx
-   /intro/docusaurus
-   /intro/markdoc
    /intro/add-project
+   /intro/doctools
    /examples
 
 .. toctree::
