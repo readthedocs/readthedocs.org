@@ -460,7 +460,7 @@ class BuildDirector:
             # Execute ``asdf reshim python`` if the user is installing a
             # package since the package may contain an executable
             # See https://github.com/readthedocs/readthedocs.org/pull/9150#discussion_r882849790
-            for reshim_command in python_reshim_commands:
+            for python_reshim_command in python_reshim_commands:
                 # Convert tuple/list into set to check reshim command is a
                 # subset of the command itself. This is to find ``pip install``
                 # but also ``pip -v install`` and ``python -m pip install``
@@ -473,7 +473,7 @@ class BuildDirector:
                     )
 
             # Do same for Rust
-            for reshim_command in rust_reshim_commands:
+            for rust_reshim_command in rust_reshim_commands:
                 if rust_reshim_command.issubset(command.split()):
                     environment.run(
                         *["asdf", "reshim", "rust"],
