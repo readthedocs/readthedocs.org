@@ -25,7 +25,6 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
 from readthedocs.storage import build_tools_storage
 
@@ -60,9 +59,6 @@ class BuildDirector:
 
         """
         self.data = data
-
-        # Reset `addons` field. It will be set to `True` only when it's built via `build.commands`
-        self.data.version.addons = False
 
     def setup_vcs(self):
         """
@@ -195,10 +191,6 @@ class BuildDirector:
 
         self.run_build_job("post_build")
         self.store_readthedocs_build_yaml()
-
-        if self.data.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
-            # Mark this version to inject the new js client when serving it via El Proxito
-            self.data.version.addons = True
 
         after_build.send(
             sender=self.data.version,
@@ -478,9 +470,6 @@ class BuildDirector:
         # by the config file. When using `build.commands` it will be `GENERIC`
         self.data.version.documentation_type = self.data.config.doctype
 
-        # Mark this version to inject the new js client when serving it via El Proxito
-        self.data.version.addons = True
-
         self.store_readthedocs_build_yaml()
 
     def install_build_tools(self):
@@ -647,7 +636,7 @@ class BuildDirector:
         )
 
         if builder_class == self.data.config.doctype:
-            builder.append_conf()
+            builder.show_conf()
             self.data.version.documentation_type = builder.get_final_doctype()
 
         success = builder.build()
