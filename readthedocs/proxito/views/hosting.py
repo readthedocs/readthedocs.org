@@ -23,7 +23,6 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
     ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
@@ -406,36 +405,6 @@ class AddonsResponseBase:
 
         data = {
             "api_version": "1",
-            "projects": {
-                "current": ProjectSerializerNoLinks(
-                    project,
-                    resolver=resolver,
-                    version_slug=version.slug if version else None,
-                ).data,
-                "translations": ProjectSerializerNoLinks(
-                    project_translations,
-                    resolver=resolver,
-                    version_slug=version.slug if version else None,
-                    many=True,
-                ).data,
-            },
-            "versions": {
-                "current": VersionSerializerNoLinks(
-                    version,
-                    resolver=resolver,
-                ).data
-                if version
-                else None,
-                # These are "sorted active, built, not hidden versions"
-                "active": VersionSerializerNoLinks(
-                    sorted_versions_active_built_not_hidden,
-                    resolver=resolver,
-                    many=True,
-                ).data,
-            },
-            "builds": {
-                "current": BuildSerializerNoLinks(build).data if build else None,
-            },
             # TODO: consider creating one serializer per field here.
             # The resulting JSON will be the same, but maybe it's easier/cleaner?
             "domains": {
@@ -529,21 +498,12 @@ class AddonsResponseBase:
                     },
                 },
                 "filetreediff": {
-                    "enabled": False,
+                    "enabled": project.addons.filetreediff_enabled,
                 },
             },
         }
 
         if version:
-            response = self._get_filetreediff_response(
-                request=request,
-                project=project,
-                version=version,
-                resolver=resolver,
-            )
-            if response:
-                data["addons"]["filetreediff"].update(response)
-
             # Show the subprojects filter on the parent project and subproject
             # TODO: Remove these queries and try to find a way to get this data
             # from the resolver, which has already done these queries.
@@ -620,92 +580,6 @@ class AddonsResponseBase:
             )
 
         return data
-
-    def _get_filetreediff_response(self, *, request, project, version, resolver):
-        """
-        Get the file tree diff response for the given version.
-
-        This response is only enabled for external versions,
-        we do the comparison between the current version and the latest version.
-        """
-        if not version.is_external:
-            return None
-
-        if not project.addons.filetreediff_enabled:
-            return None
-
-        base_version = (
-            project.addons.options_base_version or project.get_latest_version()
-        )
-        if not base_version or not self._has_permission(
-            request=request, version=base_version
-        ):
-            return None
-
-        diff = get_diff(version_a=version, version_b=base_version)
-        if not diff:
-            return None
-
-        return {
-            "enabled": True,
-            "outdated": diff.outdated,
-            "diff": {
-                "added": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.added
-                ],
-                "deleted": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.deleted
-                ],
-                "modified": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.modified
-                ],
-            },
-        }
 
     def _v2(self, project, version, build, filename, url, user):
         return {

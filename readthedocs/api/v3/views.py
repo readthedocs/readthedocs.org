@@ -25,9 +25,11 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.views.hooks import trigger_sync_versions
+from readthedocs.filetreediff import get_diff
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
     RemoteOrganization,
@@ -379,6 +381,126 @@ class VersionsViewSet(
     def get_queryset(self):
         """Overridden to allow internal versions only."""
         return super().get_queryset().exclude(type=EXTERNAL)
+
+
+class FileTreeDiffViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    ProjectQuerySetMixin,
+    FlexFieldsMixin,
+    ReadOnlyModelViewSet,
+):
+    model = Version
+    lookup_field = "slug"
+    lookup_url_kwarg = "version_slug"
+
+    # Allow ``.`` (dots) on version slug
+    lookup_value_regex = r"[^/]+"
+
+    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+
+    def _get_filetreediff_response(self, *, request, project, version, resolver):
+        """
+        Get the file tree diff response for the given version.
+
+        This response is only enabled for external versions,
+        we do the comparison between the current version and the latest version.
+        """
+        if not version.is_external:
+            return None
+
+        if not project.addons.filetreediff_enabled:
+            return None
+
+        base_version = (
+            project.addons.options_base_version or project.get_latest_version()
+        )
+        # TODO: check if `self._has_permission` is important after the migration here.
+        # if not base_version or not self._has_permission(
+        #     request=request, version=base_version
+        # ):
+        if not base_version:
+            return None
+
+        diff = get_diff(version_a=version, version_b=base_version)
+        if not diff:
+            return None
+
+        return {
+            "outdated": diff.outdated,
+            "diff": {
+                "added": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.added
+                ],
+                "deleted": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.deleted
+                ],
+                "modified": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.modified
+                ],
+            },
+        }
+
+    def list(self, request, **kwargs):
+        project = self._get_parent_project()
+        version = self._get_parent_version()
+        resolver = Resolver()
+
+        data = (
+            self._get_filetreediff_response(
+                request=request,
+                project=project,
+                version=version,
+                resolver=resolver,
+            )
+            or {}
+        )
+        return Response(data=data)
 
 
 class BuildsViewSet(
