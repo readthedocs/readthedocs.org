@@ -10,6 +10,7 @@ Read the Docs: documentation simplified
    /intro/add-project
    /intro/doctools
    /examples
+   /intro/accounts
 
 .. toctree::
    :maxdepth: 2
