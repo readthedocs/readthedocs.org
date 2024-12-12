@@ -52,6 +52,7 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install -y rclone
       - run: pip install --user tox tox-uv
+      - run: tox --version
       - run: tox -e ext-theme
 
   tests-embedapi:
@@ -61,7 +62,7 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run: pip install --user 'tox<4'
+      - run: pip install --user tox tox-uv
       - run: tox --version
       - run: tox -c tox.embedapi.ini
 
@@ -82,7 +83,8 @@ jobs:
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: pip install --user tox
+      - run: pip install --user tox tox-uv
+      - run: tox --version
       - run: tox -e pre-commit
       - run: tox -e migrations
       - node/install:
