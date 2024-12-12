@@ -1,6 +1,5 @@
 """Define routes between URL paths and views/endpoints."""
 
-from django.conf import settings
 from django.urls import include, path, re_path
 from rest_framework import routers
 
@@ -110,11 +109,3 @@ urlpatterns += integration_urls
 urlpatterns += [
     path("webhook/stripe/", StripeEventView.as_view(), name="api_webhook_stripe"),
 ]
-
-if "readthedocsext.donate" in settings.INSTALLED_APPS:
-    # pylint: disable=import-error
-    from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls
-
-    urlpatterns += [
-        path("sustainability/", include(sustainability_urls)),
-    ]
