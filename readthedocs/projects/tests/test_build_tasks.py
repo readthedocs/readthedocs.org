@@ -304,7 +304,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[8]._request.method == "PATCH"
         assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[8].json() == {
-            "addons": True,
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
@@ -630,7 +630,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[8]._request.method == "PATCH"
         assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[8].json() == {
-            "addons": True,
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
@@ -1461,6 +1461,56 @@ class TestBuildTask(BuildEnvironmentBase):
                 ),
                 mock.call(
                     "pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_reshim_rust(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "rust": "latest",
+                    },
+                    "commands": [
+                        "cargo install mdbook",
+                        "mdbook build",
+                    ],
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        rust_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["rust"]["latest"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "rust", rust_version),
+                mock.call("asdf", "global", "rust", rust_version),
+                mock.call("asdf", "reshim", "rust", record=False),
+                mock.call(
+                    "cargo install mdbook",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "asdf",
+                    "reshim",
+                    "rust",
+                    escape_command=False,
+                    record=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "mdbook build",
                     escape_command=False,
                     cwd=mock.ANY,
                 ),

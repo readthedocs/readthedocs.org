@@ -60,9 +60,6 @@ class BuildDirector:
         """
         self.data = data
 
-        # Reset `addons` field. It will be set to `True` only when it's built via `build.commands`
-        self.data.version.addons = False
-
     def setup_vcs(self):
         """
         Perform all VCS related steps.
@@ -194,9 +191,6 @@ class BuildDirector:
 
         self.run_build_job("post_build")
         self.store_readthedocs_build_yaml()
-
-        # Mark this version to inject the new js client when serving it via El Proxito.
-        self.data.version.addons = True
 
         after_build.send(
             sender=self.data.version,
@@ -440,7 +434,7 @@ class BuildDirector:
     def run_build_commands(self):
         """Runs each build command in the build environment."""
 
-        reshim_commands = (
+        python_reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},
             {"conda", "install"},
@@ -448,6 +442,8 @@ class BuildDirector:
             {"mamba", "install"},
             {"poetry", "install"},
         )
+        rust_reshim_commands = ({"cargo", "install"},)
+
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.build_environment
         for command in self.data.config.build.commands:
@@ -456,13 +452,23 @@ class BuildDirector:
             # Execute ``asdf reshim python`` if the user is installing a
             # package since the package may contain an executable
             # See https://github.com/readthedocs/readthedocs.org/pull/9150#discussion_r882849790
-            for reshim_command in reshim_commands:
+            for python_reshim_command in python_reshim_commands:
                 # Convert tuple/list into set to check reshim command is a
                 # subset of the command itself. This is to find ``pip install``
                 # but also ``pip -v install`` and ``python -m pip install``
-                if reshim_command.issubset(command.split()):
+                if python_reshim_command.issubset(command.split()):
                     environment.run(
                         *["asdf", "reshim", "python"],
+                        escape_command=False,
+                        cwd=cwd,
+                        record=False,
+                    )
+
+            # Do same for Rust
+            for rust_reshim_command in rust_reshim_commands:
+                if rust_reshim_command.issubset(command.split()):
+                    environment.run(
+                        *["asdf", "reshim", "rust"],
                         escape_command=False,
                         cwd=cwd,
                         record=False,
@@ -475,9 +481,6 @@ class BuildDirector:
         # Update the `Version.documentation_type` to match the doctype defined
         # by the config file. When using `build.commands` it will be `GENERIC`
         self.data.version.documentation_type = self.data.config.doctype
-
-        # Mark this version to inject the new js client when serving it via El Proxito
-        self.data.version.addons = True
 
         self.store_readthedocs_build_yaml()
 

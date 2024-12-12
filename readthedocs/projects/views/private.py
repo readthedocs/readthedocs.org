@@ -323,8 +323,11 @@ def show_config_step(wizard):
     don't show this step.
     """
 
-    # try to get the cleaned data of step 1
-    cleaned_data = wizard.get_cleaned_data_for_step("basics") or {}
+    # Try to get the cleaned data from the "basics" step only if
+    # we are in a step after it, otherwise, return True since we don't
+    # have the data yet, and django-forms calls this function multiple times.
+    basics_step = "basics"
+    cleaned_data = wizard.get_cleaned_data_for_step(basics_step) or {}
     repo = cleaned_data.get("repo")
     remote_repository = cleaned_data.get("remote_repository")
     default_branch = cleaned_data.get("default_branch")
