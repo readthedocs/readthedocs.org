@@ -1,4 +1,4 @@
-Popular Documentation Tools
+Popular documentation tools
 ===========================
 
 Read the Docs provides documentation hosting for any tool that can output HTML.
