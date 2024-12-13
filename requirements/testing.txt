@@ -367,9 +367,7 @@ pytz==2024.2
     #   -r requirements/pip.txt
     #   celery
 pyyaml==6.0.2
-    # via
-    #   -r requirements/pip.txt
-    #   yamale
+    # via -r requirements/pip.txt
 qrcode==8.0
     # via
     #   -r requirements/pip.txt
@@ -514,8 +512,6 @@ xmlsec==1.3.14
     # via
     #   -r requirements/pip.txt
     #   python3-saml
-yamale==2.2.0
-    # via -r requirements/testing.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
