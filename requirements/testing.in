@@ -9,7 +9,6 @@ pytest-custom-exit-code
 pytest-django
 pytest-cov
 
-yamale<3.0
 pytest-mock
 
 requests-mock
