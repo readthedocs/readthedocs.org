@@ -883,7 +883,9 @@ class BuildConfigV2(BuildConfigBase):
         if "commands" in self._config["build"] and self._config["build"]["commands"]:
             return GENERIC
 
-        if self.new_jobs_overriden and not self.sphinx and not self.mkdocs:
+        has_sphinx_key = "sphinx" in self.source_config
+        has_mkdocs_key = "mkdocs" in self.source_config
+        if self.new_jobs_overriden and not has_sphinx_key and not has_mkdocs_key:
             return GENERIC
 
         if self.mkdocs:
