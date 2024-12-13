@@ -18,7 +18,6 @@ Minimal configuration is required to build an existing mdBook project on Read th
         tools:
             rust: latest
         commands:
-            - cargo --version
             - cargo install mdbook
             # For an example book..
             # - mdbook init docs
