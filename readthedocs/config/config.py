@@ -93,7 +93,7 @@ class BuildConfigBase:
         raw_config,
         source_file,
         base_path=None,
-        validate_deprecated_implicit_keys=None,
+        deprecate_implicit_keys=None,
     ):
         self._raw_config = copy.deepcopy(raw_config)
         self.source_config = copy.deepcopy(raw_config)
@@ -109,14 +109,14 @@ class BuildConfigBase:
 
         self._config = {}
 
-        if validate_deprecated_implicit_keys is not None:
-            self.validate_deprecated_implicit_keys = validate_deprecated_implicit_keys
+        if deprecate_implicit_keys is not None:
+            self.deprecate_implicit_keys = deprecate_implicit_keys
         elif settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
             tzinfo = pytz.timezone("America/Los_Angeles")
             now = datetime.datetime.now(tz=tzinfo)
             # Dates as per https://about.readthedocs.com/blog/2024/12/deprecate-config-files-without-sphinx-or-mkdocs-config/
             # fmt: off
-            self.validate_deprecated_implicit_keys = (
+            self.deprecate_implicit_keys = (
                 # 12 hours brownout.
                 datetime.datetime(2025, 1, 6, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 6, 12, 0, 0, tzinfo=tzinfo)
                 # 24 hours brownout.
@@ -126,7 +126,7 @@ class BuildConfigBase:
             )
             # fmt: on
         else:
-            self.validate_deprecated_implicit_keys = False
+            self.deprecate_implicit_keys = False
 
     @contextmanager
     def catch_validation_error(self, key):
@@ -276,7 +276,7 @@ class BuildConfigV2(BuildConfigBase):
         self._config["sphinx"] = self.validate_sphinx()
         self._config["submodules"] = self.validate_submodules()
         self._config["search"] = self.validate_search()
-        if self.validate_deprecated_implicit_keys:
+        if self.deprecate_implicit_keys:
             self.validate_deprecated_implicit_keys()
         self.validate_keys()
 
@@ -759,17 +759,19 @@ class BuildConfigV2(BuildConfigBase):
           and the user isn't overriding the new build jobs,
           the sphinx key is explicitly required.
         """
-        if self.sphinx and not self.sphinx.configuration:
+        has_sphinx_key = "sphinx" in self.source_config
+        has_mkdocs_key = "mkdocs" in self.source_config
+        if has_sphinx_key and not self.sphinx.configuration:
             raise ConfigError(
                 message_id=ConfigError.SPHINX_CONFIG_MISSING,
             )
 
-        if self.mkdocs and not self.mkdocs.configuration:
+        if has_mkdocs_key and not self.mkdocs.configuration:
             raise ConfigError(
                 message_id=ConfigError.MKDOCS_CONFIG_MISSING,
             )
 
-        if not self.new_jobs_overriden and self.sphinx is None and self.mkdocs is None:
+        if not self.new_jobs_overriden and not has_sphinx_key and not has_mkdocs_key:
             raise ConfigError(
                 message_id=ConfigError.SPHINX_CONFIG_MISSING,
             )
