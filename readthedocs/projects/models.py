@@ -13,7 +13,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -47,7 +46,6 @@ from readthedocs.projects.querysets import (
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_build_config_file,
     validate_custom_prefix,
@@ -1078,43 +1076,6 @@ class Project(models.Model):
         return versions.filter(built=True, active=True) | versions.filter(
             active=True, uploaded=True
         )
-
-    def ordered_active_versions(self, **kwargs):
-        """
-        Get all active versions, sorted.
-
-        :param kwargs: All kwargs are passed down to the
-                       `Version.internal.public` queryset.
-        """
-        from readthedocs.builds.models import Version
-
-        kwargs.update(
-            {
-                "project": self,
-                "only_active": True,
-                "only_built": True,
-            },
-        )
-        versions = (
-            Version.internal.public(**kwargs)
-            .select_related(
-                "project",
-                "project__main_language_project",
-            )
-            .prefetch_related(
-                Prefetch(
-                    "project__superprojects",
-                    ProjectRelationship.objects.all().select_related("parent"),
-                    to_attr="_superprojects",
-                ),
-                Prefetch(
-                    "project__domains",
-                    Domain.objects.filter(canonical=True),
-                    to_attr="_canonical_domains",
-                ),
-            )
-        )
-        return sort_version_aware(versions)
 
     def all_active_versions(self):
         """
