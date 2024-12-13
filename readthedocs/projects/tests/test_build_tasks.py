@@ -159,13 +159,13 @@ class TestBuildTask(BuildEnvironmentBase):
         "formats,builders",
         (
             (["pdf"], ["latex"]),
-            (["htmlzip"], ["readthedocssinglehtmllocalmedia"]),
+            (["htmlzip"], ["singlehtml"]),
             (["epub"], ["epub"]),
             (
                 ["pdf", "htmlzip", "epub"],
-                ["latex", "readthedocssinglehtmllocalmedia", "epub"],
+                ["latex", "singlehtml", "epub"],
             ),
-            ("all", ["latex", "readthedocssinglehtmllocalmedia", "nepub"]),
+            ("all", ["latex", "singlehtml", "epub"]),
         ),
     )
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
@@ -912,7 +912,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--upgrade",
                     "--no-cache-dir",
                     "sphinx",
-                    "readthedocs-sphinx-ext",
                     bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),
@@ -947,7 +946,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "sphinx",
                     "-T",
                     "-b",
-                    "readthedocssinglehtmllocalmedia",
+                    "singlehtml",
                     "-d",
                     "_build/doctrees",
                     "-D",
@@ -1469,6 +1468,56 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_reshim_rust(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "rust": "latest",
+                    },
+                    "commands": [
+                        "cargo install mdbook",
+                        "mdbook build",
+                    ],
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        rust_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["rust"]["latest"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "rust", rust_version),
+                mock.call("asdf", "global", "rust", rust_version),
+                mock.call("asdf", "reshim", "rust", record=False),
+                mock.call(
+                    "cargo install mdbook",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "asdf",
+                    "reshim",
+                    "rust",
+                    escape_command=False,
+                    record=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "mdbook build",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_requirements_from_config_file_installed(self, load_yaml_config):
         load_yaml_config.return_value = get_build_config(
             {
@@ -1567,7 +1616,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "-U",
                     "--no-cache-dir",
-                    "readthedocs-sphinx-ext",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
@@ -1664,7 +1712,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "-U",
                     "--no-cache-dir",
-                    "readthedocs-sphinx-ext",
                     bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),

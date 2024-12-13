@@ -48,7 +48,6 @@ class ProxitoMiddleware(MiddlewareMixin):
     # which depends on the proxito middleware.
     skip_views = (
         "health_check",
-        "footer_html",
         "search_api",
         "embed_api",
     )
