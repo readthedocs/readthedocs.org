@@ -67,3 +67,4 @@ with more coming soon.
    /intro/sphinx
    /intro/docusaurus
    /intro/markdoc
+   /intro/mdbook
