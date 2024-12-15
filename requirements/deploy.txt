@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.76
+boto3==1.35.81
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.76
+botocore==1.35.81
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -43,7 +43,7 @@ celery==5.2.7
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -207,7 +207,7 @@ elasticsearch==8.16.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.16.0
+elasticsearch-dsl==8.17.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -268,7 +268,7 @@ markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==10.3.1
+newrelic==10.4.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
@@ -381,7 +381,7 @@ s3transfer==0.10.4
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.26
+selectolax==0.3.27
     # via -r requirements/pip.txt
 sentry-sdk==2.19.2
     # via structlog-sentry
@@ -394,7 +394,7 @@ six==1.17.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.txt
-sqlparse==0.5.2
+sqlparse==0.5.3
     # via
     #   -r requirements/pip.txt
     #   django

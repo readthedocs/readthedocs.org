@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.76
+boto3==1.35.81
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.76
+botocore==1.35.81
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -45,7 +45,7 @@ celery==5.2.7
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -216,7 +216,7 @@ elasticsearch==8.16.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.16.0
+elasticsearch-dsl==8.17.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -403,7 +403,7 @@ s3transfer==0.10.4
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.26
+selectolax==0.3.27
     # via -r requirements/pip.txt
 six==1.17.0
     # via
@@ -430,7 +430,7 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
-sqlparse==0.5.2
+sqlparse==0.5.3
     # via
     #   -r requirements/pip.txt
     #   django
