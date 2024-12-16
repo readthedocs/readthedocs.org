@@ -995,11 +995,11 @@ class DomainForm(forms.ModelForm):
     def clean_domain(self):
         """Validates domain."""
         domain = self.cleaned_data["domain"].lower()
-        parsed = urlparse(domain)
+        parsed = self._safe_urlparse(domain)
 
         # Force the scheme to have a valid netloc.
         if not parsed.scheme:
-            parsed = urlparse(f"https://{domain}")
+            parsed = self._safe_urlparse(f"https://{domain}")
 
         if not parsed.netloc:
             raise forms.ValidationError(f"{domain} is not a valid domain.")
@@ -1084,6 +1084,13 @@ class DomainForm(forms.ModelForm):
             raise forms.ValidationError(
                 _("The domain is not valid."),
             )
+
+    def _safe_urlparse(self, url):
+        """Wrapper around urlparse to throw ValueError exceptions as ValidationError."""
+        try:
+            return urlparse(url)
+        except ValueError:
+            raise forms.ValidationError("Invalid domain")
 
     def clean_canonical(self):
         canonical = self.cleaned_data["canonical"]

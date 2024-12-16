@@ -126,9 +126,7 @@ markdown
 
 unicode-slugify
 
-# Version 2.4 makes tests to fail with:
-# "RecursionError: maximum recursion depth exceeded in comparison"
-django-formtools<2.4
+django-formtools
 
 # We cannot upgrade to >=2 because it fails with
 # django.template.exceptions.TemplateDoesNotExist: bootstrap/field.html

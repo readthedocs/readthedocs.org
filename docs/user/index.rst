@@ -7,13 +7,10 @@ Read the Docs: documentation simplified
    :caption: Getting started
 
    /tutorial/index
-   /intro/doctools
-   /intro/mkdocs
-   /intro/sphinx
-   /intro/docusaurus
-   /intro/markdoc
    /intro/add-project
+   /intro/doctools
    /examples
+   /intro/accounts
 
 .. toctree::
    :maxdepth: 2
@@ -63,6 +60,7 @@ Read the Docs: documentation simplified
 
    /downloadable-documentation
    /doc-diff
+   /link-previews
    /guides/embedding-content
    /server-side-search/index
    /server-side-search/syntax

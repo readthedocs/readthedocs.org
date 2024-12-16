@@ -3333,6 +3333,25 @@ class APIVersionTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], pip.versions.filter(active=False).count())
 
+    def test_listing_of_versions_without_filtering_by_a_project(self):
+        url = reverse("version-list")
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 410)
+
+        data = {
+            "active": "true",
+        }
+        resp = self.client.get(url, data)
+        self.assertEqual(resp.status_code, 410)
+
+        data["project__slug"] = ""
+        resp = self.client.get(url, data)
+        self.assertEqual(resp.status_code, 410)
+
+        data["project__slug"] = " \n"
+        resp = self.client.get(url, data)
+        self.assertEqual(resp.status_code, 410)
+
     def test_project_get_active_versions(self):
         pip = Project.objects.get(slug="pip")
         url = reverse("project-active-versions", args=[pip.pk])

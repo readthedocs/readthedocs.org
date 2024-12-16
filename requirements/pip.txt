@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.71
+boto3==1.35.81
     # via django-storages
-botocore==1.35.71
+botocore==1.35.81
     # via
     #   boto3
     #   s3transfer
@@ -29,7 +29,7 @@ celery==5.2.7
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   elastic-transport
     #   requests
@@ -66,7 +66,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==4.2.16
+django==4.2.17
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -113,7 +113,7 @@ django-extensions==3.2.3
     # via -r requirements/pip.in
 django-filter==24.3
     # via -r requirements/pip.in
-django-formtools==2.3
+django-formtools==2.5.1
     # via -r requirements/pip.in
 django-gravatar2==1.4.5
     # via -r requirements/pip.in
@@ -166,7 +166,7 @@ elasticsearch==8.16.0
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
-elasticsearch-dsl==8.16.0
+elasticsearch-dsl==8.17.0
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -224,7 +224,7 @@ psycopg-pool==3.2.4
     # via psycopg
 pycparser==2.22
     # via cffi
-pydantic==2.10.2
+pydantic==2.10.3
     # via -r requirements/pip.in
 pydantic-core==2.27.1
     # via pydantic
@@ -252,7 +252,7 @@ pyyaml==6.0.2
     # via -r requirements/pip.in
 qrcode==8.0
     # via django-allauth
-redis==5.2.0
+redis==5.2.1
     # via
     #   -r requirements/pip.in
     #   django-cacheops
@@ -277,9 +277,9 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
 s3transfer==0.10.4
     # via boto3
-selectolax==0.3.26
+selectolax==0.3.27
     # via -r requirements/pip.in
-six==1.16.0
+six==1.17.0
     # via
     #   django-annoying
     #   django-elasticsearch-dsl
@@ -287,7 +287,7 @@ six==1.16.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.in
-sqlparse==0.5.2
+sqlparse==0.5.3
     # via
     #   django
     #   django-debug-toolbar
@@ -317,10 +317,8 @@ tzdata==2024.2
     #   django-celery-beat
     #   kombu
 ua-parser==1.0.0
-    # via
-    #   ua-parser-builtins
-    #   user-agents
-ua-parser-builtins==0.18.0
+    # via user-agents
+ua-parser-builtins==0.18.0.post1
     # via ua-parser
 unicode-slugify==0.1.5
     # via -r requirements/pip.in

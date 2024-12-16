@@ -1,4 +1,3 @@
-
 .. _material:
 
 Material for MkDocs
