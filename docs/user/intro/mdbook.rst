@@ -25,12 +25,6 @@ Minimal configuration is required to build an existing mdBook project on Read th
 
 .. _mdBook: https://rust-lang.github.io/mdBook/
 
-Limitations
------------
-
-All Read the Docs features are supported for mdBook projects,
-as it builds static HTML files that can be hosted on Read the Docs.
-
 Getting started
 ---------------
 
