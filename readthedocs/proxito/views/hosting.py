@@ -1,4 +1,5 @@
 """Views for hosting features."""
+import urllib.parse
 from functools import lru_cache
 
 import packaging
@@ -7,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
@@ -502,6 +504,73 @@ class AddonsResponseBase:
                 },
             },
         }
+
+        if project and version and build:
+            base_version_slug = (
+                project.addons.options_base_version.slug
+                if project.addons.options_base_version
+                else LATEST
+            )
+            data["readthedocs"] = {
+                "urls": {
+                    "api": {
+                        "v3": {
+                            "projects": {
+                                "current": reverse(
+                                    "projects-detail",
+                                    kwargs={
+                                        "project_slug": project.slug,
+                                    },
+                                ),
+                                "translations": reverse(
+                                    "projects-translations-list",
+                                    kwargs={
+                                        "parent_lookup_main_language_project__slug": project.slug,
+                                    },
+                                ),
+                            },
+                            "versions": {
+                                "current": reverse(
+                                    "projects-versions-detail",
+                                    kwargs={
+                                        "parent_lookup_project__slug": project.slug,
+                                        "version_slug": version.slug,
+                                    },
+                                ),
+                                "active": reverse(
+                                    "projects-versions-list",
+                                    kwargs={
+                                        "parent_lookup_project__slug": project.slug,
+                                    },
+                                )
+                                + "?"
+                                + urllib.parse.urlencode({"active": True}),
+                            },
+                            "builds": {
+                                "current": reverse(
+                                    "projects-builds-detail",
+                                    kwargs={
+                                        "parent_lookup_project__slug": project.slug,
+                                        "build_pk": build.pk,
+                                    },
+                                ),
+                            },
+                            # project.addons.options_base_version.slug
+                            "filetreediff": reverse(
+                                "projects-versions-filetreediff-list",
+                                kwargs={
+                                    "parent_lookup_project__slug": project.slug,
+                                    "parent_lookup_version__slug": version.slug,
+                                },
+                            )
+                            + "?"
+                            + urllib.parse.urlencode(
+                                {"base-version": base_version_slug}
+                            ),
+                        },
+                    },
+                }
+            }
 
         if version:
             # Show the subprojects filter on the parent project and subproject
