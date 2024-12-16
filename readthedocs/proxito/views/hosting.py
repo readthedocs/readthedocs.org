@@ -15,11 +15,6 @@ from rest_framework.views import APIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.api.v3.serializers import (
-    BuildSerializer,
-    ProjectSerializer,
-    VersionSerializer,
-)
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
@@ -221,54 +216,6 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             url=url,
         )
         return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
-
-
-class NoLinksMixin:
-
-    """Mixin to remove conflicting fields from serializers."""
-
-    FIELDS_TO_REMOVE = ("_links",)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for field in self.FIELDS_TO_REMOVE:
-            if field in self.fields:
-                del self.fields[field]
-
-            if field in self.Meta.fields:
-                del self.Meta.fields[self.Meta.fields.index(field)]
-
-
-# NOTE: the following serializers are required only to remove some fields we
-# can't expose yet in this API endpoint because it's running under El Proxito
-# which cannot resolve URLs pointing to the APIv3 because they are not defined
-# on El Proxito.
-#
-# See https://github.com/readthedocs/readthedocs-ops/issues/1323
-class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            **kwargs,
-        )
-
-
-class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            version_serializer=VersionSerializerNoLinks,
-            **kwargs,
-        )
-
-
-class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
-    pass
 
 
 class AddonsResponseBase:
