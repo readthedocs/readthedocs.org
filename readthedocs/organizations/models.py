@@ -401,12 +401,21 @@ class TeamMember(models.Model):
 
         return "Unknown"
 
-    @property
-    def full_name(self):
+    def get_full_name(self):
         """Return member or invite full name."""
         if self.is_member:
             return self.member.get_full_name()
         return ""
+
+    @property
+    def full_name(self):
+        """
+        Alias property for `get_full_name`
+
+        This is deprecated, use `get_full_name` as it matches the underlying
+        :py:method:`User.get_full_name`.
+        """
+        return self.get_full_name()
 
     @property
     def email(self):
