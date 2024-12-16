@@ -667,6 +667,7 @@ class AddonsConfigForm(forms.ModelForm):
         )
         labels = {
             "enabled": _("Enable Addons"),
+            "doc_diff_enabled": _("Visual diff enabled"),
             "notifications_show_on_external": _(
                 "Show a notification on builds from pull requests"
             ),
