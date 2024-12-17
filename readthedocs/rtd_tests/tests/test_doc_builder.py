@@ -1,4 +1,3 @@
-import os
 import tempfile
 from unittest import mock
 from unittest.mock import patch
@@ -36,41 +35,6 @@ class SphinxBuilderTest(TestCase):
         BaseSphinx.relative_output_dir = "_readthedocs/"
 
     @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir")
-    @patch("readthedocs.projects.models.Project.checkout_path")
-    @patch("readthedocs.doc_builder.python_environments.load_yaml_config")
-    def test_conf_py_path(self, load_yaml_config, checkout_path, docs_dir):
-        """
-        Test the conf_py_path that is added to the conf.py file.
-
-        This value is used from the theme and footer
-        to build the ``View`` and ``Edit`` on link.
-        """
-        tmp_dir = tempfile.mkdtemp()
-        checkout_path.return_value = tmp_dir
-        docs_dir.return_value = tmp_dir
-        python_env = Virtualenv(
-            version=self.version,
-            build_env=self.build_env,
-            config=get_build_config({}, validate=True),
-        )
-        base_sphinx = BaseSphinx(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-
-        for value, expected in (("conf.py", "/"), ("docs/conf.py", "/docs/")):
-            base_sphinx.config_file = os.path.join(
-                tmp_dir,
-                value,
-            )
-            params = base_sphinx.get_config_params()
-            self.assertEqual(
-                params["conf_py_path"],
-                expected,
-            )
-
-    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir")
-    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params")
     @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.run")
     @patch("readthedocs.builds.models.Version.get_conf_py_path")
     @patch("readthedocs.projects.models.Project.checkout_path")
@@ -81,7 +45,6 @@ class SphinxBuilderTest(TestCase):
         checkout_path,
         get_conf_py_path,
         _,
-        get_config_params,
         docs_dir,
     ):
         """
@@ -93,7 +56,6 @@ class SphinxBuilderTest(TestCase):
         tmp_dir = tempfile.mkdtemp()
         checkout_path.return_value = tmp_dir
         docs_dir.return_value = tmp_dir
-        get_config_params.return_value = {}
         get_conf_py_path.side_effect = ProjectConfigurationError
         python_env = Virtualenv(
             version=self.version,
@@ -105,7 +67,7 @@ class SphinxBuilderTest(TestCase):
             python_env=python_env,
         )
         with self.assertRaises(ProjectConfigurationError) as e:
-            base_sphinx.append_conf()
+            base_sphinx.show_conf()
 
         self.assertEqual(
             e.exception.message_id,
@@ -113,7 +75,6 @@ class SphinxBuilderTest(TestCase):
         )
 
     @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir")
-    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params")
     @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.run")
     @patch("readthedocs.builds.models.Version.get_conf_py_path")
     @patch("readthedocs.projects.models.Project.checkout_path")
@@ -124,7 +85,6 @@ class SphinxBuilderTest(TestCase):
         checkout_path,
         get_conf_py_path,
         _,
-        get_config_params,
         docs_dir,
     ):
         """
@@ -139,7 +99,6 @@ class SphinxBuilderTest(TestCase):
         tmp_docs_dir.join("test").mkdir().join("conf.py").write("")
         docs_dir.return_value = str(tmp_docs_dir)
         checkout_path.return_value = str(tmp_docs_dir)
-        get_config_params.return_value = {}
         get_conf_py_path.side_effect = ProjectConfigurationError
         python_env = Virtualenv(
             version=self.version,
@@ -152,4 +111,4 @@ class SphinxBuilderTest(TestCase):
         )
         with pytest.raises(ProjectConfigurationError):
             with override_settings(DOCROOT=tmp_docs_dir):
-                base_sphinx.append_conf()
+                base_sphinx.show_conf()

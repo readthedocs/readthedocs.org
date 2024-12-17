@@ -29,7 +29,7 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
     """
     Checks if the user from the request has permissions to see the version.
 
-    This permission class used in the FooterHTML and PageSearchAPIView views.
+    This permission class used in PageSearchAPIView views.
 
     .. note::
 

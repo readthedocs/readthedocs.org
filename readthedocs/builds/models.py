@@ -61,14 +61,11 @@ from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_b
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
-    BITBUCKET_URL,
     DOCTYPE_CHOICES,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
-    GITHUB_URL,
     GITLAB_COMMIT_URL,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
-    GITLAB_URL,
     MEDIA_TYPES,
     MKDOCS,
     MKDOCS_HTML,
@@ -549,121 +546,6 @@ class Version(TimeStampedModel):
             )
 
         return paths
-
-    def get_github_url(
-        self,
-        docroot,
-        filename,
-        source_suffix=".rst",
-        action="view",
-    ):
-        """
-        Return a GitHub URL for a given filename.
-
-        :param docroot: Location of documentation in repository
-        :param filename: Name of file
-        :param source_suffix: File suffix of documentation format
-        :param action: `view` (default) or `edit`
-        """
-        repo_url = self.project.repo
-        if "github" not in repo_url:
-            return ""
-
-        if not docroot:
-            return ""
-
-        # Normalize /docroot/
-        docroot = "/" + docroot.strip("/") + "/"
-
-        if action == "view":
-            action_string = "blob"
-        elif action == "edit":
-            action_string = "edit"
-
-        user, repo = get_github_username_repo(repo_url)
-        if not user and not repo:
-            return ""
-
-        if not filename:
-            # If there isn't a filename, we don't need a suffix
-            source_suffix = ""
-
-        return GITHUB_URL.format(
-            user=user,
-            repo=repo,
-            version=self.commit_name,
-            docroot=docroot,
-            path=filename,
-            source_suffix=source_suffix,
-            action=action_string,
-        )
-
-    def get_gitlab_url(
-        self,
-        docroot,
-        filename,
-        source_suffix=".rst",
-        action="view",
-    ):
-        repo_url = self.project.repo
-        if "gitlab" not in repo_url:
-            return ""
-
-        if not docroot:
-            return ""
-
-        # Normalize /docroot/
-        docroot = "/" + docroot.strip("/") + "/"
-
-        if action == "view":
-            action_string = "blob"
-        elif action == "edit":
-            action_string = "edit"
-
-        user, repo = get_gitlab_username_repo(repo_url)
-        if not user and not repo:
-            return ""
-
-        if not filename:
-            # If there isn't a filename, we don't need a suffix
-            source_suffix = ""
-
-        return GITLAB_URL.format(
-            user=user,
-            repo=repo,
-            version=self.commit_name,
-            docroot=docroot,
-            path=filename,
-            source_suffix=source_suffix,
-            action=action_string,
-        )
-
-    def get_bitbucket_url(self, docroot, filename, source_suffix=".rst"):
-        repo_url = self.project.repo
-        if "bitbucket" not in repo_url:
-            return ""
-        if not docroot:
-            return ""
-
-        # Normalize /docroot/
-        docroot = "/" + docroot.strip("/") + "/"
-
-        user, repo = get_bitbucket_username_repo(repo_url)
-        if not user and not repo:
-            return ""
-
-        if not filename:
-            # If there isn't a filename, we don't need a suffix
-            source_suffix = ""
-
-        return BITBUCKET_URL.format(
-            user=user,
-            repo=repo,
-            version=self.commit_name,
-            docroot=docroot,
-            path=filename,
-            source_suffix=source_suffix,
-        )
 
 
 class APIVersion(Version):
