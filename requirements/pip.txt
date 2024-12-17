@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.76
+boto3==1.35.81
     # via django-storages
-botocore==1.35.76
+botocore==1.35.81
     # via
     #   boto3
     #   s3transfer
@@ -29,7 +29,7 @@ celery==5.2.7
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   elastic-transport
     #   requests
@@ -166,7 +166,7 @@ elasticsearch==8.16.0
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
-elasticsearch-dsl==8.16.0
+elasticsearch-dsl==8.17.0
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -277,7 +277,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
 s3transfer==0.10.4
     # via boto3
-selectolax==0.3.26
+selectolax==0.3.27
     # via -r requirements/pip.in
 six==1.17.0
     # via
@@ -287,7 +287,7 @@ six==1.17.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.in
-sqlparse==0.5.2
+sqlparse==0.5.3
     # via
     #   django
     #   django-debug-toolbar

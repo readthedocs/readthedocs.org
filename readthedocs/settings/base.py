@@ -756,8 +756,7 @@ class CommunityBaseSettings(Settings):
     CORS_URLS_REGEX = re.compile(
         r"""
         ^(
-            /api/v2/footer_html
-            |/api/v2/search
+            /api/v2/search
             |/api/v2/docsearch
             |/api/v2/embed
             |/api/v3/embed
