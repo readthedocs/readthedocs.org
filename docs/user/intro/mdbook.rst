@@ -39,7 +39,7 @@ Configuring mdBook and Read the Docs Addons
 Adjust the flyout menu font size
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Add a ``readthedocs.css`` to your build with the `additional-css <https://crisal.io/tmp/book-example/book/format/config.html#html-renderer-options>`_ flag,
+Add a ``readthedocs.css`` to your build with the `additional-css <https://rust-lang.github.io/mdBook/format/configuration/renderers.html#html-renderer-options>`_ flag,
 so that the font in the :ref:`flyout-menu:Addons flyout menu` matches the theme better.
 
 .. code-block:: css
