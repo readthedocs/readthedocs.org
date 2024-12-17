@@ -410,7 +410,7 @@ class TeamMember(models.Model):
     @property
     def full_name(self):
         """
-        Alias property for `get_full_name`
+        Alias property for `get_full_name`.
 
         This is deprecated, use `get_full_name` as it matches the underlying
         :py:method:`User.get_full_name`.
