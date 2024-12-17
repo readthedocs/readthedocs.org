@@ -307,12 +307,23 @@ class BuildDirector:
         if self.data.config.build.jobs.create_environment is not None:
             self.run_build_job("create_environment")
             return
+
+        # If the builder is generic, we have nothing to do here,
+        # as the commnads are provided by the user.
+        if self.data.config.doctype == GENERIC:
+            return
+
         self.language_environment.setup_base()
 
     # Install
     def install(self):
         if self.data.config.build.jobs.install is not None:
             self.run_build_job("install")
+            return
+
+        # If the builder is generic, we have nothing to do here,
+        # as the commnads are provided by the user.
+        if self.data.config.doctype == GENERIC:
             return
 
         self.language_environment.install_core_requirements()
