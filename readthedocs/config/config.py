@@ -120,9 +120,9 @@ class BuildConfigBase:
                 # 12 hours brownout.
                 datetime.datetime(2025, 1, 6, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 6, 12, 0, 0, tzinfo=tzinfo)
                 # 24 hours brownout.
-                or datetime.datetime(2025, 1, 20, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 21, 0, 0, 0, tzinfo=tzinfo)
+                or datetime.datetime(2025, 1, 13, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 14, 0, 0, 0, tzinfo=tzinfo)
                 # Permanent removal.
-                or datetime.datetime(2025, 2, 3, 0, 0, 0, tzinfo=tzinfo) < now
+                or datetime.datetime(2025, 1, 20, 0, 0, 0, tzinfo=tzinfo) < now
             )
             # fmt: on
         else:
