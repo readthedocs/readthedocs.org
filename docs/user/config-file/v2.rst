@@ -493,8 +493,7 @@ The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read t
 sphinx
 ~~~~~~
 
-Configuration for Sphinx documentation
-(this is the default documentation type).
+Configuration for Sphinx documentation.
 
 .. code-block:: yaml
 
@@ -535,10 +534,7 @@ sphinx.configuration
 The path to the ``conf.py`` file, relative to the root of the project.
 
 :Type: ``path``
-:Default: ``null``
-
-If the value is ``null``,
-Read the Docs will try to find a ``conf.py`` file in your project.
+:Required: ``true``
 
 sphinx.fail_on_warning
 ``````````````````````
@@ -580,10 +576,7 @@ mkdocs.configuration
 The path to the ``mkdocs.yml`` file, relative to the root of the project.
 
 :Type: ``path``
-:Default: ``null``
-
-If the value is ``null``,
-Read the Docs will try to find a ``mkdocs.yml`` file in your project.
+:Required: ``true``
 
 mkdocs.fail_on_warning
 ``````````````````````

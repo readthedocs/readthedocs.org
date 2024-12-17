@@ -23,7 +23,7 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
+from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML, GENERIC
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.signals import after_build, before_build, before_vcs
 from readthedocs.storage import build_tools_storage
@@ -301,12 +301,23 @@ class BuildDirector:
         if self.data.config.build.jobs.create_environment is not None:
             self.run_build_job("create_environment")
             return
+
+        # If the builder is generic, we have nothing to do here,
+        # as the commnads are provided by the user.
+        if self.data.config.doctype == GENERIC:
+            return
+
         self.language_environment.setup_base()
 
     # Install
     def install(self):
         if self.data.config.build.jobs.install is not None:
             self.run_build_job("install")
+            return
+
+        # If the builder is generic, we have nothing to do here,
+        # as the commnads are provided by the user.
+        if self.data.config.doctype == GENERIC:
             return
 
         self.language_environment.install_core_requirements()
@@ -642,6 +653,11 @@ class BuildDirector:
         only raise a warning exception here. A hard error will halt the build
         process.
         """
+        # If the builder is generic, we have nothing to do here,
+        # as the commnads are provided by the user.
+        if builder_class == GENERIC:
+            return
+
         builder = get_builder_class(builder_class)(
             build_env=self.build_environment,
             python_env=self.language_environment,

@@ -11,6 +11,7 @@ from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
@@ -167,6 +168,10 @@ class Virtualenv(PythonEnvironment):
             bin_path=self.venv_bin(),
             cwd=self.checkout_path,
         )
+
+        # Nothing else to install for generic projects.
+        if self.config.doctype == GENERIC:
+            return
 
         # Second, install all the latest core requirements
         requirements = []
