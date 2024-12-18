@@ -8,7 +8,6 @@ from django.contrib.staticfiles.storage import (
 )
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
-from storages.utils import get_available_overwrite_name
 
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.storage.rclone import RCloneLocal
@@ -46,16 +45,6 @@ class BuildMediaStorageMixin:
             path += "/"
 
         return path
-
-    def get_available_name(self, name, max_length=None):
-        """
-        Overrides Django's storage to always return the passed name (overwrite).
-
-        By default, Django will not overwrite files even if the same name is specified.
-        This changes that functionality so that the default is to use the same name and overwrite
-        rather than modify the path to not clobber files.
-        """
-        return get_available_overwrite_name(name, max_length=max_length)
 
     def delete_directory(self, path):
         """
