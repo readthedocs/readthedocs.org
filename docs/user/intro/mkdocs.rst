@@ -6,6 +6,8 @@ MkDocs
 
 `MkDocs`_ is a fast, simple static site generator that's geared towards building project documentation.
 Mkdocs is written in Python, and supports documentation written in Markdown.
+When using MkDocs, we recommend using the `Material for MkDocs`_ theme,
+and this guide is mostly focused on the integration required to make it work well on Read the Docs.
 
 Minimal configuration is required to build an existing MkDocs project on Read the Docs:
 
