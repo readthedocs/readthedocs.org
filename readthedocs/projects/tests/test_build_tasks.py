@@ -304,7 +304,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[8]._request.method == "PATCH"
         assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[8].json() == {
-            "addons": True,
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
@@ -630,7 +630,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[8]._request.method == "PATCH"
         assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[8].json() == {
-            "addons": True,
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
@@ -1683,6 +1683,56 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_reshim_rust(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "rust": "latest",
+                    },
+                    "commands": [
+                        "cargo install mdbook",
+                        "mdbook build",
+                    ],
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        rust_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["rust"]["latest"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "rust", rust_version),
+                mock.call("asdf", "global", "rust", rust_version),
+                mock.call("asdf", "reshim", "rust", record=False),
+                mock.call(
+                    "cargo install mdbook",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "asdf",
+                    "reshim",
+                    "rust",
+                    escape_command=False,
+                    record=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "mdbook build",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_requirements_from_config_file_installed(self, load_yaml_config):
         load_yaml_config.return_value = get_build_config(
             {
@@ -1717,8 +1767,13 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
+    @mock.patch("readthedocs.core.utils.filesystem.assert_path_is_inside_docroot")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_conda_config_calls_conda_command(self, load_yaml_config):
+    def test_conda_config_calls_conda_command(
+        self, load_yaml_config, assert_path_is_inside_docroot
+    ):
+        # While testing, we are unsure if temporary test files exist in the docroot.
+        assert_path_is_inside_docroot.return_value = True
         load_yaml_config.return_value = get_build_config(
             {
                 "version": 2,
@@ -1753,6 +1808,11 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call("asdf", "global", "python", python_version),
                 mock.call("asdf", "reshim", "python", record=False),
                 mock.call(
+                    "cat",
+                    "environment.yaml",
+                    cwd=mock.ANY,
+                ),
+                mock.call(
                     "conda",
                     "env",
                     "create",
@@ -1761,26 +1821,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     self.version.slug,
                     "--file",
                     "environment.yaml",
-                    cwd=mock.ANY,
-                    bin_path=mock.ANY,
-                ),
-                mock.call(
-                    "conda",
-                    "install",
-                    "--yes",
-                    "--quiet",
-                    "--name",
-                    self.version.slug,
-                    "sphinx",
-                    cwd=mock.ANY,
-                ),
-                mock.call(
-                    mock.ANY,
-                    "-m",
-                    "pip",
-                    "install",
-                    "-U",
-                    "--no-cache-dir",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
@@ -1819,8 +1859,13 @@ class TestBuildTask(BuildEnvironmentBase):
             ],
         )
 
+    @mock.patch("readthedocs.core.utils.filesystem.assert_path_is_inside_docroot")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_python_mamba_commands(self, load_yaml_config):
+    def test_python_mamba_commands(
+        self, load_yaml_config, assert_path_is_inside_docroot
+    ):
+        # While testing, we are unsure if temporary test files exist in the docroot.
+        assert_path_is_inside_docroot.return_value = True
         load_yaml_config.return_value = get_build_config(
             {
                 "version": 2,
@@ -1849,6 +1894,11 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call("asdf", "global", "python", "mambaforge-4.10.3-10"),
                 mock.call("asdf", "reshim", "python", record=False),
                 mock.call(
+                    "cat",
+                    "environment.yaml",
+                    cwd=mock.ANY,
+                ),
+                mock.call(
                     "mamba",
                     "env",
                     "create",
@@ -1860,26 +1910,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     bin_path=None,
                     cwd=mock.ANY,
                 ),
-                mock.call(
-                    "mamba",
-                    "install",
-                    "--yes",
-                    "--quiet",
-                    "--name",
-                    "latest",
-                    "sphinx",
-                    cwd=mock.ANY,
-                ),
-                mock.call(
-                    mock.ANY,
-                    "-m",
-                    "pip",
-                    "install",
-                    "-U",
-                    "--no-cache-dir",
-                    bin_path=mock.ANY,
-                    cwd=mock.ANY,
-                ),
+                mock.call("test", "-x", "_build/html", cwd=mock.ANY, record=False),
             ]
         )
 

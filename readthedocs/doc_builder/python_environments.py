@@ -244,9 +244,8 @@ class Conda(PythonEnvironment):
         return self.config.python_interpreter
 
     def setup_base(self):
-        if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
-            self._append_core_requirements()
-            self._show_environment_yaml()
+        self._append_core_requirements()
+        self._show_environment_yaml()
 
         self.build_env.run(
             self.conda_bin_name(),
@@ -362,48 +361,12 @@ class Conda(PythonEnvironment):
         return pip_requirements, conda_requirements
 
     def install_core_requirements(self):
-        """Install basic Read the Docs requirements into the Conda env."""
+        """
+        Skip installing requirements.
 
-        if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
-            # Skip install core requirements since they were already appended to
-            # the user's ``environment.yml`` and installed at ``conda env
-            # create`` step.
-            return
-
-        pip_requirements, conda_requirements = self._get_core_requirements()
-        # Install requirements via ``conda install`` command if they were
-        # not appended to the ``environment.yml`` file.
-        cmd = [
-            self.conda_bin_name(),
-            "install",
-            "--yes",
-            "--quiet",
-            "--name",
-            self.version.slug,
-        ]
-        cmd.extend(conda_requirements)
-        self.build_env.run(
-            *cmd,
-            cwd=self.checkout_path,
-            # TODO: on tests I found that we are not passing ``bin_path`` here
-            # for some reason.
-        )
-
-        # Install requirements via ``pip install``
-        pip_cmd = [
-            self.venv_bin(filename="python"),
-            "-m",
-            "pip",
-            "install",
-            "-U",
-            "--no-cache-dir",
-        ]
-        pip_cmd.extend(pip_requirements)
-        self.build_env.run(
-            *pip_cmd,
-            bin_path=self.venv_bin(),
-            cwd=self.checkout_path,  # noqa - no comma here in py27 :/
-        )
+        Skip installing core requirements, since they were already appended to
+        the user's ``environment.yml`` and installed at ``conda env create`` step.
+        """
 
     def install_requirements_file(self, install):
         # as the conda environment was created by using the ``environment.yml``
