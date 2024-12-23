@@ -1,22 +1,13 @@
-.. _material:
-
-Material for MkDocs
-===================
+MkDocs
+======
 
 .. meta::
-   :description lang=en: Hosting Material for MkDocs sites on Read the Docs.
+   :description lang=en: Hosting MkDocs sites on Read the Docs.
 
 `MkDocs`_ is a fast, simple static site generator that's geared towards building project documentation.
-`Material for MkDocs`_ is a powerful documentation framework on top of MkDocs.
 Mkdocs is written in Python, and supports documentation written in Markdown.
 
-.. note::
-
-    This page is explicitly about Material for MkDocs. We're working on a guide for plain MkDocs as well.
-
-Minimal configuration required to build an existing Material for MkDocs project on Read the Docs looks like this,
-specifying a python toolchain on Ubuntu, defining the location of the installation requirements, and using the built-in
-:ref:`mkdocs <config-file/v2:mkdocs>` command:
+Minimal configuration is required to build an existing MkDocs project on Read the Docs:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -38,25 +29,17 @@ specifying a python toolchain on Ubuntu, defining the location of the installati
 .. _MkDocs: https://www.mkdocs.org/
 .. _Material for MkDocs: https://squidfunk.github.io/mkdocs-material
 
-
 Quick start
 -----------
 
-- If you have an existing Material for MkDocs project you want to host on Read the Docs, check out our :doc:`/intro/add-project` guide.
+- If you have an existing MkDocs project you want to host on Read the Docs, check out our :doc:`/intro/add-project` guide.
+- If you're new to MkDocs, check out the official `Getting Started <https://www.mkdocs.org/getting-started/>`_ guide.
 
-- If you're new to Material for MkDocs, check out the official `Getting started with Material for MkDocs`_ guide.
+Configuring MkDocs and Read the Docs Addons
+-------------------------------------------
 
-.. _Getting started with Material for MkDocs: https://squidfunk.github.io/mkdocs-material/getting-started/
-
-Configuring Material for MkDocs and Read the Docs addons
---------------------------------------------------------
-
-For optimal integration with Read the Docs, make the optional following configuration changes to your Material for MkDocs config.
-
-.. contents::
-   :depth: 1
-   :local:
-   :backlinks: none
+There are some additional steps you can take to configure your MkDocs project to work better with Read the Docs,
+and these apply to all MkDocs projects.
 
 Set the canonical URL
 ~~~~~~~~~~~~~~~~~~~~~
@@ -74,6 +57,15 @@ Set your MkDocs `site URL`_  to your Read the Docs canonical URL using a
 
 .. _Site URL: https://www.mkdocs.org/user-guide/configuration/#site_url
 
+Configuring Material for MkDocs and Read the Docs Addons
+--------------------------------------------------------
+
+`Material for MkDocs`_ is a powerful documentation framework on top of MkDocs.
+The following steps are specific to integrating Material for MkDocs and Read the Docs.
+
+.. contents::
+   :local:
+   :backlinks: none
 
 Configure Read the Docs search
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
