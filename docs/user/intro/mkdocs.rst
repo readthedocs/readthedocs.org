@@ -31,9 +31,11 @@ Minimal configuration is required to build an existing MkDocs project on Read th
 .. _MkDocs: https://www.mkdocs.org/
 .. _Material for MkDocs: https://squidfunk.github.io/mkdocs-material
 
+
 Quick start
 -----------
 
+- You can use our :ref:`MkDocs example project <examples:mkdocs>` as a reference to create a new MkDocs project.
 - If you have an existing MkDocs project you want to host on Read the Docs, check out our :doc:`/intro/add-project` guide.
 - If you're new to MkDocs, check out the official `Getting Started <https://www.mkdocs.org/getting-started/>`_ guide.
 
