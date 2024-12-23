@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.81
+boto3==1.35.86
     # via django-storages
-botocore==1.35.81
+botocore==1.35.86
     # via
     #   boto3
     #   s3transfer
@@ -37,7 +37,7 @@ cffi==1.17.1
     # via cryptography
 charset-normalizer==3.4.0
     # via requests
-click==8.1.7
+click==8.1.8
     # via
     #   bumpver
     #   celery
@@ -162,7 +162,7 @@ elastic-transport==8.15.1
     # via
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.16.0
+elasticsearch==8.17.0
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
@@ -224,9 +224,9 @@ psycopg-pool==3.2.4
     # via psycopg
 pycparser==2.22
     # via cffi
-pydantic==2.10.3
+pydantic==2.10.4
     # via -r requirements/pip.in
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via pydantic
 pygments==2.18.0
     # via -r requirements/pip.in

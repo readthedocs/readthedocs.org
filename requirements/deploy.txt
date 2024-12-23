@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.81
+boto3==1.35.86
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.81
+botocore==1.35.86
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -57,7 +57,7 @@ charset-normalizer==3.4.0
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.1.7
+click==8.1.8
     # via
     #   -r requirements/pip.txt
     #   bumpver
@@ -203,7 +203,7 @@ elastic-transport==8.15.1
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.16.0
+elasticsearch==8.17.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -233,7 +233,7 @@ idna==3.10
     # via
     #   -r requirements/pip.txt
     #   requests
-ipython==8.30.0
+ipython==8.31.0
     # via -r requirements/deploy.in
 isodate==0.7.2
     # via
@@ -314,9 +314,9 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.3
+pydantic==2.10.4
     # via -r requirements/pip.txt
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via
     #   -r requirements/pip.txt
     #   pydantic

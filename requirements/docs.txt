@@ -20,7 +20,7 @@ certifi==2024.12.14
     #   sphinx-prompt
 charset-normalizer==3.4.0
     # via requests
-click==8.1.7
+click==8.1.8
     # via
     #   sphinx-intl
     #   uvicorn
@@ -50,7 +50,7 @@ idna==3.10
     #   sphinx-prompt
 imagesize==1.4.1
     # via sphinx
-jinja2==3.1.4
+jinja2==3.1.5
     # via
     #   myst-parser
     #   sphinx
@@ -70,7 +70,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==4.0.0
     # via -r requirements/docs.in
-numpy==2.2.0
+numpy==2.2.1
     # via
     #   contourpy
     #   matplotlib
@@ -171,7 +171,7 @@ urllib3==2.2.3
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.33.0
+uvicorn==0.34.0
     # via sphinx-autobuild
 watchfiles==1.0.3
     # via sphinx-autobuild
