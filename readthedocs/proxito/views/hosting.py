@@ -1,4 +1,5 @@
 """Views for hosting features."""
+import urllib.parse
 from functools import lru_cache
 
 import packaging
@@ -7,23 +8,18 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.api.v3.serializers import (
-    BuildSerializer,
-    ProjectSerializer,
-    VersionSerializer,
-)
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
     ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
@@ -222,54 +218,6 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
 
 
-class NoLinksMixin:
-
-    """Mixin to remove conflicting fields from serializers."""
-
-    FIELDS_TO_REMOVE = ("_links",)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for field in self.FIELDS_TO_REMOVE:
-            if field in self.fields:
-                del self.fields[field]
-
-            if field in self.Meta.fields:
-                del self.Meta.fields[self.Meta.fields.index(field)]
-
-
-# NOTE: the following serializers are required only to remove some fields we
-# can't expose yet in this API endpoint because it's running under El Proxito
-# which cannot resolve URLs pointing to the APIv3 because they are not defined
-# on El Proxito.
-#
-# See https://github.com/readthedocs/readthedocs-ops/issues/1323
-class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            **kwargs,
-        )
-
-
-class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            version_serializer=VersionSerializerNoLinks,
-            **kwargs,
-        )
-
-
-class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
-    pass
-
-
 class AddonsResponseBase:
     def get(
         self,
@@ -406,36 +354,6 @@ class AddonsResponseBase:
 
         data = {
             "api_version": "1",
-            "projects": {
-                "current": ProjectSerializerNoLinks(
-                    project,
-                    resolver=resolver,
-                    version_slug=version.slug if version else None,
-                ).data,
-                "translations": ProjectSerializerNoLinks(
-                    project_translations,
-                    resolver=resolver,
-                    version_slug=version.slug if version else None,
-                    many=True,
-                ).data,
-            },
-            "versions": {
-                "current": VersionSerializerNoLinks(
-                    version,
-                    resolver=resolver,
-                ).data
-                if version
-                else None,
-                # These are "sorted active, built, not hidden versions"
-                "active": VersionSerializerNoLinks(
-                    sorted_versions_active_built_not_hidden,
-                    resolver=resolver,
-                    many=True,
-                ).data,
-            },
-            "builds": {
-                "current": BuildSerializerNoLinks(build).data if build else None,
-            },
             # TODO: consider creating one serializer per field here.
             # The resulting JSON will be the same, but maybe it's easier/cleaner?
             "domains": {
@@ -529,21 +447,79 @@ class AddonsResponseBase:
                     },
                 },
                 "filetreediff": {
-                    "enabled": False,
+                    "enabled": project.addons.filetreediff_enabled,
                 },
             },
         }
 
-        if version:
-            response = self._get_filetreediff_response(
-                request=request,
-                project=project,
-                version=version,
-                resolver=resolver,
+        if project and version and build:
+            base_version_slug = (
+                project.addons.options_base_version.slug
+                if project.addons.options_base_version
+                else LATEST
             )
-            if response:
-                data["addons"]["filetreediff"].update(response)
+            data["readthedocs"] = {
+                "urls": {
+                    "api": {
+                        "v3": {
+                            "projects": {
+                                "current": reverse(
+                                    "projects-detail",
+                                    kwargs={
+                                        "project_slug": project.slug,
+                                    },
+                                ),
+                                "translations": reverse(
+                                    "projects-translations-list",
+                                    kwargs={
+                                        "parent_lookup_main_language_project__slug": project.slug,
+                                    },
+                                ),
+                            },
+                            "versions": {
+                                "current": reverse(
+                                    "projects-versions-detail",
+                                    kwargs={
+                                        "parent_lookup_project__slug": project.slug,
+                                        "version_slug": version.slug,
+                                    },
+                                ),
+                                "active": reverse(
+                                    "projects-versions-list",
+                                    kwargs={
+                                        "parent_lookup_project__slug": project.slug,
+                                    },
+                                )
+                                + "?"
+                                + urllib.parse.urlencode({"active": True}),
+                            },
+                            "builds": {
+                                "current": reverse(
+                                    "projects-builds-detail",
+                                    kwargs={
+                                        "parent_lookup_project__slug": project.slug,
+                                        "build_pk": build.pk,
+                                    },
+                                ),
+                            },
+                            # project.addons.options_base_version.slug
+                            "filetreediff": reverse(
+                                "projects-versions-filetreediff-list",
+                                kwargs={
+                                    "parent_lookup_project__slug": project.slug,
+                                    "parent_lookup_version__slug": version.slug,
+                                },
+                            )
+                            + "?"
+                            + urllib.parse.urlencode(
+                                {"base-version": base_version_slug}
+                            ),
+                        },
+                    },
+                }
+            }
 
+        if version:
             # Show the subprojects filter on the parent project and subproject
             # TODO: Remove these queries and try to find a way to get this data
             # from the resolver, which has already done these queries.
@@ -620,92 +596,6 @@ class AddonsResponseBase:
             )
 
         return data
-
-    def _get_filetreediff_response(self, *, request, project, version, resolver):
-        """
-        Get the file tree diff response for the given version.
-
-        This response is only enabled for external versions,
-        we do the comparison between the current version and the latest version.
-        """
-        if not version.is_external:
-            return None
-
-        if not project.addons.filetreediff_enabled:
-            return None
-
-        base_version = (
-            project.addons.options_base_version or project.get_latest_version()
-        )
-        if not base_version or not self._has_permission(
-            request=request, version=base_version
-        ):
-            return None
-
-        diff = get_diff(version_a=version, version_b=base_version)
-        if not diff:
-            return None
-
-        return {
-            "enabled": True,
-            "outdated": diff.outdated,
-            "diff": {
-                "added": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.added
-                ],
-                "deleted": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.deleted
-                ],
-                "modified": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.modified
-                ],
-            },
-        }
 
     def _v2(self, project, version, build, filename, url, user):
         return {
