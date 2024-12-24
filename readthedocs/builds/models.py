@@ -354,6 +354,9 @@ class Version(TimeStampedModel):
             return self.identifier.removeprefix("origin/")
 
         if self.type == EXTERNAL:
+            # If this version is a EXTERNAL version, the identifier will
+            # contain the actual commit hash. which we can use to
+            # generate url for a given file name
             return self.identifier
 
         # For all other cases, verbose_name contains the actual name of the branch/tag.
