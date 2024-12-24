@@ -71,7 +71,7 @@ class VersionCommitNameTests(TestCase):
 
     def test_stable_version_tag_uses_original_stable(self):
         project = get(Project)
-        version = get(
+        stable = get(
             Version,
             project=project,
             identifier="3d92b728b7d7b842259ac2020c2fa389f13aff0d",
@@ -80,7 +80,7 @@ class VersionCommitNameTests(TestCase):
             type=TAG,
             machine=True,
         )
-        get(
+        original_stable = get(
             Version,
             project=project,
             identifier="3d92b728b7d7b842259ac2020c2fa389f13aff0d",
@@ -89,7 +89,8 @@ class VersionCommitNameTests(TestCase):
             type=TAG,
             machine=True,
         )
-        self.assertEqual(version.git_identifier, "v2.0")
+        self.assertEqual(stable.git_identifier, "v2.0")
+        self.assertEqual(original_stable.git_identifier, "v2.0")
 
     def test_manual_stable_version(self):
         project = get(Project)
