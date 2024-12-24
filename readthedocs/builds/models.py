@@ -31,7 +31,6 @@ from readthedocs.builds.constants import (
     PREDEFINED_MATCH_ARGS,
     PREDEFINED_MATCH_ARGS_VALUES,
     STABLE,
-    TAG,
     VERSION_TYPES,
 )
 from readthedocs.builds.managers import (
@@ -330,50 +329,35 @@ class Version(TimeStampedModel):
         return None
 
     @property
-    def commit_name(self):
+    def git_identifier(self):
         """
-        Return the branch name, the tag name or the revision identifier.
+        Return the branch or tag name of the version.
 
         The result could be used as ref in a git repo, e.g. for linking to
         GitHub, Bitbucket or GitLab.
+
+        - If the version is latest (machine created), we resolve to the default branch of the project.
+        - If the version is stable (machine created), we resolve to the branch that the stable version points to.
+        - If the version is external, we return the identifier, since we don't have access to the name of the branch.
         """
-        # LATEST is special as it is usually a branch but does not contain the
-        # name in verbose_name.
+        # Latest is special as it doesn't contain the actual name in verbose_name.
         if self.slug == LATEST and self.machine:
             return self.project.get_default_branch()
 
+        # Stable is special as it doesn't contain the actual name in verbose_name.
         if self.slug == STABLE and self.machine:
-            if self.type == BRANCH:
-                # Special case, as we do not store the original branch name
-                # that the stable version works on. We can only interpolate the
-                # name from the commit identifier, but it's hacky.
-                # TODO: Refactor ``Version`` to store more actual info about
-                # the underlying commits.
-                if self.identifier.startswith("origin/"):
-                    return self.identifier[len("origin/") :]
-            return self.identifier
-
-        if self.type in (BRANCH, TAG):
-            # If this version is a branch or a tag, the verbose_name will
-            # contain the actual name. We cannot use identifier as this might
-            # include the "origin/..." part in the case of a branch. A tag
-            # would contain the hash in identifier, which is not as pretty as
-            # the actual tag name.
-            return self.verbose_name
+            original_stable = self.project.get_original_stable_version()
+            # NOTE: we no longer save branch names with the "origin/" prefix,
+            # but we remove it for old versions.
+            if original_stable:
+                return original_stable.verbose_name.removeprefix("origin/")
+            return self.identifier.removeprefix("origin/")
 
         if self.type == EXTERNAL:
-            # If this version is a EXTERNAL version, the identifier will
-            # contain the actual commit hash. which we can use to
-            # generate url for a given file name
             return self.identifier
 
-        # If we came that far it's not a special version
-        # nor a branch, tag or EXTERNAL version.
-        # Therefore just return the identifier to make a safe guess.
-        log.debug(
-            "TODO: Raise an exception here. Testing what cases it happens",
-        )
-        return self.identifier
+        # For all other cases, verbose_name contains the actual name of the branch/tag.
+        return self.verbose_name
 
     def get_absolute_url(self):
         """
@@ -561,6 +545,10 @@ class APIVersion(Version):
     """
 
     project = None
+    # This is a property in the original model, in order to
+    # be able to assign it a value in the constructor, we need to re-declare it
+    # as an attribute here.
+    git_identifier = None
 
     class Meta:
         proxy = True
@@ -568,6 +556,7 @@ class APIVersion(Version):
     def __init__(self, *args, **kwargs):
         self.project = APIProject(**kwargs.pop("project", {}))
         self.canonical_url = kwargs.pop("canonical_url", None)
+        self.git_identifier = kwargs.pop("git_identifier", None)
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ["resource_uri", "absolute_url", "downloads"]:
