@@ -478,29 +478,6 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             ],
         )
 
-    def test_commit_name_not_in_default_branch_choices(self):
-        form = UpdateProjectForm(instance=self.project)
-        # This version is created by the user
-        latest = self.project.versions.filter(slug=LATEST)
-        # This version is created by the user
-        stable = self.project.versions.filter(slug=STABLE)
-
-        # `commit_name` can not be used as the value for the choices
-        self.assertNotIn(
-            latest.first().commit_name,
-            [
-                identifier
-                for identifier, _ in form.fields["default_branch"].widget.choices
-            ],
-        )
-        self.assertNotIn(
-            stable.first().commit_name,
-            [
-                identifier
-                for identifier, _ in form.fields["default_branch"].widget.choices
-            ],
-        )
-
     def test_external_version_not_in_default_branch_choices(self):
         external_version = get(
             Version,

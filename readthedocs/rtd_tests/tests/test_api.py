@@ -3292,6 +3292,7 @@ class APIVersionTests(TestCase):
             "privacy_level": "public",
             "downloads": {},
             "identifier": "2404a34eba4ee9c48cc8bc4055b99a48354f4950",
+            "git_identifier": "0.8",
             "slug": "0.8",
             "has_epub": False,
             "has_htmlzip": False,

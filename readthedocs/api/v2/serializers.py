@@ -187,6 +187,7 @@ class VersionAdminSerializer(VersionSerializer):
             "build_data",
             "canonical_url",
             "machine",
+            "git_identifier",
         ]
 
 

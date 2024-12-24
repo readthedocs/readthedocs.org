@@ -94,15 +94,15 @@ class TestVersionModel(VersionMixin, TestCase):
         stable.save()
         assert "https://github.com/pypa/pip/tree/stable/" == stable.vcs_url
 
-    def test_commit_name_for_stable_version(self):
-        self.assertEqual(self.branch_version.commit_name, "stable")
+    def test_git_identifier_for_stable_version(self):
+        self.assertEqual(self.branch_version.git_identifier, "stable")
 
-    def test_commit_name_for_latest_version(self):
-        self.assertEqual(self.tag_version.commit_name, "master")
+    def test_git_identifier_for_latest_version(self):
+        self.assertEqual(self.tag_version.git_identifier, "master")
 
-    def test_commit_name_for_external_version(self):
+    def test_git_identifier_for_external_version(self):
         self.assertEqual(
-            self.external_version.commit_name, self.external_version.identifier
+            self.external_version.git_identifier, self.external_version.identifier
         )
 
     @override_settings(
