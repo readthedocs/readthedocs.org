@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
+from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, STABLE, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
@@ -31,6 +31,7 @@ class VersionMixin:
             project=self.pip,
             active=True,
             type=BRANCH,
+            machine=True,
         )
         self.tag_version = get(
             Version,
@@ -40,6 +41,7 @@ class VersionMixin:
             project=self.pip,
             active=True,
             type=TAG,
+            machine=True,
         )
 
         self.subproject = get(Project, slug="subproject", language="en")
@@ -74,9 +76,23 @@ class TestVersionModel(VersionMixin, TestCase):
         expected_url = f"https://github.com/pypa/pip/tree/{slug}/"
         self.assertEqual(self.tag_version.vcs_url, expected_url)
 
+    def test_vcs_url_for_manual_latest_version(self):
+        latest = self.pip.versions.get(slug=LATEST)
+        latest.machine = False
+        latest.save()
+        assert "https://github.com/pypa/pip/tree/latest/" == latest.vcs_url
+
     def test_vcs_url_for_stable_version(self):
+        self.pip.update_stable_version()
+        self.branch_version.refresh_from_db()
         expected_url = f"https://github.com/pypa/pip/tree/{self.branch_version.ref}/"
         self.assertEqual(self.branch_version.vcs_url, expected_url)
+
+    def test_vcs_url_for_manual_stable_version(self):
+        stable = self.pip.versions.get(slug=STABLE)
+        stable.machine = False
+        stable.save()
+        assert "https://github.com/pypa/pip/tree/stable/" == stable.vcs_url
 
     def test_commit_name_for_stable_version(self):
         self.assertEqual(self.branch_version.commit_name, "stable")
