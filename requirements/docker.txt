@@ -24,17 +24,17 @@ async-timeout==5.0.1
     # via
     #   -r requirements/pip.txt
     #   redis
-attrs==24.2.0
+attrs==24.3.0
     # via wmctrl
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.81
+boto3==1.35.90
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.81
+botocore==1.35.90
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -58,11 +58,11 @@ cffi==1.17.1
     #   cryptography
 chardet==5.2.0
     # via tox
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.1.7
+click==8.1.8
     # via
     #   -r requirements/pip.txt
     #   bumpver
@@ -137,7 +137,7 @@ django==4.2.17
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.3.0
+django-allauth[mfa,saml,socialaccount]==65.3.1
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
@@ -213,7 +213,7 @@ elastic-transport==8.15.1
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.16.0
+elasticsearch==8.17.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -248,7 +248,7 @@ idna==3.10
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.30.0
+ipython==8.31.0
     # via ipdb
 isodate==0.7.2
     # via
@@ -338,9 +338,9 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.3
+pydantic==2.10.4
     # via -r requirements/pip.txt
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -487,7 +487,7 @@ unidecode==1.3.8
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.2.3
+urllib3==2.3.0
     # via
     #   -r requirements/pip.txt
     #   botocore
