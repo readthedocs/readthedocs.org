@@ -238,8 +238,8 @@ class AddonsConfig(TimeStampedModel):
 
     # Notifications
     notifications_enabled = models.BooleanField(default=True)
-    notifications_show_on_latest = models.BooleanField(default=True)
-    notifications_show_on_non_stable = models.BooleanField(default=True)
+    notifications_show_on_latest = models.BooleanField(default=False)
+    notifications_show_on_non_stable = models.BooleanField(default=False)
     notifications_show_on_external = models.BooleanField(default=True)
 
     # Link Previews
