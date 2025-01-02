@@ -16,6 +16,7 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.serializers import (
     BuildSerializer,
     ProjectSerializer,
+    RestrictedProjectSerializer,
     VersionSerializer,
 )
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
@@ -245,7 +246,13 @@ class NoLinksMixin:
 # on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
+class RestrictedProjectSerializerNoLinks(NoLinksMixin, RestrictedProjectSerializer):
+    pass
+
+
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
+    related_project_serializer = RestrictedProjectSerializerNoLinks
+
     def __init__(self, *args, **kwargs):
         resolver = kwargs.pop("resolver", Resolver())
         super().__init__(
