@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.90
+boto3==1.35.92
     # via django-storages
-botocore==1.35.90
+botocore==1.35.92
     # via
     #   boto3
     #   s3transfer
@@ -203,7 +203,7 @@ markdown==3.7
     # via -r requirements/pip.in
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.10.12
+orjson==3.10.13
     # via -r requirements/pip.in
 packaging==24.2
     # via
@@ -337,7 +337,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.28.0
+virtualenv==20.28.1
     # via -r requirements/pip.in
 wcwidth==0.2.13
     # via prompt-toolkit
