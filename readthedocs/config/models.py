@@ -14,7 +14,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict
 
 
-class Parent(BaseModel):
+class ConfigBaseModel(BaseModel):
     """Base class for all the models."""
 
     model_config = ConfigDict(
@@ -24,12 +24,12 @@ class Parent(BaseModel):
     )
 
 
-class BuildTool(Parent):
+class BuildTool(ConfigBaseModel):
     version: str
     full_version: str
 
 
-class BuildJobsBuildTypes(Parent):
+class BuildJobsBuildTypes(ConfigBaseModel):
     """Object used for `build.jobs.build` key."""
 
     html: list[str] | None = None
@@ -38,7 +38,7 @@ class BuildJobsBuildTypes(Parent):
     htmlzip: list[str] | None = None
 
 
-class BuildJobs(Parent):
+class BuildJobs(ConfigBaseModel):
     """Object used for `build.jobs` key."""
 
     pre_checkout: list[str] = []
@@ -57,7 +57,7 @@ class BuildJobs(Parent):
 
 
 # TODO: rename this class to `Build`
-class BuildWithOs(Parent):
+class BuildWithOs(ConfigBaseModel):
     os: str
     tools: dict[str, BuildTool]
     jobs: BuildJobs = BuildJobs()
@@ -65,25 +65,25 @@ class BuildWithOs(Parent):
     commands: list[str] = []
 
 
-class PythonInstallRequirements(Parent):
+class PythonInstallRequirements(ConfigBaseModel):
     requirements: str
 
 
-class PythonInstall(Parent):
+class PythonInstall(ConfigBaseModel):
     path: str
     method: Literal["pip", "setuptools"] = "pip"
     extra_requirements: list[str] = []
 
 
-class Python(Parent):
+class Python(ConfigBaseModel):
     install: list[PythonInstall | PythonInstallRequirements] = []
 
 
-class Conda(Parent):
+class Conda(ConfigBaseModel):
     environment: str
 
 
-class Sphinx(Parent):
+class Sphinx(ConfigBaseModel):
     configuration: str | None
     # NOTE: This is how we save the object in the DB,
     # the actual options for users are "html", "htmldir", "singlehtml".
@@ -91,18 +91,18 @@ class Sphinx(Parent):
     fail_on_warning: bool = False
 
 
-class Mkdocs(Parent):
+class Mkdocs(ConfigBaseModel):
     configuration: str | None
     fail_on_warning: bool = False
 
 
-class Submodules(Parent):
+class Submodules(ConfigBaseModel):
     include: list[str] | Literal["all"] = []
     exclude: list[str] | Literal["all"] = []
     recursive: bool = False
 
 
-class Search(Parent):
+class Search(ConfigBaseModel):
     ranking: dict[str, int] = {}
     ignore: list[str] = [
         "search.html",
