@@ -634,7 +634,9 @@ class Project(models.Model):
 
         # If the project is linked to a remote repository,
         # make sure to use the clone URL from the repository.
-        if self.remote_repository:
+        if self.remote_repository and not self.has_feature(
+            Feature.DONT_SYNC_WITH_REMOTE_REPO
+        ):
             self.repo = self.remote_repository.clone_url
 
         super().save(*args, **kwargs)
@@ -1930,6 +1932,7 @@ class Feature(models.Model):
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
+    DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1980,6 +1983,10 @@ class Feature(models.Model):
         (
             ALLOW_VERSION_WARNING_BANNER,
             _("Dashboard: Allow project to use the version warning banner."),
+        ),
+        (
+            DONT_SYNC_WITH_REMOTE_REPO,
+            _("Remote repository: Don't keep project in sync with remote repository."),
         ),
         # Versions sync related features
         (

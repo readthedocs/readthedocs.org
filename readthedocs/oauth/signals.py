@@ -6,6 +6,7 @@ from django.dispatch import receiver
 
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.tasks import sync_remote_repositories
+from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)
 
@@ -29,4 +30,6 @@ def sync_remote_repositories_on_login(sender, request, user, *args, **kwargs):
 @receiver(post_save, sender=RemoteRepository)
 def update_project_clone_url(sender, instance, created, *args, **kwargs):
     """Update the clone URL for all projects linked to this RemoteRepository."""
-    instance.projects.all().update(repo=instance.clone_url)
+    instance.projects.exclude(
+        feature__feature_id=Feature.DONT_SYNC_WITH_REMOTE_REPO
+    ).update(repo=instance.clone_url)

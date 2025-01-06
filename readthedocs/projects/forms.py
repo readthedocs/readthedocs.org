@@ -70,7 +70,9 @@ class ProjectForm(SimpleHistoryModelForm):
         )
 
         # The clone URL will be set from the remote repository.
-        if self.instance.remote_repository:
+        if self.instance.remote_repository and not self.instance.has_feature(
+            Feature.DONT_SYNC_WITH_REMOTE_REPO
+        ):
             self.fields["repo"].disabled = True
 
     def _get_remote_repository_choices(self):

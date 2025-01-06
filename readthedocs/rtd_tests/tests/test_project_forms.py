@@ -34,7 +34,12 @@ from readthedocs.projects.forms import (
     UpdateProjectForm,
     WebHookForm,
 )
-from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Feature,
+    Project,
+    WebHookEvent,
+)
 from readthedocs.projects.validators import MAX_SIZE_ENV_VARS_PER_PROJECT
 
 
@@ -393,6 +398,14 @@ class TestProjectAdvancedForm(TestCase):
         # Since a remote repository is attached, the repo field should be disabled.
         form = UpdateProjectForm(data, instance=self.project, user=self.user)
         self.assertTrue(form.fields["repo"].disabled)
+
+        # This project has the don't sync with remote repository feature enabled,
+        # so the repo field should be enabled.
+        feature = get(Feature, feature_id=Feature.DONT_SYNC_WITH_REMOTE_REPO)
+        self.project.feature_set.add(feature)
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertFalse(form.fields["repo"].disabled)
+        self.project.feature_set.remove(feature)
 
         # The project has the remote repository attached.
         # And the user doesn't have access to it anymore, but still can use it.
