@@ -55,6 +55,16 @@ Below is a list of popular documentation tools that you can use to write your do
         Written in
              :bdg-info:`javascript`
 
+    .. grid-item-card::  mdBook
+        :link: mdbook.html
+
+        mdBook is a command line tool to create books with Markdown built in Rust.
+
+        Supported formats
+             :bdg-success:`md`
+        Written in
+             :bdg-info:`rust`
+
 .. toctree::
    :hidden:
 
@@ -62,3 +72,4 @@ Below is a list of popular documentation tools that you can use to write your do
    /intro/sphinx
    /intro/docusaurus
    /intro/markdoc
+   /intro/mdbook

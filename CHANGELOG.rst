@@ -1,3 +1,26 @@
+Version 11.17.1
+---------------
+
+:Date: December 17, 2024
+
+* `@agjohnson <https://github.com/agjohnson>`__: Match User method in TeamMember (`#11861 <https://github.com/readthedocs/readthedocs.org/pull/11861>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use "Visual diff" for marketing "Doc Diff" (`#11860 <https://github.com/readthedocs/readthedocs.org/pull/11860>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11858 <https://github.com/readthedocs/readthedocs.org/pull/11858>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove yamale (`#11855 <https://github.com/readthedocs/readthedocs.org/pull/11855>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code from old footer (`#11854 <https://github.com/readthedocs/readthedocs.org/pull/11854>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: docs: Reframe Supported Tools (`#11853 <https://github.com/readthedocs/readthedocs.org/pull/11853>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add mdbook docs page (`#11849 <https://github.com/readthedocs/readthedocs.org/pull/11849>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Rust reshim (`#11848 <https://github.com/readthedocs/readthedocs.org/pull/11848>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: remove usage of addons field (`#11846 <https://github.com/readthedocs/readthedocs.org/pull/11846>`__)
+* `@humitos <https://github.com/humitos>`__: Remove EthicalAd URLs (`#11843 <https://github.com/readthedocs/readthedocs.org/pull/11843>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix import wizard (`#11842 <https://github.com/readthedocs/readthedocs.org/pull/11842>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove disable_sphinx_manipulation feature flag (`#11841 <https://github.com/readthedocs/readthedocs.org/pull/11841>`__)
+* `@humitos <https://github.com/humitos>`__: Use "Visual diff" instead of doc diff (`#11838 <https://github.com/readthedocs/readthedocs.org/pull/11838>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.17.0 (`#11837 <https://github.com/readthedocs/readthedocs.org/pull/11837>`__)
+* `@humitos <https://github.com/humitos>`__: Remove old footer code (`#11836 <https://github.com/readthedocs/readthedocs.org/pull/11836>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add authentication documentation (`#11834 <https://github.com/readthedocs/readthedocs.org/pull/11834>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Cleanup doctool toctree listing (`#11833 <https://github.com/readthedocs/readthedocs.org/pull/11833>`__)
+
 Version 11.17.0
 ---------------
 

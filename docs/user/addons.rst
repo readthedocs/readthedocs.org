@@ -5,7 +5,7 @@ Read the Docs Addons
 They are used in the rendered documentation,
 and can be accessed via hotkeys or on screen UI elements.
 
-:doc:`DocDiff </doc-diff>`
+:doc:`Visual diff </visual-diff>`
     Highlight changed output from pull requests
 
 :doc:`Link previews </link-previews>`

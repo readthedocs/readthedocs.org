@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.76
+boto3==1.35.90
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.76
+botocore==1.35.90
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -43,7 +43,7 @@ celery==5.2.7
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -53,11 +53,11 @@ cffi==1.17.1
     # via
     #   -r requirements/pip.txt
     #   cryptography
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.1.7
+click==8.1.8
     # via
     #   -r requirements/pip.txt
     #   bumpver
@@ -127,7 +127,7 @@ django==4.2.17
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.3.0
+django-allauth[mfa,saml,socialaccount]==65.3.1
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
@@ -203,11 +203,11 @@ elastic-transport==8.15.1
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.16.0
+elasticsearch==8.17.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.16.0
+elasticsearch-dsl==8.17.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -233,7 +233,7 @@ idna==3.10
     # via
     #   -r requirements/pip.txt
     #   requests
-ipython==8.30.0
+ipython==8.31.0
     # via -r requirements/deploy.in
 isodate==0.7.2
     # via
@@ -268,7 +268,7 @@ markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==10.3.1
+newrelic==10.4.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
@@ -314,9 +314,9 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.3
+pydantic==2.10.4
     # via -r requirements/pip.txt
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -381,7 +381,7 @@ s3transfer==0.10.4
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.26
+selectolax==0.3.27
     # via -r requirements/pip.txt
 sentry-sdk==2.19.2
     # via structlog-sentry
@@ -394,7 +394,7 @@ six==1.17.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.txt
-sqlparse==0.5.2
+sqlparse==0.5.3
     # via
     #   -r requirements/pip.txt
     #   django
@@ -453,7 +453,7 @@ unidecode==1.3.8
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.2.3
+urllib3==2.3.0
     # via
     #   -r requirements/pip.txt
     #   botocore

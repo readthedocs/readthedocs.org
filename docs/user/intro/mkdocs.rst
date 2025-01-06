@@ -161,7 +161,8 @@ To integrate the :ref:`flyout-menu:Addons flyout menu` version menu into your si
 Adjust the flyout menu font size
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Edit ``readthedocs.css`` to so that the font in the :ref:`flyout-menu:Addons flyout menu` matches the theme better.
+Add a ``readthedocs.css`` to your build,
+so that the font in the :ref:`flyout-menu:Addons flyout menu` matches the theme better.
 
 .. code-block:: css
     :caption: readthedocs.css:

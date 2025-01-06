@@ -59,7 +59,7 @@ Read the Docs: documentation simplified
    :caption: Reading documentation
 
    /downloadable-documentation
-   /doc-diff
+   /visual-diff
    /link-previews
    /guides/embedding-content
    /server-side-search/index

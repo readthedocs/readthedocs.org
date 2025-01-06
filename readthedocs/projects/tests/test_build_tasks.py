@@ -372,7 +372,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 self.project.checkout_path(self.version.slug), "_readthedocs/"
             ),
             "READTHEDOCS_GIT_CLONE_URL": self.project.repo,
-            "READTHEDOCS_GIT_IDENTIFIER": self.version.identifier,
+            "READTHEDOCS_GIT_IDENTIFIER": self.version.git_identifier,
             "READTHEDOCS_GIT_COMMIT_HASH": self.build.commit,
             "READTHEDOCS_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         }
@@ -1291,6 +1291,221 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override_without_sphinx(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "formats": ["pdf", "epub", "htmlzip"],
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "build": {
+                            "html": ["echo build html"],
+                        },
+                        "post_build": ["echo end of build"],
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "echo build html",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo end of build",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override_sphinx(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "sphinx": {
+                    "configuration": "docs/conf.py",
+                },
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "build": {
+                            "html": ["echo build html"],
+                        },
+                        "post_build": ["echo end of build"],
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "python",
+                    "-mvirtualenv",
+                    "$READTHEDOCS_VIRTUALENV_PATH",
+                    bin_path=None,
+                    cwd=None,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "pip",
+                    "setuptools",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "sphinx",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo build html",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo end of build",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override_mkdocs(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "formats": ["pdf", "epub", "htmlzip"],
+                "mkdocs": {
+                    "configuration": "mkdocs.yml",
+                },
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "build": {
+                            "html": ["echo build html"],
+                        },
+                        "post_build": ["echo end of build"],
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "python",
+                    "-mvirtualenv",
+                    "$READTHEDOCS_VIRTUALENV_PATH",
+                    bin_path=None,
+                    cwd=None,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "pip",
+                    "setuptools",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "mkdocs",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo build html",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "echo end of build",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_jobs_partial_build_override_empty_commands(self, load_yaml_config):
         config = BuildConfigV2(
             {
@@ -1552,8 +1767,13 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
+    @mock.patch("readthedocs.core.utils.filesystem.assert_path_is_inside_docroot")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_conda_config_calls_conda_command(self, load_yaml_config):
+    def test_conda_config_calls_conda_command(
+        self, load_yaml_config, assert_path_is_inside_docroot
+    ):
+        # While testing, we are unsure if temporary test files exist in the docroot.
+        assert_path_is_inside_docroot.return_value = True
         load_yaml_config.return_value = get_build_config(
             {
                 "version": 2,
@@ -1588,6 +1808,11 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call("asdf", "global", "python", python_version),
                 mock.call("asdf", "reshim", "python", record=False),
                 mock.call(
+                    "cat",
+                    "environment.yaml",
+                    cwd=mock.ANY,
+                ),
+                mock.call(
                     "conda",
                     "env",
                     "create",
@@ -1596,26 +1821,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     self.version.slug,
                     "--file",
                     "environment.yaml",
-                    cwd=mock.ANY,
-                    bin_path=mock.ANY,
-                ),
-                mock.call(
-                    "conda",
-                    "install",
-                    "--yes",
-                    "--quiet",
-                    "--name",
-                    self.version.slug,
-                    "sphinx",
-                    cwd=mock.ANY,
-                ),
-                mock.call(
-                    mock.ANY,
-                    "-m",
-                    "pip",
-                    "install",
-                    "-U",
-                    "--no-cache-dir",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
@@ -1654,8 +1859,13 @@ class TestBuildTask(BuildEnvironmentBase):
             ],
         )
 
+    @mock.patch("readthedocs.core.utils.filesystem.assert_path_is_inside_docroot")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_python_mamba_commands(self, load_yaml_config):
+    def test_python_mamba_commands(
+        self, load_yaml_config, assert_path_is_inside_docroot
+    ):
+        # While testing, we are unsure if temporary test files exist in the docroot.
+        assert_path_is_inside_docroot.return_value = True
         load_yaml_config.return_value = get_build_config(
             {
                 "version": 2,
@@ -1684,6 +1894,11 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call("asdf", "global", "python", "mambaforge-4.10.3-10"),
                 mock.call("asdf", "reshim", "python", record=False),
                 mock.call(
+                    "cat",
+                    "environment.yaml",
+                    cwd=mock.ANY,
+                ),
+                mock.call(
                     "mamba",
                     "env",
                     "create",
@@ -1695,26 +1910,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     bin_path=None,
                     cwd=mock.ANY,
                 ),
-                mock.call(
-                    "mamba",
-                    "install",
-                    "--yes",
-                    "--quiet",
-                    "--name",
-                    "latest",
-                    "sphinx",
-                    cwd=mock.ANY,
-                ),
-                mock.call(
-                    mock.ANY,
-                    "-m",
-                    "pip",
-                    "install",
-                    "-U",
-                    "--no-cache-dir",
-                    bin_path=mock.ANY,
-                    cwd=mock.ANY,
-                ),
+                mock.call("test", "-x", "_build/html", cwd=mock.ANY, record=False),
             ]
         )
 
