@@ -632,9 +632,8 @@ class Project(models.Model):
 
         # If the project is linked to a remote repository,
         # make sure to use the clone URL from the repository.
-        if self.remote_repository and not self.has_feature(
-            Feature.DONT_SYNC_WITH_REMOTE_REPO
-        ):
+        dont_sync = self.pk and self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO)
+        if self.remote_repository and not dont_sync:
             self.repo = self.remote_repository.clone_url
 
         super().save(*args, **kwargs)
