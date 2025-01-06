@@ -26,6 +26,9 @@ class ConfigError(BuildUserError):
     SYNTAX_INVALID = "config:base:invalid-syntax"
     CONDA_KEY_REQUIRED = "config:conda:required"
 
+    SPHINX_CONFIG_MISSING = "config:sphinx:missing-config"
+    MKDOCS_CONFIG_MISSING = "config:mkdocs:missing-config"
+
 
 # TODO: improve these error messages shown to the user
 # See https://github.com/readthedocs/readthedocs.org/issues/10502

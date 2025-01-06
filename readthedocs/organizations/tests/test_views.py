@@ -462,4 +462,4 @@ class OrganizationUnspecifiedNoOrganizationRedirect(TestCase):
         resp = self.client.get(
             reverse("organization_choose", kwargs={"next_name": "organization_edit"})
         )
-        self.assertContains(resp, "You aren't currently a member of any organizations")
+        self.assertContains(resp, "Your user is not a member of an organization yet")
