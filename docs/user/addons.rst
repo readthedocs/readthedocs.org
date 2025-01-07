@@ -68,7 +68,61 @@ To customize addons, add CSS variable definitions to your theme's CSS:
         --readthedocs-search-font-size: 0.7rem;
     }
 
-You can find the full list of available CSS variables in the `Addons source <https://github.com/readthedocs/addons/tree/main/src>`_ until we have a full list in the documentation.
+CSS Variables reference
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. Got this with: grep -ho -- '--readthedocs-[a-zA-Z0-9-]*' *.css | sort -u
+
+.. dropdown:: Click to see all available CSS variables
+
+    **Global Variables**
+
+    - ``--readthedocs-font-size``
+
+    **Flyout Menu**
+
+    - ``--readthedocs-flyout-background-color``
+    - ``--readthedocs-flyout-color``
+    - ``--readthedocs-flyout-current-version-color``
+    - ``--readthedocs-flyout-dd-font-size``
+    - ``--readthedocs-flyout-dt-font-size``
+    - ``--readthedocs-flyout-font-family``
+    - ``--readthedocs-flyout-font-size``
+    - ``--readthedocs-flyout-header-font-size``
+    - ``--readthedocs-flyout-item-link-color``
+    - ``--readthedocs-flyout-link-color``
+    - ``--readthedocs-flyout-section-heading-color``
+
+    **Notifications**
+
+    - ``--readthedocs-notification-background-color``
+    - ``--readthedocs-notification-color``
+    - ``--readthedocs-notification-font-family``
+    - ``--readthedocs-notification-font-size``
+    - ``--readthedocs-notification-link-color``
+    - ``--readthedocs-notification-title-background-color``
+    - ``--readthedocs-notification-title-color``
+    - ``--readthedocs-notification-toast-font-size``
+
+    **Search**
+
+    - ``--readthedocs-search-backdrop-color``
+    - ``--readthedocs-search-color``
+    - ``--readthedocs-search-content-background-color``
+    - ``--readthedocs-search-content-border-color``
+    - ``--readthedocs-search-filters-border-color``
+    - ``--readthedocs-search-font-family``
+    - ``--readthedocs-search-font-size``
+    - ``--readthedocs-search-footer-background-color``
+    - ``--readthedocs-search-footer-code-background-color``
+    - ``--readthedocs-search-footer-code-border-color``
+    - ``--readthedocs-search-input-background-color``
+    - ``--readthedocs-search-result-section-border-color``
+    - ``--readthedocs-search-result-section-color``
+    - ``--readthedocs-search-result-section-highlight-color``
+    - ``--readthedocs-search-result-section-subheading-color``
+
+You can find default values and full CSS in our `Addons source <https://github.com/readthedocs/addons/tree/main/src>`_.
 
 Custom event integration
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,7 +174,220 @@ The event.detail.data() object contains all the Addons configuration, including:
     * ``current`` - Details about the current version
     * ``active`` - List of all active versions
 
-You can see a live example of this in our `Addons API response for these docs <https://docs.readthedocs.io/_/addons/?client-version=0.22.0&api-version=1&project-slug=docs&version-slug=stable`_.
+.. dropdown:: Click to see an example of the Addons data
+
+    .. code-block:: json
+
+        {
+        "addons": {
+            "analytics": {
+                "code": "UA-17997319-6",
+                "enabled": true
+            },
+            "customscript": {
+                "enabled": false,
+                "src": null
+            },
+            "ethicalads": {
+                "ad_free": true,
+                "campaign_types": [
+                    "community",
+                    "house"
+                ],
+                "enabled": true,
+                "keywords": [
+                    "docs",
+                    "python",
+                    "readthedocs-project-74581",
+                    "readthedocs-project-docs",
+                    "sphinx-doc"
+                ],
+                "publisher": "readthedocs-readthedocs"
+            },
+            "filetreediff": {
+                "enabled": false
+            },
+            "flyout": {
+                "enabled": true
+            },
+            "hotkeys": {
+                "doc_diff": {
+                    "enabled": true,
+                    "trigger": "KeyD"
+                },
+                "enabled": true,
+                "search": {
+                    "enabled": true,
+                    "trigger": "Slash"
+                }
+            },
+            "linkpreviews": {
+                "enabled": true
+            },
+            "notifications": {
+                "enabled": true,
+                "show_on_external": true,
+                "show_on_latest": true,
+                "show_on_non_stable": true
+            },
+            "options": {
+                "load_when_embedded": false,
+                "root_selector": null
+            },
+            "search": {
+                "default_filter": "project:docs/stable",
+                "enabled": true,
+                "filters": []
+            }
+        },
+        "api_version": "1",
+        "builds": {
+            "current": {
+                "commit": "6db46a36ed3da98de658b50c66b458bbfa513a4e",
+                "created": "2025-01-07T16:02:16.842871Z",
+                "duration": 78,
+                "error": "",
+                "finished": "2025-01-07T16:03:34.842Z",
+                "id": 26773762,
+                "project": "docs",
+                "state": {
+                    "code": "finished",
+                    "name": "Finished"
+                },
+                "success": true,
+                "urls": {
+                    "build": "https://readthedocs.org/projects/docs/builds/26773762/",
+                    "project": "https://readthedocs.org/projects/docs/",
+                    "version": "https://readthedocs.org/projects/docs/version/stable/edit/"
+                },
+                "version": "stable"
+            }
+        },
+        "domains": {
+            "dashboard": "readthedocs.org"
+        },
+        "projects": {
+            "current": {
+                "created": "2016-12-20T06:26:09.098922Z",
+                "default_branch": "main",
+                "default_version": "stable",
+                "external_builds_privacy_level": "public",
+                "homepage": null,
+                "id": 74581,
+                "language": {
+                    "code": "en",
+                    "name": "English"
+                },
+                "modified": "2024-11-13T17:09:09.007795Z",
+                "name": "docs",
+                "privacy_level": "public",
+                "programming_language": {
+                    "code": "py",
+                    "name": "Python"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/readthedocs/readthedocs.org"
+                },
+                "single_version": false,
+                "slug": "docs",
+                "subproject_of": null,
+                "tags": [
+                    "docs",
+                    "python",
+                    "sphinx-doc"
+                ],
+                "translation_of": null,
+                "urls": {
+                    "builds": "https://readthedocs.org/projects/docs/builds/",
+                    "documentation": "https://docs.readthedocs.io/en/stable/",
+                    "downloads": "https://readthedocs.org/projects/docs/downloads/",
+                    "home": "https://readthedocs.org/projects/docs/",
+                    "versions": "https://readthedocs.org/projects/docs/versions/"
+                },
+                "users": [
+                    {
+                        "username": "eric"
+                    },
+                    {
+                        "username": "davidfischer"
+                    },
+                    {
+                        "username": "humitos"
+                    },
+                    {
+                        "username": "plaindocs"
+                    },
+                    {
+                        "username": "agj"
+                    },
+                    {
+                        "username": "stsewd"
+                    }
+                ],
+                "versioning_scheme": "multiple_versions_with_translations"
+            },
+            "translations": []
+        },
+        "readthedocs": {
+            "analytics": {
+                "code": "UA-17997319-1"
+            }
+        },
+        "versions": {
+            "active": [
+                {
+                    "active": true,
+                    "aliases": [],
+                    "built": true,
+                    "downloads": {
+                        "epub": "https://docs.readthedocs.io/_/downloads/en/stable/epub/",
+                        "htmlzip": "https://docs.readthedocs.io/_/downloads/en/stable/htmlzip/"
+                    },
+                    "hidden": false,
+                    "id": 2604018,
+                    "identifier": "6db46a36ed3da98de658b50c66b458bbfa513a4e",
+                    "privacy_level": "public",
+                    "ref": "11.18.0",
+                    "slug": "stable",
+                    "type": "tag",
+                    "urls": {
+                        "dashboard": {
+                            "edit": "https://readthedocs.org/projects/docs/version/stable/edit/"
+                        },
+                        "documentation": "https://docs.readthedocs.io/en/stable/",
+                        "vcs": "https://github.com/readthedocs/readthedocs.org/tree/11.18.0/"
+                    },
+                    "verbose_name": "stable"
+                }
+            ],
+            "current": {
+                "active": true,
+                "aliases": [],
+                "built": true,
+                "downloads": {
+                    "epub": "https://docs.readthedocs.io/_/downloads/en/stable/epub/",
+                    "htmlzip": "https://docs.readthedocs.io/_/downloads/en/stable/htmlzip/"
+                },
+                "hidden": false,
+                "id": 2604018,
+                "identifier": "6db46a36ed3da98de658b50c66b458bbfa513a4e",
+                "privacy_level": "public",
+                "ref": "11.18.0",
+                "slug": "stable",
+                "type": "tag",
+                "urls": {
+                    "dashboard": {
+                        "edit": "https://readthedocs.org/projects/docs/version/stable/edit/"
+                    },
+                    "documentation": "https://docs.readthedocs.io/en/stable/",
+                    "vcs": "https://github.com/readthedocs/readthedocs.org/tree/11.18.0/"
+                },
+                "verbose_name": "stable"
+            }
+        }
+
+You can see a live example of this in our `Addons API response for these docs <https://docs.readthedocs.io/_/addons/?client-version=0.22.0&api-version=1&project-slug=docs&version-slug=stable>`_.
 
 Example: Creating a Version Selector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
