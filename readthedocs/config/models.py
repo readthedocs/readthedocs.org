@@ -8,17 +8,32 @@ Pydantic does runtime type checking and validation,
 but we aren't using it yet, and instead we are doing the validation
 in a separate step.
 """
+
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
-class BuildTool(BaseModel):
+class ConfigBaseModel(BaseModel):
+    """
+    Base class for all the models used in the configuration object.
+
+    Useful to define common configuration options for all the models.
+    """
+
+    model_config = ConfigDict(
+        # Don't allow extra fields in the models.
+        # It will raise an error if there are extra fields.
+        extra="forbid",
+    )
+
+
+class BuildTool(ConfigBaseModel):
     version: str
     full_version: str
 
 
-class BuildJobsBuildTypes(BaseModel):
+class BuildJobsBuildTypes(ConfigBaseModel):
     """Object used for `build.jobs.build` key."""
 
     html: list[str] | None = None
@@ -27,7 +42,7 @@ class BuildJobsBuildTypes(BaseModel):
     htmlzip: list[str] | None = None
 
 
-class BuildJobs(BaseModel):
+class BuildJobs(ConfigBaseModel):
     """Object used for `build.jobs` key."""
 
     pre_checkout: list[str] = []
@@ -46,7 +61,7 @@ class BuildJobs(BaseModel):
 
 
 # TODO: rename this class to `Build`
-class BuildWithOs(BaseModel):
+class BuildWithOs(ConfigBaseModel):
     os: str
     tools: dict[str, BuildTool]
     jobs: BuildJobs = BuildJobs()
@@ -54,25 +69,25 @@ class BuildWithOs(BaseModel):
     commands: list[str] = []
 
 
-class PythonInstallRequirements(BaseModel):
+class PythonInstallRequirements(ConfigBaseModel):
     requirements: str
 
 
-class PythonInstall(BaseModel):
+class PythonInstall(ConfigBaseModel):
     path: str
     method: Literal["pip", "setuptools"] = "pip"
     extra_requirements: list[str] = []
 
 
-class Python(BaseModel):
+class Python(ConfigBaseModel):
     install: list[PythonInstall | PythonInstallRequirements] = []
 
 
-class Conda(BaseModel):
+class Conda(ConfigBaseModel):
     environment: str
 
 
-class Sphinx(BaseModel):
+class Sphinx(ConfigBaseModel):
     configuration: str | None
     # NOTE: This is how we save the object in the DB,
     # the actual options for users are "html", "htmldir", "singlehtml".
@@ -80,18 +95,18 @@ class Sphinx(BaseModel):
     fail_on_warning: bool = False
 
 
-class Mkdocs(BaseModel):
+class Mkdocs(ConfigBaseModel):
     configuration: str | None
     fail_on_warning: bool = False
 
 
-class Submodules(BaseModel):
+class Submodules(ConfigBaseModel):
     include: list[str] | Literal["all"] = []
     exclude: list[str] | Literal["all"] = []
     recursive: bool = False
 
 
-class Search(BaseModel):
+class Search(ConfigBaseModel):
     ranking: dict[str, int] = {}
     ignore: list[str] = [
         "search.html",
