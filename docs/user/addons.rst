@@ -46,8 +46,117 @@ Individual configuration options for each addon are available in :guilabel:`Sett
 Addons data and customization
 -----------------------------
 
-If you'd like to do a custom integration with the data used to render Addons,
-you can learn more about this in our :ref:`flyout-menu:custom event integration` docs.
+Addons can be customized using CSS variables and the data used by Addons can be accessed using a custom event.
+
+CSS Variable Customization
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Addons use CSS custom properties (`CSS variables <https://developer.mozilla.org/en-US/docs/Web/CSS/--*>`_) to allow for easy customization.
+To customize addons, add CSS variable definitions to your theme's CSS:
+
+.. code-block:: css
+
+    :root {
+        /* Reduce Read the Docs' flyout font a little bit */
+        --readthedocs-flyout-font-size: 0.7rem;
+
+        /* Reduce Read the Docs' notification font a little bit */
+        --readthedocs-notification-font-size: 0.8rem;
+
+        /* This customization is not yet perfect because we can't change the `line-height` yet. */
+        /* See https://github.com/readthedocs/addons/issues/197 */
+        --readthedocs-search-font-size: 0.7rem;
+    }
+
+You can find the full list of available CSS variables in the `Addons source <https://github.com/readthedocs/addons/tree/main/src>`_ until we have a full list in the documentation.
+
+Custom event integration
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Read the Docs provides a custom event ``readthedocs-addons-data-ready`` that allows you to access the Addons data and integrate it into your theme or documentation.
+The event provides access to the version data, project information, and other Addons configuration.
+
+To use the custom event:
+
+1. Add the required meta tag to your HTML template:
+
+   .. code-block:: html
+
+      <meta name="readthedocs-addons-api-version" content="1" />
+
+2. Add a JavaScript event listener to handle the data:
+
+   .. code-block:: javascript
+
+      document.addEventListener(
+        "readthedocs-addons-data-ready",
+        function (event) {
+          // Access the addons data
+          const config = event.detail.data();
+
+          // Example: Create a version selector
+          const versions = config.versions.active.map(version => ({
+            slug: version.slug,
+            url: version.urls.documentation
+          }));
+
+          // Use the data to build your UI
+          console.log('Available versions:', versions);
+        }
+      );
+
+Event data reference
+^^^^^^^^^^^^^^^^^^^^
+
+The event.detail.data() object contains all the Addons configuration, including:
+
+* ``addons`` - Individual addon configurations
+* ``builds`` - Build information
+    * ``current`` - Details about the current build
+* ``projects`` - Project information
+    * ``current`` - Current project details
+    * ``translations`` - Available translations
+* ``versions`` - Information about project versions
+    * ``current`` - Details about the current version
+    * ``active`` - List of all active versions
+
+You can see a live example of this in our `Addons API response for these docs <https://docs.readthedocs.io/_/addons/?client-version=0.22.0&api-version=1&project-slug=docs&version-slug=stable`_.
+
+Example: Creating a Version Selector
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Here's a complete example showing how to create a version selector using the Addons data:
+
+.. code-block:: javascript
+
+    document.addEventListener(
+      "readthedocs-addons-data-ready",
+      function (event) {
+        const config = event.detail.data();
+
+        // Create the version selector HTML
+        const versionSelector = `
+          <div class="version-selector">
+            <select onchange="window.location.href=this.value">
+              <option value="${config.versions.current.urls.documentation}">
+                ${config.versions.current.slug}
+              </option>
+              ${config.versions.active
+                .filter(v => v.slug !== config.versions.current.slug)
+                .map(version => `
+                  <option value="${version.urls.documentation}">
+                    ${version.slug}
+                  </option>
+                `).join('')}
+            </select>
+          </div>
+        `;
+
+        // Insert the version selector into your page
+        document.querySelector('#your-target-element')
+          .insertAdjacentHTML('beforeend', versionSelector);
+      }
+    );
 
 Diving deeper
 -------------
