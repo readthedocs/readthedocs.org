@@ -31,8 +31,8 @@ Minimal configuration is required to build an existing MkDocs project on Read th
 .. _MkDocs: https://www.mkdocs.org/
 .. _Material for MkDocs: https://squidfunk.github.io/mkdocs-material
 
-Configuring MkDocs Material on Read the Docs
----------------------------------------------
+Configuring Material for MkDocs on Read the Docs
+------------------------------------------------
 
 In order to use the Material for MkDocs theme on Read the Docs,
 you need to install and configure it.
@@ -91,7 +91,7 @@ Set your MkDocs `site URL`_  to your Read the Docs canonical URL using a
 Configuring Material for MkDocs and Read the Docs Addons
 --------------------------------------------------------
 
-`Material for MkDocs`_ is a powerful documentation framework on top of MkDocs.
+`Material for MkDocs`_ is a powerful documentation theme on top of MkDocs.
 The following steps are specific to integrating Material for MkDocs and Read the Docs.
 
 .. contents::
