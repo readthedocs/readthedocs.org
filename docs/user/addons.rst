@@ -177,65 +177,7 @@ The event.detail.data() object contains all the Addons configuration, including:
 
         {
         "addons": {
-            "analytics": {
-                "code": "UA-17997319-6",
-                "enabled": true
-            },
-            "customscript": {
-                "enabled": false,
-                "src": null
-            },
-            "ethicalads": {
-                "ad_free": true,
-                "campaign_types": [
-                    "community",
-                    "house"
-                ],
-                "enabled": true,
-                "keywords": [
-                    "docs",
-                    "python",
-                    "readthedocs-project-74581",
-                    "readthedocs-project-docs",
-                    "sphinx-doc"
-                ],
-                "publisher": "readthedocs-readthedocs"
-            },
-            "filetreediff": {
-                "enabled": false
-            },
-            "flyout": {
-                "enabled": true
-            },
-            "hotkeys": {
-                "doc_diff": {
-                    "enabled": true,
-                    "trigger": "KeyD"
-                },
-                "enabled": true,
-                "search": {
-                    "enabled": true,
-                    "trigger": "Slash"
-                }
-            },
-            "linkpreviews": {
-                "enabled": true
-            },
-            "notifications": {
-                "enabled": true,
-                "show_on_external": true,
-                "show_on_latest": true,
-                "show_on_non_stable": true
-            },
-            "options": {
-                "load_when_embedded": false,
-                "root_selector": null
-            },
-            "search": {
-                "default_filter": "project:docs/stable",
-                "enabled": true,
-                "filters": []
-            }
+            "Most of this config is currently for internal use.": "We are working on making this more public.",
         },
         "api_version": "1",
         "builds": {
