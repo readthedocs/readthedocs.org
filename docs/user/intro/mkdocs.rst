@@ -19,11 +19,11 @@ Minimal configuration is required to build an existing MkDocs project on Read th
     build:
       os: ubuntu-24.04
       tools:
-        python: "3"
-
-    python:
-      install:
-        - requirements: requirements.txt
+        python: 3
+      jobs:
+        pre_install:
+          - pip install mkdocs
+          - pip install mkdocs-material
 
     mkdocs:
       configuration: mkdocs.yml
@@ -31,6 +31,33 @@ Minimal configuration is required to build an existing MkDocs project on Read th
 .. _MkDocs: https://www.mkdocs.org/
 .. _Material for MkDocs: https://squidfunk.github.io/mkdocs-material
 
+Configuring MkDocs Material on Read the Docs
+---------------------------------------------
+
+In order to use the Material for MkDocs theme on Read the Docs,
+you need to install and configure it.
+To install it, add the following to your `requirements.txt` file:
+
+.. code-block::
+   :caption: requirements.txt
+
+    mkdocs
+    mkdocs-material
+
+.. note::
+   We recommend pinning the version of MkDocs and Material for MkDocs,
+   but haven't here to keep the example simple.
+
+Then in your `mkdocs.yml` file, set the theme to `material`:
+
+.. code-block:: yaml
+   :caption: mkdocs.yml
+
+    theme:
+      name: material
+
+With these changes, your MkDocs project will use the Material for MkDocs theme when built on Read the Docs,
+and should work with the configuration file shown above.
 
 Quick start
 -----------
