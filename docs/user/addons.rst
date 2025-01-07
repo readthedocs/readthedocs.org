@@ -69,7 +69,7 @@ To customize addons, add CSS variable definitions to your theme's CSS:
     }
 
 CSS Variables reference
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Got this with: grep -ho -- '--readthedocs-[a-zA-Z0-9-]*' *.css | sort -u
 
@@ -165,14 +165,11 @@ Event data reference
 The event.detail.data() object contains all the Addons configuration, including:
 
 * ``addons`` - Individual addon configurations
-* ``builds`` - Build information
-    * ``current`` - Details about the current build
-* ``projects`` - Project information
-    * ``current`` - Current project details
-    * ``translations`` - Available translations
-* ``versions`` - Information about project versions
-    * ``current`` - Details about the current version
-    * ``active`` - List of all active versions
+* ``builds.current`` - Details about the current build
+* ``projects.current`` - Current project details
+* ``projects.translations`` - Available translations
+* ``versions.current`` - Details about the current version
+* ``versions.active`` - List of all active versions
 
 .. dropdown:: Click to see an example of the Addons data
 
