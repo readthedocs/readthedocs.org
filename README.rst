@@ -1,4 +1,4 @@
-Welcome to Read the Docs
+tabWelcome to Read the Docs
 ========================
 
 |build-status| |docs| |coverage|
@@ -25,7 +25,7 @@ Documentation for Read the Docs
 
 You will find complete documentation for setting up your project at `the Read the Docs site`_.
 
-.. _the Read the Docs site: https://docs.readthedocs.io/
+esc.. _the Read the Docs site: https://docs.readthedocs.io/
 
 Get in touch
 ------------
@@ -44,7 +44,7 @@ Quickstart for GitHub hosted projects
 
 By the end of this quickstart, you will have a new project automatically updated when you push to GitHub.
 
-#. Create an account on `Read the Docs`_ by signing up with GitHub.
+tab#. Create an account on `Read the Docs`_ by signing up with GitHub.
 
 #. When prompted on GitHub, give access to your account.
 
