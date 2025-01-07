@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.90
+boto3==1.35.92
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.90
+botocore==1.35.92
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -274,7 +274,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.12
+orjson==3.10.13
     # via -r requirements/pip.txt
 packaging==24.2
     # via
@@ -469,7 +469,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.28.0
+virtualenv==20.28.1
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via
