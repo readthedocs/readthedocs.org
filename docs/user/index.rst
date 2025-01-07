@@ -6,11 +6,10 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Getting started
 
-   /tutorial/index
+   Tutorial </tutorial/index>
    /intro/add-project
    /intro/doctools
    /examples
-   /intro/accounts
 
 .. toctree::
    :maxdepth: 2
@@ -20,6 +19,7 @@ Read the Docs: documentation simplified
    /config-file/index
    /config-file/v2
    /addons
+   /intro/accounts
    /automation-rules
    /guides/reproducible-builds
 
