@@ -15,7 +15,11 @@ from pydantic import BaseModel, ConfigDict
 
 
 class ConfigBaseModel(BaseModel):
-    """Base class for all the models."""
+    """
+    Base class for all the models used in the configuration object.
+
+    Useful to define common configuration options for all the models.
+    """
 
     model_config = ConfigDict(
         # Don't allow extra fields in the models.
