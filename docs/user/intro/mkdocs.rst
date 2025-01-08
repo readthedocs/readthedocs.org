@@ -25,7 +25,6 @@ Minimal configuration is required to build an existing MkDocs project on Read th
       # https://docs.readthedocs.io/page/guides/reproducible-builds.html
       jobs:
         pre_install:
-          - pip install mkdocs
           - pip install mkdocs-material
 
     mkdocs:
