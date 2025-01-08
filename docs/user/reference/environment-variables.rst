@@ -119,7 +119,7 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     .. note::
 
-       When building PRs, this variable contains the commit hash of the PR branch,
+       When building pull requests, this variable contains the commit hash of the pull request branch,
        as we don't have access to the branch name.
 
 .. envvar:: READTHEDOCS_GIT_COMMIT_HASH
