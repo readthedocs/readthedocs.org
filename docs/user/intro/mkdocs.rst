@@ -17,9 +17,9 @@ Minimal configuration is required to build an existing MkDocs project on Read th
     version: 2
 
     build:
-      os: ubuntu-24.04
+      os: "ubuntu-24.04"
       tools:
-        python: 3
+        python: "3"
       # We recommend using a requirements file for reproducible builds.
       # This is just a quick example to get started.
       # https://docs.readthedocs.io/page/guides/reproducible-builds.html
