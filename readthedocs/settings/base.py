@@ -350,6 +350,8 @@ class CommunityBaseSettings(Settings):
         ]
         if self.SHOW_DEBUG_TOOLBAR:
             middlewares.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+        if self.ALLOW_ADMIN:
+            middlewares.append("impersonate.middleware.ImpersonateMiddleware")
         return middlewares
 
     AUTHENTICATION_BACKENDS = (
