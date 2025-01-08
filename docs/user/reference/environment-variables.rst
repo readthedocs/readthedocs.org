@@ -117,6 +117,11 @@ All :doc:`build processes </builds>` have the following environment variables au
     :Example: ``feature/signup``
     :Example: ``update-readme``
 
+    .. note::
+
+       When building PRs, this variable contains the commit hash of the PR branch,
+       as we don't have access to the branch name.
+
 .. envvar:: READTHEDOCS_GIT_COMMIT_HASH
 
     Git commit hash identifier checked out from the repository URL.
