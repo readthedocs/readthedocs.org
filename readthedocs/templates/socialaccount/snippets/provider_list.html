@@ -11,7 +11,9 @@
   {% if provider.id != 'saml' %}
   {% if allowed_providers and provider.id in allowed_providers or not allowed_providers %}
     <li>
-      <form action="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params next=next %}" method="post">
+      {# Bitbucket doesn't allow more than one callback URL for their OAuth app, so we are redirecting users to the new dashboard for now. #}
+      <form method="{% if provider.id == "bitbucket_oauth2" %}get{% else %}post{% endif %}"
+            action="{% if provider.id == "bitbucket_oauth2" %}https://app.{{ PRODUCTION_DOMAIN }}{% endif %}{% provider_login_url provider.id process=process scope=scope auth_params=auth_params next=next %}">
         {% csrf_token %}
         <button
             class="socialaccount-provider {{ provider.id }} button"
