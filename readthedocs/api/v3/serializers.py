@@ -48,7 +48,7 @@ class UserSerializer(serializers.ModelSerializer):
 class BaseLinksSerializer(serializers.Serializer):
     def _absolute_url(self, path):
         scheme = "http" if settings.DEBUG else "https"
-        domain = settings.PRODUCTION_DOMAIN
+        domain = self.context["request"].get_host()
         return urllib.parse.urlunparse((scheme, domain, path, "", "", ""))
 
 

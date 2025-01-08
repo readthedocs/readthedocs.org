@@ -1,4 +1,5 @@
 import django_filters.rest_framework as filters
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Exists, OuterRef
@@ -141,8 +142,12 @@ class ProjectsViewSetBase(
     ]
 
     def get_permissions(self):
+        # Endpoints under DOC_PATH_PREFIX (served by El Proxito) are always read-only.
+        if self.request.path.startswith(f"/{settings.DOC_PATH_PREFIX}"):
+            permission_classes = [ReadOnlyPermission]
+
         # Create and list are actions that act on the current user.
-        if self.action in ("create", "list"):
+        elif self.action in ("create", "list"):
             permission_classes = [IsAuthenticated]
         # Actions that change the state of the project require admin permissions on the project.
         elif self.action in ("update", "partial_update", "destroy", "sync_versions"):
