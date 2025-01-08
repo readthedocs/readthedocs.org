@@ -20,10 +20,10 @@ Minimal configuration is required to build an existing MkDocs project on Read th
       os: ubuntu-24.04
       tools:
         python: 3
-      jobs:
-        pre_install:
-          - pip install mkdocs
-          - pip install mkdocs-material
+
+    python:
+      install:
+        - requirements: requirements.txt
 
     mkdocs:
       configuration: mkdocs.yml
