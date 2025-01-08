@@ -496,6 +496,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     translations = serializers.SerializerMethodField()
     notifications = serializers.SerializerMethodField()
     sync_versions = serializers.SerializerMethodField()
+    filetreediff = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse("projects-detail", kwargs={"project_slug": obj.slug})
@@ -533,6 +534,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
             "projects-builds-list",
             kwargs={
                 "parent_lookup_project__slug": obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_filetreediff(self, obj):
+        path = reverse(
+            "projects-filetreediff",
+            kwargs={
+                "project_slug": obj.slug,
             },
         )
         return self._absolute_url(path)

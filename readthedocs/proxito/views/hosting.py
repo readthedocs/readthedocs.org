@@ -504,15 +504,17 @@ class AddonsResponseBase:
                             },
                             # project.addons.options_base_version.slug
                             "filetreediff": reverse(
-                                "projects-versions-filetreediff-list",
+                                "projects-filetreediff",
                                 kwargs={
-                                    "parent_lookup_project__slug": project.slug,
-                                    "parent_lookup_version__slug": version.slug,
+                                    "project_slug": project.slug,
                                 },
                             )
                             + "?"
                             + urllib.parse.urlencode(
-                                {"base-version": base_version_slug}
+                                {
+                                    "base-version": base_version_slug,
+                                    "current-version": version.slug,
+                                }
                             ),
                         },
                     },

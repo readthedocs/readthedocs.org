@@ -3,7 +3,6 @@ from .views import (
     BuildsCreateViewSet,
     BuildsViewSet,
     EnvironmentVariablesViewSet,
-    FileTreeDiffViewSet,
     NotificationsBuildViewSet,
     NotificationsForUserViewSet,
     NotificationsOrganizationViewSet,
@@ -27,6 +26,7 @@ router = DefaultRouterWithNesting()
 # allows /api/v3/projects/pip/
 # allows /api/v3/projects/pip/superproject/
 # allows /api/v3/projects/pip/sync-versions/
+# allows /api/v3/projects/pip/filetreediff/
 projects = router.register(
     r"projects",
     ProjectsViewSet,
@@ -72,17 +72,6 @@ versions.register(
     r"builds",
     BuildsCreateViewSet,
     basename="projects-versions-builds",
-    parents_query_lookups=[
-        "project__slug",
-        "version__slug",
-    ],
-)
-
-# allows /api/v3/projects/pip/versions/v3.6.2/filetreediff/
-versions.register(
-    r"filetreediff",
-    FileTreeDiffViewSet,
-    basename="projects-versions-filetreediff",
     parents_query_lookups=[
         "project__slug",
         "version__slug",
