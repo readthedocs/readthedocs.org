@@ -35,6 +35,9 @@ jsonfield
 
 django-safemigrate
 
+# Impersonate users in the Django admin for support.
+django-impersonate
+
 # The latest version of requests isn't compatible with the
 # version of the docker-py library we're using.
 # See https://github.com/docker/docker-py/issues/3256.

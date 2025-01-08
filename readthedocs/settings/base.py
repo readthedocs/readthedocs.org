@@ -297,6 +297,8 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "allauth.mfa",
+            # Others
+            "impersonate",
             "cacheops",
         ]
         if ext:
@@ -829,6 +831,12 @@ class CommunityBaseSettings(Settings):
     ABSOLUTE_URL_OVERRIDES = {"auth.user": lambda o: "/profiles/{}/".format(o.username)}
 
     INTERNAL_IPS = ("127.0.0.1",)
+
+    # django-impersonate.
+    IMPERSONATE = {
+        # By default, only staff users can impersonate.
+        'REQUIRE_SUPERUSER': True,
+    }
 
     # Taggit
     # https://django-taggit.readthedocs.io
