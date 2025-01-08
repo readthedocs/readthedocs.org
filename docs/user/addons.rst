@@ -46,6 +46,84 @@ Individual configuration options for each addon are available in :guilabel:`Sett
 Addons data and customization
 -----------------------------
 
+Addons can be customized using CSS variables and the data used by Addons can be accessed using a custom event.
+
+CSS Variable Customization
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Addons use CSS custom properties (`CSS variables <https://developer.mozilla.org/en-US/docs/Web/CSS/--*>`_) to allow for easy customization.
+To customize addons, add CSS variable definitions to your theme's CSS:
+
+.. code-block:: css
+
+    :root {
+        /* Reduce Read the Docs' flyout font a little bit */
+        --readthedocs-flyout-font-size: 0.7rem;
+
+        /* Reduce Read the Docs' notification font a little bit */
+        --readthedocs-notification-font-size: 0.8rem;
+
+        /* This customization is not yet perfect because we can't change the `line-height` yet. */
+        /* See https://github.com/readthedocs/addons/issues/197 */
+        --readthedocs-search-font-size: 0.7rem;
+    }
+
+CSS Variables reference
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. Got this with: grep -ho -- '--readthedocs-[a-zA-Z0-9-]*' *.css | sort -u
+
+.. dropdown:: Click to see all available CSS variables
+
+    **Global Variables**
+
+    - ``--readthedocs-font-size``
+
+    **Flyout Menu**
+
+    - ``--readthedocs-flyout-background-color``
+    - ``--readthedocs-flyout-color``
+    - ``--readthedocs-flyout-current-version-color``
+    - ``--readthedocs-flyout-dd-font-size``
+    - ``--readthedocs-flyout-dt-font-size``
+    - ``--readthedocs-flyout-font-family``
+    - ``--readthedocs-flyout-font-size``
+    - ``--readthedocs-flyout-header-font-size``
+    - ``--readthedocs-flyout-item-link-color``
+    - ``--readthedocs-flyout-link-color``
+    - ``--readthedocs-flyout-section-heading-color``
+
+    **Notifications**
+
+    - ``--readthedocs-notification-background-color``
+    - ``--readthedocs-notification-color``
+    - ``--readthedocs-notification-font-family``
+    - ``--readthedocs-notification-font-size``
+    - ``--readthedocs-notification-link-color``
+    - ``--readthedocs-notification-title-background-color``
+    - ``--readthedocs-notification-title-color``
+    - ``--readthedocs-notification-toast-font-size``
+
+    **Search**
+
+    - ``--readthedocs-search-backdrop-color``
+    - ``--readthedocs-search-color``
+    - ``--readthedocs-search-content-background-color``
+    - ``--readthedocs-search-content-border-color``
+    - ``--readthedocs-search-filters-border-color``
+    - ``--readthedocs-search-font-family``
+    - ``--readthedocs-search-font-size``
+    - ``--readthedocs-search-footer-background-color``
+    - ``--readthedocs-search-footer-code-background-color``
+    - ``--readthedocs-search-footer-code-border-color``
+    - ``--readthedocs-search-input-background-color``
+    - ``--readthedocs-search-result-section-border-color``
+    - ``--readthedocs-search-result-section-color``
+    - ``--readthedocs-search-result-section-highlight-color``
+    - ``--readthedocs-search-result-section-subheading-color``
+
+You can find default values and full CSS in our `Addons source <https://github.com/readthedocs/addons/tree/main/src>`_.
+
 Custom event integration
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
