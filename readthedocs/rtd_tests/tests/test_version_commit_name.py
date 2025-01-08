@@ -134,4 +134,4 @@ class VersionCommitNameTests(TestCase):
             verbose_name="11",
             type=EXTERNAL,
         )
-        self.assertEqual(version.git_identifier, identifier)
+        self.assertEqual(version.git_identifier, "11")

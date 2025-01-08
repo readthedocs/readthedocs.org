@@ -102,7 +102,7 @@ class TestVersionModel(VersionMixin, TestCase):
 
     def test_git_identifier_for_external_version(self):
         self.assertEqual(
-            self.external_version.git_identifier, self.external_version.identifier
+            self.external_version.git_identifier, self.external_version.verbose_name
         )
 
     @override_settings(
