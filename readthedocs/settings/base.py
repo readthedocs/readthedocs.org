@@ -837,7 +837,7 @@ class CommunityBaseSettings(Settings):
     # django-impersonate.
     IMPERSONATE = {
         # By default, only staff users can impersonate.
-        'REQUIRE_SUPERUSER': True,
+        "REQUIRE_SUPERUSER": True,
     }
 
     # Taggit
