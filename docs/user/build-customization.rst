@@ -8,7 +8,7 @@ Extend or partially override the build process
    Keep using the default commands for MkDocs or Sphinx,
    but extend or override the ones you need.
 
-`Completely override the build process
+Completely override the build process
    This option gives you *full control* over your build.
    Read the Docs supports any tool that generates HTML.
 
