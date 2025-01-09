@@ -171,27 +171,6 @@ To integrate the :ref:`flyout-menu:Addons flyout menu` version menu into your si
         extra_javascript:
             - javascript/readthedocs.js
 
-Adjust the flyout menu font size
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Add a ``readthedocs.css`` to your build,
-so that the font in the :ref:`flyout-menu:Addons flyout menu` matches the theme better.
-
-.. code-block:: css
-    :caption: readthedocs.css:
-
-    :root {
-        /* Reduce Read the Docs' flyout font a little bit */
-        --readthedocs-flyout-font-size: 0.7rem;
-
-        /* Reduce Read the Docs' notification font a little bit */
-        --readthedocs-notification-font-size: 0.8rem;
-
-        /* This customization is not yet perfect because we can't change the `line-height` yet. */
-        /* See https://github.com/readthedocs/addons/issues/197 */
-        --readthedocs-search-font-size: 0.7rem;
-    }
-
 Example repository and demo
 ---------------------------
 
