@@ -12,14 +12,24 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.AlterField(
+            model_name='addonsconfig',
+            name='flyout_enabled',
+            field=models.BooleanField(default=True, verbose_name='Enabled'),
+        ),
+        migrations.AlterField(
             model_name='addonsconfig',
             name='flyout_position',
-            field=models.CharField(blank=True, choices=[(None, 'Use default'), ('bottom-right', 'Bottom right'), ('bottom-right', 'Top right')], default=None, max_length=64, null=True),
+            field=models.CharField(blank=True, choices=[(None, 'Default (from theme or Read the Docs)'), ('bottom-left', 'Bottom left'), ('bottom-right', 'Bottom right'), ('top-left', 'Top left'), ('top-right', 'Top right')], default=None, max_length=64, null=True, verbose_name='Position'),
+        ),
+        migrations.AddField(
+            model_name='historicaladdonsconfig',
+            name='flyout_enabled',
+            field=models.BooleanField(default=True, verbose_name='Enabled'),
         ),
         migrations.AddField(
             model_name='historicaladdonsconfig',
             name='flyout_position',
-            field=models.CharField(blank=True, choices=[(None, 'Use default'), ('bottom-right', 'Bottom right'), ('bottom-right', 'Top right')], default=None, max_length=64, null=True),
+            field=models.CharField(blank=True, choices=[(None, 'Default (from theme or Read the Docs)'), ('bottom-left', 'Bottom left'), ('bottom-right', 'Bottom right'), ('top-left', 'Top left'), ('top-right', 'Top right')], default=None, max_length=64, null=True, verbose_name='Position'),
         ),
     ]
