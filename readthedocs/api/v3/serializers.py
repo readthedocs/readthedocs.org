@@ -46,9 +46,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BaseLinksSerializer(serializers.Serializer):
-    def _absolute_url(self, path):
+    def _absolute_url(self, path, dashboard=False):
         scheme = "http" if settings.DEBUG else "https"
-        domain = self.context["request"].get_host()
+        request = self.context.get("request")
+
+        if dashboard:
+            domain = settings.PRODUCTION_DOMAIN
+        elif request:
+            domain = request.get_host()
+        else:
+            domain = settings.PUBLIC_DOMAIN
         return urllib.parse.urlunparse((scheme, domain, path, "", "", ""))
 
 
@@ -128,7 +135,7 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     def get_project(self, obj):
         path = reverse("projects_detail", kwargs={"project_slug": obj.project.slug})
-        return self._absolute_url(path)
+        return self._absolute_url(path, dashboard=True)
 
     def get_version(self, obj):
         if obj.version:
@@ -139,7 +146,7 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
                     "version_slug": obj.version.slug,
                 },
             )
-            return self._absolute_url(path)
+            return self._absolute_url(path, dashboard=True)
         return None
 
 
@@ -316,7 +323,7 @@ class VersionDashboardURLsSerializer(BaseLinksSerializer, serializers.Serializer
                 "version_slug": obj.slug,
             },
         )
-        return self._absolute_url(path)
+        return self._absolute_url(path, dashboard=True)
 
 
 class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
@@ -456,19 +463,19 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     def get_home(self, obj):
         path = reverse("projects_detail", kwargs={"project_slug": obj.slug})
-        return self._absolute_url(path)
+        return self._absolute_url(path, dashboard=True)
 
     def get_builds(self, obj):
         path = reverse("builds_project_list", kwargs={"project_slug": obj.slug})
-        return self._absolute_url(path)
+        return self._absolute_url(path, dashboard=True)
 
     def get_versions(self, obj):
         path = reverse("project_version_list", kwargs={"project_slug": obj.slug})
-        return self._absolute_url(path)
+        return self._absolute_url(path, dashboard=True)
 
     def get_downloads(self, obj):
         path = reverse("project_downloads", kwargs={"project_slug": obj.slug})
-        return self._absolute_url(path)
+        return self._absolute_url(path, dashboard=True)
 
     def get_documentation(self, obj):
         version_slug = getattr(self.parent, "version_slug", None)

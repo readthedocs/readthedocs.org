@@ -15,6 +15,11 @@ from rest_framework.views import APIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
+from readthedocs.api.v3.serializers import (
+    BuildSerializer,
+    ProjectSerializer,
+    VersionSerializer,
+)
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
@@ -449,6 +454,48 @@ class AddonsResponseBase:
                 "filetreediff": {
                     "enabled": project.addons.filetreediff_enabled,
                 },
+            },
+            # TODO: remove `projects`, `versions` and `builds` once we have deployed the client
+            # version that uses `/_/api/v3/` endpoints:
+            # https://github.com/readthedocs/addons/pull/468
+            "projects": {
+                "current": ProjectSerializer(
+                    project,
+                    resolver=resolver,
+                    version_slug=version.slug if version else None,
+                    context={"request": request},
+                ).data,
+                "translations": ProjectSerializer(
+                    project_translations,
+                    resolver=resolver,
+                    version_slug=version.slug if version else None,
+                    context={"request": request},
+                    many=True,
+                ).data,
+            },
+            "versions": {
+                "current": VersionSerializer(
+                    version,
+                    resolver=resolver,
+                    context={"request": request},
+                ).data
+                if version
+                else None,
+                # These are "sorted active, built, not hidden versions"
+                "active": VersionSerializer(
+                    sorted_versions_active_built_not_hidden,
+                    resolver=resolver,
+                    context={"request": request},
+                    many=True,
+                ).data,
+            },
+            "builds": {
+                "current": BuildSerializer(
+                    build,
+                    context={"request": request},
+                ).data
+                if build
+                else None,
             },
         }
 
