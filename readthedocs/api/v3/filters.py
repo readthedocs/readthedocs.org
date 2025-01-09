@@ -34,6 +34,7 @@ class VersionFilter(filters.FilterSet):
         fields = [
             "verbose_name",
             "privacy_level",
+            "hidden",
             "active",
             "built",
             "uploaded",

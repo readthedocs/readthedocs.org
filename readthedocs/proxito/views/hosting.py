@@ -291,6 +291,8 @@ class AddonsResponseBase:
         sorted_versions_active_built_not_hidden = Version.objects.none()
         user = request.user
 
+        # TODO: remvoe the sorting code from here when addons PR is deployed
+        # https://github.com/readthedocs/addons/pull/468
         versions_active_built_not_hidden = (
             self._get_versions(request, project)
             .select_related("project")
@@ -538,7 +540,15 @@ class AddonsResponseBase:
                                     },
                                 )
                                 + "?"
-                                + urllib.parse.urlencode({"active": True}),
+                                # TODO: what's the best way to accept the `?sorting=` attribute in the DRF view?
+                                + urllib.parse.urlencode(
+                                    {
+                                        "active": True,
+                                        "built": True,
+                                        "hidden": False,
+                                        "sorting": project.addons.flyout_sorting,
+                                    },
+                                ),
                             },
                             "builds": {
                                 "current": reverse(
