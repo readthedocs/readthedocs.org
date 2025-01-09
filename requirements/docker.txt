@@ -165,6 +165,8 @@ django-formtools==2.5.1
     # via -r requirements/pip.txt
 django-gravatar2==1.4.5
     # via -r requirements/pip.txt
+django-impersonate==1.9.4
+    # via -r requirements/pip.txt
 django-ipware==5.0.2
     # via
     #   -r requirements/pip.txt

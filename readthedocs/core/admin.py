@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from impersonate.admin import UserAdminImpersonateMixin
 from rest_framework.authtoken.admin import TokenAdmin
 
 from readthedocs.core.history import ExtraSimpleHistoryAdmin
@@ -64,7 +65,7 @@ class UserProjectFilter(admin.SimpleListFilter):
             return queryset.filter(projects__builds__date__gt=recent_date)
 
 
-class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
+class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdminImpersonateMixin, UserAdmin):
 
     """Admin configuration for User."""
 
@@ -79,6 +80,9 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
     list_filter = (UserProjectFilter,) + UserAdmin.list_filter
     actions = ["ban_user", "sync_remote_repositories_action"]
     inlines = [UserProjectInline]
+
+    # Open a new tab when impersonating a user.
+    open_new_window = True
 
     @admin.display(
         description="Banned",
