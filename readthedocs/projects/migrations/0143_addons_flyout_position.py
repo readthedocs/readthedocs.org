@@ -17,12 +17,12 @@ class Migration(migrations.Migration):
             name='flyout_enabled',
             field=models.BooleanField(default=True, verbose_name='Enabled'),
         ),
-        migrations.AlterField(
+        migrations.AddField(
             model_name='addonsconfig',
             name='flyout_position',
             field=models.CharField(blank=True, choices=[(None, 'Default (from theme or Read the Docs)'), ('bottom-left', 'Bottom left'), ('bottom-right', 'Bottom right'), ('top-left', 'Top left'), ('top-right', 'Top right')], default=None, max_length=64, null=True, verbose_name='Position'),
         ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='historicaladdonsconfig',
             name='flyout_enabled',
             field=models.BooleanField(default=True, verbose_name='Enabled'),
