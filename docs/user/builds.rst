@@ -39,6 +39,10 @@ The build process includes the following jobs:
    Depending on what's defined by the project,
    a :term:`virtualenv` or a :ref:`conda environment <config-file/v2:conda>` will be used.
 
+   .. note::
+
+      This step is only executed if the :ref:`config-file/v2:sphinx` or :ref:`config-file/v2:mkdocs` keys are defined.
+
 :install:
 
    Installs :doc:`default and project dependencies </build-default-versions>`.
@@ -49,7 +53,11 @@ The build process includes the following jobs:
 
    .. tip::
 
-    We strongly recommend :doc:`pinning all the versions </guides/reproducible-builds>` required to build the documentation to avoid unexpected build errors.
+      We strongly recommend :doc:`pinning all the versions </guides/reproducible-builds>` required to build the documentation to avoid unexpected build errors.
+
+   .. note::
+
+      This step is only executed if the :ref:`config-file/v2:sphinx` or :ref:`config-file/v2:mkdocs` keys are defined.
 
 :build:
 
