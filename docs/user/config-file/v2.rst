@@ -465,6 +465,7 @@ See :doc:`/build-customization` for more details.
 
 build.jobs.build
 ````````````````
+
 Commands to override the default build process.
 When running builds from pull requests, only the ``html`` step will be executed.
 

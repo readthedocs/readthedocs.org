@@ -419,7 +419,7 @@ Install dependencies with Poetry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Projects managed with `Poetry <https://python-poetry.org/>`__,
-can use the ``create_environment`` user-defined job to use Poetry for installing Python dependencies.
+can use the ``post_crate_environment`` user-defined job to use Poetry for installing Python dependencies.
 Take a look at the following example:
 
 
@@ -427,13 +427,15 @@ Take a look at the following example:
    :caption: .readthedocs.yaml
 
    version: 2
+
    build:
      os: "ubuntu-22.04"
      tools:
        python: "3.10"
      jobs:
-       create_environment:
+       post_create_environment:
          # Install poetry
+       post_install:
          # https://python-poetry.org/docs/#installing-manually
          - pip install poetry
          # Install dependencies with 'docs' dependency group
