@@ -176,7 +176,7 @@ These examples may require some adaptation for each projects' use case,
 we recommend you use them as a starting point.
 
 Unshallow git clone
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
 
 Read the Docs does not perform a full clone in the ``checkout`` job in order to reduce network data and speed up the build process.
 Instead, it performs a `shallow clone <https://git-scm.com/docs/shallow>`_ and only fetches the branch or tag that you are building documentation for.
@@ -213,7 +213,7 @@ If your build also relies on the contents of other branches, it may also be nece
 
 
 Cancel build based on a condition
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a command exits with code ``183``,
 Read the Docs will cancel the build immediately.
@@ -277,7 +277,7 @@ This other example shows how to cancel a build if the commit message contains ``
 
 
 Generate documentation from annotated sources with Doxygen
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It's possible to run Doxygen as part of the build process to generate documentation from annotated sources:
 
@@ -297,7 +297,7 @@ It's possible to run Doxygen as part of the build process to generate documentat
 
 
 Use MkDocs extensions with extra required steps
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are some MkDocs extensions that require specific commands to be run to generate extra pages before performing the build.
 For example, `pydoc-markdown <http://niklasrosenstein.github.io/pydoc-markdown/>`_
@@ -318,7 +318,7 @@ For example, `pydoc-markdown <http://niklasrosenstein.github.io/pydoc-markdown/>
 
 
 Avoid having a dirty Git index
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Read the Docs needs to modify some files before performing the build to be able to integrate with some of its features.
 Because of this reason, it could happen the Git index gets dirty (it will detect modified files).
@@ -340,7 +340,7 @@ In that case, the Git index can be updated to ignore the files that Read the Doc
 
 
 Perform a check for broken links
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sphinx comes with a `linkcheck <https://www.sphinx-doc.org/en/master/usage/builders/index.html#sphinx.builders.linkcheck.CheckExternalLinksBuilder>`_ builder that checks for broken external links included in the project's documentation.
 This helps ensure that all external links are still valid and readers aren't linked to non-existent pages.
@@ -360,7 +360,7 @@ This helps ensure that all external links are still valid and readers aren't lin
 
 
 Support Git LFS (Large File Storage)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In case the repository contains large files that are tracked with Git LFS,
 there are some extra steps required to be able to download their content.
@@ -393,7 +393,7 @@ It's possible to use ``post_checkout`` user-defined job for this.
 
 
 Install Node.js dependencies
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It's possible to install Node.js together with the required dependencies by using :term:`user-defined build jobs`.
 To setup it, you need to define the version of Node.js to use and install the dependencies by using ``build.jobs.post_install``:
@@ -416,7 +416,7 @@ To setup it, you need to define the version of Node.js to use and install the de
 
 
 Install dependencies with Poetry
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Projects managed with `Poetry <https://python-poetry.org/>`__,
 can use the ``post_crate_environment`` user-defined job to use Poetry for installing Python dependencies.
@@ -449,7 +449,7 @@ Take a look at the following example:
 
 
 Install dependencies with ``uv``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Projects can use `uv <https://github.com/astral-sh/uv/>`__,
 to install Python dependencies, usually reducing the time taken to install compared to pip.
@@ -480,7 +480,7 @@ Take a look at the following example:
 MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
 
 Update Conda version
-^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~
 
 Projects using Conda may need to install the latest available version of Conda.
 This can be done by using the ``pre_create_environment`` user-defined job to update Conda
@@ -508,7 +508,7 @@ Take a look at the following example:
       environment: environment.yml
 
 Using Pelican
-^^^^^^^^^^^^^
+~~~~~~~~~~~~~
 
 `Pelican <https://blog.getpelican.com/>`__ is a well-known static site generator that's commonly used for blogs and landing pages.
 If you are building your project with Pelican you could use a configuration file similar to the following:
@@ -530,7 +530,7 @@ If you are building your project with Pelican you could use a configuration file
 
 
 Using Docsify
-^^^^^^^^^^^^^
+~~~~~~~~~~~~~
 
 `Docsify <https://docsify.js.org/>`__ generates documentation websites on the fly, without the need to build static HTML.
 These projects can be built using a configuration file like this:
@@ -548,7 +548,7 @@ These projects can be built using a configuration file like this:
            - cp --recursive docs/* $READTHEDOCS_OUTPUT/html/
 
 Using Asciidoc
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 `Asciidoctor <https://asciidoctor.org/>`__ is a fast processor for converting and generating documentation from AsciiDoc source.
 The Asciidoctor toolchain includes `Asciidoctor.js <https://docs.asciidoctor.org/asciidoctor.js/latest/>`__ which you can use with custom build commands.
