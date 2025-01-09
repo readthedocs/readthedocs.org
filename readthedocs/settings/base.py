@@ -298,6 +298,9 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "allauth.mfa",
             # Others
+            # NOTE: impersonate functionality is only enabled when ALLOW_ADMIN is True,
+            # but we still need to include it even when not enabled, since it has objects
+            # related to the user model that Django needs to know about when deleting users.
             "impersonate",
             "cacheops",
         ]
