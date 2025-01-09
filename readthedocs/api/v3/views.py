@@ -2,7 +2,7 @@ import django_filters.rest_framework as filters
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Exists, OuterRef
+from django.db.models import Case, Exists, OuterRef, When
 from django.shortcuts import get_object_or_404
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
@@ -39,10 +39,22 @@ from readthedocs.oauth.models import (
     RemoteRepositoryRelation,
 )
 from readthedocs.organizations.models import Organization, Team
+from readthedocs.projects.constants import (
+    ADDONS_FLYOUT_SORTING_CALVER,
+    ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
+    ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
+)
 from readthedocs.projects.models import (
     EnvironmentVariable,
     Project,
     ProjectRelationship,
+)
+from readthedocs.projects.version_handling import (
+    comparable_version,
+    sort_versions_calver,
+    sort_versions_custom_pattern,
+    sort_versions_python_packaging,
 )
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
@@ -514,7 +526,78 @@ class VersionsViewSet(
 
     def get_queryset(self):
         """Overridden to allow internal versions only."""
-        return super().get_queryset().exclude(type=EXTERNAL)
+        queryset = super().get_queryset().exclude(type=EXTERNAL)
+
+        sorting = self.request.GET.get("sorting")
+        sorted_versions_active_built_not_hidden = None
+        if sorting:
+            project = self._get_parent_project()
+            versions_active_built_not_hidden = queryset.select_related(
+                "project"
+            ).order_by("-slug")
+            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
+            if not project.supports_multiple_versions:
+                # Return only one version when the project doesn't support multiple versions.
+                # That version is the only one the project serves.
+                sorted_versions_active_built_not_hidden = (
+                    versions_active_built_not_hidden.filter(
+                        slug=project.get_default_version()
+                    )
+                )
+            else:
+                if (
+                    project.addons.flyout_sorting
+                    == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
+                ):
+                    sorted_versions_active_built_not_hidden = sorted(
+                        versions_active_built_not_hidden,
+                        key=lambda version: comparable_version(
+                            version.verbose_name,
+                            repo_type=project.repo_type,
+                        ),
+                        reverse=True,
+                    )
+                elif (
+                    project.addons.flyout_sorting
+                    == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
+                ):
+                    sorted_versions_active_built_not_hidden = (
+                        sort_versions_python_packaging(
+                            versions_active_built_not_hidden,
+                            project.addons.flyout_sorting_latest_stable_at_beginning,
+                        )
+                    )
+                elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
+                    sorted_versions_active_built_not_hidden = sort_versions_calver(
+                        versions_active_built_not_hidden,
+                        project.addons.flyout_sorting_latest_stable_at_beginning,
+                    )
+                elif (
+                    project.addons.flyout_sorting
+                    == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
+                ):
+                    sorted_versions_active_built_not_hidden = (
+                        sort_versions_custom_pattern(
+                            versions_active_built_not_hidden,
+                            project.addons.flyout_sorting_custom_pattern,
+                            project.addons.flyout_sorting_latest_stable_at_beginning,
+                        )
+                    )
+
+            # Sort versions in the database so the queryset can continue working in the rest of the view.
+            # Borrowed from: http://rednafi.com/python/sort_by_a_custom_sequence_in_django/
+            version_ids = [
+                version.pk for version in sorted_versions_active_built_not_hidden
+            ]
+            preferred = Case(
+                *(
+                    When(id=id, then=position)
+                    for position, id in enumerate(version_ids, start=1)
+                )
+            )
+            queryset = queryset.order_by(preferred)
+
+        return queryset
 
 
 class BuildsViewSet(
