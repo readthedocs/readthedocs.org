@@ -56,7 +56,7 @@ To customize addons, add CSS variable definitions to your theme's CSS:
 
 .. code-block:: css
 
-    :root {
+    html > body {
         /* Reduce Read the Docs' flyout font a little bit */
         --readthedocs-flyout-font-size: 0.7rem;
 
@@ -67,6 +67,15 @@ To customize addons, add CSS variable definitions to your theme's CSS:
         /* See https://github.com/readthedocs/addons/issues/197 */
         --readthedocs-search-font-size: 0.7rem;
     }
+
+.. note::
+
+Because Read the Docs rules are defined as `:root[data-...=""]` -- specificity `0 1 1` -- the specificity of your selectors will need to exceed this or need to target a child element.
+The following selectors can override our tool detection CSS rules:
+
+* `html > body`/`html > *` targets a child element of `html`/`:root`
+* `readthedocs-flyout` targets a deep child element of `html`/`:root`
+* `:root:not(.a)` is an example that has higher specificity (`0 2 0`)
 
 CSS Variables reference
 ^^^^^^^^^^^^^^^^^^^^^^^
