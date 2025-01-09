@@ -1,3 +1,47 @@
+Version 11.18.0
+---------------
+
+:Date: January 07, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11881 <https://github.com/readthedocs/readthedocs.org/pull/11881>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11877 <https://github.com/readthedocs/readthedocs.org/pull/11877>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use actual git identifier for READTHEDOCS_GIT_IDENTIFIER (`#11875 <https://github.com/readthedocs/readthedocs.org/pull/11875>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix ext-theme tests (`#11872 <https://github.com/readthedocs/readthedocs.org/pull/11872>`__)
+* `@humitos <https://github.com/humitos>`__: Skip running default commands when GENRIC doctool (`#11863 <https://github.com/readthedocs/readthedocs.org/pull/11863>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.17.1 (`#11862 <https://github.com/readthedocs/readthedocs.org/pull/11862>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Match User method in TeamMember (`#11861 <https://github.com/readthedocs/readthedocs.org/pull/11861>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use "Visual diff" for marketing "Doc Diff" (`#11860 <https://github.com/readthedocs/readthedocs.org/pull/11860>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config: inherit all pydantic models from a common base class (`#11857 <https://github.com/readthedocs/readthedocs.org/pull/11857>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code from old footer (`#11854 <https://github.com/readthedocs/readthedocs.org/pull/11854>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: make sphinx or mkdocs configuration required for projects using Sphinx or MkDocs (`#11852 <https://github.com/readthedocs/readthedocs.org/pull/11852>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add mdbook docs page (`#11849 <https://github.com/readthedocs/readthedocs.org/pull/11849>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: remove conda_append_core_requirements feature flag (`#11847 <https://github.com/readthedocs/readthedocs.org/pull/11847>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove disable_sphinx_manipulation feature flag (`#11841 <https://github.com/readthedocs/readthedocs.org/pull/11841>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version: better support for manual created latest and stable versions (`#11823 <https://github.com/readthedocs/readthedocs.org/pull/11823>`__)
+
+Version 11.17.1
+---------------
+
+:Date: December 17, 2024
+
+* `@agjohnson <https://github.com/agjohnson>`__: Match User method in TeamMember (`#11861 <https://github.com/readthedocs/readthedocs.org/pull/11861>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use "Visual diff" for marketing "Doc Diff" (`#11860 <https://github.com/readthedocs/readthedocs.org/pull/11860>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11858 <https://github.com/readthedocs/readthedocs.org/pull/11858>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove yamale (`#11855 <https://github.com/readthedocs/readthedocs.org/pull/11855>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code from old footer (`#11854 <https://github.com/readthedocs/readthedocs.org/pull/11854>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: docs: Reframe Supported Tools (`#11853 <https://github.com/readthedocs/readthedocs.org/pull/11853>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add mdbook docs page (`#11849 <https://github.com/readthedocs/readthedocs.org/pull/11849>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Rust reshim (`#11848 <https://github.com/readthedocs/readthedocs.org/pull/11848>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: remove usage of addons field (`#11846 <https://github.com/readthedocs/readthedocs.org/pull/11846>`__)
+* `@humitos <https://github.com/humitos>`__: Remove EthicalAd URLs (`#11843 <https://github.com/readthedocs/readthedocs.org/pull/11843>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix import wizard (`#11842 <https://github.com/readthedocs/readthedocs.org/pull/11842>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove disable_sphinx_manipulation feature flag (`#11841 <https://github.com/readthedocs/readthedocs.org/pull/11841>`__)
+* `@humitos <https://github.com/humitos>`__: Use "Visual diff" instead of doc diff (`#11838 <https://github.com/readthedocs/readthedocs.org/pull/11838>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.17.0 (`#11837 <https://github.com/readthedocs/readthedocs.org/pull/11837>`__)
+* `@humitos <https://github.com/humitos>`__: Remove old footer code (`#11836 <https://github.com/readthedocs/readthedocs.org/pull/11836>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add authentication documentation (`#11834 <https://github.com/readthedocs/readthedocs.org/pull/11834>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Cleanup doctool toctree listing (`#11833 <https://github.com/readthedocs/readthedocs.org/pull/11833>`__)
+
 Version 11.17.0
 ---------------
 

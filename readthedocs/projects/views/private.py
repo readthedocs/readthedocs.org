@@ -622,9 +622,8 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             username=username,
         )
         if self._is_last_user():
-            return HttpResponseBadRequest(
-                _(f"{username} is the last owner, can't be removed")
-            )
+            # NOTE: don't include user input in the message, since it's a security risk.
+            return HttpResponseBadRequest(_("User is the last owner, can't be removed"))
 
         project = self.get_project()
         project.users.remove(user)

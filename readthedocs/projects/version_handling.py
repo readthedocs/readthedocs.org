@@ -126,18 +126,6 @@ def sort_versions(version_list):
     return versions
 
 
-def highest_version(version_list):
-    """
-    Return the highest version for a given ``version_list``.
-
-    :rtype: tupe(readthedocs.builds.models.Version, packaging.version.Version)
-    """
-    versions = sort_versions(version_list)
-    if versions:
-        return versions[0]
-    return (None, None)
-
-
 def determine_stable_version(version_list):
     """
     Determine a stable version for version list.

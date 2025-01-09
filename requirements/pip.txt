@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.76
+boto3==1.35.92
     # via django-storages
-botocore==1.35.76
+botocore==1.35.92
     # via
     #   boto3
     #   s3transfer
@@ -29,15 +29,15 @@ celery==5.2.7
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   elastic-transport
     #   requests
 cffi==1.17.1
     # via cryptography
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via requests
-click==8.1.7
+click==8.1.8
     # via
     #   bumpver
     #   celery
@@ -89,7 +89,7 @@ django==4.2.17
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.3.0
+django-allauth[mfa,saml,socialaccount]==65.3.1
     # via -r requirements/pip.in
 django-annoying==0.10.7
     # via -r requirements/pip.in
@@ -162,11 +162,11 @@ elastic-transport==8.15.1
     # via
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.16.0
+elasticsearch==8.17.0
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
-elasticsearch-dsl==8.16.0
+elasticsearch-dsl==8.17.0
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -203,7 +203,7 @@ markdown==3.7
     # via -r requirements/pip.in
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.10.12
+orjson==3.10.13
     # via -r requirements/pip.in
 packaging==24.2
     # via
@@ -224,9 +224,9 @@ psycopg-pool==3.2.4
     # via psycopg
 pycparser==2.22
     # via cffi
-pydantic==2.10.3
+pydantic==2.10.4
     # via -r requirements/pip.in
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via pydantic
 pygments==2.18.0
     # via -r requirements/pip.in
@@ -277,7 +277,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
 s3transfer==0.10.4
     # via boto3
-selectolax==0.3.26
+selectolax==0.3.27
     # via -r requirements/pip.in
 six==1.17.0
     # via
@@ -287,7 +287,7 @@ six==1.17.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.in
-sqlparse==0.5.2
+sqlparse==0.5.3
     # via
     #   django
     #   django-debug-toolbar
@@ -324,7 +324,7 @@ unicode-slugify==0.1.5
     # via -r requirements/pip.in
 unidecode==1.3.8
     # via unicode-slugify
-urllib3==2.2.3
+urllib3==2.3.0
     # via
     #   botocore
     #   docker
@@ -337,7 +337,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.28.0
+virtualenv==20.28.1
     # via -r requirements/pip.in
 wcwidth==0.2.13
     # via prompt-toolkit
