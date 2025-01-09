@@ -547,6 +547,7 @@ class AddonsResponseBase:
                                         "built": True,
                                         "hidden": False,
                                         "sorting": project.addons.flyout_sorting,
+                                        "limit": 50,
                                     },
                                 ),
                             },
