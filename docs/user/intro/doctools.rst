@@ -68,8 +68,8 @@ Below is a list of popular documentation tools that you can use to write your do
 .. toctree::
    :hidden:
 
-   /intro/mkdocs
    /intro/sphinx
+   /intro/mkdocs
    /intro/docusaurus
    /intro/markdoc
    /intro/mdbook
