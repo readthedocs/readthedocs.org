@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.35.92
+boto3==1.35.97
     # via django-storages
-botocore==1.35.92
+botocore==1.35.97
     # via
     #   boto3
     #   s3transfer
@@ -135,7 +135,7 @@ django-structlog==2.2.0
     # via -r requirements/pip.in
 django-taggit==6.1.0
     # via -r requirements/pip.in
-django-timezone-field==7.0
+django-timezone-field==7.1
     # via django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.in
@@ -160,7 +160,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.in
 drf-flex-fields==1.0.2
     # via -r requirements/pip.in
-elastic-transport==8.15.1
+elastic-transport==8.17.0
     # via
     #   elasticsearch
     #   elasticsearch-dsl
@@ -168,7 +168,7 @@ elasticsearch==8.17.0
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
-elasticsearch-dsl==8.17.0
+elasticsearch-dsl==8.17.1
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -205,7 +205,7 @@ markdown==3.7
     # via -r requirements/pip.in
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.10.13
+orjson==3.10.14
     # via -r requirements/pip.in
 packaging==24.2
     # via
@@ -226,11 +226,11 @@ psycopg-pool==3.2.4
     # via psycopg
 pycparser==2.22
     # via cffi
-pydantic==2.10.4
+pydantic==2.10.5
     # via -r requirements/pip.in
 pydantic-core==2.27.2
     # via pydantic
-pygments==2.18.0
+pygments==2.19.1
     # via -r requirements/pip.in
 pyjwt[crypto]==2.10.1
     # via django-allauth

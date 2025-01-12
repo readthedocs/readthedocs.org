@@ -6,7 +6,7 @@
 #
 alabaster==1.0.0
     # via sphinx
-anyio==4.7.0
+anyio==4.8.0
     # via
     #   starlette
     #   watchfiles
@@ -82,7 +82,7 @@ pbr==6.1.0
     # via sphinxcontrib-video
 pillow==11.1.0
     # via matplotlib
-pygments==2.18.0
+pygments==2.19.1
     # via
     #   sphinx
     #   sphinx-prompt
@@ -173,7 +173,7 @@ urllib3==2.3.0
     #   sphinx-prompt
 uvicorn==0.34.0
     # via sphinx-autobuild
-watchfiles==1.0.3
+watchfiles==1.0.4
     # via sphinx-autobuild
 websockets==14.1
     # via sphinx-autobuild
