@@ -1,7 +1,9 @@
 import django_filters.rest_framework as filters
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Exists, OuterRef
+from django.db.models import Case, Exists, OuterRef, When
+from django.shortcuts import get_object_or_404
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
@@ -19,16 +21,17 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
-from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.views.hooks import trigger_sync_versions
+from readthedocs.filetreediff import get_diff
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
     RemoteOrganization,
@@ -36,10 +39,22 @@ from readthedocs.oauth.models import (
     RemoteRepositoryRelation,
 )
 from readthedocs.organizations.models import Organization, Team
+from readthedocs.projects.constants import (
+    ADDONS_FLYOUT_SORTING_CALVER,
+    ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
+    ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
+)
 from readthedocs.projects.models import (
     EnvironmentVariable,
     Project,
     ProjectRelationship,
+)
+from readthedocs.projects.version_handling import (
+    comparable_version,
+    sort_versions_calver,
+    sort_versions_custom_pattern,
+    sort_versions_python_packaging,
 )
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
@@ -110,7 +125,7 @@ class APIv3Settings:
     LimitOffsetPagination.default_limit = 10
 
     renderer_classes = (AlphabeticalSortedJSONRenderer, BrowsableAPIRenderer)
-    throttle_classes = (UserRateThrottle, AnonRateThrottle)
+    # throttle_classes = (UserRateThrottle, AnonRateThrottle)
     filter_backends = (filters.DjangoFilterBackend,)
     metadata_class = SimpleMetadata
 
@@ -139,8 +154,12 @@ class ProjectsViewSetBase(
     ]
 
     def get_permissions(self):
+        # Endpoints under DOC_PATH_PREFIX (served by El Proxito) are always read-only.
+        if self.request.path.startswith(f"/{settings.DOC_PATH_PREFIX}"):
+            permission_classes = [ReadOnlyPermission]
+
         # Create and list are actions that act on the current user.
-        if self.action in ("create", "list"):
+        elif self.action in ("create", "list"):
             permission_classes = [IsAuthenticated]
         # Actions that change the state of the project require admin permissions on the project.
         elif self.action in ("update", "partial_update", "destroy", "sync_versions"):
@@ -256,6 +275,134 @@ class ProjectsViewSetBase(
             data.update({"triggered": False})
             code = status.HTTP_400_BAD_REQUEST
         return Response(data=data, status=code)
+
+    def _get_filetreediff_response(self, *, request, project, version):
+        """
+        Get the file tree diff response for the given version.
+
+        This response is only enabled for external versions,
+        we do the comparison between the current version and the latest version.
+        """
+        if not version.is_external:
+            return None
+
+        if not project.addons.filetreediff_enabled:
+            return None
+
+        base_version = (
+            project.addons.options_base_version or project.get_latest_version()
+        )
+        # TODO: check if `self._has_permission` is important after the migration here.
+        # if not base_version or not self._has_permission(
+        #     request=request, version=base_version
+        # ):
+        if not base_version:
+            return None
+
+        diff = get_diff(version_a=version, version_b=base_version)
+        if not diff:
+            return None
+
+        resolver = Resolver()
+        return {
+            "outdated": diff.outdated,
+            "diff": {
+                "added": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.added
+                ],
+                "deleted": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.deleted
+                ],
+                "modified": [
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                    for filename in diff.modified
+                ],
+            },
+        }
+
+    @action(detail=True, methods=["get"], url_path="filetreediff")
+    def filetreediff(self, request, project_slug):
+        project = self.get_object()
+
+        current_version_slug = request.GET.get("current-version", None)
+        base_version_slug = request.GET.get("base-version", None)
+
+        current_version = get_object_or_404(
+            Version.objects.public(
+                user=request.user,
+                project=project,
+                only_active=True,
+                include_hidden=True,
+                only_built=True,
+            ).filter(
+                slug=current_version_slug,
+            )
+        )
+        base_version = get_object_or_404(
+            Version.objects.public(
+                user=request.user,
+                project=project,
+                only_active=True,
+                include_hidden=True,
+                only_built=True,
+            ).filter(
+                slug=base_version_slug,
+            )
+        )
+
+        data = (
+            self._get_filetreediff_response(
+                request=request,
+                project=project,
+                version=current_version,
+            )
+            or {}
+        )
+        return Response(data=data)
 
 
 class ProjectsViewSet(SettingsOverrideObject):
@@ -379,7 +526,78 @@ class VersionsViewSet(
 
     def get_queryset(self):
         """Overridden to allow internal versions only."""
-        return super().get_queryset().exclude(type=EXTERNAL)
+        queryset = super().get_queryset().exclude(type=EXTERNAL)
+
+        sorting = self.request.GET.get("sorting")
+        sorted_versions_active_built_not_hidden = None
+        if sorting:
+            project = self._get_parent_project()
+            versions_active_built_not_hidden = queryset.select_related(
+                "project"
+            ).order_by("-slug")
+            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
+            if not project.supports_multiple_versions:
+                # Return only one version when the project doesn't support multiple versions.
+                # That version is the only one the project serves.
+                sorted_versions_active_built_not_hidden = (
+                    versions_active_built_not_hidden.filter(
+                        slug=project.get_default_version()
+                    )
+                )
+            else:
+                if (
+                    project.addons.flyout_sorting
+                    == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
+                ):
+                    sorted_versions_active_built_not_hidden = sorted(
+                        versions_active_built_not_hidden,
+                        key=lambda version: comparable_version(
+                            version.verbose_name,
+                            repo_type=project.repo_type,
+                        ),
+                        reverse=True,
+                    )
+                elif (
+                    project.addons.flyout_sorting
+                    == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
+                ):
+                    sorted_versions_active_built_not_hidden = (
+                        sort_versions_python_packaging(
+                            versions_active_built_not_hidden,
+                            project.addons.flyout_sorting_latest_stable_at_beginning,
+                        )
+                    )
+                elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
+                    sorted_versions_active_built_not_hidden = sort_versions_calver(
+                        versions_active_built_not_hidden,
+                        project.addons.flyout_sorting_latest_stable_at_beginning,
+                    )
+                elif (
+                    project.addons.flyout_sorting
+                    == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
+                ):
+                    sorted_versions_active_built_not_hidden = (
+                        sort_versions_custom_pattern(
+                            versions_active_built_not_hidden,
+                            project.addons.flyout_sorting_custom_pattern,
+                            project.addons.flyout_sorting_latest_stable_at_beginning,
+                        )
+                    )
+
+            # Sort versions in the database so the queryset can continue working in the rest of the view.
+            # Borrowed from: http://rednafi.com/python/sort_by_a_custom_sequence_in_django/
+            version_ids = [
+                version.pk for version in sorted_versions_active_built_not_hidden
+            ]
+            preferred = Case(
+                *(
+                    When(id=id, then=position)
+                    for position, id in enumerate(version_ids, start=1)
+                )
+            )
+            queryset = queryset.order_by(preferred)
+
+        return queryset
 
 
 class BuildsViewSet(
