@@ -318,7 +318,7 @@ Project details
        use ``versioning_scheme`` instead.
 
     .. note::
-       
+
        Previously, ``translation_of`` and ``subproject_of`` returned a full project object,
        due to privacy concerns, now they return only the slug of the project.
        If you need to get the full project object, you can use the project endpoint with the slug.
