@@ -753,12 +753,16 @@ class BuildConfigV2(BuildConfigBase):
         """
         Check for deprecated usages and raise an exception if found.
 
+        - If the user is using build.commands, we don't need the sphinx or mkdocs keys.
         - If the sphinx key is used, a path to the configuration file is required.
         - If the mkdocs key is used, a path to the configuration file is required.
         - If none of the sphinx or mkdocs keys are used,
           and the user isn't overriding the new build jobs,
           the sphinx key is explicitly required.
         """
+        if self.is_using_build_commands:
+            return
+
         has_sphinx_key = "sphinx" in self.source_config
         has_mkdocs_key = "mkdocs" in self.source_config
         if has_sphinx_key and not self.sphinx.configuration:

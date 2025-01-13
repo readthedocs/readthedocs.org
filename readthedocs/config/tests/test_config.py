@@ -1864,6 +1864,18 @@ class TestBuildConfigV2:
         data_copy["build"]["jobs"]["build"] = {"html": ["echo 'Hello World'"]}
         get_build_config(data_copy, validate=True, deprecate_implicit_keys=True)
 
+    def test_sphinx_and_mkdocs_arent_required_when_using_build_commands(self):
+        data = {
+            "build": {
+                "os": "ubuntu-22.04",
+                "tools": {
+                    "python": "3",
+                },
+                "commands": ["echo 'Hello World'"],
+            },
+        }
+        get_build_config(data, validate=True, deprecate_implicit_keys=True)
+
     def test_as_dict_new_build_config(self, tmpdir):
         build = get_build_config(
             {
