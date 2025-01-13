@@ -163,7 +163,7 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
         api_key = getattr(self.request, "build_api_key", None)
         if api_key:
             return self.get_queryset_for_api_key(api_key)
-        return self.model.objects.api(self.request.user)
+        return self.model.objects.api_v2(self.request.user)
 
 
 class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
@@ -417,7 +417,7 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return (
-            self.model.objects.api(self.request.user)
+            self.model.objects.api_v2(self.request.user)
             .filter(
                 remote_organization_relations__account__provider__in=[
                     service.adapter.provider_id for service in registry
@@ -439,7 +439,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
             return self.model.objects.none()
 
         # TODO: Optimize this query after deployment
-        query = self.model.objects.api(self.request.user).annotate(
+        query = self.model.objects.api_v2(self.request.user).annotate(
             admin=Case(
                 When(
                     remote_repository_relations__user=self.request.user,
