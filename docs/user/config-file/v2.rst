@@ -441,8 +441,7 @@ See :doc:`/build-customization` for more details.
 
 .. note::
 
-   Each key under ``build.jobs`` must be a list of strings
-   (except for ``build.jobs.build`` which is a dictionary, as described below).
+   Each build step consists of a list of commands to be executed.
    ``build.os`` and ``build.tools`` are also required to use ``build.jobs``.
 
 .. note::
@@ -529,7 +528,7 @@ When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will
        - pip install pelican
        - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
 
-But we recommend using :ref:`config-file/v2:build.jobs` as follow instead:
+But we recommend using :ref:`config-file/v2:build.jobs` instead:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -549,6 +548,7 @@ But we recommend using :ref:`config-file/v2:build.jobs` as follow instead:
 ``build.jobs`` offers the same functionality as ``build.commands``,
 but in a more structured way that allows you to define different commands for each format,
 while also supporting installing system dependencies via ``build.apt_packages``.
+See :doc:`/build-customization` for more details.
 
 .. note::
 

@@ -130,8 +130,8 @@ or by using the :doc:`/server-side-search/api`.
    In order for Read the Docs to index your HTML files correctly,
    they should follow the conventions described at :doc:`rtd-dev:search-integration`.
 
-build.commands
-~~~~~~~~~~~~~~
+Alternative syntax
+~~~~~~~~~~~~~~~~~~
 
 Alternatively, you can use the :ref:`config-file/v2:build.commands` key to completely override the build process.
 
@@ -147,7 +147,7 @@ Alternatively, you can use the :ref:`config-file/v2:build.commands` key to compl
        - pip install pelican
        - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
 
-But we recommend using :ref:`config-file/v2:build.jobs` as follow instead:
+But we recommend using :ref:`config-file/v2:build.jobs` instead:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -419,7 +419,7 @@ Install dependencies with Poetry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Projects managed with `Poetry <https://python-poetry.org/>`__,
-can use the ``post_crate_environment`` user-defined job to use Poetry for installing Python dependencies.
+can use the ``post_create_environment`` user-defined job to use Poetry for installing Python dependencies.
 Take a look at the following example:
 
 
@@ -433,9 +433,8 @@ Take a look at the following example:
      tools:
        python: "3.10"
      jobs:
-       post_create_environment:
-         # Install poetry
        post_install:
+         # Install poetry
          # https://python-poetry.org/docs/#installing-manually
          - pip install poetry
          # Install dependencies with 'docs' dependency group
