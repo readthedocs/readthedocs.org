@@ -84,8 +84,6 @@ CSS variables reference
     - ``--readthedocs-flyout-background-color``
     - ``--readthedocs-flyout-color``
     - ``--readthedocs-flyout-current-version-color``
-    - ``--readthedocs-flyout-dd-font-size``
-    - ``--readthedocs-flyout-dt-font-size``
     - ``--readthedocs-flyout-font-family``
     - ``--readthedocs-flyout-font-size``
     - ``--readthedocs-flyout-header-font-size``
