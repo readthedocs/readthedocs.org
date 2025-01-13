@@ -736,14 +736,14 @@ class ProjectPermissionSerializer(serializers.Serializer):
         return AdminPermission.is_admin(user, obj)
 
 
-class RestrictedProjectSerializer(serializers.ModelSerializer):
+class RelatedProjectSerializer(serializers.ModelSerializer):
 
     """
     Stripped version of the ProjectSerializer to be used when including related projects.
 
     This serializer is used to avoid leaking information about a private project through
     a public project. Instead of checking if user has access to the project,
-    we just show the name and slug.
+    we just show the slug.
     """
 
     _links = ProjectLinksSerializer(source="*")
@@ -751,8 +751,6 @@ class RestrictedProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = [
-            "id",
-            "name",
             "slug",
             "_links",
         ]
@@ -788,7 +786,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     created = serializers.DateTimeField(source="pub_date")
     modified = serializers.DateTimeField(source="modified_date")
 
-    related_project_serializer = RestrictedProjectSerializer
+    related_project_serializer = RelatedProjectSerializer
 
     class Meta:
         model = Project
@@ -836,7 +834,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             # Users can use the /api/v3/organizations/ endpoint to get more information
             # about the organization.
             "organization": (
-                "readthedocs.api.v3.serializers.RestrictedOrganizationSerializer",
+                "readthedocs.api.v3.serializers.RelatedOrganizationSerializer",
                 # NOTE: we cannot have a Project with multiple organizations.
                 {"source": "organizations.first"},
             ),
@@ -1257,7 +1255,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
         )
 
 
-class RestrictedOrganizationSerializer(serializers.ModelSerializer):
+class RelatedOrganizationSerializer(serializers.ModelSerializer):
 
     """
     Stripped version of the OrganizationSerializer to be used when listing projects.
@@ -1271,7 +1269,6 @@ class RestrictedOrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
         fields = (
-            "name",
             "slug",
             "_links",
         )
