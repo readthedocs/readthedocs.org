@@ -169,7 +169,7 @@ The event.detail.data() object contains all the Addons configuration, including:
 * ``projects.current`` - Current project details
 * ``projects.translations`` - Available translations
 * ``versions.current`` - Details about the current version
-* ``versions.active`` - List of all active versions
+* ``versions.active`` - List of all active and not hidden versions
 
 .. dropdown:: Click to see an example of the Addons data
 
