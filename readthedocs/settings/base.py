@@ -297,6 +297,11 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "allauth.mfa",
+            # Others
+            # NOTE: impersonate functionality is only enabled when ALLOW_ADMIN is True,
+            # but we still need to include it even when not enabled, since it has objects
+            # related to the user model that Django needs to know about when deleting users.
+            "impersonate",
             "cacheops",
         ]
         if ext:
@@ -348,6 +353,8 @@ class CommunityBaseSettings(Settings):
         ]
         if self.SHOW_DEBUG_TOOLBAR:
             middlewares.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+        if self.ALLOW_ADMIN:
+            middlewares.append("impersonate.middleware.ImpersonateMiddleware")
         return middlewares
 
     AUTHENTICATION_BACKENDS = (
@@ -756,8 +763,7 @@ class CommunityBaseSettings(Settings):
     CORS_URLS_REGEX = re.compile(
         r"""
         ^(
-            /api/v2/footer_html
-            |/api/v2/search
+            /api/v2/search
             |/api/v2/docsearch
             |/api/v2/embed
             |/api/v3/embed
@@ -830,6 +836,12 @@ class CommunityBaseSettings(Settings):
     ABSOLUTE_URL_OVERRIDES = {"auth.user": lambda o: "/profiles/{}/".format(o.username)}
 
     INTERNAL_IPS = ("127.0.0.1",)
+
+    # django-impersonate.
+    IMPERSONATE = {
+        # By default, only staff users can impersonate.
+        "REQUIRE_SUPERUSER": True,
+    }
 
     # Taggit
     # https://django-taggit.readthedocs.io

@@ -843,7 +843,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(31):
+        with self.assertNumQueries(26):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -869,7 +869,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(58):
+        with self.assertNumQueries(42):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

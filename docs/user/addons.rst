@@ -5,8 +5,11 @@ Read the Docs Addons
 They are used in the rendered documentation,
 and can be accessed via hotkeys or on screen UI elements.
 
-:doc:`DocDiff </pull-requests>`
+:doc:`Visual diff </visual-diff>`
     Highlight changed output from pull requests
+
+:doc:`Link previews </link-previews>`
+    See the content the link points to before clicking on it
 
 :doc:`Documentation notification </doc-notifications>`
     Alert users to various documentation states
@@ -23,9 +26,6 @@ and can be accessed via hotkeys or on screen UI elements.
 :doc:`Search as you type </server-side-search/index>`
     Get search results faster
 
-:doc:`DocDiff </pull-requests>`
-    Highlight changed output from pull requests
-
 :doc:`Traffic analytics </traffic-analytics>`
     See what pages your users are reading
 
@@ -37,11 +37,7 @@ Configuring Read the Docs Addons
 
 Individual configuration options for each addon are available in :guilabel:`Settings`.
 
-#. Go to the new dashboard:
-
-    * `Community <https://app.readthedocs.org>`_
-    * `Business <https://app.readthedocs.com>`_
-
+#. Go to the new :term:`dashboard`:
 #. Click on a project name.
 #. Go to :guilabel:`Settings`
 #. In the left bar, go to :guilabel:`Addons`.

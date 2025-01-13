@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView, TemplateView
+from impersonate.views import impersonate, stop_impersonate
 
 from readthedocs.core.views import ErrorView, HomepageView, SupportView, do_not_track
 from readthedocs.search.views import GlobalSearchView
@@ -105,6 +106,22 @@ admin_urls = [
     re_path(r"^admin/", admin.site.urls),
 ]
 
+impersonate_urls = [
+    # We don't use ``include('impersonate.urls')`` here because we don't want to
+    # define ``/search`` and ``/list`` URLs
+    path(
+        "impersonate/stop/",
+        stop_impersonate,
+        name="impersonate-stop",
+    ),
+    path(
+        "impersonate/<path:uid>/",
+        impersonate,
+        name="impersonate-start",
+    ),
+]
+
+
 dnt_urls = [
     re_path(r"^\.well-known/dnt/$", do_not_track),
     # https://github.com/EFForg/dnt-guide#12-how-to-assert-dnt-compliance
@@ -158,6 +175,7 @@ if settings.READ_THE_DOCS_EXTENSIONS:
 
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
+    groups.append(impersonate_urls)
 
 if settings.SHOW_DEBUG_TOOLBAR:
     import debug_toolbar

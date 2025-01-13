@@ -95,15 +95,17 @@ class DisableListEndpoint:
 
         disabled = True
 
+        # DRF strips whitespaces from query params, and if the final string is empty
+        # the filter is ignored. So we do the same to check if the filter is going to be used or not.
+        project_slug = self.request.GET.get("project__slug", "").strip()
+        commit = self.request.GET.get("commit", "").strip()
+        slug = self.request.GET.get("slug", "").strip()
         # NOTE: keep list endpoint that specifies a resource
         if any(
             [
-                self.basename == "version" and "project__slug" in self.request.GET,
-                self.basename == "build"
-                and (
-                    "commit" in self.request.GET or "project__slug" in self.request.GET
-                ),
-                self.basename == "project" and "slug" in self.request.GET,
+                self.basename == "version" and project_slug,
+                self.basename == "build" and (commit or project_slug),
+                self.basename == "project" and slug,
             ]
         ):
             disabled = False
