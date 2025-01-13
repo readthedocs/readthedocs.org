@@ -48,7 +48,7 @@ Addons data and customization
 
 Addons can be customized using CSS variables and the data used by Addons can be accessed using a custom event.
 
-CSS Variable Customization
+CSS variable customization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Addons use CSS custom properties (`CSS variables <https://developer.mozilla.org/en-US/docs/Web/CSS/--*>`_) to allow for easy customization.
@@ -68,18 +68,18 @@ To customize addons, add CSS variable definitions to your theme's CSS:
         --readthedocs-search-font-size: 0.7rem;
     }
 
-CSS Variables reference
+CSS variables reference
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Got this with: grep -ho -- '--readthedocs-[a-zA-Z0-9-]*' *.css | sort -u
 
 .. dropdown:: Click to see all available CSS variables
 
-    **Global Variables**
+    **Global variables**
 
     - ``--readthedocs-font-size``
 
-    **Flyout Menu**
+    **Flyout menu**
 
     - ``--readthedocs-flyout-background-color``
     - ``--readthedocs-flyout-color``
@@ -162,7 +162,7 @@ To use the custom event:
 Event data reference
 ^^^^^^^^^^^^^^^^^^^^
 
-The event.detail.data() object contains all the Addons configuration, including:
+The ``event.detail.data()`` object contains all the Addons configuration, including:
 
 * ``addons`` - Individual addon configurations
 * ``builds.current`` - Details about the current build
@@ -328,7 +328,7 @@ The event.detail.data() object contains all the Addons configuration, including:
 
 You can see a live example of this in our `Addons API response for these docs <https://docs.readthedocs.io/_/addons/?client-version=0.22.0&api-version=1&project-slug=docs&version-slug=stable>`_.
 
-Example: Creating a Version Selector
+Example: creating a version selector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Here's a complete example showing how to create a version selector using the Addons data:
