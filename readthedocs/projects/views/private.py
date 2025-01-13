@@ -1,5 +1,6 @@
 """Project views for authenticated users."""
 
+
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -314,6 +315,82 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         return HttpResponseRedirect(self.get_success_url())
 
 
+def show_config_step(wizard):
+    """
+    Decide whether or not show the config step on "Add project" wizard.
+
+    If the `.readthedocs.yaml` file already exist in the default branch, we
+    don't show this step.
+    """
+
+    # Try to get the cleaned data from the "basics" step only if
+    # we are in a step after it, otherwise, return True since we don't
+    # have the data yet, and django-forms calls this function multiple times.
+    basics_step = "basics"
+    cleaned_data = wizard.get_cleaned_data_for_step(basics_step) or {}
+    repo = cleaned_data.get("repo")
+    remote_repository = cleaned_data.get("remote_repository")
+    default_branch = cleaned_data.get("default_branch")
+
+    if (
+        repo
+        and default_branch
+        and remote_repository
+        and remote_repository.vcs_provider == GITHUB
+    ):
+        # I don't know why `show_config_step` is called multiple times (at least 4).
+        # This is a problem for us because we perform external calls here and add messages to the request.
+        # Due to that, we are adding this instance variable to prevent this function to run multiple times.
+        # Maybe related to https://github.com/jazzband/django-formtools/issues/134
+        if hasattr(wizard, "_show_config_step_executed"):
+            return False
+
+        remote_repository_relations = (
+            remote_repository.remote_repository_relations.filter(
+                user=wizard.request.user,
+                account__isnull=False,
+            )
+            .select_related("account", "user")
+            .only("user", "account")
+        )
+        for relation in remote_repository_relations:
+            service = GitHubService(relation.user, relation.account)
+            session = service.get_session()
+
+            for yaml in [
+                ".readthedocs.yaml",
+                ".readthedocs.yml",
+                "readthedocs.yaml",
+                "readthedocs.yml",
+            ]:
+                try:
+                    querystrings = f"?ref={default_branch}" if default_branch else ""
+                    response = session.head(
+                        f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}{querystrings}",
+                        timeout=1,
+                    )
+                    if response.ok:
+                        log.info(
+                            "Read the Docs YAML file found for this repository.",
+                            filename=yaml,
+                        )
+                        messages.success(
+                            wizard.request,
+                            _(
+                                "We detected a configuration file in your repository and started your project's first build."
+                            ),
+                        )
+                        wizard._show_config_step_executed = True
+                        return False
+                except Exception:
+                    log.warning(
+                        "Failed when hitting GitHub API to check for .readthedocs.yaml file.",
+                        filename=yaml,
+                    )
+                    continue
+    return True
+
+
 class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
 
     """
@@ -323,12 +400,12 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     per session (since it's per class).
     """
 
+    initial_dict_key = "initial-data"
+    condition_dict = {"config": show_config_step}
     form_list = [
         ("basics", ProjectBasicsForm),
         ("config", ProjectConfigForm),
     ]
-
-    initial_dict_key = "initial-data"
 
     def get(self, *args, **kwargs):
         # The method from the parent should run first,
@@ -365,60 +442,6 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     def get_template_names(self):
         """Return template names based on step name."""
         return f"projects/import_{self.steps.current}.html"
-
-    def process_step(self, form):
-        # pylint: disable=too-many-nested-blocks
-        if isinstance(form, ProjectBasicsForm):
-            remote_repository = form.cleaned_data.get("remote_repository")
-            default_branch = form.cleaned_data.get("default_branch")
-            if remote_repository and remote_repository.vcs_provider == GITHUB:
-                remote_repository_relations = (
-                    remote_repository.remote_repository_relations.filter(
-                        user=self.request.user,
-                        account__isnull=False,
-                    )
-                    .select_related("account", "user")
-                    .only("user", "account")
-                )
-                for relation in remote_repository_relations:
-                    service = GitHubService(relation.user, relation.account)
-                    session = service.get_session()
-
-                    for yaml in [
-                        ".readthedocs.yaml",
-                        ".readthedocs.yml",
-                        "readthedocs.yaml",
-                        "readthedocs.yml",
-                    ]:
-                        try:
-                            querystrings = (
-                                f"?ref={default_branch}" if default_branch else ""
-                            )
-                            response = session.head(
-                                f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}{querystrings}",
-                                timeout=1,
-                            )
-                            if response.ok:
-                                log.info(
-                                    "Read the Docs YAML file found for this repository.",
-                                    filename=yaml,
-                                )
-                                messages.success(
-                                    self.request,
-                                    _(
-                                        "We detected a configuration file in your repository and started your project's first build."
-                                    ),
-                                )
-                                self.form_list.pop("config")
-                                break
-                        except Exception:
-                            log.warning(
-                                "Failed when hitting GitHub API to check for .readthedocs.yaml file.",
-                                filename=yaml,
-                            )
-                            continue
-
-        return super().process_step(form)
 
     def done(self, form_list, **kwargs):
         """
@@ -599,9 +622,8 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             username=username,
         )
         if self._is_last_user():
-            return HttpResponseBadRequest(
-                _(f"{username} is the last owner, can't be removed")
-            )
+            # NOTE: don't include user input in the message, since it's a security risk.
+            return HttpResponseBadRequest(_("User is the last owner, can't be removed"))
 
         project = self.get_project()
         project.users.remove(user)

@@ -154,7 +154,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            The name of the package <code>{{pacakge}}</name> is invalid.
+            The name of the package <code>{{pacakge}}</code> is invalid.
             """
             ).strip(),
         ),
@@ -357,6 +357,32 @@ messages = [
             Config validation error in <code>{{key}}</code>.
             Value <code>{{value}}</code> not found.
             """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.SPHINX_CONFIG_MISSING,
+        header=_("Missing Sphinx configuration key"),
+        body=_(
+            textwrap.dedent(
+                """
+                The <code>sphinx.configuration</code> key is missing.
+                This key is now required, see our <a href="https://about.readthedocs.com/blog/2024/12/deprecate-config-files-without-sphinx-or-mkdocs-config/">blog post</a> for more information.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.MKDOCS_CONFIG_MISSING,
+        header=_("Missing MkDocs configuration key"),
+        body=_(
+            textwrap.dedent(
+                """
+                The <code>mkdocs.configuration</code> key is missing.
+                This key is now required, see our <a href="https://about.readthedocs.com/blog/2024/12/deprecate-config-files-without-sphinx-or-mkdocs-config/">blog post</a> for more information.
+                """
             ).strip(),
         ),
         type=ERROR,

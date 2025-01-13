@@ -11,6 +11,7 @@ from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
@@ -168,6 +169,10 @@ class Virtualenv(PythonEnvironment):
             cwd=self.checkout_path,
         )
 
+        # Nothing else to install for generic projects.
+        if self.config.doctype == GENERIC:
+            return
+
         # Second, install all the latest core requirements
         requirements = []
 
@@ -175,10 +180,6 @@ class Virtualenv(PythonEnvironment):
             requirements.append("mkdocs")
         else:
             requirements.append("sphinx")
-
-            # Install ``readthedocs-sphinx-ext`` only on old projects
-            if not self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
-                requirements.append("readthedocs-sphinx-ext")
 
         cmd = copy.copy(pip_install_cmd)
         cmd.extend(requirements)
@@ -243,9 +244,8 @@ class Conda(PythonEnvironment):
         return self.config.python_interpreter
 
     def setup_base(self):
-        if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
-            self._append_core_requirements()
-            self._show_environment_yaml()
+        self._append_core_requirements()
+        self._show_environment_yaml()
 
         self.build_env.run(
             self.conda_bin_name(),
@@ -356,56 +356,17 @@ class Conda(PythonEnvironment):
         if self.config.doctype == "mkdocs":
             pip_requirements.append("mkdocs")
         else:
-            if not self.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
-                pip_requirements.append("readthedocs-sphinx-ext")
-
             conda_requirements.extend(["sphinx"])
 
         return pip_requirements, conda_requirements
 
     def install_core_requirements(self):
-        """Install basic Read the Docs requirements into the Conda env."""
+        """
+        Skip installing requirements.
 
-        if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
-            # Skip install core requirements since they were already appended to
-            # the user's ``environment.yml`` and installed at ``conda env
-            # create`` step.
-            return
-
-        pip_requirements, conda_requirements = self._get_core_requirements()
-        # Install requirements via ``conda install`` command if they were
-        # not appended to the ``environment.yml`` file.
-        cmd = [
-            self.conda_bin_name(),
-            "install",
-            "--yes",
-            "--quiet",
-            "--name",
-            self.version.slug,
-        ]
-        cmd.extend(conda_requirements)
-        self.build_env.run(
-            *cmd,
-            cwd=self.checkout_path,
-            # TODO: on tests I found that we are not passing ``bin_path`` here
-            # for some reason.
-        )
-
-        # Install requirements via ``pip install``
-        pip_cmd = [
-            self.venv_bin(filename="python"),
-            "-m",
-            "pip",
-            "install",
-            "-U",
-            "--no-cache-dir",
-        ]
-        pip_cmd.extend(pip_requirements)
-        self.build_env.run(
-            *pip_cmd,
-            bin_path=self.venv_bin(),
-            cwd=self.checkout_path,  # noqa - no comma here in py27 :/
-        )
+        Skip installing core requirements, since they were already appended to
+        the user's ``environment.yml`` and installed at ``conda env create`` step.
+        """
 
     def install_requirements_file(self, install):
         # as the conda environment was created by using the ``environment.yml``

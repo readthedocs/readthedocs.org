@@ -13,7 +13,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -47,7 +46,6 @@ from readthedocs.projects.querysets import (
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_build_config_file,
     validate_custom_prefix,
@@ -1079,43 +1077,6 @@ class Project(models.Model):
             active=True, uploaded=True
         )
 
-    def ordered_active_versions(self, **kwargs):
-        """
-        Get all active versions, sorted.
-
-        :param kwargs: All kwargs are passed down to the
-                       `Version.internal.public` queryset.
-        """
-        from readthedocs.builds.models import Version
-
-        kwargs.update(
-            {
-                "project": self,
-                "only_active": True,
-                "only_built": True,
-            },
-        )
-        versions = (
-            Version.internal.public(**kwargs)
-            .select_related(
-                "project",
-                "project__main_language_project",
-            )
-            .prefetch_related(
-                Prefetch(
-                    "project__superprojects",
-                    ProjectRelationship.objects.all().select_related("parent"),
-                    to_attr="_superprojects",
-                ),
-                Prefetch(
-                    "project__domains",
-                    Domain.objects.filter(canonical=True),
-                    to_attr="_canonical_domains",
-                ),
-            )
-        )
-        return sort_version_aware(versions)
-
     def all_active_versions(self):
         """
         Get queryset with all active versions.
@@ -1917,8 +1878,6 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     API_LARGE_DATA = "api_large_data"
-    CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
-    ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
@@ -1936,10 +1895,8 @@ class Feature(models.Model):
     DONT_INSTALL_LATEST_PIP = "dont_install_latest_pip"
     USE_SPHINX_RTD_EXT_LATEST = "rtd_sphinx_ext_latest"
     INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
-    DISABLE_SPHINX_MANIPULATION = "disable_sphinx_manipulation"
 
     # Search related features
-    DISABLE_SERVER_SIDE_SEARCH = "disable_server_side_search"
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = "enable_mkdocs_server_side_search"
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
 
@@ -1950,17 +1907,6 @@ class Feature(models.Model):
         (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            CONDA_APPEND_CORE_REQUIREMENTS,
-            _("Conda: Append Read the Docs core requirements to environment.yml file"),
-        ),
-        (
-            ALL_VERSIONS_IN_HTML_CONTEXT,
-            _(
-                "Sphinx: Pass all versions (including private) into the html context "
-                "when building with Sphinx"
-            ),
         ),
         (
             RECORD_404_PAGE_VIEWS,
@@ -2014,17 +1960,7 @@ class Feature(models.Model):
                 "Build: Install all the latest versions of Read the Docs core requirements"
             ),
         ),
-        (
-            DISABLE_SPHINX_MANIPULATION,
-            _(
-                "Sphinx: Don't append `conf.py` and don't install ``readthedocs-sphinx-ext``"
-            ),
-        ),
         # Search related features.
-        (
-            DISABLE_SERVER_SIDE_SEARCH,
-            _("Search: Disable server side search"),
-        ),
         (
             ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
             _("Search: Enable server side search for MkDocs projects"),
