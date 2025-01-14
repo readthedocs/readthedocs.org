@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.92
+boto3==1.35.97
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.92
+botocore==1.35.97
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -162,6 +162,8 @@ django-formtools==2.5.1
     # via -r requirements/pip.txt
 django-gravatar2==1.4.5
     # via -r requirements/pip.txt
+django-impersonate==1.9.4
+    # via -r requirements/pip.txt
 django-ipware==5.0.2
     # via
     #   -r requirements/pip.txt
@@ -178,7 +180,7 @@ django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==6.1.0
     # via -r requirements/pip.txt
-django-timezone-field==7.0
+django-timezone-field==7.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -207,7 +209,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.15.1
+elastic-transport==8.17.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -216,7 +218,7 @@ elasticsearch==8.17.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.17.0
+elasticsearch-dsl==8.17.1
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -281,7 +283,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.13
+orjson==3.10.14
     # via -r requirements/pip.txt
 packaging==24.2
     # via
@@ -316,13 +318,13 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.4
+pydantic==2.10.5
     # via -r requirements/pip.txt
 pydantic-core==2.27.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
-pygments==2.18.0
+pygments==2.19.1
     # via
     #   -r requirements/pip.txt
     #   sphinx

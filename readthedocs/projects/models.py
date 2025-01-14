@@ -61,6 +61,7 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
+    ADDONS_FLYOUT_POSITION_CHOICES,
     ADDONS_FLYOUT_SORTING_CHOICES,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
     DOWNLOADABLE_MEDIA_TYPES,
@@ -194,7 +195,10 @@ class AddonsConfig(TimeStampedModel):
     filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
 
     # Flyout
-    flyout_enabled = models.BooleanField(default=True)
+    flyout_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_("Enabled"),
+    )
     flyout_sorting = models.CharField(
         verbose_name=_("Sorting of versions"),
         choices=ADDONS_FLYOUT_SORTING_CHOICES,
@@ -215,6 +219,15 @@ class AddonsConfig(TimeStampedModel):
             "Show <code>latest</code> and <code>stable</code> at the beginning"
         ),
         default=True,
+    )
+
+    flyout_position = models.CharField(
+        choices=ADDONS_FLYOUT_POSITION_CHOICES,
+        max_length=64,
+        default=None,  # ``None`` means use the default (theme override if present or Read the Docs default)
+        null=True,
+        blank=True,
+        verbose_name=_("Position"),
     )
 
     # Hotkeys

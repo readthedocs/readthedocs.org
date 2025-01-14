@@ -338,7 +338,7 @@ class Version(TimeStampedModel):
 
         - If the version is latest (machine created), we resolve to the default branch of the project.
         - If the version is stable (machine created), we resolve to the branch that the stable version points to.
-        - If the version is external, we return the identifier, since we don't have access to the name of the branch.
+        - If the version is external, we return the PR identifier, since we don't have access to the name of the branch.
         """
         # Latest is special as it doesn't contain the actual name in verbose_name.
         if self.slug == LATEST and self.machine:
@@ -352,12 +352,6 @@ class Version(TimeStampedModel):
             if original_stable:
                 return original_stable.verbose_name.removeprefix("origin/")
             return self.identifier.removeprefix("origin/")
-
-        if self.type == EXTERNAL:
-            # If this version is a EXTERNAL version, the identifier will
-            # contain the actual commit hash. which we can use to
-            # generate url for a given file name
-            return self.identifier
 
         # For all other cases, verbose_name contains the actual name of the branch/tag.
         return self.verbose_name

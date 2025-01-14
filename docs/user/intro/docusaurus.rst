@@ -7,7 +7,7 @@ Docusarus
 `Docusaurus`_ is a static-site generator that builds a single-page application with fast client-side navigation and out-of-the-box documentation features.
 
 Minimal configuration required to build a Docusaurus project on Read the Docs looks like this,
-specifying a nodejs toolchain on Ubuntu, using multiple :ref:`build <config-file/v2:build>` commands to install the requirements,
+specifying a nodejs toolchain on Ubuntu, using multiple :ref:`build <config-file/v2:build>` jobs to install the requirements,
 build the site, and copy the output to $READTHEDOCS_OUTPUT:
 
 .. code-block:: yaml
@@ -18,18 +18,20 @@ build the site, and copy the output to $READTHEDOCS_OUTPUT:
     os: "ubuntu-22.04"
     tools:
         nodejs: "18"
-    commands:
+    jobs:
         # "docs/" was created following the Docusaurus tutorial:
         # npx create-docusaurus@latest docs classic
         # but you can just use your existing Docusaurus site
-        #
-        # Install Docusaurus dependencies
-        - cd docs/ && npm install
-        # Build the site
-        - cd docs/ && npm run build
-        # Copy generated files into Read the Docs directory
-        - mkdir --parents $READTHEDOCS_OUTPUT/html/
-        - cp --recursive docs/build/* $READTHEDOCS_OUTPUT/html/
+        install:
+           # Install Docusaurus dependencies
+           - cd docs/ && npm install
+        build:
+          html:
+            # Build the site
+            - cd docs/ && npm run build
+            # Copy generated files into Read the Docs directory
+            - mkdir --parents $READTHEDOCS_OUTPUT/html/
+            - cp --recursive docs/build/* $READTHEDOCS_OUTPUT/html/
 
 .. _Docusaurus: https://docusaurus.io/
 
