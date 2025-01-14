@@ -1,3 +1,29 @@
+Version 11.19.0
+---------------
+
+:Date: January 14, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: Don't require sphinx/mkdocs keys when using build.commands (`#11913 <https://github.com/readthedocs/readthedocs.org/pull/11913>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11909 <https://github.com/readthedocs/readthedocs.org/pull/11909>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document new build jobs (`#11900 <https://github.com/readthedocs/readthedocs.org/pull/11900>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove CSS variables override for font-size (`#11897 <https://github.com/readthedocs/readthedocs.org/pull/11897>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add django-impersonate when admin is enabled (`#11894 <https://github.com/readthedocs/readthedocs.org/pull/11894>`__)
+* `@stsewd <https://github.com/stsewd>`__: Environment variables: document special case for PR preview builds (`#11893 <https://github.com/readthedocs/readthedocs.org/pull/11893>`__)
+* `@stsewd <https://github.com/stsewd>`__: Social accounts: link Bitbucket to new dashboard (`#11892 <https://github.com/readthedocs/readthedocs.org/pull/11892>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow to set a "Default" or a explicit position for flyout (`#11891 <https://github.com/readthedocs/readthedocs.org/pull/11891>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Addons customization docs (`#11888 <https://github.com/readthedocs/readthedocs.org/pull/11888>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't reflect user input in raw response (`#11887 <https://github.com/readthedocs/readthedocs.org/pull/11887>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Lower logging for user build errors (`#11886 <https://github.com/readthedocs/readthedocs.org/pull/11886>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.18.0 (`#11884 <https://github.com/readthedocs/readthedocs.org/pull/11884>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11881 <https://github.com/readthedocs/readthedocs.org/pull/11881>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use actual git identifier for READTHEDOCS_GIT_IDENTIFIER (`#11875 <https://github.com/readthedocs/readthedocs.org/pull/11875>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update MkDocs page to be generic and note MkDocs for Material integration (`#11871 <https://github.com/readthedocs/readthedocs.org/pull/11871>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config: inherit all pydantic models from a common base class (`#11857 <https://github.com/readthedocs/readthedocs.org/pull/11857>`__)
+* `@stsewd <https://github.com/stsewd>`__: API: use restricted serializer for related projects (`#11820 <https://github.com/readthedocs/readthedocs.org/pull/11820>`__)
+* `@stsewd <https://github.com/stsewd>`__: API: separate querysets from API V2 and V3 (`#11586 <https://github.com/readthedocs/readthedocs.org/pull/11586>`__)
+* `@stsewd <https://github.com/stsewd>`__: Email: use first recipient from email object (`#11581 <https://github.com/readthedocs/readthedocs.org/pull/11581>`__)
+* `@humitos <https://github.com/humitos>`__: Cleanup: delete `yaml_load_safely` (`#11285 <https://github.com/readthedocs/readthedocs.org/pull/11285>`__)
+
 Version 11.18.0
 ---------------
 
