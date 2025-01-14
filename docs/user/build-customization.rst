@@ -4,11 +4,11 @@ Build process customization
 Read the Docs has a :doc:`well-defined build process </builds>` that works for many projects.
 We also allow customization of builds in two ways:
 
-Extend or partially override the build process
+Customize our standard build process
    Keep using the default commands for MkDocs or Sphinx,
    but extend or override the ones you need.
 
-Completely override the build process
+Define a build process from scratch
    This option gives you *full control* over your build.
    Read the Docs supports any tool that generates HTML.
 
@@ -17,8 +17,8 @@ Extend or override the build process
 
 In the normal build process, the pre-defined jobs ``checkout``, ``system_dependencies``,  and ``upload`` are executed.
 If you define a :ref:`config-file/v2:sphinx` or :ref:`config-file/v2:mkdocs` configuration,
-the ``create_environment``, ``install``, and ``build`` jobs will use the default commands for the selected tool,
-otherwise, they will default to run nothing.
+the ``create_environment``, ``install``, and ``build`` jobs will use the default commands for the selected tool.
+If no tool configuration is specified, these jobs won't execute anything by default.
 
 The jobs where users can customize our default build process are:
 
