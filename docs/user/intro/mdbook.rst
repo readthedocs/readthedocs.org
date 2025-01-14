@@ -17,11 +17,14 @@ Minimal configuration is required to build an existing mdBook project on Read th
         os: ubuntu-lts-latest
         tools:
             rust: latest
-        commands:
+        jobs:
+          install:
             - cargo install mdbook
-            # For an example book..
-            # - mdbook init docs
-            - mdbook build docs --dest-dir $READTHEDOCS_OUTPUT/html
+          build:
+            html:
+              # For an example book..
+              # - mdbook init docs
+              - mdbook build docs --dest-dir $READTHEDOCS_OUTPUT/html
 
 .. _mdBook: https://rust-lang.github.io/mdBook/
 
@@ -33,26 +36,6 @@ Getting started
 
 .. _Getting started with mdBook: https://rust-lang.github.io/mdBook/guide/creating.html
 
-Configuring mdBook and Read the Docs Addons
--------------------------------------------
-
-Adjust the flyout menu font size
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Add a ``readthedocs.css`` to your build with the `additional-css <https://rust-lang.github.io/mdBook/format/configuration/renderers.html#html-renderer-options>`_ flag,
-so that the font in the :ref:`flyout-menu:Addons flyout menu` matches the theme better.
-
-.. code-block:: css
-    :caption: readthedocs.css:
-
-    :root {
-        /* Increase the font size of the flyout menu */
-        --readthedocs-flyout-font-size: 1.3rem;
-
-        /* Increase the font size of the notifications */
-        --readthedocs-notification-font-size: 1.3rem;
-
-    }
 
 Example repository and demo
 ---------------------------

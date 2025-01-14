@@ -155,7 +155,8 @@
       "enabled": false
     },
     "flyout": {
-      "enabled": true
+      "enabled": true,
+      "position": null
     },
     "search": {
       "enabled": true,

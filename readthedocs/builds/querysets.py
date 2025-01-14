@@ -119,6 +119,11 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
     def api(self, user=None):
         return self.public(user, only_active=False)
 
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
+
     def for_reindex(self):
         """
         Get all versions that can be reindexed.
@@ -204,6 +209,11 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
 
     def concurrent(self, project):
         """
@@ -305,3 +315,8 @@ class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)

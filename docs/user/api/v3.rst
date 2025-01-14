@@ -308,11 +308,20 @@ Project details
 
          * **expand** (*string*) -- Add additional fields in the response.
            Allowed values are: ``organization``.
+           We used to return a full organization object in the response,
+           due to privacy concerns, now we return only the slug of the organization.
+           If you need to get the full organization object, you can use the organization endpoint with the slug.
 
     .. note::
 
        The ``single_version`` attribute is deprecated,
        use ``versioning_scheme`` instead.
+
+    .. note::
+
+       Previously, ``translation_of`` and ``subproject_of`` returned a full project object,
+       due to privacy concerns, now they return only the slug of the project.
+       If you need to get the full project object, you can use the project endpoint with the slug.
 
 Project create
 ++++++++++++++

@@ -40,6 +40,11 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
             queryset = self._add_from_user_projects(queryset, user)
         return queryset
 
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
+
     def get_matching_redirect_with_path(
         self, filename, path=None, language=None, version_slug=None, forced_only=False
     ):

@@ -593,7 +593,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 continue
 
             if not os.path.isdir(artifact_directory):
-                log.error(
+                log.debug(
                     "The output path is not a directory.",
                     output_format=artifact_type,
                 )
@@ -611,7 +611,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 list_dir = os.listdir(artifact_directory)
                 artifact_format_files = len(list_dir)
                 if artifact_format_files > 1:
-                    log.error(
+                    log.debug(
                         "Multiple files are not supported for this format. "
                         "Skipping this output format.",
                         output_format=artifact_type,
