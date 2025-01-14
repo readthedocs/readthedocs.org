@@ -493,6 +493,7 @@ class AddonsResponseBase:
                     #     "branch": version.identifier if version else None,
                     #     "filepath": "/docs/index.rst",
                     # },
+                    "position": project.addons.flyout_position,
                 },
                 "customscript": {
                     "enabled": project.addons.customscript_enabled,
