@@ -14,17 +14,19 @@ Minimal configuration is required to build an existing Markdoc project on Read t
     version: 2
 
     build:
-        os: ubuntu-24.04
-        tools:
-            nodejs: "22"
-        commands:
-            # Install dependencies
-            - cd docs/ && npm install
-            # Build the site
-            - cd docs/ && npm run build
-            # Copy generated files into Read the Docs directory
-            - mkdir --parents $READTHEDOCS_OUTPUT/html/
-            - cp --verbose --recursive docs/out/* $READTHEDOCS_OUTPUT/html/
+      os: ubuntu-24.04
+      tools:
+        nodejs: "22"
+      jobs:
+        install:
+          # Install dependencies
+          - cd docs/ && npm install
+        build
+          # Build the site
+          - cd docs/ && npm run build
+          # Copy generated files into Read the Docs directory
+          - mkdir --parents $READTHEDOCS_OUTPUT/html/
+          - cp --verbose --recursive docs/out/* $READTHEDOCS_OUTPUT/html/
 
 .. _Markdoc: https://markdoc.io/
 
@@ -37,27 +39,27 @@ you need to generate static HTML from the Next JS build:
 .. code-block:: js
    :caption: next.config.js
 
-    const withMarkdoc = require('@markdoc/next.js');
+   const withMarkdoc = require('@markdoc/next.js');
 
-    const nextConfig = {
-        // Optional: Export HTML files instead of a Node.js server
-        output: 'export',
+   const nextConfig = {
+       // Optional: Export HTML files instead of a Node.js server
+       output: 'export',
 
-        // Optional: Change links `/me` -> `/me/` and emit `/me.html` -> `/me/index.html`
-        trailingSlash: true,
+       // Optional: Change links `/me` -> `/me/` and emit `/me.html` -> `/me/index.html`
+       trailingSlash: true,
 
-        // Use Canonical URL, but only the path and with no trailing /
-        // End result is like: `/en/latest`
-        basePath: process.env.READTHEDOCS_CANONICAL_URL
-          ? new URL(process.env.READTHEDOCS_CANONICAL_URL).pathname.replace(/\/$/, "")
-          : "",
-    }
+       // Use Canonical URL, but only the path and with no trailing /
+       // End result is like: `/en/latest`
+       basePath: process.env.READTHEDOCS_CANONICAL_URL
+         ? new URL(process.env.READTHEDOCS_CANONICAL_URL).pathname.replace(/\/$/, "")
+         : "",
+   }
 
-    module.exports =
-        withMarkdoc({mode: 'static'})({
-            pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdoc'],
-            ...nextConfig,
-    });
+   module.exports =
+       withMarkdoc({mode: 'static'})({
+           pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdoc'],
+           ...nextConfig,
+   });
 
 Limitations
 -----------
