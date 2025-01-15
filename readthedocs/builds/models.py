@@ -440,6 +440,11 @@ class Version(TimeStampedModel):
             trigger_build(project=self.project, version=self)
         # Purge the cache from the CDN.
         version_changed.send(sender=self.__class__, version=self)
+    
+    def recreate(self):
+        self.clean_resources()
+        trigger_build(project=self.project, version=self)
+        version_changed.send(sender=self.__class__, version=self)
 
     @property
     def identifier_friendly(self):

@@ -30,6 +30,7 @@ class VersionForm(forms.ModelForm):
         states_fields = ["active", "hidden"]
         privacy_fields = ["privacy_level"]
         fields = (
+            "slug",
             *states_fields,
             *privacy_fields,
         )
@@ -88,8 +89,22 @@ class VersionForm(forms.ModelForm):
         project = self.instance.project
         return project.default_version == self.instance.slug
 
+    def clean_slug(self):
+        slug = self.cleaned_data["slug"]
+        if "slug" in self.changed_data and self.instance.machine:
+            raise forms.ValidationError(
+                _("The slug cannot be changed."),
+            )
+        # TODO: check for unique slug instead of having django 500.
+        return slug
+
     def save(self, commit=True):
         obj = super().save(commit=commit)
+
+        if "slug" in self.changed_data and self._was_active and self.instance.active:
+            obj.recreate()
+            return obj
+
         obj.post_save(was_active=self._was_active)
         return obj
 
