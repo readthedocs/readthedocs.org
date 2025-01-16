@@ -21,7 +21,7 @@ Minimal configuration is required to build an existing Markdoc project on Read t
         install:
           # Install dependencies
           - cd docs/ && npm install
-        build
+        build:
           # Build the site
           - cd docs/ && npm run build
           # Copy generated files into Read the Docs directory
