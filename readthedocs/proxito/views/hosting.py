@@ -628,7 +628,7 @@ class AddonsResponseBase:
         This response is only enabled for external versions,
         we do the comparison between the current version and the latest version.
         """
-        if not version.is_external and not settings.DEBUG:
+        if not version.is_external and not settings.RTD_FILETREEDIFF_ALL:
             return None
 
         if not project.addons.filetreediff_enabled:
