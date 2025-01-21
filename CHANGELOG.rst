@@ -1,3 +1,18 @@
+Version 11.19.1
+---------------
+
+:Date: January 21, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11934 <https://github.com/readthedocs/readthedocs.org/pull/11934>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: fix markdoc example (`#11932 <https://github.com/readthedocs/readthedocs.org/pull/11932>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update markdoc example to use build.jobs (`#11929 <https://github.com/readthedocs/readthedocs.org/pull/11929>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.19.0 (`#11926 <https://github.com/readthedocs/readthedocs.org/pull/11926>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document new build jobs (`#11900 <https://github.com/readthedocs/readthedocs.org/pull/11900>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow to set a "Default" or a explicit position for flyout (`#11891 <https://github.com/readthedocs/readthedocs.org/pull/11891>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: use clone URL from connected repository if available (`#11826 <https://github.com/readthedocs/readthedocs.org/pull/11826>`__)
+* `@stsewd <https://github.com/stsewd>`__: API: use restricted serializer for related projects (`#11820 <https://github.com/readthedocs/readthedocs.org/pull/11820>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11771 <https://github.com/readthedocs/readthedocs.org/pull/11771>`__)
+
 Version 11.19.0
 ---------------
 
