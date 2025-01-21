@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-14 10:45+0000\n"
+"POT-Creation-Date: 2025-01-21 15:47+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Veronika Kabatova <veronicca114@gmail.com>, 2015\n"
 "Language-Team: Slovak (http://app.transifex.com/readthedocs/readthedocs/"
@@ -23,7 +23,7 @@ msgstr ""
 ">= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
 
 #: analytics/models.py:69 builds/filters.py:41 builds/models.py:592
-#: projects/filters.py:196 projects/models.py:1487 search/models.py:27
+#: projects/filters.py:196 projects/models.py:1495 search/models.py:27
 #: templates/base.html:266
 msgid "Version"
 msgstr "Verzia"
@@ -80,7 +80,7 @@ msgstr ""
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:916 projects/forms.py:619
+#: api/v3/serializers.py:916 projects/forms.py:632
 msgid "A subproject with this alias already exists"
 msgstr ""
 
@@ -157,7 +157,7 @@ msgid "Username"
 msgstr ""
 
 #: audit/models.py:138 builds/models.py:90 builds/models.py:586
-#: organizations/filters.py:133 projects/filters.py:151 projects/models.py:1481
+#: organizations/filters.py:133 projects/filters.py:151 projects/models.py:1489
 #: redirects/models.py:48
 msgid "Project"
 msgstr "Projekt"
@@ -401,7 +401,7 @@ msgstr "Aktívny"
 msgid "Build successful"
 msgstr ""
 
-#: builds/filters.py:29 projects/models.py:1586
+#: builds/filters.py:29 projects/models.py:1594
 #: templates/builds/build_detail.html:160
 msgid "Build failed"
 msgstr ""
@@ -561,7 +561,7 @@ msgstr "Chyba"
 msgid "Exit code"
 msgstr "Ukončovací kód"
 
-#: builds/models.py:642 projects/models.py:1498
+#: builds/models.py:642 projects/models.py:1506
 msgid "Commit"
 msgstr ""
 
@@ -847,7 +847,7 @@ msgstr ""
 msgid "Please provide as much detail as possible."
 msgstr ""
 
-#: core/forms.py:198 projects/models.py:1601
+#: core/forms.py:198 projects/models.py:1609
 msgid "URL"
 msgstr ""
 
@@ -978,7 +978,7 @@ msgid "Publication date"
 msgstr "Dátum zverejnenia"
 
 #: gold/models.py:29 organizations/models.py:32 organizations/models.py:224
-#: organizations/models.py:298 projects/models.py:284 projects/models.py:1500
+#: organizations/models.py:298 projects/models.py:284 projects/models.py:1508
 msgid "Modified date"
 msgstr "Dátum úpravy"
 
@@ -1383,7 +1383,7 @@ msgstr "Užívatelia"
 #: oauth/models.py:33 oauth/models.py:123 organizations/filters.py:54
 #: organizations/filters.py:60 organizations/models.py:48
 #: organizations/models.py:247 projects/filters.py:44 projects/filters.py:110
-#: projects/models.py:294 projects/models.py:1492
+#: projects/models.py:294 projects/models.py:1500
 msgid "Name"
 msgstr "Názov"
 
@@ -1553,11 +1553,11 @@ msgstr ""
 msgid "Organization %(name)s already exists"
 msgstr ""
 
-#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:718
+#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:731
 msgid "Email address or username"
 msgstr ""
 
-#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:733
+#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:746
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr ""
@@ -2076,7 +2076,7 @@ msgstr "Vymazaný"
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:94 projects/models.py:2050
+#: projects/constants.py:94 projects/models.py:2063
 msgid "Public"
 msgstr "Verejný"
 
@@ -2200,184 +2200,184 @@ msgstr ""
 msgid "Visibility"
 msgstr ""
 
-#: projects/forms.py:90
+#: projects/forms.py:98
 msgid "No connected repository"
 msgstr ""
 
-#: projects/forms.py:111
+#: projects/forms.py:119
 msgid "Invalid project name, a project already exists with that name"
 msgstr ""
 
-#: projects/forms.py:116
+#: projects/forms.py:124
 msgid "Invalid project name"
 msgstr ""
 
-#: projects/forms.py:229
+#: projects/forms.py:237
 msgid ""
 "We have detected that this project is public, pull request previews are set "
 "to public."
 msgstr ""
 
-#: projects/forms.py:249
+#: projects/forms.py:257
 msgid "To build from pull requests you need a "
 msgstr ""
 
-#: projects/forms.py:261
+#: projects/forms.py:269
 msgid ""
 "To build from pull requests your repository's webhook needs to send pull "
 "request events. "
 msgstr ""
 
-#: projects/forms.py:276
+#: projects/forms.py:284
 msgid "Pull request builds not supported"
 msgstr ""
 
-#: projects/forms.py:339
+#: projects/forms.py:347
 #, python-brace-format
 msgid "You must first <a href='{url}'>add a connected service "
 msgstr ""
 
-#: projects/forms.py:343
+#: projects/forms.py:351
 msgid "No connected services found"
 msgstr ""
 
-#: projects/forms.py:349
+#: projects/forms.py:357
 msgid ""
 "Only organization owners may create new projects when single sign-on is "
 "enabled."
 msgstr ""
 
-#: projects/forms.py:352 projects/forms.py:374
+#: projects/forms.py:360 projects/forms.py:382
 msgid "Organization single sign-on enabled"
 msgstr ""
 
-#: projects/forms.py:357 projects/forms.py:379
+#: projects/forms.py:365 projects/forms.py:387
 msgid ""
 "You must be on a team with admin permissions in order to add a new project "
 "to your organization."
 msgstr ""
 
-#: projects/forms.py:360 projects/forms.py:382
+#: projects/forms.py:368 projects/forms.py:390
 msgid "Admin permission required"
 msgstr ""
 
-#: projects/forms.py:371
+#: projects/forms.py:379
 msgid ""
 "Projects cannot be manually configured when single sign-on is enabled for "
 "your organization."
 msgstr ""
 
-#: projects/forms.py:450 projects/models.py:299
+#: projects/forms.py:463 projects/models.py:299
 msgid "Short description of this project"
 msgstr ""
 
-#: projects/forms.py:472
+#: projects/forms.py:485
 #, python-brace-format
 msgid ""
 "This setting is inherited from the <a href=\"{link}\">parent translation</a>."
 msgstr ""
 
-#: projects/forms.py:547
+#: projects/forms.py:560
 #, python-brace-format
 msgid "There is already a \"{lang}\" translation for the {proj} project."
 msgstr ""
 
-#: projects/forms.py:576
+#: projects/forms.py:589
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr ""
 
-#: projects/forms.py:670
+#: projects/forms.py:683
 msgid "Enable Addons"
 msgstr ""
 
-#: projects/forms.py:671
+#: projects/forms.py:684
 msgid "Visual diff enabled"
 msgstr ""
 
-#: projects/forms.py:673
+#: projects/forms.py:686
 msgid "Show a notification on builds from pull requests"
 msgstr ""
 
-#: projects/forms.py:676
+#: projects/forms.py:689
 msgid "Show a notification on non-stable versions"
 msgstr ""
 
-#: projects/forms.py:678
+#: projects/forms.py:691
 msgid "Show a notification on latest version"
 msgstr ""
 
-#: projects/forms.py:679 projects/models.py:200 redirects/models.py:99
+#: projects/forms.py:692 projects/models.py:200 redirects/models.py:99
 msgid "Enabled"
 msgstr ""
 
-#: projects/forms.py:680
+#: projects/forms.py:693
 msgid "CSS main content selector"
 msgstr ""
 
-#: projects/forms.py:705
+#: projects/forms.py:718
 msgid ""
 "The flyout sorting custom pattern is required when selecting a custom "
 "pattern."
 msgstr ""
 
-#: projects/forms.py:737
+#: projects/forms.py:750
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr ""
 
-#: projects/forms.py:822
+#: projects/forms.py:835
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:855
+#: projects/forms.py:868
 msgid ""
 "This project is configured with a versioning scheme that doesn't support "
 "translations."
 msgstr ""
 
-#: projects/forms.py:1055
+#: projects/forms.py:1068
 msgid ""
 "This domain has a CNAME record pointing to the APEX domain. Please remove "
 "the CNAME before adding the domain."
 msgstr ""
 
-#: projects/forms.py:1065
+#: projects/forms.py:1078
 msgid ""
 "This domain has a CNAME record pointing to another CNAME. Please remove the "
 "CNAME before adding the domain."
 msgstr ""
 
-#: projects/forms.py:1081
+#: projects/forms.py:1094
 msgid ""
 "DNS resolution timed out. Make sure the domain is correct, or try again "
 "later."
 msgstr ""
 
-#: projects/forms.py:1086
+#: projects/forms.py:1099
 msgid "The domain is not valid."
 msgstr ""
 
-#: projects/forms.py:1106
+#: projects/forms.py:1119
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:1209
+#: projects/forms.py:1222
 msgid "Variable name can't start with __ (double underscore)"
 msgstr ""
 
-#: projects/forms.py:1213
+#: projects/forms.py:1226
 msgid "Variable name can't start with READTHEDOCS"
 msgstr ""
 
-#: projects/forms.py:1218
+#: projects/forms.py:1231
 msgid "There is already a variable with this name for this project"
 msgstr ""
 
-#: projects/forms.py:1223
+#: projects/forms.py:1236
 msgid "Variable name can't contain spaces"
 msgstr ""
 
-#: projects/forms.py:1227
+#: projects/forms.py:1240
 msgid "Only letters, numbers and underscore are allowed"
 msgstr ""
 
@@ -2687,218 +2687,222 @@ msgstr ""
 msgid "Model must have slug"
 msgstr "Model musí mať slug"
 
-#: projects/models.py:1362
+#: projects/models.py:1370
 msgid "Subproject nesting is not supported"
 msgstr ""
 
-#: projects/models.py:1497
+#: projects/models.py:1505
 msgid "Path"
 msgstr "Cesta"
 
-#: projects/models.py:1499
+#: projects/models.py:1507
 msgid "Build id"
 msgstr ""
 
-#: projects/models.py:1502
+#: projects/models.py:1510
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1507
+#: projects/models.py:1515
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1550 projects/models.py:1715
+#: projects/models.py:1558 projects/models.py:1723
 msgid "created"
 msgstr ""
 
-#: projects/models.py:1555
+#: projects/models.py:1563
 msgid "modified"
 msgstr ""
 
-#: projects/models.py:1584
+#: projects/models.py:1592
 msgid "Build triggered"
 msgstr ""
 
-#: projects/models.py:1585
+#: projects/models.py:1593
 msgid "Build passed"
 msgstr ""
 
-#: projects/models.py:1603
+#: projects/models.py:1611
 msgid "URL to send the webhook to"
 msgstr ""
 
-#: projects/models.py:1606
+#: projects/models.py:1614
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1614
+#: projects/models.py:1622
 msgid "Events to subscribe"
 msgstr ""
 
-#: projects/models.py:1617
+#: projects/models.py:1625
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1619
+#: projects/models.py:1627
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">the docs</a> for available substitutions."
 msgstr ""
 
-#: projects/models.py:1726
+#: projects/models.py:1734
 msgid "Domain"
 msgstr ""
 
-#: projects/models.py:1733
+#: projects/models.py:1741
 msgid "This domain was auto-created"
 msgstr ""
 
-#: projects/models.py:1737
+#: projects/models.py:1745
 msgid "This domain is a CNAME for the project"
 msgstr ""
 
-#: projects/models.py:1742
+#: projects/models.py:1750
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:1746
+#: projects/models.py:1754
 msgid "Use HTTPS"
 msgstr ""
 
-#: projects/models.py:1748
+#: projects/models.py:1756
 msgid "Always use HTTPS for this domain"
 msgstr ""
 
-#: projects/models.py:1752
+#: projects/models.py:1760
 msgid "Number of times this domain has been hit"
 msgstr ""
 
-#: projects/models.py:1757 templates/projects/domain_form.html:49
+#: projects/models.py:1765 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1766
+#: projects/models.py:1774
 msgid "Skip validation process."
 msgstr ""
 
-#: projects/models.py:1770
+#: projects/models.py:1778
 msgid "Start date of the validation process."
 msgstr ""
 
-#: projects/models.py:1779
+#: projects/models.py:1787
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1784
+#: projects/models.py:1792
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1789
+#: projects/models.py:1797
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1922
+#: projects/models.py:1931
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1926
+#: projects/models.py:1935
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1930
+#: projects/models.py:1939
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:1934
+#: projects/models.py:1943
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:1939
+#: projects/models.py:1948
 msgid ""
 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
 "one (Project.custom_prefix)."
 msgstr ""
 
-#: projects/models.py:1944
+#: projects/models.py:1953
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:1949
+#: projects/models.py:1957
+msgid "Remote repository: Don't keep project in sync with remote repository."
+msgstr ""
+
+#: projects/models.py:1962
 msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1953
+#: projects/models.py:1966
 msgid "Webhook: Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1957
+#: projects/models.py:1970
 msgid "Webhook: Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1960
+#: projects/models.py:1973
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:1961
+#: projects/models.py:1974
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1964
+#: projects/models.py:1977
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1968
+#: projects/models.py:1981
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:1973
+#: projects/models.py:1986
 msgid ""
 "Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 
-#: projects/models.py:1979
+#: projects/models.py:1992
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:1983
+#: projects/models.py:1996
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:1988
+#: projects/models.py:2001
 msgid "Build: Set scale-in protection before/after building."
 msgstr ""
 
-#: projects/models.py:2001
+#: projects/models.py:2014
 msgid "Feature identifier"
 msgstr ""
 
-#: projects/models.py:2006
+#: projects/models.py:2019
 msgid "Date feature was added"
 msgstr ""
 
-#: projects/models.py:2012
+#: projects/models.py:2025
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2016
+#: projects/models.py:2029
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2038
+#: projects/models.py:2051
 msgid "Name of the environment variable"
 msgstr ""
 
-#: projects/models.py:2042
+#: projects/models.py:2055
 msgid "Value of the environment variable"
 msgstr ""
 
-#: projects/models.py:2047
+#: projects/models.py:2060
 msgid "Project where this variable will be used"
 msgstr ""
 
-#: projects/models.py:2053
+#: projects/models.py:2066
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
