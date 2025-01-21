@@ -53,6 +53,9 @@ class CommunityBaseSettings(Settings):
     DEBUG = True
     RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
 
+    # Build FTD index for all versions
+    RTD_FILETREEDIFF_ALL = False
+
     @property
     def DEBUG_TOOLBAR_CONFIG(self):
         def _show_debug_toolbar(request):

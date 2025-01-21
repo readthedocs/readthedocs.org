@@ -63,6 +63,11 @@ Use this storage class to upload build artifacts to cloud storage (S3, Azure sto
 This should be a dotted path to the relevant class (eg. ``'path.to.MyBuildMediaStorage'``).
 Your class should mixin :class:`readthedocs.builds.storage.BuildMediaStorageMixin`.
 
+RTD_FILETREEDIFF_ALL
+--------------------
+
+Set to ``True`` to enable the file tree diff feature for all projects.
+
 
 ELASTICSEARCH_DSL
 -----------------
