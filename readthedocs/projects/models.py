@@ -643,6 +643,12 @@ class Project(models.Model):
         if self.remote_repository and not self.remote_repository.private:
             self.external_builds_privacy_level = PUBLIC
 
+        # If the project is linked to a remote repository,
+        # make sure to use the clone URL from the repository.
+        dont_sync = self.pk and self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO)
+        if self.remote_repository and not dont_sync:
+            self.repo = self.remote_repository.clone_url
+
         super().save(*args, **kwargs)
 
         try:
@@ -658,7 +664,9 @@ class Project(models.Model):
         log.debug(
             "Updating default branch.", slug=LATEST, identifier=self.default_branch
         )
-        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
+        self.versions.filter(slug=LATEST, machine=True).update(
+            identifier=self.default_branch
+        )
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -1896,6 +1904,7 @@ class Feature(models.Model):
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
+    DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1942,6 +1951,10 @@ class Feature(models.Model):
         (
             ALLOW_VERSION_WARNING_BANNER,
             _("Dashboard: Allow project to use the version warning banner."),
+        ),
+        (
+            DONT_SYNC_WITH_REMOTE_REPO,
+            _("Remote repository: Don't keep project in sync with remote repository."),
         ),
         # Versions sync related features
         (

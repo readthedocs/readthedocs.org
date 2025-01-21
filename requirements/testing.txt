@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.97
+boto3==1.36.2
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.97
+botocore==1.36.2
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -109,7 +109,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.17
+django==4.2.18
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -148,7 +148,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==4.4.6
+django-debug-toolbar==5.0.1
     # via -r requirements/pip.txt
 django-dynamic-fixture==4.0.1
     # via -r requirements/testing.in
@@ -283,7 +283,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.14
+orjson==3.10.15
     # via -r requirements/pip.txt
 packaging==24.2
     # via
@@ -304,9 +304,9 @@ prompt-toolkit==3.0.48
     # via
     #   -r requirements/pip.txt
     #   click-repl
-psycopg[binary,pool]==3.2.3
+psycopg[binary,pool]==3.2.4
     # via -r requirements/pip.txt
-psycopg-binary==3.2.3
+psycopg-binary==3.2.4
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -401,7 +401,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-s3transfer==0.10.4
+s3transfer==0.11.1
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -500,7 +500,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.28.1
+virtualenv==20.29.1
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via
