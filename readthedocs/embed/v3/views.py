@@ -61,9 +61,6 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
     permission_classes = [HasEmbedAPIAccess, IsAuthorizedToGetContenFromVersion]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
-    # API V3 doesn't allow passing a version or project query parameters.
-    support_url_parameter_only = True
-
     @property
     def external(self):
         # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
