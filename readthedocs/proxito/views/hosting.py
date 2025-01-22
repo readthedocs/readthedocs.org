@@ -7,6 +7,8 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils.encoding import iri_to_uri
+from django.utils.html import escape
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
@@ -451,6 +453,9 @@ class AddonsResponseBase:
             "readthedocs": {
                 "analytics": {
                     "code": settings.GLOBAL_ANALYTICS_CODE,
+                },
+                "resolver": {
+                    "filename": escape(iri_to_uri(filename)),
                 },
             },
             # TODO: the ``features`` is not polished and we expect to change drastically.
