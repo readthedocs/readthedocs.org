@@ -65,6 +65,16 @@ Below is a list of popular documentation tools that you can use to write your do
         Written in
              :bdg-info:`rust`
 
+    .. grid-item-card::  VitePress
+        :link: vitepress.html
+
+        VitePress is a static site generator with a focus on performance and simplicity.
+
+        Supported formats
+             :bdg-success:`md`
+        Written in
+             :bdg-info:`javascript`
+
 .. toctree::
    :hidden:
 
@@ -73,3 +83,4 @@ Below is a list of popular documentation tools that you can use to write your do
    /intro/docusaurus
    /intro/markdoc
    /intro/mdbook
+   /intro/vitepress
