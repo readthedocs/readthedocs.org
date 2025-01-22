@@ -1,9 +1,14 @@
 """Allauth overrides."""
 
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.github.provider import GitHubProvider
+
 import structlog
 from allauth.account.adapter import DefaultAccountAdapter
 from django.utils.encoding import force_str
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.core.utils import send_email_from_object
 from readthedocs.invitations.models import Invitation
 
@@ -50,3 +55,16 @@ class AccountAdapter(DefaultAccountAdapter):
                 invitation.delete()
             else:
                 log.info("Invitation not found", invitation_pk=invitation_pk)
+
+
+class SocialAccountAdapter(DefaultSocialAccountAdapter):
+
+    def pre_social_login(self, request, sociallogin):
+        provider = sociallogin.account.get_provider()
+        if provider.id == GitHubAppProvider.id and not sociallogin.is_existing:
+            social_ccount = SocialAccount.objects.filter(
+                provider=GitHubProvider.id,
+                uid=sociallogin.account.uid,
+            ).first()
+            if social_ccount:
+                sociallogin.connect(request, social_ccount.user)

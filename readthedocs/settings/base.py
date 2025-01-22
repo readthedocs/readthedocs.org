@@ -2,19 +2,17 @@
 
 import os
 import re
-import subprocess
 import socket
+import subprocess
 
 import structlog
-
 from celery.schedules import crontab
-
-from readthedocs.core.logs import shared_processors
 from corsheaders.defaults import default_headers
-from readthedocs.core.settings import Settings
-from readthedocs.builds import constants_docker
-
 from django.conf.global_settings import PASSWORD_HASHERS
+
+from readthedocs.builds import constants_docker
+from readthedocs.core.logs import shared_processors
+from readthedocs.core.settings import Settings
 
 try:
     import readthedocsext.cdn  # noqa
@@ -73,7 +71,7 @@ class CommunityBaseSettings(Settings):
                 # It's a "known issue/bug" and there is no solution as far as we can tell.
                 "debug_toolbar.panels.sql.SQLPanel",
                 "debug_toolbar.panels.templates.TemplatesPanel",
-            ]
+            ],
         }
 
     @property
@@ -294,6 +292,7 @@ class CommunityBaseSettings(Settings):
             "allauth.account",
             "allauth.socialaccount",
             "allauth.socialaccount.providers.github",
+            "readthedocs.allauth.providers.githubapp",
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "allauth.mfa",
@@ -679,6 +678,7 @@ class CommunityBaseSettings(Settings):
 
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
+    SOCIALACCOUNT_ADAPTER = 'readthedocs.core.adapters.SocialAccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
     # By preventing enumeration, we will always send an email,
     # even if the email is not registered, that's hurting
@@ -708,6 +708,12 @@ class CommunityBaseSettings(Settings):
                 "admin:repo_hook",
                 "repo:status",
             ],
+        },
+        "githubapp": {
+            "APPS": [
+                {"client_id": "123", "secret": "456", "key": ""},
+            ],
+            "SCOPE": [],
         },
         "gitlab": {
             "APPS": [
