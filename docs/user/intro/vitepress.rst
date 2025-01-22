@@ -31,8 +31,10 @@ Minimal configuration is required to build an existing VitePress project on Read
 .. _VitePress: https://vitepress.dev/
 
 .. button-link:: https://dbtoolsbundle.readthedocs.io/en/stable/
+   :color: secondary
 
-    DbToolsBundle uses VitePress and Read the Docs
+
+   🔗 DbToolsBundle uses VitePress and Read the Docs
 
 Getting started
 ---------------
