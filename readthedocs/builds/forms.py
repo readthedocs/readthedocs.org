@@ -99,12 +99,12 @@ class VersionForm(forms.ModelForm):
         return slug
 
     def save(self, commit=True):
-        obj = super().save(commit=commit)
-
+        # If the slug was changed, and the version was active,
+        # we need to delete all the resources, since the old slug is used in several places.
         if "slug" in self.changed_data and self._was_active and self.instance.active:
-            obj.recreate()
-            return obj
+            obj.clean_resources()
 
+        obj = super().save(commit=commit)
         obj.post_save(was_active=self._was_active)
         return obj
 

@@ -414,6 +414,7 @@ class Version(TimeStampedModel):
         clean_project_resources(project=self.project, version=self)
         self.built = False
         self.save()
+        self.purge_cdn()
 
     def post_save(self, was_active=False):
         """
@@ -435,17 +436,17 @@ class Version(TimeStampedModel):
         # If the version is deactivated, we need to clean up the files.
         if was_active and not self.active:
             self.clean_resources()
+            return
         # If the version is activated, we need to trigger a build.
         if not was_active and self.active:
             trigger_build(project=self.project, version=self)
-        # Purge the cache from the CDN.
+        # Purge the cache from the CDN for any other changes.
+        self.purge_cdn()
+
+    def purge_cdn(self):
+        """Purge the cache from the CDN."""
         version_changed.send(sender=self.__class__, version=self)
     
-    def recreate(self):
-        self.clean_resources()
-        trigger_build(project=self.project, version=self)
-        version_changed.send(sender=self.__class__, version=self)
-
     @property
     def identifier_friendly(self):
         """Return display friendly identifier."""
