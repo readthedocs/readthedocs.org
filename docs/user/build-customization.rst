@@ -26,7 +26,7 @@ The jobs where users can customize our default build process are:
    :header-rows: 1
    :widths: 25 75
 
-   * - Step
+   * - Stepf
      - Customizable jobs
    * - Checkout
      - ``post_checkout``
@@ -460,6 +460,9 @@ Take a look at the following example:
 
    version: 2
 
+   sphinx:
+      configuration: docs/conf.py
+
    build:
       os: ubuntu-24.04
       tools:
@@ -469,14 +472,8 @@ Take a look at the following example:
             - asdf plugin add uv
             - asdf install uv latest
             - asdf global uv latest
-            - uv venv
          install:
-            - uv pip install -r requirements.txt
-         build:
-            html:
-               - uv run sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
-
-MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
+            - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --extra docs
 
 Update Conda version
 ~~~~~~~~~~~~~~~~~~~~
