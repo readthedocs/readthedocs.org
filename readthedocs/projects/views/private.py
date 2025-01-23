@@ -6,7 +6,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.http import (
     Http404,
     HttpResponse,
@@ -617,8 +617,9 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             username=username,
         )
         if self._is_last_user():
-            # NOTE: don't include user input in the message, since it's a security risk.
-            return HttpResponseBadRequest(_("User is the last owner, can't be removed"))
+            return HttpResponseBadRequest(
+                _(f"{username} is the last owner, can't be removed")
+            )
 
         project = self.get_project()
         project.users.remove(user)
@@ -1360,3 +1361,73 @@ class ProjectPullRequestsUpdate(SuccessMessageMixin, PrivateViewMixin, UpdateVie
 
     def get_success_url(self):
         return reverse("projects_pull_requests", args=[self.object.slug])
+
+
+class ProjectOverview(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+    template_name = "projects/project_overview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+
+        # Analytics data
+        context["total_pageviews"] = (
+            PageView.objects.filter(
+                project=project,
+                date__gte=thirty_days_ago,
+            ).aggregate(total=Sum("view_count"))["total"]
+            or 0
+        )
+
+        context["total_searches"] = SearchQuery.objects.filter(
+            project=project,
+            created__gte=thirty_days_ago,
+        ).count()
+
+        # Project statistics - removed the generic stats section
+        # and moved counts into their relevant sections
+
+        # Setup section stats
+        context.update(
+            {
+                "maintainers_count": project.users.count(),
+                "automation_rules_count": project.automation_rules.count(),
+                "environment_variables_count": project.environmentvariable_set.count(),
+            }
+        )
+
+        # Building section stats
+        builds = project.builds.filter(date__gte=thirty_days_ago)
+        context.update(
+            {
+                "integrations_count": project.integrations.count(),
+                "pr_build_count": builds.filter(version__type="external").count(),
+                "successful_builds": builds.filter(success=True).count(),
+                "monthly_build_time": builds.aggregate(total_time=Sum("length"))[
+                    "total_time"
+                ]
+                or 0,
+                "total_builds": builds.count(),
+            }
+        )
+
+        # Hosting section stats
+        context.update(
+            {
+                "domains_count": project.domains.count(),
+                "subprojects_count": project.subprojects.count(),
+                "translation_count": project.translations.count(),
+                "active_versions_count": project.versions.filter(active=True).count(),
+            }
+        )
+
+        # Maintaining section stats
+        context.update(
+            {
+                "redirect_count": project.redirects.count(),
+                "webhook_count": project.webhook_notifications.count(),
+            }
+        )
+
+        return context
