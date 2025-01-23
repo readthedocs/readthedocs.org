@@ -2,19 +2,17 @@
 
 import os
 import re
-import subprocess
 import socket
+import subprocess
 
 import structlog
-
 from celery.schedules import crontab
-
-from readthedocs.core.logs import shared_processors
 from corsheaders.defaults import default_headers
-from readthedocs.core.settings import Settings
-from readthedocs.builds import constants_docker
-
 from django.conf.global_settings import PASSWORD_HASHERS
+
+from readthedocs.builds import constants_docker
+from readthedocs.core.logs import shared_processors
+from readthedocs.core.settings import Settings
 
 try:
     import readthedocsext.cdn  # noqa
@@ -36,7 +34,6 @@ log = structlog.get_logger(__name__)
 
 
 class CommunityBaseSettings(Settings):
-
     """Community base settings, don't use this directly."""
 
     # Django settings
@@ -76,7 +73,7 @@ class CommunityBaseSettings(Settings):
                 # It's a "known issue/bug" and there is no solution as far as we can tell.
                 "debug_toolbar.panels.sql.SQLPanel",
                 "debug_toolbar.panels.templates.TemplatesPanel",
-            ]
+            ],
         }
 
     @property
@@ -682,6 +679,7 @@ class CommunityBaseSettings(Settings):
 
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
+    SOCIALACCOUNT_ADAPTER = 'readthedocs.core.adapters.SocialAccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
     # By preventing enumeration, we will always send an email,
     # even if the email is not registered, that's hurting
@@ -704,7 +702,6 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
-            "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "user:email",
                 "read:org",
@@ -716,6 +713,7 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
+            # GitLab returns the primary email only, we can trust it's verified.
             "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "api",
