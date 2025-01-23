@@ -2,7 +2,7 @@ Popular documentation tools
 ===========================
 
 Read the Docs provides documentation hosting for any tool that can output HTML.
-We provide a number of features on top of that that is well-suited to documentation specifically,
+We provide a number of features that are well-suited to documentation specifically,
 but you can host any kind of HTML content on Read the Docs.
 
 Below is a list of popular documentation tools that you can use to write your documentation.
