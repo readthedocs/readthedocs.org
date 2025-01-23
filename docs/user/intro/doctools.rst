@@ -24,7 +24,6 @@ Below is a list of popular documentation tools that you can use to write your do
         Written in
              :bdg-info:`python`
 
-
     .. grid-item-card::  Sphinx
         :link: sphinx.html
 
@@ -35,7 +34,7 @@ Below is a list of popular documentation tools that you can use to write your do
         Written in
              :bdg-info:`python`
 
-    .. grid-item-card::  Docusarus
+    .. grid-item-card::  Docusaurus
         :link: docusaurus.html
 
         Docusaurus is a static-site generator that builds a single-page application with fast client-side navigation and out-of-the-box documentation features.
@@ -65,6 +64,16 @@ Below is a list of popular documentation tools that you can use to write your do
         Written in
              :bdg-info:`rust`
 
+    .. grid-item-card::  Antora
+        :link: antora.html
+
+        Antora is a static site generator for creating documentation sites from AsciiDoc content.
+
+        Supported formats
+             :bdg-success:`adoc`
+        Written in
+             :bdg-info:`javascript`
+
 .. toctree::
    :hidden:
 
@@ -73,3 +82,4 @@ Below is a list of popular documentation tools that you can use to write your do
    /intro/docusaurus
    /intro/markdoc
    /intro/mdbook
+   /intro/antora
