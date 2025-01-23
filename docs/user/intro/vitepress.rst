@@ -14,26 +14,22 @@ Minimal configuration is required to build an existing VitePress project on Read
     version: 2
 
     build:
-    os: ubuntu-lts-latest
-    tools:
-        nodejs: "latest"
-    jobs:
-        install:
-        - npm install vitepress
-        build:
-        # The site was created by running `vitepress init`
-        # and following the official guide
-        # https://vitepress.dev/guide/getting-started
-        - vitepress build docs
-        - mkdir -p $READTHEDOCS_OUTPUT/
-        - mv docs/.vitepress/dist $READTHEDOCS_OUTPUT/html
+        os: ubuntu-lts-latest
+        tools:
+            nodejs: "latest"
+        jobs:
+            install:
+                - npm install vitepress
+            build:
+                html:
+                    # The site was created by running `vitepress init`
+                    # and following the official guide
+                    # https://vitepress.dev/guide/getting-started
+                    - vitepress build docs
+                    - mkdir -p $READTHEDOCS_OUTPUT/
+                    - mv docs/.vitepress/dist $READTHEDOCS_OUTPUT/html
 
 .. _VitePress: https://vitepress.dev/
-
-.. button-link:: https://dbtoolsbundle.readthedocs.io/en/stable/
-   :color: secondary
-
-   🔗 DbToolsBundle uses VitePress and Read the Docs
 
 Getting started
 ---------------
@@ -43,8 +39,8 @@ Getting started
 
 .. _Getting started with VitePress: https://vitepress.vuejs.org/guide/getting-started.html
 
-Using the proper basepath
--------------------------
+Using the proper base path
+--------------------------
 
 To ensure that your VitePress site works correctly on Read the Docs,
 you need to set the ``base`` option in your VitePress configuration to the correct base path:
@@ -68,6 +64,9 @@ you need to set the ``base`` option in your VitePress configuration to the corre
 
 Example repository and demo
 ---------------------------
+
+Production example from DbToolsBundle
+    https://dbtoolsbundle.readthedocs.io/en/stable/
 
 Example repository
     https://github.com/readthedocs/test-builds/tree/vitepress
