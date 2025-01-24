@@ -26,7 +26,7 @@ The jobs where users can customize our default build process are:
    :header-rows: 1
    :widths: 25 75
 
-   * - Stepf
+   * - Step
      - Customizable jobs
    * - Checkout
      - ``post_checkout``
