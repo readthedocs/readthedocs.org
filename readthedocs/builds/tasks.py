@@ -38,12 +38,60 @@ from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import Project, WebHookEvent
 from readthedocs.storage import build_commands_storage
+from readthedocs.subscriptions.constants import TYPE_FASTER_BUILDS
+from readthedocs.subscriptions.products import get_feature
 from readthedocs.worker import app
 
 log = structlog.get_logger(__name__)
 
 
-class TaskRouter:
+class BaseBuildRouter:
+
+    """
+    Base class for Celery tasks routers.
+
+    Contains common constants and methods for routing tasks.
+    """
+
+    BUILD_LARGE_QUEUE = "build:large"
+    BUILD_DEFAULT_QUEUE = "build:default"
+
+    def _get_version(self, task, args, kwargs):
+        tasks = [
+            "readthedocs.projects.tasks.builds.update_docs_task",
+            "readthedocs.projects.tasks.builds.sync_repository_task",
+        ]
+        version = None
+        if task in tasks:
+            version_pk = args[0]
+            try:
+                version = Version.objects.get(pk=version_pk)
+            except Version.DoesNotExist:
+                log.debug(
+                    "Version does not exist. Routing task to default queue.",
+                    version_id=version_pk,
+                )
+        return version
+
+    def _setup_router(self, task, args, kwargs):
+        log.debug("Executing router.", task=task)
+        if task not in (
+            "readthedocs.projects.tasks.builds.update_docs_task",
+            "readthedocs.projects.tasks.builds.sync_repository_task",
+        ):
+            log.debug("Skipping routing non-build task.", task=task)
+            return None, None
+
+        version = self._get_version(task, args, kwargs)
+        if not version:
+            log.debug("No Build/Version found. No routing task.", task=task)
+            return None, None
+
+        project = version.project
+        return project, version
+
+
+class TaskRouter(BaseBuildRouter):
 
     """
     Celery tasks router.
@@ -65,24 +113,10 @@ class TaskRouter:
     N_LAST_BUILDS = 15
     TIME_AVERAGE = 350
 
-    BUILD_DEFAULT_QUEUE = "build:default"
-    BUILD_LARGE_QUEUE = "build:large"
-
     def route_for_task(self, task, args, kwargs, **__):
-        log.debug("Executing TaskRouter.", task=task)
-        if task not in (
-            "readthedocs.projects.tasks.builds.update_docs_task",
-            "readthedocs.projects.tasks.builds.sync_repository_task",
-        ):
-            log.debug("Skipping routing non-build task.", task=task)
+        project, version = self._setup_router(task, args, kwargs)
+        if not project or not version:
             return
-
-        version = self._get_version(task, args, kwargs)
-        if not version:
-            log.debug("No Build/Version found. No routing task.", task=task)
-            return
-
-        project = version.project
 
         # Do not override the queue defined in the project itself
         if project.build_queue:
@@ -92,6 +126,15 @@ class TaskRouter:
                 queue=project.build_queue,
             )
             return project.build_queue
+
+        # Check if the project has the faster builds feature enabled
+        if project.has_feature(TYPE_FASTER_BUILDS):
+            log.info(
+                "Routing task because project has faster builds feature enabled.",
+                project_slug=project.slug,
+                queue=self.BUILD_LARGE_QUEUE,
+            )
+            return self.BUILD_LARGE_QUEUE
 
         # Use last queue used by the default version for external versions
         # We always want the same queue as the previous default version,
@@ -162,22 +205,34 @@ class TaskRouter:
         )
         return
 
-    def _get_version(self, task, args, kwargs):
-        tasks = [
-            "readthedocs.projects.tasks.builds.update_docs_task",
-            "readthedocs.projects.tasks.builds.sync_repository_task",
-        ]
-        version = None
-        if task in tasks:
-            version_pk = args[0]
-            try:
-                version = Version.objects.get(pk=version_pk)
-            except Version.DoesNotExist:
-                log.debug(
-                    "Version does not exist. Routing task to default queue.",
-                    version_id=version_pk,
-                )
-        return version
+
+class FeatureBasedBuildRouter(BaseBuildRouter):
+
+    """
+    Celery tasks router based on project features.
+
+    Routes builds to the `build:large` queue if the `TYPE_FASTER_BUILDS` feature is enabled.
+    """
+
+    def route_for_task(self, task, args, kwargs, **__):
+        project, version = self._setup_router(task, args, kwargs)
+        if not project or not version:
+            return
+
+        # Check if the project has the faster builds feature enabled
+        if get_feature(project, TYPE_FASTER_BUILDS):
+            log.info(
+                "Routing task because project has faster builds feature enabled.",
+                project_slug=project.slug,
+                queue=self.BUILD_LARGE_QUEUE,
+            )
+            return self.BUILD_LARGE_QUEUE
+
+        log.debug(
+            "No routing task because no conditions were met.",
+            project_slug=project.slug,
+        )
+        return
 
 
 @app.task(queue="web", bind=True)
