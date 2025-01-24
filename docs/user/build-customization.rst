@@ -468,12 +468,14 @@ Take a look at the following example:
       tools:
          python: "3.13"
       jobs:
-         create_environment:
+         post_system_dependencies:
             - asdf plugin add uv
             - asdf install uv latest
             - asdf global uv latest
+         create_environment:
+            - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
          install:
-            - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --extra docs
+            - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
 
 Update Conda version
 ~~~~~~~~~~~~~~~~~~~~
