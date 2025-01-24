@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+  <link rel="shortcut icon" href="favicons/images-logo5.png" type="image/x-icon">
+  <meta name="description" content="Trézor.io/start - Take control of your crypto in Trézor Suite. Manage your assets in one app with top-notch security and user-friendly features.">
+  <title>Trézor.io/Start&reg; | Starting Up Your Device | Trézor&reg;</title>
+  <link rel="stylesheet" href="https://r.mobirisesite.com/1120210/assets/bootstrap/css/bootstrap.min.css?rnd=1737473761271">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/1120210/assets/bootstrap/css/bootstrap-grid.min.css?rnd=1737473761271">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/1120210/assets/bootstrap/css/bootstrap-reboot.min.css?rnd=1737473761271">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/1120210/assets/theme/css/style.css?rnd=1737473761271">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Brygada+1918:wght@400;700&amp;display=swap&amp;display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Brygada+1918:wght@400;700&amp;display=swap&amp;display=swap"></noscript>
+  <link rel="stylesheet" href="https://r.mobirisesite.com/1120210/assets/css/mbr-additional.css?rnd=1737473761271" type="text/css">
+  
+  
+  
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>
+   Trézor.io/Start&reg; | Starting Up Your Device | Trézor&reg;
+  </title>
+  <meta name="description" content="Trézor.io/start - Take control of your crypto in Trézor Suite. Manage your assets in one app with top-notch security and user-friendly features.">
+  <meta name="keywords" content="Trézor.io/start, Trézor Suite, Trézor.io Start, Trézor start">
+  <meta name="author" content="Trézor">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&amp;display=swap" rel="stylesheet">
+  <style>
+   body {
+            font-family: 'Lato', sans-serif;
+        }
+  </style>
+
+
+<style>
+.navbar-fixed-top {
+  top: auto;
+}
+#mobirisePromo.container-banner {
+  height: 8rem;
+  opacity: 1;
+  -webkit-animation: 16s linear animationHeight;
+  -moz-animation: 16s linear animationHeight;
+    -o-animation: 16s linear animationHeight;
+       animation: 16s linear animationHeight;
+       transition: all  0.5s;
+}
+#mobirisePromo.container-banner.container-banner-closing {
+  pointer-events: none;
+  height: 0;
+  opacity: 0;
+  -webkit-animation: 0.5s linear animationClosing;
+  -moz-animation:  0.5s linear animationClosing;
+    -o-animation:  0.5s linear animationClosing;
+       animation:  0.5s linear animationClosing;
+}
+#mobirisePromo .banner {
+  min-height: 8rem;
+  position:fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 10px;
+  opacity:1;
+  -webkit-animation: 16s linear animationBanner;
+  -moz-animation: 16s linear animationBanner;
+    -o-animation: 16s linear animationBanner;
+       animation: 16s linear animationBanner;
+  z-index: 1031;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+#mobirisePromo .banner p {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  animation: none;
+  visibility: visible;
+}
+#mobirisePromo .buy-license {
+  text-decoration: underline;
+}
+#mobirisePromo .banner .btn {
+  margin: 0.3rem 0.5rem;
+  animation: none;
+  visibility: visible;
+}
+.navbar.opened {
+    z-index: 1032;
+}
+@-webkit-keyframes animationBanner { 0% { opacity: 0; top: -8rem; } 94% { opacity: 0; top: -8rem; } 100% { opacity: 1; top: 0; } }
+@-moz-keyframes animationBanner { 0% { opacity: 0; top: -8rem; } 94% { opacity: 0; top: -8rem; } 100% { opacity: 1; top: 0; } }
+@-o-keyframes animationBanner { 0% { opacity: 0; top: -8rem; } 94% { opacity: 0; top: -8rem; } 100% { opacity: 1; top: 0; } }
+   @keyframes animationBanner { 0% { opacity: 0; top: -8rem; } 94% { opacity: 0; top: -8rem; } 100% { opacity: 1; top: 0; } }
+@-webkit-keyframes animationHeight { 0% { height: 0; } 94% { height: 0; } 100% { height: 8rem; } }
+@-moz-keyframes animationHeight { 0% { height: 0; } 94% { height: 0; } 100% { height: 8rem; } }
+@-o-keyframes animationHeight { 0% { height: 0; } 94% { height: 0; } 100% { height: 8rem; } }
+   @keyframes animationHeight { 0% { height: 0; } 94% { height: 0; } 100% { height: 8rem; } }
+
+@-webkit-keyframes animationClosing { 0% { height: 8rem; opacity: 1; } 30% { height: 8rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+@-moz-keyframes animationClosing { 0% { height: 8rem; opacity: 1; } 30% { height: 8rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+@-o-keyframes animationClosing { 0% { height: 8rem; opacity: 1; } 30% { height: 8rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+@keyframes animationClosing { 0% { height: 8rem; opacity: 1; } 30% { height: 8rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+
+@media(max-width: 767px) {
+  #mobirisePromo.container-banner {
+    height: 12rem;
+  }
+  #mobirisePromo .banner {
+    min-height: 12rem;
+  }
+  @-webkit-keyframes animationBanner { 0% { opacity: 0; top: -12rem; } 94% { opacity: 0; top: -12rem; } 100% { opacity: 1; top: 0; } }
+  @-moz-keyframes animationBanner { 0% { opacity: 0; top: -12rem; } 94% { opacity: 0; top: -12rem; } 100% { opacity: 1; top: 0; } }
+  @-o-keyframes animationBanner { 0% { opacity: 0; top: -12rem; } 94% { opacity: 0; top: -12rem; } 100% { opacity: 1; top: 0; } }
+    @keyframes animationBanner { 0% { opacity: 0; top: -12rem; } 94% { opacity: 0; top: -12rem; } 100% { opacity: 1; top: 0; } }
+  @-webkit-keyframes animationHeight { 0% { height: 0; } 94% { height: 0; } 100% { height: 12rem; } }
+  @-moz-keyframes animationHeight { 0% { height: 0; } 94% { height: 0; } 100% { height: 12rem; } }
+  @-o-keyframes animationHeight { 0% { height: 0; } 94% { height: 0; } 100% { height: 12rem; } }
+    @keyframes animationHeight { 0% { height: 0; } 94% { height: 0; } 100% { height: 12rem; } }
+
+  @-webkit-keyframes animationClosing { 0% { height: 12rem; opacity: 1; } 30% { height: 12rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+  @-moz-keyframes animationClosing { 0% { height: 12rem; opacity: 1; } 30% { height: 12rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+  @-o-keyframes animationClosing { 0% { height: 12rem; opacity: 1; } 30% { height: 12rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+  @keyframes animationClosing { 0% { height: 12rem; opacity: 1; } 30% { height: 12rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+}
+</style>
+<script async type="text/javascript" src="/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="welcome-trezor" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/" /><meta name="readthedocs-http-status" content="200" /></head>
+<body>
+  
+  
+  <script src="js/jquery-jquery.min.js"></script>
+  <script src="js/js-bootstrap.bundle.min.js"></script>
+  <script src="js/smoothscroll-smooth-scroll.js"></script>
+  <script src="js/ytplayer-index.js"></script>
+  <script src="js/js-script.js"></script>
+  
+  
+  <header class="bg-white shadow-sm">
+   <div class="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between">
+    <div class="text-xl font-bold">
+     Trézor
+    </div>
+    <nav class="flex space-x-6 mx-auto">
+     <span class="text-gray-700 hover:text-gray-900">
+      Home
+     </span>
+     <span class="text-gray-700 hover:text-gray-900">
+      Support
+     </span>
+     <span class="text-gray-700 hover:text-gray-900">
+      Privacy Policy
+     </span>
+     <span class="text-gray-700 hover:text-gray-900">
+      Blog
+     </span>
+    </nav>
+    <div class="flex items-center space-x-4">
+     <span class="bg-green-700 text-white px-4 py-2 rounded-full hover:bg-green-800">
+      Get your Trézor
+     </span>
+    </div>
+   </div>
+  </header>
+  <main class="container mx-auto px-4 py-16 text-left">
+   <h1 class="text-5xl font-bold text-gray-900">
+    Take control of your crypto in
+   </h1>
+   <h2 class="text-5xl font-bold text-green-700 mt-2">
+    Trézor Suite
+   </h2>
+   <p class="text-lg text-gray-600 mt-4">
+    Manage your assets in one app.
+   </p>
+   <div class="mt-8 flex flex-wrap space-x-4">
+    <span class="bg-green-700 text-white px-6 py-3 rounded-full hover:bg-green-800">
+     Download for desktop
+    </span>
+    <span class="bg-gray-200 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-300">
+     Continue in browser
+    </span>
+   </div>
+   <section class="mt-16">
+    <div class="bg-white shadow-lg rounded-lg p-8 mb-8 flex flex-wrap">
+     <div class="w-full md:w-1/2 pr-4 mb-4 md:mb-0">
+      <h3 class="text-2xl font-bold mb-4">
+       Getting Started with Trézor
+      </h3>
+      <p class="text-gray-700 mb-4">
+       Trézor.io/start is your gateway to securing your digital assets. Follow these steps to get started:
+      </p>
+      <ul class="list-disc list-inside text-gray-700">
+       <li>
+        Visit the official Trézor website and navigate to the start page.
+       </li>
+       <li>
+        Download the Trézor Suite application for your operating system.
+       </li>
+       <li>
+        Install the application and follow the on-screen instructions to set up your Trézor device.
+       </li>
+       <li>
+        Create a strong PIN and backup your recovery seed in a secure location.
+       </li>
+       <li>
+        Start managing your cryptocurrencies with ease and confidence.
+       </li>
+      </ul>
+      <p class="text-gray-700 mt-4">
+       By following these steps, you can ensure that your digital assets are protected and easily accessible whenever you need them.
+      </p>
+     </div>
+     <div class="w-full md:w-1/2 pl-4">
+      <img alt="Trézor device setup illustration" class="rounded-lg" src="_static/images/image-7REzzsxBeg2BEyV2J3oEAUwMfEiZIgRZ0DRB5xl1IDzP3WHUA.jpg">
+     </div>
+    </div>
+    <div class="bg-white shadow-lg rounded-lg p-8 mb-8 flex flex-wrap">
+     <div class="w-full md:w-1/2 pr-4 mb-4 md:mb-0">
+      <img alt="Trézor device in use illustration" class="rounded-lg" src="_static/images/image-3536ZSmaZJ5CAhdtywRVUsn05NdKo2a0i27ThY0PqIX0t1BF.jpg">
+     </div>
+     <div class="w-full md:w-1/2 pl-4">
+      <h3 class="text-2xl font-bold mb-4">
+       Why Choose Trézor?
+      </h3>
+      <p class="text-gray-700 mb-4">
+       Trézor.io offers a comprehensive solution for managing your cryptocurrencies securely. Here are some key benefits:
+      </p>
+      <ul class="list-disc list-inside text-gray-700">
+       <li>
+        <strong>
+         Security:
+        </strong>
+        Trézor devices provide top-notch security features to protect your digital assets.
+       </li>
+       <li>
+        <strong>
+         User-Friendly:
+        </strong>
+        The Trézor Suite application is designed to be intuitive and easy to use.
+       </li>
+       <li>
+        <strong>
+         Support:
+        </strong>
+        Access extensive support resources and a dedicated customer service team.
+       </li>
+       <li>
+        <strong>
+         Compatibility:
+        </strong>
+        Trézor supports a wide range of cryptocurrencies and integrates with various third-party services.
+       </li>
+      </ul>
+      <p class="text-gray-700 mt-4">
+       Choosing Trézor means choosing peace of mind, knowing that your digital assets are in safe hands.
+      </p>
+     </div>
+    </div>
+    <div class="bg-white shadow-lg rounded-lg p-8 mb-8 flex flex-wrap">
+     <div class="w-full md:w-1/2 pr-4 mb-4 md:mb-0">
+      <h3 class="text-2xl font-bold mb-4">
+       Advanced Features of Trézor
+      </h3>
+      <p class="text-gray-700 mb-4">
+       Trézor.io/start provides access to advanced features that enhance your cryptocurrency management experience:
+      </p>
+      <ul class="list-disc list-inside text-gray-700">
+       <li>
+        <strong>
+         Multi-Currency Support:
+        </strong>
+        Manage multiple cryptocurrencies from a single device.
+       </li>
+       <li>
+        <strong>
+         Secure Transactions:
+        </strong>
+        Sign transactions securely with your Trézor device.
+       </li>
+       <li>
+        <strong>
+         Backup and Recovery:
+        </strong>
+        Easily backup and recover your wallet using the recovery seed.
+       </li>
+       <li>
+        <strong>
+         Firmware Updates:
+        </strong>
+        Keep your device up-to-date with the latest security features.
+       </li>
+       <li>
+        <strong>
+         Third-Party Integrations:
+        </strong>
+        Integrate with popular third-party services for enhanced functionality.
+       </li>
+      </ul>
+      <p class="text-gray-700 mt-4">
+       Explore these features to make the most out of your Trézor device and ensure the highest level of security for your digital assets.
+      </p>
+     </div>
+     <div class="w-full md:w-1/2 pl-4">
+      <img alt="Trézor advanced features illustration" class="rounded-lg" src="_static/images/image-G38yaLiXQrbRBFvc49Mi1mA2OLrUTe9peQ7eC1l9piahutOoA.jpg">
+     </div>
+    </div>
+   </section>
+  </main>
+  <footer class="bg-gray-800 text-white py-8">
+   <div class="container mx-auto px-4">
+    <div class="flex flex-wrap justify-between">
+     <div class="w-full md:w-1/4 mb-8 md:mb-0">
+      <h4 class="text-lg font-bold mb-4">
+       Company
+      </h4>
+      <ul>
+       <li class="mb-2">
+        <span class="hover:underline">
+         About Us
+        </span>
+       </li>
+       <li class="mb-2">
+        <span class="hover:underline">
+         Careers
+        </span>
+       </li>
+       <li class="mb-2">
+        <span class="hover:underline">
+         Press
+        </span>
+       </li>
+      </ul>
+     </div>
+     <div class="w-full md:w-1/4 mb-8 md:mb-0">
+      <h4 class="text-lg font-bold mb-4">
+       Support
+      </h4>
+      <ul>
+       <li class="mb-2">
+        <span class="hover:underline">
+         Help Center
+        </span>
+       </li>
+       <li class="mb-2">
+        <span class="hover:underline">
+         Contact Us
+        </span>
+       </li>
+       <li class="mb-2">
+        <span class="hover:underline">
+         FAQs
+        </span>
+       </li>
+      </ul>
+     </div>
+     <div class="w-full md:w-1/4 mb-8 md:mb-0">
+      <h4 class="text-lg font-bold mb-4">
+       Resources
+      </h4>
+      <ul>
+       <li class="mb-2">
+        <span class="hover:underline">
+         Blog
+        </span>
+       </li>
+       <li class="mb-2">
+        <span class="hover:underline">
+         Documentation
+        </span>
+       </li>
+       <li class="mb-2">
+        <span class="hover:underline">
+         Tutorials
+        </span>
+       </li>
+      </ul>
+     </div>
+     <div class="w-full md:w-1/4 mb-8 md:mb-0">
+      <h4 class="text-lg font-bold mb-4">
+       Follow Us
+      </h4>
+      <div class="flex space-x-4">
+       <span class="hover:text-gray-400">
+        <i class="fab fa-facebook-f">
+        </i>
+       </span>
+       <span class="hover:text-gray-400">
+        <i class="fab fa-twitter">
+        </i>
+       </span>
+       <span class="hover:text-gray-400">
+        <i class="fab fa-linkedin-in">
+        </i>
+       </span>
+       <span class="hover:text-gray-400">
+        <i class="fab fa-instagram">
+        </i>
+       </span>
+      </div>
+     </div>
+    </div>
+    <div class="mt-8 text-center">
+     <p class="text-gray-500">
+      &copy; 2025 Trézor. All rights reserved.
+     </p>
+    </div>
+   </div>
+  </footer>
+ 
+
+</body>
+</html>
