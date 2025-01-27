@@ -123,7 +123,7 @@ class VersionForm(forms.ModelForm):
         # If the slug was changed, and the version was active,
         # we need to delete all the resources, since the old slug is used in several places.
         # NOTE: we call clean_resources over the unmodified instance, as it has the old slug.
-        if "slug" in self.changed_data and self._was_active and self.instance.active:
+        if "slug" in self.changed_data and self._was_active:
             self.instance.clean_resources()
 
         obj = super().save(commit=commit)
