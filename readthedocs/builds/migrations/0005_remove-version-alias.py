@@ -77,7 +77,6 @@ class Migration(migrations.Migration):
             field=readthedocs.builds.version_slug.VersionSlugField(
                 db_index=True,
                 max_length=255,
-                populate_from="verbose_name",
                 verbose_name="Slug",
             ),
         ),
