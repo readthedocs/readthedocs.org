@@ -22,20 +22,25 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
+from readthedocs.builds.version_slug import generate_version_slug
 
 
 class VersionForm(forms.ModelForm):
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = Version
         states_fields = ["active", "hidden"]
         privacy_fields = ["privacy_level"]
         fields = (
+            "project",
             "slug",
             *states_fields,
             *privacy_fields,
         )
 
     def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
         field_sets = [
@@ -93,12 +98,26 @@ class VersionForm(forms.ModelForm):
 
     def clean_slug(self):
         slug = self.cleaned_data["slug"]
-        if "slug" in self.changed_data and self.instance.machine:
-            raise forms.ValidationError(
-                _("The slug cannot be changed."),
+        final_slug = generate_version_slug(slug)
+        if slug != final_slug:
+            msg = _(
+                f"The slug contains invalid characters. Consider using '{final_slug}'."
             )
-        # TODO: check for unique slug instead of having django 500.
+            raise forms.ValidationError(msg)
+
+        # NOTE: Django already checks for unique slugs and raises a ValidationError,
+        # but that message is attached to the whole form instead of the the slug field.
+        # So we do the check here to provide a better error message.
+        if (
+            self.project.versions.filter(slug=slug)
+            .exclude(pk=self.instance.pk)
+            .exists()
+        ):
+            raise forms.ValidationError(_("A version with that slug already exists."))
         return slug
+
+    def clean_project(self):
+        return self.project
 
     def save(self, commit=True):
         # If the slug was changed, and the version was active,
