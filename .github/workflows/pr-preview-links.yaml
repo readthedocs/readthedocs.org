@@ -16,6 +16,7 @@ jobs:
       - uses: readthedocs/actions/preview@v1
         with:
           project-slug: "docs"
+          project-language: ""
           message-template: |
             ---
             :books: Documentation previews :books:
