@@ -5,7 +5,7 @@ To build each project, the ``PROJECT`` environment variable is used.
 
 .. code:: console
 
-   $ make html  # build default project
+   $ make html  # build default project (user)
    $ PROJECT=dev make html  # build the dev project
 
 for more information read https://sphinx-multiproject.readthedocs.io/.
