@@ -66,6 +66,8 @@ class VersionForm(forms.ModelForm):
                 )
             )
         )
+        if self.instance and self.instance.machine:
+            self.fields["slug"].disabled = True
 
         self.helper = FormHelper()
         self.helper.layout = Layout(*field_sets)
@@ -101,8 +103,9 @@ class VersionForm(forms.ModelForm):
     def save(self, commit=True):
         # If the slug was changed, and the version was active,
         # we need to delete all the resources, since the old slug is used in several places.
+        # NOTE: we call clean_resources over the unmodified instance, as it has the old slug.
         if "slug" in self.changed_data and self._was_active and self.instance.active:
-            obj.clean_resources()
+            self.instance.clean_resources()
 
         obj = super().save(commit=commit)
         obj.post_save(was_active=self._was_active)
