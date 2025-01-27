@@ -54,7 +54,10 @@ from readthedocs.builds.utils import (
     get_gitlab_username_repo,
     get_vcs_url,
 )
-from readthedocs.builds.version_slug import VersionSlugField
+from readthedocs.builds.version_slug import (
+    generate_unique_version_slug,
+    version_slug_validator,
+)
 from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import (
@@ -118,10 +121,14 @@ class Version(TimeStampedModel):
     #: in the URL to identify this version in a project. It's also used in the
     #: filesystem to determine how the paths for this version are called. It
     #: must not be used for any other identifying purposes.
-    slug = VersionSlugField(
+    slug = models.CharField(
         _("Slug"),
         max_length=255,
-        populate_from="verbose_name",
+        validators=[version_slug_validator],
+        db_index=True,
+        help_text=_(
+            "A unique identifier used in the URL and links for this version. It can contain lowercase letters, numbers, dots, dashes or underscores. It must start with a lowercase letter or a number."
+        ),
     )
 
     # TODO: this field (`supported`) could be removed. It's returned only on
@@ -415,6 +422,11 @@ class Version(TimeStampedModel):
         self.built = False
         self.save()
         self.purge_cdn()
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = generate_unique_version_slug(self.verbose_name, self)
+        super().save(*args, **kwargs)
 
     def post_save(self, was_active=False):
         """
