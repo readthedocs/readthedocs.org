@@ -71,6 +71,13 @@ class VersionForm(forms.ModelForm):
                 )
             )
         )
+
+        # self.fields["slug"].widget.attrs["pattern"] = r"^[a-z0-9][\-._a-z0-9]*$"
+        # self.fields["slug"].widget.attrs["title"] = _(
+        #     "The slug can contain lowercase letters, numbers, dots, dashes or underscores, "
+        #     "and it must start with a lowercase letter or a number."
+        # )
+
         if self.instance and self.instance.machine:
             self.fields["slug"].disabled = True
 
@@ -101,7 +108,8 @@ class VersionForm(forms.ModelForm):
         final_slug = generate_version_slug(slug)
         if slug != final_slug:
             msg = _(
-                f"The slug contains invalid characters. Consider using '{final_slug}'."
+                "The slug can contain lowercase letters, numbers, dots, dashes or underscores, "
+                f"and it must start with a lowercase letter or a number. Consider using '{final_slug}'."
             )
             raise forms.ValidationError(msg)
 
