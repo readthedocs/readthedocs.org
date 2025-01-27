@@ -13,6 +13,7 @@ for more information read https://sphinx-multiproject.readthedocs.io/.
 
 import os
 import sys
+from urllib.parse import urlparse
 
 from multiproject.utils import get_project
 
@@ -195,6 +196,8 @@ notfound_context = {
 <p>Try using the search box or go to the homepage.</p>
 """,
 }
+notfound_urls_prefix = urlparse(os.environ.get("READTHEDOCS_CANONICAL_URL", "/")).path
+
 linkcheck_retries = 2
 linkcheck_timeout = 1
 linkcheck_workers = 10
