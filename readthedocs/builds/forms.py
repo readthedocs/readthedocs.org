@@ -72,6 +72,8 @@ class VersionForm(forms.ModelForm):
             )
         )
 
+        # Don't allow changing the slug of machine created versions
+        # (stable/latest), as we rely on the slug to identify them.
         if self.instance and self.instance.machine:
             self.fields["slug"].disabled = True
 
@@ -126,7 +128,7 @@ class VersionForm(forms.ModelForm):
         # If the slug was changed, and the version was active,
         # we need to delete all the resources, since the old slug is used in several places.
         # NOTE: we call clean_resources over the instance with the previous slug,
-        # as all resources are associated with the slug.
+        # as all resources are associated with that slug.
         if "slug" in self.changed_data and self._was_active:
             self.instance.slug = self._previous_slug
             self.instance.clean_resources()
