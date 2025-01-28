@@ -452,6 +452,9 @@ class AddonsResponseBase:
                 "analytics": {
                     "code": settings.GLOBAL_ANALYTICS_CODE,
                 },
+                "resolver": {
+                    "filename": filename,
+                },
             },
             # TODO: the ``features`` is not polished and we expect to change drastically.
             # Mainly, all the fields including a Project, Version or Build will use the exact same
