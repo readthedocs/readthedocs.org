@@ -157,3 +157,204 @@ class TestVersionForm(TestCase):
         remove_search_indexes.delay.assert_called_once()
         self.assertFalse(version.imported_files.exists())
         self.assertTrue(another_version.imported_files.exists())
+
+    def test_change_slug(self):
+        version = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="slug",
+        )
+
+        test_slugs = [
+            "anotherslug",
+            "another_slug",
+            "another-slug",
+        ]
+        for slug in test_slugs:
+            form = VersionForm(
+                {
+                    "slug": slug,
+                    "active": True,
+                    "privacy_level": PUBLIC,
+                },
+                instance=version,
+                project=self.project,
+            )
+            assert form.is_valid()
+            assert version.slug == slug
+
+    def test_change_slug_wrong_value(self):
+        version = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="slug",
+        )
+
+        test_slugs = (
+            "",
+            "???//",
+            "long" * 100,
+            "Slug-with-uppercase",
+            "no-ascíí",
+            "with spaces",
+            "-almos-valid",
+            "no/valid",
+        )
+        for slug in test_slugs:
+            form = VersionForm(
+                {
+                    "slug": slug,
+                    "active": True,
+                    "privacy_level": PUBLIC,
+                },
+                instance=version,
+                project=self.project,
+            )
+            assert not form.is_valid()
+            assert "slug" in form.errors
+
+    def test_change_slug_already_in_use(self):
+        version_one = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="one",
+        )
+        version_two = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="two",
+        )
+
+        form = VersionForm(
+            {
+                "slug": version_two.slug,
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+            instance=version_one,
+            project=self.project,
+        )
+        assert not form.is_valid()
+        assert "slug" in form.errors
+
+    def test_cant_change_slug_machine_created_versions(self):
+        version = self.project.versions.get(slug="latest")
+        assert version.machine
+
+        form = VersionForm(
+            {
+                "slug": "change",
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+            instance=version,
+            project=self.project,
+        )
+        assert form.is_valid()
+        version.refresh_from_db()
+        assert version.slug == "latest"
+
+    @mock.patch("readthedocs.builds.models.trigger_build")
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def clean_resources_when_changing_slug_of_active_version(
+        self, remove_build_storage_paths, remove_search_indexes, trigger_build
+    ):
+        version = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="slug",
+        )
+
+        self.client.force_login(self.user)
+        url = reverse(
+            "project_version_detail", args=(version.project.slug, version.slug)
+        )
+        r = self.client.post(
+            url,
+            data={
+                "slug": "change-me",
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+        )
+        assert r.status_code == 302
+
+        version.refresh_from_db()
+        assert version.slug == "change-me"
+
+        remove_build_storage_paths.delay.assert_not_called()
+        remove_search_indexes.delay.assert_not_called()
+        trigger_build.assert_called_once()
+
+    @mock.patch("readthedocs.builds.models.trigger_build")
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def dont_clean_resources_when_changing_slug_of_inactive_version(
+        self, remove_build_storage_paths, remove_search_indexes, trigger_build
+    ):
+        version = get(
+            Version,
+            project=self.project,
+            active=False,
+            slug="slug",
+        )
+
+        self.client.force_login(self.user)
+        url = reverse(
+            "project_version_detail", args=(version.project.slug, version.slug)
+        )
+        r = self.client.post(
+            url,
+            data={
+                "slug": "change-me",
+                "active": False,
+                "privacy_level": PUBLIC,
+            },
+        )
+        assert r.status_code == 302
+        version.refresh_from_db()
+        assert version.slug == "change-me"
+
+        remove_build_storage_paths.delay.assert_not_called()
+        remove_search_indexes.delay.assert_not_called()
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.builds.models.trigger_build")
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def trigger_build_when_changing_slug_of_inactive_version(
+        self, remove_build_storage_paths, remove_search_indexes, trigger_build
+    ):
+        version = get(
+            Version,
+            project=self.project,
+            active=False,
+            slug="slug",
+        )
+
+        self.client.force_login(self.user)
+        url = reverse(
+            "project_version_detail", args=(version.project.slug, version.slug)
+        )
+        r = self.client.post(
+            url,
+            data={
+                "slug": "change-me",
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+        )
+        assert r.status_code == 302
+
+        version.refresh_from_db()
+        assert version.slug == "change-me"
+
+        remove_build_storage_paths.delay.assert_not_called()
+        remove_search_indexes.delay.assert_not_called()
+        trigger_build.assert_called_once()
