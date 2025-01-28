@@ -239,5 +239,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
     SUPPORT_EMAIL = "support@example.com"
 
+    RTD_FILETREEDIFF_ALL = "RTD_FILETREEDIFF_ALL" in os.environ
+
 
 DockerBaseSettings.load_settings(__name__)

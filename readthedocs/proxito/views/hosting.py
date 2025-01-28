@@ -452,6 +452,9 @@ class AddonsResponseBase:
                 "analytics": {
                     "code": settings.GLOBAL_ANALYTICS_CODE,
                 },
+                "resolver": {
+                    "filename": filename,
+                },
             },
             # TODO: the ``features`` is not polished and we expect to change drastically.
             # Mainly, all the fields including a Project, Version or Build will use the exact same
@@ -636,7 +639,7 @@ class AddonsResponseBase:
         This response is only enabled for external versions,
         we do the comparison between the current version and the latest version.
         """
-        if not version.is_external:
+        if not version.is_external and not settings.RTD_FILETREEDIFF_ALL:
             return None
 
         if not project.addons.filetreediff_enabled:
