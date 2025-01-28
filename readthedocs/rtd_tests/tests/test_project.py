@@ -168,9 +168,6 @@ class TestProject(ProjectMixin, TestCase):
             "external/htmlzip/pip/99/pip.zip",
         )
 
-    def test_ordered_active_versions_excludes_external_versions(self):
-        self.assertNotIn(self.external_version, self.pip.ordered_active_versions())
-
     def test_active_versions_excludes_external_versions(self):
         self.assertNotIn(self.external_version, self.pip.active_versions())
 

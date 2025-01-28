@@ -23,7 +23,7 @@ from readthedocs.config.models import (
 from .utils import apply_fs
 
 
-def get_build_config(config, source_file="readthedocs.yml", validate=False):
+def get_build_config(config, source_file="readthedocs.yml", validate=False, **kwargs):
     # I'm adding these defaults here to avoid modifying all the config file from all the tests
     final_config = {
         "version": "2",
@@ -39,6 +39,7 @@ def get_build_config(config, source_file="readthedocs.yml", validate=False):
     build_config = BuildConfigV2(
         final_config,
         source_file=source_file,
+        **kwargs,
     )
     if validate:
         build_config.validate()
@@ -1804,6 +1805,76 @@ class TestBuildConfigV2:
             build.pop_config("build.invalid", raise_ex=True)
         assert excinfo.value.format_values.get("value") == "invalid"
         assert excinfo.value.message_id == ConfigValidationError.VALUE_NOT_FOUND
+
+    def test_sphinx_without_explicit_configuration(self):
+        data = {
+            "sphinx": {},
+        }
+        get_build_config(data, validate=True)
+
+        with raises(ConfigError) as excinfo:
+            get_build_config(data, validate=True, deprecate_implicit_keys=True)
+
+        assert excinfo.value.message_id == ConfigError.SPHINX_CONFIG_MISSING
+
+        data["sphinx"]["configuration"] = "conf.py"
+        get_build_config(data, validate=True, deprecate_implicit_keys=True)
+
+    def test_mkdocs_without_explicit_configuration(self):
+        data = {
+            "mkdocs": {},
+        }
+        get_build_config(data, validate=True)
+
+        with raises(ConfigError) as excinfo:
+            get_build_config(data, validate=True, deprecate_implicit_keys=True)
+
+        assert excinfo.value.message_id == ConfigError.MKDOCS_CONFIG_MISSING
+
+        data["mkdocs"]["configuration"] = "mkdocs.yml"
+        get_build_config(data, validate=True, deprecate_implicit_keys=True)
+
+    def test_config_without_sphinx_key(self):
+        data = {
+            "build": {
+                "os": "ubuntu-22.04",
+                "tools": {
+                    "python": "3",
+                },
+                "jobs": {},
+            },
+        }
+        get_build_config(data, validate=True)
+
+        with raises(ConfigError) as excinfo:
+            get_build_config(data, validate=True, deprecate_implicit_keys=True)
+
+        assert excinfo.value.message_id == ConfigError.SPHINX_CONFIG_MISSING
+
+        # No exception should be raised when overriding any of the the new jobs.
+        data_copy = data.copy()
+        data_copy["build"]["jobs"]["create_environment"] = ["echo 'Hello World'"]
+        get_build_config(data_copy, validate=True, deprecate_implicit_keys=True)
+
+        data_copy = data.copy()
+        data_copy["build"]["jobs"]["install"] = ["echo 'Hello World'"]
+        get_build_config(data_copy, validate=True, deprecate_implicit_keys=True)
+
+        data_copy = data.copy()
+        data_copy["build"]["jobs"]["build"] = {"html": ["echo 'Hello World'"]}
+        get_build_config(data_copy, validate=True, deprecate_implicit_keys=True)
+
+    def test_sphinx_and_mkdocs_arent_required_when_using_build_commands(self):
+        data = {
+            "build": {
+                "os": "ubuntu-22.04",
+                "tools": {
+                    "python": "3",
+                },
+                "commands": ["echo 'Hello World'"],
+            },
+        }
+        get_build_config(data, validate=True, deprecate_implicit_keys=True)
 
     def test_as_dict_new_build_config(self, tmpdir):
         build = get_build_config(

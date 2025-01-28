@@ -13,7 +13,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -30,6 +29,7 @@ from readthedocs.builds.constants import (
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE,
+    STABLE_VERBOSE_NAME,
 )
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
@@ -47,7 +47,6 @@ from readthedocs.projects.querysets import (
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_build_config_file,
     validate_custom_prefix,
@@ -63,6 +62,7 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
+    ADDONS_FLYOUT_POSITION_CHOICES,
     ADDONS_FLYOUT_SORTING_CHOICES,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
     DOWNLOADABLE_MEDIA_TYPES,
@@ -196,7 +196,10 @@ class AddonsConfig(TimeStampedModel):
     filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
 
     # Flyout
-    flyout_enabled = models.BooleanField(default=True)
+    flyout_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_("Enabled"),
+    )
     flyout_sorting = models.CharField(
         verbose_name=_("Sorting of versions"),
         choices=ADDONS_FLYOUT_SORTING_CHOICES,
@@ -217,6 +220,15 @@ class AddonsConfig(TimeStampedModel):
             "Show <code>latest</code> and <code>stable</code> at the beginning"
         ),
         default=True,
+    )
+
+    flyout_position = models.CharField(
+        choices=ADDONS_FLYOUT_POSITION_CHOICES,
+        max_length=64,
+        default=None,  # ``None`` means use the default (theme override if present or Read the Docs default)
+        null=True,
+        blank=True,
+        verbose_name=_("Position"),
     )
 
     # Hotkeys
@@ -632,6 +644,12 @@ class Project(models.Model):
         if self.remote_repository and not self.remote_repository.private:
             self.external_builds_privacy_level = PUBLIC
 
+        # If the project is linked to a remote repository,
+        # make sure to use the clone URL from the repository.
+        dont_sync = self.pk and self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO)
+        if self.remote_repository and not dont_sync:
+            self.repo = self.remote_repository.clone_url
+
         super().save(*args, **kwargs)
 
         try:
@@ -647,7 +665,9 @@ class Project(models.Model):
         log.debug(
             "Updating default branch.", slug=LATEST, identifier=self.default_branch
         )
-        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
+        self.versions.filter(slug=LATEST, machine=True).update(
+            identifier=self.default_branch
+        )
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -1079,43 +1099,6 @@ class Project(models.Model):
             active=True, uploaded=True
         )
 
-    def ordered_active_versions(self, **kwargs):
-        """
-        Get all active versions, sorted.
-
-        :param kwargs: All kwargs are passed down to the
-                       `Version.internal.public` queryset.
-        """
-        from readthedocs.builds.models import Version
-
-        kwargs.update(
-            {
-                "project": self,
-                "only_active": True,
-                "only_built": True,
-            },
-        )
-        versions = (
-            Version.internal.public(**kwargs)
-            .select_related(
-                "project",
-                "project__main_language_project",
-            )
-            .prefetch_related(
-                Prefetch(
-                    "project__superprojects",
-                    ProjectRelationship.objects.all().select_related("parent"),
-                    to_attr="_superprojects",
-                ),
-                Prefetch(
-                    "project__domains",
-                    Domain.objects.filter(canonical=True),
-                    to_attr="_canonical_domains",
-                ),
-            )
-        )
-        return sort_version_aware(versions)
-
     def all_active_versions(self):
         """
         Get queryset with all active versions.
@@ -1218,6 +1201,7 @@ class Project(models.Model):
                 version_updated = (
                     new_stable.identifier != current_stable.identifier
                     or new_stable.type != current_stable.type
+                    or current_stable.verbose_name != STABLE_VERBOSE_NAME
                 )
                 if version_updated:
                     log.info(
@@ -1227,6 +1211,7 @@ class Project(models.Model):
                         version_type=new_stable.type,
                     )
                     current_stable.identifier = new_stable.identifier
+                    current_stable.verbose_name = STABLE_VERBOSE_NAME
                     current_stable.type = new_stable.type
                     current_stable.save()
                     return new_stable
@@ -1917,13 +1902,12 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     API_LARGE_DATA = "api_large_data"
-    CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
-    ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
+    DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1936,10 +1920,8 @@ class Feature(models.Model):
     DONT_INSTALL_LATEST_PIP = "dont_install_latest_pip"
     USE_SPHINX_RTD_EXT_LATEST = "rtd_sphinx_ext_latest"
     INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
-    DISABLE_SPHINX_MANIPULATION = "disable_sphinx_manipulation"
 
     # Search related features
-    DISABLE_SERVER_SIDE_SEARCH = "disable_server_side_search"
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = "enable_mkdocs_server_side_search"
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
 
@@ -1950,17 +1932,6 @@ class Feature(models.Model):
         (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            CONDA_APPEND_CORE_REQUIREMENTS,
-            _("Conda: Append Read the Docs core requirements to environment.yml file"),
-        ),
-        (
-            ALL_VERSIONS_IN_HTML_CONTEXT,
-            _(
-                "Sphinx: Pass all versions (including private) into the html context "
-                "when building with Sphinx"
-            ),
         ),
         (
             RECORD_404_PAGE_VIEWS,
@@ -1983,6 +1954,10 @@ class Feature(models.Model):
         (
             ALLOW_VERSION_WARNING_BANNER,
             _("Dashboard: Allow project to use the version warning banner."),
+        ),
+        (
+            DONT_SYNC_WITH_REMOTE_REPO,
+            _("Remote repository: Don't keep project in sync with remote repository."),
         ),
         # Versions sync related features
         (
@@ -2014,17 +1989,7 @@ class Feature(models.Model):
                 "Build: Install all the latest versions of Read the Docs core requirements"
             ),
         ),
-        (
-            DISABLE_SPHINX_MANIPULATION,
-            _(
-                "Sphinx: Don't append `conf.py` and don't install ``readthedocs-sphinx-ext``"
-            ),
-        ),
         # Search related features.
-        (
-            DISABLE_SERVER_SIDE_SEARCH,
-            _("Search: Disable server side search"),
-        ),
         (
             ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
             _("Search: Enable server side search for MkDocs projects"),

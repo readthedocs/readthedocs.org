@@ -667,6 +667,7 @@ class TestReadTheDocsConfigJson(TestCase):
         expected_response = self._get_response_dict("v1")
         # Remove `addons.doc_diff` from the response because it's not present when `url=` is not sent
         expected_response["addons"].pop("doc_diff")
+        expected_response["readthedocs"]["resolver"]["filename"] = None
 
         assert self._normalize_datetime_fields(r.json()) == expected_response
 
@@ -843,7 +844,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(31):
+        with self.assertNumQueries(26):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -869,7 +870,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(58):
+        with self.assertNumQueries(42):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

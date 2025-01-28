@@ -93,10 +93,7 @@ class BuildEnvironmentMocker:
 
         # TODO: find a way to not mock this one and mock `open()` used inside
         # it instead to make the mock more granularly and be able to execute
-        # the `append_conf` normally.
-        self.patches["builder.html.mkdocs.MkdocsHTML.append_conf"] = mock.patch(
-            "readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.append_conf",
-        )
+        # `get_final_doctype` normally.
         self.patches["builder.html.mkdocs.MkdocsHTML.get_final_doctype"] = mock.patch(
             "readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.get_final_doctype",
             return_value=MKDOCS,
@@ -104,14 +101,9 @@ class BuildEnvironmentMocker:
 
         # NOTE: another approach would be to make these files are in the tmpdir
         # used for testing (see ``apply_fs`` util function)
-        self.patches["builder.html.sphinx.HtmlBuilder.append_conf"] = mock.patch(
-            "readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf",
+        self.patches["builder.html.sphinx.HtmlBuilder.show_conf"] = mock.patch(
+            "readthedocs.doc_builder.backends.sphinx.HtmlBuilder.show_conf",
         )
-
-        # self.patches['builder.html.mkdocs.open'] = mock.patch(
-        #     'readthedocs.doc_builder.backends.mkdocs.builtins.open',
-        #     mock.mock_open(read_data='file content'),
-        # )
 
     def _mock_git_repository(self):
         self.patches["git.Backend.run"] = mock.patch(

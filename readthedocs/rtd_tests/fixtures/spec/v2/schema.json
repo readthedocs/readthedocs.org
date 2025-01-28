@@ -337,7 +337,8 @@
           "default": false
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": ["configuration"]
     },
     "mkdocs": {
       "title": "mkdocs",
@@ -356,7 +357,8 @@
           "default": false
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": ["configuration"]
     },
     "submodules": {
       "title": "Submodules",

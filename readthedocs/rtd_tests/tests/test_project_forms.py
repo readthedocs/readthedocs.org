@@ -34,7 +34,12 @@ from readthedocs.projects.forms import (
     UpdateProjectForm,
     WebHookForm,
 )
-from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Feature,
+    Project,
+    WebHookEvent,
+)
 from readthedocs.projects.validators import MAX_SIZE_ENV_VARS_PER_PROJECT
 
 
@@ -336,10 +341,11 @@ class TestProjectAdvancedForm(TestCase):
             version=default_branch,
         )
 
+    @mock.patch("readthedocs.projects.forms.trigger_build", mock.MagicMock())
     def test_set_remote_repository(self):
         data = {
             "name": "Project",
-            "repo": "https://github.com/readthedocs/readthedocs.org/",
+            "repo": "https://github.com/readthedocs/readthedocs.org",
             "repo_type": self.project.repo_type,
             "default_version": LATEST,
             "language": self.project.language,
@@ -354,10 +360,19 @@ class TestProjectAdvancedForm(TestCase):
             ssh_url="git@github.com:rtfd/template.git",
             private=False,
         )
+        self.assertNotEqual(remote_repository.clone_url, data["repo"])
 
         # No remote repository attached.
         form = UpdateProjectForm(data, instance=self.project, user=self.user)
         self.assertTrue(form.is_valid())
+        form.save()
+        self.project.refresh_from_db()
+        self.assertIsNone(self.project.remote_repository)
+        self.assertEqual(self.project.repo, data["repo"])
+
+        # Since there is no remote repository attached, the repo field should be enabled.
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertFalse(form.fields["repo"].disabled)
 
         # Remote repository attached, but it doesn't belong to the user.
         data["remote_repository"] = remote_repository.pk
@@ -375,6 +390,22 @@ class TestProjectAdvancedForm(TestCase):
         data["remote_repository"] = remote_repository.pk
         form = UpdateProjectForm(data, instance=self.project, user=self.user)
         self.assertTrue(form.is_valid())
+        form.save()
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.remote_repository, remote_repository)
+        self.assertEqual(self.project.repo, remote_repository.clone_url)
+
+        # Since a remote repository is attached, the repo field should be disabled.
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertTrue(form.fields["repo"].disabled)
+
+        # This project has the don't sync with remote repository feature enabled,
+        # so the repo field should be enabled.
+        feature = get(Feature, feature_id=Feature.DONT_SYNC_WITH_REMOTE_REPO)
+        self.project.feature_set.add(feature)
+        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        self.assertFalse(form.fields["repo"].disabled)
+        self.project.feature_set.remove(feature)
 
         # The project has the remote repository attached.
         # And the user doesn't have access to it anymore, but still can use it.
@@ -472,29 +503,6 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
         )
         self.assertIn(
             stable.first().verbose_name,
-            [
-                identifier
-                for identifier, _ in form.fields["default_branch"].widget.choices
-            ],
-        )
-
-    def test_commit_name_not_in_default_branch_choices(self):
-        form = UpdateProjectForm(instance=self.project)
-        # This version is created by the user
-        latest = self.project.versions.filter(slug=LATEST)
-        # This version is created by the user
-        stable = self.project.versions.filter(slug=STABLE)
-
-        # `commit_name` can not be used as the value for the choices
-        self.assertNotIn(
-            latest.first().commit_name,
-            [
-                identifier
-                for identifier, _ in form.fields["default_branch"].widget.choices
-            ],
-        )
-        self.assertNotIn(
-            stable.first().commit_name,
             [
                 identifier
                 for identifier, _ in form.fields["default_branch"].widget.choices

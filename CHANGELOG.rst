@@ -1,3 +1,88 @@
+Version 11.19.1
+---------------
+
+:Date: January 21, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11934 <https://github.com/readthedocs/readthedocs.org/pull/11934>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: fix markdoc example (`#11932 <https://github.com/readthedocs/readthedocs.org/pull/11932>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update markdoc example to use build.jobs (`#11929 <https://github.com/readthedocs/readthedocs.org/pull/11929>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.19.0 (`#11926 <https://github.com/readthedocs/readthedocs.org/pull/11926>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document new build jobs (`#11900 <https://github.com/readthedocs/readthedocs.org/pull/11900>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow to set a "Default" or a explicit position for flyout (`#11891 <https://github.com/readthedocs/readthedocs.org/pull/11891>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: use clone URL from connected repository if available (`#11826 <https://github.com/readthedocs/readthedocs.org/pull/11826>`__)
+* `@stsewd <https://github.com/stsewd>`__: API: use restricted serializer for related projects (`#11820 <https://github.com/readthedocs/readthedocs.org/pull/11820>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11771 <https://github.com/readthedocs/readthedocs.org/pull/11771>`__)
+
+Version 11.19.0
+---------------
+
+:Date: January 14, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: Don't require sphinx/mkdocs keys when using build.commands (`#11913 <https://github.com/readthedocs/readthedocs.org/pull/11913>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11909 <https://github.com/readthedocs/readthedocs.org/pull/11909>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document new build jobs (`#11900 <https://github.com/readthedocs/readthedocs.org/pull/11900>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove CSS variables override for font-size (`#11897 <https://github.com/readthedocs/readthedocs.org/pull/11897>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add django-impersonate when admin is enabled (`#11894 <https://github.com/readthedocs/readthedocs.org/pull/11894>`__)
+* `@stsewd <https://github.com/stsewd>`__: Environment variables: document special case for PR preview builds (`#11893 <https://github.com/readthedocs/readthedocs.org/pull/11893>`__)
+* `@stsewd <https://github.com/stsewd>`__: Social accounts: link Bitbucket to new dashboard (`#11892 <https://github.com/readthedocs/readthedocs.org/pull/11892>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow to set a "Default" or a explicit position for flyout (`#11891 <https://github.com/readthedocs/readthedocs.org/pull/11891>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Addons customization docs (`#11888 <https://github.com/readthedocs/readthedocs.org/pull/11888>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't reflect user input in raw response (`#11887 <https://github.com/readthedocs/readthedocs.org/pull/11887>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Lower logging for user build errors (`#11886 <https://github.com/readthedocs/readthedocs.org/pull/11886>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.18.0 (`#11884 <https://github.com/readthedocs/readthedocs.org/pull/11884>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11881 <https://github.com/readthedocs/readthedocs.org/pull/11881>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use actual git identifier for READTHEDOCS_GIT_IDENTIFIER (`#11875 <https://github.com/readthedocs/readthedocs.org/pull/11875>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update MkDocs page to be generic and note MkDocs for Material integration (`#11871 <https://github.com/readthedocs/readthedocs.org/pull/11871>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config: inherit all pydantic models from a common base class (`#11857 <https://github.com/readthedocs/readthedocs.org/pull/11857>`__)
+* `@stsewd <https://github.com/stsewd>`__: API: use restricted serializer for related projects (`#11820 <https://github.com/readthedocs/readthedocs.org/pull/11820>`__)
+* `@stsewd <https://github.com/stsewd>`__: API: separate querysets from API V2 and V3 (`#11586 <https://github.com/readthedocs/readthedocs.org/pull/11586>`__)
+* `@stsewd <https://github.com/stsewd>`__: Email: use first recipient from email object (`#11581 <https://github.com/readthedocs/readthedocs.org/pull/11581>`__)
+* `@humitos <https://github.com/humitos>`__: Cleanup: delete `yaml_load_safely` (`#11285 <https://github.com/readthedocs/readthedocs.org/pull/11285>`__)
+
+Version 11.18.0
+---------------
+
+:Date: January 07, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11881 <https://github.com/readthedocs/readthedocs.org/pull/11881>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11877 <https://github.com/readthedocs/readthedocs.org/pull/11877>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use actual git identifier for READTHEDOCS_GIT_IDENTIFIER (`#11875 <https://github.com/readthedocs/readthedocs.org/pull/11875>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix ext-theme tests (`#11872 <https://github.com/readthedocs/readthedocs.org/pull/11872>`__)
+* `@humitos <https://github.com/humitos>`__: Skip running default commands when GENRIC doctool (`#11863 <https://github.com/readthedocs/readthedocs.org/pull/11863>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.17.1 (`#11862 <https://github.com/readthedocs/readthedocs.org/pull/11862>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Match User method in TeamMember (`#11861 <https://github.com/readthedocs/readthedocs.org/pull/11861>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use "Visual diff" for marketing "Doc Diff" (`#11860 <https://github.com/readthedocs/readthedocs.org/pull/11860>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config: inherit all pydantic models from a common base class (`#11857 <https://github.com/readthedocs/readthedocs.org/pull/11857>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code from old footer (`#11854 <https://github.com/readthedocs/readthedocs.org/pull/11854>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: make sphinx or mkdocs configuration required for projects using Sphinx or MkDocs (`#11852 <https://github.com/readthedocs/readthedocs.org/pull/11852>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add mdbook docs page (`#11849 <https://github.com/readthedocs/readthedocs.org/pull/11849>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: remove conda_append_core_requirements feature flag (`#11847 <https://github.com/readthedocs/readthedocs.org/pull/11847>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove disable_sphinx_manipulation feature flag (`#11841 <https://github.com/readthedocs/readthedocs.org/pull/11841>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version: better support for manual created latest and stable versions (`#11823 <https://github.com/readthedocs/readthedocs.org/pull/11823>`__)
+
+Version 11.17.1
+---------------
+
+:Date: December 17, 2024
+
+* `@agjohnson <https://github.com/agjohnson>`__: Match User method in TeamMember (`#11861 <https://github.com/readthedocs/readthedocs.org/pull/11861>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: use "Visual diff" for marketing "Doc Diff" (`#11860 <https://github.com/readthedocs/readthedocs.org/pull/11860>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11858 <https://github.com/readthedocs/readthedocs.org/pull/11858>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove yamale (`#11855 <https://github.com/readthedocs/readthedocs.org/pull/11855>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code from old footer (`#11854 <https://github.com/readthedocs/readthedocs.org/pull/11854>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: docs: Reframe Supported Tools (`#11853 <https://github.com/readthedocs/readthedocs.org/pull/11853>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add mdbook docs page (`#11849 <https://github.com/readthedocs/readthedocs.org/pull/11849>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Rust reshim (`#11848 <https://github.com/readthedocs/readthedocs.org/pull/11848>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: remove usage of addons field (`#11846 <https://github.com/readthedocs/readthedocs.org/pull/11846>`__)
+* `@humitos <https://github.com/humitos>`__: Remove EthicalAd URLs (`#11843 <https://github.com/readthedocs/readthedocs.org/pull/11843>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix import wizard (`#11842 <https://github.com/readthedocs/readthedocs.org/pull/11842>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove disable_sphinx_manipulation feature flag (`#11841 <https://github.com/readthedocs/readthedocs.org/pull/11841>`__)
+* `@humitos <https://github.com/humitos>`__: Use "Visual diff" instead of doc diff (`#11838 <https://github.com/readthedocs/readthedocs.org/pull/11838>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.17.0 (`#11837 <https://github.com/readthedocs/readthedocs.org/pull/11837>`__)
+* `@humitos <https://github.com/humitos>`__: Remove old footer code (`#11836 <https://github.com/readthedocs/readthedocs.org/pull/11836>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add authentication documentation (`#11834 <https://github.com/readthedocs/readthedocs.org/pull/11834>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Cleanup doctool toctree listing (`#11833 <https://github.com/readthedocs/readthedocs.org/pull/11833>`__)
+
 Version 11.17.0
 ---------------
 

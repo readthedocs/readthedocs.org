@@ -14,6 +14,7 @@ Read the Docs: documentation simplified
    /intro/docusaurus
    /intro/markdoc
    /intro/add-project
+   /intro/doctools
    /examples
 
 .. toctree::
@@ -24,6 +25,7 @@ Read the Docs: documentation simplified
    /config-file/index
    /config-file/v2
    /addons
+   /intro/accounts
    /automation-rules
    /guides/reproducible-builds
 
@@ -63,7 +65,7 @@ Read the Docs: documentation simplified
    :caption: Reading documentation
 
    /downloadable-documentation
-   /doc-diff
+   /visual-diff
    /link-previews
    /guides/embedding-content
    /server-side-search/index
