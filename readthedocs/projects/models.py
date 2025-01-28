@@ -29,6 +29,7 @@ from readthedocs.builds.constants import (
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE,
+    STABLE_VERBOSE_NAME,
 )
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
@@ -1200,6 +1201,7 @@ class Project(models.Model):
                 version_updated = (
                     new_stable.identifier != current_stable.identifier
                     or new_stable.type != current_stable.type
+                    or current_stable.verbose_name != STABLE_VERBOSE_NAME
                 )
                 if version_updated:
                     log.info(
@@ -1209,6 +1211,7 @@ class Project(models.Model):
                         version_type=new_stable.type,
                     )
                     current_stable.identifier = new_stable.identifier
+                    current_stable.verbose_name = STABLE_VERBOSE_NAME
                     current_stable.type = new_stable.type
                     current_stable.save()
                     return new_stable

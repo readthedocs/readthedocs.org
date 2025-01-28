@@ -670,6 +670,55 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
+    def test_restore_machine_stable_verbose_name(self):
+        """
+        The user imports a new project with a branch named ``Stable``, when
+        syncing the versions, the RTD's ``stable`` is lost (set to machine=False)
+        and doesn't update automatically anymore, when the branch
+        is deleted on the user repository, the RTD's ``stable`` is back
+        (set to machine=True, and with the correct name in lowercase).
+        """
+        self.pip.versions.exclude(slug="master").delete()
+        current_stable = self.pip.get_stable_version()
+        assert current_stable is None
+
+        custom_stable = get(
+            Version,
+            project=self.pip,
+            identifier="Stable",
+            verbose_name="Stable",
+            slug="stable",
+            type=BRANCH,
+            machine=False,
+            active=True,
+        )
+        self.pip.update_stable_version()
+
+        assert self.pip.get_stable_version() == custom_stable
+
+        branches_data = [
+            {
+                "identifier": "master",
+                "verbose_name": "master",
+            },
+            {
+                "identifier": "0.8.3",
+                "verbose_name": "0.8.3",
+            },
+        ]
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=[],
+        )
+
+        # RTD stable is restored correctly.
+        current_stable = self.pip.get_stable_version()
+        assert current_stable.identifier == "0.8.3"
+        assert current_stable.verbose_name == "stable"
+        assert current_stable.machine
+
     def test_machine_attr_when_user_define_latest_tag_and_delete_it(self):
         """The user creates a tag named ``latest`` on an existing repo, when
         syncing the versions, the RTD's ``latest`` is lost (set to
