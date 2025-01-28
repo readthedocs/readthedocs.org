@@ -428,6 +428,11 @@ class Version(TimeStampedModel):
             self.slug = generate_unique_version_slug(self.verbose_name, self)
         super().save(*args, **kwargs)
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = generate_unique_version_slug(self.verbose_name, self)
+        super().save(*args, **kwargs)
+
     def post_save(self, was_active=False):
         """
         Run extra steps after updating a version.

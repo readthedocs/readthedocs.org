@@ -1,4 +1,4 @@
 """Read the Docs."""
 
 
-__version__ = "11.19.1"
+__version__ = "11.19.2"
