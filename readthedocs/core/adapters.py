@@ -6,6 +6,7 @@ from allauth.socialaccount.providers.github.provider import GitHubProvider
 
 import structlog
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.utils.encoding import force_str
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
@@ -16,7 +17,6 @@ log = structlog.get_logger(__name__)
 
 
 class AccountAdapter(DefaultAccountAdapter):
-
     """Customize Allauth emails to match our current patterns."""
 
     def format_email_subject(self, subject):
@@ -58,13 +58,25 @@ class AccountAdapter(DefaultAccountAdapter):
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
-
     def pre_social_login(self, request, sociallogin):
+        """
+        Remove all email addresses except the primary one.
+
+        We don't want to populate all email addresses from the social account,
+        it also makes it easy to mark only the primary email address as verified
+        for providers that don't return information about email verification
+        even if the email is verified (like GitLab).
+        """
+        sociallogin.email_addresses = [
+            email for email in sociallogin.email_addresses if email.primary
+
+        ]
+
         provider = sociallogin.account.get_provider()
         if provider.id == GitHubAppProvider.id and not sociallogin.is_existing:
-            social_ccount = SocialAccount.objects.filter(
+            social_account = SocialAccount.objects.filter(
                 provider=GitHubProvider.id,
                 uid=sociallogin.account.uid,
             ).first()
-            if social_ccount:
-                sociallogin.connect(request, social_ccount.user)
+            if social_account:
+                sociallogin.connect(request, social_account.user)

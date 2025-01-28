@@ -34,7 +34,6 @@ log = structlog.get_logger(__name__)
 
 
 class CommunityBaseSettings(Settings):
-
     """Community base settings, don't use this directly."""
 
     # Django settings
@@ -50,6 +49,9 @@ class CommunityBaseSettings(Settings):
     # Debug settings
     DEBUG = True
     RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
+
+    # Build FTD index for all versions
+    RTD_FILETREEDIFF_ALL = False
 
     @property
     def DEBUG_TOOLBAR_CONFIG(self):
@@ -701,7 +703,6 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
-            "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "user:email",
                 "read:org",
@@ -719,6 +720,7 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
+            # GitLab returns the primary email only, we can trust it's verified.
             "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "api",

@@ -1,6 +1,7 @@
 from fnmatch import fnmatch
 
 import structlog
+from django.conf import settings
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
@@ -172,7 +173,9 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
         else LATEST
     )
     create_manifest = version.project.addons.filetreediff_enabled and (
-        version.is_external or version.slug == base_version
+        version.is_external
+        or version.slug == base_version
+        or settings.RTD_FILETREEDIFF_ALL
     )
     if create_manifest:
         file_manifest_indexer = FileManifestIndexer(

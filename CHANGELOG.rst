@@ -1,3 +1,34 @@
+Version 11.19.2
+---------------
+
+:Date: January 28, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11953 <https://github.com/readthedocs/readthedocs.org/pull/11953>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Antora docs page (`#11947 <https://github.com/readthedocs/readthedocs.org/pull/11947>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add vitepress doc page (`#11944 <https://github.com/readthedocs/readthedocs.org/pull/11944>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Note that there's a soft disk limit for doc builds (`#11943 <https://github.com/readthedocs/readthedocs.org/pull/11943>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version sync: restore verbose_name for stable version (`#11941 <https://github.com/readthedocs/readthedocs.org/pull/11941>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: expose `readthedocs.resolver.filename` in the API response (`#11940 <https://github.com/readthedocs/readthedocs.org/pull/11940>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.19.1 (`#11938 <https://github.com/readthedocs/readthedocs.org/pull/11938>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update build customization docs (`#11927 <https://github.com/readthedocs/readthedocs.org/pull/11927>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Run FileTreeDiff indexer on all versions in dev (`#11873 <https://github.com/readthedocs/readthedocs.org/pull/11873>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: use clone URL from connected repository if available (`#11826 <https://github.com/readthedocs/readthedocs.org/pull/11826>`__)
+
+Version 11.19.1
+---------------
+
+:Date: January 21, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11934 <https://github.com/readthedocs/readthedocs.org/pull/11934>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: fix markdoc example (`#11932 <https://github.com/readthedocs/readthedocs.org/pull/11932>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update markdoc example to use build.jobs (`#11929 <https://github.com/readthedocs/readthedocs.org/pull/11929>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.19.0 (`#11926 <https://github.com/readthedocs/readthedocs.org/pull/11926>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document new build jobs (`#11900 <https://github.com/readthedocs/readthedocs.org/pull/11900>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow to set a "Default" or a explicit position for flyout (`#11891 <https://github.com/readthedocs/readthedocs.org/pull/11891>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: use clone URL from connected repository if available (`#11826 <https://github.com/readthedocs/readthedocs.org/pull/11826>`__)
+* `@stsewd <https://github.com/stsewd>`__: API: use restricted serializer for related projects (`#11820 <https://github.com/readthedocs/readthedocs.org/pull/11820>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11771 <https://github.com/readthedocs/readthedocs.org/pull/11771>`__)
+
 Version 11.19.0
 ---------------
 

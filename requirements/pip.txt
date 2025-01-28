@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.36.2
+boto3==1.36.6
     # via django-storages
-botocore==1.36.2
+botocore==1.36.6
     # via
     #   boto3
     #   s3transfer
@@ -127,7 +127,7 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.in
 django-safemigrate==4.3
     # via -r requirements/pip.in
-django-simple-history==3.7.0
+django-simple-history==3.8.0
     # via -r requirements/pip.in
 django-storages[boto3]==1.14.3
     # via -r requirements/pip.in
@@ -164,7 +164,7 @@ elastic-transport==8.17.0
     # via
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.17.0
+elasticsearch==8.17.1
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
@@ -174,7 +174,7 @@ elasticsearch-dsl==8.17.1
     #   django-elasticsearch-dsl
 fido2==1.2.0
     # via django-allauth
-filelock==3.16.1
+filelock==3.17.0
     # via virtualenv
 funcy==2.0
     # via django-cacheops
@@ -216,7 +216,7 @@ packaging==24.2
     #   gunicorn
 platformdirs==4.3.6
     # via virtualenv
-prompt-toolkit==3.0.48
+prompt-toolkit==3.0.50
     # via click-repl
 psycopg[binary,pool]==3.2.4
     # via -r requirements/pip.in
@@ -226,7 +226,7 @@ psycopg-pool==3.2.4
     # via psycopg
 pycparser==2.22
     # via cffi
-pydantic==2.10.5
+pydantic==2.10.6
     # via -r requirements/pip.in
 pydantic-core==2.27.2
     # via pydantic
@@ -277,7 +277,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
-s3transfer==0.11.1
+s3transfer==0.11.2
     # via boto3
 selectolax==0.3.27
     # via -r requirements/pip.in
@@ -313,7 +313,7 @@ typing-extensions==4.12.2
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
-tzdata==2024.2
+tzdata==2025.1
     # via
     #   -r requirements/pip.in
     #   django-celery-beat

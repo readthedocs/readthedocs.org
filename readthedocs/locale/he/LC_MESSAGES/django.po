@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-14 10:45+0000\n"
+"POT-Creation-Date: 2025-01-28 11:06+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022-2025\n"
 "Language-Team: Hebrew (http://app.transifex.com/readthedocs/readthedocs/"
@@ -22,7 +22,7 @@ msgstr ""
 "1 == 0) ? 1: 2;\n"
 
 #: analytics/models.py:69 builds/filters.py:41 builds/models.py:592
-#: projects/filters.py:196 projects/models.py:1487 search/models.py:27
+#: projects/filters.py:196 projects/models.py:1498 search/models.py:27
 #: templates/base.html:266
 msgid "Version"
 msgstr "גרסה"
@@ -79,7 +79,7 @@ msgstr "כבר קיים מיזם עם השם המפושט „{0}”."
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "מיזם עם {slug_name}={value} אינו תקף כתת־מיזם"
 
-#: api/v3/serializers.py:916 projects/forms.py:619
+#: api/v3/serializers.py:916 projects/forms.py:632
 msgid "A subproject with this alias already exists"
 msgstr "כבר קיים תת־מיזם עם הכינוי הזה"
 
@@ -147,7 +147,7 @@ msgid "Invitation declined"
 msgstr "ההזמנה נדחתה"
 
 #: audit/models.py:116 core/models.py:20 gold/models.py:33
-#: projects/models.py:290
+#: projects/models.py:291
 msgid "User"
 msgstr "משתמש"
 
@@ -160,7 +160,7 @@ msgid "Username"
 msgstr "שם משתמש"
 
 #: audit/models.py:138 builds/models.py:90 builds/models.py:586
-#: organizations/filters.py:133 projects/filters.py:151 projects/models.py:1481
+#: organizations/filters.py:133 projects/filters.py:151 projects/models.py:1492
 #: redirects/models.py:48
 msgid "Project"
 msgstr "מיזם"
@@ -404,7 +404,7 @@ msgstr "פעיל"
 msgid "Build successful"
 msgstr "הבנייה הצליחה"
 
-#: builds/filters.py:29 projects/models.py:1586
+#: builds/filters.py:29 projects/models.py:1597
 #: templates/builds/build_detail.html:160
 msgid "Build failed"
 msgstr "הבנייה נכשלה"
@@ -464,7 +464,7 @@ msgid "Verbose Name"
 msgstr "שם מפורש"
 
 #: builds/models.py:122 oauth/models.py:32 organizations/models.py:50
-#: projects/models.py:295
+#: projects/models.py:296
 msgid "Slug"
 msgstr "שם ייצוגי"
 
@@ -484,7 +484,7 @@ msgstr "נבנה"
 msgid "Uploaded"
 msgstr "הועלה"
 
-#: builds/models.py:149 projects/models.py:523
+#: builds/models.py:149 projects/models.py:524
 msgid "Privacy Level"
 msgstr "רמת פרטיות"
 
@@ -516,7 +516,7 @@ msgstr "יש ePub"
 msgid "Has HTML Zip"
 msgstr "יש Zip של HTML"
 
-#: builds/models.py:170 projects/models.py:608
+#: builds/models.py:170 projects/models.py:609
 msgid "Documentation type"
 msgstr "סוג התיעוד"
 
@@ -564,7 +564,7 @@ msgstr "שגיאה"
 msgid "Exit code"
 msgstr "קוד שגיאה"
 
-#: builds/models.py:642 projects/models.py:1498
+#: builds/models.py:642 projects/models.py:1509
 msgid "Commit"
 msgstr "ביצוע"
 
@@ -613,7 +613,7 @@ msgid "Command"
 msgstr "פקודה"
 
 #: builds/models.py:1012 builds/models.py:1067 oauth/models.py:130
-#: organizations/models.py:64 projects/models.py:297 redirects/models.py:106
+#: organizations/models.py:64 projects/models.py:298 redirects/models.py:106
 #: templates/core/project_details.html:78
 msgid "Description"
 msgstr "תיאור"
@@ -852,7 +852,7 @@ msgstr "הסבר על הבעיה"
 msgid "Please provide as much detail as possible."
 msgstr "נא לספק כמה שיותר פרטים."
 
-#: core/forms.py:198 projects/models.py:1601
+#: core/forms.py:198 projects/models.py:1612
 msgid "URL"
 msgstr "כתובת"
 
@@ -987,12 +987,12 @@ msgid "This project is already Ad-Free."
 msgstr "המיזם כבר נטול פרסומות."
 
 #: gold/models.py:28 organizations/models.py:31 organizations/models.py:223
-#: organizations/models.py:297 projects/models.py:281
+#: organizations/models.py:297 projects/models.py:282
 msgid "Publication date"
 msgstr "תאריך פרסום"
 
 #: gold/models.py:29 organizations/models.py:32 organizations/models.py:224
-#: organizations/models.py:298 projects/models.py:284 projects/models.py:1500
+#: organizations/models.py:298 projects/models.py:285 projects/models.py:1511
 msgid "Modified date"
 msgstr "תאריך עריכה"
 
@@ -1415,7 +1415,7 @@ msgstr "משתמשים"
 #: oauth/models.py:33 oauth/models.py:123 organizations/filters.py:54
 #: organizations/filters.py:60 organizations/models.py:48
 #: organizations/models.py:247 projects/filters.py:44 projects/filters.py:110
-#: projects/models.py:294 projects/models.py:1492
+#: projects/models.py:295 projects/models.py:1503
 msgid "Name"
 msgstr "שם"
 
@@ -1587,11 +1587,11 @@ msgstr "שם הארגון שגוי: לא נוצר שם מפושט."
 msgid "Organization %(name)s already exists"
 msgstr "הארגון %(name)s כבר קיים"
 
-#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:718
+#: organizations/forms.py:135 organizations/forms.py:221 projects/forms.py:731
 msgid "Email address or username"
 msgstr "כתובת דוא״ל או שם משתמש"
 
-#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:733
+#: organizations/forms.py:151 organizations/forms.py:256 projects/forms.py:746
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr "המשתמש %(username)s לא קיים"
@@ -2157,7 +2157,7 @@ msgstr "נמחק"
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:94 projects/models.py:2050
+#: projects/constants.py:94 projects/models.py:2066
 msgid "Public"
 msgstr "ציבורי"
 
@@ -2218,26 +2218,24 @@ msgid "Define your own pattern"
 msgstr "הגדרת תבנית משלך"
 
 #: projects/constants.py:452
-#, fuzzy
-#| msgid "SemVer (Read the Docs)"
 msgid "Default (from theme or Read the Docs)"
-msgstr "גרסה סמנטית (בתיעוד)"
+msgstr "ברירת מחדל (מערכת העיצוב או מ־Read the Docs)"
 
 #: projects/constants.py:453
 msgid "Bottom left"
-msgstr ""
+msgstr "משמאל למטה"
 
 #: projects/constants.py:454
 msgid "Bottom right"
-msgstr ""
+msgstr "מימין למטה"
 
 #: projects/constants.py:455
 msgid "Top left"
-msgstr ""
+msgstr "משמאל למעלה"
 
 #: projects/constants.py:456
 msgid "Top right"
-msgstr ""
+msgstr "מימין למעלה"
 
 #: projects/filters.py:37 projects/filters.py:101
 msgid "Recently built"
@@ -2283,143 +2281,143 @@ msgstr "גרסאות פרטיות"
 msgid "Visibility"
 msgstr "חשיפה"
 
-#: projects/forms.py:90
+#: projects/forms.py:98
 msgid "No connected repository"
 msgstr "מאגר לא מחובר"
 
-#: projects/forms.py:111
+#: projects/forms.py:119
 msgid "Invalid project name, a project already exists with that name"
 msgstr "שם מיזם שגוי, כבר קיים מיזם בשם הזה"
 
-#: projects/forms.py:116
+#: projects/forms.py:124
 msgid "Invalid project name"
 msgstr "שם המיזם שגוי"
 
-#: projects/forms.py:229
+#: projects/forms.py:237
 msgid ""
 "We have detected that this project is public, pull request previews are set "
 "to public."
 msgstr ""
 "זיהינו שהמיזם הזה ציבורי, תצוגות מקדימות של בקשות דחיפה מוגדרות לציבוריות."
 
-#: projects/forms.py:249
+#: projects/forms.py:257
 msgid "To build from pull requests you need a "
 msgstr "כדי לבנות מבקשות דחיפה יש"
 
-#: projects/forms.py:261
+#: projects/forms.py:269
 msgid ""
 "To build from pull requests your repository's webhook needs to send pull "
 "request events. "
 msgstr "לבנות מבקשות דחיפה התליית המאגר שלך צריכה לשלוח אירועי בקשת דחיפה."
 
-#: projects/forms.py:276
+#: projects/forms.py:284
 msgid "Pull request builds not supported"
 msgstr "בניות מבקשות דחיפה לא נתמכות"
 
-#: projects/forms.py:339
+#: projects/forms.py:347
 #, python-brace-format
 msgid "You must first <a href='{url}'>add a connected service "
 msgstr "צריך קודם <a href='{url}'>להוסיף שירות מקושר"
 
-#: projects/forms.py:343
+#: projects/forms.py:351
 msgid "No connected services found"
 msgstr "לא נמצאו שירותים מקושרים"
 
-#: projects/forms.py:349
+#: projects/forms.py:357
 msgid ""
 "Only organization owners may create new projects when single sign-on is "
 "enabled."
 msgstr "רק בעלי הארגון יכולים ליצור מיזמים חדשים כשכניסה אחודה מופעלת."
 
-#: projects/forms.py:352 projects/forms.py:374
+#: projects/forms.py:360 projects/forms.py:382
 msgid "Organization single sign-on enabled"
 msgstr "מופעלת כניסה אחודה לארגון"
 
-#: projects/forms.py:357 projects/forms.py:379
+#: projects/forms.py:365 projects/forms.py:387
 msgid ""
 "You must be on a team with admin permissions in order to add a new project "
 "to your organization."
 msgstr "צריך להיות בצוות עם הרשאות ניהול כדי להוסיף מיזם חדש לארגון שלך."
 
-#: projects/forms.py:360 projects/forms.py:382
+#: projects/forms.py:368 projects/forms.py:390
 msgid "Admin permission required"
 msgstr "נדרשת הרשאת הנהלה"
 
-#: projects/forms.py:371
+#: projects/forms.py:379
 msgid ""
 "Projects cannot be manually configured when single sign-on is enabled for "
 "your organization."
 msgstr "אי אפשר להגדיר מיזמים ידנית כשכניסה אחודה מופעלת בארגון שלך."
 
-#: projects/forms.py:450 projects/models.py:299
+#: projects/forms.py:463 projects/models.py:300
 msgid "Short description of this project"
 msgstr "תיאור קצר של המיזם הזה"
 
-#: projects/forms.py:472
+#: projects/forms.py:485
 #, python-brace-format
 msgid ""
 "This setting is inherited from the <a href=\"{link}\">parent translation</a>."
 msgstr "הגדרה זו התקבלה בירושה מ<a href=\"{link}\">גרסת ההורה</a>."
 
-#: projects/forms.py:547
+#: projects/forms.py:560
 #, python-brace-format
 msgid "There is already a \"{lang}\" translation for the {proj} project."
 msgstr "כבר קיים תרגום ל„{lang}” של המיזם {proj}."
 
-#: projects/forms.py:576
+#: projects/forms.py:589
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "אורכה של כל תגית חייבת להיות באורך של 100 תווים ומטה."
 
-#: projects/forms.py:670
+#: projects/forms.py:683
 msgid "Enable Addons"
 msgstr "הפעלת תוספים"
 
-#: projects/forms.py:671
+#: projects/forms.py:684
 msgid "Visual diff enabled"
 msgstr "הבדלים חזותיים פעילים"
 
-#: projects/forms.py:673
+#: projects/forms.py:686
 msgid "Show a notification on builds from pull requests"
 msgstr "להציג התראה על בניות מבקשות משיכה"
 
-#: projects/forms.py:676
+#: projects/forms.py:689
 msgid "Show a notification on non-stable versions"
 msgstr "הצגת התראה על גרסאות לא יציבות"
 
-#: projects/forms.py:678
+#: projects/forms.py:691
 msgid "Show a notification on latest version"
 msgstr "הצגת התראה על הגרסה העדכנית ביותר"
 
-#: projects/forms.py:679 projects/models.py:200 redirects/models.py:99
+#: projects/forms.py:692 projects/models.py:201 redirects/models.py:99
 msgid "Enabled"
 msgstr "מופעל"
 
-#: projects/forms.py:680
+#: projects/forms.py:693
 msgid "CSS main content selector"
 msgstr "בורר תוכן ראשי ב־CSS"
 
-#: projects/forms.py:705
+#: projects/forms.py:718
 msgid ""
 "The flyout sorting custom pattern is required when selecting a custom "
 "pattern."
 msgstr "התבנית המותאמת אישית בחלונית הצפה נחוצה בעת בחירת תבנית מותאמת אישית."
 
-#: projects/forms.py:737
+#: projects/forms.py:750
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr "המשתמש %(username)s כבר ברמת מתחזק"
 
-#: projects/forms.py:822
+#: projects/forms.py:835
 msgid "The payload must be a valid JSON object."
 msgstr "המטען חייב להיות עצם JSON תקני."
 
-#: projects/forms.py:855
+#: projects/forms.py:868
 msgid ""
 "This project is configured with a versioning scheme that doesn't support "
 "translations."
 msgstr "מיזם זה מוגדר עם שיטת גרסאות שאינה תומכת בתרגומים."
 
-#: projects/forms.py:1055
+#: projects/forms.py:1068
 msgid ""
 "This domain has a CNAME record pointing to the APEX domain. Please remove "
 "the CNAME before adding the domain."
@@ -2427,7 +2425,7 @@ msgstr ""
 "לשם התחום הזה יש רשומת CNAME שמצביעה לשם תחום ה־APEX. נא להסיר את ה־CNAME "
 "לפני הוספת שם התחום."
 
-#: projects/forms.py:1065
+#: projects/forms.py:1078
 msgid ""
 "This domain has a CNAME record pointing to another CNAME. Please remove the "
 "CNAME before adding the domain."
@@ -2435,7 +2433,7 @@ msgstr ""
 "לשם התחום הזה יש רשומת CNAME שמצביעה ל־CNAME אחר. נא להסיר את ה־CNAME לפני "
 "הוספת שם התחום."
 
-#: projects/forms.py:1081
+#: projects/forms.py:1094
 msgid ""
 "DNS resolution timed out. Make sure the domain is correct, or try again "
 "later."
@@ -2443,99 +2441,99 @@ msgstr ""
 "הזמן שהוקצב לפתרון שמות התחום דרך ה־DNS הסתיים. נא לוודא ששם התחום נכון "
 "ולנסות שוב."
 
-#: projects/forms.py:1086
+#: projects/forms.py:1099
 msgid "The domain is not valid."
 msgstr "שם התחום שגוי."
 
-#: projects/forms.py:1106
+#: projects/forms.py:1119
 msgid "Only one domain can be canonical at a time."
 msgstr "רק שם תחום אחד יכול להיות ייצוגי בכל פעם."
 
-#: projects/forms.py:1209
+#: projects/forms.py:1222
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "שם משתנה לא יכול להתחיל ב־__ (פעמיים קו תחתון)"
 
-#: projects/forms.py:1213
+#: projects/forms.py:1226
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "שם משתנה לא יכול להתחיל ב־READTHEDOCS"
 
-#: projects/forms.py:1218
+#: projects/forms.py:1231
 msgid "There is already a variable with this name for this project"
 msgstr "כבר יש משתנה עם השם הזה במיזם הזה"
 
-#: projects/forms.py:1223
+#: projects/forms.py:1236
 msgid "Variable name can't contain spaces"
 msgstr "שם משתנה לא יכול להכיל רווחים"
 
-#: projects/forms.py:1227
+#: projects/forms.py:1240
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "מותר אותיות באנגלית, ספרות וקווים תחתיים בלבד"
 
-#: projects/models.py:95
+#: projects/models.py:96
 msgid "Main project"
 msgstr "מיזם ראשי"
 
-#: projects/models.py:101
+#: projects/models.py:102
 msgid "Subproject"
 msgstr "תת־מיזם"
 
-#: projects/models.py:106
+#: projects/models.py:107
 msgid "Alias"
 msgstr "כינוי"
 
-#: projects/models.py:175
+#: projects/models.py:176
 msgid "Base version to compare against (eg. DocDiff, File Tree Diff)"
 msgstr "גרסת בסיס להשוות אליה (למשל: הבדל בין מסמכים, הבדל בעץ תיקיות)"
 
-#: projects/models.py:203
+#: projects/models.py:204
 msgid "Sorting of versions"
 msgstr "מיון גרסאות"
 
-#: projects/models.py:213
+#: projects/models.py:214
 msgid "Custom version sorting pattern"
 msgstr "תבנית מיון גרסאות מותאמת אישית"
 
-#: projects/models.py:219
+#: projects/models.py:220
 msgid "Show <code>latest</code> and <code>stable</code> at the beginning"
 msgstr "הצגת <code>latest</code> ו־<code>stable</code> בהתחלה"
 
-#: projects/models.py:230 redirects/models.py:114
+#: projects/models.py:231 redirects/models.py:114
 msgid "Position"
 msgstr "מקום"
 
-#: projects/models.py:302
+#: projects/models.py:303
 msgid "Repository URL"
 msgstr "כתובת מאגר"
 
-#: projects/models.py:305
+#: projects/models.py:306
 msgid "Git repository URL"
 msgstr "כתובת מאגר Git"
 
-#: projects/models.py:312
+#: projects/models.py:313
 msgid "Repository type"
 msgstr "סוג מאגר"
 
-#: projects/models.py:318
+#: projects/models.py:319
 msgid "Project homepage"
 msgstr "דף בית של מיזם"
 
-#: projects/models.py:320
+#: projects/models.py:321
 msgid "The project's homepage"
 msgstr "דף הבית של המיזם"
 
-#: projects/models.py:323
+#: projects/models.py:324
 msgid "Canonical URL"
 msgstr "כתובת ידידותית"
 
-#: projects/models.py:325
+#: projects/models.py:326
 msgid "URL that documentation is expected to serve from"
 msgstr "כתובת שמצופה ממנה להציג את התיעוד"
 
-#: projects/models.py:328
+#: projects/models.py:329
 msgid "URL versioning scheme"
 msgstr "סכמת כתובות לגרסאות"
 
-#: projects/models.py:335
+#: projects/models.py:336
 msgid ""
 "This affects URL your documentation is served from, and if it supports "
 "translations or versions. Changing the versioning scheme will break your "
@@ -2544,11 +2542,11 @@ msgstr ""
 "משפיע על הכתובת ממנה מוגש התיעוד שלך, ואם יש לה תמיכה בתרגומים או גרסאות. "
 "החלפת סכמת הגרסאות תפגע בכתובות הנוכחיות שלך, כך שאולי כדאי גם ליצור הפניה."
 
-#: projects/models.py:343
+#: projects/models.py:344
 msgid "Single version"
 msgstr "גרסה בודדת"
 
-#: projects/models.py:346
+#: projects/models.py:347
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -2558,19 +2556,19 @@ msgstr ""
 "להשתמש בזהירות רבה, יש להפעיל זאת רק אם <b>אף פעם</b> לא תהיינה יותר גרסות "
 "של המסמכים שלך."
 
-#: projects/models.py:353
+#: projects/models.py:354
 msgid "Default version"
 msgstr "גרסת בררת מחדל"
 
-#: projects/models.py:356
+#: projects/models.py:357
 msgid "The version of your project that / redirects to"
 msgstr "גרסת המיזם ש־/ יפנה אליה"
 
-#: projects/models.py:361
+#: projects/models.py:362
 msgid "Default branch"
 msgstr "ענף בררת מחדל"
 
-#: projects/models.py:367
+#: projects/models.py:368
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS."
@@ -2578,11 +2576,11 @@ msgstr ""
 "לאיזה ענף מפנה „latest”. יש להשאיר ריק כדי להשתמש בערך בררת המחדל של מערכת "
 "בקרת הגרסאות שלך."
 
-#: projects/models.py:372
+#: projects/models.py:373
 msgid "Custom path prefix"
 msgstr "קידומת נתיב מותאמת"
 
-#: projects/models.py:378
+#: projects/models.py:379
 msgid ""
 "A custom path prefix used when serving documentation from this project. By "
 "default we serve documentation at the root (/) of a domain."
@@ -2590,11 +2588,11 @@ msgstr ""
 "קידומת נתיב מותאמת בעת הגשת תיעוד מהמיזם הזה. כברירת מחדל אנו מגישים תיעוד "
 "מבסיס (/) שם התחום."
 
-#: projects/models.py:383
+#: projects/models.py:384
 msgid "Custom subproject path prefix"
 msgstr "קידומת נתיב תת־מיזם מותאמת"
 
-#: projects/models.py:389
+#: projects/models.py:390
 msgid ""
 "A custom path prefix used when evaluating the root of a subproject. By "
 "default we serve documentation from subprojects under the `/projects/` "
@@ -2603,11 +2601,11 @@ msgstr ""
 "קידומת נתיב מותאמת בעת הערכת בסיס תת־המיזם. כברירת מחדל אנו מגישים תיעוד "
 "מתת־מיזמים תחת הקידומת `/projects/`."
 
-#: projects/models.py:396
+#: projects/models.py:397
 msgid "Build pull requests for this project"
 msgstr "בניית בקשות דחיפה למיזם הזה"
 
-#: projects/models.py:399
+#: projects/models.py:400
 msgid ""
 "More information in <a href=\"https://docs.readthedocs.io/page/guides/"
 "autobuild-docs-for-pull-requests.html\">our docs</a>."
@@ -2615,11 +2613,11 @@ msgstr ""
 "מידע נוסף ב<a href=\"https://docs.readthedocs.io/page/guides/autobuild-docs-"
 "for-pull-requests.html\">תיעוד שלנו</a>."
 
-#: projects/models.py:403
+#: projects/models.py:404
 msgid "Privacy level of Pull Requests"
 msgstr "רמת פרטיות של בקשות משיכה (PR)"
 
-#: projects/models.py:410
+#: projects/models.py:411
 msgid ""
 "Should builds from pull requests be public? <strong>If your repository is "
 "public, don't set this to private</strong>."
@@ -2627,15 +2625,15 @@ msgstr ""
 "האם בניות מבקשות הדחיפה האלה תהיינה ציבוריות? <strong>אם המאגר שלך ציבורי, "
 "לא להגדיר את זה לפרטי</strong>."
 
-#: projects/models.py:415
+#: projects/models.py:416
 msgid "CDN Enabled"
 msgstr "CDN פעיל"
 
-#: projects/models.py:417
+#: projects/models.py:418
 msgid "Analytics code"
 msgstr "קוד Analytics"
 
-#: projects/models.py:422
+#: projects/models.py:423
 msgid ""
 "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
 "down your page loads."
@@ -2643,76 +2641,76 @@ msgstr ""
 "Google Analytics Tracking ID (למשל: <code>UA-22345342-1</code>). עשוי להאט "
 "את טעינת העמודים שלך."
 
-#: projects/models.py:428
+#: projects/models.py:429
 msgid "Disable Analytics"
 msgstr "השבתת ניתוח"
 
-#: projects/models.py:432
+#: projects/models.py:433
 msgid ""
 "Disable Google Analytics completely for this project (requires rebuilding "
 "documentation)"
 msgstr "השבתת Google Analytics לחלוטין למיזם הזה (דורשת בניית התיעוד מחדש)"
 
-#: projects/models.py:437
+#: projects/models.py:438
 msgid "Alternative container image"
 msgstr "תמונת מכולה חלופית"
 
-#: projects/models.py:443
+#: projects/models.py:444
 msgid "Container memory limit"
 msgstr "הגבלת זיכרון למכולה"
 
-#: projects/models.py:448
+#: projects/models.py:449
 msgid ""
 "Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
 "code>"
 msgstr ""
 "הגבלת זיכרון בתצורת Docker -- למשל: <code>512m</code> או <code>1g</code>"
 
-#: projects/models.py:453
+#: projects/models.py:454
 msgid "Container time limit in seconds"
 msgstr "מגבלת זמן למכולה בשניות"
 
-#: projects/models.py:458
+#: projects/models.py:459
 msgid "Alternate build queue id"
 msgstr "מזהה תור בנייה חלופי"
 
-#: projects/models.py:464
+#: projects/models.py:465
 msgid "Maximum concurrent builds allowed for this project"
 msgstr "מספר הבניות המקביליות המרבית המורשית למיזם זה"
 
-#: projects/models.py:469
+#: projects/models.py:470
 msgid "Allow paid advertising"
 msgstr "לאפשר פרסום בתשלום"
 
-#: projects/models.py:471
+#: projects/models.py:472
 msgid "If unchecked, users will still see community ads."
 msgstr "אם האפשרות לא סומנה, המשתמשים עדיין יראו פרסומות קהילתיות."
 
-#: projects/models.py:474
+#: projects/models.py:475
 msgid "Ad-free"
 msgstr "נטול פרסומות"
 
-#: projects/models.py:479
+#: projects/models.py:480
 msgid "Is spam?"
 msgstr "ספאם?"
 
-#: projects/models.py:482
+#: projects/models.py:483
 msgid "Manually marked as (not) spam"
 msgstr "סומן ידנית כ(לא) ספאם"
 
-#: projects/models.py:485
+#: projects/models.py:486
 msgid "Show version warning"
 msgstr "הצגת אזהרת גרסה"
 
-#: projects/models.py:487
+#: projects/models.py:488
 msgid "Show warning banner in non-stable nor latest versions."
 msgstr "הצגת כותרת אזהרה בגרסאות בלתי יציבות או latest."
 
-#: projects/models.py:491
+#: projects/models.py:492
 msgid "Path for .readthedocs.yaml"
 msgstr "נתיב אל ‎.readthedocs.yaml"
 
-#: projects/models.py:497
+#: projects/models.py:498
 msgid ""
 "<strong>Warning: experimental feature</strong>. Custom path from repository "
 "top-level to your <code>.readthedocs.yaml</code>, ex. <code>subpath/docs/."
@@ -2724,19 +2722,19 @@ msgstr ""
 "readthedocs.yaml</code>. אפשר להשאיר ריק כדי לקבל את ערך ברירת המחדל:‎ <code>."
 "readthedocs.yaml</code>."
 
-#: projects/models.py:505
+#: projects/models.py:506
 msgid "Featured"
 msgstr "מומלץ"
 
-#: projects/models.py:507
+#: projects/models.py:508
 msgid "Skip (disable) building this project"
 msgstr "דילוג (השבתה) על בניית המיזם הזה"
 
-#: projects/models.py:515
+#: projects/models.py:516
 msgid "Delisted"
 msgstr "הוחרג מהרשימה"
 
-#: projects/models.py:517
+#: projects/models.py:518
 msgid ""
 "Delisting a project removes it from Read the Docs search indexing and asks "
 "external search engines to remove it via robots.txt"
@@ -2744,50 +2742,50 @@ msgstr ""
 "החרגת מיזם מהרשימה מסירה אותו ממפתח החיפוש של Read the Docs ומבקשת ממנועי "
 "חיפוש להסיר אותו דרך robots.txt"
 
-#: projects/models.py:528
+#: projects/models.py:529
 msgid "Should the project dashboard be public?"
 msgstr "האם לוח הבקרה של המיזם יהיה ציבורי?"
 
-#: projects/models.py:535
+#: projects/models.py:536
 msgid "Related projects"
 msgstr "מיזמים קשורים"
 
-#: projects/models.py:543 templates/search/elastic_search.html:57
+#: projects/models.py:544 templates/search/elastic_search.html:57
 msgid "Language"
 msgstr "שפה"
 
-#: projects/models.py:547
+#: projects/models.py:548
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr ""
 "השפה בה תיעוד המיזם עבר עיבוד. לתשומת לבך: יש לזה השפעה על כתובת המיזם שלך."
 
-#: projects/models.py:555
+#: projects/models.py:556
 msgid "Programming Language"
 msgstr "שפת תכנות"
 
-#: projects/models.py:559
+#: projects/models.py:560
 msgid "The primary programming language the project is written in."
 msgstr "שפת התכנות העיקרית בה נכתב המיזם שלך."
 
-#: projects/models.py:575
+#: projects/models.py:576
 msgid "This project has been built with a webhook"
 msgstr "מיזם זה נבנה עם התלייה"
 
-#: projects/models.py:579
+#: projects/models.py:580
 msgid "This project has been successfully cloned"
 msgstr "המיזם הזה שוכפל בהצלחה"
 
-#: projects/models.py:588
+#: projects/models.py:589
 msgid "Connected repository"
 msgstr "מאגר מחובר"
 
-#: projects/models.py:589
+#: projects/models.py:590
 msgid "Repository connected to this project"
 msgstr "המאגר מחובר למיזם הזה"
 
-#: projects/models.py:615
+#: projects/models.py:616
 msgid ""
 "Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
 "en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
@@ -2797,67 +2795,67 @@ msgstr ""
 "html#sphinx.builders.html.DirectoryHTMLBuilder\">מידע נוסף על בנאי sphinx</"
 "a>."
 
-#: projects/models.py:626
+#: projects/models.py:627
 msgid "project"
 msgstr "מיזם"
 
-#: projects/models.py:637
+#: projects/models.py:638
 msgid "Model must have slug"
 msgstr "לדגם חייב להיות שם ייצוגי"
 
-#: projects/models.py:1362
+#: projects/models.py:1373
 msgid "Subproject nesting is not supported"
 msgstr "אין תמיכה בקינון תת־מיזמים"
 
-#: projects/models.py:1497
+#: projects/models.py:1508
 msgid "Path"
 msgstr "נתיב"
 
-#: projects/models.py:1499
+#: projects/models.py:1510
 msgid "Build id"
 msgstr "מזהה בנייה"
 
-#: projects/models.py:1502
+#: projects/models.py:1513
 msgid "Page search rank"
 msgstr "דירוג חיפוש עמוד"
 
-#: projects/models.py:1507
+#: projects/models.py:1518
 msgid "Ignore this file from operations like indexing"
 msgstr "להתעלם מהקובץ הזה בפעולות כמו סידור באינדקס"
 
-#: projects/models.py:1550 projects/models.py:1715
+#: projects/models.py:1561 projects/models.py:1726
 msgid "created"
 msgstr "נוצר"
 
-#: projects/models.py:1555
+#: projects/models.py:1566
 msgid "modified"
 msgstr "נערך"
 
-#: projects/models.py:1584
+#: projects/models.py:1595
 msgid "Build triggered"
 msgstr "בנייה הופעלה"
 
-#: projects/models.py:1585
+#: projects/models.py:1596
 msgid "Build passed"
 msgstr "בנייה עברה"
 
-#: projects/models.py:1603
+#: projects/models.py:1614
 msgid "URL to send the webhook to"
 msgstr "כתובת אליה לשלוח את ההתלייה"
 
-#: projects/models.py:1606
+#: projects/models.py:1617
 msgid "Secret used to sign the payload of the webhook"
 msgstr "סוד שמשמש לחתום על המטען של ההתליה"
 
-#: projects/models.py:1614
+#: projects/models.py:1625
 msgid "Events to subscribe"
 msgstr "אירועים להירשם אליהם"
 
-#: projects/models.py:1617
+#: projects/models.py:1628
 msgid "JSON payload"
 msgstr "מטען JSON"
 
-#: projects/models.py:1619
+#: projects/models.py:1630
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
@@ -2867,79 +2865,79 @@ msgstr ""
 "build-notifications.html#variable-substitutions-reference\">תיעוד</a> מה "
 "ההחלפות המתאימות."
 
-#: projects/models.py:1726
+#: projects/models.py:1737
 msgid "Domain"
 msgstr "שם מתחם"
 
-#: projects/models.py:1733
+#: projects/models.py:1744
 msgid "This domain was auto-created"
 msgstr "שם תחום זה נוצר אוטומטית"
 
-#: projects/models.py:1737
+#: projects/models.py:1748
 msgid "This domain is a CNAME for the project"
 msgstr "שם תחום זה הוא CNAME למיזם"
 
-#: projects/models.py:1742
+#: projects/models.py:1753
 msgid "This domain is the primary one where the documentation is served from"
 msgstr "שם תחום זה הוא הראשי ממנו מוגש התיעוד"
 
-#: projects/models.py:1746
+#: projects/models.py:1757
 msgid "Use HTTPS"
 msgstr "שימוש ב־HTTPS"
 
-#: projects/models.py:1748
+#: projects/models.py:1759
 msgid "Always use HTTPS for this domain"
 msgstr "תמיד להשתמש ב־HTTPS לשם מתחם זה"
 
-#: projects/models.py:1752
+#: projects/models.py:1763
 msgid "Number of times this domain has been hit"
 msgstr "מספר הפעמים שביקרו בשם מתחם זה"
 
-#: projects/models.py:1757 templates/projects/domain_form.html:49
+#: projects/models.py:1768 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr "מצב אישור SSL"
 
-#: projects/models.py:1766
+#: projects/models.py:1777
 msgid "Skip validation process."
 msgstr "דילוג על תהליך אימות."
 
-#: projects/models.py:1770
+#: projects/models.py:1781
 msgid "Start date of the validation process."
 msgstr "תאריך התחלת תהליך האימות."
 
-#: projects/models.py:1779
+#: projects/models.py:1790
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr "הגדרת max-age (גיל מרבי, למשל: 31536000) לכותרת ה־HSTS."
 
-#: projects/models.py:1784
+#: projects/models.py:1795
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 "אם hsts_max_age > 0, להגדיר את הדגלון includeSubDomains יחד עם כותרת ה־HSTS."
 
-#: projects/models.py:1789
+#: projects/models.py:1800
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 "אם hsts_max_age > 0, להגדיר את הדגלון preload (טעינה מקדימה) יחד עם כותרת "
 "ה־HSTS."
 
-#: projects/models.py:1922
+#: projects/models.py:1934
 msgid "Build: Try alternative method of posting large data"
 msgstr "בנייה: לנסות שיטה חלופית לפרסום נתונים גדולים"
 
-#: projects/models.py:1926
+#: projects/models.py:1938
 msgid "Proxito: Record 404s page views."
 msgstr "Proxito: תיעוד צפיות בעמודי 404."
 
-#: projects/models.py:1930
+#: projects/models.py:1942
 msgid "Proxito: Disable all page views"
 msgstr "Proxito: השבתת כל צפיות העמודים"
 
-#: projects/models.py:1934
+#: projects/models.py:1946
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr "Proxito: לאפשר שימוש בכותרת X-RTD-Slug"
 
-#: projects/models.py:1939
+#: projects/models.py:1951
 msgid ""
 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
 "one (Project.custom_prefix)."
@@ -2947,85 +2945,89 @@ msgstr ""
 "Proxito: להשתמש ב־API דרך מתווך (‎/_/*‎) עם הקידומת המותאמת אם יש כזה למיזם "
 "(Project.custom_prefix)."
 
-#: projects/models.py:1944
+#: projects/models.py:1956
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr "לוח בקרה: לאפשר למיזם להשתמש בכרזת אזהרת גרסה."
 
-#: projects/models.py:1949
+#: projects/models.py:1960
+msgid "Remote repository: Don't keep project in sync with remote repository."
+msgstr ""
+
+#: projects/models.py:1965
 msgid "Webhook: Skip syncing branches"
 msgstr "התליה: דילוג על סנכרון ענפים"
 
-#: projects/models.py:1953
+#: projects/models.py:1969
 msgid "Webhook: Skip syncing tags"
 msgstr "התליה: דילוג על סנכרון תגיות"
 
-#: projects/models.py:1957
+#: projects/models.py:1973
 msgid "Webhook: Skip sync versions task"
 msgstr "התליה: דילוג על משימת סנכרון גרסאות"
 
-#: projects/models.py:1960
+#: projects/models.py:1976
 msgid "Build: Always run pip install --upgrade"
 msgstr "בנייה: תמיד להריץ את pip install --upgrade"
 
-#: projects/models.py:1961
+#: projects/models.py:1977
 msgid "Build: Use new pip resolver"
 msgstr "בנייה: ייעשה שימוש בפותר ה־pip החדש"
 
-#: projects/models.py:1964
+#: projects/models.py:1980
 msgid "Build: Don't install the latest version of pip"
 msgstr "בנייה: לא להתקין את הגרסה העדכנית ביותר של pip"
 
-#: projects/models.py:1968
+#: projects/models.py:1984
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr "Sphinx: להשתמש בגרסה העדכנית ביותר של הרחבת Sphinx ל־Read the Docs"
 
-#: projects/models.py:1973
+#: projects/models.py:1989
 msgid ""
 "Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 "בנייה: התקנת כל הגרסאות העדכניות ביותר של תלויות הליבה של Read the Docs"
 
-#: projects/models.py:1979
+#: projects/models.py:1995
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr "חיפוש: הפעלת חיפוש בצד השרת למיזמי MkDocs"
 
-#: projects/models.py:1983
+#: projects/models.py:1999
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr "חיפוש: ברירת המחדל תיסוג לחיפוש מעורפל לשאילתות חיפוש פשוטות"
 
-#: projects/models.py:1988
+#: projects/models.py:2004
 msgid "Build: Set scale-in protection before/after building."
 msgstr "בנייה: הגדרת הגנת צמיחה פנימה לפני/אחרי בנייה."
 
-#: projects/models.py:2001
+#: projects/models.py:2017
 msgid "Feature identifier"
 msgstr "מזהה תכונות"
 
-#: projects/models.py:2006
+#: projects/models.py:2022
 msgid "Date feature was added"
 msgstr "התאריך בו נוספה התכונה"
 
-#: projects/models.py:2012
+#: projects/models.py:2028
 msgid "Default all past projects to True"
 msgstr "ברירת המחדל של כל מיזמי העבר הוא אמת (True)"
 
-#: projects/models.py:2016
+#: projects/models.py:2032
 msgid "Default all future projects to True"
 msgstr "ברירת המחדל של כל מיזמי העתיד הוא אמת (True)"
 
-#: projects/models.py:2038
+#: projects/models.py:2054
 msgid "Name of the environment variable"
 msgstr "שם משתנה הסביבה"
 
-#: projects/models.py:2042
+#: projects/models.py:2058
 msgid "Value of the environment variable"
 msgstr "ערך משתנה הסביבה"
 
-#: projects/models.py:2047
+#: projects/models.py:2063
 msgid "Project where this variable will be used"
 msgstr "מיזם בו יעשה שימוש במשתנה"
 
-#: projects/models.py:2053
+#: projects/models.py:2069
 msgid "Expose this environment variable in PR builds?"
 msgstr "לחשוף את משתנה הסביבה בבניות של בקשות משיכה (PR)?"
 
@@ -6070,7 +6072,3 @@ msgstr ""
 "מספיקה ועליך גם לבקר בהגדרות אצל ספק ה־Git שלך כדי למחוק את חיבור ה־OAuth של "
 "Read the Docs. ב־GitHub, הוא ממוקם תחת <code>Settings > Applications > "
 "Authorized OAuth Apps</code>."
-
-#, python-brace-format
-#~ msgid "{username} is the last owner, can't be removed"
-#~ msgstr "{username} הוא הבעלים האחרונים, לא ניתן להסיר"
