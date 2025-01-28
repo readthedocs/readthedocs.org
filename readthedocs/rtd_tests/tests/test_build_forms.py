@@ -28,9 +28,11 @@ class TestVersionForm(TestCase):
 
         form = VersionForm(
             {
+                "slug": version.slug,
                 "active": True,
             },
             instance=version,
+            project=self.project,
         )
         self.assertTrue(form.is_valid())
 
@@ -45,9 +47,11 @@ class TestVersionForm(TestCase):
 
         form = VersionForm(
             {
+                "slug": version.slug,
                 "active": False,
             },
             instance=version,
+            project=self.project,
         )
         self.assertFalse(form.is_valid())
         self.assertIn("active", form.errors)
@@ -62,10 +66,12 @@ class TestVersionForm(TestCase):
         )
         form = VersionForm(
             {
+                "slug": version.slug,
                 "active": True,
                 "privacy_level": PRIVATE,
             },
             instance=version,
+            project=self.project,
         )
         # The form is valid, but the field is ignored
         self.assertTrue(form.is_valid())
@@ -81,10 +87,12 @@ class TestVersionForm(TestCase):
         )
         form = VersionForm(
             {
+                "slug": version.slug,
                 "active": True,
                 "privacy_level": PRIVATE,
             },
             instance=version,
+            project=self.project,
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(version.privacy_level, PRIVATE)
@@ -125,6 +133,7 @@ class TestVersionForm(TestCase):
         r = self.client.post(
             url,
             data={
+                "slug": version.slug,
                 "active": True,
                 "privacy_level": PRIVATE,
             },
@@ -138,6 +147,7 @@ class TestVersionForm(TestCase):
         r = self.client.post(
             url,
             data={
+                "slug": version.slug,
                 "active": False,
                 "privacy_level": PRIVATE,
             },

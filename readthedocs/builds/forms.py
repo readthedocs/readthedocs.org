@@ -40,7 +40,7 @@ class VersionForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop("project", None)
+        self.project = kwargs.pop("project")
         super().__init__(*args, **kwargs)
 
         field_sets = [
