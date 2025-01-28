@@ -14,7 +14,7 @@ from readthedocs.projects.models import HTMLFile, Project
 class TestVersionForm(TestCase):
     def setUp(self):
         self.user = get(User)
-        self.project = get(Project, users=(self.user,))
+        self.project = get(Project, users=(self.user,), slug="project")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_default_version_is_active(self):
@@ -261,7 +261,7 @@ class TestVersionForm(TestCase):
     @mock.patch("readthedocs.builds.models.trigger_build")
     @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
     @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
-    def clean_resources_when_changing_slug_of_active_version(
+    def test_clean_resources_when_changing_slug_of_active_version(
         self, remove_build_storage_paths, remove_search_indexes, trigger_build
     ):
         version = get(
@@ -288,14 +288,26 @@ class TestVersionForm(TestCase):
         version.refresh_from_db()
         assert version.slug == "change-me"
 
-        remove_build_storage_paths.delay.assert_not_called()
-        remove_search_indexes.delay.assert_not_called()
+        remove_build_storage_paths.delay.assert_called_once_with(
+            [
+                "html/project/slug",
+                "pdf/project/slug",
+                "epub/project/slug",
+                "htmlzip/project/slug",
+                "json/project/slug",
+                "diff/project/slug",
+            ]
+        )
+        remove_search_indexes.delay.assert_called_once_with(
+            project_slug=version.project.slug,
+            version_slug="slug",
+        )
         trigger_build.assert_called_once()
 
     @mock.patch("readthedocs.builds.models.trigger_build")
     @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
     @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
-    def dont_clean_resources_when_changing_slug_of_inactive_version(
+    def test_dont_clean_resources_when_changing_slug_of_inactive_version(
         self, remove_build_storage_paths, remove_search_indexes, trigger_build
     ):
         version = get(
@@ -324,37 +336,3 @@ class TestVersionForm(TestCase):
         remove_build_storage_paths.delay.assert_not_called()
         remove_search_indexes.delay.assert_not_called()
         trigger_build.assert_not_called()
-
-    @mock.patch("readthedocs.builds.models.trigger_build")
-    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
-    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
-    def trigger_build_when_changing_slug_of_inactive_version(
-        self, remove_build_storage_paths, remove_search_indexes, trigger_build
-    ):
-        version = get(
-            Version,
-            project=self.project,
-            active=False,
-            slug="slug",
-        )
-
-        self.client.force_login(self.user)
-        url = reverse(
-            "project_version_detail", args=(version.project.slug, version.slug)
-        )
-        r = self.client.post(
-            url,
-            data={
-                "slug": "change-me",
-                "active": True,
-                "privacy_level": PUBLIC,
-            },
-        )
-        assert r.status_code == 302
-
-        version.refresh_from_db()
-        assert version.slug == "change-me"
-
-        remove_build_storage_paths.delay.assert_not_called()
-        remove_search_indexes.delay.assert_not_called()
-        trigger_build.assert_called_once()

@@ -72,12 +72,6 @@ class VersionForm(forms.ModelForm):
             )
         )
 
-        # self.fields["slug"].widget.attrs["pattern"] = r"^[a-z0-9][\-._a-z0-9]*$"
-        # self.fields["slug"].widget.attrs["title"] = _(
-        #     "The slug can contain lowercase letters, numbers, dots, dashes or underscores, "
-        #     "and it must start with a lowercase letter or a number."
-        # )
-
         if self.instance and self.instance.machine:
             self.fields["slug"].disabled = True
 
@@ -86,6 +80,7 @@ class VersionForm(forms.ModelForm):
         # We need to know if the version was active before the update.
         # We use this value in the save method.
         self._was_active = self.instance.active if self.instance else False
+        self._previous_slug = self.instance.slug if self.instance else None
 
     def clean_active(self):
         active = self.cleaned_data["active"]
@@ -130,9 +125,15 @@ class VersionForm(forms.ModelForm):
     def save(self, commit=True):
         # If the slug was changed, and the version was active,
         # we need to delete all the resources, since the old slug is used in several places.
-        # NOTE: we call clean_resources over the unmodified instance, as it has the old slug.
+        # NOTE: we call clean_resources over the instance with the previous slug,
+        # as all resources are associated with the slug.
         if "slug" in self.changed_data and self._was_active:
+            self.instance.slug = self._previous_slug
             self.instance.clean_resources()
+            self.instance.slug = self.cleaned_data["slug"]
+            # We need to set the flag to False,
+            # so the post_save method triggers a new build.
+            self._was_active = False
 
         obj = super().save(commit=commit)
         obj.post_save(was_active=self._was_active)
