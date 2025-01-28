@@ -1,8 +1,0 @@
-{% url "projects_domains_edit" domain.project.slug domain.pk as domain_url %}
-{% if domain.validation_process_expired %}
-  The validation period of your custom domain <code>{{ domain.domain }}</code> has ended.
-  Go to the <a href="{{ domain_url }}">domain page</a> and click on "Save" to restart the process.
-{% else %}
-  The configuration of your custom domain <code>{{ domain.domain }}</code> is pending.
-  Go to the <a href="{{ domain_url }}">domain page</a> and follow the instructions to complete it.
-{% endif %}

@@ -4,15 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0015_uploading_build_state'),
+        ("builds", "0015_uploading_build_state"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='version',
-            name='documentation_type',
-            field=models.CharField(choices=[('sphinx', 'Sphinx Html'), ('mkdocs', 'Mkdocs (Markdown)'), ('sphinx_htmldir', 'Sphinx HtmlDir'), ('sphinx_singlehtml', 'Sphinx Single Page HTML'), ('mkdocs_html', 'Mkdocs Html Pages')], default='sphinx', help_text='Type of documentation the version was built with.', max_length=20, verbose_name='Documentation type'),
+            model_name="version",
+            name="documentation_type",
+            field=models.CharField(
+                choices=[
+                    ("sphinx", "Sphinx Html"),
+                    ("mkdocs", "Mkdocs (Markdown)"),
+                    ("sphinx_htmldir", "Sphinx HtmlDir"),
+                    ("sphinx_singlehtml", "Sphinx Single Page HTML"),
+                    ("mkdocs_html", "Mkdocs Html Pages"),
+                ],
+                default="sphinx",
+                help_text="Type of documentation the version was built with.",
+                max_length=20,
+                verbose_name="Documentation type",
+            ),
         ),
     ]

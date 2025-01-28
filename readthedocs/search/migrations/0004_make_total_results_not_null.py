@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('search', '0003_migrate_total_results_null_values'),
+        ("search", "0003_migrate_total_results_null_values"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='searchquery',
-            name='total_results',
-            field=models.IntegerField(default=0, verbose_name='Total results'),
+            model_name="searchquery",
+            name="total_results",
+            field=models.IntegerField(default=0, verbose_name="Total results"),
         ),
     ]

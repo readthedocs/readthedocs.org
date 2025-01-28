@@ -20,8 +20,8 @@
   <p class="help_text">
     {% url 'projects_webhooks' project.slug as webhooks_url %}
     {% blocktrans trimmed with webhooks_url=webhooks_url %}
-    Webhooks have been moved to its own page.
-    Go to the <a href="{{ webhooks_url }}">Webhooks tab</a> if you are looking for your webhooks.
+    Webhooks have been moved to their own page.
+    Go to the <a href="{{ webhooks_url }}">Webhooks page</a> if you are looking for your webhooks.
     {% endblocktrans %}
   </p>
   {% endif %}
@@ -73,7 +73,8 @@
   <p>
     {% trans "Add an email address to notify" %}
   </p>
-  <form method="post" action=".">{% csrf_token %}
+  <form method="post" action="{% url "projects_notifications_create" project.slug %}">
+    {% csrf_token %}
     {{ email_form }}
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Add" %}">

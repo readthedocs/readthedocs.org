@@ -146,7 +146,7 @@ highly recommended.
      compilations of themes and extensions,
      the development documentation.
 
-.. note 
+.. note
 
    - Looks like MathJax is enabled by default now? Can't see a reference in the docstrings
 

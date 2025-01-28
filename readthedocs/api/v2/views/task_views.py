@@ -1,64 +1,52 @@
 """Endpoints relating to task/job status, etc."""
 
 import structlog
-
+from django.core.cache import cache
 from django.urls import reverse
-from redis import ConnectionError
 from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.core.utils.tasks import TaskNoPermission, get_public_task_data
 from readthedocs.oauth import tasks
-
 
 log = structlog.get_logger(__name__)
 
-SUCCESS_STATES = ('SUCCESS',)
-FAILURE_STATES = (
-    'FAILURE',
-    'REVOKED',
-)
-FINISHED_STATES = SUCCESS_STATES + FAILURE_STATES
-STARTED_STATES = ('RECEIVED', 'STARTED', 'RETRY') + FINISHED_STATES
 
-
-def get_status_data(task_name, state, data, error=None):
-    data = {
-        'name': task_name,
-        'data': data,
-        'started': state in STARTED_STATES,
-        'finished': state in FINISHED_STATES,
-        # When an exception is raised inside the task, we keep this as SUCCESS
-        # and add the exception message into the 'error' key
-        'success': state in SUCCESS_STATES and error is None,
-    }
-    if error is not None:
-        data['error'] = error
-    return data
-
-
-@decorators.api_view(['GET'])
+@decorators.api_view(["GET"])
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer,))
 def job_status(request, task_id):
-    try:
-        task_name, state, public_data, error = get_public_task_data(
-            request,
-            task_id,
-        )
-    except (TaskNoPermission, ConnectionError):
-        return Response(get_status_data('unknown', 'PENDING', {}),)
-    return Response(get_status_data(task_name, state, public_data, error),)
+    """Retrieve Celery task function state from frontend."""
+    # HACK: always poll up to N times and after that return the sync has
+    # finished. This is a way to avoid re-enabling Celery result backend for now.
+    # TODO remove this API and RemoteRepo sync UI when we have better auto syncing
+    poll_n = cache.get(task_id, 0)
+    poll_n += 1
+    cache.set(task_id, poll_n, 5 * 60)
+    finished = poll_n == 5
+
+    data = {
+        "name": "sync_remote_repositories",
+        "data": {},
+        "started": True,
+        "finished": finished,
+        "success": finished,
+    }
+    return Response(data)
 
 
-@decorators.api_view(['POST'])
+@decorators.api_view(["POST"])
 @decorators.permission_classes((permissions.IsAuthenticated,))
 @decorators.renderer_classes((JSONRenderer,))
 def sync_remote_repositories(request):
-    result = tasks.sync_remote_repositories.delay(user_id=request.user.id,)
+    """Trigger a re-sync of remote repositories for the user."""
+    result = tasks.sync_remote_repositories.delay(
+        user_id=request.user.id,
+    )
     task_id = result.task_id
-    return Response({
-        'task_id': task_id,
-        'url': reverse('api_job_status', kwargs={'task_id': task_id}),
-    })
+    return Response(
+        {
+            "task_id": task_id,
+            "url": reverse("api_job_status", kwargs={"task_id": task_id}),
+        }
+    )

@@ -1,0 +1,12 @@
+{
+  "path": "toctree.html",
+  "title": "Public API",
+  "main_content_hash": "3d2e43fdc8b58752538ebd934a34b6ea",
+  "sections": [
+    {
+      "id": "public-api",
+      "title": "Public API",
+      "content": "This section of the documentation details the public API usable to get details of projects, builds, versions and other details from Read the Docs."
+    }
+  ]
+}

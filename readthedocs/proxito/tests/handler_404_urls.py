@@ -12,27 +12,29 @@ then be able to test redirects, custom 404 pages, among others.
 """
 from functools import wraps
 
+from django.http import Http404
+
 from readthedocs.proxito.urls import *  # noqa
+from readthedocs.proxito.urls import handler404 as proxito_handler404
 from readthedocs.proxito.views.serve import ServeError404
 
 
 # Allow performing NGINX internal redirects at Django level.
 # This is useful for testing El Proxito ``@notfoundfallback``
 def map_proxito_path(view_func):
-
     @wraps(view_func)
     def inner_view(request, *args, **kwargs):
-        return view_func(
-            request,
-            proxito_path=request.path,
-        )
+        try:
+            return view_func(
+                request,
+                proxito_path=request.path,
+            )
+        except Http404 as e:
+            # Fall back to our custom 404 handler,
+            # if a 404 was raised by proxito's 404 view.
+            return proxito_handler404(request, exception=e)
+
     return inner_view
 
 
 handler404 = map_proxito_path(ServeError404.as_view())
-
-# Patch URLs that call the `fast_404` view directly.
-for pattern in urlpatterns:
-    if getattr(pattern, "name", None) == "docs_detail_directory_indexing":
-        pattern.callback = handler404
-        break

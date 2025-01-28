@@ -1,42 +1,36 @@
 """Utilities related to reading and generating indexable search content."""
 
 import structlog
-
 from django.utils import timezone
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
 
-from readthedocs.projects.models import HTMLFile
+from readthedocs.search.documents import PageDocument
 
 log = structlog.get_logger(__name__)
 
 
-def index_new_files(model, version, build):
-    """Index new files from the version into the search index."""
-
-    log.bind(
-        project_slug=version.project.slug,
-        version_slug=version.slug,
-    )
-
+def index_objects(document, objects, index_name=None, chunk_size=500):
     if not DEDConfig.autosync_enabled():
-        log.info('Autosync disabled. Skipping indexing into the search index.')
+        log.info("Autosync disabled, skipping searh indexing.")
         return
 
-    try:
-        document = list(registry.get_documents(models=[model]))[0]
-        doc_obj = document()
-        queryset = (
-            doc_obj.get_queryset()
-            .filter(project=version.project, version=version, build=build)
-        )
-        log.info('Indexing new objecst into search index.')
-        doc_obj.update(queryset.iterator())
-    except Exception:
-        log.exception('Unable to index a subset of files. Continuing.')
+    # If a search index name is provided, we need to temporarily change
+    # the index name of the document.
+    old_index_name = document._index._name
+    if index_name:
+        document._index._name = index_name
+
+    document().update(objects, chunk_size=chunk_size)
+
+    # Restore the old index name.
+    if index_name:
+        document._index._name = old_index_name
 
 
-def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
+def remove_indexed_files(
+    project_slug, version_slug=None, sync_id=None, index_name=None
+):
     """
     Remove files from `version_slug` of `project_slug` from the search index.
 
@@ -53,23 +47,30 @@ def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
     )
 
     if not DEDConfig.autosync_enabled():
-        log.info('Autosync disabled, skipping removal from the search index.')
+        log.info("Autosync disabled, skipping removal from the search index.")
         return
 
+    # If a search index name is provided, we need to temporarily change
+    # the index name of the document.
+    document = PageDocument
+    old_index_name = document._index._name
+    if index_name:
+        document._index._name = index_name
+
     try:
-        document = list(registry.get_documents(models=[model]))[0]
-        log.info('Deleting old files from search index.')
-        documents = (
-            document().search()
-            .filter('term', project=project_slug)
-        )
+        log.info("Deleting old files from search index.")
+        documents = document().search().filter("term", project=project_slug)
         if version_slug:
-            documents = documents.filter('term', version=version_slug)
-        if build_id:
-            documents = documents.exclude('term', build=build_id)
+            documents = documents.filter("term", version=version_slug)
+        if sync_id:
+            documents = documents.exclude("term", build=sync_id)
         documents.delete()
     except Exception:
-        log.exception('Unable to delete a subset of files. Continuing.')
+        log.exception("Unable to delete a subset of files. Continuing.")
+
+    # Restore the old index name.
+    if index_name:
+        document._index._name = old_index_name
 
 
 def _get_index(indices, index_name):
@@ -100,41 +101,6 @@ def _get_document(model, document_class):
             return document
 
 
-def _indexing_helper(html_objs_qs, wipe=False):
-    """
-    Helper function for reindexing and wiping indexes of projects and versions.
-
-    If ``wipe`` is set to False, html_objs are deleted from the ES index,
-    else, html_objs are indexed.
-    """
-    from readthedocs.search.documents import PageDocument
-    from readthedocs.search.tasks import (
-        delete_objects_in_es,
-        index_objects_to_es,
-    )
-
-    if html_objs_qs:
-        obj_ids = []
-        for html_objs in html_objs_qs:
-            obj_ids.extend([obj.id for obj in html_objs])
-
-        # removing redundant ids if exists.
-        obj_ids = list(set(obj_ids))
-
-        if obj_ids:
-            kwargs = {
-                'app_label': HTMLFile._meta.app_label,
-                'model_name': HTMLFile.__name__,
-                'document_class': str(PageDocument),
-                'objects_id': obj_ids,
-            }
-
-            if not wipe:
-                index_objects_to_es.delay(**kwargs)
-            else:
-                delete_objects_in_es.delay(**kwargs)
-
-
 def _last_30_days_iter():
     """Returns iterator for previous 30 days (including today)."""
     thirty_days_ago = timezone.now().date() - timezone.timedelta(days=30)
@@ -143,10 +109,9 @@ def _last_30_days_iter():
     return (thirty_days_ago + timezone.timedelta(days=n) for n in range(31))
 
 
-def _get_last_30_days_str(date_format='%Y-%m-%d'):
+def _get_last_30_days_str(date_format="%Y-%m-%d"):
     """Returns the list of dates in string format for previous 30 days (including today)."""
     last_30_days_str = [
-        timezone.datetime.strftime(date, date_format)
-        for date in _last_30_days_iter()
+        timezone.datetime.strftime(date, date_format) for date in _last_30_days_iter()
     ]
     return last_30_days_str

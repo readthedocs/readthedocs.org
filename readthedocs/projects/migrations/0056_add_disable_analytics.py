@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0055_change_help_text_description'),
+        ("projects", "0055_change_help_text_description"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='project',
-            name='analytics_disabled',
-            field=models.BooleanField(default=False, help_text='Disable Google Analytics completely for this project (requires rebuilding documentation)', null=True, verbose_name='Disable Analytics'),
+            model_name="project",
+            name="analytics_disabled",
+            field=models.BooleanField(
+                default=False,
+                help_text="Disable Google Analytics completely for this project (requires rebuilding documentation)",
+                null=True,
+                verbose_name="Disable Analytics",
+            ),
         ),
     ]

@@ -3,6 +3,7 @@ from functools import lru_cache
 
 import structlog
 from django.conf import settings
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, render
 
 from readthedocs.projects.models import Project
@@ -27,20 +28,20 @@ class ProjectOnboardMixin:
 
         # Show for the first few builds, return last build state
         if project.builds.count() <= 5:
-            onboard['build'] = project.get_latest_build(finished=False)
-            if 'github' in project.repo:
-                onboard['provider'] = 'github'
-            elif 'bitbucket' in project.repo:
-                onboard['provider'] = 'bitbucket'
-            elif 'gitlab' in project.repo:
-                onboard['provider'] = 'gitlab'
-            context['onboard'] = onboard
+            onboard["build"] = project.get_latest_build(finished=False)
+            if "github" in project.repo:
+                onboard["provider"] = "github"
+            elif "bitbucket" in project.repo:
+                onboard["provider"] = "bitbucket"
+            elif "gitlab" in project.repo:
+                onboard["provider"] = "gitlab"
+            context["onboard"] = onboard
 
         return context
 
 
 # Mixins
-class ProjectAdminMixin:
+class ProjectAdminMixin(SuccessMessageMixin):
 
     """
     Mixin class that provides project sublevel objects.
@@ -49,9 +50,12 @@ class ProjectAdminMixin:
 
     project_url_field
         The URL kwarg name for the project slug
+
+    success_message
+        Message when the form is successfully saved, comes from SuccessMessageMixin
     """
 
-    project_url_field = 'project_slug'
+    project_url_field = "project_slug"
 
     def get_queryset(self):
         self.project = self.get_project()
@@ -96,12 +100,25 @@ class ProjectSpamMixin:
     project's dashboard is denied.
     """
 
-    def get(self, request, *args, **kwargs):
-        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+    def is_show_dashboard_denied_wrapper(self):
+        """
+        Determine if the project has reached dashboard denied treshold.
+
+        This function is wrapped just for testing purposes,
+        so we are able to mock it from outside.
+        """
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import (  # noqa
                 is_show_dashboard_denied,
             )
+
             if is_show_dashboard_denied(self.get_project()):
-                return render(request, template_name='spam.html', status=410)
+                return True
+        return False
+
+    def get(self, request, *args, **kwargs):
+        if self.is_show_dashboard_denied_wrapper():
+            template_name = "errors/dashboard/spam.html"
+            return render(request, template_name=template_name, status=410)
 
         return super().get(request, *args, **kwargs)

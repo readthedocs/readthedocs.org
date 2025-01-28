@@ -1,0 +1,17 @@
+{
+  "path": "httpdomain.html",
+  "title": "Here is a nice reference",
+  "main_content_hash": "b0d8f8cbfe35ca79213ac9122704706f",
+  "sections": [
+    {
+      "id": "get--api-v3-projects-",
+      "title": "GET /api/v3/projects/",
+      "content": "Retrieve a list of all the projects for the current logged in user. Example request: BashPython$ curl -H \"Authorization: Token <token>\" https://readthedocs.org/api/v3/projects/ import requests URL = 'https://readthedocs.org/api/v3/projects/' TOKEN = '<token>' HEADERS = {'Authorization': f'token {TOKEN}'} response = requests.get(URL, headers=HEADERS) print(response.json()) Example response: { \"count\": 25, \"next\": \"/api/v3/projects/?limit=10&offset=10\", \"previous\": null, \"results\": [{ \"id\": 12345, \"name\": \"Pip\", \"slug\": \"pip\", \"created\": \"2010-10-23T18:12:31+00:00\", \"modified\": \"2018-12-11T07:21:11+00:00\", \"language\": { \"code\": \"en\", \"name\": \"English\" }, \"programming_language\": { \"code\": \"py\", \"name\": \"Python\" }, \"repository\": { \"url\": \"https://github.com/pypa/pip\", \"type\": \"git\" }, \"default_version\": \"stable\", \"default_branch\": \"master\", \"subproject_of\": null, \"translation_of\": null, \"urls\": { \"documentation\": \"http://pip.pypa.io/en/stable/\", \"home\": \"https://pip.pypa.io/\" }, \"tags\": [ \"distutils\", \"easy_install\", \"egg\", \"setuptools\", \"virtualenv\" ], \"users\": [ { \"username\": \"dstufft\" } ], \"active_versions\": { \"stable\": \"{VERSION}\", \"latest\": \"{VERSION}\", \"19.0.2\": \"{VERSION}\" }, \"_links\": { \"_self\": \"/api/v3/projects/pip/\", \"versions\": \"/api/v3/projects/pip/versions/\", \"builds\": \"/api/v3/projects/pip/builds/\", \"subprojects\": \"/api/v3/projects/pip/subprojects/\", \"superproject\": \"/api/v3/projects/pip/superproject/\", \"redirects\": \"/api/v3/projects/pip/redirects/\", \"translations\": \"/api/v3/projects/pip/translations/\" } }] } Query Parameters: name (string) \u2013 return projects with matching name slug (string) \u2013 return projects with matching slug language (string) \u2013 language code as en, es, ru, etc. programming_language (string) \u2013 programming language code as py, js, etc. The results in response is an array of project data, which is same as GET /api/v3/projects/(string:project_slug)/. Note Read the Docs for Business, also accepts Query Parameters: expand (string) \u2013 with organization and teams."
+    },
+    {
+      "id": "",
+      "title": "Here is a nice reference",
+      "content": ""
+    }
+  ]
+}

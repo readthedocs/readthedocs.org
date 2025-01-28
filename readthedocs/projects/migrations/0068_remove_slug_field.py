@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0067_change_max_length_feature_id'),
+        ("projects", "0067_change_max_length_feature_id"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='importedfile',
-            name='slug',
+            model_name="importedfile",
+            name="slug",
         ),
     ]

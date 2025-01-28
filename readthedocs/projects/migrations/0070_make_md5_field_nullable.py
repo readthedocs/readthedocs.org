@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0069_migrate_protected_projects'),
+        ("projects", "0069_migrate_protected_projects"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='importedfile',
-            name='md5',
-            field=models.CharField(max_length=255, null=True, verbose_name='MD5 checksum'),
+            model_name="importedfile",
+            name="md5",
+            field=models.CharField(
+                max_length=255, null=True, verbose_name="MD5 checksum"
+            ),
         ),
     ]

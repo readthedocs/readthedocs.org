@@ -10,19 +10,18 @@ def forwards_func(apps, schema_editor):
     GenericIPAddressField saves the IP with ``{ip}/{range}`` format.
     We don't need to show the range to users.
     """
-    AuditLog = apps.get_model('audit', 'AuditLog')
+    AuditLog = apps.get_model("audit", "AuditLog")
     for auditlog in AuditLog.objects.all().iterator():
         ip = auditlog.ip
         if ip:
-            ip = ip.split('/', maxsplit=1)[0]
+            ip = ip.split("/", maxsplit=1)[0]
             auditlog.ip = ip
             auditlog.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('audit', '0004_change_ip_field_type'),
+        ("audit", "0004_change_ip_field_type"),
     ]
 
     operations = [

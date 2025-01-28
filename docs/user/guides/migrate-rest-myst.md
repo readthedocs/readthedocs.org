@@ -27,8 +27,8 @@ and some others in reStructuredText, for whatever reason.
 Luckily, Sphinx supports reading both types of markup at the same time without problems.
 
 To start using MyST in your existing Sphinx project,
-first {ref}``install the `myst-parser` Python package <myst-parser:intro.md#installation>``
-and then {ref}`enable it on your configuration <myst-parser:intro.md#enable-myst-in-sphinx>`:
+first [install the `myst-parser` Python package](https://myst-parser.readthedocs.io/en/stable/intro.html#installation)
+and then [enable it on your configuration](https://myst-parser.readthedocs.io/en/stable/intro.html#enable-myst-in-sphinx):
 
 ```{code-block} py
 :caption: conf.py

@@ -20,30 +20,49 @@
           You are currently on a trial.
           Please choose a <a href="{{ pricing_url }}">paid plan</a> that fits your organization
           prior to the end of your trial.
-          Upgrade your account by clicking on <strong>Manage Subscription</strong> below.
+          Upgrade your account by clicking on <strong>Manage subscription</strong> below.
           {% endblocktrans %}
         </li>
       </ul>
     {% endif %}
 
-    {% if stripe_subscription.status != 'canceled' %}
+    {% if stripe_subscription and stripe_subscription.status != 'canceled' %}
     <dl>
       <dt>{% trans "Plan" %}:</dt>
       <dd>
         <span class="subscription-plan-name">
-          {{ stripe_price.product.name }}
+          {{ main_product.stripe_price.product.name }}
         </span>
         <span class="subscription-plan-price">
-          ({{ stripe_price.human_readable_price }})
+          ({{ main_product.stripe_price.human_readable_price }})
         </span>
       </dd>
 
+      {% if extra_products %}
+        <dt>{% trans "Extra products:" %}</dt>
+        {% for extra_product in extra_products %}
+        <dd>
+          <span class="subscription-plan-name">
+            {{ extra_product.stripe_price.product.name }}
+          </span>
+          <span class="subscription-plan-price">
+            ({{ extra_product.stripe_price.human_readable_price }})
+          </span>
+          {% if extra_product.quantity > 1 %}
+            <span>
+              (x{{ extra_product.quantity }})
+            </span>
+          {% endif %}
+        </dd>
+        {% endfor %}
+      {% endif %}
+
       {% if features %}
-      <dt>{% trans "Plan Features:" %}</dt>
+      <dt>{% trans "Features:" %}</dt>
       <dd>
         {% for feature in features %}
-          <span class="subscription-plan-{{ feature.feature_type }}" style="display: block;">
-            {{ feature.description_display }}
+          <span class="subscription-plan-{{ feature.type }}" style="display: block;">
+            {{ feature.get_description }}
           </span>
         {% endfor %}
       </dd>
@@ -52,11 +71,14 @@
       {% if stripe_subscription.start_date %}
         <dt>{% trans "Signed up" %}:</dt>
         <dd>
-          {{ stripe_subscription.start_date|timesince }} {% trans "ago" %}
+          {# Translators: this is the subscription start date, used here as "4 days ago" or "5 months ago" #}
+          {% blocktrans with time_since_signup=stripe_subscription.start_date|timesince trimmed %}
+            {{ time_since_signup }} ago
+          {% endblocktrans %}
         </dd>
       {% endif %}
 
-      <dt>{% trans "Subscription Status" %}:</dt>
+      <dt>{% trans "Subscription status" %}:</dt>
       <dd>
         {{ stripe_subscription.get_status_display }}
       </dd>
@@ -78,7 +100,7 @@
       {% csrf_token %}
       <button>
         <span>
-          {% trans "Manage Subscription" %}
+          {% trans "Manage subscription" %}
         </span>
       </button>
       <span class="helptext">
@@ -98,7 +120,7 @@
       <form action="" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <input id="submit" type="submit" value="{% trans "Create Subscription" %}" />
+        <input id="submit" type="submit" value="{% trans "Start subscription" %}" />
       </form>
     {% endif %}
 

@@ -1,14 +1,15 @@
 """Project URLs for authenticated users."""
-
 from django.conf import settings
-from django.conf.urls import re_path
 from django.contrib.auth.decorators import login_required
+from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
 from readthedocs.constants import pattern_opts
+from readthedocs.core.views import PageNotFoundView
 from readthedocs.projects.backends.views import ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
+    AddonsConfigUpdate,
     AutomationRuleDelete,
     AutomationRuleList,
     AutomationRuleMove,
@@ -26,21 +27,25 @@ from readthedocs.projects.views.private import (
     IntegrationExchangeDetail,
     IntegrationList,
     IntegrationWebhookSync,
-    ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectDelete,
+    ProjectEmailNotificationsCreate,
     ProjectNotifications,
     ProjectNotificationsDelete,
+    ProjectPullRequestsUpdate,
     ProjectRedirectsCreate,
     ProjectRedirectsDelete,
+    ProjectRedirectsInsert,
     ProjectRedirectsList,
     ProjectRedirectsUpdate,
+    ProjectTranslationsCreate,
     ProjectTranslationsDelete,
-    ProjectTranslationsListAndCreate,
+    ProjectTranslationsList,
     ProjectUpdate,
-    ProjectUsersCreateList,
+    ProjectUsersCreate,
     ProjectUsersDelete,
+    ProjectUsersList,
     ProjectVersionCreate,
     ProjectVersionDeleteHTML,
     ProjectVersionDetail,
@@ -56,84 +61,111 @@ from readthedocs.projects.views.private import (
 )
 
 urlpatterns = [
-    re_path(r'^$', ProjectDashboard.as_view(), name='projects_dashboard'),
-    re_path(
-        r'^import/$', ImportView.as_view(wizard_class=ImportWizardView),
-        {'wizard': ImportWizardView}, name='projects_import',
+    path("", ProjectDashboard.as_view(), name="projects_dashboard"),
+    path(
+        "import/",
+        ImportView.as_view(wizard_class=ImportWizardView),
+        {"wizard": ImportWizardView},
+        name="projects_import",
+    ),
+    path(
+        "import/manual/",
+        ImportWizardView.as_view(),
+        name="projects_import_manual",
     ),
     re_path(
-        r'^import/manual/$', ImportWizardView.as_view(),
-        name='projects_import_manual',
-    ),
-    re_path(
-        r'^(?P<project_slug>[-\w]+)/$',
+        r"^(?P<project_slug>[-\w]+)/$",
         login_required(
-            RedirectView.as_view(pattern_name='projects_detail', permanent=True),
+            RedirectView.as_view(pattern_name="projects_detail", permanent=True),
         ),
-        name='projects_manage',
+        name="projects_manage",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/edit/$', ProjectUpdate.as_view(),
-        name='projects_edit',
+        r"^(?P<project_slug>[-\w]+)/edit/$",
+        ProjectUpdate.as_view(),
+        name="projects_edit",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/advanced/$',
-        ProjectAdvancedUpdate.as_view(), name='projects_advanced',
+        r"^(?P<project_slug>[-\w]+)/advanced/$",
+        login_required(
+            RedirectView.as_view(pattern_name="projects_edit", permanent=True),
+        ),
+        name="projects_advanced",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
+        r"^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$",
         ProjectVersionDeleteHTML.as_view(),
-        name='project_version_delete_html',
+        name="project_version_delete_html",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$',
+        r"^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$",
         ProjectVersionDetail.as_view(),
-        name='project_version_detail',
+        name="project_version_detail",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/delete/$',
+        r"^(?P<project_slug>[-\w]+)/delete/$",
         ProjectDelete.as_view(),
-        name='projects_delete',
+        name="projects_delete",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/users/$',
-        ProjectUsersCreateList.as_view(),
-        name='projects_users',
+        r"^(?P<project_slug>[-\w]+)/users/$",
+        ProjectUsersList.as_view(),
+        name="projects_users",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/users/delete/$',
+        r"^(?P<project_slug>[-\w]+)/users/create/$",
+        ProjectUsersCreate.as_view(),
+        name="projects_users_create",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/users/delete/$",
         ProjectUsersDelete.as_view(),
-        name='projects_users_delete',
+        name="projects_users_delete",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/notifications/$',
+        r"^(?P<project_slug>[-\w]+)/notifications/$",
         ProjectNotifications.as_view(),
-        name='projects_notifications',
+        name="projects_notifications",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
+        r"^(?P<project_slug>[-\w]+)/notifications/create/$",
+        ProjectEmailNotificationsCreate.as_view(),
+        name="projects_notifications_create",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/notifications/delete/$",
         ProjectNotificationsDelete.as_view(),
-        name='projects_notification_delete',
+        name="projects_notification_delete",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/translations/$',
-        ProjectTranslationsListAndCreate.as_view(),
-        name='projects_translations',
+        r"^(?P<project_slug>[-\w]+)/translations/$",
+        ProjectTranslationsList.as_view(),
+        name="projects_translations",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$',  # noqa
+        r"^(?P<project_slug>[-\w]+)/translations/create/$",
+        ProjectTranslationsCreate.as_view(),
+        name="projects_translations_create",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$",  # noqa
         ProjectTranslationsDelete.as_view(),
-        name='projects_translations_delete',
+        name="projects_translations_delete",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/redirects/$',
+        r"^(?P<project_slug>[-\w]+)/redirects/$",
         ProjectRedirectsList.as_view(),
-        name='projects_redirects',
+        name="projects_redirects",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/redirects/create/$",
         ProjectRedirectsCreate.as_view(),
         name="projects_redirects_create",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/redirects/(?P<redirect_pk>\d+)/insert/(?P<position>\d+)/$",
+        ProjectRedirectsInsert.as_view(),
+        name="projects_redirects_insert",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/redirects/(?P<redirect_pk>[-\w]+)/edit/$",
@@ -143,20 +175,40 @@ urlpatterns = [
     re_path(
         r"^(?P<project_slug>[-\w]+)/redirects/(?P<redirect_pk>[-\w]+)/delete/$",
         ProjectRedirectsDelete.as_view(),
-        name='projects_redirects_delete',
+        name="projects_redirects_delete",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/advertising/$',
-        ProjectAdvertisingUpdate.as_view(), name='projects_advertising',
+        r"^(?P<project_slug>[-\w]+)/advertising/$",
+        ProjectAdvertisingUpdate.as_view(),
+        name="projects_advertising",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/search-analytics/$',
+        r"^(?P<project_slug>[-\w]+)/pull-requests/$",
+        ProjectPullRequestsUpdate.as_view(),
+        name="projects_pull_requests",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/search-analytics/$",
         SearchAnalytics.as_view(),
-        name='projects_search_analytics',
+        name="projects_search_analytics",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/traffic-analytics/$',
-        TrafficAnalyticsView.as_view(), name='projects_traffic_analytics',
+        r"^(?P<project_slug>[-\w]+)/traffic-analytics/$",
+        TrafficAnalyticsView.as_view(),
+        name="projects_traffic_analytics",
+    ),
+    # Placeholder URLs, so that we can test the new templates
+    # with organizations enabled from our community codebase.
+    # TODO: migrate these functionalities from corporate to community.
+    re_path(
+        r"^(?P<project_slug>{project_slug})/sharing/$".format(**pattern_opts),
+        PageNotFoundView.as_view(),
+        name="projects_temporary_access_list",
+    ),
+    re_path(
+        (r"^(?P<project_slug>{project_slug})/keys/$".format(**pattern_opts)),
+        PageNotFoundView.as_view(),
+        name="projects_keys",
     ),
 ]
 
@@ -166,99 +218,105 @@ urlpatterns = [
 if settings.RTD_EXT_THEME_ENABLED:
     urlpatterns.append(
         re_path(
-            r'^(?P<project_slug>[-\w]+)/version/create/$',
+            r"^(?P<project_slug>[-\w]+)/version/create/$",
             ProjectVersionCreate.as_view(),
-            name='project_version_create',
+            name="project_version_create",
         ),
     )
 
 domain_urls = [
     re_path(
-        r'^(?P<project_slug>[-\w]+)/domains/$',
+        r"^(?P<project_slug>[-\w]+)/domains/$",
         DomainList.as_view(),
-        name='projects_domains',
+        name="projects_domains",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/domains/create/$',
+        r"^(?P<project_slug>[-\w]+)/domains/create/$",
         DomainCreate.as_view(),
-        name='projects_domains_create',
+        name="projects_domains_create",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/edit/$',
+        r"^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/edit/$",
         DomainUpdate.as_view(),
-        name='projects_domains_edit',
+        name="projects_domains_edit",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/delete/$',
+        r"^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/delete/$",
         DomainDelete.as_view(),
-        name='projects_domains_delete',
+        name="projects_domains_delete",
     ),
 ]
 
 urlpatterns += domain_urls
 
+# We are allowing users to enable the new addons only from the new dashboard
+if settings.RTD_EXT_THEME_ENABLED:
+    addons_urls = [
+        re_path(
+            r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
+            AddonsConfigUpdate.as_view(),
+            name="projects_addons",
+        ),
+    ]
+
+    urlpatterns += addons_urls
+
 integration_urls = [
     re_path(
-        r'^(?P<project_slug>{project_slug})/integrations/$'.format(
-            **pattern_opts
-        ),
+        r"^(?P<project_slug>{project_slug})/integrations/$".format(**pattern_opts),
         IntegrationList.as_view(),
-        name='projects_integrations',
+        name="projects_integrations",
     ),
     re_path(
-        r'^(?P<project_slug>{project_slug})/integrations/sync/$'.format(
-            **pattern_opts
-        ),
+        r"^(?P<project_slug>{project_slug})/integrations/sync/$".format(**pattern_opts),
         IntegrationWebhookSync.as_view(),
-        name='projects_integrations_webhooks_sync',
+        name="projects_integrations_webhooks_sync",
     ),
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/integrations/create/$'.format(
+            r"^(?P<project_slug>{project_slug})/integrations/create/$".format(
                 **pattern_opts
             )
         ),
         IntegrationCreate.as_view(),
-        name='projects_integrations_create',
+        name="projects_integrations_create",
     ),
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/'
-            r'integrations/(?P<integration_pk>{integer_pk})/$'.format(
-                **pattern_opts
-            )
+            r"^(?P<project_slug>{project_slug})/"
+            r"integrations/(?P<integration_pk>{integer_pk})/$".format(**pattern_opts)
         ),
         IntegrationDetail.as_view(),
-        name='projects_integrations_detail',
+        name="projects_integrations_detail",
     ),
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/'
-            r'integrations/(?P<integration_pk>{integer_pk})/'
-            r'exchange/(?P<exchange_pk>[-\w]+)/$'.format(**pattern_opts)
+            r"^(?P<project_slug>{project_slug})/"
+            r"integrations/(?P<integration_pk>{integer_pk})/"
+            r"exchange/(?P<exchange_pk>[-\w]+)/$".format(**pattern_opts)
         ),
         IntegrationExchangeDetail.as_view(),
-        name='projects_integrations_exchanges_detail',
+        name="projects_integrations_exchanges_detail",
     ),
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/'
-            r'integrations/(?P<integration_pk>{integer_pk})/sync/$'.format(
+            r"^(?P<project_slug>{project_slug})/"
+            r"integrations/(?P<integration_pk>{integer_pk})/sync/$".format(
                 **pattern_opts
             )
         ),
         IntegrationWebhookSync.as_view(),
-        name='projects_integrations_webhooks_sync',
+        name="projects_integrations_webhooks_sync",
     ),
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/'
-            r'integrations/(?P<integration_pk>{integer_pk})/delete/$'.format(
+            r"^(?P<project_slug>{project_slug})/"
+            r"integrations/(?P<integration_pk>{integer_pk})/delete/$".format(
                 **pattern_opts
             )
         ),
         IntegrationDelete.as_view(),
-        name='projects_integrations_delete',
+        name="projects_integrations_delete",
     ),
 ]
 
@@ -266,40 +324,38 @@ urlpatterns += integration_urls
 
 subproject_urls = [
     re_path(
-        r'^(?P<project_slug>{project_slug})/subprojects/$'.format(
-            **pattern_opts
-        ),
+        r"^(?P<project_slug>{project_slug})/subprojects/$".format(**pattern_opts),
         private.ProjectRelationshipList.as_view(),
-        name='projects_subprojects',
+        name="projects_subprojects",
     ),
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/subprojects/create/$'.format(
+            r"^(?P<project_slug>{project_slug})/subprojects/create/$".format(
                 **pattern_opts
             )
         ),
         private.ProjectRelationshipCreate.as_view(),
-        name='projects_subprojects_create',
+        name="projects_subprojects_create",
     ),
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/'
-            r'subprojects/(?P<subproject_slug>{project_slug})/edit/$'.format(
+            r"^(?P<project_slug>{project_slug})/"
+            r"subprojects/(?P<subproject_slug>{project_slug})/edit/$".format(
                 **pattern_opts
             )
         ),
         private.ProjectRelationshipUpdate.as_view(),
-        name='projects_subprojects_update',
+        name="projects_subprojects_update",
     ),
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/'
-            r'subprojects/(?P<subproject_slug>{project_slug})/delete/$'.format(
+            r"^(?P<project_slug>{project_slug})/"
+            r"subprojects/(?P<subproject_slug>{project_slug})/delete/$".format(
                 **pattern_opts
             )
         ),
         private.ProjectRelationshipDelete.as_view(),
-        name='projects_subprojects_delete',
+        name="projects_subprojects_delete",
     ),
 ]
 
@@ -307,19 +363,19 @@ urlpatterns += subproject_urls
 
 environmentvariable_urls = [
     re_path(
-        r'^(?P<project_slug>[-\w]+)/environmentvariables/$',
+        r"^(?P<project_slug>[-\w]+)/environmentvariables/$",
         EnvironmentVariableList.as_view(),
-        name='projects_environmentvariables',
+        name="projects_environmentvariables",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/environmentvariables/create/$',
+        r"^(?P<project_slug>[-\w]+)/environmentvariables/create/$",
         EnvironmentVariableCreate.as_view(),
-        name='projects_environmentvariables_create',
+        name="projects_environmentvariables_create",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/delete/$',  # noqa
+        r"^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/delete/$",  # noqa
         EnvironmentVariableDelete.as_view(),
-        name='projects_environmentvariables_delete',
+        name="projects_environmentvariables_delete",
     ),
 ]
 
@@ -327,29 +383,29 @@ urlpatterns += environmentvariable_urls
 
 automation_rule_urls = [
     re_path(
-        r'^(?P<project_slug>[-\w]+)/rules/$',
+        r"^(?P<project_slug>[-\w]+)/rules/$",
         AutomationRuleList.as_view(),
-        name='projects_automation_rule_list',
+        name="projects_automation_rule_list",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/move/(?P<steps>-?\d+)/$',
+        r"^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/move/(?P<steps>-?\d+)/$",
         AutomationRuleMove.as_view(),
-        name='projects_automation_rule_move',
+        name="projects_automation_rule_move",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/delete/$',
+        r"^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/delete/$",
         AutomationRuleDelete.as_view(),
-        name='projects_automation_rule_delete',
+        name="projects_automation_rule_delete",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/rules/regex/create/$',
+        r"^(?P<project_slug>[-\w]+)/rules/regex/create/$",
         RegexAutomationRuleCreate.as_view(),
-        name='projects_automation_rule_regex_create',
+        name="projects_automation_rule_regex_create",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/rules/regex/(?P<automation_rule_pk>[-\w]+)/$',
+        r"^(?P<project_slug>[-\w]+)/rules/regex/(?P<automation_rule_pk>[-\w]+)/$",
         RegexAutomationRuleUpdate.as_view(),
-        name='projects_automation_rule_regex_edit',
+        name="projects_automation_rule_regex_edit",
     ),
 ]
 
@@ -357,29 +413,29 @@ urlpatterns += automation_rule_urls
 
 webhook_urls = [
     re_path(
-        r'^(?P<project_slug>[-\w]+)/webhooks/$',
+        r"^(?P<project_slug>[-\w]+)/webhooks/$",
         WebHookList.as_view(),
-        name='projects_webhooks',
+        name="projects_webhooks",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/webhooks/create/$',
+        r"^(?P<project_slug>[-\w]+)/webhooks/create/$",
         WebHookCreate.as_view(),
-        name='projects_webhooks_create',
+        name="projects_webhooks_create",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/webhooks/(?P<webhook_pk>[-\w]+)/edit/$',
+        r"^(?P<project_slug>[-\w]+)/webhooks/(?P<webhook_pk>[-\w]+)/edit/$",
         WebHookUpdate.as_view(),
-        name='projects_webhooks_edit',
+        name="projects_webhooks_edit",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/webhooks/(?P<webhook_pk>[-\w]+)/delete/$',
+        r"^(?P<project_slug>[-\w]+)/webhooks/(?P<webhook_pk>[-\w]+)/delete/$",
         WebHookDelete.as_view(),
-        name='projects_webhooks_delete',
+        name="projects_webhooks_delete",
     ),
     re_path(
-        r'^(?P<project_slug>[-\w]+)/webhooks/(?P<webhook_pk>[-\w]+)/exchanges/(?P<webhook_exchange_pk>[-\w]+)/$',  # noqa
+        r"^(?P<project_slug>[-\w]+)/webhooks/(?P<webhook_pk>[-\w]+)/exchanges/(?P<webhook_exchange_pk>[-\w]+)/$",  # noqa
         WebHookExchangeDetail.as_view(),
-        name='projects_webhooks_exchange',
+        name="projects_webhooks_exchange",
     ),
 ]
 

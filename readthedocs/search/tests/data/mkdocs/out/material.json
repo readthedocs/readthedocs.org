@@ -2,6 +2,7 @@
   {
     "path": "index.html",
     "title": "Overview",
+    "main_content_hash": "448eb15bfef60bc49a4059a34ebeaa4b",
     "sections": [
       {
         "id": "",
@@ -28,7 +29,6 @@
         "title": "Contributing via GitHub",
         "content": "We welcome everyone to contribute to issue reports, suggest new features, and create pull requests. If you have something to add - anything from a typo through to a whole new feature, we're happy to check it out! Just make sure to fill out our template when submitting your request; the questions that it asks will help the volunteers quickly understand what you're aiming to achieve. Last update: June 2, 2020"
       }
-    ],
-    "domain_data": {}
+    ]
   }
 ]

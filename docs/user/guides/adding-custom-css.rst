@@ -1,5 +1,5 @@
-Adding Custom CSS or JavaScript to Sphinx Documentation
-=======================================================
+How to add custom CSS or JavaScript to Sphinx documentation
+===========================================================
 
 .. meta::
    :description lang=en:

@@ -7,6 +7,7 @@ import dparse
 import structlog
 
 from readthedocs.config.models import PythonInstallRequirements
+from readthedocs.core.utils.filesystem import safe_open
 
 log = structlog.get_logger(__name__)
 
@@ -35,7 +36,7 @@ class BuildDataCollector:
 
     @staticmethod
     def _safe_json_loads(content, default=None):
-        def lowercase(d):  # pylint: disable=invalid-name
+        def lowercase(d):
             """Convert all dictionary keys to lowercase."""
             return {k.lower(): i for k, i in d.items()}
 
@@ -91,6 +92,7 @@ class BuildDataCollector:
             },
         }
         data["doctool"] = self._get_doctool()
+
         return data
 
     def _get_doctool_name(self):
@@ -112,13 +114,17 @@ class BuildDataCollector:
         if self._get_doctool_name() != "sphinx":
             return data
 
+        # The project does not define a `conf.py` or does not have one
+        if not self.config.sphinx or not self.config.sphinx.configuration:
+            return data
+
         conf_py_dir = os.path.join(
             self.checkout_path,
             os.path.dirname(self.config.sphinx.configuration),
         )
         filepath = os.path.join(conf_py_dir, "_build", "json", "telemetry.json")
         if os.path.exists(filepath):
-            with open(filepath, "r") as json_file:
+            with safe_open(filepath, "r") as json_file:
                 content = json_file.read()
             data.update(self._safe_json_loads(content, {}))
         return data
@@ -190,7 +196,6 @@ class BuildDataCollector:
                 if install.requirements:
                     cmd = ["cat", install.requirements]
                     _, stdout, _ = self.run(*cmd, cwd=self.checkout_path)
-                    # pylint: disable=invalid-name
                     df = dparse.parse(
                         stdout, file_type=dparse.filetypes.requirements_txt
                     ).serialize()
@@ -259,7 +264,6 @@ class BuildDataCollector:
             "--local",
             "--format",
             "json",
-            "--not-required",
         ]
         code, stdout, _ = self.run(*cmd)
         if code == 0 and stdout:

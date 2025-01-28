@@ -1,37 +1,81 @@
-import structlog
-from django.forms.widgets import HiddenInput
-from django.utils.translation import gettext_lazy as _
-from django_filters import CharFilter, ChoiceFilter, FilterSet
+"""Filters used in project dashboard."""
 
-from readthedocs.builds.constants import BUILD_FINAL_STATES, BUILD_STATE_FINISHED
+import structlog
+from django.utils.translation import gettext_lazy as _
+from django_filters import ChoiceFilter
+
+from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
+    BUILD_STATE_FINISHED,
+    EXTERNAL,
+)
+from readthedocs.builds.models import Version
+from readthedocs.core.filters import FilteredModelChoiceFilter, ModelFilterSet
 
 log = structlog.get_logger(__name__)
 
 
-class BuildListFilter(FilterSet):
+class BuildListFilter(ModelFilterSet):
 
-    STATE_ACTIVE = 'active'
-    STATE_SUCCESS = 'succeeded'
-    STATE_FAILED = 'failed'
+    """Project build list dashboard filter."""
+
+    STATE_ACTIVE = "active"
+    STATE_SUCCESS = "succeeded"
+    STATE_FAILED = "failed"
 
     STATE_CHOICES = (
-        (STATE_ACTIVE, _('Active')),
-        (STATE_SUCCESS, _('Build finished')),
-        (STATE_FAILED, _('Build failed')),
+        (STATE_ACTIVE, _("Active")),
+        (STATE_SUCCESS, _("Build successful")),
+        (STATE_FAILED, _("Build failed")),
+    )
+
+    TYPE_NORMAL = "normal"
+    TYPE_EXTERNAL = "external"
+    TYPE_CHOICES = (
+        (TYPE_NORMAL, _("Normal")),
+        (TYPE_EXTERNAL, _("Pull/merge request")),
     )
 
     # Attribute filter fields
-    version = CharFilter(field_name='version__slug', widget=HiddenInput)
+    version__slug = FilteredModelChoiceFilter(
+        label=_("Version"),
+        empty_label=_("All versions"),
+        to_field_name="slug",
+        queryset_method="get_version_queryset",
+        method="get_version",
+    )
     state = ChoiceFilter(
-        label=_('State'),
+        label=_("State"),
         choices=STATE_CHOICES,
-        empty_label=_('Any'),
-        method='get_state',
+        empty_label=_("Any"),
+        method="get_state",
+    )
+    version__type = ChoiceFilter(
+        label=_("Type"),
+        choices=TYPE_CHOICES,
+        empty_label=_("Any"),
+        method="get_version_type",
     )
 
-    def get_state(self, queryset, name, value):
+    def __init__(self, *args, project=None, **kwargs):
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+    def get_version(self, queryset, _, version):
+        return queryset.filter(version__slug=version.slug)
+
+    def get_version_queryset(self):
+        # Copied from the version listing view. We need this here as this is
+        # what allows the build version list to populate. Otherwise the
+        # ``all()`` queryset method is used.
+        return Version.internal.public(
+            user=self.request.user,
+            project=self.project,
+        )
+
+    def get_state(self, queryset, _, value):
         if value == self.STATE_ACTIVE:
-            queryset = queryset.exclude(state=BUILD_STATE_FINISHED)
+            queryset = queryset.exclude(state__in=BUILD_FINAL_STATES)
         elif value == self.STATE_SUCCESS:
             queryset = queryset.filter(state=BUILD_STATE_FINISHED, success=True)
         elif value == self.STATE_FAILED:
@@ -39,4 +83,11 @@ class BuildListFilter(FilterSet):
                 state__in=BUILD_FINAL_STATES,
                 success=False,
             )
+        return queryset
+
+    def get_version_type(self, queryset, _, value):
+        if value == self.TYPE_NORMAL:
+            queryset = queryset.exclude(version__type=EXTERNAL)
+        elif value == self.TYPE_EXTERNAL:
+            queryset = queryset.filter(version__type=EXTERNAL)
         return queryset

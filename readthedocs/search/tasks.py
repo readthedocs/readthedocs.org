@@ -15,16 +15,15 @@ from .utils import _get_document, _get_index
 log = structlog.get_logger(__name__)
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def index_objects_to_es(
     app_label, model_name, document_class, index_name=None, chunk=None, objects_id=None
 ):
-
     if chunk and objects_id:
-        raise ValueError('You can not pass both chunk and objects_id.')
+        raise ValueError("You can not pass both chunk and objects_id.")
 
     if not (chunk or objects_id):
-        raise ValueError('You must pass a chunk or objects_id.')
+        raise ValueError("You must pass a chunk or objects_id.")
 
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
@@ -48,9 +47,10 @@ def index_objects_to_es(
         old_index_name = document._index._name
         document._index._name = index_name
         log.info(
-            'Replacing index name.',
+            "Replacing index name.",
             old_index_name=old_index_name,
-            new_index_name=index_name,)
+            new_index_name=index_name,
+        )
 
     log.info(
         "Indexing model.",
@@ -61,14 +61,14 @@ def index_objects_to_es(
 
     if index_name:
         log.info(
-            'Undoing index replacement.',
+            "Undoing index replacement.",
             old_index_name=document._index._name,
             new_index_name=old_index_name,
         )
         document._index._name = old_index_name
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def delete_objects_in_es(app_label, model_name, document_class, objects_id):
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
@@ -82,12 +82,12 @@ def delete_objects_in_es(app_label, model_name, document_class, objects_id):
     )
     try:
         # This is a common case that we should be handling a better way
-        doc_obj.update(queryset.iterator(), action='delete')
+        doc_obj.update(queryset.iterator(), action="delete")
     except Exception:
-        log.warning('Unable to delete a subset of files. Continuing.', exc_info=True)
+        log.warning("Unable to delete a subset of files. Continuing.", exc_info=True)
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def create_new_es_index(app_label, model_name, index_name, new_index_name):
     model = apps.get_model(app_label, model_name)
     indices = registry.get_indices(models=[model])
@@ -96,7 +96,7 @@ def create_new_es_index(app_label, model_name, index_name, new_index_name):
     new_index.create()
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def switch_es_index(app_label, model_name, index_name, new_index_name):
     model = apps.get_model(app_label, model_name)
     indices = registry.get_indices(models=[model])
@@ -118,7 +118,7 @@ def switch_es_index(app_label, model_name, index_name, new_index_name):
         old_index.connection.indices.delete(index=old_index_actual_name)
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def index_missing_objects(app_label, model_name, document_class, index_generation_time):
     """
     Task to insure that none of the object is missed from indexing.
@@ -131,16 +131,22 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
     """
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
-    query_string = '{}__lte'.format(document.modified_model_field)
-    queryset = document().get_queryset().exclude(**{query_string: index_generation_time})
+    query_string = "{}__lte".format(document.modified_model_field)
+    queryset = (
+        document().get_queryset().exclude(**{query_string: index_generation_time})
+    )
     document().update(queryset.iterator())
 
-    log.info("Indexed missing objects from model.", count=queryset.count(), model=model.__name__)
+    log.info(
+        "Indexed missing objects from model.",
+        count=queryset.count(),
+        model=model.__name__,
+    )
 
     # TODO: Figure out how to remove the objects from ES index that has been deleted
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def delete_old_search_queries_from_db():
     """
     Delete old SearchQuery objects older than ``RTD_ANALYTICS_DEFAULT_RETENTION_DAYS``.
@@ -154,16 +160,19 @@ def delete_old_search_queries_from_db():
     )
 
     if search_queries_qs.exists():
-        log.info('Deleting search queries for last 3 months.', total=search_queries_qs.count())
+        log.info(
+            "Deleting search queries for last 3 months.",
+            total=search_queries_qs.count(),
+        )
         search_queries_qs.delete()
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def record_search_query(project_slug, version_slug, query, total_results, time_string):
     """Record/update a search query for analytics."""
     if not project_slug or not version_slug or not query:
         log.debug(
-            'Not recording the search query.',
+            "Not recording the search query.",
             project_slug=project_slug,
             version_slug=version_slug,
             query=query,
@@ -178,7 +187,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         project__slug=project_slug,
         version__slug=version_slug,
         modified__gte=before_10_sec,
-    ).order_by('-modified')
+    ).order_by("-modified")
 
     # If a partial query exists, then just update that object.
     # Check max 30 queries, in case there is a flood of queries.
@@ -191,14 +200,13 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
             return
 
     version = (
-        Version.objects
-        .filter(slug=version_slug, project__slug=project_slug)
-        .prefetch_related('project')
+        Version.objects.filter(slug=version_slug, project__slug=project_slug)
+        .prefetch_related("project")
         .first()
     )
     if not version:
         log.debug(
-            'Not recording the search query because project does not exist.',
+            "Not recording the search query because project does not exist.",
             project_slug=project_slug,
             version_slug=version_slug,
         )

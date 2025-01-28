@@ -2,6 +2,7 @@
   {
     "path": "index.html",
     "title": "Pelican Development Blog",
+    "main_content_hash": "ab49e3b7d72db4a92506ef085770e323",
     "sections": [
       {
         "id": "banner",
@@ -28,7 +29,6 @@
         "title": "follow",
         "content": "atom feed @getpelican @jmayer github"
       }
-    ],
-    "domain_data": {}
+    ]
   }
 ]

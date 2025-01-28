@@ -4,15 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0080_historicalproject'),
+        ("projects", "0080_historicalproject"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='httpheader',
-            name='name',
-            field=models.CharField(choices=[('access_control_allow_origin', 'Access-Control-Allow-Origin'), ('access_control_allow_headers', 'Access-Control-Allow-Headers'), ('content_security_policy', 'Content-Security-Policy'), ('feature_policy', 'Feature-Policy'), ('permissions_policy', 'Permissions-Policy'), ('referrer_policy', 'Referrer-Policy'), ('x_frame_options', 'X-Frame-Options')], max_length=128),
+            model_name="httpheader",
+            name="name",
+            field=models.CharField(
+                choices=[
+                    ("access_control_allow_origin", "Access-Control-Allow-Origin"),
+                    ("access_control_allow_headers", "Access-Control-Allow-Headers"),
+                    ("content_security_policy", "Content-Security-Policy"),
+                    ("feature_policy", "Feature-Policy"),
+                    ("permissions_policy", "Permissions-Policy"),
+                    ("referrer_policy", "Referrer-Policy"),
+                    ("x_frame_options", "X-Frame-Options"),
+                ],
+                max_length=128,
+            ),
         ),
     ]

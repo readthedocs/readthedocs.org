@@ -16,27 +16,23 @@
 {% endblock %}
 
 {% block project_edit_content %}
-  {% if integration.has_sync and integration.can_sync %}
-    <p>
-      {% blocktrans trimmed %}
-        This integration is being managed automatically by Read the Docs. If 
-        it isn't functioning correctly, try re-syncing the webhook:
-      {% endblocktrans %}
-    </p>
-    <p>
-      {% url 'api_webhook' project_slug=project.slug integration_pk=integration.pk as webhook_url %}
-      <a href="//{{ PRODUCTION_DOMAIN }}{{ webhook_url }}">{{ PRODUCTION_DOMAIN }}{{ webhook_url }}</a>
-    </p>
-  {% else %}
-    {% comment %}
-      Display information for manual webhook set up if either case is true:
+  {% if integration.has_sync %}
+    {% if integration.can_sync %}
+      <p>
+        {% blocktrans trimmed %}
+          This integration is being managed automatically by Read the Docs. If
+          it isn't functioning correctly, try re-syncing the webhook:
+        {% endblocktrans %}
+      </p>
+    {% else %}
+      {% comment %}
+        Display information for manual webhook set up if either case is true:
 
-      * Integration doesn't have the ability to sync
-      * Integration has ability to sync, but we don't have the data returned
-        from the provider API on webhook creation (or webhook was automatically
-        created on new data from an old webhook)
-    {% endcomment %}
-    {% if integration.has_sync and not integration.can_sync %}
+        * Integration doesn't have the ability to sync
+        * Integration has ability to sync, but we don't have the data returned
+          from the provider API on webhook creation (or webhook was automatically
+          created on new data from an old webhook)
+      {% endcomment %}
       <p>
         {% blocktrans trimmed %}
           This integration is not managed by Read the Docs currently.
@@ -46,27 +42,56 @@
           You can use the following address to manually configure this webhook.
         {% endblocktrans %}
       </p>
-    {% else %}
-      <p>
-        {% blocktrans trimmed %}
-          To manually configure this webhook with your provider, use the
-          following address:
-        {% endblocktrans %}
-      </p>
     {% endif %}
+  {% endif %}
 
+  <p>
+    {% blocktrans trimmed %}
+      To manually configure this webhook with your provider, use the
+      following information:
+    {% endblocktrans %}
+  </p>
+
+  <div class="integration-details">
     <p>
-      {% url 'api_webhook' project_slug=project.slug integration_pk=integration.pk as webhook_url %}
-      <a href="//{{ PRODUCTION_DOMAIN }}{{ webhook_url }}">{{ PRODUCTION_DOMAIN }}{{ webhook_url }}</a>
+      <p>
+        <label for="id_webhook_url">{% trans "Webhook URL:" %}</label>
+        {% url 'api_webhook' project_slug=project.slug integration_pk=integration.pk as webhook_url %}
+        <input type="text" id="id_webhook_url" value="https://{{ PRODUCTION_DOMAIN }}{{ webhook_url }}">
+      </p>
     </p>
 
-    {% block integration_details %}{% endblock %}
+    {% if not integration.has_sync %}
+      {# For generic webhooks #}
+      <p>
+      <label for="id_secret">{% trans "Secret:" %}</label>
+        <input type="text" id="id_secret" value="{{ integration.token }}">
+      </p>
+    {% elif integration.secret %}
+      <p>
+        <label for="id_secret">{% trans "Secret:" %}</label>
+        <input type="text" id="id_secret" value="{{ integration.secret }}">
+      </p>
+    {% endif %}
+  </div>
 
+  {% if integration.has_sync and not integration.secret %}
+  <p class="empty">
+    {% blocktrans trimmed %}
+    This integration does not have a secret,
+    the authenticity of the incoming webhook cannot be verified.
+    <strong>Click on "Resync webhook" to generate a secret.</strong>
+    Read more in our <a href="https://blog.readthedocs.com/security-update-on-incoming-webhooks/">blog post</a>.
+    {% endblocktrans %}
+  </p>
+  {% endif %}
+
+  {% if not integration.can_sync %}
     <p>
       {% blocktrans trimmed %}
         For more information on manually configuring a webhook, refer to
-        <a href="https://docs.readthedocs.io/page/webhooks.html">
-          our webhook documentation
+        <a href="https://docs.readthedocs.io/page/guides/setup/git-repo-automatic.html">
+          our webhook documentation.
         </a>
       {% endblocktrans %}
     </p>

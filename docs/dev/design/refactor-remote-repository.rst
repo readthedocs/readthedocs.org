@@ -1,6 +1,6 @@
-======================================
- Refactor ``RemoteRepository`` object
-======================================
+====================================
+Refactor ``RemoteRepository`` object
+====================================
 
 
 This document describes the current usage of ``RemoteRepository`` objects and proposes a new normalized modeling.
@@ -18,7 +18,7 @@ Goals
 * Do not disconnect ``Project`` and ``RemoteRepository`` when a user delete/disconnects their account.
 
 
-Non-Goals
+Non-goals
 =========
 
 * Keep ``RemoteRepository`` in sync with GitHub repositories.
@@ -31,7 +31,7 @@ Non-Goals
    They are just outside the scope of this document.
 
 
-Current Implementation
+Current implementation
 ======================
 
 When a user connect their account to a social account, we create a
@@ -78,7 +78,7 @@ Where ``RemoteRepository`` is used?
 .. _Send build status: https://github.com/readthedocs/readthedocs.org/blob/56253cb786945c9fe53a034a4433f10672ae8a4f/readthedocs/projects/tasks.py#L1852-L1956
 
 
-New Normalized Implementation
+New normalized implementation
 =============================
 
 The ``ManyToMany`` relation ``RemoteRepository.users`` will be changed to be ``ManyToMany(through='RemoteRelation')``
@@ -109,7 +109,7 @@ We can get the list of ``Project`` where a user as access:
    Project.objects.filter(remote_repository__in=admin_remote_repositories)
 
 
-Rollout Plan
+Rollout plan
 ============
 
 Due the constraints we have in the ``RemoteRepository`` table and its size,

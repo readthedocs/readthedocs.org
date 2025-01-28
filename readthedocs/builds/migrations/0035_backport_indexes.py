@@ -4,24 +4,40 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0034_remove_protected_privacy_level'),
+        ("builds", "0034_remove_protected_privacy_level"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='build',
-            name='date',
-            field=models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Date'),
+            model_name="build",
+            name="date",
+            field=models.DateTimeField(
+                auto_now_add=True, db_index=True, verbose_name="Date"
+            ),
         ),
         migrations.AlterField(
-            model_name='build',
-            name='state',
-            field=models.CharField(choices=[('triggered', 'Triggered'), ('cloning', 'Cloning'), ('installing', 'Installing'), ('building', 'Building'), ('uploading', 'Uploading'), ('finished', 'Finished')], db_index=True, default='finished', max_length=55, verbose_name='State'),
+            model_name="build",
+            name="state",
+            field=models.CharField(
+                choices=[
+                    ("triggered", "Triggered"),
+                    ("cloning", "Cloning"),
+                    ("installing", "Installing"),
+                    ("building", "Building"),
+                    ("uploading", "Uploading"),
+                    ("finished", "Finished"),
+                ],
+                db_index=True,
+                default="finished",
+                max_length=55,
+                verbose_name="State",
+            ),
         ),
         migrations.AddIndex(
-            model_name='build',
-            index=models.Index(fields=['project', 'date'], name='builds_buil_project_fea68c_idx'),
+            model_name="build",
+            index=models.Index(
+                fields=["project", "date"], name="builds_buil_project_fea68c_idx"
+            ),
         ),
     ]

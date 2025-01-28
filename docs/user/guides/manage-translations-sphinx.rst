@@ -1,5 +1,5 @@
-Manage Translations for Sphinx projects
-=======================================
+How to manage translations for Sphinx projects
+==============================================
 
 This guide walks through the process needed to manage translations of your documentation.
 Once this work is done, you can setup your project under Read the Docs to build each language of your documentation by reading :doc:`/localization`.
@@ -113,44 +113,59 @@ These features includes a great web based UI, `Translation Memory`_, collaborati
 
 You need to create an account in their service and a new project before start.
 
-After that, you need to install the `transifex-client`_ tool which will help you in the process to upload source files, update them and also download translated files.
+After that, you need to install the `Transifex CLI`_ tool which will help you in the process to upload source files, update them and also download translated files.
 To do this, run this command:
 
-.. _transifex-client: https://docs.transifex.com/client/introduction
+.. _Transifex CLI: https://docs.transifex.com/client/introduction
 
 .. prompt:: bash $
 
-   pip install transifex-client
+   curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 
 After installing it, you need to configure your account.
 For this, you need to create an API Token for your user to access this service through the command line.
 This can be done under your `User's Settings`_.
 
-.. _User's Settings: https://www.transifex.com/user/settings/api/
+.. _User's Settings: https://app.transifex.com/user/settings/api/
 
+With the token, you have two options: to export as ``TX_TOKEN`` environment variable or to store it in ``~/.transifexrc``.
 
-Now, you need to setup it to use this token:
+You can export the token to an environment variable, using an ``export`` command, which activates it in your current command line session:
 
 .. prompt:: bash $
 
-   tx init --token $TOKEN --no-interactive
+    # ``1/xxxx`` is the API token you generated
+    export TX_TOKEN=1/xxxx
+
+In order to store the token permanently, you can save it in a ``~/.transifexrc`` file. It should look like this:
 
 
-The next step is to map every ``.pot`` file you have created in the previous step to a resource under Transifex.
+.. code-block::
+
+   [https://www.transifex.com]
+   rest_hostname = https://rest.api.transifex.com
+   token         = 1/xxxx
+
+
+Now, it is time to set the project's Transifex configuration and to map every ``.pot`` file you have created in the previous step to a resource under Transifex.
 To achieve this, you need to run this command:
 
 .. prompt:: bash $
 
-   tx config mapping-bulk \
-       --project $TRANSIFEX_PROJECT \
-       --file-extension '.pot' \
-       --source-file-dir docs/_build/gettext \
-       --source-lang en \
-       --type PO \
-       --expression 'locale/<lang>/LC_MESSAGES/{filepath}/{filename}.po' \
-       --execute
+   sphinx-intl create-txconfig
+   sphinx-intl update-txconfig-resources \
+       --pot-dir _build/gettext \
+       --locale-dir locale \
+       --transifex-organization-name $TRANSIFEX_ORGANIZATION \
+       --transifex-project-name $TRANSIFEX_PROJECT
 
-This command will generate a file at ``.tx/config`` with all the information needed by the ``transifext-client`` tool to keep your translation synchronized.
+
+This command will generate a file at ``.tx/config`` with all the information needed by the ``tx`` tool to keep your translation synchronized.
+
+.. seealso:
+
+   `Transifex documentation for the tx command <https://developers.transifex.com/docs/using-the-client>`__
+       If you prefer a more direct approach to setting up Transifex, you can also interact directly with the ``tx`` command
 
 Finally, you need to upload these files to Transifex platform so translators can start their work.
 To do this, you can run this command:
@@ -187,9 +202,9 @@ Finally, to build our documentation in Spanish(Argentina) we need to tell Sphinx
 
 .. note::
 
-   There is no need to create a new ``conf.py`` to redefine the ``language`` for the Spanish version of this documentation, 
+   There is no need to create a new ``conf.py`` to redefine the ``language`` for the Spanish version of this documentation,
    but you need to set locale_dirs_ to ``["locale"]`` for Sphinx to find the translated content.
-   
+
    .. _locale_dirs: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-locale_dirs
 
 After running this command, the Spanish(Argentina) version of your documentation will be under ``_build/html/es_AR``.
@@ -219,7 +234,7 @@ Once you have done changes in your documentation, you may want to make these add
 
    .. prompt:: bash $
 
-      tx push --sources
+      tx push --source
 
 
 Build documentation from up to date translation

@@ -5,7 +5,9 @@ from datetime import datetime
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
+from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
@@ -63,7 +65,7 @@ class Service:
         except SocialAccount.DoesNotExist:
             return []
 
-    def get_adapter(self):
+    def get_adapter(self) -> type[OAuth2Adapter]:
         return self.adapter
 
     @property
@@ -72,12 +74,20 @@ class Service:
 
     @property
     def provider_name(self):
-        return registry.by_id(self.provider_id).name
+        return registry.get_class(self.provider_id).name
 
     def get_session(self):
         if self.session is None:
             self.create_session()
         return self.session
+
+    def get_access_token_url(self):
+        # ``access_token_url`` is a property in some adapters,
+        # so we need to instantiate it to get the actual value.
+        # pylint doesn't recognize that get_adapter returns a class.
+        # pylint: disable=not-callable
+        adapter = self.get_adapter()(request=None)
+        return adapter.access_token_url
 
     def create_session(self):
         """
@@ -92,24 +102,27 @@ class Service:
             return None
 
         token_config = {
-            'access_token': token.token,
-            'token_type': 'bearer',
+            "access_token": token.token,
+            "token_type": "bearer",
         }
         if token.expires_at is not None:
             token_expires = (token.expires_at - timezone.now()).total_seconds()
-            token_config.update({
-                'refresh_token': token.token_secret,
-                'expires_in': token_expires,
-            })
+            token_config.update(
+                {
+                    "refresh_token": token.token_secret,
+                    "expires_in": token_expires,
+                }
+            )
 
+        social_app = self.account.get_provider().app
         self.session = OAuth2Session(
-            client_id=token.app.client_id,
+            client_id=social_app.client_id,
             token=token_config,
             auto_refresh_kwargs={
-                'client_id': token.app.client_id,
-                'client_secret': token.app.secret,
+                "client_id": social_app.client_id,
+                "client_secret": social_app.secret,
             },
-            auto_refresh_url=self.get_adapter().access_token_url,
+            auto_refresh_url=self.get_access_token_url(),
             token_updater=self.token_updater(token),
         )
 
@@ -132,10 +145,10 @@ class Service:
         """
 
         def _updater(data):
-            token.token = data['access_token']
+            token.token = data["access_token"]
             token.token_secret = data.get("refresh_token", "")
             token.expires_at = timezone.make_aware(
-                datetime.fromtimestamp(data['expires_at']),
+                datetime.fromtimestamp(data["expires_at"]),
             )
             token.save()
             log.info("Updated token.", token_id=token.pk)
@@ -191,7 +204,7 @@ class Service:
             except ValueError:
                 debug_data = resp.content
             log.debug(
-                'Paginate failed at URL.',
+                "Paginate failed at URL.",
                 url=url,
                 debug_data=debug_data,
             )
@@ -208,29 +221,36 @@ class Service:
           for this user in the current provider
         """
         remote_repositories = self.sync_repositories()
-        remote_organizations, remote_repositories_organizations = self.sync_organizations()
+        (
+            remote_organizations,
+            remote_repositories_organizations,
+        ) = self.sync_organizations()
 
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
-        all_remote_repositories = remote_repositories + remote_repositories_organizations
-        repository_remote_ids = [r.remote_id for r in all_remote_repositories if r is not None]
+        all_remote_repositories = (
+            remote_repositories + remote_repositories_organizations
+        )
+        repository_remote_ids = [
+            r.remote_id for r in all_remote_repositories if r is not None
+        ]
         (
-            self.user.remote_repository_relations
-            .exclude(
+            self.user.remote_repository_relations.exclude(
                 remote_repository__remote_id__in=repository_remote_ids,
-                remote_repository__vcs_provider=self.vcs_provider_slug
+                remote_repository__vcs_provider=self.vcs_provider_slug,
             )
             .filter(account=self.account)
             .delete()
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
+        organization_remote_ids = [
+            o.remote_id for o in remote_organizations if o is not None
+        ]
         (
-            self.user.remote_organization_relations
-            .exclude(
+            self.user.remote_organization_relations.exclude(
                 remote_organization__remote_id__in=organization_remote_ids,
-                remote_organization__vcs_provider=self.vcs_provider_slug
+                remote_organization__vcs_provider=self.vcs_provider_slug,
             )
             .filter(account=self.account)
             .delete()
@@ -253,6 +273,19 @@ class Service:
         :type response: requests.Response
         """
         raise NotImplementedError
+
+    def get_webhook_url(self, project, integration):
+        """Get the webhook URL for the project's integration."""
+        return "{base_url}{path}".format(
+            base_url=settings.PUBLIC_API_URL,
+            path=reverse(
+                "api_webhook",
+                kwargs={
+                    "project_slug": project.slug,
+                    "integration_pk": integration.pk,
+                },
+            ),
+        )
 
     def get_provider_data(self, project, integration):
         """
@@ -293,7 +326,7 @@ class Service:
         """
         raise NotImplementedError
 
-    def send_build_status(self, build, commit, state, link_to_build=False):
+    def send_build_status(self, build, commit, status):
         """
         Create commit status for project.
 
@@ -301,9 +334,8 @@ class Service:
         :type build: Build
         :param commit: commit sha of the pull/merge request
         :type commit: str
-        :param state: build state failure, pending, or success.
-        :type state: str
-        :param link_to_build: If true, link to the build page regardless the state.
+        :param status: build state failure, pending, or success.
+        :type status: str
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
@@ -322,6 +354,6 @@ class Service:
         """
         # TODO Replace this check by keying project to remote repos
         return (
-            cls.url_pattern is not None and
-            cls.url_pattern.search(project.repo) is not None
+            cls.url_pattern is not None
+            and cls.url_pattern.search(project.repo) is not None
         )

@@ -1,5 +1,5 @@
 # Action to run pip-compile weekly and create a Pull Request with the changes.
-# Althought GitHub says that pip-compile is supported by dependabot, we couldn't make it work together.
+# Although GitHub says that pip-compile is supported by dependabot, we couldn't make it work together.
 # That's why this action exists.
 # If we ever find the proper configuration for dependabot+pip-compile,
 # we can delete this action.
@@ -22,39 +22,27 @@ jobs:
 
     name: Update dependencies
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'readthedocs' # do not run this job on forks
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - name: Update submodules
+        run: git submodule update --init
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - name: Install test dependencies
-        run: python -m pip install -U pip-tools
-
-      - name: Run pip-compile on requirements/pip.in
-        run: pip-compile --upgrade --output-file=requirements/pip.txt requirements/pip.in
-
-      - name: Run pip-compile on requirements/debug.in
-        run: pip-compile --upgrade --output-file=requirements/debug.txt requirements/debug.in
-
-      - name: Run pip-compile on requirements/docker.in
-        run: pip-compile --upgrade --output-file=requirements/docker.txt requirements/docker.in
-
-      - name: Run pip-compile on requirements/testing.in
-        run: pip-compile --upgrade --output-file=requirements/testing.txt requirements/testing.in
-
-      - name: Run pip-compile on requirements/lint.in
-        run: pip-compile --upgrade --output-file=requirements/lint.txt requirements/lint.in
-
-      - name: Run pip-compile on requirements/docs.in
-        run: pip-compile --upgrade --output-file=requirements/docs.txt requirements/docs.in
 
       - name: Install "pg_config" requirement
         run: sudo apt-get install libpq-dev
-      - name: Run pip-compile on requirements/deploy.in
-        run: pip-compile --upgrade --output-file=requirements/deploy.txt requirements/deploy.in
+
+      - name: Install piptools and invoke
+        # Pinning pip==24.2 due to https://github.com/jazzband/pip-tools/issues/2131
+        run: python -m pip install --upgrade pip-tools invoke pip==24.2
+
+      - name: Update dependencies from requirements/*.txt
+        run: invoke requirements.update
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v6
         with:
           add-paths: |
             requirements/*.txt
@@ -67,4 +55,3 @@ jobs:
           delete-branch: true
           branch: dependencies/pip-tools
           branch-suffix: short-commit-hash
-          team-reviewers: readthedocs/backend

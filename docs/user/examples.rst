@@ -1,49 +1,66 @@
 Example projects
 ================
 
-* Need inspiration?
-* Want to bootstrap a new documentation project?
-* Want to showcase your own solution?
-
 The following example projects show a rich variety of uses of Read the Docs.
-You can use them for inspiration, for learning and for recipies to start your own documentation projects.
-View the *rendered* version of each project and then head over to the Git source to see how it's done and reuse the code.
-
-Sphinx and MkDocs examples
---------------------------
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 20 40 20
-
-   * - Topic
-     - Framework
-     - Links
-     - Description
-   * - Basic Sphinx
-     - Sphinx
-     - `[Git] <https://github.com/readthedocs-examples/example-sphinx-basic/>`__ `[Rendered] <https://example-sphinx-basic.readthedocs.io/en/latest/>`__
-     - Sphinx example with versioning and Python doc autogeneration
-   * - Basic MkDocs
-     - MkDocs
-     - `[Git] <https://github.com/readthedocs-examples/example-mkdocs-basic/>`__ `[Rendered] <https://example-mkdocs-basic.readthedocs.io/en/latest/>`__
-     - Basic example of using MkDocs
-   * - Jupyter Book
-     - Jupyter Book and Sphinx
-     - `[Git] <https://github.com/readthedocs-examples/example-jupyter-book/>`__ `[Rendered] <https://example-jupyter-book.readthedocs.io/>`__
-     - Jupyter Book with popular integrations configured
-
+You can use them for inspiration, for learning and for recipes to start your own documentation projects.
+View the *rendered* version of each project and then head over to the Git repository to see how it's done and reuse the code.
 
 Real-life examples
 ------------------
 
-.. image:: _static/images/awesome-list.svg
-  :alt: Awesome List badge
-  :target: https://github.com/readthedocs-examples/
+We maintain an Awesome List where you can contribute new shiny examples of using Read the Docs.
+Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/awesome-read-the-docs>`__.
 
-We maintain an **Awesome List** where you can contribute new shiny examples of using Read the Docs.
-Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/>`_.
+Minimal basic examples
+----------------------
 
+Sphinx
+~~~~~~
+
+Sphinx example with versioning and Python doc autogeneration.
+
+Markup language
+  reStructuredText, Markdown or MyST
+Rendered version
+  https://example-sphinx-basic.readthedocs.io/en/latest/
+Repository
+  https://github.com/readthedocs-examples/example-sphinx-basic/
+
+MkDocs
+~~~~~~
+
+Basic example of using MkDocs.
+
+Markup language
+  Markdown
+Rendered version
+  https://example-mkdocs-basic.readthedocs.io/en/latest/
+Repository
+  https://github.com/readthedocs-examples/example-mkdocs-basic/
+
+Jupyter Book
+~~~~~~~~~~~~
+
+Jupyter Book with popular integrations configured.
+
+Markup language
+  MyST
+Rendered version
+  https://example-jupyter-book.readthedocs.io/
+Repository
+  https://github.com/readthedocs-examples/example-jupyter-book/
+
+Antora
+~~~~~~
+
+Antora with asciidoctor-kroki extension configured for AsciiDoc and Diagram as Code.
+
+Markup language
+  AsciiDoc
+Rendered version
+  https://example-antora-basic.readthedocs.io/
+Repository
+  https://github.com/man-chi/example-antora-basic/
 
 Contributing an example project
 -------------------------------
@@ -55,7 +72,7 @@ We **require** that an example project:
 * is **hosted and maintained by you** in its own Git repository, ``example-<topic>``.
 * contains a README.
 * uses a ``.readthedocs.yaml`` configuration.
-* is added to the above list by **opening a PR** targeting `examples.rst <https://github.com/readthedocs/readthedocs.org/blob/main/docs/user/examples.rst>`_.
+* is added to the above list by **opening a PR** targeting `examples.rst <https://github.com/readthedocs/readthedocs.org/blob/main/docs/user/examples.rst>`_ file from our documentation.
 
 
 We **recommend** that your project:

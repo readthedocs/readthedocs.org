@@ -42,7 +42,6 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("organizations", "0007_add_extra_history_fields"),
     ]

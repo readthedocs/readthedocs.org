@@ -10,8 +10,6 @@
 # instead we need to hit NGINX's IP (this is used on Embed API from
 # -ext for example) Setting a static IP for NGINX, allow us to
 # override /etc/hosts with this IP.
-version: '3'
-
 networks:
   readthedocs:
     driver: bridge
@@ -26,9 +24,6 @@ services:
       args:
         GITHUB_USER: ${GITHUB_USER:-}
         GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-
-  cache:
-    image: redis:6.0.5
 
   nginx:
     networks:
@@ -58,6 +53,15 @@ services:
       - "${NGINX_WEB_SERVER_NAME:-devthedocs.org}:10.10.0.100"
 
   celery:
+    image: community_server:latest
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery_docker.py
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery_docker
+      - CELERY_APP_NAME=readthedocs
+
+  celery-beat:
     image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org

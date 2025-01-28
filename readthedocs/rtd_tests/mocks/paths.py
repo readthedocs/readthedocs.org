@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
 """Context managers to patch os.path.exists calls."""
 import os
-import re
-
 from unittest import mock
 
 
@@ -25,7 +22,7 @@ def fake_paths(check):
             return original_exists(path)
         return result
 
-    return mock.patch.object(os.path, 'exists', patched_exists)
+    return mock.patch.object(os.path, "exists", patched_exists)
 
 
 def fake_paths_lookup(path_dict):
@@ -37,25 +34,8 @@ def fake_paths_lookup(path_dict):
     ...     assert os.path.exists('my.txt') == True
     ...     assert os.path.exists('no.txt') == False
     """
+
     def check(path):
         return path_dict.get(path, None)
-    return fake_paths(check)
-
-
-def fake_paths_by_regex(pattern, exists=True):
-    r"""
-    Usage:
-
-    >>> with fake_paths_by_regex('\.pdf$'):
-    ...     assert os.path.exists('my.pdf') == True
-    >>> with fake_paths_by_regex('\.pdf$', exists=False):
-    ...     assert os.path.exists('my.pdf') == False
-    """
-    regex = re.compile(pattern)
-
-    def check(path):
-        if regex.search(path):
-            return exists
-        return None
 
     return fake_paths(check)

@@ -2,6 +2,7 @@
     "active_versions": [
         {
             "active": true,
+            "aliases": [],
             "hidden": false,
             "built": true,
             "downloads": {
@@ -11,34 +12,6 @@
             },
             "id": 2,
             "identifier": "a1b2c3",
-            "last_build": {
-                "commit": "a1b2c3",
-                "config": {
-                    "property": "test value"
-                },
-                "created": "2019-04-29T10:00:00Z",
-                "duration": 60,
-                "error": "",
-                "finished": "2019-04-29T10:01:00Z",
-                "id": 1,
-                "_links": {
-                    "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/",
-                    "project": "https://readthedocs.org/api/v3/projects/project/",
-                    "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
-                },
-                "urls": {
-                    "build": "https://readthedocs.org/projects/project/builds/1/",
-                    "project": "https://readthedocs.org/projects/project/",
-                    "version": "https://readthedocs.org/dashboard/project/version/v1.0/edit/"
-                },
-                "project": "project",
-                "state": {
-                    "code": "finished",
-                    "name": "Finished"
-                },
-                "success": true,
-                "version": "v1.0"
-            },
             "_links": {
                 "_self": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/",
                 "builds": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/builds/",
@@ -54,7 +27,8 @@
                 "documentation": "http://project.readthedocs.io/en/v1.0/",
                 "vcs": "https://github.com/rtfd/project/tree/v1.0/"
             },
-            "verbose_name": "v1.0"
+            "verbose_name": "v1.0",
+            "privacy_level": "public"
         }
     ],
     "created": "2019-04-29T10:00:00Z",
@@ -69,14 +43,19 @@
         "_self": "https://readthedocs.org/api/v3/projects/project/",
         "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
         "environmentvariables": "https://readthedocs.org/api/v3/projects/project/environmentvariables/",
+        "notifications": "https://readthedocs.org/api/v3/projects/project/notifications/",
         "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
         "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
         "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
+       "sync_versions": "https://readthedocs.org/api/v3/projects/project/sync-versions/",
         "translations": "https://readthedocs.org/api/v3/projects/project/translations/",
         "versions": "https://readthedocs.org/api/v3/projects/project/versions/"
     },
     "modified": "2019-04-29T12:00:00Z",
     "name": "project",
+    "permissions": {
+      "admin": true
+    },
     "programming_language": {
         "code": "words",
         "name": "Only Words"
@@ -89,14 +68,15 @@
     "slug": "project",
     "subproject_of": null,
     "tags": [
-        "tag",
         "project",
+        "tag",
         "test"
     ],
     "translation_of": null,
     "urls": {
         "builds": "https://readthedocs.org/projects/project/builds/",
         "documentation": "http://project.readthedocs.io/en/latest/",
+        "downloads": "https://readthedocs.org/projects/project/downloads/",
         "home": "https://readthedocs.org/projects/project/",
         "versions": "https://readthedocs.org/projects/project/versions/"
     },
@@ -104,5 +84,9 @@
         {
             "username": "testuser"
         }
-    ]
+    ],
+    "privacy_level": "public",
+    "external_builds_privacy_level": "public",
+    "single_version": false,
+    "versioning_scheme": "multiple_versions_with_translations"
 }

@@ -1,0 +1,61 @@
+{
+  "count": 3,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "_links": {
+        "_self": "https://readthedocs.org/api/v3/organizations/organization/notifications/1/"
+      },
+      "attached_to_content_type": "organization",
+      "attached_to_id": 1,
+      "dismissable": false,
+      "id": 1,
+      "message": {
+        "body": "The organization \"organization\" is currently disabled. You need to <a href=\"/organizations/organization/subscription/\">renew your subscription</a> to keep using Read the Docs",
+        "header": "Your organization has been disabled",
+        "icon_classes": "fas fa-circle-info",
+        "id": "organization:disabled",
+        "type": "info"
+      },
+      "news": false,
+      "state": "unread"
+    },
+    {
+      "_links": {
+        "_self": "https://readthedocs.org/api/v3/projects/project/notifications/2/"
+      },
+      "attached_to_content_type": "project",
+      "attached_to_id": 1,
+      "dismissable": false,
+      "id": 2,
+      "message": {
+        "body": "Your project is currently disabled for abuse of the system.\nPlease make sure it isn't using unreasonable amounts of resources or triggering lots of builds in a short amount of time.\nPlease <a href=\"mailto:None\">contact support</a> to get your project re-enabled.",
+        "header": "Builds skipped for this project",
+        "icon_classes": "fas fa-circle-info",
+        "id": "project:invalid:skip-builds",
+        "type": "info"
+      },
+      "news": false,
+      "state": "unread"
+    },
+    {
+      "_links": {
+        "_self": "https://readthedocs.org/api/v3/users/testuser/notifications/4/"
+      },
+      "attached_to_content_type": "user",
+      "attached_to_id": 1,
+      "dismissable": false,
+      "id": 4,
+      "message": {
+        "body": "Your primary email address is not verified.\nPlease <a href=\"/accounts/email/\">verify it here</a>.",
+        "header": "Email address not verified",
+        "icon_classes": "fas fa-circle-exclamation",
+        "id": "core:email:validation-pending",
+        "type": "warning"
+      },
+      "news": false,
+      "state": "unread"
+    }
+  ]
+}

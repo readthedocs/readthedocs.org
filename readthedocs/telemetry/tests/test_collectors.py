@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.config import BuildConfigV2
+from readthedocs.config.tests.test_config import get_build_config
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.projects.models import Project
 from readthedocs.telemetry.collectors import BuildDataCollector
@@ -17,22 +17,18 @@ class TestBuildDataCollector(TestCase):
         self.user = get(User)
         self.project = get(Project, slug="test", users=[self.user])
         self.version = self.project.versions.first()
+
+        config = get_build_config({})
+        config.validate()
+
         self.environment = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={"id": 1},
-            config=self._get_build_config({}),
+            config=config,
+            api_client=mock.MagicMock(),
         )
         self.collector = BuildDataCollector(self.environment)
-
-    def _get_build_config(self, config, env_config=None):
-        config = BuildConfigV2(
-            env_config=env_config or {},
-            raw_config=config,
-            source_file="readthedocs.yaml",
-        )
-        config.validate()
-        return config
 
     def test_get_operating_system(self, run):
         run.return_value = (0, "Description:\tUbuntu 20.04.3 LTS", "")
@@ -89,9 +85,10 @@ class TestBuildDataCollector(TestCase):
         )
 
     def test_get_user_pip_packages(self, run):
-        self.collector.config = self._get_build_config(
+        self.collector.config = get_build_config(
             {"python": {"install": [{"requirements": "docs/requirements.txt"}]}}
         )
+        self.collector.config.validate()
         out = dedent(
             """
             requests-mock==1.8.0
@@ -185,9 +182,18 @@ class TestBuildDataCollector(TestCase):
         )
 
     def test_get_user_apt_packages(self, run):
-        self.collector.config = self._get_build_config(
-            {"build": {"apt_packages": ["cmake", "libclang"]}}
+        self.collector.config = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "3",
+                    },
+                    "apt_packages": ["cmake", "libclang"],
+                }
+            }
         )
+        self.collector.config.validate()
         self.assertEqual(
             self.collector._get_user_apt_packages(),
             [

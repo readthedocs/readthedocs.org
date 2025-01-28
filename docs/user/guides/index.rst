@@ -1,16 +1,19 @@
-:orphan: 
+:orphan:
 
-Guides
-======
+How-to guides A-Z
+=================
 
 These guides will help walk you through specific use cases
 related to Read the Docs itself, documentation tools like Sphinx and MkDocs
 and how to write successful documentation.
 
-
 .. toctree::
-   :maxdepth: 2
 
-   authors
-   administrators
-   developers
+   Project setup and configuration </guides/setup/index>
+   Build process </guides/build/index>
+   Upgrading and maintaining projects </guides/maintenance/index>
+   Content, themes and SEO </guides/content/index>
+   Security and access </guides/access/index>
+   Account management </guides/management/index>
+   Best practice </guides/best-practice/index>
+   Troubleshooting problems </guides/troubleshooting/index>

@@ -1,4 +1,4 @@
-gVisor Installation
+gVisor installation
 ===================
 
 You can mostly get by just following installation instructions in the `gVisor

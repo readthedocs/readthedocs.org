@@ -10,7 +10,7 @@ These are the stats of the past week:
 * Users: {{ users }}
 * Subscriptions:
 {% for subscription in subscriptions %}
-  * {{ subscription.plan__name }}/{{ subscription.status}}: {{ subscription.total_status }}
+  * {{ subscription.items__price__product__name }}/{{ subscription.status}}: {{ subscription.total_status }}
 {% endfor %}
 
 

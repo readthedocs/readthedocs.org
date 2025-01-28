@@ -1,3 +1,5 @@
+:orphan:
+
 Google Summer of Code
 =====================
 
@@ -30,7 +32,7 @@ We're happy to help you get up to speed,
 but the more you are able to demonstrate ability in advance,
 the more likely we are to choose your application!
 
-Getting Started
+Getting started
 ---------------
 
 The :doc:`rtd-dev:install` doc is probably the best place to get going.
@@ -58,7 +60,7 @@ Currently we have a few folks signed up:
 .. warning:: Please do not reach out directly to anyone about the Summer of Code.
              It will **not** increase your chances of being accepted!
 
-Project Ideas
+Project ideas
 -------------
 
 We have written our some loose ideas for projects to work on here.
@@ -69,7 +71,7 @@ We will consider the priority on our roadmap as a factor,
 along with the skill of the student,
 in our selection process.
 
-Collections of Projects
+Collections of projects
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 This project involves building a user interface for groups of projects in Read the Docs (`Collections`).
@@ -130,7 +132,7 @@ This project would include:
 .. _#4924: https://github.com/readthedocs/readthedocs.org/issues/4924
 .. _#1088: https://github.com/readthedocs/readthedocs.org/issues/1088
 
-Integrated Redirects
+Integrated redirects
 ~~~~~~~~~~~~~~~~~~~~
 
 Right now it's hard for users to rename files.
@@ -146,7 +148,7 @@ We should rebuild how we handle redirects across a number of cases:
 
 There will also be a good number of things that spawn from this, including version aliases and other related concepts, if this task doesn't take the whole summer.
 
-Improve Translation Workflow
+Improve translation workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Currently we have our documentation & website translated on Transifex,
@@ -177,7 +179,7 @@ It would be great to have wrappers for the following as a start:
 The goal would also be to make it quite easy for users to contribute third party build steps for Read the Docs,
 so that other useful parts of the Sphinx ecosystem could be tightly integrated with Read the Docs.
 
-Additional Ideas
+Additional ideas
 ~~~~~~~~~~~~~~~~
 
 We have some medium sized projects sketched out in our issue tracker with the tag *Feature*.

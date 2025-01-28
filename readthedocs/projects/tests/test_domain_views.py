@@ -1,14 +1,22 @@
+from unittest import mock
+
+import dns.resolver
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Domain, Project
-from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
+from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
-@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME, value=2).to_item()]),
+)
 class TestDomainViews(TestCase):
     def setUp(self):
         self.user = get(User, username="user")
@@ -30,6 +38,11 @@ class TestDomainViews(TestCase):
         domain = self.project.domains.first()
         self.assertEqual(domain.domain, "test.example.com")
 
+        # Ensure a message is shown
+        messages = list(get_messages(resp.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Domain created")
+
     def test_domain_deletion(self):
         domain = get(Domain, project=self.project, domain="test.example.com")
         self.assertEqual(self.project.domains.count(), 1)
@@ -39,6 +52,11 @@ class TestDomainViews(TestCase):
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(self.project.domains.count(), 0)
+
+        # Ensure a message is shown
+        messages = list(get_messages(resp.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Domain deleted")
 
     def test_domain_edit(self):
         domain = get(
@@ -94,6 +112,67 @@ class TestDomainViews(TestCase):
         self.assertEqual(domain.domain, "test.example.com")
         self.assertEqual(domain.canonical, False)
 
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_create_domain_with_chained_cname_record(self, dns_resolve_mock):
+        dns_resolve_mock.side_effect = [
+            [mock.MagicMock(target="docs.example.com.")],
+            [mock.MagicMock(target="readthedocs.io.")],
+        ]
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "docs2.example.com"},
+        )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert (
+            "This domain has a CNAME record pointing to another CNAME"
+            in form.errors["domain"][0]
+        )
+
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_create_domain_with_cname_record_to_apex_domain(self, dns_resolve_mock):
+        dns_resolve_mock.side_effect = [
+            [mock.MagicMock(target="example.com.")],
+        ]
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "www.example.com"},
+        )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert (
+            "This domain has a CNAME record pointing to the APEX domain"
+            in form.errors["domain"][0]
+        )
+
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_create_domain_cname_timeout(self, dns_resolve_mock):
+        dns_resolve_mock.side_effect = dns.resolver.LifetimeTimeout
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "docs.example.com"},
+        )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert "DNS resolution timed out" in form.errors["domain"][0]
+
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_create_domain_with_single_cname(self, dns_resolve_mock):
+        dns_resolve_mock.side_effect = [
+            [mock.MagicMock(target="readthedocs.io.")],
+            dns.resolver.NoAnswer,
+        ]
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "docs.example.com"},
+        )
+        assert resp.status_code == 302
+        domain = self.project.domains.first()
+        assert domain.domain == "docs.example.com"
+
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class TestDomainViewsWithOrganizations(TestDomainViews):
@@ -101,18 +180,4 @@ class TestDomainViewsWithOrganizations(TestDomainViews):
         super().setUp()
         self.org = get(
             Organization, owners=[self.user], projects=[self.project, self.subproject]
-        )
-        self.plan = get(
-            Plan,
-            published=True,
-        )
-        self.subscription = get(
-            Subscription,
-            plan=self.plan,
-            organization=self.org,
-        )
-        self.feature = get(
-            PlanFeature,
-            plan=self.plan,
-            feature_type=PlanFeature.TYPE_CNAME,
         )

@@ -1,8 +1,10 @@
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
+import re
 
 import structlog
+from django.conf import settings
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.builds.constants import (
@@ -20,7 +22,7 @@ from readthedocs.builds.models import RegexAutomationRule, Version
 log = structlog.get_logger(__name__)
 
 
-def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-builtin
+def sync_versions_to_db(project, versions, type):
     """
     Update the database with the current versions from the repository.
 
@@ -35,8 +37,8 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
     :returns: set of versions' slug added
     """
     old_version_values = project.versions.filter(type=type).values_list(
-        'verbose_name',
-        'identifier',
+        "verbose_name",
+        "identifier",
     )
     old_versions = dict(old_version_values)
 
@@ -46,8 +48,8 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
     has_user_stable = False
     has_user_latest = False
     for version in versions:
-        version_id = version['identifier']
-        version_name = version['verbose_name']
+        version_id = version["identifier"]
+        version_name = version["verbose_name"]
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
             created_version, created = _set_or_create_version(
@@ -88,7 +90,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             )
 
             log.info(
-                'Re-syncing versions: version updated.',
+                "Re-syncing versions: version updated.",
                 version_verbose_name=version_name,
                 version_id=version_id,
             )
@@ -99,28 +101,22 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
     added.update(_create_versions(project, type, versions_to_create))
 
     if not has_user_stable:
-        stable_version = (
-            project.versions.filter(slug=STABLE, type=type).first()
-        )
+        stable_version = project.versions.filter(slug=STABLE, type=type).first()
         if stable_version:
             # Put back the RTD's stable version
             stable_version.machine = True
             stable_version.save()
     if not has_user_latest:
-        latest_version = (
-            project.versions.filter(slug=LATEST, type=type).first()
-        )
+        latest_version = project.versions.filter(slug=LATEST, type=type).first()
         if latest_version:
             # Put back the RTD's latest version
             latest_version.machine = True
-            latest_version.identifier = project.get_default_branch()
-            latest_version.verbose_name = LATEST_VERBOSE_NAME
             latest_version.save()
     if added:
         log.info(
-            'Re-syncing versions: versions added.',
+            "Re-syncing versions: versions added.",
             count=len(added),
-            versions=','.join(itertools.islice(added, 100)),
+            versions=",".join(itertools.islice(added, 100)),
         )
     return added
 
@@ -154,7 +150,7 @@ def _create_versions(project, type, versions):
 
 def _set_or_create_version(project, slug, version_id, verbose_name, type_):
     """Search or create a version and set its machine attribute to false."""
-    version = (project.versions.filter(slug=slug).first())
+    version = project.versions.filter(slug=slug).first()
     if version:
         version.identifier = version_id
         version.machine = False
@@ -174,14 +170,8 @@ def _set_or_create_version(project, slug, version_id, verbose_name, type_):
 def _get_deleted_versions_qs(project, tags_data, branches_data):
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
-    versions_tags = [
-        version['verbose_name']
-        for version in tags_data
-    ]
-    versions_branches = [
-        version['identifier']
-        for version in branches_data
-    ]
+    versions_tags = [version["verbose_name"] for version in tags_data]
+    versions_branches = [version["identifier"] for version in branches_data]
 
     to_delete_qs = (
         project.versions(manager=INTERNAL)
@@ -206,32 +196,28 @@ def delete_versions_from_db(project, tags_data, branches_data):
 
     :returns: The slug of the deleted versions from the database.
     """
-    to_delete_qs = (
-        _get_deleted_versions_qs(
-            project=project,
-            tags_data=tags_data,
-            branches_data=branches_data,
-        )
-        .exclude(active=True)
-    )
+    to_delete_qs = _get_deleted_versions_qs(
+        project=project,
+        tags_data=tags_data,
+        branches_data=branches_data,
+    ).exclude(active=True)
     _, deleted = to_delete_qs.delete()
-    versions_count = deleted.get('builds.Version', 0)
+    versions_count = deleted.get("builds.Version", 0)
     log.info(
-        'Re-syncing versions: versions deleted.', project_slug=project.slug, count=versions_count,
+        "Re-syncing versions: versions deleted.",
+        project_slug=project.slug,
+        count=versions_count,
     )
 
 
 def get_deleted_active_versions(project, tags_data, branches_data):
     """Return the slug of active versions that were deleted from the repository."""
-    to_delete_qs = (
-        _get_deleted_versions_qs(
-            project=project,
-            tags_data=tags_data,
-            branches_data=branches_data,
-        )
-        .filter(active=True)
-    )
-    return set(to_delete_qs.values_list('slug', flat=True))
+    to_delete_qs = _get_deleted_versions_qs(
+        project=project,
+        tags_data=tags_data,
+        branches_data=branches_data,
+    ).filter(active=True)
+    return set(to_delete_qs.values_list("slug", flat=True))
 
 
 def run_automation_rules(project, added_versions, deleted_active_versions):
@@ -258,6 +244,36 @@ def run_automation_rules(project, added_versions, deleted_active_versions):
         rules = project.automation_rules.filter(action__in=allowed_actions)
         for version, rule in itertools.product(versions, rules):
             rule.run(version)
+
+
+def normalize_build_command(command, project_slug, version_slug):
+    """
+    Sanitize the build command to be shown to users.
+
+    It removes internal variables and long paths to make them nicer.
+    """
+    docroot = settings.DOCROOT.rstrip("/")  # remove trailing '/'
+
+    # Remove Docker hash from DOCROOT when running it locally
+    # DOCROOT contains the Docker container hash (e.g. b7703d1b5854).
+    # We have to remove it from the DOCROOT it self since it changes each time
+    # we spin up a new Docker instance locally.
+    container_hash = "/"
+    if settings.RTD_DOCKER_COMPOSE:
+        docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
+        container_hash = "/([0-9a-z]+/)?"
+
+    regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
+    command = re.sub(regex, "", command, count=1)
+
+    # Remove explicit variable names we use to run commands,
+    # since users don't care about these.
+    regex = r"^\$READTHEDOCS_VIRTUALENV_PATH/bin/"
+    command = re.sub(regex, "", command, count=1)
+
+    regex = r"^\$CONDA_ENVS_PATH/\$CONDA_DEFAULT_ENV/bin/"
+    command = re.sub(regex, "", command, count=1)
+    return command
 
 
 class RemoteOrganizationPagination(PageNumberPagination):

@@ -1,8 +1,9 @@
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 
-from readthedocs.builds.models import Version
+from readthedocs.builds.models import Build, Version
 from readthedocs.core.history import safe_update_change_reason, set_change_reason
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
@@ -30,7 +31,7 @@ class UpdateChangeReasonMixin:
         if self.change_reason:
             return self.change_reason
         klass = self.__class__.__name__
-        return f'origin=api-v3 class={klass}'
+        return f"origin=api-v3 class={klass}"
 
     def perform_create(self, serializer):
         obj = serializer.save()
@@ -48,24 +49,31 @@ class UpdateChangeReasonMixin:
 
 
 class NestedParentObjectMixin:
-
     # Lookup names defined on ``readthedocs/api/v3/urls.py`` when defining the
     # mapping between URLs and views through the router.
     PROJECT_LOOKUP_NAMES = [
-        'project__slug',
-        'projects__slug',
-        'parent__slug',
-        'superprojects__parent__slug',
-        'main_language_project__slug',
+        "project__slug",
+        "projects__slug",
+        "parent__slug",
+        "superprojects__parent__slug",
+        "main_language_project__slug",
     ]
 
     VERSION_LOOKUP_NAMES = [
-        'version__slug',
+        "version__slug",
     ]
 
     ORGANIZATION_LOOKUP_NAMES = [
-        'organization__slug',
-        'organizations__slug',
+        "organization__slug",
+        "organizations__slug",
+    ]
+
+    BUILD_LOOKUP_NAMES = [
+        "build__id",
+    ]
+
+    USER_LOOKUP_NAMES = [
+        "user__username",
     ]
 
     def _get_parent_object_lookup(self, lookup_names):
@@ -81,9 +89,24 @@ class NestedParentObjectMixin:
         # when hitting ``/projects/<slug>/`` we don't have a "parent" project
         # because this endpoint is the base one, so we just get the project from
         # ``project_slug`` kwargs
-        slug = slug or self.kwargs.get('project_slug')
+        slug = slug or self.kwargs.get("project_slug")
 
         return get_object_or_404(Project, slug=slug)
+
+    def _get_parent_build(self):
+        """
+        Filter the build by the permissions of the current user.
+
+        Build permissions depend not only on the project, but also on
+        the version, Build.objects.api takes all that into consideration.
+        """
+        project_slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
+        build_pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
+        return get_object_or_404(
+            Build.objects.api(user=self.request.user),
+            pk=build_pk,
+            project__slug=project_slug,
+        )
 
     def _get_parent_version(self):
         project_slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
@@ -100,11 +123,20 @@ class NestedParentObjectMixin:
         # when hitting ``/organizations/<slug>/`` we don't have a "parent" organization
         # because this endpoint is the base one, so we just get the organization from
         # ``organization_slug`` kwargs
-        slug = slug or self.kwargs.get('organization_slug')
+        slug = slug or self.kwargs.get("organization_slug")
 
         return get_object_or_404(
             Organization,
             slug=slug,
+        )
+
+    def _get_parent_user(self):
+        username = self._get_parent_object_lookup(self.USER_LOOKUP_NAMES)
+        username = username or self.kwargs.get("user_username")
+
+        return get_object_or_404(
+            User,
+            username=username,
         )
 
 
@@ -115,22 +147,17 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
 
     All APIv3 ViewSet should inherit this mixin, unless specific permissions
     required. In that case, a specific mixin for that case should be defined.
+
+    .. note::
+
+       When using nested views, the ``NestedViewSetMixin`` should be
+       used and should be before this mixin in the inheritance list.
+       So it can properly filter the queryset based on the parent object.
     """
-
-    def detail_objects(self, queryset, user):
-        # Filter results by user
-        return queryset.api(user=user)
-
-    def listing_objects(self, queryset, user):
-        project = self._get_parent_project()
-        if self.has_admin_permission(user, project):
-            return queryset
-
-        return queryset.none()
 
     def has_admin_permission(self, user, project):
         # Use .only for small optimization
-        admin_projects = self.admin_projects(user).only('id')
+        admin_projects = self.admin_projects(user).only("id")
 
         if project in admin_projects:
             return True
@@ -141,25 +168,8 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
         return Project.objects.for_admin_user(user=user)
 
     def get_queryset(self):
-        """
-        Filter results based on user permissions.
-
-        1. returns ``Projects`` where the user is admin if ``/projects/`` is hit
-        2. filters by parent ``project_slug`` (NestedViewSetMixin)
-        2. returns ``detail_objects`` results if it's a detail view
-        3. returns ``listing_objects`` results if it's a listing view
-        4. raise a ``NotFound`` exception otherwise
-        """
-
-        # We need to have defined the class attribute as ``queryset = Model.objects.all()``
-        queryset = super().get_queryset()
-
-        # Detail requests are public
-        if self.detail:
-            return self.detail_objects(queryset, self.request.user)
-
-        # List view are only allowed if user is owner of parent project
-        return self.listing_objects(queryset, self.request.user)
+        """Filter projects or related resources based on the permissions of the current user."""
+        return self.model.objects.api(user=self.request.user)
 
 
 class OrganizationQuerySetMixin(NestedParentObjectMixin):
@@ -169,26 +179,26 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
 
     All APIv3 organizations' ViewSet should inherit this mixin, unless specific permissions
     required. In that case, a specific mixin for that case should be defined.
+
+    .. note::
+
+       When using nested views, the ``NestedViewSetMixin`` should be
+       used and should be before this mixin in the inheritance list.
+       So it can properly filter the queryset based on the parent object.
     """
 
-    def detail_objects(self, queryset, user):
-        # Filter results by user
-        return queryset.for_user(user=user)
-
-    def listing_objects(self, queryset, user):
-        organization = self._get_parent_organization()
-        if self.has_admin_permission(user, organization):
-            return queryset
-
-        return queryset.none()
-
     def has_admin_permission(self, user, organization):
+        """Check if user is an owner of the organization."""
         if self.admin_organizations(user).filter(pk=organization.pk).exists():
             return True
 
         return False
 
     def is_admin_member(self, user, organization):
+        """Check if user is an owner or belongs to a team with admin permissions of the organization."""
+        if self.has_admin_permission(user, organization):
+            return True
+
         return (
             Project.objects.for_admin_user(user=user)
             .filter(organizations__in=[organization])
@@ -199,25 +209,24 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
         return Organization.objects.for_admin_user(user=user)
 
     def get_queryset(self):
-        """
-        Filter results based on user permissions.
+        """Filter organizations or related resources based on the permissions of the current user."""
+        return self.model.objects.api(user=self.request.user)
 
-        1. returns ``Organizations`` where the user is admin if ``/organizations/`` is hit
-        2. filters by parent ``organization_slug`` (NestedViewSetMixin)
-        2. returns ``detail_objects`` results if it's a detail view
-        3. returns ``listing_objects`` results if it's a listing view
-        4. raise a ``NotFound`` exception otherwise
-        """
 
-        # We need to have defined the class attribute as ``queryset = Model.objects.all()``
-        queryset = super().get_queryset()
+class UserQuerySetMixin(NestedParentObjectMixin):
 
-        # Detail requests are public
-        if self.detail:
-            return self.detail_objects(queryset, self.request.user)
+    """
+    Mixin to define queryset permissions for ViewSet only in one place.
 
-        # List view are only allowed if user is owner of parent project
-        return self.listing_objects(queryset, self.request.user)
+    All APIv3 user' ViewSet should inherit this mixin, unless specific permissions
+    required. In that case, a specific mixin for that case should be defined.
+    """
+
+    def has_admin_permission(self, requesting_user, accessing_user):
+        if requesting_user == accessing_user:
+            return True
+
+        return False
 
 
 class UpdateMixin:
@@ -234,6 +243,5 @@ class UpdateMixin:
 
 
 class RemoteQuerySetMixin:
-
     def get_queryset(self):
-        return super().get_queryset().api(self.request.user)
+        return self.model.objects.api(self.request.user)

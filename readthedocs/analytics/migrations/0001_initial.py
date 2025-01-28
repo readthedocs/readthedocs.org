@@ -6,27 +6,49 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('builds', '0022_migrate_protected_versions'),
-        ('projects', '0048_remove_version_privacy_field'),
+        ("builds", "0022_migrate_protected_versions"),
+        ("projects", "0048_remove_version_privacy_field"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PageView',
+            name="PageView",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('path', models.CharField(max_length=4096)),
-                ('view_count', models.PositiveIntegerField(default=0)),
-                ('date', models.DateField(db_index=True, default=datetime.date.today)),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='page_views', to='projects.Project')),
-                ('version', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='page_views', to='builds.Version', verbose_name='Version')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("path", models.CharField(max_length=4096)),
+                ("view_count", models.PositiveIntegerField(default=0)),
+                ("date", models.DateField(db_index=True, default=datetime.date.today)),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="page_views",
+                        to="projects.Project",
+                    ),
+                ),
+                (
+                    "version",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="page_views",
+                        to="builds.Version",
+                        verbose_name="Version",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('project', 'version', 'path', 'date')},
+                "unique_together": {("project", "version", "path", "date")},
             },
         ),
     ]

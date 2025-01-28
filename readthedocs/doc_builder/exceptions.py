@@ -1,92 +1,89 @@
-"""Exceptions raised when building documentation."""
+"""
+Exceptions raised when building documentation.
 
-from django.utils.translation import gettext_noop
+Exceptions defined here have different categories based on
 
-from readthedocs.builds.constants import BUILD_STATE_CANCELLED
-from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
+ - responsibility (user or application)
+ - special cases (they need to be handled in a special way, e.g. concurrency limit reached)
+ - grouped by topic (e.g. MkDocs errors)
+
+All these exception should only define the "message id" under one of these categories.
+Then the header/body texts should be defined in ``readthedocs/notifications/messages.py``.
+"""
+
+from django.utils.translation import gettext_lazy as _
+
+from readthedocs.notifications.exceptions import NotificationBaseException
 
 
-class BuildBaseException(Exception):
-    message = None
-    status_code = None
-
-    def __init__(self, message=None, **kwargs):
-        self.status_code = kwargs.pop(
-            'status_code',
-            None,
-        ) or self.status_code or 1
-        self.message = message or self.message or self.get_default_message()
-        super().__init__(message, **kwargs)
-
-    def get_default_message(self):
-        return self.message
+class BuildBaseException(NotificationBaseException):
+    default_message = _("Build user exception")
 
 
 class BuildAppError(BuildBaseException):
-    GENERIC_WITH_BUILD_ID = gettext_noop(
-        'There was a problem with Read the Docs while building your documentation. '
-        'Please try again later. '
-        'If this problem persists, '
-        'report this error to us with your build id ({build_id}).',
-    )
+    default_message = _("Build application exception")
+
+    GENERIC_WITH_BUILD_ID = "build:app:generic-with-build-id"
+    UPLOAD_FAILED = "build:app:upload-failed"
+    BUILDS_DISABLED = "build:app:project-builds-disabled"
+    BUILD_DOCKER_UNKNOWN_ERROR = "build:app:docker:unknown-error"
+    BUILD_TERMINATED_DUE_INACTIVITY = "build:app:terminated-due-inactivity"
 
 
 class BuildUserError(BuildBaseException):
-    GENERIC = gettext_noop(
-        "We encountered a problem with a command while building your project. "
-        "To resolve this error, double check your project configuration and installed "
-        "dependencies are correct and have not changed recently."
-    )
-    BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
-        f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.'
-    )
+    GENERIC = "build:user:generic"
 
+    BUILD_COMMANDS_WITHOUT_OUTPUT = "build:user:output:no-html"
+    BUILD_OUTPUT_IS_NOT_A_DIRECTORY = "build:user:output:is-no-a-directory"
+    BUILD_OUTPUT_HAS_0_FILES = "build:user:output:has-0-files"
+    BUILD_OUTPUT_HAS_NO_PDF_FILES = "build:user:output:has-no-pdf-files"
+    BUILD_OUTPUT_HAS_MULTIPLE_FILES = "build:user:output:has-multiple-files"
+    BUILD_OUTPUT_HTML_NO_INDEX_FILE = "build:user:output:html-no-index-file"
+    BUILD_OUTPUT_OLD_DIRECTORY_USED = "build:user:output:old-directory-used"
+    FILE_TOO_LARGE = "build:user:output:file-too-large"
+    TEX_FILE_NOT_FOUND = "build:user:tex-file-not-found"
 
-class ProjectBuildsSkippedError(BuildUserError):
-    message = gettext_noop('Builds for this project are temporarily disabled')
+    NO_CONFIG_FILE_DEPRECATED = "build:user:config:no-config-file"
+    BUILD_IMAGE_CONFIG_KEY_DEPRECATED = "build:user:config:build-image-deprecated"
+    BUILD_OS_REQUIRED = "build:user:config:build-os-required"
 
-
-class YAMLParseError(BuildUserError):
-    GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
-        'Problem in your project\'s configuration. {exception}',
-    )
+    BUILD_COMMANDS_IN_BETA = "build:user:build-commands-config-key-in-beta"
+    BUILD_TIME_OUT = "build:user:time-out"
+    BUILD_EXCESSIVE_MEMORY = "build:user:excessive-memory"
+    VCS_DEPRECATED = "build:vcs:deprecated"
 
 
 class BuildMaxConcurrencyError(BuildUserError):
-    message = gettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
+    LIMIT_REACHED = "build:user:concurrency-limit-reached"
 
 
 class BuildCancelled(BuildUserError):
-    message = gettext_noop('Build cancelled by user.')
-    state = BUILD_STATE_CANCELLED
+    CANCELLED_BY_USER = "build:user:cancelled"
+    SKIPPED_EXIT_CODE_183 = "build:user:exit-code-183"
 
 
 class MkDocsYAMLParseError(BuildUserError):
-    GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
-        'Problem parsing MkDocs YAML configuration. {exception}',
-    )
+    GENERIC_WITH_PARSE_EXCEPTION = "build:user:mkdocs:yaml-parse"
+    INVALID_DOCS_DIR_CONFIG = "build:user:mkdocs:invalid-dir-config"
+    INVALID_DOCS_DIR_PATH = "build:user:mkdocs:invalid-dir-path"
+    INVALID_EXTRA_CONFIG = "build:user:mkdocs:invalid-extra-config"
+    EMPTY_CONFIG = "build:user:mkdocs:empty-config"
+    NOT_FOUND = "build:user:mkdocs:config-not-found"
+    CONFIG_NOT_DICT = "build:user:mkdocs:invalid-yaml"
+    SYNTAX_ERROR = "build:user:mkdocs:syntax-error"
 
-    INVALID_DOCS_DIR_CONFIG = gettext_noop(
-        'The "docs_dir" config from your MkDocs YAML config file has to be a '
-        'string with relative or absolute path.',
-    )
 
-    INVALID_DOCS_DIR_PATH = gettext_noop(
-        'The "docs_dir" config from your MkDocs YAML config file does not '
-        'contain a valid path.',
-    )
+# NOTE: there is no need to have three different error classes for this.
+# We can merge all of them in one, always raise the same exception with different messages.
+#
+# TODO: improve messages for symlink errors with a more detailed error and include the `filepath`.
+class UnsupportedSymlinkFileError(BuildUserError):
+    SYMLINK_USED = "build:user:symlink:used"
 
-    INVALID_EXTRA_CONFIG = gettext_noop(
-        'The "{config}" config from your MkDocs YAML config file has to be a '
-        'list of relative paths.',
-    )
 
-    EMPTY_CONFIG = gettext_noop(
-        'Please make sure the MkDocs YAML configuration file is not empty.',
-    )
+class FileIsNotRegularFile(UnsupportedSymlinkFileError):
+    pass
 
-    CONFIG_NOT_DICT = gettext_noop(
-        'Your MkDocs YAML config file is incorrect. '
-        'Please follow the user guide https://www.mkdocs.org/user-guide/configuration/ '
-        'to configure the file properly.',
-    )
+
+class SymlinkOutsideBasePath(UnsupportedSymlinkFileError):
+    pass

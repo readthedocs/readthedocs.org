@@ -2,8 +2,8 @@
 ..    https://readthedocs.org/.well-known/security.txt
 ..    https://readthedocs.org/security/
 
-Security
-========
+Security reports
+================
 
 Security is very important to us at Read the Docs.
 We follow generally accepted industry standards to protect the personal information
@@ -16,21 +16,16 @@ we are committed to responsible reporting and disclosure of security issues.
    :backlinks: none
    :depth: 1
 
+.. seealso::
 
-Account security
-----------------
+   :doc:`/legal/security-policy`
+      Read our policy for security, which we base our security handling and reporting on.
 
-* All traffic is encrypted in transit so your login is protected.
-* Read the Docs stores only one-way hashes of all passwords.
-  Nobody at Read the Docs has access to your passwords.
-* Account login is protected from brute force attacks with rate limiting.
-* While most projects and docs on Read the Docs are public,
-  we treat your private repositories and private documentation as confidential
-  and Read the Docs employees may only view them
-  with your explicit permission in response to your support requests,
-  or when required for security purposes.
-* You can read more about account privacy in our :doc:`privacy-policy`.
+Supported versions
+------------------
 
+Only the latest version of Read the Docs will receive security updates.
+We don't support security updates for :doc:`custom installations </open-source-philosophy>` of Read the Docs.
 
 Reporting a security issue
 --------------------------
@@ -44,8 +39,10 @@ You can expect:
 * We will respond acknowledging your email typically within one business day.
 * We will follow up if and when we have confirmed the issue with a timetable for the fix.
 * We will notify you when the issue is fixed.
-* We will add the issue to our :ref:`security issue archive <security:Security issue archive>`.
+* We will create a `GitHub advisory`_ and publish it when the issue has been fixed
+  and deployed in our platforms.
 
+.. _GitHub advisory: https://github.com/readthedocs/readthedocs.org/security/advisories
 
 PGP key
 -------
@@ -53,36 +50,17 @@ PGP key
 You may use this :download:`PGP key </_static/security/pgpkey.txt>`
 to securely communicate with us and to verify signed messages you receive from us.
 
+Bug bounties
+------------
+
+While we sincerely appreciate and encourage reports of suspected security problems,
+please note that the Read the Docs is an open source project, and **does not run any bug bounty programs**.
+But we will gladly give credit to you and/or your organization for responsibly reporting security issues.
 
 Security issue archive
 ----------------------
 
-Version 5.19.0
-~~~~~~~~~~~~~~
-
-:ref:`changelog:Version 5.19.0` fixes an issue that allowed a malicious user to fetch internal and private information from a logged user in readthedocs.org/readthedocs.com by creating a malicious site hosted on readthedocs.io/readthedocs-hosted.com or from any custom domain registered in the platform.
-
-It would have required the attacker to get a logged in user to visit an attacker controlled web page, which could then have made GET API requests on behalf of the user. This vulnerability was found by our team as part of a routine security audit, and there is no indication it was exploited.
-
-The issue was found by the Read the Docs team.
-
-Version 5.14.0
-~~~~~~~~~~~~~~
-
-:ref:`changelog:Version 5.14.0` fixes an issue where that affected new code that removed multiple slashes in URL paths. The issue allowed the creation of hyperlinks that looked like they would go to a documentation domain on Read the Docs (either `*.readthedocs.io` or a :doc:`custom docs domain </custom-domains>`)) but instead went to a different domain.
-
-This issue was reported by Splunk after it was reported by a security audit.
-
-Version 3.5.1
-~~~~~~~~~~~~~
-
-:ref:`changelog:Version 3.5.1` fixed an issue that affected projects with "prefix" or "sphinx" user-defined redirects.
-The issue allowed the creation of hyperlinks that looked like they would go to a documentation domain
-on Read the Docs (either ``*.readthedocs.io`` or a custom docs domain) but instead went to a different domain.
-
-This issue was reported by Peter Thomassen and the desec.io DNS security project
-and was funded by `SSE <https://www.securesystems.de>`_.
-
+You can see all past reports at https://github.com/readthedocs/readthedocs.org/security/advisories.
 
 Version 3.2.0
 ~~~~~~~~~~~~~

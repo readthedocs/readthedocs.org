@@ -3,16 +3,24 @@ Dj-stripe webhook handlers.
 
 https://docs.dj-stripe.dev/en/master/usage/webhooks/.
 """
+import requests
 import structlog
 from django.conf import settings
+from django.contrib.humanize.templatetags import humanize
+from django.db.models import Sum
 from django.utils import timezone
 from djstripe import models as djstripe
 from djstripe import webhooks
-from djstripe.enums import SubscriptionStatus
+from djstripe.enums import ChargeStatus, SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.payments.utils import cancel_subscription as cancel_stripe_subscription
-from readthedocs.subscriptions.models import Subscription
+from readthedocs.projects.models import Domain
+from readthedocs.sso.models import SSOIntegration
+from readthedocs.subscriptions.notifications import (
+    SubscriptionEndedNotification,
+    SubscriptionRequiredNotification,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -33,8 +41,65 @@ def handler(*args, **kwargs):
     return decorator
 
 
-def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
-    """Update the RTD subscription object given the new stripe subscription object."""
+@handler("customer.subscription.created")
+def subscription_created_event(event):
+    """
+    Handle the creation of a new subscription.
+
+    When a new subscription is created, the latest subscription
+    of the organization is updated to point to this new subscription.
+
+    If the organization attached to the customer is disabled,
+    we re-enable it, since the user just subscribed to a plan.
+    """
+    stripe_subscription_id = event.data["object"]["id"]
+    log.bind(stripe_subscription_id=stripe_subscription_id)
+
+    stripe_subscription = djstripe.Subscription.objects.filter(
+        id=stripe_subscription_id
+    ).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+
+    organization = getattr(stripe_subscription.customer, "rtd_organization", None)
+    if not organization:
+        log.error("Subscription isn't attached to an organization")
+        return
+
+    if organization.disabled:
+        log.info("Re-enabling organization.", organization_slug=organization.slug)
+        organization.disabled = False
+
+    old_subscription_id = (
+        organization.stripe_subscription.id
+        if organization.stripe_subscription
+        else None
+    )
+    log.info(
+        "Attaching new subscription to organization.",
+        organization_slug=organization.slug,
+        old_stripe_subscription_id=old_subscription_id,
+    )
+    organization.stripe_subscription = stripe_subscription
+    organization.save()
+
+
+@handler("customer.subscription.updated", "customer.subscription.deleted")
+def subscription_updated_event(event):
+    """
+    Handle subscription updates.
+
+    We need to cancel trial subscriptions manually when their trial period ends,
+    otherwise Stripe will keep them active.
+
+    If the organization attached to the subscription is disabled,
+    and the subscription is now active, we re-enable the organization.
+
+    We also re-evaluate the latest subscription attached to the organization,
+    in case it changed.
+    """
+    stripe_subscription_id = event.data["object"]["id"]
     log.bind(stripe_subscription_id=stripe_subscription_id)
     stripe_subscription = djstripe.Subscription.objects.filter(
         id=stripe_subscription_id
@@ -43,18 +108,6 @@ def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
         log.info("Stripe subscription not found.")
         return
 
-    previous_subscription_id = rtd_subscription.stripe_id
-    Subscription.objects.update_from_stripe(
-        rtd_subscription=rtd_subscription,
-        stripe_subscription=stripe_subscription,
-    )
-    log.info(
-        "Subscription updated.",
-        previous_stripe_subscription_id=previous_subscription_id,
-        stripe_subscription_status=stripe_subscription.status,
-    )
-
-    # Cancel the trial subscription if its trial has ended.
     trial_ended = (
         stripe_subscription.trial_end and stripe_subscription.trial_end < timezone.now()
     )
@@ -70,50 +123,172 @@ def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
             "Trial ended, canceling subscription.",
         )
         cancel_stripe_subscription(stripe_subscription.id)
-
-
-@handler("customer.subscription.updated", "customer.subscription.deleted")
-def update_subscription(event):
-    """Update the RTD subscription object with the updates from the Stripe subscription."""
-    stripe_subscription_id = event.data["object"]["id"]
-    rtd_subscription = Subscription.objects.filter(
-        stripe_id=stripe_subscription_id
-    ).first()
-    if not rtd_subscription:
-        log.info(
-            "Stripe subscription isn't attached to a RTD object.",
-            stripe_subscription_id=stripe_subscription_id,
-        )
         return
 
-    _update_subscription_from_stripe(
-        rtd_subscription=rtd_subscription,
-        stripe_subscription_id=stripe_subscription_id,
-    )
-
-
-@handler("checkout.session.completed")
-def checkout_completed(event):
-    """
-    Handle the creation of a new subscription via Stripe Checkout.
-
-    Stripe checkout will create a new subscription,
-    so we need to replace the older one with the new one.
-    """
-    customer_id = event.data["object"]["customer"]
-    organization = Organization.objects.filter(stripe_customer__id=customer_id).first()
+    organization = getattr(stripe_subscription.customer, "rtd_organization", None)
     if not organization:
-        log.error(
-            "Customer isn't attached to an organization.",
-            stripe_customer_id=customer_id,
-        )
+        log.error("Subscription isn't attached to an organization")
         return
 
-    stripe_subscription_id = event.data["object"]["subscription"]
-    _update_subscription_from_stripe(
-        rtd_subscription=organization.subscription,
-        stripe_subscription_id=stripe_subscription_id,
+    if (
+        stripe_subscription.status == SubscriptionStatus.active
+        and organization.disabled
+    ):
+        log.info("Re-enabling organization.", organization_slug=organization.slug)
+        organization.disabled = False
+
+    if stripe_subscription.status not in (
+        SubscriptionStatus.active,
+        SubscriptionStatus.trialing,
+    ):
+        log.info(
+            "Organization disabled due its subscription is not active anymore.",
+            organization_slug=organization.slug,
+        )
+        organization.disabled = True
+
+    new_stripe_subscription = organization.get_stripe_subscription()
+    if organization.stripe_subscription != new_stripe_subscription:
+        old_subscription_id = (
+            organization.stripe_subscription.id
+            if organization.stripe_subscription
+            else None
+        )
+        log.info(
+            "Attaching new subscription to organization.",
+            organization_slug=organization.slug,
+            old_stripe_subscription_id=old_subscription_id,
+        )
+        organization.stripe_subscription = stripe_subscription
+
+    organization.save()
+
+
+@handler("customer.subscription.deleted")
+def subscription_canceled(event):
+    """
+    Send a notification to all owners if the subscription has ended.
+
+    We send a different notification if the subscription
+    that ended was a "trial subscription",
+    since those are from new users.
+    """
+    stripe_subscription_id = event.data["object"]["id"]
+    log.bind(stripe_subscription_id=stripe_subscription_id)
+    stripe_subscription = djstripe.Subscription.objects.filter(
+        id=stripe_subscription_id
+    ).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+
+    total_spent = (
+        stripe_subscription.customer.charges.filter(status=ChargeStatus.succeeded)
+        .aggregate(total=Sum("amount"))
+        .get("total")
+        or 0
     )
+    log.bind(total_spent=total_spent)
+
+    # Using `getattr` to avoid the `RelatedObjectDoesNotExist` exception
+    # when the subscription doesn't have an organization attached to it.
+    organization = getattr(stripe_subscription.customer, "rtd_organization", None)
+    if not organization:
+        log.error("Subscription isn't attached to an organization")
+        return
+
+    log.bind(organization_slug=organization.slug)
+    is_trial_subscription = stripe_subscription.items.filter(
+        price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
+    ).exists()
+    notification_class = (
+        SubscriptionRequiredNotification
+        if is_trial_subscription
+        else SubscriptionEndedNotification
+    )
+    for owner in organization.owners.all():
+        notification = notification_class(
+            context_object=organization,
+            user=owner,
+        )
+        notification.send()
+        log.info(
+            "Notification sent.",
+            username=owner.username,
+            organization_slug=organization.slug,
+        )
+
+    if settings.SLACK_WEBHOOK_SALES_CHANNEL and total_spent > 0:
+        start_date = stripe_subscription.start_date.strftime("%b %-d, %Y")
+        timesince = humanize.naturaltime(stripe_subscription.start_date).split(",")[0]
+        domains = Domain.objects.filter(
+            project__organizations__in=[organization]
+        ).count()
+        try:
+            sso_integration = organization.ssointegration.provider
+        except SSOIntegration.DoesNotExist:
+            sso_integration = "Read the Docs Auth"
+
+        # https://api.slack.com/surfaces/messages#payloads
+        slack_message = {
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": ":x: *Subscription canceled*"},
+                },
+                {"type": "divider"},
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f":office: *Name:* <{settings.ADMIN_URL}/organizations/organization/{organization.pk}/change/|{organization.name}>",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":dollar: *Plan:* <https://dashboard.stripe.com/customers/{stripe_subscription.customer_id}|{stripe_subscription.plan.product.name}> (${str(total_spent)})",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":date: *Customer since:* {start_date} (~{timesince})",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":books: *Projects:* {organization.projects.count()}",
+                        },
+                        {"type": "mrkdwn", "text": f":link: *Domains:* {domains}"},
+                        {
+                            "type": "mrkdwn",
+                            "text": f":closed_lock_with_key: *Authentication:* {sso_integration}",
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": f":busts_in_silhouette: *Teams:* {organization.teams.count()}",
+                        },
+                    ],
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "We should contact this customer and see if we can get some feedback from them.",
+                        }
+                    ],
+                },
+            ]
+        }
+        try:
+            response = requests.post(
+                settings.SLACK_WEBHOOK_SALES_CHANNEL,
+                json=slack_message,
+                timeout=3,
+            )
+            if not response.ok:
+                log.error("There was an issue when sending a message to Slack webhook")
+
+        except requests.Timeout:
+            log.warning("Timeout sending a message to Slack webhook")
 
 
 @handler("customer.updated")

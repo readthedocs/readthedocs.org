@@ -8,7 +8,6 @@ from readthedocs.projects.models import Project
 
 
 class TestAuditModels(TestCase):
-
     def setUp(self):
         self.user = get(User)
         self.project = get(Project, users=[self.user])

@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0071_add_env_var_privacy'),
+        ("projects", "0071_add_env_var_privacy"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='importedfile',
-            name='md5',
+            model_name="importedfile",
+            name="md5",
         ),
     ]

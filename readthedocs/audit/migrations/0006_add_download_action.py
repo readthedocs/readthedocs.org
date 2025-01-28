@@ -4,15 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('audit', '0005_migrate_ip_field_values'),
+        ("audit", "0005_migrate_ip_field_values"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='auditlog',
-            name='action',
-            field=models.CharField(choices=[('pageview', 'Page view'), ('download', 'Download'), ('authentication', 'Authentication'), ('authentication-failure', 'Authentication failure'), ('log-out', 'Log out')], max_length=150, verbose_name='Action'),
+            model_name="auditlog",
+            name="action",
+            field=models.CharField(
+                choices=[
+                    ("pageview", "Page view"),
+                    ("download", "Download"),
+                    ("authentication", "Authentication"),
+                    ("authentication-failure", "Authentication failure"),
+                    ("log-out", "Log out"),
+                ],
+                max_length=150,
+                verbose_name="Action",
+            ),
         ),
     ]

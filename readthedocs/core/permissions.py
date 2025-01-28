@@ -8,7 +8,6 @@ from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
 
 
 class AdminPermissionBase:
-
     @classmethod
     def projects(cls, user, admin=False, member=False):
         """
@@ -48,7 +47,9 @@ class AdminPermissionBase:
             # Project Team Admin
             admin_teams = user.teams.filter(access=ADMIN_ACCESS)
             for team in admin_teams:
-                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
+                if not cls.has_sso_enabled(
+                    team.organization, SSOIntegration.PROVIDER_ALLAUTH
+                ):
                     projects |= team.projects.all()
 
             # Org Admin
@@ -64,12 +65,30 @@ class AdminPermissionBase:
             # Project Team Member
             member_teams = user.teams.filter(access=READ_ONLY_ACCESS)
             for team in member_teams:
-                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
+                if not cls.has_sso_enabled(
+                    team.organization, SSOIntegration.PROVIDER_ALLAUTH
+                ):
                     projects |= team.projects.all()
 
             projects |= cls._get_projects_for_sso_user(user, admin=False)
 
         return projects
+
+    @classmethod
+    def organizations(cls, user, owner=False, member=False):
+        from readthedocs.organizations.models import Organization
+
+        organizations = Organization.objects.none()
+
+        if owner:
+            organizations |= Organization.objects.filter(owners__in=[user]).distinct()
+
+        if member:
+            organizations |= Organization.objects.filter(
+                projects__in=cls.projects(user, admin=True, member=True)
+            ).distinct()
+
+        return organizations
 
     @classmethod
     def has_sso_enabled(cls, obj, provider=None):
@@ -78,6 +97,7 @@ class AdminPermissionBase:
     @classmethod
     def _get_projects_for_sso_user(cls, user, admin=False):
         from readthedocs.projects.models import Project
+
         return Project.objects.none()
 
     @classmethod
@@ -112,14 +132,31 @@ class AdminPermissionBase:
             return obj.owners.all()
 
     @classmethod
-    def members(cls, obj):
-        from readthedocs.organizations.models import Organization
+    def members(cls, obj, user=None):
+        """
+        Return the users that are members of `obj`.
+
+        If `user` is provided, we return the members of `obj` that are visible to `user`.
+        For a project this means the users that have access to the project,
+        and for an organization, this means the users that are on the same teams as `user`,
+        including the organization owners.
+        """
+        from readthedocs.organizations.models import Organization, Team
         from readthedocs.projects.models import Project
 
         if isinstance(obj, Project):
-            return obj.users.all()
+            project_owners = obj.users.all()
+            if user and user not in project_owners:
+                return User.objects.none()
+            return project_owners
 
         if isinstance(obj, Organization):
+            if user:
+                teams = Team.objects.member(user, organization=obj)
+                return User.objects.filter(
+                    Q(teams__in=teams) | Q(owner_organizations=obj),
+                ).distinct()
+
             return User.objects.filter(
                 Q(teams__organization=obj) | Q(owner_organizations=obj),
             ).distinct()

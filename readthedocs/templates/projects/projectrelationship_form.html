@@ -12,6 +12,12 @@
 {% block project_edit_content_header %}{% trans "Subprojects" %}{% endblock %}
 
 {% block project_edit_content %}
+    <p class="help_text">
+    {% blocktrans trimmed %}
+      Using subprojects allows you to serve multiple projects from the same domain as your main project. <a href="https://docs.readthedocs.io/en/stable/subprojects.html">Learn more</a>.
+    {% endblocktrans %}
+  </p>
+
   {% if object %}
     <form
         method="post"
@@ -38,4 +44,5 @@
       <input type="submit" value="{% trans "Add subproject" %}">
     </form>
   {% endif %}
+
 {% endblock %}

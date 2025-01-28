@@ -1,11 +1,11 @@
-Embedding Content From Your Documentation
-=========================================
+How to embed content from your documentation
+============================================
 
 Read the Docs allows you to embed content from any of the projects we host and specific allowed external domains
-(currently, :djangosetting:`RTD_EMBED_API_EXTERNAL_DOMAINS`)
+(currently, ``docs.python.org``, ``docs.scipy.org``, ``docs.sympy.org``, ``numpy.org``)
 This allows reuse of content across sites, making sure the content is always up to date.
 
-There are a number of uses cases for embedding content,
+There are a number of use cases for embedding content,
 so we've built our integration in a way that enables users to build on top of it.
 This guide will show you some of our favorite integrations:
 
@@ -16,27 +16,10 @@ Contextualized tooltips on documentation pages
 ----------------------------------------------
 
 Tooltips on your own documentation are really useful to add more context to the current page the user is reading.
-You can embed any content that is available via reference in Sphinx, including:
+You can embed any content that is available via an HTML id.
 
-* Python object references
-* Full documentation pages
-* Sphinx references
-* Term definitions
-
-We built a Sphinx extension called ``sphinx-hoverxref`` on top of our Embed API
-you can install in your project with minimal configuration.
-
-Here is an example showing a tooltip when you hover with the mouse a reference:
-
-.. figure:: /_static/images/guides/sphinx-hoverxref-example.png
-   :width: 80%
-   :align: center
-
-   Tooltip shown when hovering on a reference using ``sphinx-hoverxref``.
-
-You can find more information about this extension, how to install and configure it in the `hoverxref documentation`_.
-
-.. _hoverxref documentation: https://sphinx-hoverxref.readthedocs.io/
+We built an addon called :doc:`Link previews </link-previews>` on top of our Embed API
+that you can enable from the addons settings of your project using the :term:`dashboard`.
 
 Inline help on application website
 ----------------------------------
@@ -61,6 +44,7 @@ from our own docs and will populate the content of it into the ``#help-container
       'url': 'https://docs.readthedocs.io/en/latest/automation-rules.html%23creating-an-automation-rule',
       // 'doctool': 'sphinx',
       // 'doctoolversion': '4.2.0',
+      // 'maincontent': 'div#main',
     };
     var url = 'https://readthedocs.org/api/v3/embed/?' + $.param(params);
     $.get(url, function(data) {

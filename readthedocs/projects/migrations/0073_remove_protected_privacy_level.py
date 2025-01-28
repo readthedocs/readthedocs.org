@@ -4,15 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0072_remove_md5_field'),
+        ("projects", "0072_remove_md5_field"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='project',
-            name='privacy_level',
-            field=models.CharField(choices=[('public', 'Public'), ('private', 'Private')], default='public', help_text='Should the project dashboard be public?', max_length=20, verbose_name='Privacy Level'),
+            model_name="project",
+            name="privacy_level",
+            field=models.CharField(
+                choices=[("public", "Public"), ("private", "Private")],
+                default="public",
+                help_text="Should the project dashboard be public?",
+                max_length=20,
+                verbose_name="Privacy Level",
+            ),
         ),
     ]

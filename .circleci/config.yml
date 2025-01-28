@@ -2,25 +2,56 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@3.2.2
+  node: circleci/node@5.1.0
 
 jobs:
   tests:
     docker:
       - image: 'cimg/python:3.10'
         environment:
+          # Don't skip search tests.
           TOX_POSARGS: ''
-      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
+          PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=. --cov-append
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:8.10.2'
         name: search
         environment:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms750m -Xmx750m
+          ELASTIC_PASSWORD: password
+          # Disabled SSL for testing.
+          xpack.security.transport.ssl.enabled: 'false'
     steps:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
+      - run: sudo apt update
+      - run: sudo apt install -y rclone
       - run: pip install --user tox
       - run: tox -e py310
       - codecov/upload
+
+  tests-ext-theme:
+    docker:
+      - image: 'cimg/python:3.10'
+        environment:
+          # Don't skip search tests.
+          TOX_POSARGS: ''
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:8.10.2'
+        name: search
+        environment:
+          discovery.type: single-node
+          ES_JAVA_OPTS: -Xms750m -Xmx750m
+          ELASTIC_PASSWORD: password
+          # Disabled SSL for testing.
+          xpack.security.transport.ssl.enabled: 'false'
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run: sudo apt update
+      - run: sudo apt install -y rclone
+      - run: pip install --user tox
+      - run: tox -e ext-theme
 
   tests-embedapi:
     docker:
@@ -29,31 +60,38 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run: pip install --user tox
+      - run: pip install --user 'tox<4'
+      - run: tox --version
       - run: tox -c tox.embedapi.ini
 
   checks:
     docker:
       - image: 'cimg/python:3.10'
-        environment:
-          NODE_VERSION: 10.17.0
     steps:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run: pip install --user tox
-      - run: scripts/circle/install_node.sh
+      # Recipe: https://pre-commit.com/#managing-ci-caches
       - run:
-          name: Add node to the path
+          name: Combine pre-commit config, python version and testing requirements for caching
           command: |
-            echo 'export PATH=~/.nvm/versions/node/v${NODE_VERSION}/bin:$PATH' >> $BASH_ENV
-            source $BASH_ENV
-      - run: tox -e migrations
+            cp common/pre-commit-config.yaml pre-commit-cache-key.txt
+            python --version --version >> pre-commit-cache-key.txt
+            cat requirements/testing.txt >> pre-commit-cache-key.txt
+      - restore_cache:
+          keys:
+          - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
+      - run: pip install --user tox
       - run: tox -e pre-commit
-      - run: tox -e lint
-      - run: tox -e docs
-      - run: tox -e docs-dev
+      - run: tox -e migrations
+      - node/install:
+          node-version: '10.17.0'
+      - run: npm ci
       - run: tox -e eslint
+      - save_cache:
+          key: pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
+          paths:
+          - ~/.cache/pre-commit
 
 workflows:
   version: 2
@@ -61,6 +99,7 @@ workflows:
     jobs:
       - checks
       - tests
+      - tests-ext-theme
       - tests-embedapi:
           requires:
             - checks

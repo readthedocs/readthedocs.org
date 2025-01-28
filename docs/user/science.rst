@@ -1,5 +1,9 @@
-Read the Docs for Science
-=========================
+Documentation in scientific and academic publishing
+===================================================
+
+On this page, we explore some of the many tools and practices that *software* documentation and *academic* writing share.
+If you are working within the field of science or academia,
+this page can be used as an introduction.
 
 .. 2022-08-10
 .. Notes about this section:
@@ -20,8 +24,7 @@ Documentation and technical writing are broad fields.
 Their tools and practices have grown relevant to most scientific activities.
 This includes building publications, books, educational resources, interactive data science, resources for data journalism and full-scale websites for research projects and courses.
 
-Let's explore the overlap of features for software documentation and academic writing.
-Here's a brief overview of some :doc:`features <features>` that people in science and academic writing love about Read the Docs:
+Here's a brief overview of some :doc:`features </reference/features>` that people in science and academic writing love about Read the Docs:
 
 .. dropdown:: 🪄 Easy to use
     :open:
@@ -99,7 +102,7 @@ Here's a brief overview of some :doc:`features <features>` that people in scienc
     Search analytics
         What are people searching for and do they get hits? From each search query in your documentation, we collect a neat little statistic that can help to improve the discoverability and relevance of your documentation.
 
-    SEO - Don't reinvent Search Engine Optimization
+    SEO - Don't reinvent search engine optimization
         Use built-in SEO best-practices from Sphinx, its themes and Read the Docs hosting. This can give you a good ranking on search engines as a direct outcome of simply writing and publishing your documentation project.
 
 .. dropdown:: 🌱 Grow your own solutions
@@ -127,10 +130,10 @@ Here are some popular activities that are well-supported by Jupyter Book:
 Ready to get started?
 """""""""""""""""""""
 
-.. Note that this is a deliberate repitition of a previous segment. Should it repeat? Maybe not, but for now it's nice to be sure that people see it.
+.. Note that this is a deliberate repetition of a previous segment. Should it repeat? Maybe not, but for now it's nice to be sure that people see it.
 
 * All new to this? Take the official :external+jupyterbook:doc:`Jupyter Book Tutorial » <start/your-first-book>`
-* Curious for practical code? See the list of :doc:`Example Projects » </examples>`
+* Curious for practical code? See the list of :doc:`example projects » </examples>`
 * Familiar with Sphinx? Read :doc:`How to use Jupyter notebooks in Sphinx » </guides/jupyter>`
 
 
@@ -161,116 +164,120 @@ Read the Docs community for science is already big and keeps growing. The :exter
 .. Let's put some logos to sign off
 
 
-How would you use Read the Docs for Science?
---------------------------------------------
-
-Would you like to get started with Read the Docs or understand more about the platform? Would you like to help us improve by telling us more about an already existing project?
-
-Please take 2 minutes to fill in this form.
-
-.. raw:: html
-
-    <form
-      method="POST"
-      name="fa-form-1"
-      action="https://webhook.frontapp.com/forms/036c4169294f3b04abaa/xP2Ulmxfcgl_mLJrFbGoefmVuqmH7DAfyHD9lt_qbk1heKFev5K8-TEhmpKc8dWdn-rv7bbZMMPjmffxl0mqGRUcrfyOzImtk8zEGJ04E1uuyPE28hqoHExtS20"
-      enctype="multipart/form-data"
-      accept-charset="utf-8"
-    >
-
-.. list-table::
-   :widths: 30 70
-
-   * - Name:
-     - |input-name|
-   * - Email:
-     - |input-email|
-   * - What science department are you from, |br| which science field(s) do you work in?
-     - |input-deparment-science-field|
-   * - Which of these are important to you?
-     - |input-interests|
-   * - Tell us more about your usecase:
-     - |input-usecase|
-   * - Should we contact you?
-     - |input-contact-me|
+..
+    THE FORM IS DISABLED BECAUSE OF FORM SPAM
 
 
-.. raw:: html
+    How would you use Read the Docs for Science?
+    --------------------------------------------
 
-    <p>
-      <button type="submit" class="btn btn-neutral" style="font-size: 150%">Submit form</button>
-    </p>
-    </form>
+    Would you like to get started with Read the Docs or understand more about the platform? Would you like to help us improve by telling us more about an already existing project?
 
+    Please take 2 minutes to fill in this form.
 
-.. |br| raw:: html
+    .. raw:: html
 
-   <br />
+        <form
+          method="POST"
+          name="fa-form-1"
+          action="https://webhook.frontapp.com/forms/036c4169294f3b04abaa/xP2Ulmxfcgl_mLJrFbGoefmVuqmH7DAfyHD9lt_qbk1heKFev5K8-TEhmpKc8dWdn-rv7bbZMMPjmffxl0mqGRUcrfyOzImtk8zEGJ04E1uuyPE28hqoHExtS20"
+          enctype="multipart/form-data"
+          accept-charset="utf-8"
+        >
 
-.. |input-email| raw:: html
+    .. list-table::
+       :widths: 30 70
 
-    <input type="email" name="email">
-
-.. |input-name| raw:: html
-
-    <input type="text" name="name">
-
-.. |input-deparment-science-field| raw:: html
-
-    <textarea name="department-science-field" rows="10" style="width: 90%; height: 100px;"></textarea>
-
-.. |input-interests| raw:: html
-
-    <label for="what1">
-      <input id="what1" type="checkbox" name="interests-academic-publishing" value="1">
-      Academic publishing (PDFs)
-    </label>
-
-    <label for="what2">
-      <input id="what2" type="checkbox" name="interests-git-hosting" value="1">
-      Maintaining my project with Git
-    </label>
-
-    <label for="what3">
-      <input id="what3" type="checkbox" name="interests-visualizations" value="1">
-      Up-to-date visualizations and computations
-    </label>
-
-    <label for="what4">
-      <input id="what4" type="checkbox" name="interests-interactive" value="1">
-      Interactive visualizations for users
-    </label>
-
-    <label for="what5">
-      <input id="what5" type="checkbox" name="interests-collaboration" value="1">
-      Collaboration and/or getting more community contribution
-    </label>
-
-    <label for="what6">
-      <input id="what6" type="checkbox" name="interests-hosting-navigation" value="1">
-      Publishing and hosting courses and research departments
-    </label>
-
-    <label for="what7">
-      <input id="what7" type="checkbox" name="interests-search-analytics" value="1">
-      Search and analytics
-    </label>
-
-    <label for="what8">
-      <input id="what8" type="checkbox" name="interests-search-analytics" value="1">
-      Previewing new proposals (pull requests)
-    </label>
-
-    <input id="body" name="body" type="hidden" value="Science Docs Submission">
-
-.. |input-contact-me| raw:: html
-
-    <label for="contact">
-      <input id="contact" type="checkbox" name="contact-me" value="yes">
-      Yes please
-    </label>
+       * - Name:
+         - |input-name|
+       * - Email:
+         - |input-email|
+       * - What science department are you from, |br| which science field(s) do you work in?
+         - |input-deparment-science-field|
+       * - Which of these are important to you?
+         - |input-interests|
+       * - Tell us more about your usecase:
+         - |input-usecase|
+       * - Should we contact you?
+         - |input-contact-me|
 
 
-.. |input-usecase| raw:: html
+    .. raw:: html
 
-    <textarea name="usecase" rows="10" style="width: 90%; height: 100px;"></textarea>
+        <p>
+          <button type="submit" class="btn btn-neutral" style="font-size: 150%">Submit form</button>
+        </p>
+        </form>
+
+
+    .. |br| raw:: html
+
+       <br />
+
+    .. |input-email| raw:: html
+
+        <input type="email" name="email">
+
+    .. |input-name| raw:: html
+
+        <input type="text" name="name">
+
+    .. |input-deparment-science-field| raw:: html
+
+        <textarea name="department-science-field" rows="10" style="width: 90%; height: 100px;"></textarea>
+
+    .. |input-interests| raw:: html
+
+        <label for="what1">
+          <input id="what1" type="checkbox" name="interests-academic-publishing" value="1">
+          Academic publishing (PDFs)
+        </label>
+
+        <label for="what2">
+          <input id="what2" type="checkbox" name="interests-git-hosting" value="1">
+          Maintaining my project with Git
+        </label>
+
+        <label for="what3">
+          <input id="what3" type="checkbox" name="interests-visualizations" value="1">
+          Up-to-date visualizations and computations
+        </label>
+
+        <label for="what4">
+          <input id="what4" type="checkbox" name="interests-interactive" value="1">
+          Interactive visualizations for users
+        </label>
+
+        <label for="what5">
+          <input id="what5" type="checkbox" name="interests-collaboration" value="1">
+          Collaboration and/or getting more community contribution
+        </label>
+
+        <label for="what6">
+          <input id="what6" type="checkbox" name="interests-hosting-navigation" value="1">
+          Publishing and hosting courses and research departments
+        </label>
+
+        <label for="what7">
+          <input id="what7" type="checkbox" name="interests-search-analytics" value="1">
+          Search and analytics
+        </label>
+
+        <label for="what8">
+          <input id="what8" type="checkbox" name="interests-search-analytics" value="1">
+          Previewing new proposals (pull requests)
+        </label>
+
+        <input id="body" name="body" type="hidden" value="Science Docs Submission">
+
+    .. |input-contact-me| raw:: html
+
+        <label for="contact">
+          <input id="contact" type="checkbox" name="contact-me" value="yes">
+          Yes please
+        </label>
+
+
+    .. |input-usecase| raw:: html
+
+        <textarea name="usecase" rows="10" style="width: 90%; height: 100px;"></textarea>

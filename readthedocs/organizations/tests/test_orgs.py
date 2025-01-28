@@ -185,7 +185,9 @@ class OrganizationOwnerTests(OrganizationTestCase):
         self.assertIn(version, Version.objects.all())
         self.assertIn(build, Build.objects.all())
 
-        with mock.patch('readthedocs.projects.tasks.utils.clean_project_resources') as clean_project_resources:
+        with mock.patch(
+            "readthedocs.projects.tasks.utils.clean_project_resources"
+        ) as clean_project_resources:
             # Triggers a pre_delete signal that removes all leaf overs
             self.organization.delete()
             clean_project_resources.assert_called_once()
@@ -199,20 +201,19 @@ class OrganizationOwnerTests(OrganizationTestCase):
 
 
 class OrganizationMemberTests(OrganizationTestCase):
-
     def test_member_add_regression(self):
         """Test owner add from regression from previous functionality."""
         self.assertEqual(self.organization.members.count(), 1)
-        self.add_member(username='tester')
+        self.add_member(username="tester")
         self.assertEqual(self.organization.members.count(), 1)
         self.assertEqual(self.organization.owners.count(), 1)
 
     def test_member_delete_regression(self):
         """Test member delete from regression from previous functionality."""
         self.test_member_add_regression()
-        data = {'user': 'tester'}
+        data = {"user": "tester"}
         resp = self.client.post(
-            '/organizations/mozilla/members/delete/',
+            "/organizations/mozilla/members/delete/",
             data=data,
         )
         self.assertEqual(resp.status_code, 404)
@@ -220,31 +221,30 @@ class OrganizationMemberTests(OrganizationTestCase):
 
 
 class OrganizationTeamTests(OrganizationTestCase):
-
     def test_team_add(self):
         """Test member team add form."""
-        self.add_team(team='foobar')
+        self.add_team(team="foobar")
         self.assertEqual(self.organization.teams.count(), 1)
 
     def test_team_add_slug_conflict(self):
         """Add multiple teams with the same slug."""
-        self.add_team(team='foobar')
+        self.add_team(team="foobar")
         self.assertEqual(self.organization.teams.count(), 1)
         # Same name, same slug
-        resp = self.add_team(team='foobar', test=False)
+        resp = self.add_team(team="foobar", test=False)
         self.assertEqual(self.organization.teams.count(), 1)
         self.assertEqual(resp.status_code, 200)
         # Different name, same slug
-        resp = self.add_team(team='FOOBAR', test=False)
+        resp = self.add_team(team="FOOBAR", test=False)
         self.assertEqual(self.organization.teams.count(), 2)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp['location'],
-            '/organizations/mozilla/teams/foobar-2/',
+            resp["location"],
+            "/organizations/mozilla/teams/foobar-2/",
         )
-        self.assertTrue(self.organization.teams.filter(slug='foobar').exists())
+        self.assertTrue(self.organization.teams.filter(slug="foobar").exists())
         self.assertTrue(
-            self.organization.teams.filter(slug='foobar-2').exists(),
+            self.organization.teams.filter(slug="foobar-2").exists(),
         )
 
     def test_team_delete(self):

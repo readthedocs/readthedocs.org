@@ -23,7 +23,7 @@ def rtd_parse_tags(tag_string):
     :return: a sorted list of tag strings
     """
     if tag_string:
-        tag_string = tag_string.lower().replace('_', '-')
+        tag_string = tag_string.lower().replace("_", "-")
 
     tags = (slugify(tag) for tag in _parse_tags(tag_string))
     return sorted(tag for tag in tags if tag)
@@ -31,9 +31,12 @@ def rtd_parse_tags(tag_string):
 
 def remove_unused_tags():
     """Removes all tags that have no corresponding items (projects)."""
-    return Tag.objects.all().annotate(
-        num=Count('taggit_taggeditem_items')
-    ).filter(num=0).delete()
+    return (
+        Tag.objects.all()
+        .annotate(num=Count("taggit_taggeditem_items"))
+        .filter(num=0)
+        .delete()
+    )
 
 
 def import_tags(project):
@@ -46,7 +49,7 @@ def import_tags(project):
 
     :returns: A list of the tags set or ``None`` on an error
     """
-    user = repo = ''
+    user = repo = ""
     for regex in GITHUB_REGEXS:
         match = regex.search(project.repo)
         if match:
@@ -56,28 +59,28 @@ def import_tags(project):
     if not user:
         return None
 
-    provider = SocialApp.objects.filter(provider='github').first()
+    provider = SocialApp.objects.filter(provider="github").first()
     if not provider:
         return None
 
     # https://developer.github.com/v3/repos/#list-all-topics-for-a-repository
-    url = 'https://api.github.com/repos/{user}/{repo}/topics'.format(
+    url = "https://api.github.com/repos/{user}/{repo}/topics".format(
         user=user,
         repo=repo,
     )
     headers = {
         # Getting topics is a preview API and may change
         # It requires this custom Accept header
-        'Accept': 'application/vnd.github.mercy-preview+json',
+        "Accept": "application/vnd.github.mercy-preview+json",
     }
     params = {
-        'client_id': provider.client_id,
-        'client_secret': provider.secret,
+        "client_id": provider.client_id,
+        "client_secret": provider.secret,
     }
 
-    resp = requests.get(url, headers=headers, params=params)
+    resp = requests.get(url, headers=headers, params=params, timeout=3)
     if resp.ok:
-        tags = resp.json()['names']
+        tags = resp.json()["names"]
         if tags:
             project.tags.set(*tags)
             return tags

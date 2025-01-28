@@ -1,4 +1,4 @@
-Status Badges
+Status badges
 =============
 
 Status badges let you show the state of your documentation to your users.
@@ -20,6 +20,18 @@ Badges have the following states which can be shown to users:
 An example of each is shown here:
 
 |green| |nbsp| |red| |nbsp| |yellow|
+
+Automatically generated
+-----------------------
+
+On the dashboard of a project, an example badge is displayed
+together with code snippets for reStructuredText, Markdown, and HTML.
+
+Badges are generated on-demand for all Read the Docs projects, using the following URL syntax:
+
+.. code-block:: text
+
+   https://readthedocs.org/projects/<project-slug>/badge/?version=<version>&style=<style>
 
 Style
 -----
@@ -56,9 +68,11 @@ You can change the version of the documentation your badge points to.
 To do this, you can pass the ``version`` GET argument to the badge URL.
 By default, it will point at the *default version* you have specified for your project.
 
-The badge URL looks like this::
+The badge URL looks like this:
 
-    https://readthedocs.org/projects/docs/badge/?version=latest
+.. code-block:: text
+
+    https://readthedocs.org/projects/<project-slug>/badge/?version=latest
 
 
 Badges on dashboard pages
@@ -75,3 +89,13 @@ to make embedding it easier.
 .. |yellow| image:: https://assets.readthedocs.org/static/projects/badges/unknown-flat.svg
 .. |nbsp| unicode:: 0xA0
    :trim:
+
+
+Badges for private projects
+---------------------------
+
+.. include:: /shared/admonition-rtd-business.rst
+
+For private projects, a badge URL cannot be guessed.
+A token is needed to display it.
+Private badge URLs are displayed on a private project's dashboard in place of public URLs.

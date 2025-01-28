@@ -9,7 +9,6 @@ from readthedocs.rtd_tests.utils import create_user
 
 
 class OrganizationAccessMixin:
-
     url_responses = {}
 
     def login(self):
@@ -26,30 +25,30 @@ class OrganizationAccessMixin:
             data = {}
         response = method(path, data=data)
         response_attrs = {
-            'status_code': kwargs.pop('status_code', 200),
+            "status_code": kwargs.pop("status_code", 200),
         }
         response_attrs.update(kwargs)
         response_attrs.update(self.url_responses.get(path, {}))
-        for (key, val) in list(response_attrs.items()):
+        for key, val in list(response_attrs.items()):
             self.assertEqual(getattr(response, key), val)
         return response
 
     def setUp(self):
         # Previous Fixtures
-        self.eric = create_user(username='eric', password='test')
-        self.test = create_user(username='test', password='test')
-        self.tester = create_user(username='tester', password='test')
-        self.project = fixture.get(Project, slug='pip')
+        self.eric = create_user(username="eric", password="test")
+        self.test = create_user(username="test", password="test")
+        self.tester = create_user(username="tester", password="test")
+        self.project = fixture.get(Project, slug="pip")
         self.organization = fixture.get(
             Organization,
-            name='Mozilla',
-            slug='mozilla',
+            name="Mozilla",
+            slug="mozilla",
             projects=[self.project],
         )
         self.team = fixture.get(
             Team,
-            name='Foobar',
-            slug='foobar',
+            name="Foobar",
+            slug="foobar",
             organization=self.organization,
             members=[self.test],
         )
@@ -60,18 +59,18 @@ class OrganizationAccessMixin:
         )
 
     def test_organization_list(self):
-        self.assertResponse('/organizations/', status_code=200)
+        self.assertResponse("/organizations/", status_code=200)
 
     def test_organization_details(self):
-        self.assertResponse('/organizations/mozilla/', status_code=200)
-        self.assertResponse('/organizations/mozilla/edit/', status_code=200)
+        self.assertResponse("/organizations/mozilla/", status_code=200)
+        self.assertResponse("/organizations/mozilla/edit/", status_code=200)
 
     def test_organization_owners_regression(self):
         """Regression test for paths that have been moved."""
         self.assertEqual(self.organization.owners.count(), 1)
-        self.assertResponse('/organizations/mozilla/owners/', status_code=200)
+        self.assertResponse("/organizations/mozilla/owners/", status_code=200)
         self.assertResponse(
-            '/organizations/mozilla/owners/add/',
+            "/organizations/mozilla/owners/add/",
             method=self.client.post,
             data={"username_or_email": "tester"},
             status_code=302,
@@ -84,7 +83,7 @@ class OrganizationAccessMixin:
             self.assertFalse(Invitation.objects.for_object(self.organization).exists())
             self.assertEqual(self.organization.owners.count(), 1)
         self.assertResponse(
-            '/organizations/mozilla/owners/delete/',
+            "/organizations/mozilla/owners/delete/",
             method=self.client.post,
             data={"user": "tester"},
             status_code=404,
@@ -96,9 +95,9 @@ class OrganizationAccessMixin:
 
     def test_organization_owners(self):
         self.assertEqual(self.organization.owners.count(), 1)
-        self.assertResponse('/organizations/mozilla/owners/', status_code=200)
+        self.assertResponse("/organizations/mozilla/owners/", status_code=200)
         self.assertResponse(
-            '/organizations/mozilla/owners/add/',
+            "/organizations/mozilla/owners/add/",
             method=self.client.post,
             data={"username_or_email": "tester"},
             status_code=302,
@@ -109,24 +108,21 @@ class OrganizationAccessMixin:
             self.assertEqual(self.organization.owners.count(), 2)
             owner = OrganizationOwner.objects.get(
                 organization=self.organization,
-                owner__username='tester',
+                owner__username="tester",
             )
             self.assertResponse(
-                '/organizations/mozilla/owners/{}/delete/'
-                .format(owner.pk),
+                "/organizations/mozilla/owners/{}/delete/".format(owner.pk),
                 method=self.client.post,
-                data={'user': 'tester'},
+                data={"user": "tester"},
                 status_code=302,
             )
             self.assertEqual(self.organization.owners.count(), 1)
         else:
             self.assertFalse(
-                OrganizationOwner.objects
-                .filter(
+                OrganizationOwner.objects.filter(
                     organization=self.organization,
-                    owner__username='tester',
-                )
-                .exists(),
+                    owner__username="tester",
+                ).exists(),
             )
             self.assertEqual(self.organization.owners.count(), 1)
 
@@ -134,13 +130,13 @@ class OrganizationAccessMixin:
         """Tests for regression against old member functionality."""
         self.assertEqual(self.organization.members.count(), 2)
         self.assertResponse(
-            '/organizations/mozilla/members/',
+            "/organizations/mozilla/members/",
             status_code=200,
         )
         self.assertResponse(
-            '/organizations/mozilla/members/add/',
+            "/organizations/mozilla/members/add/",
             method=self.client.post,
-            data={'user': 'tester'},
+            data={"user": "tester"},
             status_code=404,
         )
         if self.is_admin():
@@ -149,24 +145,24 @@ class OrganizationAccessMixin:
             self.assertEqual(self.organization.members.count(), 2)
 
         self.assertResponse(
-            '/organizations/mozilla/members/delete/',
+            "/organizations/mozilla/members/delete/",
             method=self.client.post,
-            data={'user': 'tester'},
+            data={"user": "tester"},
             status_code=404,
         )
         self.assertEqual(self.organization.members.count(), 2)
 
     def test_organization_teams(self):
         self.assertEqual(self.organization.teams.count(), 1)
-        self.assertResponse('/organizations/mozilla/teams/', status_code=200)
-        user = User.objects.get(username='test')
-        project = Project.objects.get(slug='pip')
+        self.assertResponse("/organizations/mozilla/teams/", status_code=200)
+        user = User.objects.get(username="test")
+        project = Project.objects.get(slug="pip")
         self.assertResponse(
-            '/organizations/mozilla/teams/add/',
+            "/organizations/mozilla/teams/add/",
             method=self.client.post,
             data={
-                'name': 'more-foobar',
-                'access': 'readonly',
+                "name": "more-foobar",
+                "access": "readonly",
             },
             status_code=302,
         )
@@ -174,17 +170,14 @@ class OrganizationAccessMixin:
             self.assertEqual(self.organization.teams.count(), 2)
             self.assertEqual(self.organization.members.count(), 2)
             self.assertResponse(
-                '/organizations/mozilla/teams/more-foobar/delete/',
+                "/organizations/mozilla/teams/more-foobar/delete/",
                 method=self.client.post,
                 status_code=302,
             )
         else:
             self.assertEqual(self.organization.teams.count(), 1)
             self.assertFalse(
-                self.organization
-                .teams
-                .filter(name='foobar')
-                .exists(),
+                self.organization.teams.filter(name="foobar").exists(),
             )
             self.assertEqual(self.organization.members.count(), 2)
         self.assertEqual(self.organization.teams.count(), 1)
@@ -196,7 +189,7 @@ class OrganizationOwnerAccess(OrganizationAccessMixin, TestCase):
     """Test organization paths with authed org owner."""
 
     def login(self):
-        return self.client.login(username='eric', password='test')
+        return self.client.login(username="eric", password="test")
 
     def is_admin(self):
         return True
@@ -208,21 +201,18 @@ class OrganizationMemberAccess(OrganizationAccessMixin, TestCase):
     """Test organization paths with authed org member."""
 
     url_responses = {
-        '/organizations/': {'status_code': 200},
-        '/organizations/mozilla/': {'status_code': 200},
-        '/organizations/mozilla/members/': {'status_code': 200},
-        '/organizations/mozilla/teams/': {'status_code': 200},
+        "/organizations/": {"status_code": 200},
+        "/organizations/mozilla/": {"status_code": 200},
+        "/organizations/mozilla/members/": {"status_code": 200},
+        "/organizations/mozilla/teams/": {"status_code": 200},
     }
 
     def assertResponse(self, path, method=None, data=None, **kwargs):
-        kwargs['status_code'] = 404
-        super().assertResponse(
-            path, method, data,
-            **kwargs
-        )
+        kwargs["status_code"] = 404
+        super().assertResponse(path, method, data, **kwargs)
 
     def login(self):
-        return self.client.login(username='test', password='test')
+        return self.client.login(username="test", password="test")
 
     def is_admin(self):
         return False
@@ -234,18 +224,15 @@ class OrganizationNonmemberAccess(OrganizationAccessMixin, TestCase):
     """Test organization paths with authed but non-org user."""
 
     url_responses = {
-        '/organizations/': {'status_code': 200},
+        "/organizations/": {"status_code": 200},
     }
 
     def assertResponse(self, path, method=None, data=None, **kwargs):
-        kwargs['status_code'] = 404
-        super().assertResponse(
-            path, method,
-            data, **kwargs
-        )
+        kwargs["status_code"] = 404
+        super().assertResponse(path, method, data, **kwargs)
 
     def login(self):
-        return self.client.login(username='tester', password='test')
+        return self.client.login(username="tester", password="test")
 
     def is_admin(self):
         return False

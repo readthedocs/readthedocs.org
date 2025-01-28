@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   assets:
     image: node:8.16

@@ -6,11 +6,18 @@ from django.db import models
 from django.db.models import CharField, F, Q, Value
 
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.querysets import NoReprQuerySet
+from readthedocs.redirects.constants import (
+    CLEAN_URL_TO_HTML_REDIRECT,
+    EXACT_REDIRECT,
+    HTML_TO_CLEAN_URL_REDIRECT,
+    PAGE_REDIRECT,
+)
 
 log = structlog.get_logger(__name__)
 
 
-class RedirectQuerySet(models.QuerySet):
+class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
 
     """Redirects take into account their own privacy_level setting."""
 
@@ -18,14 +25,11 @@ class RedirectQuerySet(models.QuerySet):
 
     def _add_from_user_projects(self, queryset, user):
         if user.is_authenticated:
-            projects_pk = (
-                AdminPermission.projects(
-                    user=user,
-                    admin=True,
-                    member=True,
-                )
-                .values_list('pk', flat=True)
-            )
+            projects_pk = AdminPermission.projects(
+                user=user,
+                admin=True,
+                member=True,
+            ).values_list("pk", flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset.distinct()
@@ -36,84 +40,109 @@ class RedirectQuerySet(models.QuerySet):
             queryset = self._add_from_user_projects(queryset, user)
         return queryset
 
-    def get_redirect_path_with_status(
-        self, path, full_path=None, language=None, version_slug=None, forced_only=False
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
+
+    def get_matching_redirect_with_path(
+        self, filename, path=None, language=None, version_slug=None, forced_only=False
     ):
         """
-        Get the final redirect with its status code.
+        Get the matching redirect with the path to redirect to.
 
-        :param path: Is the path without the language and version parts.
-        :param full_path: Is the full path including the language and version parts.
+        :param filename: The filename being served.
+        :param path: The whole path from the request.
         :param forced_only: Include only forced redirects in the results.
+        :returns: A tuple with the matching redirect and new path.
         """
         # Small optimization to skip executing the big query below.
-        if forced_only and not self.filter(force=True).exists():
+        # TODO: use filter(enabled=True) once we have removed the null option from the field.
+        if forced_only and not self.filter(force=True).exclude(enabled=False).exists():
             return None, None
 
+        normalized_filename = self._normalize_path(filename)
         normalized_path = self._normalize_path(path)
-        normalized_full_path = self._normalize_path(full_path)
 
-        # add extra fields with the ``path`` and ``full_path`` to perform a
+        # Useful to allow redirects to match paths with or without trailling slash.
+        # For example, ``/docs`` will match ``/docs/`` and ``/docs``.
+        filename_without_trailling_slash = self._strip_trailling_slash(
+            normalized_filename
+        )
+        path_without_trailling_slash = self._strip_trailling_slash(normalized_path)
+
+        # Add extra fields with the ``filename`` and ``path`` to perform a
         # filter at db level instead with Python.
         queryset = self.annotate(
+            filename=Value(
+                filename,
+                output_field=CharField(),
+            ),
             path=Value(
                 normalized_path,
                 output_field=CharField(),
             ),
-            full_path=Value(
-                normalized_full_path,
+            filename_without_trailling_slash=Value(
+                filename_without_trailling_slash,
+                output_field=CharField(),
+            ),
+            path_without_trailling_slash=Value(
+                path_without_trailling_slash,
                 output_field=CharField(),
             ),
         )
-        prefix = Q(
-            redirect_type='prefix',
-            path__startswith=F('from_url'),
-        )
         page = Q(
-            redirect_type='page',
-            path__exact=F('from_url'),
+            redirect_type=PAGE_REDIRECT,
+            from_url_without_rest__isnull=True,
+            filename_without_trailling_slash__exact=F("from_url"),
+        ) | Q(
+            redirect_type=PAGE_REDIRECT,
+            from_url_without_rest__isnull=False,
+            filename__startswith=F("from_url_without_rest"),
         )
-        exact = (
-            Q(
-                redirect_type='exact',
-                from_url__endswith='$rest',
-                full_path__startswith=F('from_url_without_rest'),
-            ) | Q(
-                redirect_type='exact',
-                full_path__exact=F('from_url'),
-            )
+        exact = Q(
+            redirect_type=EXACT_REDIRECT,
+            from_url_without_rest__isnull=True,
+            path_without_trailling_slash__exact=F("from_url"),
+        ) | Q(
+            redirect_type=EXACT_REDIRECT,
+            from_url_without_rest__isnull=False,
+            path__startswith=F("from_url_without_rest"),
         )
-        sphinx_html = (
-            Q(
-                redirect_type='sphinx_html',
-                path__endswith='/',
-            ) | Q(
-                redirect_type='sphinx_html',
-                path__endswith='/index.html',
-            )
-        )
-        sphinx_htmldir = Q(
-            redirect_type='sphinx_htmldir',
-            path__endswith='.html',
-        )
+        clean_url_to_html = Q(redirect_type=CLEAN_URL_TO_HTML_REDIRECT)
+        html_to_clean_url = Q(redirect_type=HTML_TO_CLEAN_URL_REDIRECT)
 
-        queryset = queryset.filter(prefix | page | exact | sphinx_html | sphinx_htmldir)
+        if filename in ["/index.html", "/"]:
+            # If the filename is a root index file (``/index.html`` or ``/``), we only need to match page and exact redirects,
+            # since we don't have a filename to redirect to for clean_url_to_html and html_to_clean_url redirects.
+            queryset = queryset.filter(page | exact)
+        elif filename:
+            if filename.endswith(("/index.html", "/")):
+                queryset = queryset.filter(page | exact | clean_url_to_html)
+            elif filename.endswith(".html"):
+                queryset = queryset.filter(page | exact | html_to_clean_url)
+            else:
+                queryset = queryset.filter(page | exact)
+        else:
+            # If the filename is empty, we only need to match exact redirects.
+            # Since the other types of redirects are not valid without a filename.
+            queryset = queryset.filter(exact)
+
+        # TODO: use filter(enabled=True) once we have removed the null option from the field.
+        queryset = queryset.exclude(enabled=False)
         if forced_only:
             queryset = queryset.filter(force=True)
 
-        # There should be one and only one redirect returned by this query. I
-        # can't think in a case where there can be more at this point. I'm
-        # leaving the loop just in case for now
-        for redirect in queryset.select_related('project'):
+        redirect = queryset.select_related("project").first()
+        if redirect:
             new_path = redirect.get_redirect_path(
+                filename=normalized_filename,
                 path=normalized_path,
-                full_path=normalized_full_path,
                 language=language,
                 version_slug=version_slug,
             )
-            if new_path:
-                return new_path, redirect.http_status
-        return (None, None)
+            return redirect, new_path
+        return None, None
 
     def _normalize_path(self, path):
         r"""
@@ -133,3 +162,10 @@ class RedirectQuerySet(models.QuerySet):
         normalized_path = parsed_path._replace(query="").geturl()
         normalized_path = "/" + normalized_path.lstrip("/")
         return normalized_path
+
+    def _strip_trailling_slash(self, path):
+        """Stripe the trailling slash from the path, making sure the root path is always ``/``."""
+        path = path.rstrip("/")
+        if path == "":
+            return "/"
+        return path

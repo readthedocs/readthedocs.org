@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0002_update_meta_options'),
+        ("organizations", "0002_update_meta_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='team',
-            name='auto_join_email_users',
-            field=models.BooleanField(default=False, help_text="Auto join users with an organization's email address to this team."),
+            model_name="team",
+            name="auto_join_email_users",
+            field=models.BooleanField(
+                default=False,
+                help_text="Auto join users with an organization's email address to this team.",
+            ),
         ),
     ]

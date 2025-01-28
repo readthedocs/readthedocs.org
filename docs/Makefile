@@ -2,7 +2,12 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
+
+# Options should be aligned with how the documentation is built on RTD
+# (except for '--keep-going', failing fast is preferred on local builds)
+# We also remove '-E' to reduce the time of rebuilding reference indexes
+# on each build.
+SPHINXOPTS    = -T -j auto -W
 SPHINXBUILD   = sphinx-build
 PAPER         =
 PROJECT       ?= user

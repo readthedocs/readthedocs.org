@@ -5,9 +5,14 @@
     },
     "created": "2019-04-29T10:00:00Z",
     "modified": "2019-04-29T12:00:00Z",
-    "from_url": "/page/",
+    "from_url": "/page",
     "pk": 2,
     "project": "project",
     "type": "page",
-    "to_url": "/another/"
+    "to_url": "/another/",
+    "http_status": 302,
+    "description": "",
+    "enabled": true,
+    "force": false,
+    "position": 0
 }

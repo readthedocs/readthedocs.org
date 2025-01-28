@@ -81,7 +81,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         main_version = self._get_version()
         main_project = self._get_project()
 
-        if not self._has_permission(self.request.user, main_version):
+        if not self._has_permission(self.request, main_version):
             return []
 
         projects_to_search = [(main_project, main_version)]
@@ -101,7 +101,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
                     include_hidden=False,
                 )
 
-            if version and self._has_permission(self.request.user, version):
+            if version and self._has_permission(self.request, version):
                 projects_to_search.append((subproject, version))
 
         return projects_to_search
@@ -125,7 +125,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
             .first()
         )
 
-    def _has_permission(self, user, version):
+    def _has_permission(self, request, version):
         """
         Check if `user` is authorized to access `version`.
 
@@ -208,10 +208,8 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
 
 
 class BaseProxiedPageSearchAPIView(PageSearchAPIView):
-
     pass
 
 
 class ProxiedPageSearchAPIView(SettingsOverrideObject):
-
     _default_class = BaseProxiedPageSearchAPIView

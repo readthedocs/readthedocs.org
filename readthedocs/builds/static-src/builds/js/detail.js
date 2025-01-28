@@ -28,6 +28,7 @@ function BuildCommand(data) {
 function BuildDetailView(instance) {
     var self = this;
     var instance = instance || {};
+    var poll_api_counts = 0;
 
     /* Instance variables */
     self.state = ko.observable(instance.state);
@@ -63,10 +64,8 @@ function BuildDetailView(instance) {
         self.legacy_output(true);
     };
 
+
     function poll_api() {
-        if (self.finished()) {
-            return;
-        }
         $.getJSON('/api/v2/build/' + instance.id + '/', function (data) {
             self.state(data.state);
             self.state_display(data.state_display);
@@ -77,6 +76,9 @@ function BuildDetailView(instance) {
             self.commit(data.commit);
             self.docs_url(data.docs_url);
             self.commit_url(data.commit_url);
+
+            poll_api_counts += 1;
+
             var n;
             for (n in data.commands) {
                 var command = data.commands[n];
@@ -91,6 +93,21 @@ function BuildDetailView(instance) {
                 }
             }
         });
+
+        if (self.finished()) {
+            // HACK: this is a small hack to avoid re-implementing the new
+            // notification system in the old dashboard with Knockout. The
+            // notifications are rendered properly via Django template in a
+            // static way. So, we refresh the page once the build has finished
+            // to make Django render the notifications. We use a check of 1 API
+            // poll for those builds that are already finished when opened. The
+            // new dashboard will implement the new notification system in a
+            // nicer way using APIv3.
+            if (poll_api_counts !== 1) {
+              location.reload();
+            }
+            return;
+        }
 
         setTimeout(poll_api, 2000);
     }

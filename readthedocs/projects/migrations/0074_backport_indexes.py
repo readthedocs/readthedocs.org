@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0073_remove_protected_privacy_level'),
+        ("projects", "0073_remove_protected_privacy_level"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='project',
-            name='modified_date',
-            field=models.DateTimeField(auto_now=True, db_index=True, verbose_name='Modified date'),
+            model_name="project",
+            name="modified_date",
+            field=models.DateTimeField(
+                auto_now=True, db_index=True, verbose_name="Modified date"
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='pub_date',
-            field=models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Publication date'),
+            model_name="project",
+            name="pub_date",
+            field=models.DateTimeField(
+                auto_now_add=True, db_index=True, verbose_name="Publication date"
+            ),
         ),
     ]

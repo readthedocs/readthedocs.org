@@ -18,7 +18,6 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("builds", "0041_track_task_id"),
     ]

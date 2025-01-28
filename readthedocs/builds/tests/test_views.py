@@ -68,7 +68,10 @@ class CancelBuildViewTests(TestCase):
         another_user = get(User)
         another_project = self._get_project(owners=[another_user])
         another_build = get(
-            Build, project=another_project, version=another_project.versions.first()
+            Build,
+            project=another_project,
+            version=another_project.versions.first(),
+            state=BUILD_STATE_INSTALLING,
         )
 
         self.client.force_login(another_user)
@@ -101,5 +104,36 @@ class CancelBuildViewTests(TestCase):
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class CancelBuildViewWithOrganizationsTests(CancelBuildViewTests):
-
     pass
+
+
+class BuildViewsTests(TestCase):
+    def setUp(self):
+        self.user = get(User, username="test")
+        self.project = get(Project, users=[self.user])
+        self.version = get(Version, project=self.project)
+        self.build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            task_id="1234",
+            state=BUILD_STATE_INSTALLING,
+        )
+
+    @mock.patch(
+        "readthedocs.builds.views.BuildList.is_show_dashboard_denied_wrapper",
+        mock.MagicMock(return_value=True),
+    )
+    def test_builds_list_view_spam_project(self):
+        url = reverse("builds_project_list", args=[self.project.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 410)
+
+    @mock.patch(
+        "readthedocs.builds.views.BuildDetail.is_show_dashboard_denied_wrapper",
+        mock.MagicMock(return_value=True),
+    )
+    def test_builds_detail_view_spam_project(self):
+        url = reverse("builds_detail", args=[self.project.slug, self.build.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 410)

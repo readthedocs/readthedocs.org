@@ -6,13 +6,16 @@ import structlog
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
 from django.db.models.functions import ExtractIsoWeekDay
+from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask, user_id_matches_or_superuser
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import (
-    AttachWebhookNotification,
-    InvalidProjectWebhookNotification,
+    MESSAGE_OAUTH_WEBHOOK_INVALID,
+    MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
+    MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS,
 )
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
@@ -28,7 +31,7 @@ log = structlog.get_logger(__name__)
 
 @PublicTask.permission_check(user_id_matches_or_superuser)
 @app.task(
-    queue='web',
+    queue="web",
     base=PublicTask,
     # We have experienced timeout problems on users having a lot of
     # repositories to sync. This is usually due to users belonging to big
@@ -56,7 +59,7 @@ def sync_remote_repositories(user_id):
         )
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def sync_remote_repositories_organizations(organization_slugs=None):
     """
     Re-sync users member of organizations.
@@ -71,19 +74,17 @@ def sync_remote_repositories_organizations(organization_slugs=None):
     if organization_slugs:
         query = Organization.objects.filter(slug__in=organization_slugs)
         log.info(
-            'Triggering SSO re-sync for organizations.',
+            "Triggering SSO re-sync for organizations.",
             organization_slugs=organization_slugs,
             count=query.count(),
         )
     else:
-        organization_ids = (
-            SSOIntegration.objects
-            .filter(provider=SSOIntegration.PROVIDER_ALLAUTH)
-            .values_list('organization', flat=True)
-        )
+        organization_ids = SSOIntegration.objects.filter(
+            provider=SSOIntegration.PROVIDER_ALLAUTH
+        ).values_list("organization", flat=True)
         query = Organization.objects.filter(id__in=organization_ids)
         log.info(
-            'Triggering SSO re-sync for all organizations.',
+            "Triggering SSO re-sync for all organizations.",
             count=query.count(),
         )
 
@@ -91,7 +92,7 @@ def sync_remote_repositories_organizations(organization_slugs=None):
     for organization in query:
         members = AdminPermission.members(organization)
         log.info(
-            'Triggering SSO re-sync for organization.',
+            "Triggering SSO re-sync for organization.",
             organization_slug=organization.slug,
             count=members.count(),
         )
@@ -168,17 +169,22 @@ def attach_webhook(project_pk, user_pk, integration=None):
     if not project or not user:
         return False
 
-    project_notification = InvalidProjectWebhookNotification(
-        context_object=project,
-        user=user,
-        success=False,
-    )
     if integration:
         service = SERVICE_MAP.get(integration.integration_type)
 
         if not service:
-            log.warning('There are no registered services in the application.')
-            project_notification.send()
+            log.warning("There are no registered services in the application.")
+            Notification.objects.add(
+                message_id=MESSAGE_OAUTH_WEBHOOK_INVALID,
+                attached_to=project,
+                dismissable=True,
+                format_values={
+                    "url_integrations": reverse(
+                        "projects_integrations",
+                        args=[project.slug],
+                    ),
+                },
+            )
             return None
     else:
         for service_cls in registry:
@@ -186,24 +192,28 @@ def attach_webhook(project_pk, user_pk, integration=None):
                 service = service_cls
                 break
         else:
-            log.warning('There are no registered services in the application.')
-            project_notification.send()
+            log.warning("There are no registered services in the application.")
+            Notification.objects.add(
+                message_id=MESSAGE_OAUTH_WEBHOOK_INVALID,
+                attached_to=project,
+                dismissable=True,
+                format_values={
+                    "url_integrations": reverse(
+                        "projects_integrations",
+                        args=[project.slug],
+                    ),
+                },
+            )
             return None
 
-    provider = allauth_registry.by_id(service.adapter.provider_id)
-    notification = AttachWebhookNotification(
-        context_object=provider,
-        extra_context={'project': project},
-        user=user,
-        success=None,
-    )
+    provider_class = allauth_registry.get_class(service.adapter.provider_id)
 
     user_accounts = service.for_user(user)
     for account in user_accounts:
         success, __ = account.setup_webhook(project, integration=integration)
         if success:
-            notification.success = True
-            notification.send()
+            # NOTE: do we want to communicate that we connect the webhook here?
+            # messages.add_message(request, "Webhook successfully added.")
 
             project.has_valid_webhook = True
             project.save()
@@ -211,12 +221,27 @@ def attach_webhook(project_pk, user_pk, integration=None):
 
     # No valid account found
     if user_accounts:
-        notification.success = False
-        notification.reason = AttachWebhookNotification.NO_PERMISSIONS
+        Notification.objects.add(
+            message_id=MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS,
+            dismissable=True,
+            attached_to=project,
+            format_values={
+                "provider_name": provider_class.name,
+                "url_docs_webhook": "https://docs.readthedocs.io/page/webhooks.html",
+            },
+        )
     else:
-        notification.success = False
-        notification.reason = AttachWebhookNotification.NO_ACCOUNTS
+        Notification.objects.add(
+            message_id=MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
+            dismissable=True,
+            attached_to=project,
+            format_values={
+                "provider_name": provider_class.name,
+                "url_connect_account": reverse(
+                    "projects_integrations",
+                    args=[project.slug],
+                ),
+            },
+        )
 
-    project_notification.send()
-    notification.send()
     return False

@@ -8,7 +8,8 @@
     "_links": {
         "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/",
         "project": "https://readthedocs.org/api/v3/projects/project/",
-        "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
+        "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/",
+        "notifications": "https://readthedocs.org/api/v3/projects/project/builds/1/notifications/"
     },
     "urls": {
         "build": "https://readthedocs.org/projects/project/builds/1/",

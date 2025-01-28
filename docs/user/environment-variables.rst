@@ -1,109 +1,141 @@
-Environment Variables
-=====================
+.. _Environment Variables:
 
-Read the Docs supports two types of environment variables in project builds:
+Environment variable overview
+=============================
 
-* `Default environment variables`_
-* `User-defined environment variables`_
+Read the Docs allows you to define your own environment variables to be used in the build process.
+It also defines a set of :doc:`default environment variables </reference/environment-variables>` with information about your build.
+These are useful for different purposes:
 
-Both are merged together during the build process and are exposed to all of the executed commands. There are two exceptions for user-defined environment variables however:
+* Custom environment variables are useful for adding build secrets such as API tokens.
+* Default environment variables are useful for varying your build specifically for Read the Docs or specific types of builds on Read the Docs.
 
-* User-defined variables are not available during the checkout step of the :doc:`build process </builds>`
-* User-defined variables that are not marked as public will not be available in :doc:`pull request builds </pull-requests>`
+.. The following introduction is difficult to balance.
+.. We should ideally support environment variables in the Config File,
+.. but as long as it's not supported then people can add environment variables in different ways.
+.. Using the Dashboard is a good approach
+.. but adding an environment variable with ``ENV=123 command --flag`` in the build process is possibly better.
 
-Default environment variables
------------------------------
+Custom environment variables are defined in the :term:`dashboard` interface in :menuselection:`Admin --> Environment variables`.
+Environment variables are defined for a project's entire build process,
+:ref:`with 2 important exceptions <custom_env_var_exceptions>`.
 
-Read the Docs builders set the following environment variables automatically for each documentation build:
+Aside from storing secrets,
+there are :ref:`other patterns <environment-variables:Patterns of using environment variables>` that take advantage of environment variables,
+like reusing the same *monorepo* configuration in multiple documentation projects.
+In cases where the environment variable isn't a secret,
+like a build tool flag,
+you should also be aware of the :ref:`alternatives to environment variables <environment-variables:Alternatives to environment variables>`.
 
-.. envvar:: READTHEDOCS
+.. seealso::
 
-    Whether the build is running inside Read the Docs.
+   :doc:`/guides/environment-variables`
+     A practical example of adding and accessing custom environment variables.
 
-    :Default: ``True``
+   :doc:`/reference/environment-variables`
+     Reference to all pre-defined environment variables for your build environments.
 
-.. envvar:: READTHEDOCS_VERSION
+   :ref:`Public API reference: Environment variables <api/v3:Environment Variables>`
+     Reference for managing custom environments via Read the Docs' API.
 
-    The :term:`slug` of the version being built, such as ``latest``, ``stable``,
-    or a branch name like ``feature-1234``. For :doc:`pull request builds </pull-requests>`,
-    the value will be the pull request number.
+Environment variables and build process
+---------------------------------------
 
-.. envvar:: READTHEDOCS_VERSION_NAME
+When a :doc:`build process </builds>` is started,
+:doc:`pre-defined environment variables </reference/environment-variables>` and custom environment variables are added *at each step* of the build process.
+The two sets of environment variables are merged together during the build process and are exposed to all of the executed commands,
+with pre-defined variables taking precedence over custom environment variables.
 
-    The verbose name of the version being built, such as ``latest``, ``stable``,
-    or a branch name like ``feature/1234``.
+.. _custom_env_var_exceptions:
 
-.. envvar:: READTHEDOCS_VERSION_TYPE
+There are two noteworthy exceptions for *custom environment variables*:
 
-    The type of the version being built.
+Build checkout step
+  Custom environment variables are **not** available during the checkout step of the :doc:`build process </builds>`
+Pull Request builds
+  Custom environment variables that are not marked as :guilabel:`Public` will not be available in :doc:`pull request builds </pull-requests>`
 
-    :Values: ``branch``, ``tag``, ``external`` (for :doc:`pull request builds </pull-requests>`), or ``unknown``
+.. the presence of this section is intended to evolve into a better explanation
+.. with a few more scenarios,
+.. once there is better options for environment variables in config files
 
-.. envvar:: READTHEDOCS_PROJECT
+Limitations
+-----------
 
-    The :term:`slug` of the project being built. For example, ``my-example-project``.
+- Individual environment variables are limited to 48 KB in size.
+- The total size of all environment variables in a project is limited to 256 KB.
 
-.. envvar:: READTHEDOCS_LANGUAGE
+Patterns of using environment variables
+---------------------------------------
 
-    The locale name, or the identifier for the locale, for the project being built.
-    This value comes from the project's configured language.
+Aside from storing secrets,
+environment variables are also useful if you need to make either your :doc:`.readthedocs.yaml </config-file/v2>` or the commands called in the :doc:`build process </builds>`
+behave depending on :doc:`pre-defined environment variables </reference/environment-variables>` or your own custom environment variables.
 
-    :Examples: ``en``, ``it``, ``de_AT``, ``es``, ``pt_BR``
+Example: Multiple projects from the same Git repo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-User-defined environment variables
-----------------------------------
+If you have the need to build multiple documentation websites from the same Git repository,
+you can use an environment variable to configure the behavior of your :doc:`build commands </build-customization>`
+or Sphinx ``conf.py`` file.
 
-If extra environment variables are needed in the build process (like an API token),
-you can define them from the project's settings page:
-
-#. Go to your project's :guilabel:`Admin` > :guilabel:`Environment Variables`
-#. Click on :guilabel:`Add Environment Variable`
-#. Fill the ``Name`` and ``Value``
-#. Check the :guilabel:`Public` option if you want to expose this environment variable
-   to :doc:`builds from pull requests </pull-requests>`.
-
-   .. warning::
-
-      If you mark this option, any user that can create a pull request
-      on your repository will be able to see the value of this environment variable.
-
-#. Click on :guilabel:`Save`
-
-.. note::
-
-   Once you create an environment variable,
-   you won't be able to see its value anymore.
-
-After adding an environment variable,
-you can read it from your build process,
-for example in your Sphinx's configuration file:
+An example of this is found in *the documentation project that you are looking at now*.
+Using the Sphinx extension `sphinx-multiproject`_,
+the following configuration code decides whether to build the *user* or *developer* documentation.
+This is defined by the ``PROJECT`` environment variable:
 
 .. code-block:: python
-   :caption: conf.py
+   :caption: Read the Docs' conf.py [1]_ is used to build 2 documentation projects.
 
-   import os
-   import requests
+   from multiproject.utils import get_project
 
-   # Access to our custom environment variables
-   username = os.environ.get('USERNAME')
-   password = os.environ.get('PASSWORD')
+   # (...)
 
-   # Request a username/password protected URL
-   response = requests.get(
-       'https://httpbin.org/basic-auth/username/password',
-       auth=(username, password),
-   )
+   multiproject_projects = {
+       "user": {
+           "use_config_file": False,
+           "config": {
+               "project": "Read the Docs user documentation",
+           },
+       },
+       "dev": {
+           "use_config_file": False,
+           "config": {
+               "project": "Read the Docs developer documentation",
+           },
+       },
+   }
 
-You can also use any of these variables from :term:`user-defined build jobs` in your project's configuration file:
+
+   docset = get_project(multiproject_projects)
+
+.. _sphinx-multiproject: https://sphinx-multiproject.readthedocs.io/
+.. [1] https://github.com/readthedocs/readthedocs.org/blob/main/docs/conf.py
+
+Alternatives to environment variables
+-------------------------------------
+
+In some scenarios, it's more feasible to define your build's environment variables using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/index>`.
+Using the :term:`dashboard` for administering environment variables may not be the right fit if you already know that you want to manage environment variables *as code*.
+
+Consider the following scenario:
+
+* The environment variable **is not** a secret.
+
+  **and**
+* The environment variable is used just once for a custom command.
+
+In this case, you can define the environment variable *as code* using :doc:`/build-customization`.
+The following example shows how a non-secret single-purpose environment variable can also be used.
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
 
    version: 2
    build:
-     os: ubuntu-22.04
+     os: "ubuntu-22.04"
      tools:
-       python: 3.10
+       python: "3.12"
      jobs:
-       post_install:
-         - curl -u ${USERNAME}:${PASSWORD} https://httpbin.org/basic-auth/username/password
+       post_build:
+         - EXAMPLE_ENVIRONMENT_VARIABLE=foobar command --flag

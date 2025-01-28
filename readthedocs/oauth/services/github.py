@@ -4,16 +4,13 @@ import json
 import re
 
 import structlog
-from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
-from django.urls import reverse
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
 
-from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
-from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
@@ -29,7 +26,7 @@ class GitHubService(Service):
 
     adapter = GitHubOAuth2Adapter
     # TODO replace this with a less naive check
-    url_pattern = re.compile(r'github\.com')
+    url_pattern = re.compile(r"github\.com")
     vcs_provider_slug = GITHUB
 
     def sync_repositories(self):
@@ -42,7 +39,7 @@ class GitHubService(Service):
                 remote_repository = self.create_repository(repo)
                 remote_repositories.append(remote_repository)
         except (TypeError, ValueError):
-            log.warning('Error syncing GitHub repositories')
+            log.warning("Error syncing GitHub repositories")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
                     provider=self.vcs_provider_slug
@@ -75,7 +72,7 @@ class GitHubService(Service):
                     remote_repositories.append(remote_repository)
 
         except (TypeError, ValueError):
-            log.warning('Error syncing GitHub organizations')
+            log.warning("Error syncing GitHub organizations")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
                     provider=self.vcs_provider_slug
@@ -95,11 +92,12 @@ class GitHubService(Service):
         :rtype: RemoteRepository
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
-        if any([
-            (privacy == 'private'),
-            (fields['private'] is False and privacy == 'public'),
-        ]):
-
+        if any(
+            [
+                (privacy == "private"),
+                (fields["private"] is False and privacy == "public"),
+            ]
+        ):
             repo, created = RemoteRepository.objects.get_or_create(
                 remote_id=str(fields["id"]),
                 vcs_provider=self.vcs_provider_slug,
@@ -139,20 +137,20 @@ class GitHubService(Service):
             if owner_type == "User":
                 repo.organization = None
 
-            repo.name = fields['name']
-            repo.full_name = fields['full_name']
-            repo.description = fields['description']
-            repo.ssh_url = fields['ssh_url']
-            repo.html_url = fields['html_url']
-            repo.private = fields['private']
-            repo.vcs = 'git'
-            repo.avatar_url = fields.get('owner', {}).get('avatar_url')
-            repo.default_branch = fields.get('default_branch')
+            repo.name = fields["name"]
+            repo.full_name = fields["full_name"]
+            repo.description = fields["description"]
+            repo.ssh_url = fields["ssh_url"]
+            repo.html_url = fields["html_url"]
+            repo.private = fields["private"]
+            repo.vcs = "git"
+            repo.avatar_url = fields.get("owner", {}).get("avatar_url")
+            repo.default_branch = fields.get("default_branch")
 
             if repo.private:
-                repo.clone_url = fields['ssh_url']
+                repo.clone_url = fields["ssh_url"]
             else:
-                repo.clone_url = fields['clone_url']
+                repo.clone_url = fields["clone_url"]
 
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
@@ -170,8 +168,8 @@ class GitHubService(Service):
             return repo
 
         log.debug(
-            'Not importing repository because mismatched type.',
-            repository=fields['name'],
+            "Not importing repository because mismatched type.",
+            repository=fields["name"],
         )
 
     def create_organization(self, fields, create_user_relationship=False):
@@ -191,12 +189,12 @@ class GitHubService(Service):
         if create_user_relationship:
             organization.get_remote_organization_relation(self.user, self.account)
 
-        organization.url = fields.get('html_url')
+        organization.url = fields.get("html_url")
         # fields['login'] contains GitHub Organization slug
-        organization.slug = fields.get('login')
-        organization.name = fields.get('name')
-        organization.email = fields.get('email')
-        organization.avatar_url = fields.get('avatar_url')
+        organization.slug = fields.get("login")
+        organization.name = fields.get("name")
+        organization.email = fields.get("email")
+        organization.avatar_url = fields.get("avatar_url")
 
         if not organization.avatar_url:
             organization.avatar_url = self.default_org_avatar_url
@@ -206,32 +204,25 @@ class GitHubService(Service):
         return organization
 
     def get_next_url_to_paginate(self, response):
-        return response.links.get('next', {}).get('url')
+        return response.links.get("next", {}).get("url")
 
     def get_paginated_results(self, response):
         return response.json()
 
     def get_webhook_data(self, project, integration):
         """Get webhook JSON data to post to the API."""
-        return json.dumps({
-            'name': 'web',
-            'active': True,
-            'config': {
-                'url': 'https://{domain}{path}'.format(
-                    domain=settings.PRODUCTION_DOMAIN,
-                    path=reverse(
-                        'api_webhook',
-                        kwargs={
-                            'project_slug': project.slug,
-                            'integration_pk': integration.pk,
-                        },
-                    ),
-                ),
-                'secret': integration.secret,
-                'content_type': 'json',
-            },
-            'events': ['push', 'pull_request', 'create', 'delete'],
-        })
+        return json.dumps(
+            {
+                "name": "web",
+                "active": True,
+                "config": {
+                    "url": self.get_webhook_url(project, integration),
+                    "secret": integration.secret,
+                    "content_type": "json",
+                },
+                "events": ["push", "pull_request", "create", "delete"],
+            }
+        )
 
     def get_provider_data(self, project, integration):
         """
@@ -250,23 +241,14 @@ class GitHubService(Service):
 
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        url = f'https://api.github.com/repos/{owner}/{repo}/hooks'
+        url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
         log.bind(
             url=url,
             project_slug=project.slug,
             integration_id=integration.pk,
         )
 
-        rtd_webhook_url = 'https://{domain}{path}'.format(
-            domain=settings.PRODUCTION_DOMAIN,
-            path=reverse(
-                'api_webhook',
-                kwargs={
-                    'project_slug': project.slug,
-                    'integration_pk': integration.pk,
-                },
-            )
-        )
+        rtd_webhook_url = self.get_webhook_url(project, integration)
 
         try:
             resp = session.get(url)
@@ -279,17 +261,17 @@ class GitHubService(Service):
                         integration.save()
 
                         log.info(
-                            'GitHub integration updated with provider data for project.',
+                            "GitHub integration updated with provider data for project.",
                         )
                         break
             else:
                 log.warning(
-                    'GitHub project does not exist or user does not have permissions.',
+                    "GitHub project does not exist or user does not have permissions.",
                     https_status_code=resp.status_code,
                 )
 
         except Exception:
-            log.exception('GitHub webhook Listing failed for project.')
+            log.exception("GitHub webhook Listing failed for project.")
 
         return integration.provider_data
 
@@ -313,11 +295,8 @@ class GitHubService(Service):
                 integration_type=Integration.GITHUB_WEBHOOK,
             )
 
-        if not integration.secret:
-            integration.recreate_secret()
-
         data = self.get_webhook_data(project, integration)
-        url = f'https://api.github.com/repos/{owner}/{repo}/hooks'
+        url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
         log.bind(
             url=url,
             project_slug=project.slug,
@@ -328,7 +307,7 @@ class GitHubService(Service):
             resp = session.post(
                 url,
                 data=data,
-                headers={'content-type': 'application/json'},
+                headers={"content-type": "application/json"},
             )
             log.bind(http_status_code=resp.status_code)
 
@@ -337,11 +316,13 @@ class GitHubService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.debug('GitHub webhook creation successful for project.')
+                log.debug("GitHub webhook creation successful for project.")
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
-                log.warning('GitHub project does not exist or user does not have permissions.')
+                log.warning(
+                    "GitHub project does not exist or user does not have permissions."
+                )
             else:
                 # Unknown response from GitHub
                 try:
@@ -349,16 +330,14 @@ class GitHubService(Service):
                 except ValueError:
                     debug_data = resp.content
                 log.warning(
-                    'GitHub webhook creation failed for project. Unknown response from GitHub.',
+                    "GitHub webhook creation failed for project. Unknown response from GitHub.",
                     debug_data=debug_data,
                 )
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.exception('GitHub webhook creation failed for project.')
+            log.exception("GitHub webhook creation failed for project.")
 
-        # Always remove the secret and return False if we don't return True above
-        integration.remove_secret()
         return (False, resp)
 
     def update_webhook(self, project, integration):
@@ -373,8 +352,6 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
-        if not integration.secret:
-            integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
         resp = None
 
@@ -390,11 +367,11 @@ class GitHubService(Service):
             return self.setup_webhook(project, integration)
 
         try:
-            url = provider_data.get('url')
+            url = provider_data.get("url")
             resp = session.patch(
                 url,
                 data=data,
-                headers={'content-type': 'application/json'},
+                headers={"content-type": "application/json"},
             )
             log.bind(
                 http_status_code=resp.status_code,
@@ -406,7 +383,7 @@ class GitHubService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info('GitHub webhook update successful for project.')
+                log.info("GitHub webhook update successful for project.")
                 return (True, resp)
 
             # GitHub returns 404 when the webhook doesn't exist. In this case,
@@ -420,28 +397,26 @@ class GitHubService(Service):
             except ValueError:
                 debug_data = resp.content
             log.warning(
-                'GitHub webhook update failed. Unknown response from GitHub',
+                "GitHub webhook update failed. Unknown response from GitHub",
                 debug_data=debug_data,
             )
 
         # Catch exceptions with request or deserializing JSON
         except (AttributeError, RequestException, ValueError):
-            log.exception('GitHub webhook update failed for project.')
+            log.exception("GitHub webhook update failed for project.")
 
-        integration.remove_secret()
         return (False, resp)
 
-    def send_build_status(self, build, commit, state, link_to_build=False):
+    def send_build_status(self, build, commit, status):
         """
         Create GitHub commit status for project.
 
         :param build: Build to set up commit status for
         :type build: Build
-        :param state: build state failure, pending, or success.
-        :type state: str
+        :param status: build state failure, pending, or success.
+        :type status: str
         :param commit: commit sha of the pull request
         :type commit: str
-        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
@@ -449,37 +424,41 @@ class GitHubService(Service):
         project = build.project
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
-        # select the correct state and description.
-        github_build_state = SELECT_BUILD_STATUS[state]['github']
-        description = SELECT_BUILD_STATUS[state]['description']
+        # select the correct status and description.
+        github_build_status = SELECT_BUILD_STATUS[status]["github"]
+        description = SELECT_BUILD_STATUS[status]["description"]
+        statuses_url = f"https://api.github.com/repos/{owner}/{repo}/statuses/{commit}"
 
-        target_url = build.get_full_url()
-        statuses_url = f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'
-
-        if not link_to_build and state == BUILD_STATUS_SUCCESS:
+        if status == BUILD_STATUS_SUCCESS:
+            # Link to the documentation for this version
             target_url = build.version.get_absolute_url()
+        else:
+            # Link to the build detail's page
+            target_url = build.get_full_url()
 
-        context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
+        context = f"{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}"
 
         data = {
-            'state': github_build_state,
-            'target_url': target_url,
-            'description': description,
-            'context': context,
+            "state": github_build_status,
+            "target_url": target_url,
+            "description": description,
+            "context": context,
         }
 
         log.bind(
             project_slug=project.slug,
-            commit_status=github_build_state,
+            commit_status=github_build_status,
             user_username=self.user.username,
             statuses_url=statuses_url,
+            target_url=target_url,
+            status=status,
         )
         resp = None
         try:
             resp = session.post(
                 statuses_url,
                 data=json.dumps(data),
-                headers={'content-type': 'application/json'},
+                headers={"content-type": "application/json"},
             )
             log.bind(http_status_code=resp.status_code)
             if resp.status_code == 201:
@@ -487,7 +466,9 @@ class GitHubService(Service):
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info('GitHub project does not exist or user does not have permissions.')
+                log.info(
+                    "GitHub project does not exist or user does not have permissions."
+                )
                 return False
 
             if (
@@ -507,34 +488,16 @@ class GitHubService(Service):
             except ValueError:
                 debug_data = resp.content
             log.warning(
-                'GitHub commit status creation failed. Unknown GitHub response.',
+                "GitHub commit status creation failed. Unknown GitHub response.",
                 debug_data=debug_data,
             )
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.exception('GitHub commit status creation failed for project.')
+            log.exception("GitHub commit status creation failed for project.")
+        except InvalidGrantError:
+            log.info("Invalid GitHub grant for user.", exc_info=True)
+        except TokenExpiredError:
+            log.info("GitHub token expired for user.", exc_info=True)
 
         return False
-
-    @classmethod
-    def get_token_for_project(cls, project, force_local=False):
-        """Get access token for project by iterating over project users."""
-        # TODO why does this only target GitHub?
-        if not settings.ALLOW_PRIVATE_REPOS:
-            return None
-        token = None
-        try:
-            if settings.DONT_HIT_DB and not force_local:
-                token = api.project(project.pk).token().get()['token']
-            else:
-                for user in AdminPermission.admins(project):
-                    tokens = SocialToken.objects.filter(
-                        account__user=user,
-                        app__provider=cls.adapter.provider_id,
-                    )
-                    if tokens.exists():
-                        token = tokens[0].token
-        except Exception:
-            log.exception('Failed to get token for project')
-        return token

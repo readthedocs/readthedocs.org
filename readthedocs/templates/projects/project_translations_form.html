@@ -1,0 +1,48 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Add Translation" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-translations %}class="active"{% endblock %}
+
+{% block project-translations-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Add Translation" %}{% endblock %}
+
+{% block project_edit_content %}
+  <p class="help_text">
+    {% blocktrans trimmed %}
+      To add a translation to your project, select a project below.
+    {% endblocktrans %}
+  </p>
+
+  {% if not project.supports_translations %}
+    {% url 'projects_edit' project_slug=project.slug as project_settings_url %}
+    <p>
+      {% blocktrans trimmed with project_settings_url=project_settings_url %}
+      This project is <a href="{{ project_settings_url }}">configured</a> with a versioning scheme that doesn't support translations.
+      {% endblocktrans %}
+    </p>
+  {% elif project.main_language_project %}
+    <p>
+      {% blocktrans trimmed with language=project.get_language_display  main_project=project.main_language_project.name %}
+        This project is already configured as the <code>{{ language }}</code> translation of
+        "{{ main_project }}".
+        Nested translations are not supported.
+      {% endblocktrans %}
+    </p>
+
+    <a href="{% url 'projects_translations' project_slug=project.main_language_project.slug %}">
+      {% blocktrans trimmed with main_project=project.main_language_project.name %}
+        View translations of "{{ main_project }}".
+      {% endblocktrans %}
+    </a>
+  {% else %}
+    <form method="post" action=".">{% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="{% trans "Add" %}">
+    </form>
+  {% endif %}
+{% endblock %}

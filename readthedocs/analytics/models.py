@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
-from readthedocs.core.resolver import resolve, resolve_path
+from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Feature, Project
 
 
@@ -25,25 +25,25 @@ class PageViewManager(models.Manager):
 
     """Manager for PageView model."""
 
-    def register_page_view(self, project, version, path, full_path, status):
+    def register_page_view(self, project, version, filename, path, status):
         """Track page view with the given parameters."""
         # TODO: remove after the migration of duplicate records has been completed.
         if project.has_feature(Feature.DISABLE_PAGEVIEWS):
             return
 
         # Normalize paths to avoid duplicates.
+        filename = "/" + filename.lstrip("/")
         path = "/" + path.lstrip("/")
-        full_path = "/" + full_path.lstrip("/")
 
         page_view, created = self.get_or_create(
             project=project,
             version=version,
-            path=path,
+            path=filename,
             date=timezone.now().date(),
             status=status,
             defaults={
                 "view_count": 1,
-                "full_path": full_path,
+                "full_path": path,
             },
         )
         if not created:
@@ -58,7 +58,7 @@ class PageView(models.Model):
 
     project = models.ForeignKey(
         Project,
-        related_name='page_views',
+        related_name="page_views",
         on_delete=models.CASCADE,
     )
     # NOTE: this could potentially be removed,
@@ -66,8 +66,8 @@ class PageView(models.Model):
     # views (404s) are attached to a version.
     version = models.ForeignKey(
         Version,
-        verbose_name=_('Version'),
-        related_name='page_views',
+        verbose_name=_("Version"),
+        related_name="page_views",
         on_delete=models.CASCADE,
         null=True,
     )
@@ -82,7 +82,7 @@ class PageView(models.Model):
         blank=True,
     )
     view_count = models.PositiveIntegerField(default=0)
-    date = models.DateField(default=datetime.date.today)
+    date = models.DateField(default=datetime.date.today, db_index=True)
     status = models.PositiveIntegerField(
         default=200,
         help_text=_("HTTP status code"),
@@ -101,9 +101,6 @@ class PageView(models.Model):
                 name="analytics_pageview_constraint_unique_without_optional",
             ),
         ]
-
-    def __str__(self):
-        return f"PageView: [{self.project.slug}] - {self.full_path or self.path} for {self.date}"
 
     @classmethod
     def top_viewed_pages(
@@ -131,14 +128,15 @@ class PageView(models.Model):
         )
 
         PageViewResult = namedtuple("PageViewResult", "path, url, count")
+        resolver = Resolver()
         result = []
-        parsed_domain = urlparse(resolve(project))
+        parsed_domain = urlparse(resolver.get_domain(project))
         default_version = project.get_default_version()
         for row in queryset:
             if not per_version:
                 # If we aren't groupig by version,
                 # then always link to the default version.
-                url_path = resolve_path(
+                url_path = resolver.resolve_path(
                     project=project,
                     version_slug=default_version,
                     filename=row.path,
@@ -184,9 +182,7 @@ class PageView(models.Model):
             .order_by("date")
         )
 
-        count_dict = dict(
-            queryset.order_by('date').values_list('date', 'total_views')
-        )
+        count_dict = dict(queryset.order_by("date").values_list("date", "total_views"))
 
         # This fills in any dates where there is no data
         # to make sure we have a full 30 days of dates
@@ -195,13 +191,12 @@ class PageView(models.Model):
         # format the date value to a more readable form
         # Eg. `16 Jul`
         last_30_days_str = [
-            timezone.datetime.strftime(date, '%d %b')
-            for date in _last_30_days_iter()
+            timezone.datetime.strftime(date, "%d %b") for date in _last_30_days_iter()
         ]
 
         final_data = {
-            'labels': last_30_days_str,
-            'int_data': count_data,
+            "labels": last_30_days_str,
+            "int_data": count_data,
         }
 
         return final_data

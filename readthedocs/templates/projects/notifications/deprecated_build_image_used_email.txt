@@ -1,0 +1,31 @@
+{% extends "core/email/common.txt" %}
+{% block content %}
+The "build.image" config key on ".readthedocs.yaml" has been deprecated, and will be removed on October 16, 2023.
+We are sending weekly notifications about this issue to all impacted users,
+as well as temporary build failures (brownouts) as the date approaches for those who haven't migrated their projects.
+
+The timeline for this deprecation is as follows:
+
+* Monday, August 28, 2023: Do the first brownout (temporarily enforce this deprecation) for 12 hours: 00:01 PST to 11:59 PST (noon)
+* Monday, September 18, 2023: Do a second brownout (temporarily enforce this deprecation) for 24 hours: 00:01 PST to 23:59 PST (midnight)
+* Monday, October 2, 2023: Do a third and final brownout (temporarily enforce this deprecation) for 48 hours: 00:01 PST to October 3, 2023 23:59 PST (midnight)
+* Monday, October 16, 2023: Fully remove support for building documentation using "build.image" on the configuration file
+
+We have identified that the following projects which you maintain, and were built in the last year, are impacted by this deprecation:
+
+{% for project in projects|slice:":15" %}
+* {{ project.slug }} ({{ production_uri }}{{ project.get_absolute_url }})
+{% endfor %}
+{% if projects.count > 15 %}
+* ... and {{ projects.count|add:"-15" }} more projects.
+{% endif %}
+
+Please use "build.os" on your configuration file to ensure that they continue building successfully and to stop receiving these notifications.
+If you want to opt-out from these emails, you can edit your preferences in your account settings, at https://readthedocs.org/accounts/edit/.
+
+For more information on how to use "build.os",
+read our blog post at https://blog.readthedocs.com/use-build-os-config/
+
+Get in touch with us via our support ({{ production_uri }}{% url 'support' %})
+and let us know if you are unable to use a configuration file for any reason.
+{% endblock %}

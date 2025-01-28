@@ -1,8 +1,13 @@
 {% extends "projects/project_edit_base.html" %}
 
 {% load i18n %}
+{% load static %}
 
 {% block title %}{% trans "Redirects" %}{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="{% static "projects/css/admin.css" %}" />
+{% endblock %}
 
 {% block project-redirects-active %}active{% endblock %}
 {% block project_edit_content_header %}{% trans "Redirects" %}{% endblock %}
@@ -26,7 +31,7 @@
   </div>
 
   <div class="module">
-    <div class="module-list">
+    <div class="module-list automation-rules">
       <div class="module-list-wrapper">
         <ul>
           {% for redirect in redirects %}
@@ -40,6 +45,28 @@
                 </div>
               {% endif %}
               <ul class="module-item-menu">
+                {% if not forloop.first %}
+                  <li class="automation-rule">
+                    <form method="post" action="{% url 'projects_redirects_insert' project_slug=project.slug redirect_pk=redirect.pk position=redirect.position|add:"-1" %}">
+                      {% csrf_token %}
+                      <button aria-label="{% trans 'Move up' %}" title="{% trans 'Move up' %}" class="automation-rule-up">
+                        <span>{% trans 'Move up' %}</span>
+                      </button>
+                    </form>
+                  </li>
+                {% endif %}
+
+                {% if not forloop.last %}
+                  <li class="automation-rule">
+                    <form method="post" action="{% url 'projects_redirects_insert' project_slug=project.slug redirect_pk=redirect.pk position=redirect.position|add:"1" %}">
+                      {% csrf_token %}
+                      <button aria-label="{% trans 'Move down' %}" title="{% trans 'Move down' %}" class="automation-rule-down">
+                        <span>{% trans 'Move down' %}</span>
+                      </button>
+                    </form>
+                  </li>
+                {% endif %}
+
                 <li>
                   <a href="{% url 'projects_redirects_edit' project_slug=project.slug redirect_pk=redirect.pk %}">
                     {% trans "Edit" %}

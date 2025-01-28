@@ -3,7 +3,6 @@ from rest_framework_extensions.routers import NestedRouterMixin
 
 
 class DocsAPIRootView(APIRootView):
-
     # Overridden only to add documentation for BrowsableAPIRenderer.
 
     # noqa
@@ -15,9 +14,9 @@ class DocsAPIRootView(APIRootView):
     """
 
     def get_view_name(self):
-        return 'Read the Docs API v3'
+        return "Read the Docs API v3"
 
 
 class DefaultRouterWithNesting(NestedRouterMixin, DefaultRouter):
     APIRootView = DocsAPIRootView
-    root_view_name = 'api-v3-root'
+    root_view_name = "api-v3-root"

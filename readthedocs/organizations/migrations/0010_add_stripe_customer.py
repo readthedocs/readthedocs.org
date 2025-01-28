@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("djstripe", "0010_alter_customer_balance"),
         ("organizations", "0009_update_meta_options"),

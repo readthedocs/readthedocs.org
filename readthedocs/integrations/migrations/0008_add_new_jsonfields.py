@@ -4,25 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('integrations', '0007_update-provider-data'),
+        ("integrations", "0007_update-provider-data"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='httpexchange',
-            name='request_headers_json',
-            field=models.JSONField(null=True, blank=True, verbose_name='Request headers'),
+            model_name="httpexchange",
+            name="request_headers_json",
+            field=models.JSONField(
+                null=True, blank=True, verbose_name="Request headers"
+            ),
         ),
         migrations.AddField(
-            model_name='httpexchange',
-            name='response_headers_json',
-            field=models.JSONField(null=True, blank=True, verbose_name='Request headers'),
+            model_name="httpexchange",
+            name="response_headers_json",
+            field=models.JSONField(
+                null=True, blank=True, verbose_name="Request headers"
+            ),
         ),
         migrations.AddField(
-            model_name='integration',
-            name='provider_data_json',
-            field=models.JSONField(null=True, blank=True, verbose_name='Provider data'),
+            model_name="integration",
+            name="provider_data_json",
+            field=models.JSONField(null=True, blank=True, verbose_name="Provider data"),
         ),
     ]

@@ -2,6 +2,7 @@
   {
     "path": "index.html",
     "title": "Mkdocs - GitBook Theme",
+    "main_content_hash": "a2050380ef001ef57754fb35b41d477d",
     "sections": [
       {
         "id": "mkdocs-gitbook-theme",
@@ -28,7 +29,6 @@
         "title": "License",
         "content": "SPDX-License-Identifier: Apache-2.0"
       }
-    ],
-    "domain_data": {}
+    ]
   }
 ]

@@ -23,40 +23,46 @@ class Command(BaseCommand):
 
     help = (
         "Retrieves the data of a project from readthedocs.org's API and puts "
-        'it into the local database. This is mostly useful for debugging '
-        'issues with projects on the live site.'
+        "it into the local database. This is mostly useful for debugging "
+        "issues with projects on the live site."
     )
 
     def add_arguments(self, parser):
-        parser.add_argument('project_slug', nargs='+', type=str)
+        parser.add_argument("project_slug", nargs="+", type=str)
 
     def handle(self, *args, **options):
         auth = None
-        user1 = User.objects.filter(pk__gt=0).order_by('pk').first()
+        user1 = User.objects.filter(pk__gt=0).order_by("pk").first()
 
-        if 'READTHEDOCS_USERNAME' in os.environ and 'READTHEDOCS_PASSWORD' in os.environ:
+        if (
+            "READTHEDOCS_USERNAME" in os.environ
+            and "READTHEDOCS_PASSWORD" in os.environ
+        ):
             # Authenticating allows returning additional useful fields in the API
             # See: `ProjectAdminSerializer`
-            username = os.environ['READTHEDOCS_USERNAME']
-            auth = (username, os.environ['READTHEDOCS_PASSWORD'])
-            self.stdout.write('Using basic auth for user {username}'.format(username=username))
+            username = os.environ["READTHEDOCS_USERNAME"]
+            auth = (username, os.environ["READTHEDOCS_PASSWORD"])
+            self.stdout.write(
+                "Using basic auth for user {username}".format(username=username)
+            )
 
-        for slug in options['project_slug']:
-            self.stdout.write('Importing {slug} ...'.format(slug=slug))
+        for slug in options["project_slug"]:
+            self.stdout.write("Importing {slug} ...".format(slug=slug))
 
             resp = requests.get(
-                'https://readthedocs.org/api/v2/project/',
-                params={'slug': slug},
+                "https://readthedocs.org/api/v2/project/",
+                params={"slug": slug},
                 auth=auth,
+                timeout=3,
             )
             resp.raise_for_status()  # This should only fail if RTD is having issues
             response_data = resp.json()
 
-            if response_data['count'] == 1:
-                project_data = response_data['results'][0]
+            if response_data["count"] == 1:
+                project_data = response_data["results"][0]
             else:
                 raise CommandError(
-                    'Cannot find {slug} in API. Response was:\n{response}'.format(
+                    "Cannot find {slug} in API. Response was:\n{response}".format(
                         slug=slug,
                         response=json.dumps(response_data),
                     ),
@@ -64,32 +70,34 @@ class Command(BaseCommand):
 
             try:
                 project = Project.objects.get(slug=slug)
-                self.stdout.write('Project {slug} already exists. Updating...'.format(slug=slug))
+                self.stdout.write(
+                    "Project {slug} already exists. Updating...".format(slug=slug)
+                )
             except Project.DoesNotExist:
                 project = Project(slug=slug)
 
             exclude_attributes = (
-                'absolute_url',
-                'analytics_code',
-                'canonical_url',
-                'show_advertising',
-
+                "absolute_url",
+                "analytics_code",
+                "canonical_url",
+                "show_advertising",
                 # These fields could be nice to add
-                'users',
-                'features',
-                'environment_variables',
+                "users",
+                "features",
+                "environment_variables",
             )
 
             for attribute in project_data:
                 if attribute not in exclude_attributes:
                     setattr(project, attribute, project_data[attribute])
-                    self.stdout.write(' - Setting {key} to {val}'.format(
-                        key=attribute,
-                        val=project_data[attribute]),
+                    self.stdout.write(
+                        " - Setting {key} to {val}".format(
+                            key=attribute, val=project_data[attribute]
+                        ),
                     )
             project.user = user1
             project.save()
             if user1:
                 project.users.add(user1)
 
-            call_command('update_repos', slugs=[project.slug], version='all')
+            call_command("update_repos", slugs=[project.slug], version="all")

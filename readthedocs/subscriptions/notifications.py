@@ -1,10 +1,13 @@
 """Organization level notifications."""
 
-from django.urls import reverse
-from messages_extends.constants import WARNING_PERSISTENT
+import textwrap
 
-from readthedocs.notifications import Notification, SiteNotification
-from readthedocs.notifications.constants import REQUIREMENT
+from django.utils.translation import gettext_noop as _
+from djstripe import models as djstripe
+
+from readthedocs.notifications.constants import INFO
+from readthedocs.notifications.email import EmailNotification
+from readthedocs.notifications.messages import Message, registry
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import DISABLE_AFTER_DAYS
 
@@ -13,68 +16,65 @@ class SubscriptionNotificationMixin:
 
     """Force to read templates from the subscriptions app."""
 
-    app_templates = 'subscriptions'
+    app_templates = "subscriptions"
+    context_object_name = "organization"
 
 
-class TrialEndingNotification(SubscriptionNotificationMixin, Notification):
+class TrialEndingNotification(SubscriptionNotificationMixin, EmailNotification):
 
     """Trial is ending, nudge user towards subscribing."""
 
-    name = 'trial_ending'
-    context_object_name = 'organization'
-    subject = 'Your trial is ending soon'
-    level = REQUIREMENT
+    name = "trial_ending"
+    subject = "Your trial is ending soon"
 
-    @classmethod
-    def for_organizations(cls):
-        advanced_plan_subscription_trial_ending = (
-            Organization.objects.subscription_trial_ending()
-            .created_days_ago(days=24)
+    @staticmethod
+    def for_subscriptions():
+        return (
+            djstripe.Subscription.readthedocs.trial_ending()
+            .created_days_ago(24)
+            .prefetch_related("customer__rtd_organization")
         )
-        trial_plan_subscription_trial_ending = (
-            Organization.objects.subscription_trial_plan_ending()
-            .created_days_ago(days=24)
-        )
-        return advanced_plan_subscription_trial_ending | trial_plan_subscription_trial_ending
 
 
-class SubscriptionRequiredNotification(SubscriptionNotificationMixin, Notification):
+class SubscriptionRequiredNotification(
+    SubscriptionNotificationMixin, EmailNotification
+):
 
     """Trial has ended, push user into subscribing."""
 
-    name = 'subscription_required'
-    context_object_name = 'organization'
-    subject = 'We hope you enjoyed your trial of Read the Docs!'
-    level = REQUIREMENT
-
-    @classmethod
-    def for_organizations(cls):
-        advanced_plan_subscription_trial_ended = (
-            Organization.objects.subscription_trial_ended()
-            .created_days_ago(days=30)
-        )
-        trial_plan_subscription_ended = (
-            Organization.objects.subscription_trial_plan_ended()
-            .created_days_ago(days=30)
-        )
-        return advanced_plan_subscription_trial_ended | trial_plan_subscription_ended
+    name = "subscription_required"
+    subject = "We hope you enjoyed your trial of Read the Docs!"
 
 
-class SubscriptionEndedNotification(SubscriptionNotificationMixin, Notification):
+class SubscriptionEndedNotification(SubscriptionNotificationMixin, EmailNotification):
 
     """
-    Subscription has ended days ago.
+    Subscription has ended.
 
     Notify the customer that the Organization will be disabled *soon* if the
     subscription is not renewed for the organization.
     """
 
-    name = 'subscription_ended'
-    context_object_name = 'organization'
-    subject = 'Your subscription to Read the Docs has ended'
-    level = REQUIREMENT
+    name = "subscription_ended"
+    subject = "Your subscription to Read the Docs has ended"
 
-    days_after_end = 5
+
+class OrganizationDisabledNotification(
+    SubscriptionNotificationMixin, EmailNotification
+):
+
+    """
+    Subscription has ended a month ago.
+
+    Notify the user that the organization will be disabled soon. After this
+    notification is sent, we are safe to disable the organization since the
+    customer was notified twice.
+    """
+
+    name = "organization_disabled"
+    subject = "Your Read the Docs organization will be disabled soon"
+
+    days_after_end = DISABLE_AFTER_DAYS
 
     @classmethod
     def for_organizations(cls):
@@ -85,33 +85,19 @@ class SubscriptionEndedNotification(SubscriptionNotificationMixin, Notification)
         return organizations
 
 
-class OrganizationDisabledNotification(SubscriptionEndedNotification):
-
-    """
-    Subscription has ended a month ago.
-
-    Notify the user that the organization will be disabled soon. After this
-    notification is sent, we are safe to disable the organization since the
-    customer was notified twice.
-    """
-
-    name = 'organization_disabled'
-    subject = 'Your Read the Docs organization will be disabled soon'
-
-    days_after_end = DISABLE_AFTER_DAYS
-
-
-class OrganizationDisabledSiteNotification(SubscriptionNotificationMixin, SiteNotification):
-
-    success_message = 'The organization "{{ object.name }}" is currently disabled. You need to <a href="{{ url }}">renew your subscription</a> to keep using Read the Docs.'  # noqa
-    success_level = WARNING_PERSISTENT
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context.update({
-            'url': reverse(
-                'subscription_detail',
-                args=[self.object.slug],
-            ),
-        })
-        return context
+MESSAGE_ORGANIZATION_DISABLED = "organization:disabled"
+messages = [
+    Message(
+        id=MESSAGE_ORGANIZATION_DISABLED,
+        header=_("Your organization has been disabled"),
+        body=_(
+            textwrap.dedent(
+                """
+            The organization "{{instance.slug}}" is currently disabled. You need to <a href="{% url 'subscription_detail' instance.slug %}">renew your subscription</a> to keep using Read the Docs
+            """
+            ).strip(),
+        ),
+        type=INFO,
+    ),
+]
+registry.add(messages)

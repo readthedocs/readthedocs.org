@@ -2,9 +2,7 @@ import pytest
 from django.core.cache import cache
 from rest_framework.test import APIClient
 
-pytest_plugins = (
-    'sphinx.testing.fixtures',
-)
+pytest_plugins = ("sphinx.testing.fixtures",)
 
 
 @pytest.fixture

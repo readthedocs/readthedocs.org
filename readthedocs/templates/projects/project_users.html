@@ -47,7 +47,7 @@
 
   <div>
     <h3>{% trans "Add maintainer" %}</h3>
-    <form method="post" action=".">
+    <form method="post" action="{% url "projects_users_create" project.slug %}">
       {% csrf_token %}
       {{ form.as_p }}
       <input type="submit" value="{% trans "Add" %}">

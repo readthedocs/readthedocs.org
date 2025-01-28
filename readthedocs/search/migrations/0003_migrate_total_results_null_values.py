@@ -5,14 +5,13 @@ from django.db import migrations
 
 def forwards_func(apps, schema_editor):
     """Make all total_results fields not none."""
-    SearchQuery = apps.get_model('search', 'SearchQuery')
+    SearchQuery = apps.get_model("search", "SearchQuery")
     SearchQuery.objects.filter(total_results=None).update(total_results=0)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('search', '0002_add_total_results_field'),
+        ("search", "0002_add_total_results_field"),
     ]
 
     operations = [

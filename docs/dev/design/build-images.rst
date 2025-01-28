@@ -1,4 +1,4 @@
-Build Images
+Build images
 ============
 
 This document describes how Read the Docs uses the `Docker Images`_ and how they are named.
@@ -265,7 +265,7 @@ and we can roll back if the new pre-compiled version was built with a problem.
 
    Installing always the latest version is harder to maintain.
    It will require building the newest version each time a new patch version is released.
-   Beacause of that, Read the Docs will always be behind official releases.
+   Because of that, Read the Docs will always be behind official releases.
    Besides, it will give projects different versions more often.
 
    Exposing to the user the patch version would require to cache many different versions ourselves,
@@ -287,7 +287,7 @@ How do we remove an old Python version?
 At some point, an old version of Python will be deprecated (eg. 3.4) and will be removed.
 To achieve this, we can just remove the pre-compiled Python version from the cache.
 
-However, unless it's strictly neeed for some specific reason, we shouldn't require to remove support for a Python version
+However, unless it's strictly needed for some specific reason, we shouldn't require to remove support for a Python version
 as long as we support the Ubuntu OS version where this version was compiled for.
 
 In any case, we will know which projects are using these versions because they are pinning these specific versions in the config file.
@@ -424,10 +424,10 @@ that doesn't seem to be useful to have the same OS version with different states
 Allowing users to install extra languages by using the Config File will cover most of the support requests we have had in the past.
 It also will allow us to know more about how our users are using the platform to make future decisions based on this data.
 Exposing users how we want them to use our platform will allow us to be able to maintain it longer,
-than giving the option to select a specific Docker image by name that we can't guarrantee it will be frozen.
+than giving the option to select a specific Docker image by name that we can't guarantee it will be frozen.
 
 Finally, having the ability to deprecate and *remove* pre-built images from our builders over time,
-will reduce the maintainance work required from the the core team.
+will reduce the maintenance work required from the the core team.
 We can always support all the languages versions by installing them at build time.
 The only required pre-built image for this are the OS ``-base`` images.
 In fact, even after decided to deprecate and removed a pre-built image from the builders,

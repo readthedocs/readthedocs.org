@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class SsoConfig(AppConfig):
-    name = 'readthedocs.sso'
+    name = "readthedocs.sso"

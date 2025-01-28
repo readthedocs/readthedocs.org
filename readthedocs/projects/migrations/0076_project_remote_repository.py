@@ -5,16 +5,21 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('oauth', '0013_create_new_table_for_remote_repository_normalization'),
-        ('projects', '0075_change_mkdocs_name'),
+        ("oauth", "0013_create_new_table_for_remote_repository_normalization"),
+        ("projects", "0075_change_mkdocs_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='project',
-            name='remote_repository',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='projects', to='oauth.RemoteRepository'),
+            model_name="project",
+            name="remote_repository",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="projects",
+                to="oauth.RemoteRepository",
+            ),
         ),
     ]

@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("builds", "0041_track_task_id"),
         ("projects", "0087_use_booleanfield_null"),

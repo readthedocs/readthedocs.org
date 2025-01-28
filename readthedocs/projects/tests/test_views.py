@@ -1,12 +1,19 @@
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.constants import (
+    DOWNLOADABLE_MEDIA_TYPES,
+    MEDIA_TYPE_HTMLZIP,
+    PUBLIC,
+)
 from readthedocs.projects.models import Project
 
 
@@ -20,7 +27,7 @@ class TestExternalBuildOption(TestCase):
             integration_type=Integration.GITHUB_WEBHOOK,
             project=self.project,
         )
-        self.url = reverse("projects_advanced", args=[self.project.slug])
+        self.url = reverse("projects_edit", args=[self.project.slug])
         self.client.force_login(self.user)
 
     def test_unsuported_integration(self):
@@ -103,6 +110,27 @@ class TestExternalBuildOption(TestCase):
             )
         )
 
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_privacy_level_pr_previews_match_remote_repository_if_public(self):
+        remote_repository = get(RemoteRepository, private=False)
+        self.project.remote_repository = remote_repository
+        self.project.save()
+
+        resp = self.client.get(self.url)
+        field = resp.context["form"].fields["external_builds_privacy_level"]
+        self.assertTrue(field.disabled)
+        self.assertIn("We have detected that this project is public", field.help_text)
+        self.assertEqual(self.project.external_builds_privacy_level, PUBLIC)
+
+        remote_repository.private = True
+        remote_repository.save()
+        self.project.save()
+
+        resp = self.client.get(self.url)
+        field = resp.context["form"].fields["external_builds_privacy_level"]
+        self.assertFalse(field.disabled)
+        self.assertEqual(self.project.external_builds_privacy_level, PUBLIC)
+
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class TestExternalBuildOptionWithOrganizations(TestExternalBuildOption):
@@ -130,7 +158,7 @@ class TestProjectUsersViews(TestCase):
         )
 
     def test_invite_by_username(self):
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
@@ -149,7 +177,7 @@ class TestProjectUsersViews(TestCase):
         self.assertEqual(invitation.to_email, None)
 
     def test_invite_by_email(self):
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
@@ -169,7 +197,7 @@ class TestProjectUsersViews(TestCase):
 
     def test_invite_existing_maintainer_by_username(self):
         self.project.users.add(self.another_user)
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
@@ -185,7 +213,7 @@ class TestProjectUsersViews(TestCase):
 
     def test_invite_existing_maintainer_by_email(self):
         self.project.users.add(self.another_user)
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
@@ -200,7 +228,7 @@ class TestProjectUsersViews(TestCase):
         self.assertFalse(Invitation.objects.for_object(self.project).exists())
 
     def test_invite_unknown_user(self):
-        url = reverse("projects_users", args=[self.project.slug])
+        url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(
             url,
@@ -228,6 +256,11 @@ class TestProjectUsersViews(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertNotIn(self.user, self.project.users.all())
 
+        # Ensure a message is shown
+        messages = list(get_messages(resp.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "User deleted")
+
     def test_delete_last_maintainer(self):
         url = reverse("projects_users_delete", args=[self.project.slug])
         self.client.force_login(self.user)
@@ -239,3 +272,29 @@ class TestProjectUsersViews(TestCase):
         )
         self.assertEqual(resp.status_code, 400)
         self.assertIn(self.user, self.project.users.all())
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestProjectDownloads(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug="project", users=[self.user])
+        self.version = self.project.versions.first()
+        self.version.privacy_level = PUBLIC
+        self.version.save()
+
+    def test_download_files(self):
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                reverse(
+                    "project_download_media",
+                    args=[self.project.slug, type_, self.version.slug],
+                ),
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/project/latest/project.{extension}",
+            )

@@ -9,7 +9,12 @@
 {% block edit_content_header %} {% trans "API Tokens" %} {% endblock %}
 
 {% block edit_content %}
-  <p>Personal Access Token are tokens that allow you to use the Read the Docs APIv3 being authenticated as yourself. See <a href="https://docs.readthedocs.org/page/api/v3.html">APIv3 documentation</a> for more information.</p>
+  <p>
+    {% blocktrans trimmed %}
+      Personal Access Token are tokens that allow you to use the Read the Docs APIv3 being authenticated as yourself.
+      See <a href="https://docs.readthedocs.org/page/api/v3.html">APIv3 documentation</a> for more information.
+    {% endblocktrans %}
+  </p>
 
   {% if not object_list %}
     <div class="button-bar">
@@ -46,7 +51,7 @@
             {% empty %}
               <li class="module-item">
                 <p class="quiet">
-                  {% trans 'No API Tokens currently configured.' %}
+                  {% trans 'You currently have no API tokens.' %}
                 </p>
               </li>
             {% endfor %}

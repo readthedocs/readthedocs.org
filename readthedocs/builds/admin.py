@@ -12,51 +12,53 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.admin import pretty_json_field
-from readthedocs.projects.models import HTMLFile
-from readthedocs.search.utils import _indexing_helper
+from readthedocs.projects.tasks.search import reindex_version
 
 
 class BuildCommandResultInline(admin.TabularInline):
     model = BuildCommandResult
-    fields = ('command', 'exit_code', 'output')
+    fields = ("command", "exit_code", "output")
+    classes = ["collapse"]
 
 
+@admin.register(Build)
 class BuildAdmin(admin.ModelAdmin):
     fields = (
-        'project',
-        'version',
-        'type',
-        'state',
-        'error',
-        'success',
-        'cold_storage',
-        'date',
-        'builder',
-        'length',
-        'pretty_config',
+        "project",
+        "version",
+        "type",
+        "state",
+        "error",
+        "success",
+        "cold_storage",
+        "date",
+        "builder",
+        "length",
+        "readthedocs_yaml_path",
+        "pretty_config",
     )
     readonly_fields = (
-        'date',  # required to be read-only because it's a @property
-        'pretty_config',  # required to be read-only because it's a @property
-        'builder',
-        'length',
+        "date",  # required to be read-only because it's a @property
+        "pretty_config",  # required to be read-only because it's a @property
+        "builder",
+        "length",
     )
     list_display = (
-        'id',
-        'project_slug',
-        'version_slug',
-        'success',
-        'type',
-        'state',
-        'date',
-        'builder',
-        'length'
+        "id",
+        "project_slug",
+        "version_slug",
+        "success",
+        "type",
+        "state",
+        "date",
+        "builder",
+        "length",
     )
-    list_filter = ('type', 'state', 'success')
-    list_select_related = ('project', 'version')
-    raw_id_fields = ('project', 'version')
+    list_filter = ("type", "state", "success")
+    list_select_related = ("project", "version")
+    raw_id_fields = ("project", "version")
     inlines = (BuildCommandResultInline,)
-    search_fields = ('project__slug', 'version__slug')
+    search_fields = ("project__slug", "version__slug")
 
     def project_slug(self, obj):
         return obj.project.slug
@@ -64,38 +66,39 @@ class BuildAdmin(admin.ModelAdmin):
     def version_slug(self, obj):
         return obj.version.slug
 
+    @admin.display(description="Config File")
     def pretty_config(self, instance):
         return pretty_json_field(instance, "config")
 
-    pretty_config.short_description = 'Config File'
 
-
+@admin.register(Version)
 class VersionAdmin(admin.ModelAdmin):
-
     list_display = (
-        'slug',
-        'project_slug',
-        'type',
-        'privacy_level',
-        'active',
-        'built',
+        "slug",
+        "project_slug",
+        "type",
+        "privacy_level",
+        "active",
+        "built",
     )
     readonly_fields = (
-        'pretty_config',  # required to be read-only because it's a @property
+        "created",
+        "modified",
+        "pretty_config",  # required to be read-only because it's a @property
     )
-    list_filter = ('type', 'privacy_level', 'active', 'built')
-    search_fields = ('slug', 'project__slug')
-    raw_id_fields = ('project',)
-    actions = ['build_version', 'reindex_version', 'wipe_version_indexes']
+    list_filter = ("type", "privacy_level", "active", "built")
+    search_fields = ("slug", "project__slug")
+    raw_id_fields = ("project",)
+    actions = ["build_version", "reindex_version"]
 
     def project_slug(self, obj):
         return obj.project.slug
 
+    @admin.display(description="Config File")
     def pretty_config(self, instance):
         return pretty_json_field(instance, "config")
 
-    pretty_config.short_description = 'Config File'
-
+    @admin.action(description="Build version")
     def build_version(self, request, queryset):
         """Trigger a build for the project version."""
         total = 0
@@ -108,55 +111,25 @@ class VersionAdmin(admin.ModelAdmin):
         messages.add_message(
             request,
             messages.INFO,
-            'Triggered builds for {} version(s).'.format(total),
+            "Triggered builds for {} version(s).".format(total),
         )
 
-    build_version.short_description = 'Build version'
-
+    @admin.action(description="Reindex version to ES")
     def reindex_version(self, request, queryset):
         """Reindexes all selected versions to ES."""
-        html_objs_qs = []
-        for version in queryset.iterator():
-            html_objs = HTMLFile.objects.filter(project=version.project, version=version)
+        for version_id in queryset.values_list("id", flat=True).iterator():
+            reindex_version.delay(version_id)
 
-            if html_objs.exists():
-                html_objs_qs.append(html_objs)
-
-        if html_objs_qs:
-            _indexing_helper(html_objs_qs, wipe=False)
-
-        self.message_user(
-            request,
-            'Task initiated successfully.',
-            messages.SUCCESS
-        )
-
-    reindex_version.short_description = 'Reindex version to ES'
-
-    def wipe_version_indexes(self, request, queryset):
-        """Wipe selected versions from ES."""
-        html_objs_qs = []
-        for version in queryset.iterator():
-            html_objs = HTMLFile.objects.filter(project=version.project, version=version)
-
-            if html_objs.exists():
-                html_objs_qs.append(html_objs)
-
-        if html_objs_qs:
-            _indexing_helper(html_objs_qs, wipe=True)
-
-        self.message_user(
-            request,
-            'Task initiated successfully',
-            messages.SUCCESS,
-        )
-
-    wipe_version_indexes.short_description = 'Wipe version from ES'
+        self.message_user(request, "Task initiated successfully.", messages.SUCCESS)
 
 
 @admin.register(RegexAutomationRule)
 class RegexAutomationRuleAdmin(PolymorphicChildModelAdmin, admin.ModelAdmin):
-    raw_id_fields = ('project',)
+    raw_id_fields = ("project",)
+    readonly_fields = (
+        "created",
+        "modified",
+    )
     base_model = RegexAutomationRule
 
 
@@ -164,16 +137,14 @@ class RegexAutomationRuleAdmin(PolymorphicChildModelAdmin, admin.ModelAdmin):
 class VersionAutomationRuleAdmin(PolymorphicParentModelAdmin, admin.ModelAdmin):
     base_model = VersionAutomationRule
     list_display = (
-        'id',
-        'project',
-        'priority',
-        'predefined_match_arg',
-        'match_arg',
-        'action',
-        'version_type',
+        "id",
+        "project",
+        "priority",
+        "predefined_match_arg",
+        "match_arg",
+        "action",
+        "version_type",
     )
     child_models = (RegexAutomationRule,)
-
-
-admin.site.register(Build, BuildAdmin)
-admin.site.register(Version, VersionAdmin)
+    search_fields = ("project__slug",)
+    list_filter = ("action", "version_type")

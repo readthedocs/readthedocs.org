@@ -11,5 +11,6 @@
 {% endblock %}
 
 {% block content %}
+  {% include "core/notifications.html" with notifications=notifications %}
   {% include "core/project_details.html" %}
 {% endblock %}

@@ -1,8 +1,9 @@
 {% extends "!layout.html" %}
 
-
-{% block document %}
+{% block extrahead %}
   {{ super() }}
 
-  {% include "ethicalads.html" %}
-{% endblock document %}
+  {% if READTHEDOCS %}
+  <script defer data-domain="{{ plausible_domain }}" src="https://plausible.io/js/script.js"></script>
+  {% endif %}
+{% endblock extrahead %}

@@ -55,7 +55,7 @@
 
   <section>
     <div class="feature">
-      <h3>Free docs hosting for open source</h3>
+      <h3>{% trans "Free docs hosting for open source" %}</h3>
       <p>
         {% blocktrans trimmed %}
         We will host your documentation for free, forever.
@@ -66,11 +66,11 @@
       </p>
     </div>
     <div class="feature">
-      <h3>Always up to date</h3>
+      <h3>{% trans "Always up to date" %}</h3>
       <p>
         {% blocktrans trimmed %}
         Whenever you push code to your favorite version control service,
-        whether that is GitHub, BitBucket, or GitLab, we will
+        whether that is GitHub, Bitbucket, or GitLab, we will
         automatically build your docs so your code and documentation are
         never out of sync.
         {% endblocktrans %}
@@ -81,7 +81,7 @@
 
   <section>
     <div class="feature">
-      <h3>Downloadable formats</h3>
+      <h3>{% trans "Downloadable formats" %}</h3>
       <p>
         {% blocktrans trimmed %}
         We build and host your docs for the web, but they are
@@ -91,7 +91,7 @@
       </p>
     </div>
     <div class="feature">
-      <h3>Multiple versions</h3>
+      <h3>{% trans "Multiple versions" %}</h3>
       <p>
         {% blocktrans trimmed %}
         We can host and build multiple versions of your docs so having a
@@ -112,26 +112,9 @@
 
   <!-- Search -->
   <section>
-    {% include "core/widesearchbar.html" %}
+    {% url "search" as search_form_action %}
+    {% include "core/widesearchbar.html" with form_action=search_form_action %}
   </section>
-
-  {% get_current_language as language %}
-  {% cache 600 homepage_featured_list language %}
-  {% if featured_list %}
-    <!-- BEGIN projects list -->
-    <section>
-      <h3>{% trans "Featured Projects" %}</h3>
-      <div class="module-list">
-        <div class="module-list-wrapper">
-          <ul style="margin-bottom: 0">
-            {% include "core/project_list_featured.html" %}
-          </ul>
-        </div>
-      </div>
-    </section>
-    <!-- END projects list -->
-  {% endif %}
-  {% endcache %}
 
   <section>
     <h2>{% trans 'About Read the Docs' %}</h2>

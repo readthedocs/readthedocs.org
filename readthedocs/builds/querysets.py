@@ -13,6 +13,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
@@ -20,10 +21,10 @@ from readthedocs.projects.models import Project
 log = structlog.get_logger(__name__)
 
 
-__all__ = ['VersionQuerySet', 'BuildQuerySet', 'RelatedBuildQuerySet']
+__all__ = ["VersionQuerySet", "BuildQuerySet", "RelatedBuildQuerySet"]
 
 
-class VersionQuerySetBase(models.QuerySet):
+class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
 
     """Versions take into account their own privacy_level setting."""
 
@@ -51,14 +52,11 @@ class VersionQuerySetBase(models.QuerySet):
     def _add_from_user_projects(self, queryset, user, admin=False, member=False):
         """Add related objects from projects where `user` is an `admin` or a `member`."""
         if user and user.is_authenticated:
-            projects_pk = (
-                AdminPermission.projects(
-                    user=user,
-                    admin=admin,
-                    member=member,
-                )
-                .values_list('pk', flat=True)
-            )
+            projects_pk = AdminPermission.projects(
+                user=user,
+                admin=admin,
+                member=member,
+            ).values_list("pk", flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
@@ -75,7 +73,9 @@ class VersionQuerySetBase(models.QuerySet):
                 project__external_builds_privacy_level=constants.PUBLIC,
             )
         else:
-            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
+            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(
+                type=EXTERNAL
+            )
             queryset |= self.filter(
                 type=EXTERNAL,
                 project__external_builds_privacy_level=constants.PUBLIC,
@@ -103,7 +103,9 @@ class VersionQuerySetBase(models.QuerySet):
             if user.is_superuser:
                 queryset = self.all()
             else:
-                queryset = self._add_from_user_projects(queryset, user)
+                queryset = self._add_from_user_projects(
+                    queryset, user, admin=True, member=True
+                )
         if project:
             queryset = queryset.filter(project=project)
         if only_active:
@@ -117,12 +119,39 @@ class VersionQuerySetBase(models.QuerySet):
     def api(self, user=None):
         return self.public(user, only_active=False)
 
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
+
+    def for_reindex(self):
+        """
+        Get all versions that can be reindexed.
+
+        A version can be reindexed if:
+
+        - It's active and has been built at least once successfully.
+          Since that means that it has files to be indexed.
+        - Its project is not delisted or marked as spam.
+        """
+        return (
+            self.filter(
+                active=True,
+                built=True,
+                builds__state=BUILD_STATE_FINISHED,
+                builds__success=True,
+            )
+            .exclude(project__delisted=True)
+            .exclude(project__is_spam=True)
+            .distinct()
+        )
+
 
 class VersionQuerySet(SettingsOverrideObject):
     _default_class = VersionQuerySetBase
 
 
-class BuildQuerySet(models.QuerySet):
+class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     """
     Build objects that are privacy aware.
@@ -135,14 +164,11 @@ class BuildQuerySet(models.QuerySet):
     def _add_from_user_projects(self, queryset, user, admin=False, member=False):
         """Add related objects from projects where `user` is an `admin` or a `member`."""
         if user and user.is_authenticated:
-            projects_pk = (
-                AdminPermission.projects(
-                    user=user,
-                    admin=admin,
-                    member=member,
-                )
-                .values_list('pk', flat=True)
-            )
+            projects_pk = AdminPermission.projects(
+                user=user,
+                admin=admin,
+                member=member,
+            ).values_list("pk", flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
@@ -158,13 +184,10 @@ class BuildQuerySet(models.QuerySet):
            External versions use the `Project.external_builds_privacy_level`
            field instead of its `privacy_level` field.
         """
-        queryset = (
-            self.filter(
-                version__privacy_level=constants.PUBLIC,
-                version__project__privacy_level=constants.PUBLIC,
-            )
-            .exclude(version__type=EXTERNAL)
-        )
+        queryset = self.filter(
+            version__privacy_level=constants.PUBLIC,
+            version__project__privacy_level=constants.PUBLIC,
+        ).exclude(version__type=EXTERNAL)
         queryset |= self.filter(
             version__type=EXTERNAL,
             project__external_builds_privacy_level=constants.PUBLIC,
@@ -187,6 +210,11 @@ class BuildQuerySet(models.QuerySet):
     def api(self, user=None):
         return self.public(user)
 
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
+
     def concurrent(self, project):
         """
         Check if the max build concurrency for this project was reached.
@@ -206,8 +234,6 @@ class BuildQuerySet(models.QuerySet):
         limit_reached = False
         query = Q(
             project=project,
-            # Limit builds to 5 hours ago to speed up the query
-            date__gt=timezone.now() - datetime.timedelta(hours=5),
         )
 
         if project.main_language_project:
@@ -225,6 +251,9 @@ class BuildQuerySet(models.QuerySet):
         if organization:
             query |= Q(project__in=organization.projects.all())
 
+        # Limit builds to 5 hours ago to speed up the query
+        query &= Q(date__gt=timezone.now() - datetime.timedelta(hours=5))
+
         concurrent = (
             (
                 self.filter(query).exclude(
@@ -241,7 +270,7 @@ class BuildQuerySet(models.QuerySet):
 
         max_concurrent = Project.objects.max_concurrent_builds(project)
         log.info(
-            'Concurrent builds.',
+            "Concurrent builds.",
             project_slug=project.slug,
             concurrent=concurrent,
             max_concurrent=max_concurrent,
@@ -251,7 +280,7 @@ class BuildQuerySet(models.QuerySet):
         return (limit_reached, concurrent, max_concurrent)
 
 
-class RelatedBuildQuerySet(models.QuerySet):
+class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     """
     For models with association to a project through :py:class:`Build`.
@@ -266,14 +295,11 @@ class RelatedBuildQuerySet(models.QuerySet):
 
     def _add_from_user_projects(self, queryset, user):
         if user and user.is_authenticated:
-            projects_pk = (
-                AdminPermission.projects(
-                    user=user,
-                    admin=True,
-                    member=True,
-                )
-                .values_list('pk', flat=True)
-            )
+            projects_pk = AdminPermission.projects(
+                user=user,
+                admin=True,
+                member=True,
+            ).values_list("pk", flat=True)
             user_queryset = self.filter(build__project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
@@ -289,3 +315,8 @@ class RelatedBuildQuerySet(models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)

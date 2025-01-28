@@ -21,14 +21,13 @@ from readthedocs.projects.models import Project
 
 
 class TestTasks(TestCase):
-
     def test_delete_closed_external_versions(self):
         project = get(Project)
         project.versions.all().delete()
         get(
             Version,
             project=project,
-            slug='branch',
+            slug="branch",
             type=BRANCH,
             state=EXTERNAL_VERSION_STATE_CLOSED,
             modified=datetime.now() - timedelta(days=7),
@@ -36,7 +35,7 @@ class TestTasks(TestCase):
         get(
             Version,
             project=project,
-            slug='tag',
+            slug="tag",
             type=TAG,
             state=EXTERNAL_VERSION_STATE_OPEN,
             modified=datetime.now() - timedelta(days=7),
@@ -44,7 +43,7 @@ class TestTasks(TestCase):
         get(
             Version,
             project=project,
-            slug='external-active',
+            slug="external-active",
             type=EXTERNAL,
             state=EXTERNAL_VERSION_STATE_OPEN,
             modified=datetime.now() - timedelta(days=7),
@@ -52,7 +51,7 @@ class TestTasks(TestCase):
         get(
             Version,
             project=project,
-            slug='external-inactive',
+            slug="external-inactive",
             type=EXTERNAL,
             state=EXTERNAL_VERSION_STATE_CLOSED,
             modified=datetime.now() - timedelta(days=3),
@@ -60,7 +59,7 @@ class TestTasks(TestCase):
         get(
             Version,
             project=project,
-            slug='external-inactive-old',
+            slug="external-inactive-old",
             type=EXTERNAL,
             state=EXTERNAL_VERSION_STATE_CLOSED,
             modified=datetime.now() - timedelta(days=7),
@@ -78,10 +77,10 @@ class TestTasks(TestCase):
         delete_closed_external_versions(days=6)
         self.assertEqual(Version.objects.all().count(), 4)
         self.assertEqual(Version.external.all().count(), 2)
-        self.assertFalse(Version.objects.filter(slug='external-inactive-old').exists())
+        self.assertFalse(Version.objects.filter(slug="external-inactive-old").exists())
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
-    @mock.patch('readthedocs.builds.tasks.build_commands_storage')
+    @mock.patch("readthedocs.builds.tasks.build_commands_storage")
     def test_archive_builds(self, build_commands_storage):
         project = get(Project)
         version = get(Version, project=project)
@@ -98,8 +97,8 @@ class TestTasks(TestCase):
                 get(
                     BuildCommandResult,
                     build=build,
-                    command='ls',
-                    output='docs',
+                    command="ls",
+                    output="docs",
                 )
 
         self.assertEqual(Build.objects.count(), 10)

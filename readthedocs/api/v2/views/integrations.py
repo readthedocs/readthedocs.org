@@ -5,9 +5,11 @@ import hmac
 import json
 import re
 from functools import namedtuple
+from textwrap import dedent
 
 import structlog
 from django.shortcuts import get_object_or_404
+from django.utils.crypto import constant_time_compare
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
@@ -15,10 +17,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
-from readthedocs.builds.constants import (
-    EXTERNAL_VERSION_STATE_CLOSED,
-    EXTERNAL_VERSION_STATE_OPEN,
-)
+from readthedocs.builds.constants import LATEST
 from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
 from readthedocs.core.views.hooks import (
     build_branches,
@@ -32,8 +31,8 @@ from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
-GITHUB_EVENT_HEADER = "HTTP_X_GITHUB_EVENT"
-GITHUB_SIGNATURE_HEADER = "HTTP_X_HUB_SIGNATURE"
+GITHUB_EVENT_HEADER = "X-GitHub-Event"
+GITHUB_SIGNATURE_HEADER = "X-Hub-Signature-256"
 GITHUB_PING = "ping"
 GITHUB_PUSH = "push"
 GITHUB_PULL_REQUEST = "pull_request"
@@ -49,11 +48,12 @@ GITLAB_MERGE_REQUEST_MERGE = "merge"
 GITLAB_MERGE_REQUEST_OPEN = "open"
 GITLAB_MERGE_REQUEST_REOPEN = "reopen"
 GITLAB_MERGE_REQUEST_UPDATE = "update"
-GITLAB_TOKEN_HEADER = "HTTP_X_GITLAB_TOKEN"
+GITLAB_TOKEN_HEADER = "X-GitLab-Token"
 GITLAB_PUSH = "push"
 GITLAB_NULL_HASH = "0" * 40
 GITLAB_TAG_PUSH = "tag_push"
-BITBUCKET_EVENT_HEADER = "HTTP_X_EVENT_KEY"
+BITBUCKET_EVENT_HEADER = "X-Event-Key"
+BITBUCKET_SIGNATURE_HEADER = "X-Hub-Signature"
 BITBUCKET_PUSH = "repo:push"
 
 
@@ -71,7 +71,14 @@ class WebhookMixin:
     renderer_classes = (JSONRenderer,)
     integration = None
     integration_type = None
-    invalid_payload_msg = 'Payload not valid'
+    invalid_payload_msg = "Payload not valid"
+    missing_secret_deprecated_msg = dedent(
+        """
+        This webhook doesn't have a secret configured.
+        For security reasons, webhooks without a secret are no longer permitted.
+        For more information, read our blog post: https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
+        """
+    ).strip()
 
     def post(self, request, project_slug):
         """Set up webhook post view with request and project objects."""
@@ -94,21 +101,41 @@ class WebhookMixin:
         try:
             self.project = self.get_project(slug=project_slug)
             if not Project.objects.is_active(self.project):
-                resp = {'detail': 'This project is currently disabled'}
+                resp = {"detail": "This project is currently disabled"}
                 return Response(resp, status=status.HTTP_406_NOT_ACCEPTABLE)
-        except Project.DoesNotExist:
-            raise NotFound('Project not found')
-        if not self.is_payload_valid():
-            log.warning('Invalid payload for project and integration.')
+        except Project.DoesNotExist as exc:
+            raise NotFound("Project not found") from exc
+
+        # Webhooks without a secret are no longer permitted.
+        # https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
+        if not self.has_secret():
             return Response(
-                {'detail': self.invalid_payload_msg},
+                {"detail": self.missing_secret_deprecated_msg},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        if not self.is_payload_valid():
+            log.warning("Invalid payload for project and integration.")
+            return Response(
+                {"detail": self.invalid_payload_msg},
                 status=HTTP_400_BAD_REQUEST,
             )
         resp = self.handle_webhook()
         if resp is None:
-            log.info('Unhandled webhook event')
-            resp = {'detail': 'Unhandled webhook event'}
+            log.info("Unhandled webhook event")
+            resp = {"detail": "Unhandled webhook event"}
+
+        # The response can be a DRF Response with with the status code already set.
+        # In that case, we just return it as is.
+        if isinstance(resp, Response):
+            return resp
         return Response(resp)
+
+    def has_secret(self):
+        integration = self.get_integration()
+        if hasattr(integration, "token"):
+            return bool(integration.token)
+        return bool(integration.secret)
 
     def get_project(self, **kwargs):
         return Project.objects.get(**kwargs)
@@ -116,7 +143,7 @@ class WebhookMixin:
     def finalize_response(self, req, *args, **kwargs):
         """If the project was set on POST, store an HTTP exchange."""
         resp = super().finalize_response(req, *args, **kwargs)
-        if hasattr(self, 'project') and self.project:
+        if hasattr(self, "project") and self.project:
             HttpExchange.objects.from_exchange(
                 req,
                 resp,
@@ -145,35 +172,35 @@ class WebhookMixin:
         """Validates the webhook's payload using the integration's secret."""
         return False
 
+    @staticmethod
+    def get_digest(secret, msg):
+        """Get a HMAC digest of `msg` using `secret`."""
+        digest = hmac.new(
+            secret.encode(),
+            msg=msg.encode(),
+            digestmod=hashlib.sha256,
+        )
+        return digest.hexdigest()
+
     def get_integration(self):
         """
         Get or create an inbound webhook to track webhook requests.
 
-        We shouldn't need this, but to support legacy webhooks, we can't assume
-        that a webhook has ever been created on our side. Most providers don't
-        pass the webhook ID in either, so we default to just finding *any*
-        integration from the provider. This is not ideal, but the
-        :py:class:`WebhookView` view solves this by performing a lookup on the
-        integration instead of guessing.
+        Most providers don't pass the webhook ID in either, so we default
+        to just finding *any* integration from the provider. This is not ideal,
+        but the :py:class:`WebhookView` view solves this by performing a lookup
+        on the integration instead of guessing.
         """
         # `integration` can be passed in as an argument to `as_view`, as it is
         # in `WebhookView`
         if self.integration is not None:
             return self.integration
-        try:
-            integration = Integration.objects.get(
-                project=self.project,
-                integration_type=self.integration_type,
-            )
-        except Integration.DoesNotExist:
-            integration = Integration.objects.create(
-                project=self.project,
-                integration_type=self.integration_type,
-                # If we didn't create the integration,
-                # we didn't set a secret.
-                secret=None,
-            )
-        return integration
+        self.integration = get_object_or_404(
+            Integration,
+            project=self.project,
+            integration_type=self.integration_type,
+        )
+        return self.integration
 
     def get_response_push(self, project, branches):
         """
@@ -189,20 +216,20 @@ class WebhookMixin:
 
         :param project: Project instance
         :type project: Project
-        :param branches: List of branch names to build
+        :param branches: List of branch/tag names to build
         :type branches: list(str)
         """
         to_build, not_building = build_branches(project, branches)
         if not_building:
             log.info(
-                'Skipping project branches.',
+                "Skipping project branches.",
                 branches=branches,
             )
         triggered = bool(to_build)
         return {
-            'build_triggered': triggered,
-            'project': project.slug,
-            'versions': list(to_build),
+            "build_triggered": triggered,
+            "project": project.slug,
+            "versions": list(to_build),
         }
 
     def sync_versions_response(self, project, sync=True):
@@ -215,10 +242,10 @@ class WebhookMixin:
         if sync:
             version = trigger_sync_versions(project)
         return {
-            'build_triggered': False,
-            'project': project.slug,
-            'versions': [version] if version else [],
-            'versions_synced': version is not None,
+            "build_triggered": False,
+            "project": project.slug,
+            "versions": [version] if version else [],
+            "versions_synced": version is not None,
         }
 
     def get_external_version_response(self, project):
@@ -280,6 +307,33 @@ class WebhookMixin:
             "versions": [version_closed] if version_closed else [],
         }
 
+    def update_default_branch(self, default_branch):
+        """
+        Update the `Version.identifer` for `latest` with the VCS's `default_branch`.
+
+        The VCS's `default_branch` is the branch cloned when there is no specific branch specified
+        (e.g. `git clone <URL>`).
+
+        Some VCS providers (GitHub and GitLab) send the `default_branch` via incoming webhooks.
+        We use that data to update our database and keep it in sync.
+
+        This solves the problem about "changing the default branch in GitHub"
+        and also importing repositories with a different `default_branch` than `main` manually:
+        https://github.com/readthedocs/readthedocs.org/issues/9367
+
+        In case the user already selected a `default-branch` from the "Advanced settings",
+        it does not override it.
+
+        This action can be performed only if the integration has a secret,
+        requests from anonymous users are ignored.
+        """
+        if self.get_integration().secret and not self.project.default_branch:
+            # Always check for the machine attribute, since latest can be user created.
+            # RTD doesn't manage those.
+            self.project.versions.filter(slug=LATEST, machine=True).update(
+                identifier=default_branch
+            )
+
 
 class GitHubWebhookView(WebhookMixin, APIView):
 
@@ -318,12 +372,12 @@ class GitHubWebhookView(WebhookMixin, APIView):
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
-    invalid_payload_msg = 'Payload not valid, invalid or missing signature'
+    invalid_payload_msg = "Payload not valid, invalid or missing signature"
 
     def get_data(self):
-        if self.request.content_type == 'application/x-www-form-urlencoded':
+        if self.request.content_type == "application/x-www-form-urlencoded":
             try:
-                return json.loads(self.request.data['payload'])
+                return json.loads(self.request.data["payload"])
             except (ValueError, KeyError):
                 pass
         return super().get_data()
@@ -340,7 +394,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             return data
         except KeyError as e:
             key = e.args[0]
-            raise ParseError(f"Invalid payload. {key} is required.")
+            raise ParseError(f"Invalid payload. {key} is required.") from e
 
     def is_payload_valid(self):
         """
@@ -350,30 +404,17 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         See https://developer.github.com/webhooks/securing/.
         """
-        signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
-        secret = self.get_integration().secret
-        if not secret:
-            log.debug('Skipping payload signature validation.')
-            return True
+        signature = self.request.headers.get(GITHUB_SIGNATURE_HEADER)
         if not signature:
             return False
+        secret = self.get_integration().secret
         msg = self.request.body.decode()
-        digest = GitHubWebhookView.get_digest(secret, msg)
+        digest = WebhookMixin.get_digest(secret, msg)
         result = hmac.compare_digest(
-            b'sha1=' + digest.encode(),
+            b"sha256=" + digest.encode(),
             signature.encode(),
         )
         return result
-
-    @staticmethod
-    def get_digest(secret, msg):
-        """Get a HMAC digest of `msg` using `secret`."""
-        digest = hmac.new(
-            secret.encode(),
-            msg=msg.encode(),
-            digestmod=hashlib.sha1,
-        )
-        return digest.hexdigest()
 
     def handle_webhook(self):
         """
@@ -405,10 +446,10 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         """
         # Get event and trigger other webhook events
-        action = self.data.get('action', None)
-        created = self.data.get('created', False)
-        deleted = self.data.get('deleted', False)
-        event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
+        action = self.data.get("action", None)
+        created = self.data.get("created", False)
+        deleted = self.data.get("deleted", False)
+        event = self.request.headers.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         log.bind(webhook_event=event)
         webhook_github.send(
             Project,
@@ -417,24 +458,29 @@ class GitHubWebhookView(WebhookMixin, APIView):
             event=event,
         )
 
+        # Always update `latest` branch to point to the default branch in the repository
+        # even if the event is not gonna be handled. This helps us to keep our db in sync.
+        default_branch = self.data.get("repository", {}).get("default_branch", None)
+        if default_branch:
+            self.update_default_branch(default_branch)
+
         if event == GITHUB_PING:
             return {"detail": "Webhook configured correctly"}
 
         # Sync versions when a branch/tag was created/deleted
         if event in (GITHUB_CREATE, GITHUB_DELETE):
-            log.debug('Triggered sync_versions.')
+            log.debug("Triggered sync_versions.")
             return self.sync_versions_response(self.project)
 
-        # Handle pull request events
+        integration = self.get_integration()
+
+        # Handle pull request events.
         if self.project.external_builds_enabled and event == GITHUB_PULL_REQUEST:
-            if (
-                action in
-                [
-                    GITHUB_PULL_REQUEST_OPENED,
-                    GITHUB_PULL_REQUEST_REOPENED,
-                    GITHUB_PULL_REQUEST_SYNC
-                ]
-            ):
+            if action in [
+                GITHUB_PULL_REQUEST_OPENED,
+                GITHUB_PULL_REQUEST_REOPENED,
+                GITHUB_PULL_REQUEST_SYNC,
+            ]:
                 # Trigger a build when PR is opened/reopened/sync
                 return self.get_external_version_response(self.project)
 
@@ -443,23 +489,30 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 return self.get_closed_external_version_response(self.project)
 
         # Sync versions when push event is created/deleted action
-        if all([
+        if all(
+            [
                 event == GITHUB_PUSH,
                 (created or deleted),
-        ]):
-            integration = self.get_integration()
-            events = integration.provider_data.get('events', []) if integration.provider_data else []  # noqa
-            if any([
+            ]
+        ):
+            events = (
+                integration.provider_data.get("events", [])
+                if integration.provider_data
+                else []
+            )  # noqa
+            if any(
+                [
                     GITHUB_CREATE in events,
                     GITHUB_DELETE in events,
-            ]):
+                ]
+            ):
                 # GitHub will send PUSH **and** CREATE/DELETE events on a creation/deletion in newer
                 # webhooks. If we receive a PUSH event we need to check if the webhook doesn't
                 # already have the CREATE/DELETE events. So we don't trigger the sync twice.
                 return self.sync_versions_response(self.project, sync=False)
 
             log.debug(
-                'Triggered sync_versions.',
+                "Triggered sync_versions.",
                 integration_events=events,
             )
             return self.sync_versions_response(self.project)
@@ -467,16 +520,17 @@ class GitHubWebhookView(WebhookMixin, APIView):
         # Trigger a build for all branches in the push
         if event == GITHUB_PUSH:
             try:
-                branches = [self._normalize_ref(self.data['ref'])]
-                return self.get_response_push(self.project, branches)
-            except KeyError:
-                raise ParseError('Parameter "ref" is required')
+                branch = self._normalize_ref(self.data["ref"])
+                return self.get_response_push(self.project, [branch])
+            except KeyError as exc:
+                raise ParseError('Parameter "ref" is required') from exc
 
         return None
 
     def _normalize_ref(self, ref):
-        pattern = re.compile(r'^refs/(heads|tags)/')
-        return pattern.sub('', ref)
+        """Remove `ref/(heads|tags)/` from the reference to match a Version on the db."""
+        pattern = re.compile(r"^refs/(heads|tags)/")
+        return pattern.sub("", ref)
 
 
 class GitLabWebhookView(WebhookMixin, APIView):
@@ -519,7 +573,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
-    invalid_payload_msg = 'Payload not valid, invalid or missing token'
+    invalid_payload_msg = "Payload not valid, invalid or missing token"
 
     def is_payload_valid(self):
         """
@@ -528,14 +582,11 @@ class GitLabWebhookView(WebhookMixin, APIView):
         It is sent in the request's header.
         See https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token.
         """
-        token = self.request.META.get(GITLAB_TOKEN_HEADER)
-        secret = self.get_integration().secret
-        if not secret:
-            log.debug('Skipping payload signature validation.')
-            return True
+        token = self.request.headers.get(GITLAB_TOKEN_HEADER, "")
         if not token:
             return False
-        return token == secret
+        secret = self.get_integration().secret
+        return constant_time_compare(secret, token)
 
     def get_external_version_data(self):
         """Get commit SHA and merge request number from payload."""
@@ -549,7 +600,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
             return data
         except KeyError as e:
             key = e.args[0]
-            raise ParseError(f"Invalid payload. {key} is required.")
+            raise ParseError(f"Invalid payload. {key} is required.") from e
 
     def handle_webhook(self):
         """
@@ -559,8 +610,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
         instead, it sets the before/after field to
         0000000000000000000000000000000000000000 ('0' * 40)
         """
-        event = self.request.data.get('object_kind', GITLAB_PUSH)
-        action = self.data.get('object_attributes', {}).get('action', None)
+        event = self.request.data.get("object_kind", GITLAB_PUSH)
+        action = self.data.get("object_attributes", {}).get("action", None)
         log.bind(webhook_event=event)
         webhook_gitlab.send(
             Project,
@@ -568,35 +619,39 @@ class GitLabWebhookView(WebhookMixin, APIView):
             data=self.request.data,
             event=event,
         )
+
+        # Always update `latest` branch to point to the default branch in the repository
+        # even if the event is not gonna be handled. This helps us to keep our db in sync.
+        default_branch = self.data.get("project", {}).get("default_branch", None)
+        if default_branch:
+            self.update_default_branch(default_branch)
+
         # Handle push events and trigger builds
         if event in (GITLAB_PUSH, GITLAB_TAG_PUSH):
             data = self.request.data
-            before = data.get('before')
-            after = data.get('after')
+            before = data.get("before")
+            after = data.get("after")
             # Tag/branch created/deleted
             if GITLAB_NULL_HASH in (before, after):
                 log.debug(
-                    'Triggered sync_versions.',
+                    "Triggered sync_versions.",
                     before=before,
                     after=after,
                 )
                 return self.sync_versions_response(self.project)
             # Normal push to master
             try:
-                branches = [self._normalize_ref(data['ref'])]
-                return self.get_response_push(self.project, branches)
-            except KeyError:
-                raise ParseError('Parameter "ref" is required')
+                branch = self._normalize_ref(data["ref"])
+                return self.get_response_push(self.project, [branch])
+            except KeyError as exc:
+                raise ParseError('Parameter "ref" is required') from exc
 
         if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
-            if (
-                action in
-                [
-                    GITLAB_MERGE_REQUEST_OPEN,
-                    GITLAB_MERGE_REQUEST_REOPEN,
-                    GITLAB_MERGE_REQUEST_UPDATE
-                ]
-            ):
+            if action in [
+                GITLAB_MERGE_REQUEST_OPEN,
+                GITLAB_MERGE_REQUEST_REOPEN,
+                GITLAB_MERGE_REQUEST_UPDATE,
+            ]:
                 # Handle open, update, reopen merge_request event.
                 return self.get_external_version_response(self.project)
 
@@ -606,8 +661,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
         return None
 
     def _normalize_ref(self, ref):
-        pattern = re.compile(r'^refs/(heads|tags)/')
-        return pattern.sub('', ref)
+        pattern = re.compile(r"^refs/(heads|tags)/")
+        return pattern.sub("", ref)
 
 
 class BitbucketWebhookView(WebhookMixin, APIView):
@@ -646,13 +701,13 @@ class BitbucketWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         """
-        Handle BitBucket events for push.
+        Handle Bitbucket events for push.
 
-        BitBucket doesn't have a separate event for creation/deletion, instead
+        Bitbucket doesn't have a separate event for creation/deletion, instead
         it sets the new attribute (null if it is a deletion) and the old
         attribute (null if it is a creation).
         """
-        event = self.request.META.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
+        event = self.request.headers.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
         log.bind(webhook_event=event)
         webhook_bitbucket.send(
             Project,
@@ -660,32 +715,56 @@ class BitbucketWebhookView(WebhookMixin, APIView):
             data=self.request.data,
             event=event,
         )
+
+        # NOTE: we can't call `self.update_default_branch` here because
+        # BitBucket does not tell us what is the `default_branch` for a
+        # repository in these incoming webhooks.
+
         if event == BITBUCKET_PUSH:
             try:
                 data = self.request.data
-                changes = data['push']['changes']
+                changes = data["push"]["changes"]
                 branches = []
                 for change in changes:
-                    old = change['old']
-                    new = change['new']
+                    old = change["old"]
+                    new = change["new"]
                     # Normal push to master
                     if old is not None and new is not None:
-                        branches.append(new['name'])
+                        branches.append(new["name"])
                 # BitBuck returns an array of changes rather than
                 # one webhook per change. If we have at least one normal push
                 # we don't trigger the sync versions, because that
                 # will be triggered with the normal push.
                 if branches:
-                    return self.get_response_push(self.project, branches)
-                log.debug('Triggered sync_versions.')
+                    return self.get_response_push(
+                        self.project,
+                        branches,
+                    )
+                log.debug("Triggered sync_versions.")
                 return self.sync_versions_response(self.project)
-            except KeyError:
-                raise ParseError('Invalid request')
+            except KeyError as exc:
+                raise ParseError("Invalid request") from exc
         return None
 
     def is_payload_valid(self):
-        """BitBucket doesn't have an option for payload validation."""
-        return True
+        """
+        BitBucket use a HMAC hexdigest hash to sign the payload.
+
+        It is sent in the request's header.
+
+        See https://support.atlassian.com/bitbucket-cloud/docs/manage-webhooks/#Secure-webhooks.
+        """
+        signature = self.request.headers.get(BITBUCKET_SIGNATURE_HEADER)
+        if not signature:
+            return False
+        secret = self.get_integration().secret
+        msg = self.request.body.decode()
+        digest = WebhookMixin.get_digest(secret, msg)
+        result = hmac.compare_digest(
+            b"sha256=" + digest.encode(),
+            signature.encode(),
+        )
+        return result
 
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
@@ -699,7 +778,7 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
 
     def has_permission(self, request, view):
         has_perm = super().has_permission(request, view)
-        return has_perm or 'token' in request.data
+        return has_perm or "token" in request.data
 
 
 class APIWebhookView(WebhookMixin, APIView):
@@ -710,7 +789,8 @@ class APIWebhookView(WebhookMixin, APIView):
     Expects the following JSON::
 
         {
-            "branches": ["master"]
+            "branches": ["master"],
+            "default_branch": "main"
         }
     """
 
@@ -727,21 +807,18 @@ class APIWebhookView(WebhookMixin, APIView):
         # If the user is not an admin of the project, fall back to token auth
         if self.request.user.is_authenticated:
             try:
-                return (
-                    Project.objects.for_admin_user(
-                        self.request.user,
-                    ).get(**kwargs)
-                )
+                return Project.objects.for_admin_user(
+                    self.request.user,
+                ).get(**kwargs)
             except Project.DoesNotExist:
                 pass
         # Recheck project and integration relationship during token auth check
-        token = self.request.data.get('token')
+        token = self.request.data.get("token")
         if token:
             integration = self.get_integration()
             obj = Project.objects.get(**kwargs)
-            is_valid = (
-                integration.project == obj and
-                token == getattr(integration, 'token', None)
+            is_valid = integration.project == obj and constant_time_compare(
+                token, getattr(integration, "token", "")
             )
             if is_valid:
                 return obj
@@ -750,21 +827,26 @@ class APIWebhookView(WebhookMixin, APIView):
     def handle_webhook(self):
         try:
             branches = self.request.data.get(
-                'branches',
+                "branches",
                 [self.project.get_default_branch()],
             )
+            default_branch = self.request.data.get("default_branch", None)
             if isinstance(branches, str):
                 branches = [branches]
+
+            if default_branch and isinstance(default_branch, str):
+                self.update_default_branch(default_branch)
+
             return self.get_response_push(self.project, branches)
-        except TypeError:
-            raise ParseError('Invalid request')
+        except TypeError as exc:
+            raise ParseError("Invalid request") from exc
 
     def is_payload_valid(self):
         """
-        We can't have payload validation in the generic webhook.
+        Generic webhooks don't have payload validation.
 
-        Since we don't know the system that would trigger the webhook.
-        We have a token for authentication.
+        We use basic auth or token auth to validate that the user has access to
+        the project and integration (get_project() method).
         """
         return True
 

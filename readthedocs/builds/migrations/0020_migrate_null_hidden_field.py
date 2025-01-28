@@ -5,14 +5,13 @@ from django.db import migrations
 
 def forwards_func(apps, schema_editor):
     """Make all hidden fields not none."""
-    Version = apps.get_model('builds', 'Version')
+    Version = apps.get_model("builds", "Version")
     Version.objects.filter(hidden=None).update(hidden=False)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0019_migrate_protected_versions_to_hidden'),
+        ("builds", "0019_migrate_protected_versions_to_hidden"),
     ]
 
     operations = [

@@ -1,5 +1,5 @@
-Hide a Version and Keep its Docs Online
-=======================================
+How to hide a version and keep its documentation online
+=======================================================
 
 If you manage a project with a lot of versions,
 the version (flyout) menu of your docs can be easily overwhelmed and hard to navigate.

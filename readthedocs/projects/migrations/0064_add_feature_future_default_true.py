@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0063_extend_domain_from_timestamp_model'),
+        ("projects", "0063_extend_domain_from_timestamp_model"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='feature',
-            name='future_default_true',
-            field=models.BooleanField(default=False, verbose_name='Default all future projects to True'),
+            model_name="feature",
+            name="future_default_true",
+            field=models.BooleanField(
+                default=False, verbose_name="Default all future projects to True"
+            ),
         ),
         migrations.AlterField(
-            model_name='feature',
-            name='default_true',
-            field=models.BooleanField(default=False, verbose_name='Default all past projects to True'),
+            model_name="feature",
+            name="default_true",
+            field=models.BooleanField(
+                default=False, verbose_name="Default all past projects to True"
+            ),
         ),
     ]

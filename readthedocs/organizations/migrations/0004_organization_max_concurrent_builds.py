@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0003_team_auto_join_email_users'),
+        ("organizations", "0003_team_auto_join_email_users"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='organization',
-            name='max_concurrent_builds',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Maximum concurrent builds allowed for this organization'),
+            model_name="organization",
+            name="max_concurrent_builds",
+            field=models.IntegerField(
+                blank=True,
+                null=True,
+                verbose_name="Maximum concurrent builds allowed for this organization",
+            ),
         ),
     ]

@@ -1,43 +1,20 @@
 """Template tags for core app."""
 
-import hashlib
 import json
-from urllib.parse import urlencode
 
 from django import template
-from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.encoding import force_bytes, force_str
 from django.utils.safestring import mark_safe
 
 from readthedocs import __version__
-from readthedocs.core.resolver import resolve
+from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Project
-
 
 register = template.Library()
 
 
-@register.filter
-def gravatar(email, size=48):
-    """
-    Hacked from djangosnippets.org, but basically given an email address.
-
-    render an img tag with the hashed up bits needed for leetness
-    omgwtfstillreading
-    """
-    url = 'http://www.gravatar.com/avatar.php?%s' % urlencode({
-        'gravatar_id': hashlib.md5(email).hexdigest(),
-        'size': str(size),
-    })
-    return (
-        '<img src="%s" width="%s" height="%s" alt="gravatar" '
-        'class="gravatar" border="0" />' % (url, size, size)
-    )
-
-
-@register.simple_tag(name='doc_url')
-def make_document_url(project, version=None, page='', path=''):
+@register.simple_tag(name="doc_url")
+def make_document_url(project, version=None, page="", path=""):
     """
     Create a URL for a Project, Version and page (and/or path).
 
@@ -48,9 +25,9 @@ def make_document_url(project, version=None, page='', path=''):
     :returns: URL to the page (e.g. https://docs.domain.com/en/latest/section/configuration.html)
     """
     if not project:
-        return ''
+        return ""
     filename = path or page
-    return resolve(project=project, version_slug=version, filename=filename)
+    return Resolver().resolve(project=project, version_slug=version, filename=filename)
 
 
 @register.filter
@@ -70,9 +47,9 @@ def get_version(slug):
 
 
 @register.simple_tag
-def url_replace(request, field, value):
+def url_replace(request, field, *values):
     dict_ = request.GET.copy()
-    dict_[field] = value
+    dict_[field] = "".join(values)
     return dict_.urlencode()
 
 
@@ -113,13 +90,14 @@ def escapejson(data, indent=None):
     if indent:
         indent = int(indent)
     _json_script_escapes = {
-        ord('>'): '\\u003E',
-        ord('<'): '\\u003C',
-        ord('&'): '\\u0026',
+        ord(">"): "\\u003E",
+        ord("<"): "\\u003C",
+        ord("&"): "\\u0026",
     }
     return mark_safe(
         json.dumps(
             data,
             cls=DjangoJSONEncoder,
             indent=indent,
-        ).translate(_json_script_escapes))
+        ).translate(_json_script_escapes)
+    )

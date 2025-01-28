@@ -1,39 +1,32 @@
-Technical Documentation Search Engine Optimization (SEO) Guide
-==============================================================
+How to do search engine optimization (SEO) for documentation projects
+=====================================================================
 
 .. meta::
     :description lang=en:
-        Looking to optimize your Sphinx documentation for search engines?
+        Looking to optimize your documentation project for search engines?
         This SEO guide will help your docs be better understood by both people and crawlers
         as well as help you rank higher in search engine results.
 
+This article explains how documentation can be optimized to appear in search results,
+ultimately increasing traffic to your docs.
 
-This guide will help you optimize your documentation for search engines
-with the goal of increasing traffic to your docs.
-While you optimize your docs to make them more crawler friendly for search engine spiders,
+While you optimize your docs to make them more friendly for search engine spiders/crawlers,
 it's important to keep in mind that your ultimate goal is to make your docs
-more discoverable for your users.
-**You're trying to make sure that when a user types a question into a search engine
-that is answerable by your documentation, that your docs appear in the results.**
+more :term:`discoverable <discoverability>` for your users.
 
-This guide isn't meant to be your only resource on SEO,
-and there's a lot of SEO topics not covered here.
-For additional reading, please see the
-:ref:`external resources <guides/technical-docs-seo-guide:External resources>` section.
+By following :ref:`our best practices for SEO <guides/technical-docs-seo-guide:Best practices for documentation SEO>`,
+you can ensure that when a user types a question into a search engine,
+they can get the answers from your documentation in the search results.
 
-While many of the topics here apply to all forms of technical documentation,
-this guide will focus on Sphinx, which is the most common
-documentation authoring tool on Read the Docs,
-as well as improvements provided by Read the Docs itself.
+.. seealso::
 
-
-.. contents:: Table of contents
-   :local:
-   :backlinks: none
-   :depth: 3
+   This guide isn't meant to be your only resource on SEO,
+   and there's a lot of SEO topics not covered here.
+   For additional reading, please see the
+   :ref:`external resources <guides/technical-docs-seo-guide:External resources>` section.
 
 
-SEO Basics
+SEO basics
 ----------
 
 Search engines like Google and Bing crawl through the internet
@@ -80,42 +73,65 @@ generates static HTML and the performance is typically decent
 relative to most of the internet.
 
 
-Optimizing your docs for search engine spiders
-----------------------------------------------
+Best practices for documentation SEO
+------------------------------------
 
 Once a crawler or spider finds your site, it will follow links and redirects
 in an attempt to find any and all pages on your site.
 While there are a few ways to guide the search engine in its crawl
-for example by using a :ref:`sitemap <guides/technical-docs-seo-guide:Use a sitemap.xml file>`
-or a :ref:`robots.txt file <guides/technical-docs-seo-guide:Use a robots.txt file>`
+for example by using a :ref:`sitemap <seo_sitemap.xml>`
+or a :ref:`robots.txt file <seo_robots.txt>`
 which we'll discuss shortly,
 the most important thing is making sure the spider can follow links on your site
 and get to all your pages.
 
-Avoid orphan pages
-~~~~~~~~~~~~~~~~~~
+Avoid unlinked pages ✅️
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sphinx calls pages that don't have links to them "orphans"
-and will throw a warning while building documentation that contains an orphan
-unless the warning is silenced with the :ref:`orphan directive <sphinx:metadata>`:
+When building your documentation,
+you should ensure that pages aren't *unlinked*,
+meaning that no other pages or navigation have a link to them.
 
-::
+Search engine crawlers will not discover pages that aren't linked from somewhere else on your site.
 
-    $ make html
-    sphinx-build -b html -d _build/doctrees . _build/html
-    Running Sphinx v1.8.5
-    ...
-    checking consistency... /path/to/file.rst: WARNING: document isn't included in any toctree
-    done
-    ...
-    build finished with problems, 1 warning.
+.. TODO: Create a "generic" tab?
 
-You can make all Sphinx warnings into errors during your build process
-by setting ``SPHINXOPTS = -W --keep-going`` in your Sphinx Makefile.
+.. tabs::
+
+   .. tab:: Sphinx
+
+        Sphinx calls pages that don't have links to them "orphans"
+        and will throw a warning while building documentation that contains an orphan
+        unless the warning is silenced with the :ref:`orphan directive <sphinx:metadata>`.
+
+        We recommend failing your builds whenever Sphinx warns you,
+        using the ``fail_on_warnings`` option in :ref:`.readthedocs.yaml <config-file/v2:sphinx>`.
+
+        Here is an example of a warning of an unreferenced page::
+
+            $ make html
+            sphinx-build -b html -d _build/doctrees . _build/html
+            Running Sphinx v1.8.5
+            ...
+            checking consistency... /path/to/file.rst: WARNING: document isn't included in any toctree
+            done
+            ...
+            build finished with problems, 1 warning.
+
+   .. tab:: MkDocs
+
+      MkDocs automatically includes all ``.md`` files in the main navigation 💯️.
+      This makes sure that all files are discoverable by default,
+      however there are configurations that allow for unlinked files in various ways.
+      If you want to scan your documentation for unreferenced files and images,
+      a plugin like `mkdocs-unused-files`_ does the job.
 
 
-Avoid uncrawlable content
-~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _mkdocs-unused-files: https://github.com/wilhelmer/mkdocs-unused-files
+
+
+Avoid uncrawlable content ✅️
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 While typically this isn't a problem with technical documentation,
 try to avoid content that is "hidden" from search engines.
@@ -125,20 +141,51 @@ For example, if you do have a video in your docs,
 make sure the rest of that page describes the content of the video.
 
 When using images, make sure to set the image alt text or set a caption on figures.
-For Sphinx, the image and figure directives support this:
 
-.. sourcecode:: rst
+.. TODO: Create a "generic" tab?
 
-    .. image:: your-image.png
-        :alt: A description of this image
+.. tabs::
 
-    .. figure:: your-image.png
+   .. tab:: Sphinx
 
-        A caption for this figure
+        For Sphinx, the image and figure directives support both alt texts and captions:
+
+        .. code-block:: rst
+
+            .. image:: your-image.png
+                :alt: A description of this image
+
+            .. figure:: your-image.png
+
+                A caption for this figure
+
+   .. tab:: MkDocs
+
+        The Markdown syntax defines an alt text for images:
+
+        .. code-block:: md
+
+           ![Image alt text](https://dummyimage.com/600x400/){ width="300" }
+
+        Though HTML supports figures and captions,
+        Markdown and MkDocs do not have a built-in feature.
+        Instead,
+        you can use markdown extensions such as `md-in-html`_ to allow the necessary HTML structures for including figures:
+
+        .. code-block:: md
+
+           <figure markdown>
+              ![Image alt text](https://dummyimage.com/600x400/){ width="300" }
+              <figcaption>Image caption</figcaption>
+           </figure>
+
+.. _md-in-html: https://python-markdown.github.io/extensions/md_in_html/
 
 
-Redirects
-~~~~~~~~~
+.. _seo_redirects:
+
+Redirects ✅️
+~~~~~~~~~~~~~
 
 Redirects tell search engines when content has moved.
 For example, if this guide moved from ``guides/technical-docs-seo-guide.html`` to ``guides/sphinx-seo-guide.html``,
@@ -151,9 +198,13 @@ Read the Docs supports a few different kinds of :doc:`user defined redirects </u
 that should cover all the different cases such as redirecting a certain page for all project versions,
 or redirecting one version to another.
 
+.. seealso:
 
-Canonical URLs
-~~~~~~~~~~~~~~
+   :doc:`/guides/best-practice/links`
+      Following best practices to avoid broken links is great for search engine ranking.
+
+Canonical URLs ✅️
+~~~~~~~~~~~~~~~~~~
 
 Anytime very similar content is hosted at multiple URLs,
 it is pretty important to set a canonical URL.
@@ -167,8 +218,10 @@ under :guilabel:`Admin` > :guilabel:`Domains`
 in the Read the Docs dashboard.
 
 
-Use a robots.txt file
-~~~~~~~~~~~~~~~~~~~~~
+.. _seo_robots.txt:
+
+Use a robots.txt file ✅️
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A ``robots.txt`` file is readable by crawlers
 and lives at the root of your site (eg. https://docs.readthedocs.io/robots.txt).
@@ -185,9 +238,10 @@ that is written to your documentation root on your default branch/version.
 See the `Google's documentation on robots.txt <https://support.google.com/webmasters/answer/6062608>`_
 for additional details.
 
+.. _seo_sitemap.xml:
 
-Use a sitemap.xml file
-~~~~~~~~~~~~~~~~~~~~~~
+Use a sitemap.xml file ✅️
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A sitemap is a file readable by crawlers that contains a list of pages
 and other files on your site and some metadata or relationships about them
@@ -197,13 +251,13 @@ or any alternate language versions of a page.
 
 Read the Docs generates a sitemap for you that contains the last time
 your documentation was updated as well as links to active versions, subprojects, and translations your project has.
-We have a small separate guide on :ref:`sitemaps <hosting:Sitemaps>`.
+We have a small separate guide on :doc:`sitemaps </reference/sitemaps>`.
 
 See the `Google docs on building a sitemap <https://support.google.com/webmasters/answer/183668>`_.
 
 
-Use meta tags
-~~~~~~~~~~~~~
+Use meta tags ✅️
+~~~~~~~~~~~~~~~~~
 
 Using a meta description allows you to customize how your pages
 look in search engine result pages.
@@ -256,7 +310,7 @@ Some of the most valuable feedback these provide include:
 * Google and Bing will show pages that were previously indexed that now give a 404
   (or more rarely a 500 or other status code).
   These will remain in the index for some time but will eventually be removed.
-  This is a good opportunity to create a :ref:`redirect <guides/technical-docs-seo-guide:Redirects>`.
+  This is a good opportunity to create a :ref:`redirect <seo_redirects>`.
 * These tools will show any crawl issues with your documentation.
 * Search Console and Webmaster Tools will highlight security issues found
   or if Google or Bing took action against your site because they believe it is spammy.
@@ -265,7 +319,8 @@ Some of the most valuable feedback these provide include:
 Analytics tools
 ~~~~~~~~~~~~~~~
 
-A tool like :ref:`Google Analytics <analytics:Enabling Google Analytics on your Project>`
+A tool like Google Analytics,
+along with our :doc:`integrated Read the Docs analytics </traffic-analytics>`,
 can give you feedback about the search terms people use to find your docs,
 your most popular pages, and lots of other useful data.
 

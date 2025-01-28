@@ -1,0 +1,18 @@
+{
+  "_links": {
+    "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/notifications/3/"
+  },
+  "attached_to_content_type": "build",
+  "attached_to_id": 1,
+  "dismissable": false,
+  "id": 3,
+  "message": {
+    "body": "The user has cancelled this build.",
+    "header": "Build cancelled manually.",
+    "icon_classes": "fas fa-circle-xmark",
+    "id": "build:user:cancelled",
+    "type": "error"
+  },
+  "news": false,
+  "state": "unread"
+}

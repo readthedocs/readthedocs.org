@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('gold', '0005_last_4_digits_null'),
+        ("gold", "0005_last_4_digits_null"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='golduser',
-            name='business_vat_id',
+            model_name="golduser",
+            name="business_vat_id",
         ),
         migrations.RemoveField(
-            model_name='golduser',
-            name='last_4_card_digits',
+            model_name="golduser",
+            name="last_4_card_digits",
         ),
     ]

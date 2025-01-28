@@ -2,6 +2,7 @@
 
 import structlog
 
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import (
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
@@ -29,14 +30,14 @@ def _build_version(project, slug, already_built=()):
     version = project.versions.filter(active=True, slug=slug).first()
     if version and slug not in already_built:
         log.info(
-            'Building.',
+            "Building.",
             project_slug=project.slug,
             version_slug=version.slug,
         )
         trigger_build(project=project, version=version)
         return slug
 
-    log.info('Not building.', version_slug=slug)
+    log.info("Not building.", version_slug=slug)
     return None
 
 
@@ -52,10 +53,9 @@ def build_branches(project, branch_list):
     not_building = set()
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
-
         for version in versions:
             log.debug(
-                'Processing.',
+                "Processing.",
                 project_slug=project.slug,
                 version_slug=version.slug,
             )
@@ -82,43 +82,46 @@ def trigger_sync_versions(project):
 
     if not Project.objects.is_active(project):
         log.warning(
-            'Sync not triggered because project is not active.',
+            "Sync not triggered because project is not active.",
             project_slug=project.slug,
         )
         return None
 
     try:
         version_identifier = project.get_default_branch()
-        version = (
-            project.versions.filter(
-                identifier=version_identifier,
-            ).first()
-        )
+        version = project.versions.filter(
+            identifier=version_identifier,
+        ).first()
         if not version:
-            log.info('Unable to sync from version.', version_identifier=version_identifier)
+            log.info(
+                "Unable to sync from version.", version_identifier=version_identifier
+            )
             return None
 
         if project.has_feature(Feature.SKIP_SYNC_VERSIONS):
-            log.info('Skipping sync versions for project.', project_slug=project.slug)
+            log.info("Skipping sync versions for project.", project_slug=project.slug)
             return None
 
         options = {}
         if project.build_queue:
             # respect the queue for this project
-            options['queue'] = project.build_queue
+            options["queue"] = project.build_queue
+
+        _, build_api_key = BuildAPIKey.objects.create_key(project=project)
 
         log.debug(
-            'Triggering sync repository.',
+            "Triggering sync repository.",
             project_slug=version.project.slug,
             version_slug=version.slug,
         )
         sync_repository_task.apply_async(
-            (version.pk,),
+            args=[version.pk],
+            kwargs={"build_api_key": build_api_key},
             **options,
         )
         return version.slug
     except Exception:
-        log.exception('Unknown sync versions exception')
+        log.exception("Unknown sync versions exception")
     return None
 
 
@@ -146,7 +149,7 @@ def get_or_create_external_version(project, version_data):
 
     if created:
         log.info(
-            'External version created.',
+            "External version created.",
             project_slug=project.slug,
             version_slug=external_version.slug,
         )
@@ -157,7 +160,7 @@ def get_or_create_external_version(project, version_data):
         external_version.state = EXTERNAL_VERSION_STATE_OPEN
         external_version.save()
         log.info(
-            'External version updated.',
+            "External version updated.",
             project_slug=project.slug,
             version_slug=external_version.slug,
         )
@@ -209,7 +212,7 @@ def build_external_version(project, version):
 
     # Build External version
     log.info(
-        'Building external version',
+        "Building external version",
         project_slug=project.slug,
         version_slug=version.slug,
     )

@@ -1,6 +1,7 @@
 """Tasks related to telemetry."""
 
 from django.conf import settings
+from django.db import connections
 from django.utils import timezone
 
 from readthedocs.builds.models import Build
@@ -33,4 +34,15 @@ def delete_old_build_data():
     """
     retention_days = settings.RTD_TELEMETRY_DATA_RETENTION_DAYS
     days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
-    return BuildData.objects.filter(created__lt=days_ago).delete()
+    # NOTE: we are using raw SQL here to avoid Django doing a SELECT first to
+    # send `pre_` and `post_` delete signals
+    # See https://docs.djangoproject.com/en/4.2/ref/models/querysets/#delete
+    with connections["telemetry"].cursor() as cursor:
+        cursor.execute(
+            # "SELECT COUNT(*) FROM telemetry_builddata WHERE created BETWEEN %s AND %s",
+            "DELETE FROM telemetry_builddata WHERE created BETWEEN %s AND %s",
+            [
+                days_ago - timezone.timedelta(days=90),
+                days_ago,
+            ],
+        )

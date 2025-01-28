@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0052_migrate_null_external_builds_field'),
+        ("projects", "0052_migrate_null_external_builds_field"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='project',
-            name='external_builds_enabled',
-            field=models.BooleanField(default=False, help_text='More information in <a href="https://docs.readthedocs.io/en/latest/guides/autobuild-docs-for-pull-requests.html">our docs</a>', verbose_name='Build pull requests for this project'),
+            model_name="project",
+            name="external_builds_enabled",
+            field=models.BooleanField(
+                default=False,
+                help_text='More information in <a href="https://docs.readthedocs.io/en/latest/guides/autobuild-docs-for-pull-requests.html">our docs</a>',
+                verbose_name="Build pull requests for this project",
+            ),
         ),
     ]

@@ -330,6 +330,11 @@ Embed
 
     Retrieve HTML-formatted content from documentation page or section.
 
+    .. warning::
+
+       The content will be returned as is, without any sanitization or escaping.
+       You should not include content from arbitrary projects, or projects you do not trust.
+
     **Example request**:
 
     .. prompt:: bash $
@@ -408,7 +413,6 @@ There are some undocumented endpoints in the API.
 These should not be used and could change at any time.
 These include:
 
-* The search API (``/api/v2/search/``)
 * Endpoints for returning footer and version data to be injected into docs.
   (``/api/v2/footer_html``)
 * Endpoints used for advertising (``/api/v2/sustainability/``)

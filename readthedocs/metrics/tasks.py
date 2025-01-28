@@ -12,42 +12,34 @@ from readthedocsext.monitoring.metrics.database import (
     ConcurrencyLimitedBuildsMetric,
     RunningBuildsMetric,
 )
-from readthedocsext.monitoring.metrics.redislen import RedislenMetric
 from readthedocsext.monitoring.metrics.latency import BuildLatencyMetric
-from readthedocsext.monitoring.metrics.tasks import (
-    Metrics1mTaskBase,
-    Metrics5mTaskBase,
-)
+from readthedocsext.monitoring.metrics.redislen import RedislenMetric
+from readthedocsext.monitoring.metrics.tasks import Metrics1mTaskBase, Metrics5mTaskBase
 
 
 class CommunityMetrics1mTask(Metrics1mTaskBase):
-
     metrics = Metrics1mTaskBase.metrics + [
-        RedislenMetric(queue_name='build-large'),
-        RunningBuildsMetric(builder='large'),
-        ConcurrencyLimitedBuildsMetric(builder='large'),
+        RedislenMetric(queue_name="build-large"),
+        RunningBuildsMetric(builder="large"),
+        ConcurrencyLimitedBuildsMetric(builder="large"),
     ]
 
 
 class CommunityMetrics5mTask(Metrics5mTaskBase):
-
     metrics = Metrics5mTaskBase.metrics + [
         AvgBuildTimeMetric(
-            builder='large',
+            builder="large",
             minutes=Metrics5mTaskBase.interval,
         ),
         AvgBuildTriggeredAndFirstCommandTimeMetric(
-            builder='large',
+            builder="large",
             minutes=Metrics5mTaskBase.interval,
         ),
         BuildLatencyMetric(
-            project='time-test',
-            queue_name='build-large',
-            version='latency-test-large',
-            doc='index',
-            section='Time',
-            doc_url=None,
-            api_host='https://readthedocs.org',
-            webhook_url='https://readthedocs.org/api/v2/webhook/time-test/125903/',
+            project="time-test",
+            queue_name="build-default",
+            version="latency-test",
+            doc_url="https://time-test.readthedocs.io/en/latency-test/",
+            webhook_url="{api_host}/api/v2/webhook/{project}/{webhook_id}/",
         ),
     ]

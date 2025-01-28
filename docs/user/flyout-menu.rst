@@ -1,147 +1,66 @@
-Flyout Menu
+.. TODO: Update the images to the new flyout design, and update to include Addons
+
+Flyout menu
 ===========
 
-When you are using a Read the Docs site,
-you will likely notice that we embed a menu on all the documentation pages we serve.
-This is a way to expose the functionality of Read the Docs on the page,
+When you use a Read the Docs site,
+there is a flyout menu embedded on all the documentation pages.
+The flyout menu is a way to expose the functionality of Read the Docs on the page,
 without having to have the documentation theme integrate it directly.
 
-Functionality
--------------
+.. tip::
+   The flyout menu is a default implementation that works for every site.
+   You can access the full data used to construct the flyout,
+   and use that to integrate the data directly into your documentation theme for a nicer user experience.
+   See the :ref:`flyout-menu:Custom event integration` for more information.
 
-The flyout menu provides access to the following bits of Read the Docs functionality:
+Addons flyout menu
+------------------
 
-* A :doc:`version switcher </versions>` that shows users all of the active, unhidden versions they have access to.
-* :doc:`Downloadable formats </downloadable-documentation>` for the current version, including HTML & PDF downloads that are enabled by the project.
+The :doc:`addons` flyout provides a place for a number of Read the Docs features:
+
+* A :doc:`version switcher </versions>` that shows users all of the active versions they have access to.
+* A :doc:`translation switcher </localization>` that shows all the documentation languages provided.
+* A list of :doc:`offline formats </downloadable-documentation>` for the current version, including HTML & PDF downloads.
 * Links to the Read the Docs dashboard for the project.
-* Links to your :doc:`VCS provider </integrations>` that allow the user to quickly find the exact file that the documentation was rendered from.
-* A search bar that gives users access to our :doc:`/server-side-search` of the current version.
+* A search bar that gives users access to the :doc:`/server-side-search/index` of the current version.
 
-Closed
-~~~~~~
-
-.. figure:: /_static/images/flyout-closed.png
+.. figure:: /_static/images/flyout-addons.png
    :align: center
 
-   The flyout when it's closed
+   The opened flyout menu
 
-Open
-~~~~
+Customizing the flyout menu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. figure:: /_static/images/flyout-open.png
-   :align: center
+In your dashboard, you can configure flyout menu options in :guilabel:`Settings > Addons > Flyout Menu`.
 
-   The opened flyout
+Version sorting
+^^^^^^^^^^^^^^^
 
-Information for theme authors
------------------------------
+The primary customization currently is the ability to sort versions.
+You can sort by:
 
-People who are making custom documentation themes often want to specify where the flyout is injected,
-and also what it looks like.
-We support both of these use cases for themes.
+.. TODO: Define how these work better..
 
-Defining where the flyout menu is injected
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* :guilabel:`SemVer (Read the Docs)` - **Default**. Read the Docs custom implementation of semver.org.
+* :guilabel:`Python Packaging` - Sort by Python packaging sorting.
+* :guilabel:`CalVer` - Sort by calendar date.
+* :guilabel:`Alphabetically` - Only useful if you aren't using numeric versions.
+* Or you can define a custom pattern
 
-The flyout menu injection looks for a specific selector (``#readthedocs-embed-flyout``),
-in order to inject the flyout.
-You can add ``<div id="readthedocs-embed-flyout">`` in your theme,
-and our JavaScript code will inject the flyout there.
-All other themes except for the ``sphinx_rtd_theme`` have the flyout appended to the ``<body>``.
+You can also choose whether ``latest`` and ``stable`` should be sorted first,
+as those are special versions that Read the Docs uses.
 
-Styling the flyout
-~~~~~~~~~~~~~~~~~~
+Custom event integration
+------------------------
 
-HTML themes can style the flyout to make it match the overall style of the HTML.
-By default the flyout has it's `own CSS file <https://github.com/readthedocs/sphinx_rtd_theme/blob/master/src/sass/_theme_badge.sass>`_,
-which you can look at to see the basic CSS class names.
+Read the Docs Addons exposes all the data used to construct the flyout menu via a JavaScript ``CustomEvent``.
+If you'd like to integrate the data,
+you can use the :ref:`intro/mkdocs:Integrate the Read the Docs version menu into your site navigation` example as a starting point.
 
-The example HTML that the flyout uses is included here,
-so that you can style it in your HTML theme:
-
-.. code:: html
-
-    <div class="injected">
-       <div class="rst-versions rst-badge shift-up" data-toggle="rst-versions">
-          <span class="rst-current-version" data-toggle="rst-current-version">
-          <span class="fa fa-book">&nbsp;</span>
-          v: 2.1.x
-          <span class="fa fa-caret-down"></span>
-          </span>
-          <div class="rst-other-versions">
-             <!-- "Languages" section (``dl`` tag) is not included if the project does not have translations -->
-             <dl>
-                <dt>Languages</dt>
-                <dd class="rtd-current-item">
-                   <a href="https://flask.palletsproject.com/en/2.1.x">en</a>
-                </dd>
-                <dd>
-                   <a href="https://flask.palletsproject.com/es/2.1.x">es</a>
-                </dd>
-             </dl>
-
-             <!-- "Versions" section (``dl`` tag) is not included if the project is single version -->
-             <dl>
-                <dt>Versions</dt>
-                <dd>
-                   <a href="https://flask.palletsprojects.com/en/latest/">latest</a>
-                </dd>
-                <dd class="rtd-current-item">
-                   <a href="https://flask.palletsprojects.com/en/2.1.x/">2.1.x</a>
-                </dd>
-             </dl>
-
-             <!-- "Downloads" section (``dl`` tag) is not included if the project does not have artifacts to download -->
-             <dl>
-                <dt>Downloads</dt>
-                <dd>
-                   <a href="//flask.palletsprojects.com/_/downloads/en/2.1.x/pdf/">PDF</a>
-                 </dd>
-                <dd>
-                   <a href="//flask.palletsprojects.com/_/downloads/en/2.1.x/htmlzip/">HTML</a>
-                 </dd>
-             </dl>
-
-             <dl>
-                <dt>On Read the Docs</dt>
-                <dd>
-                   <a href="//readthedocs.org/projects/flask/">Project Home</a>
-                </dd>
-                <dd>
-                   <a href="//readthedocs.org/projects/flask/builds/">Builds</a>
-                </dd>
-                <dd>
-                   <a href="//readthedocs.org/projects/flask/downloads/">Downloads</a>
-                </dd>
-             </dl>
-
-             <dl>
-                <dt>On GitHub</dt>
-                <dd>
-                   <a href="https://github.com/pallets/flask/blob/2.1.x/docs/index.rst">View</a>
-                </dd>
-                <dd>
-                   <a href="https://github.com/pallets/flask/edit/2.1.x/docs/index.rst">Edit</a>
-                </dd>
-             </dl>
-
-             <dl>
-                <dt>Search</dt>
-                <dd>
-                   <div style="padding: 6px;">
-                      <form id="flyout-search-form" class="wy-form" target="_blank" action="//readthedocs.org/projects/flask/search/" method="get">
-                         <input type="text" name="q" aria-label="Search docs" placeholder="Search docs">
-                      </form>
-                   </div>
-                </dd>
-             </dl>
-
-             <hr>
-             <small>
-             <span>Hosted by <a href="https://readthedocs.org">Read the Docs</a></span>
-             <span> &middot; </span>
-             <a href="https://docs.readthedocs.io/page/privacy-policy.html">Privacy Policy</a>
-             </small>
-          </div>
-       </div>
-    </div>
+.. warning::
+   We have not formally documented the API response returned from the Addons API,
+   but you can view the JSON data returned there as a starting point.
+   Once we document it,
+   we will commit to supporting that version of the API response going forward.

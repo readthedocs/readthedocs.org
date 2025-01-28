@@ -1,58 +1,52 @@
 Read the Docs tutorial
 ======================
 
-In this tutorial you will create a documentation project on Read the Docs
-by importing an Sphinx project from a GitHub repository,
-tailor its configuration, and explore several useful features of the platform.
+In this tutorial you will learn how to host a public documentation project on Read the Docs Community.
 
-The tutorial is aimed at people interested in learning
-how to use Read the Docs to host their documentation projects.
-You will fork a fictional software library
-similar to the one developed in the :doc:`official Sphinx tutorial <sphinx:tutorial/index>`.
-No prior experience with Sphinx is required,
-and you can follow this tutorial without having done the Sphinx one.
+.. note::
 
-The only things you will need to follow are
-a web browser, an Internet connection, and a GitHub account
-(you can `register for a free account <https://github.com/signup>`_ if you don't have one).
-You will use Read the Docs Community, which means that the project will be public.
+   Find out the `differences between Read the Docs Community and Read the Docs for Business <https://about.readthedocs.com/pricing/#/community>`_.
 
-Getting started
----------------
+In the tutorial we will:
 
-Preparing your project on GitHub
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Import a Sphinx project from a GitHub repository (no prior experience with Sphinx is required).
+2. Tailor the project's configuration.
+3. Explore other useful Read the Docs features.
 
-To start, `sign in to GitHub <https://github.com/login>`_
-and navigate to `the tutorial GitHub template <https://github.com/readthedocs/tutorial-template/>`_,
-where you will see a green :guilabel:`Use this template` button.
-Click it to open a new page that will ask you for some details:
+If you don't have a GitHub account, you'll need to `register for a free account <https://github.com/signup>`_ before you start.
 
-* Leave the default "Owner", or change it to something better for a tutorial project.
-* Introduce an appropriate "Repository name", for example ``rtd-tutorial``.
-* Make sure the project is "Public", rather than "Private".
+Preparing your repository on GitHub
+-----------------------------------
 
-After that, click on the green :guilabel:`Create repository from template` button,
-which will generate a new repository on your personal account
-(or the one of your choosing).
-This is the repository you will import on Read the Docs,
-and it contains the following files:
+#. `Sign in to GitHub <https://github.com/login>`_ and navigate to the `tutorial GitHub template <https://github.com/readthedocs/tutorial-template/>`_.
 
-``README.rst``
-  Basic description of the repository, you will leave it untouched.
+#. Click the green :guilabel:`Use this template` button, then click :guilabel:`Create a new Repository`. On the new page:
 
-``pyproject.toml``
-  Python project metadata that makes it installable.
-  Useful for automatic documentation generation from sources.
+   Owner
+      Leave the default, or change it to something suitable for a tutorial project.
+   Repository name
+      Something memorable and appropriate, for example ``rtd-tutorial``.
+   Visibility
+      Make sure the project is "Public", rather than "Private".
 
-``lumache.py``
-  Source code of the fictional Python library.
+#. Click the green :guilabel:`Create repository` button to create a public repository that you will use in this Read the Docs tutorial, containing  following files:
 
-``docs/``
-  Directory holding all the Sphinx documentation sources,
-  including some required dependencies in ``docs/requirements.txt``,
-  the Sphinx configuration ``docs/source/conf.py``,
-  and the root document ``docs/source/index.rst`` written in reStructuredText.
+   ``.readthedocs.yaml``
+      Read the Docs configuration file. Required.
+
+   ``README.rst``
+      Description of the repository.
+
+   ``pyproject.toml``
+      Python project metadata that makes it installable.
+      Useful for automatic documentation generation from sources.
+
+   ``lumache.py``
+      Source code of the fictional Python library.
+
+   ``docs/``
+      Directory holding all the fictional Python library documentation in reStructuredText, the Sphinx configuration ``docs/source/conf.py``
+      and the root document ``docs/source/index.rst``.
 
 .. figure:: /_static/images/tutorial/github-template.png
    :width: 80%
@@ -61,10 +55,10 @@ and it contains the following files:
 
    GitHub template for the tutorial
 
-Sign up for Read the Docs
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Creating a Read the Docs account
+--------------------------------
 
-To sign up for a Read the Docs account,
+To create a Read the Docs account:
 navigate to the `Sign Up page <https://readthedocs.org/accounts/signup/>`_
 and choose the option :guilabel:`Sign up with GitHub`.
 On the authorization page, click the green :guilabel:`Authorize readthedocs` button.
@@ -80,84 +74,53 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 
    Read the Docs needs elevated permissions to perform certain operations
    that ensure that the workflow is as smooth as possible,
-   like installing webhooks.
+   like installing :term:`webhooks <webhook>`.
    If you want to learn more,
-   check out :ref:`connected-accounts:permissions for connected accounts`.
+   check out :ref:`reference/git-integration:permissions for connected accounts`.
 
-After that, you will be redirected to Read the Docs,
-where you will need to confirm your e-mail and username.
-Clicking the :guilabel:`Sign Up »` button will create your account
-and redirect you to your :term:`dashboard`.
+After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
+open your :term:`dashboard`.
 
-By now, you should have two email notifications:
-
-* One from GitHub, telling you that "A third-party OAuth application ...
-  was recently authorized to access your account". You don't need to do
-  anything about it.
-* Another one from Read the Docs, prompting you to "verify your email
-  address". Click on the link to finalize the process.
-
-Finally, you created your account on Read the Docs
-and are ready to import your first project.
-
-Welcome!
+When you have clicked the link in your emaill from Read the Docs to "verify your email address" and finalize the process, your Read the Docs account will be ready to create your first project.
 
 .. figure:: /_static/images/tutorial/rtd-empty-dashboard.png
    :width: 80%
    :align: center
    :alt: Read the Docs empty dashboard
 
-   Read the Docs empty dashboard
-
-.. note::
-
-   Our commercial site offers some extra features,
-   like support for private projects.
-   You can learn more about :doc:`our two different sites </choosing-a-site>`.
-
-First steps
------------
+   Welcome to your Read the Docs dashboard!
 
 Importing the project to Read the Docs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------
 
-To import your GitHub project to Read the Docs,
-first click on the :guilabel:`Import a Project` button on your dashboard
-(or browse to `the import page <https://readthedocs.org/dashboard/import/>`_ directly).
-You should see your GitHub account under the "Filter repositories" list on the right.
-If the list of repositories is empty, click the |:arrows_counterclockwise:| button,
-and after that all your repositories will appear on the center.
+To import your GitHub project to Read the Docs:
 
-.. figure:: /_static/images/tutorial/rtd-import-projects.gif
-   :width: 80%
-   :align: center
-   :alt: Import projects workflow
+#. Click the :guilabel:`Import a Project` button on your `dashboard <https://readthedocs.org/dashboard/>`_.
 
-   Import projects workflow
+#. Click the |:heavy_plus_sign:| button to the right of your ``rtd-tutorial`` project. If the list of repositories is empty, click the |:arrows_counterclockwise:| button.
 
-Locate your ``rtd-tutorial`` project
-(possibly clicking :guilabel:`next ››` at the bottom if you have several pages of projects),
-and then click on the |:heavy_plus_sign:| button to the right of the name.
-The next page will ask you to fill some details about your Read the Docs project:
+   .. figure:: /_static/images/tutorial/rtd-import-projects.gif
+      :width: 80%
+      :align: center
+      :alt: Import projects workflow
 
-Name
-  The name of the project. It has to be unique across all the service,
-  so it is better if you prepend your username,
-  for example ``{username}-rtd-tutorial``.
+      Import projects workflow
 
-Repository URL
-  The URL that contains the sources. Leave the automatically filled value.
+#. Enter some details about your Read the Docs project:
 
-Repository type
-  Version control system used, leave it as "Git".
+   Name
+      The name of the project, used to create a unique subdomain for each project.
+      so it is better if you prepend your username,
+      for example ``{username}-rtd-tutorial``.
 
-Default branch
-  Name of the default branch of the project, leave it as ``main``.
+   Repository URL
+      The URL that contains the documentation source. Leave the automatically filled value.
 
-Edit advanced project options
-  Leave it unchecked, we will make some changes later.
+   Default branch
+      Name of the default branch of the project, leave it as ``main``.
 
-After hitting the :guilabel:`Next` button, you will be redirected to the :term:`project home`.
+   Then click the :guilabel:`Next` button to create the project and open the :term:`project home`.
+
 You just created your first project on Read the Docs! |:tada:|
 
 .. figure:: /_static/images/tutorial/rtd-project-home.png
@@ -168,30 +131,25 @@ You just created your first project on Read the Docs! |:tada:|
    Project home
 
 Checking the first build
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
-Read the Docs will try to build the documentation of your project
-right after you create it.
-To see the build logs,
-click on the :guilabel:`Your documentation is building` link on the :term:`project home`,
-or alternatively navigate to the "Builds" page,
-then open the one on top (the most recent one).
+Read the Docs will build your project documentation right after you create it.
 
-If the build has not finished yet by the time you open it,
-you will see a spinner next to a "Installing" or "Building" indicator,
-meaning that it is still in progress.
+To see the build logs:
 
-.. figure:: /_static/images/tutorial/rtd-first-successful-build.png
-   :width: 80%
-   :align: center
-   :alt: First successful documentation build
+#. Click the :guilabel:`Your documentation is building` link on the :term:`project home`.
 
-   First successful documentation build
+   - If the build has not finished by the time you open it, you will see a spinner next to a "Installing" or "Building" indicator, meaning that it is still in progress.
+   - If the build has finished, you'll see a green "Build completed" indicator, the completion date, the elapsed time, and a link to the generated documentation.
 
-When the build finishes, you will see a green "Build completed" indicator,
-the completion date, the elapsed time,
-and a link to see the corresponding documentation.
-If you now click on :guilabel:`View docs`, you will see your documentation live!
+   .. figure:: /_static/images/tutorial/rtd-first-successful-build.png
+      :width: 80%
+      :align: center
+      :alt: First successful documentation build
+
+      First successful documentation build
+
+#. Click on :guilabel:`View docs` to see your documentation live!
 
 .. figure:: /_static/images/tutorial/rtd-first-light.png
    :width: 80%
@@ -209,138 +167,126 @@ If you now click on :guilabel:`View docs`, you will see your documentation live!
 
    If you don't see the ad, you might be using an ad blocker.
    Our EthicalAds network respects your privacy, doesn't target you,
-   and tries to be as unobstrusive as possible,
+   and tries to be as unobtrusive as possible,
    so we would like to kindly ask you to :doc:`not block us </advertising/ad-blocking>` |:heart:|
 
-Basic configuration changes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configuring the project
+-----------------------
 
-You can now proceed to make some basic configuration adjustments.
-Navigate back to the :term:`project page`
-and click on the :guilabel:`⚙ Admin` button, which will open the Settings page.
+To update the project description and configure the notification settings:
 
-First of all, add the following text in the description:
+#. Navigate back to the :term:`project page` and click the :guilabel:`⚙ Admin` button,to open the Settings page.
+
+#. Update the project description by adding the following text:
 
     Lumache (/lu'make/) is a Python library for cooks and food lovers
     that creates recipes mixing random ingredients.
 
-Then set the project homepage to ``https://world.openfoodfacts.org/``,
-and write ``food, python`` in the list of tags.
-All this information will be shown on your project home.
+#. Set the project homepage to ``https://world.openfoodfacts.org/``, and add ``food, python`` to the list of public project tags.
 
-After that, configure your email so you get a notification if the build fails.
-To do so, click on the :guilabel:`Notifications` link on the left,
-type the email where you would like to get the notification,
-and click the :guilabel:`Add` button.
-After that, your email will be shown under "Existing Notifications".
+#. To get a notification if the build fails, click the :guilabel:`Email Notifications` link on the left, add your email address, and click the :guilabel:`Add` button.
 
-Trigger a build from a pull request
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Triggering builds from pull requests
+------------------------------------
 
-Read the Docs allows you to :doc:`trigger builds from GitHub pull requests </pull-requests>`
-and gives you a preview of how the documentation would look like with those changes.
+Read the Docs can :doc:`trigger builds from GitHub pull requests </pull-requests>`
+and show you a preview of the documentation with those changes.
 
-To enable that functionality, first click on the :guilabel:`Advanced Settings` link on the left
-under the :guilabel:`⚙ Admin` menu, check the "Build pull requests for this project" checkbox,
-and click the :guilabel:`Save` button at the bottom of the page.
+To trigger builds from pull requests:
 
-Next, navigate to your GitHub repository, locate the file ``docs/source/index.rst``,
-and click on the |:pencil2:| icon on the top-right with the tooltip "Edit this file"
-to open a web editor (more information `on their documentation`__).
+#. Click the :guilabel:`Settings` link on the left under the :guilabel:`⚙ Admin` menu, check the "Build pull requests for this project" checkbox, and click the :guilabel:`Save` button at the bottom of the page.
 
-__  https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/editing-files-in-your-repository
+#. Make some changes to your documentation:
 
-.. figure:: /_static/images/tutorial/gh-edit.png
-   :width: 80%
-   :align: center
-   :alt: File view on GitHub before launching the editor
+   #. Navigate to your GitHub repository, locating the file ``docs/source/index.rst``, and clicking on the |:pencil2:| icon on the top-right with the tooltip "Edit this file" to open a web editor (more information `on their documentation`__).
 
-   File view on GitHub before launching the editor
+      __  https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/editing-files-in-your-repository
 
-In the editor, add the following sentence to the file:
+      .. figure:: /_static/images/tutorial/gh-edit.png
+         :width: 80%
+         :align: center
+         :alt: File view on GitHub before launching the editor
 
-.. code-block:: rst
-   :caption: docs/source/index.rst
+         File view on GitHub before launching the editor
 
-   Lumache has its documentation hosted on Read the Docs.
+   #. In the editor, add the following sentence to the file:
 
-Write an appropriate commit message,
-and choose the "Create a **new branch** for this commit and start a pull request" option,
-typing a name for the new branch.
-When you are done, click the green :guilabel:`Propose changes` button,
-which will take you to the new pull request page,
-and there click the :guilabel:`Create pull request` button below the description.
+      .. code-block:: rst
+         :caption: docs/source/index.rst
 
-.. figure:: /_static/images/tutorial/gh-pr-build.png
-   :width: 80%
-   :align: center
-   :alt: Read the Docs building the pull request from GitHub
+         Lumache hosts its documentation on Read the Docs.
 
-   Read the Docs building the pull request from GitHub
+   #. Write an appropriate commit message, choose the "Create a **new branch** for this commit and start a pull request" option.
+
+   #. Click the green :guilabel:`Propose changes` button to open the new pull request page, then click the :guilabel:`Create pull request` button below the description.
+
+   .. figure:: /_static/images/tutorial/gh-pr-build.png
+      :width: 80%
+      :align: center
+      :alt: Read the Docs building the pull request from GitHub
+
+      Read the Docs building the pull request from GitHub
 
 After opening the pull request, a Read the Docs check will appear
 indicating that it is building the documentation for that pull request.
-If you click on the :guilabel:`Details` link while it is building,
-you will access the build logs,
-otherwise it will take you directly to the documentation.
-When you are satisfied, you can merge the pull request!
+If you click the :guilabel:`Details` link while your project is building
+the build log will be opened. After building this link opens the documentation directly.
 
-Customizing the build process
------------------------------
+Adding a configuration file
+---------------------------
 
-The Settings page of the :term:`project home` allows you
-to change some *global* configuration values of your project.
-In addition, you can further customize the building process
-using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`.
-This has several advantages:
+The Admin tab of the :term:`project home` has some *global* configuration settings for your project.
 
-- The configuration lives next to your code and documentation, tracked by version control.
-- It can be different for every version (more on versioning in the next section).
-- Some configurations are only available using the config file.
+Build process configuration settings are in ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`, in your Git repository, which means it can be different for every version or branch of your project (more on `versioning <#versioning-documentation>`_).
 
-Read the Docs works without this configuration
-by :ref:`making some decisions on your behalf <build-default-versions:Default versions of dependencies>`.
-For example, what Python version to use, how to install the requirements, and others.
+.. TODO: We are adding a how-to that we need to include in this tutorial.
+.. Maybe by reference or maybe as full-featured content.
 
-.. tip::
+.. TODO there is a bit of handwaving about whether you're committing and merging branches here, we might need to be a bit more explicit. Or at least add a mention at this level that wherever we talk about editing, we mean on main and pushing to GH.
 
-   Settings that apply to the entire project are controlled in the web dashboard,
-   while settings that are version or build specific are better in the YAML file.
+Using different Python versions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Upgrading the Python version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For example, to explicitly use Python 3.8 to build your project,
-navigate to your GitHub repository, click on the :guilabel:`Add file` button,
-and add a ``.readthedocs.yaml`` file with these contents to the root of your project:
+To build your project with Python 3.8 instead of the latest Python version, edit the ``.readthedocs.yaml`` file and change the Python version to 3.8 like this:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
+   :emphasize-lines: 6
 
    version: 2
 
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-22.04"
      tools:
        python: "3.8"
 
-The purpose of each key is:
+   python:
+     install:
+       - requirements: docs/requirements.txt
+
+   sphinx:
+     configuration: docs/source/conf.py
+
+The :doc:`purpose of each key </config-file/v2>` in the ``.readthedocs.yaml`` configuration file is:
 
 ``version``
-  Mandatory, specifies :doc:`version 2 of the configuration file </config-file/v2>`.
+  Required, specifies :doc:`version 2 of the configuration file </config-file/v2>`.
 
 ``build.os``
-  Required to specify the Python version,
+  Required, specifies the Docker image used to build the documentation.
   :ref:`states the name of the base image <config-file/v2:build.os>`.
 
 ``build.tools.python``
-  Declares the Python version to be used.
+  Specifies the :ref:`Python version <config-file/v2:build.tools.python>`.
+
+``python.install.requirements``
+  Specifies what :ref:`Python dependencies <config-file/v2:python.install>` to install.
 
 After you commit these changes, go back to your project home,
 navigate to the "Builds" page, and open the new build that just started.
-You will notice that one of the lines contains ``python3.8``:
+You will notice that one of the lines contains ``python -mvirtualenv``:
 if you click on it, you will see the full output of the corresponding command,
-stating that it used Python 3.8.6 to create the virtual environment.
+stating that it used Python 3.8.6, the latest version of Python 3.8, to create the virtual environment.
 
 .. figure:: /_static/images/tutorial/build-python3.8.png
    :width: 80%
@@ -349,12 +295,12 @@ stating that it used Python 3.8.6 to create the virtual environment.
 
    Read the Docs build using Python 3.8
 
-Making warnings more visible
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Making build warnings more visible
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you navigate to your HTML documentation,
-you will notice that the index page looks correct,
-but actually the API section is empty.
+you will notice that the index page looks correct
+but the API section is empty.
 This is a very common issue with Sphinx,
 and the reason is stated in the build logs.
 On the build page you opened before,
@@ -371,52 +317,59 @@ and you will see several warnings:
    WARNING: autodoc: failed to import exception 'InvalidKindError' from module 'lumache'; the following exception was raised:
    No module named 'lumache'
 
-To spot these warnings more easily and allow you to address them,
-you can add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
-For that, navigate to GitHub, locate the ``.readthedocs.yaml`` file you created earlier,
-click on the |:pencil2:| icon, and add these contents:
+To spot these warnings more easily and help you to address them,
+add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
+
+To fail on warnings to your Read the Docs project, edit the ``.readthedocs.yaml`` file in your project, add the three lines of ``sphinx`` configuration below, and commit the file:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 8-9
+   :emphasize-lines: 14
 
    version: 2
 
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-22.04"
      tools:
        python: "3.8"
 
+   python:
+     install:
+       - requirements: docs/requirements.txt
+
    sphinx:
+     configuration: docs/source/conf.py
      fail_on_warning: true
 
-At this point, if you navigate back to your "Builds" page,
-you will see a ``Failed`` build, which is exactly the intended result:
-the Sphinx project is not properly configured yet,
-and instead of rendering an empty API page, now the build fails.
+If you navigate to your "Builds" page, you will see a ``Failed`` build, which is expected because we've configured Sphinx to fail on warnings and several warnings were encountered during the build.
 
-The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc`
-fail to import the code is because it is not installed.
-Luckily, the ``.readthedocs.yaml`` also allows you to specify
-which requirements to install.
+To learn how to fix these warnings, see the next section.
 
-To install the library code of your project,
-go back to editing ``.readthedocs.yaml`` on GitHub and modify it as follows:
+Installing Python dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc` fail to import the :ref:`tutorial/index:making build warnings more visible`, is because the ``lumache`` module is not installed.
+
+You will need to specify those installation requirements in ``.readthedocs.yaml``.
+
+To install your project dependencies and make your code available to Sphinx,
+edit ``.readthedocs.yaml``, add the ``python.install``  section and commit it:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 2-4
+   :emphasize-lines: 4-6
 
    python:
-     # Install our python package before building the docs
      install:
+       - requirements: docs/requirements.txt
+       # Install our python package before building the docs
        - method: pip
          path: .
 
-With this change, Read the Docs will install the Python code
+Now, Read the Docs installs the Python code
 before starting the Sphinx build, which will finish seamlessly.
 If you go now to the API page of your HTML documentation,
-you will see the ``lumache`` summary!
+you will see the ``lumache`` summary! :tada:
 
 Enabling PDF and EPUB builds
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -425,13 +378,14 @@ Sphinx can build several other formats in addition to HTML, such as PDF and EPUB
 You might want to enable these formats for your project
 so your users can read the documentation offline.
 
-To do so, add this extra content to your ``.readthedocs.yaml``:
+To do so, add the following ``formats`` to your ``.readthedocs.yaml``:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 4-6
+   :emphasize-lines: 5-7
 
    sphinx:
+     configuration: docs/source/conf.py
      fail_on_warning: true
 
    formats:
@@ -451,29 +405,29 @@ as well as the :term:`flyout menu`.
 Versioning documentation
 ------------------------
 
-Read the Docs allows you to have :doc:`several versions of your documentation </versions>`,
+Read the Docs supports having :doc:`several versions of your documentation </versions>`,
 in the same way that you have several versions of your code.
 By default, it creates a ``latest`` version
 that points to the default branch of your version control system
 (``main`` in the case of this tutorial),
 and that's why the URLs of your HTML documentation contain the string ``/latest/``.
 
-Creating a new version
-~~~~~~~~~~~~~~~~~~~~~~
+Creating a new version of your documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's say you want to create a ``1.0`` version of your code,
-with a corresponding ``1.0`` version of the documentation.
-For that, first navigate to your GitHub repository, click on the branch selector,
-type ``1.0.x``, and click on "Create branch: 1.0.x from 'main'"
-(more information `on their documentation`__).
+Read the Docs automatically creates documentation versions from GitHub branches and tags that :ref:`follows some rules <versions:Versioning workflows>` about looking like version numbers, such as ``1.0``, ``2.0.3`` or ``4.x``.
+
+To create version ``1.0`` of your code, and consequently of your documentation:
+
+#. Navigate to your GitHub repository, click the branch selector, type ``1.0.x``, and click "Create branch: 1.0.x from 'main'" (more information `in the GitHub documentation`__).
+
+#. Check that you now have version ``1.0.x`` in your :term:`project home`, click on the :guilabel:`Versions` button, and under "Active Versions" you will see two entries:
+
+  - The ``latest`` version, pointing to the ``main`` branch.
+  - A new ``stable`` version, pointing to the ``origin/1.0.x`` branch.
 
 __ https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
 
-Next, go to your :term:`project home`, click on the :guilabel:`Versions` button,
-and under "Active Versions" you will see two entries:
-
-- The ``latest`` version, pointing to the ``main`` branch.
-- A new ``stable`` version, pointing to the ``origin/1.0.x`` branch.
 
 .. figure:: /_static/images/tutorial/active-versions.png
    :width: 80%
@@ -482,30 +436,18 @@ and under "Active Versions" you will see two entries:
 
    List of active versions of the project
 
-Right after you created your branch,
-Read the Docs created a new special version called ``stable`` pointing to it,
-and started building it. When the build finishes,
-the ``stable`` version will be listed in the :term:`flyout menu`
-and your readers will be able to choose it.
+When you created your branch,
+Read the Docs created a new special version called ``stable`` pointing to it. When it's built it will be listed in the :term:`flyout menu`.
 
-.. note::
+Setting stable as the default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   Read the Docs :ref:`follows some rules <versions:how we envision versions working>`
-   to decide whether to create a ``stable`` version pointing to your new branch or tag.
-   To simplify, it will check if the name resembles a version number
-   like ``1.0``, ``2.0.3`` or ``4.x``.
-
-Now you might want to set ``stable`` as the *default version*,
+To set ``stable`` as the *default version*,
 rather than ``latest``,
 so that users see the ``stable`` documentation
-when they visit the :term:`root URL` of your documentation
-(while still being able to change the version in the flyout menu).
+when they visit the :term:`root URL` of your documentation:
 
-For that, go to the :guilabel:`Advanced Settings` link
-under the :guilabel:`⚙ Admin` menu of your project home,
-choose ``stable`` in the "Default version*" dropdown,
-and hit :guilabel:`Save` at the bottom.
-Done!
+#. In the the :guilabel:`⚙ Admin` menu of your project home, go to the :guilabel:`Settings` link, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
 
 Modifying versions
 ~~~~~~~~~~~~~~~~~~
@@ -522,79 +464,77 @@ version, which will always point to the ``1.0.x`` branch of your repository.
 
    List of inactive versions of the project
 
-Let's activate the ``1.0.x`` version.
-For that, go to the "Versions" on your :term:`project home`,
-locate ``1.0.x`` under "Activate a version",
-and click on the :guilabel:`Activate` button.
-This will take you to a new page with two checkboxes,
-"Active" and "Hidden". Check only "Active",
-and click :guilabel:`Save`.
+To activate the ``1.0.x`` version:
 
-After you do this, ``1.0.x`` will appear on the "Active Versions" section,
-and a new build will be triggered for it.
+#. On your :term:`project home`, go to the "Versions", locate ``1.0.x`` under "Activate a version", and click the :guilabel:`Activate` button.
+
+#. On the "Activate" page with "Active" and "Hidden" checkboxes, check only "Active" and click :guilabel:`Save`.
 
 .. note::
 
-   You can read more about :ref:`hidden versions <versions:hidden>`
+   Read more about :ref:`hidden versions <versions:Version states>`
    in our documentation.
 
-Show a warning for old versions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. "Show a warning for old versions" feature is not available anymore.
+   We should re-write this section once we have the notification addons rolled out.
 
-When your project matures, the number of versions might increase.
-Sometimes you will want to warn your readers
-when they are browsing an old or outdated version of your documentation.
 
-To showcase how to do that, let's create a ``2.0`` version of the code:
-navigate to your GitHub repository, click on the branch selector,
-type ``2.0.x``, and click on "Create branch: 2.0.x from 'main'".
-This will trigger two things:
+   Show a warning for old versions
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Since ``2.0.x`` is your newest branch, ``stable`` will switch to tracking it.
-- A new ``2.0.x`` version will be created on your Read the Docs project.
-- Since you already have an active ``stable`` version, ``2.0.x`` will be activated.
+   When your project matures, the number of versions might increase.
+   Sometimes you will want to warn your readers
+   when they are browsing an old or outdated version of your documentation.
 
-From this point, ``1.0.x`` version is no longer the most up to date one.
-To display a warning to your readers, go to the :guilabel:`⚙ Admin` menu of your project home,
-click on the :guilabel:`Advanced Settings` link on the left,
-enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
+   To showcase how to do that, let's create a ``2.0`` version of the code:
+   navigate to your GitHub repository, click on the branch selector,
+   type ``2.0.x``, and click on "Create branch: 2.0.x from 'main'".
+   This will trigger two things:
 
-If you now browse the ``1.0.x`` documentation, you will see a warning on top
-encouraging you to browse the latest version instead. Neat!
+   - Since ``2.0.x`` is your newest branch, ``stable`` will switch to tracking it.
+   - A new ``2.0.x`` version will be created on your Read the Docs project.
+   - Since you already have an active ``stable`` version, ``2.0.x`` will be activated.
 
-.. figure:: /_static/images/tutorial/old-version-warning.png
-   :width: 80%
-   :align: center
-   :alt: Warning for old versions
+   From this point, ``1.0.x`` version is no longer the most up to date one.
+   To display a warning to your readers, go to the :guilabel:`⚙ Admin` menu of your project home,
+   click on the :guilabel:`Settings` link on the left,
+   enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
 
-   Warning for old versions
+   If you now browse the ``1.0.x`` documentation, you will see a warning on top
+   encouraging you to browse the latest version instead. Neat!
 
-Getting insights from your projects
------------------------------------
+   .. figure:: /_static/images/tutorial/old-version-warning.png
+      :width: 80%
+      :align: center
+      :alt: Warning for old versions
+
+      Warning for old versions
+
+Getting project insights
+------------------------
 
 Once your project is up and running, you will probably want to understand
 how readers are using your documentation, addressing some common questions like:
 
-- what pages are the most visited pages?
-- what search terms are the most frequently used?
-- are readers finding what they look for?
+- what are the most visited pages?
+- what are the most frequently used search terms?
+- are readers finding what they are looking for?
 
-Read the Docs offers you some analytics tools to find out the answers.
+Read the Docs has traffic and search analytics tools to help you find answers to these questions.
 
-Browsing Traffic Analytics
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Understanding traffic analytics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
+The Traffic Analytics view gives you a simple overview of how your readers browse your documentation. It respects visitor privacy by not storing identifying information about your them.
+
+This page shows the most viewed documentation pages of the past 30 days,
 plus a visualization of the daily views during that period.
-To generate some artificial views on your newly created project,
-you can first click around the different pages of your project,
-which will be accounted immediately for the current day statistics.
 
 To see the Traffic Analytics view, go back the :term:`project page` again,
-click on the :guilabel:`⚙ Admin` button,
-and then click on the :guilabel:`Traffic Analytics` section.
+click the :guilabel:`⚙ Admin` button,
+and then click the :guilabel:`Traffic Analytics` section.
 You will see the list of pages in descending order of visits,
-as well as a plot similar to the one below.
+and a similar visualization to this one:
 
 .. figure:: /_static/images/tutorial/traffic-analytics-plot.png
    :width: 80%
@@ -603,32 +543,15 @@ as well as a plot similar to the one below.
 
    Traffic Analytics plot
 
-.. note::
-
-   The Traffic Analytics view explained above gives you a simple overview
-   of how your readers browse your documentation. It has the advantage that
-   it stores no identifying information about your visitors,
-   and therefore it respects their privacy.
-   However, you might want to get more detailed data by
-   :ref:`enabling Google Analytics <analytics:Enabling Google Analytics on your Project>`.
-   Notice though that we take some extra measures to :ref:`respect user
-   privacy <advertising/advertising-details:analytics>`
-   when they visit projects that have Google Analytics enabled,
-   and this might reduce the number of visits counted.
-
-Finally, you can also download this data for closer inspection.
+You can also download this data in :abbr:`CSV (Comma-Separated Values)`  format for closer inspection.
 To do that, scroll to the bottom of the page
-and click on the :guilabel:`Download all data` button.
-That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
-that you can process any way you want.
+and click the :guilabel:`Download all data` button.
 
-Browsing Search Analytics
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Understanding search analytics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Apart from traffic analytics, Read the Docs also offers the possibility
-to inspect :ref:`what search terms your readers use <server-side-search:Search Analytics>`
-on your documentation.
-This can inform decisions on what areas to reinforce,
+As well as traffic analytics, Read the Docs shows :doc:`what terms your readers are searching for </search-analytics>`.
+This can inform decisions on what areas to focus on,
 or what parts of your project are less understood or more difficult to find.
 
 To generate some artificial search statistics on the project,
@@ -637,7 +560,7 @@ type ``ingredients``, and press the :kbd:`Enter` key.
 You will be redirected to the search results page, which will show two entries.
 
 Next, go back to the :guilabel:`⚙ Admin` section of your project page,
-and then click on the :guilabel:`Search Analytics` section.
+and then click the :guilabel:`Search Analytics` section.
 You will see a table with the most searched queries
 (including the ``ingredients`` one you just typed),
 how many results did each query return, and how many times it was searched.
@@ -657,33 +580,28 @@ by clicking on the :guilabel:`Download all data` button.
 Where to go from here
 ---------------------
 
-This is the end of the tutorial. You started by forking a GitHub repository
-and importing it on Read the Docs, building its HTML documentation,
-and then went through a series of steps to customize the build process,
-tweak the project configuration, and add new versions.
+This is the end of the tutorial. You have accomplished a lot:
 
-Here you have some resources to continue learning about documentation
+#. Forked a GitHub repository.
+#. Connected it to Read the Docs.
+#. Built its HTML documentation.
+#. Customized the build process.
+#. Added new documentation versions.
+#. Browsed the project analytics.
+
+Nice work!
+
+Here are some resources to help you continue learning about documentation
 and Read the Docs:
 
-- You can learn more about the functionality of the platform
-  by going over our :doc:`/features` page.
-- To make the most of the documentation generators that are supported,
-  you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
-  or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
-- Display example projects and read the source code in :doc:`/examples`.
-- Whether you are a documentation author, a project administrator, a developer, or a designer,
-  you can follow our how-to guides that cover specific tasks,
-  available under :doc:`/guides/index`.
-- You can check out some of the
-  :ref:`index:Advanced features of Read the Docs`,
-  like :doc:`/subprojects` or :doc:`/automation-rules`, to name a few.
-- For private project support and other enterprise features,
-  you can use :doc:`our commercial service </commercial/index>`
-  (and if in doubt, check out :doc:`/choosing-a-site`).
-- Do you want to join a global community of fellow `documentarians <writethedocs:documentarians>`?
-  Check out `Write the Docs <https://www.writethedocs.org/>`_ and
+- Learn more about the platform :doc:`features </reference/features>`.
+- Learn about other supported documentation generators in the :doc:`Sphinx tutorial <sphinx:tutorial/index>` or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
+- See a list of Read the Docs :doc:`/examples`.
+- Learn how to do specific tasks in the :doc:`/guides/index`.
+- Learn about private project support and other enterprise features
+  in :doc:`our commercial service guide </commercial/index>`.
+- Join a global community of fellow `documentarians <writethedocs:documentarians>` in `Write the Docs <https://www.writethedocs.org/>`_ and
   :doc:`its Slack workspace <writethedocs:slack>`.
-- Do you want to contribute to Read the Docs?
-  We greatly appreciate it! Check out :doc:`rtd-dev:contribute`.
+- Contribute to Read the Docs in :doc:`rtd-dev:contribute`, we appreciate it!
 
 Happy documenting!

@@ -1,10 +1,8 @@
-
 """Utilities related to analytics."""
 
 import hashlib
 import ipaddress
 
-import requests
 import structlog
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -27,14 +25,14 @@ def get_client_ip(request):
         # HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs.
         # The client's IP will be the first one.
         # (eg. "X-Forwarded-For: client, proxy1, proxy2")
-        client_ip = x_forwarded_for.split(',')[0].strip()
+        client_ip = x_forwarded_for.split(",")[0].strip()
 
         # Removing the port number (if present)
         # But be careful about IPv6 addresses
-        if client_ip.count(':') == 1:
-            client_ip = client_ip.rsplit(':', maxsplit=1)[0]
+        if client_ip.count(":") == 1:
+            client_ip = client_ip.rsplit(":", maxsplit=1)[0]
     else:
-        client_ip = request.META.get('REMOTE_ADDR', None)
+        client_ip = request.META.get("REMOTE_ADDR", None)
 
     return client_ip
 
@@ -42,7 +40,7 @@ def get_client_ip(request):
 def anonymize_ip_address(ip_address):
     """Anonymizes an IP address by zeroing the last 2 bytes."""
     # Used to anonymize an IP by zero-ing out the last 2 bytes
-    ip_mask = int('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000', 16)
+    ip_mask = int("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000", 16)
 
     try:
         ip_obj = ipaddress.ip_address(force_str(ip_address))
@@ -57,38 +55,10 @@ def anonymize_user_agent(user_agent):
     """Anonymizes rare user agents."""
     # If the browser family is not recognized, this is a rare user agent
     parsed_ua = parse(user_agent)
-    if parsed_ua.browser.family == 'Other' or parsed_ua.os.family == 'Other':
-        return 'Rare user agent'
+    if parsed_ua.browser.family == "Other" or parsed_ua.os.family == "Other":
+        return "Rare user agent"
 
     return user_agent
-
-
-def send_to_analytics(data):
-    """Sends data to Google Analytics."""
-    if data.get('uip') and data.get('ua'):
-        data['cid'] = generate_client_id(data['uip'], data['ua'])
-
-    if data.get('uip'):
-        # Anonymize IP address if applicable
-        data['uip'] = anonymize_ip_address(data['uip'])
-
-    if data.get('ua'):
-        # Anonymize user agent if it is rare
-        data['ua'] = anonymize_user_agent(data['ua'])
-
-    resp = None
-    log.debug('Sending data to analytics.', data=data)
-    try:
-        resp = requests.post(
-            'https://www.google-analytics.com/collect',
-            data=data,
-            timeout=3,  # seconds
-        )
-    except requests.Timeout:
-        log.warning('Timeout sending to Google Analytics')
-
-    if resp and not resp.ok:
-        log.warning('Unknown error sending to Google Analytics')
 
 
 def generate_client_id(ip_address, user_agent):
@@ -98,7 +68,7 @@ def generate_client_id(ip_address, user_agent):
     This simplifies things but essentially if a user has the same IP and same
     UA, this will treat them as the same user for analytics purposes
     """
-    salt = b'advertising-client-id'
+    salt = b"advertising-client-id"
 
     hash_id = hashlib.sha256()
     hash_id.update(force_bytes(settings.SECRET_KEY))

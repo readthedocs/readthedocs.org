@@ -24,7 +24,7 @@ def delete_customer(customer_id):
         return customer.delete()
     except stripe.error.InvalidRequestError:
         log.exception(
-            'Customer not deleted. Customer not found on Stripe.',
+            "Customer not deleted. Customer not found on Stripe.",
             stripe_customer=customer_id,
         )
 

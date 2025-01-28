@@ -2,6 +2,7 @@
   {
     "path": "index.html",
     "title": "Windmill theme",
+    "main_content_hash": "68542e8759d648c4304f0e1ca85a0547",
     "sections": [
       {
         "id": "windmill-theme",
@@ -23,7 +24,6 @@
         "title": "Usage",
         "content": "To use the Windmill theme installed via pip, add this to your mkdocs.yml: theme: 'windmill' If you cloned Windmill from GitHub: theme: name: null custom_dir: '{INSTALL_DIR}/mkdocs_windmill' # Copy settings from mkdocs_theme.yml, which is ignored by custom_dir themes. static_templates: [404.html] search_index_only: true include_search_page: true Note that it's important for there to exist a homepage, e.g. a top-level root element in mkdocs 1.0+: nav: - Home: index.md"
       }
-    ],
-    "domain_data": {}
+    ]
   }
 ]

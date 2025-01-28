@@ -1,21 +1,22 @@
 Organizations
 -------------
 
-.. note::
-    This feature only exists on `Read the Docs for Business <https://readthedocs.com/>`_.
+.. include:: /shared/admonition-rtd-business.rst
 
-Organizations allow you to segment who has access to what projects in your company.
-Your company will be represented as an Organization,
-let's use ACME Corporation as our example.
+In this article, we explain how the *organizations* feature allows you to manage access to your projects.
+On |com_brand|, your account is linked to an *organization*.
+Organizations allow you to define both individual and team permissions for your projects.
 
-ACME has a few people inside their organization,
-some who need full access and some who just need access to one project.
+.. seealso::
 
-Member Types
-~~~~~~~~~~~~
+   :doc:`/guides/manage-read-the-docs-teams`
+     A step-by-step guide to managing teams.
 
-* **Owners** -- Get full access to both view and edit the Organization and all Projects
-* **Members** -- Get access to a subset of the Organization projects
+Important objects
+~~~~~~~~~~~~~~~~~
+
+* **Owners** -- Get full access to both view and edit the organization and all projects
+* **Members** -- Get access to a subset of the organization projects
 * **Teams** -- Where you give members access to a set of projects.
 
 The best way to think about this relationship is:
@@ -25,15 +26,15 @@ The best way to think about this relationship is:
 .. warning::
 
    Owners, Members and Teams behave differently if you are using
-   :ref:`SSO with VCS provider (GitHub, Bitbucket or GitLab) <commercial/single-sign-on:SSO with VCS provider (GitHub, Bitbucket or GitLab)>`
+   :ref:`sso_git_provider`.
 
-Team Types
+Team types
 ~~~~~~~~~~
 
-You can create two types of Teams:
+You can create two types of teams:
 
-* **Admins** -- These teams have full access to administer the projects in the team. They are allowed to change all of the settings, set notifications, and perform any action under the **Admin** tab.
-* **Read Only** -- These teams are only able to read and search inside the documents.
+* **Admin** -- Team members have full access to administer the projects assigned to the team. Members are allowed to change all of the settings, set notifications, and perform any action under the :guilabel:`Admin` tab for each project.
+* **Read Only** -- Team members are only able to read the documentation of each project, and not able to change anything about each project.
 
 Example
 ~~~~~~~

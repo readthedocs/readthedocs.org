@@ -22,7 +22,6 @@ from readthedocs.sso.models import SSOIntegration
 
 
 class SyncRemoteRepositoriesTests(TestCase):
-
     def setUp(self):
         self.user = get(User)
         self.project = get(Project, users=[self.user])
@@ -43,45 +42,47 @@ class SyncRemoteRepositoriesTests(TestCase):
             provider=BitbucketOAuth2Adapter.provider_id,
         )
 
-    @patch('readthedocs.oauth.services.github.GitHubService.sync')
-    @patch('readthedocs.oauth.services.gitlab.GitLabService.sync')
-    @patch('readthedocs.oauth.services.bitbucket.BitbucketService.sync')
+    @patch("readthedocs.oauth.services.github.GitHubService.sync")
+    @patch("readthedocs.oauth.services.gitlab.GitLabService.sync")
+    @patch("readthedocs.oauth.services.bitbucket.BitbucketService.sync")
     def test_sync_repository(self, sync_bb, sync_gl, sync_gh):
         r = sync_remote_repositories(self.user.pk)
-        self.assertNotIn('error', r)
+        self.assertNotIn("error", r)
         sync_bb.assert_called_once()
         sync_gl.assert_called_once()
         sync_gh.assert_called_once()
 
-    @patch('readthedocs.oauth.services.github.GitHubService.sync')
-    @patch('readthedocs.oauth.services.gitlab.GitLabService.sync')
-    @patch('readthedocs.oauth.services.bitbucket.BitbucketService.sync')
+    @patch("readthedocs.oauth.services.github.GitHubService.sync")
+    @patch("readthedocs.oauth.services.gitlab.GitLabService.sync")
+    @patch("readthedocs.oauth.services.bitbucket.BitbucketService.sync")
     def test_sync_repository_failsync(self, sync_bb, sync_gl, sync_gh):
         sync_gh.side_effect = SyncServiceError
         r = sync_remote_repositories(self.user.pk)
-        self.assertIn('GitHub', r['error'])
-        self.assertNotIn('GitLab', r['error'])
-        self.assertNotIn('Bitbucket', r['error'])
+        self.assertIn("GitHub", r["error"])
+        self.assertNotIn("GitLab", r["error"])
+        self.assertNotIn("Bitbucket", r["error"])
         sync_bb.assert_called_once()
         sync_gl.assert_called_once()
         sync_gh.assert_called_once()
 
-    @patch('readthedocs.oauth.services.github.GitHubService.sync')
-    @patch('readthedocs.oauth.services.gitlab.GitLabService.sync')
-    @patch('readthedocs.oauth.services.bitbucket.BitbucketService.sync')
+    @patch("readthedocs.oauth.services.github.GitHubService.sync")
+    @patch("readthedocs.oauth.services.gitlab.GitLabService.sync")
+    @patch("readthedocs.oauth.services.bitbucket.BitbucketService.sync")
     def test_sync_repository_failsync_more_than_one(self, sync_bb, sync_gl, sync_gh):
         sync_gh.side_effect = SyncServiceError
         sync_bb.side_effect = SyncServiceError
         r = sync_remote_repositories(self.user.pk)
-        self.assertIn('GitHub', r['error'])
-        self.assertIn('Bitbucket', r['error'])
-        self.assertNotIn('GitLab', r['error'])
+        self.assertIn("GitHub", r["error"])
+        self.assertIn("Bitbucket", r["error"])
+        self.assertNotIn("GitLab", r["error"])
         sync_bb.assert_called_once()
         sync_gl.assert_called_once()
         sync_gh.assert_called_once()
 
-    @patch('readthedocs.oauth.tasks.sync_remote_repositories')
-    def test_sync_remote_repository_organizations_slugs(self, mock_sync_remote_repositories):
+    @patch("readthedocs.oauth.tasks.sync_remote_repositories")
+    def test_sync_remote_repository_organizations_slugs(
+        self, mock_sync_remote_repositories
+    ):
         organization = get(Organization)
         get(
             OrganizationOwner,
@@ -94,8 +95,10 @@ class SyncRemoteRepositoriesTests(TestCase):
             countdown=0,
         )
 
-    @patch('readthedocs.oauth.tasks.sync_remote_repositories')
-    def test_sync_remote_repository_organizations_without_slugs(self, mock_sync_remote_repositories):
+    @patch("readthedocs.oauth.tasks.sync_remote_repositories")
+    def test_sync_remote_repository_organizations_without_slugs(
+        self, mock_sync_remote_repositories
+    ):
         organization = get(Organization)
         get(
             SSOIntegration,

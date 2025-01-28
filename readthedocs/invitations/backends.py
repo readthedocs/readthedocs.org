@@ -67,7 +67,7 @@ class Backend:
         )
         send_email(
             recipient=email,
-            subject=f"{from_name} has invite you to join the {object_description}",
+            subject=f"{from_name} has invited you to join the {object_description}",
             template="invitations/email/invitation.txt",
             template_html="invitations/email/invitation.html",
             context={
@@ -81,7 +81,6 @@ class Backend:
 
 
 class ProjectBackend(Backend):
-
     klass = Project
 
     def get_origin_url(self):
@@ -96,7 +95,6 @@ class ProjectBackend(Backend):
 
 
 class OrganizationBackend(Backend):
-
     klass = Organization
 
     def get_origin_url(self):

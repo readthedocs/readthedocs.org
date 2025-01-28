@@ -2,6 +2,7 @@
   {
     "path": "index.html",
     "title": "MkDocs",
+    "main_content_hash": "aca1f625e559fe49718abe801532b3ef",
     "sections": [
       {
         "id": "mkdocs",
@@ -33,24 +34,24 @@
         "title": "Install with a Package Manager",
         "content": "If your package manager does not have a recent \"MkDocs\" package, you can still use your package manager to install \"Python\" and \"pip\". $ python --version Python 3.8.2 $ pip --version pip 20.0.2 from /usr/local/lib/python3.8/site-packages/pip (python 3.8) Note If you would like manpages installed for MkDocs, the click-man tool can generate and install them for you. Simply run the following two commands: pip install click-man click-man --target path/to/man/pages mkdocs"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "404.html",
     "title": "404",
+    "main_content_hash": "2f582057ff73758c152d6925eb149099",
     "sections": [
       {
         "id": "404-page-not-found",
         "title": "404",
         "content": "Page not found"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "configuration.html",
     "title": "Configuration",
+    "main_content_hash": "6a5526f41cfef3da4c541f0465ac42e8",
     "sections": [
       {
         "id": "configuration",
@@ -87,24 +88,24 @@
         "title": "lang",
         "content": "A list of languages to use when building the search index as identified by their ISO 639-1 language codes. ar: Arabic da: Danish nl: Dutch en: English fi: Finnish fr: French de: German hu: Hungarian it: Italian ja: Japanese no: Norwegian pt: Portuguese ro: Romanian ru: Russian es: Spanish sv: Swedish th: Thai tr: Turkish vi: Vietnamese"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "no-title.html",
     "title": "No title - Read the Docs MkDocs Test",
+    "main_content_hash": "c02e4800b9da5e96ed35841f11072777",
     "sections": [
       {
         "id": "",
         "title": "No title - Read the Docs MkDocs Test",
         "content": "This file doesn't have a header, but it does have a content. 1 2 3 Another paragraph"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "no-main-header.html",
     "title": "I'm the header",
+    "main_content_hash": "43010c91ae89c036b157c2a3947d63b8",
     "sections": [
       {
         "id": "",
@@ -116,7 +117,6 @@
         "title": "I'm the header",
         "content": "I'm more content."
       }
-    ],
-    "domain_data": {}
+    ]
   }
 ]

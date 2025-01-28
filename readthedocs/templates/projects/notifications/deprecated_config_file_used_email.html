@@ -1,0 +1,35 @@
+{% extends "core/email/common.html" %}
+{% block content %}
+The Read the Docs build system will start requiring a configuration file v2 (<code>.readthedocs.yaml</code>) starting on <strong>September 25, 2023</strong>.
+We are sending weekly notifications about this issue to all impacted users,
+as well as temporary build failures (brownouts) as the date approaches for those who haven't migrated their projects.
+
+The timeline for this deprecation is as follows:
+
+<ul>
+    <li><strong>Monday, July 24, 2023</strong>: Do the first brownout (temporarily enforce this deprecation) for 12 hours: 00:01 PST to 11:59 PST (noon)</li>
+    <li><strong>Monday, August 14, 2023</strong>: Do a second brownout (temporarily enforce this deprecation) for 24 hours: 00:01 PST to 23:59 PST (midnight)</li>
+    <li><strong>Monday, September 4, 2023</strong>: Do a third and final brownout (temporarily enforce this deprecation) for 48 hours: 00:01 PST to September 5, 2023 23:59 PST (midnight)</li>
+    <li><strong>Monday, September 25, 2023</strong>: Fully remove support for building documentation without configuration file v2.</li>
+</ul>
+
+We have identified that the following projects which you maintain, and were built in the last year, are impacted by this deprecation:
+
+<ul>
+{% for project in projects|slice:":15" %}
+    <li><a href="{{ production_uri }}{{ project.get_absolute_url }}">{{ project.slug }}</a></li>
+{% endfor %}
+{% if projects.count > 15 %}
+    <li>... and {{ projects.count|add:"-15" }} more projects.</li>
+{% endif %}
+</ul>
+
+Please add a configuration file to your projects to ensure that they continue building successfully and to stop receiving these notifications.
+If you want to opt-out from these emails, you can <a href="https://readthedocs.org/accounts/edit/"> edit your preferences in your account settings</a>.
+
+For more information on how to create a required configuration file,
+<a href="https://blog.readthedocs.com/migrate-configuration-v2/">read our blog post</a>
+
+Get in touch with us <a href="{{ production_uri }}{% url 'support' %}">via our support</a>
+and let us know if you are unable to use a configuration file for any reason.
+{% endblock %}

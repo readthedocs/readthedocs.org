@@ -49,7 +49,7 @@
 
   <br />
   <form method="get">
-    <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
+    <button type="submit" name="download" value="true" {% if not enabled %}disabled{% endif %}>{% trans "Download all data" %}</button>
   </form>
 
 {% endblock %}

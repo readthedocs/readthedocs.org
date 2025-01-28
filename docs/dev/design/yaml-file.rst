@@ -1,4 +1,4 @@
-YAML Configuration File
+YAML configuration file
 =======================
 
 Background
@@ -16,14 +16,14 @@ Scope
 - Proper documentation for the end user
 - Allow to specify the spec's version used on the YAML file
 - Collect/show metadata about the YAML file and build configuration
-- Promote the adoption of the configuration file 
+- Promote the adoption of the configuration file
 
 RTD settings
 ------------
 
 No all the RTD settings are applicable to the YAML file,
 others are applicable for each build (or version),
-and others for the global project. 
+and others for the global project.
 
 Not applicable settings
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -157,4 +157,3 @@ Footnotes
 .. [#project-description] https://github.com/readthedocs/readthedocs.org/issues/3689
 .. [#yaml-spec] https://yaml.org/spec/1.2/spec.html
 .. [#specversioning] https://github.com/readthedocs/readthedocs.org/issues/3806
-.. [#one-checkout] https://github.com/readthedocs/readthedocs.org/issues/1375

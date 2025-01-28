@@ -58,6 +58,11 @@
   <!-- End Google Analytics -->
   {% endif %}
 
+  {% if request.user.is_authenticated %}
+  {# Only tack logged-in users to avoid sending a lot of (maybe unrelevant) traffic #}
+  <script defer data-domain="{{ PRODUCTION_DOMAIN }}" src="https://plausible.io/js/script.js"></script>
+  {% endif %}
+
   <!-- css -->
   <link rel="stylesheet" href="{% static 'css/core.css' %}">
   {% block extra_links %}{% endblock %}
@@ -67,7 +72,9 @@
   <script src="{% static 'vendor/jquery-migrate.js' %}"></script>
   <script src="{% static 'vendor/jquery-ui.js' %}"></script>
   <script >
-    require('jquery');
+    // Set jQuery to its expected globals.
+    window.$ = require('jquery');
+    window.jQuery = window.$;
   </script>
 
   <script src="{% static 'javascript/base.js' %}"></script>
@@ -96,17 +103,20 @@
     <div id="content">
       <div class="wrapper">
 
+        {% comment %}
+          ``user_notifications`` comes from a Context Processor.
+          We need to use a CustomUser to have access to "user.notifications"
+          See https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-AUTH_USER_MODEL
+        {% endcomment %}
+        {% include "core/notifications.html" with notifications=user_notifications %}
+
         <!-- BEGIN notify -->
         {% block notify %}
+          {# These are regular one-time Django message attached to the request. #}
           {% if messages %}
             <ul class="notifications">
               {% for message in messages %}
-                <li class="notification notification-{{ message.level }}" {% if message.pk %}data-dismiss-url="{% url 'message_mark_read' message.pk %}{% endif %}">
-                  {% if message.pk %}
-                  <a class="notification-action" href="{% url 'message_mark_read' message.pk %}">
-                    <span class="icon close" aria-label="{% trans 'Close notification' %}"></span>
-                  </a>
-                  {% endif %}
+                <li class="notification notification-{{ message.level }}">
                   {{ message }}
                 </li>
               {% endfor %}
@@ -221,7 +231,7 @@
               <a href="https://readthedocs.com">{% trans 'Read the Docs for Business' %}</a>
             </li>
             <li>
-              <a href="https://read-the-docs-guidelines.readthedocs-hosted.com/">{% trans 'Branding & Media Kit' %}</a>
+              <a href="https://brand-guidelines.readthedocs.org/">{% trans 'Branding & Media Kit' %}</a>
             </li>
             <li>
               <a href="https://docs.readthedocs.io/page/privacy-policy.html">{% trans 'Privacy Policy' %}</a>

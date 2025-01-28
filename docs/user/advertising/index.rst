@@ -23,14 +23,12 @@ that respects user privacy.
 We recognize that advertising is not for everyone.
 You may :ref:`opt out of paid advertising <advertising/ethical-advertising:Opting Out>`
 although you will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>`.
-You can go ad-free by `becoming a Gold member`_ or a `Supporter`_ of Read the Docs.
-Gold members can also remove advertising from their projects for all visitors.
+`Gold members`_ may also remove advertising from their projects for all visitors.
 
 For businesses looking to remove advertising,
 please consider :doc:`Read the Docs for Business </commercial/index>`.
 
-.. _becoming a Gold member: https://readthedocs.org/accounts/gold/
-.. _Supporter: https://readthedocs.org/sustainability/#donations
+.. _Gold members: https://readthedocs.org/accounts/gold/
 
 .. toctree::
     :maxdepth: 2
@@ -39,3 +37,4 @@ please consider :doc:`Read the Docs for Business </commercial/index>`.
     ethical-advertising
     advertising-details
     ad-blocking
+    ad-customization

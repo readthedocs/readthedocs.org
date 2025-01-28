@@ -1,25 +1,49 @@
 version: 2
 
-formats: all
+formats:
+  - epub
+  - htmlzip
 
 sphinx:
   configuration: docs/conf.py
+  fail_on_warning: true
 
 python:
   install:
-    - requirements: requirements/pip.txt
     - requirements: requirements/docs.txt
 
 build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
+  jobs:
+    post_checkout:
+      # https://docs.readthedocs.io/en/stable/build-customization.html#cancel-build-based-on-a-condition
+      #
+      # Cancel building pull requests when there aren't changed in the docs directory.
+      #
+      # If there are no changes (git diff exits with 0) we force the command to return with 183.
+      # This is a special exit code on Read the Docs that will cancel the build immediately.
+      - |
+        if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ .readthedocs.yml requirements/docs.txt;
+        then
+          echo "No changes to docs/ - exiting the build.";
+          exit 183;
+        fi
 
 search:
   ranking:
     # Deprecated content
     api/v1.html: -1
     config-file/v1.html: -5
+
+    # Surface the tutorial content first, this page covers the configuration
+    # file basics very well. The explanation page is more conceptual and about
+    # versioning. Bump up the v2 reference page a little too, but the tutorial
+    # should be the first page the user looks at still.
+    config-file/index.html: 5
+    config-file/v2.html: 2
+    explanation/configuration-file.html: -1
 
     # Useful content, but not something we want most users finding
     changelog.html: -6

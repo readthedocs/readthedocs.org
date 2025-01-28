@@ -4,15 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0033_dont_cascade_delete_builds'),
+        ("builds", "0033_dont_cascade_delete_builds"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='version',
-            name='privacy_level',
-            field=models.CharField(choices=[('public', 'Public'), ('private', 'Private')], default='public', help_text='Level of privacy for this Version.', max_length=20, verbose_name='Privacy Level'),
+            model_name="version",
+            name="privacy_level",
+            field=models.CharField(
+                choices=[("public", "Public"), ("private", "Private")],
+                default="public",
+                help_text="Level of privacy for this Version.",
+                max_length=20,
+                verbose_name="Privacy Level",
+            ),
         ),
     ]

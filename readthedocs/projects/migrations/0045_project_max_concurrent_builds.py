@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0044_auto_20190703_1300'),
+        ("projects", "0044_auto_20190703_1300"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='project',
-            name='max_concurrent_builds',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Maximum concurrent builds allowed for this project'),
+            model_name="project",
+            name="max_concurrent_builds",
+            field=models.IntegerField(
+                blank=True,
+                null=True,
+                verbose_name="Maximum concurrent builds allowed for this project",
+            ),
         ),
     ]

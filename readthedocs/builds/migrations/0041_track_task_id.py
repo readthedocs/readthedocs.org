@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0040_remove_old_jsonfields'),
+        ("builds", "0040_remove_old_jsonfields"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='build',
-            name='task_id',
-            field=models.CharField(blank=True, max_length=36, null=True, verbose_name='Celery task id'),
+            model_name="build",
+            name="task_id",
+            field=models.CharField(
+                blank=True, max_length=36, null=True, verbose_name="Celery task id"
+            ),
         ),
     ]

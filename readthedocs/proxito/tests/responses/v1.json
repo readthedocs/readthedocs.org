@@ -1,0 +1,177 @@
+{
+  "api_version": "1",
+  "projects": {
+    "translations": [],
+    "current": {
+      "created": "2019-04-29T10:00:00Z",
+      "default_branch": "master",
+      "default_version": "latest",
+      "external_builds_privacy_level": "public",
+      "id": 1,
+      "language": {
+        "code": "en",
+        "name": "English"
+      },
+      "modified": "2019-04-29T12:00:00Z",
+      "name": "project",
+      "privacy_level": "public",
+      "programming_language": {
+        "code": "words",
+        "name": "Only Words"
+      },
+      "homepage": "http://project.com",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/readthedocs/project"
+      },
+      "single_version": false,
+      "versioning_scheme": "multiple_versions_with_translations",
+      "slug": "project",
+      "subproject_of": null,
+      "tags": ["project", "tag", "test"],
+      "translation_of": null,
+      "urls": {
+        "builds": "https://readthedocs.org/projects/project/builds/",
+        "documentation": "https://project.dev.readthedocs.io/en/latest/",
+        "home": "https://readthedocs.org/projects/project/",
+        "versions": "https://readthedocs.org/projects/project/versions/",
+        "downloads": "https://readthedocs.org/projects/project/downloads/"
+      },
+      "users": [
+        {
+          "username": "testuser"
+        }
+      ]
+    }
+  },
+  "versions": {
+    "current": {
+      "active": true,
+      "aliases": [],
+      "hidden": false,
+      "built": true,
+      "downloads": {},
+      "id": 1,
+      "identifier": "a1b2c3",
+      "privacy_level": "public",
+      "ref": null,
+      "slug": "latest",
+      "type": "tag",
+      "urls": {
+        "dashboard": {
+          "edit": "https://readthedocs.org/projects/project/version/latest/edit/"
+        },
+        "documentation": "https://project.dev.readthedocs.io/en/latest/",
+        "vcs": "https://github.com/readthedocs/project/tree/master/"
+      },
+      "verbose_name": "latest"
+    },
+    "active": [
+      {
+        "active": true,
+        "aliases": [],
+        "built": true,
+        "downloads": {},
+        "hidden": false,
+        "id": 1,
+        "identifier": "a1b2c3",
+        "privacy_level": "public",
+        "ref": null,
+        "slug": "latest",
+        "type": "tag",
+        "urls": {
+          "dashboard": {
+            "edit": "https://readthedocs.org/projects/project/version/latest/edit/"
+          },
+          "documentation": "https://project.dev.readthedocs.io/en/latest/",
+          "vcs": "https://github.com/readthedocs/project/tree/master/"
+        },
+        "verbose_name": "latest"
+      }
+    ]
+  },
+  "builds": {
+    "current": {
+      "commit": "a1b2c3",
+      "created": "2019-04-29T10:00:00Z",
+      "duration": 60,
+      "error": "",
+      "finished": "2019-04-29T10:01:00Z",
+      "id": 1,
+      "project": "project",
+      "state": {
+        "code": "finished",
+        "name": "Finished"
+      },
+      "success": true,
+      "urls": {
+        "build": "https://readthedocs.org/projects/project/builds/1/",
+        "project": "https://readthedocs.org/projects/project/",
+        "version": "https://readthedocs.org/projects/project/version/latest/edit/"
+      },
+      "version": "latest"
+    }
+  },
+  "domains": {
+    "dashboard": "readthedocs.org"
+  },
+  "readthedocs": {
+    "analytics": {
+      "code": null
+    },
+    "resolver": {
+      "filename": "/index.html"
+    }
+  },
+  "addons": {
+    "options": {
+      "load_when_embedded": false,
+      "root_selector": null
+    },
+    "analytics": {
+      "enabled": false,
+      "code": null
+    },
+    "hotkeys": {
+      "enabled": true,
+      "doc_diff": {
+        "enabled": true,
+        "trigger": "KeyD"
+      },
+      "search": {
+        "enabled": true,
+        "trigger": "Slash"
+      }
+    },
+    "notifications": {
+      "enabled": true,
+      "show_on_external": true,
+      "show_on_latest": true,
+      "show_on_non_stable": true
+    },
+    "doc_diff": {
+      "enabled": true,
+      "base_url": "https://project.dev.readthedocs.io/en/latest/index.html",
+      "inject_styles": true
+    },
+    "filetreediff": {
+      "enabled": false
+    },
+    "flyout": {
+      "enabled": true,
+      "position": null
+    },
+    "search": {
+      "enabled": true,
+      "default_filter": "project:project/latest",
+      "filters": []
+    },
+    "customscript": {
+      "enabled": false,
+      "src": null
+    },
+    "linkpreviews": {
+      "enabled": false
+    }
+  }
+}

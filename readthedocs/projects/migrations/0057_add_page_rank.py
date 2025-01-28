@@ -5,15 +5,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0056_add_disable_analytics'),
+        ("projects", "0056_add_disable_analytics"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='importedfile',
-            name='rank',
-            field=models.IntegerField(null=True, validators=[django.core.validators.MinValueValidator(-10), django.core.validators.MaxValueValidator(10)], verbose_name='Page search rank'),
+            model_name="importedfile",
+            name="rank",
+            field=models.IntegerField(
+                null=True,
+                validators=[
+                    django.core.validators.MinValueValidator(-10),
+                    django.core.validators.MaxValueValidator(10),
+                ],
+                verbose_name="Page search rank",
+            ),
         ),
     ]

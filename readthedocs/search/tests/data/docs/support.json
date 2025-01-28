@@ -17,23 +17,5 @@
             "title": "Commercial Support",
             "content": "We offer commercial support for Read the Docs, <h3>XSS exploit</h3> commercial hosting, as well as consulting around all documentation systems. You can contact us at hello@readthedocs.com to learn more, or read more at https://readthedocs.com/services/#open-source-support."
         }
-    ],
-    "domains": [
-        {
-            "role_name": "py:function",
-            "anchor": "celery.utils.deprecated.warn",
-            "type_display": "function",
-            "name": "celery.utils.deprecated.warn"
-        },
-        {
-            "role_name": "py:function",
-            "anchor": "celery.utils.deprecated.Property",
-            "type_display": "function",
-            "name": "celery.utils.deprecated.Property"
-        }
-    ],
-    "domain_data": {
-        "celery.utils.deprecated.warn": "Warn of (pending) deprecation",
-        "celery.utils.deprecated.Property": "Decorator for deprecated properties"
-    }
+    ]
 }

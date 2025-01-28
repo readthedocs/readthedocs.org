@@ -8,11 +8,10 @@ from django_dynamic_fixture import get
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import HTMLFile, Project
 
 
 class TestVersionForm(TestCase):
-
     def setUp(self):
         self.user = get(User)
         self.project = get(Project, users=(self.user,))
@@ -29,7 +28,7 @@ class TestVersionForm(TestCase):
 
         form = VersionForm(
             {
-                'active': True,
+                "active": True,
             },
             instance=version,
         )
@@ -46,12 +45,12 @@ class TestVersionForm(TestCase):
 
         form = VersionForm(
             {
-                'active': False,
+                "active": False,
             },
             instance=version,
         )
         self.assertFalse(form.is_valid())
-        self.assertIn('active', form.errors)
+        self.assertIn("active", form.errors)
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cant_update_privacy_level(self):
@@ -63,8 +62,8 @@ class TestVersionForm(TestCase):
         )
         form = VersionForm(
             {
-                'active': True,
-                'privacy_level': PRIVATE,
+                "active": True,
+                "privacy_level": PRIVATE,
             },
             instance=version,
         )
@@ -82,43 +81,69 @@ class TestVersionForm(TestCase):
         )
         form = VersionForm(
             {
-                'active': True,
-                'privacy_level': PRIVATE,
+                "active": True,
+                "privacy_level": PRIVATE,
             },
             instance=version,
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(version.privacy_level, PRIVATE)
 
-    @mock.patch('readthedocs.builds.forms.trigger_build', mock.MagicMock())
-    @mock.patch('readthedocs.projects.views.private.clean_project_resources')
-    def test_resources_are_deleted_when_version_is_inactive(self, clean_project_resources):
+    @mock.patch("readthedocs.builds.models.trigger_build", mock.MagicMock())
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def test_resources_are_deleted_when_version_is_inactive(
+        self, remove_build_storage_paths, remove_search_indexes
+    ):
         version = get(
             Version,
             project=self.project,
             active=True,
         )
+        another_version = get(Version, project=self.project, active=True)
+        get(
+            HTMLFile,
+            project=self.project,
+            version=version,
+            name="index.html",
+            path="index.html",
+        )
+        get(
+            HTMLFile,
+            project=self.project,
+            version=another_version,
+            name="index.html",
+            path="index.html",
+        )
 
-        url = reverse('project_version_detail', args=(version.project.slug, version.slug))
+        url = reverse(
+            "project_version_detail", args=(version.project.slug, version.slug)
+        )
 
         self.client.force_login(self.user)
 
         r = self.client.post(
             url,
             data={
-                'active': True,
-                'privacy_level': PRIVATE,
+                "active": True,
+                "privacy_level": PRIVATE,
             },
         )
         self.assertEqual(r.status_code, 302)
-        clean_project_resources.assert_not_called()
+        remove_build_storage_paths.delay.assert_not_called()
+        remove_search_indexes.delay.assert_not_called()
+        self.assertTrue(version.imported_files.exists())
+        self.assertTrue(another_version.imported_files.exists())
 
         r = self.client.post(
             url,
             data={
-                'active': False,
-                'privacy_level': PRIVATE,
+                "active": False,
+                "privacy_level": PRIVATE,
             },
         )
         self.assertEqual(r.status_code, 302)
-        clean_project_resources.assert_called_once()
+        remove_build_storage_paths.delay.assert_called_once()
+        remove_search_indexes.delay.assert_called_once()
+        self.assertFalse(version.imported_files.exists())
+        self.assertTrue(another_version.imported_files.exists())

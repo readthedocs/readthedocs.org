@@ -1,4 +1,4 @@
-Front End Development
+Front-end development
 =====================
 
 Background
@@ -6,10 +6,9 @@ Background
 
 .. note::
 
-    Consider this the canonical resource for contributing Javascript and CSS. We
-    are currently in the process of modernizing our front end development
-    procedures. You will see a lot of different styles around the code base for
-    front end JavaScript and CSS.
+   This information is for the current dashboard templates and JavaScript source
+   files and will soon be replaced by the new dashboard templates. This
+   information will soon be mostly out of date.
 
 Our modern front end development stack includes the following tools:
 
@@ -52,7 +51,7 @@ may change, so that assets are compiled before deployment, however as our front
 end assets are in a state of flux, it's easier to keep absolute sources checked
 in.
 
-Getting Started
+Getting started
 ---------------
 
 You will need to follow our :doc:`guide to install a development Read the Docs instance </install>` first.
@@ -72,7 +71,7 @@ make sure to check in both files under ``static`` and ``static-src``,
 and commit those.
 
 
-Making Changes
+Making changes
 --------------
 
 If you are creating a new library, or a new library entry point, make sure to
@@ -93,7 +92,7 @@ If merging several branches with JavaScript changes, it's important to do a
 final post-merge bundle. Follow the steps above to rebundle the libraries, and
 check in any changed libraries.
 
-JavaScript Bundles
+JavaScript bundles
 ------------------
 
 There are several components to our bundling scheme:

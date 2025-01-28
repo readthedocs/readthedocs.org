@@ -72,7 +72,7 @@ class TestTasks(TestCase):
         )
         self.domain_expired.save()
 
-    @mock.patch("readthedocs.notifications.backends.send_email")
+    @mock.patch("readthedocs.notifications.email.send_email")
     def test_email_pending_emails(self, send_email):
         subject = "Pending configuration of custom domain"
         email_pending_custom_domains.delay(number_of_emails=3)
@@ -88,7 +88,7 @@ class TestTasks(TestCase):
         self.assertTrue(kwargs["subject"].startswith(subject))
         self.assertIn(self.domain_recently_expired.domain, kwargs["subject"])
 
-    @mock.patch("readthedocs.notifications.backends.send_email")
+    @mock.patch("readthedocs.notifications.email.send_email")
     def test_dont_send_email_on_given_days(self, send_email):
         now = timezone.now()
         days = [5, 8, 14, 16, 29, 31]
@@ -98,7 +98,7 @@ class TestTasks(TestCase):
                 email_pending_custom_domains.delay(number_of_emails=3)
                 send_email.assert_not_called()
 
-    @mock.patch("readthedocs.notifications.backends.send_email")
+    @mock.patch("readthedocs.notifications.email.send_email")
     def test_send_email_on_given_days(self, send_email):
         now = timezone.now()
         days = [7, 15, 30]

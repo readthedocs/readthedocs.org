@@ -5,14 +5,15 @@
         "duration": null,
         "error": "",
         "finished": null,
-        "id": 2,
+        "id": 3,
         "_links": {
-            "_self": "https://readthedocs.org/api/v3/projects/project/builds/2/",
+            "_self": "https://readthedocs.org/api/v3/projects/project/builds/3/",
+            "notifications": "https://readthedocs.org/api/v3/projects/project/builds/3/notifications/",
             "project": "https://readthedocs.org/api/v3/projects/project/",
             "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
         },
         "urls": {
-            "build": "https://readthedocs.org/projects/project/builds/2/",
+            "build": "https://readthedocs.org/projects/project/builds/3/",
             "project": "https://readthedocs.org/projects/project/",
             "version": "https://readthedocs.org/dashboard/project/version/v1.0/edit/"
         },
@@ -38,8 +39,10 @@
             "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
             "environmentvariables": "https://readthedocs.org/api/v3/projects/project/environmentvariables/",
             "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
+            "notifications": "https://readthedocs.org/api/v3/projects/project/notifications/",
             "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
             "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
+       "sync_versions": "https://readthedocs.org/api/v3/projects/project/sync-versions/",
             "translations": "https://readthedocs.org/api/v3/projects/project/translations/",
             "versions": "https://readthedocs.org/api/v3/projects/project/versions/"
         },
@@ -57,14 +60,15 @@
         "slug": "project",
         "subproject_of": null,
         "tags": [
-            "tag",
             "project",
+            "tag",
             "test"
         ],
         "translation_of": null,
         "urls": {
             "builds": "https://readthedocs.org/projects/project/builds/",
             "documentation": "http://project.readthedocs.io/en/latest/",
+            "downloads": "https://readthedocs.org/projects/project/downloads/",
             "home": "https://readthedocs.org/projects/project/",
             "versions": "https://readthedocs.org/projects/project/versions/"
         },
@@ -72,11 +76,16 @@
             {
                 "username": "testuser"
             }
-        ]
+        ],
+        "privacy_level": "public",
+        "external_builds_privacy_level": "public",
+        "single_version": false,
+        "versioning_scheme": "multiple_versions_with_translations"
     },
     "triggered": true,
     "version": {
         "active": true,
+        "aliases": [],
         "hidden": false,
         "built": true,
         "downloads": {
@@ -101,6 +110,7 @@
             "documentation": "http://project.readthedocs.io/en/v1.0/",
             "vcs": "https://github.com/rtfd/project/tree/v1.0/"
         },
-        "verbose_name": "v1.0"
+        "verbose_name": "v1.0",
+        "privacy_level": "public"
     }
 }

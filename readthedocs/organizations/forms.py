@@ -36,31 +36,33 @@ class OrganizationForm(SimpleHistoryModelForm):
 
     class Meta:
         model = Organization
-        fields = ['name', 'email', 'description', 'url']
+        fields = ["name", "email", "description", "url"]
         labels = {
-            'name': _('Organization Name'),
-            'email': _('Billing Email'),
+            "name": _("Organization Name"),
+            "email": _("Billing Email"),
         }
-
-    # Don't use a URLField as a widget, the validation is too strict on FF
-    url = forms.URLField(
-        widget=forms.TextInput(attrs={'placeholder': 'http://'}),
-        label=_('Site URL'),
-        required=False,
-    )
+        widgets = {
+            "email": forms.EmailInput(attrs={"placeholder": "accounting@example.com"}),
+            # Make description less prominent on the page, we don't want long descriptions
+            "description": forms.TextInput(
+                attrs={"placeholder": "Engineering docs for Example company"}
+            ),
+            # Don't use a URLField as a widget, the validation is too strict on FF
+            "url": forms.TextInput(attrs={"placeholder": "https://"}),
+        }
 
     def __init__(self, *args, **kwargs):
         try:
-            self.user = kwargs.pop('user')
+            self.user = kwargs.pop("user")
         except KeyError:
             raise TypeError(
-                'OrganizationForm expects a `user` keyword argument',
+                "OrganizationForm expects a `user` keyword argument",
             )
         super().__init__(*args, **kwargs)
 
     def clean_name(self):
         """Raise exception on duplicate organization slug."""
-        name = self.cleaned_data['name']
+        name = self.cleaned_data["name"]
 
         # Skip slug validation on already created organizations.
         if self.instance.pk:
@@ -68,11 +70,13 @@ class OrganizationForm(SimpleHistoryModelForm):
 
         potential_slug = slugify(name)
         if not potential_slug:
-            raise forms.ValidationError(_('Invalid organization name: no slug generated'))
+            raise forms.ValidationError(
+                _("Invalid organization name: no slug generated")
+            )
         if Organization.objects.filter(slug=potential_slug).exists():
             raise forms.ValidationError(
-                _('Organization %(name)s already exists'),
-                params={'name': name},
+                _("Organization %(name)s already exists"),
+                params={"name": name},
             )
         return name
 
@@ -91,18 +95,18 @@ class OrganizationSignupFormBase(OrganizationForm):
 
     class Meta:
         model = Organization
-        fields = ['name', 'email']
+        fields = ["name", "email"]
         labels = {
-            'name': _('Organization Name'),
-            'email': _('Billing Email'),
+            "name": _("Organization Name"),
+            "email": _("Billing Email"),
         }
 
     url = None
 
     @staticmethod
     def _create_default_teams(organization):
-        organization.teams.create(name='Admins', access=ADMIN_ACCESS)
-        organization.teams.create(name='Read Only', access=READ_ONLY_ACCESS)
+        organization.teams.create(name="Admins", access=ADMIN_ACCESS)
+        organization.teams.create(name="Read Only", access=READ_ONLY_ACCESS)
 
     def save(self, commit=True):
         org = super().save(commit)
@@ -121,7 +125,6 @@ class OrganizationSignupFormBase(OrganizationForm):
 
 
 class OrganizationSignupForm(SettingsOverrideObject):
-
     _default_class = OrganizationSignupFormBase
 
 
@@ -132,7 +135,7 @@ class OrganizationOwnerForm(forms.Form):
     username_or_email = forms.CharField(label=_("Email address or username"))
 
     def __init__(self, *args, **kwargs):
-        self.organization = kwargs.pop('organization', None)
+        self.organization = kwargs.pop("organization", None)
         self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
 
@@ -145,13 +148,13 @@ class OrganizationOwnerForm(forms.Form):
         ).first()
         if user is None:
             raise forms.ValidationError(
-                _('User %(username)s does not exist'),
-                params={'username': username},
+                _("User %(username)s does not exist"),
+                params={"username": username},
             )
         if self.organization.owners.filter(pk=user.pk).exists():
             raise forms.ValidationError(
-                _('User %(username)s is already an owner'),
-                params={'username': username},
+                _("User %(username)s is already an owner"),
+                params={"username": username},
             )
         return user
 
@@ -160,6 +163,7 @@ class OrganizationOwnerForm(forms.Form):
             from_user=self.request.user,
             to_user=self.cleaned_data["username_or_email"],
             obj=self.organization,
+            request=self.request,
         )
         return invitation
 
@@ -170,17 +174,17 @@ class OrganizationTeamBasicFormBase(SimpleHistoryModelForm):
 
     class Meta:
         model = Team
-        fields = ['name', 'access', 'organization']
+        fields = ["name", "access", "organization"]
         error_messages = {
             NON_FIELD_ERRORS: {
-                'unique_together': _('Team already exists'),
+                "unique_together": _("Team already exists"),
             },
         }
 
     organization = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, *args, **kwargs):
-        self.organization = kwargs.pop('organization', None)
+        self.organization = kwargs.pop("organization", None)
         super().__init__(*args, **kwargs)
 
     def clean_organization(self):
@@ -189,7 +193,6 @@ class OrganizationTeamBasicFormBase(SimpleHistoryModelForm):
 
 
 class OrganizationTeamBasicForm(SettingsOverrideObject):
-
     _default_class = OrganizationTeamBasicFormBase
 
 
@@ -199,14 +202,15 @@ class OrganizationTeamProjectForm(forms.ModelForm):
 
     class Meta:
         model = Team
-        fields = ['projects']
+        fields = ["projects"]
 
     def __init__(self, *args, **kwargs):
-        self.organization = kwargs.pop('organization', None)
+        self.organization = kwargs.pop("organization", None)
         super().__init__(*args, **kwargs)
-        self.fields['projects'] = forms.ModelMultipleChoiceField(
+        self.fields["projects"] = forms.ModelMultipleChoiceField(
             queryset=self.organization.projects,
             widget=forms.CheckboxSelectMultiple,
+            required=False,
         )
 
 
@@ -241,11 +245,11 @@ class OrganizationTeamMemberForm(forms.Form):
         # If it's a valid email,
         # then try sending an invitation to it.
         try:
-            validator = EmailValidator(code='lookup not an email')
+            validator = EmailValidator(code="lookup not an email")
             validator(username)
             return username
         except ValidationError as error:
-            if error.code != 'lookup not an email':
+            if error.code != "lookup not an email":
                 raise
 
         raise forms.ValidationError(
@@ -255,7 +259,9 @@ class OrganizationTeamMemberForm(forms.Form):
     def validate_member_user(self, member):
         """Verify duplicate team member doesn't already exists."""
         if TeamMember.objects.filter(team=self.team, member=member).exists():
-            raise forms.ValidationError(_('User is already a team member'),)
+            raise forms.ValidationError(
+                _("User is already a team member"),
+            )
         return member
 
     def save(self):
@@ -277,11 +283,13 @@ class OrganizationTeamMemberForm(forms.Form):
                 from_user=self.request.user,
                 to_user=user,
                 obj=self.team,
+                request=self.request,
             )
             return invitation
         invitation, _ = Invitation.objects.invite(
             from_user=self.request.user,
             to_email=user,
             obj=self.team,
+            request=self.request,
         )
         return invitation

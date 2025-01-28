@@ -5,20 +5,23 @@ import django_extensions.db.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0028_add_delete_version_action'),
+        ("builds", "0028_add_delete_version_action"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='version',
-            name='created',
-            field=django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, null=True, verbose_name='created'),
+            model_name="version",
+            name="created",
+            field=django_extensions.db.fields.CreationDateTimeField(
+                auto_now_add=True, null=True, verbose_name="created"
+            ),
         ),
         migrations.AddField(
-            model_name='version',
-            name='modified',
-            field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, null=True, verbose_name='modified'),
+            model_name="version",
+            name="modified",
+            field=django_extensions.db.fields.ModificationDateTimeField(
+                auto_now=True, null=True, verbose_name="modified"
+            ),
         ),
     ]

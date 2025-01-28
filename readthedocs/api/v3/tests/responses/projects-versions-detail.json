@@ -1,5 +1,6 @@
 {
     "active": true,
+    "aliases": [],
     "hidden": false,
     "built": true,
     "downloads": {
@@ -24,5 +25,6 @@
         "documentation": "http://project.readthedocs.io/en/v1.0/",
         "vcs": "https://github.com/rtfd/project/tree/v1.0/"
     },
-    "verbose_name": "v1.0"
+    "verbose_name": "v1.0",
+    "privacy_level": "public"
 }

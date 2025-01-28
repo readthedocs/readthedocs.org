@@ -6,7 +6,6 @@ import readthedocs.projects.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("projects", "0089_update_help_text"),
     ]

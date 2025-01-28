@@ -1,4 +1,4 @@
-Design of Pull Request Builder
+Design of pull request builder
 ==============================
 
 Background
@@ -25,7 +25,7 @@ Scope
 - Triggering Builds on new commits on a PR
 - Status reporting to Github
 
-Fetching Data from Pull Requests
+Fetching data from pull requests
 --------------------------------
 
 We already get Pull request events from Github webhooks.
@@ -34,7 +34,7 @@ when a ``pull_request`` event is triggered we can fetch the data of that pull re
 We can fetch the pull request by doing something similar to travis-ci.
 ie: ``git fetch origin +refs/pull/<pr_number>/merge:``
 
-Modeling Pull Requests as a Type of Version
+Modeling pull requests as a type of version
 -------------------------------------------
 
 Pull requests can be Treated as a Type of Temporary ``Version``.
@@ -43,7 +43,7 @@ We might consider adding a ``VERSION_TYPES`` to the ``Version`` model.
 - If we go with ``VERSION_TYPES`` we can add something like ``pull_request`` alongside Tag and Branch.
 
 We should add ``Version`` and ``Build`` Model Managers for PR and Regular Versions and Builds.
-The proposed names for PR and Regular Version and Build Mangers are ``external`` and ``internal``.
+The proposed names for PR and Regular Version and Build Managers are ``external`` and ``internal``.
 
 We can then use ``Version.internal.all()`` to get all regular versions,
 ``Version.external.all()`` to get all PR versions.
@@ -52,19 +52,19 @@ We can then use ``Build.internal.all()`` to get all regular version builds,
 ``Build.external.all()`` to get all PR version builds.
 
 
-Excluding PR Versions from Elasticsearch Indexing
+Excluding PR versions from Elasticsearch indexing
 -------------------------------------------------
 
 We should exclude to PR Versions from being Indexed to Elasticsearch.
 We need to update the queryset to exclude PR Versions.
 
-Adding a PR Builds Tab in the Project Dashboard
+Adding a PR builds tab in the project dashboard
 -----------------------------------------------
 
 We can add a Tab in the project dashboard that will listout the PR Builds of that project.
 We can name it ``PR Builds``.
 
-Creating Versions for Pull Requests
+Creating versions for pull requests
 -----------------------------------
 
 If the Github webhook event is ``pull_request`` and action is ``opened``,
@@ -72,14 +72,14 @@ this means a pull request was opened in the projects repository.
 We can create a ``Version`` from the Payload data and trigger a initial build for the version.
 A version will be created whenever RTD receives an event like this.
 
-Triggering Build for New Commits in a Pull Request
+Triggering build for new commits in a pull request
 --------------------------------------------------
 
 We might want to trigger a new build for the PR version if there is a new commit on the PR.
 If the Github webhook event is ``pull_request`` and action is ``synchronize``,
 this means a new commit was added to the pull request.
 
-Status Reporting to Github
+Status reporting to GitHub
 --------------------------
 
 We could send build status reports to Github. We could send if the build was Successful or Failed.
@@ -101,13 +101,13 @@ Sending the status report would be something like this:
        "context": "continuous-documentation/read-the-docs"
    }
 
-Storing Pull Request Docs
+Storing pull request docs
 -------------------------
 
 We need to think about how and where to store data after a PR Version build is finished.
 We can store the data in a blob storage.
 
-Excluding PR Versions from Search Engines
+Excluding PR versions from search engines
 -----------------------------------------
 
 We should Exclude the PR Versions from Search Engines,
@@ -115,7 +115,7 @@ because it might cause problems for RTD users.
 As users might land to a pull request doc but not the original Project Docs.
 This will cause confusion for the users.
 
-Serving PR Docs
+Serving PR docs
 ---------------
 
 We need to think about how we want to serve the PR Docs.
@@ -136,13 +136,13 @@ We might want to have a way to show that if this is a PR Build on the Footer.
 - For regular project docs we should remove the PR Versions from the version list of the Footer.
 - We might want to send ``is_pr`` data with the Footer API response.
 
-Adding Warning Banner to Docs
+Adding warning banner to Docs
 -----------------------------
 
 We need to add a warning banner to the PR Version Docs to let the users know that this is a Draft/PR version.
 We can use a sphinx extension that we will force to install on the PR Versions to add the warning banner.
 
-Related Issues
+Related issues
 --------------
 
 - `Autobuild Docs for Pull Requests`_

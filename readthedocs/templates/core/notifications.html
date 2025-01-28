@@ -1,0 +1,20 @@
+{% load i18n %}
+
+{% if notifications %}
+  <ul class="notifications">
+  {% for notification in notifications %}
+    <li class="notification"
+      {% if notification.dismissable%}
+        data-dismiss-url="{{ notification.get_absolute_url }}"
+        data-csrf-token="{{ csrf_token }}"
+      {% endif %}>
+      {% if notification.dismissable %}
+      <a class="notification-action" href="#">
+          <span class="icon close" aria-label="{% trans 'Close notification' %}"></span>
+      </a>
+      {% endif %}
+      {{ notification.get_message.get_rendered_body|safe }}
+    </li>
+  {% endfor %}
+  </ul>
+{% endif %}

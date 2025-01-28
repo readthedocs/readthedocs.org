@@ -12,7 +12,7 @@ to get a working copy of the Read the Docs repository locally.
 
 .. TODO: update to match the new ext-theme
 
-Style Catalog
+Style catalog
 -------------
 
 Once you have RTD running locally, you can open ``http://localhost:8000/style-catalog/``
@@ -24,7 +24,7 @@ This way you can quickly get started writing HTML -- or if you're
 modifying existing styles you can get a quick idea of how things
 will change site-wide.
 
-Readthedocs.org Changes
+Readthedocs.org changes
 -----------------------
 
 Styles for the primary RTD site are located in ``media/css`` directory.
@@ -44,9 +44,9 @@ There's not a hard browser range, but your design changes should work reasonably
 browsers, IE8+ -- that's not to say it needs to be pixel-perfect in older browsers! Just avoid
 making changes that render older browsers utterly unusable (or provide a sane fallback).
 
-Brand Guidelines
+Brand guidelines
 ----------------
 
-Find our branding guidelines in our guidelines documentation: https://read-the-docs-guidelines.readthedocs-hosted.com.
+Find our branding guidelines in our guidelines documentation: https://brand-guidelines.readthedocs.org.
 
 .. _Read the Docs GitHub project: https://github.com/readthedocs/readthedocs.org/pulls

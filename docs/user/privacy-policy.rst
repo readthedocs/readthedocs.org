@@ -4,7 +4,7 @@
 Privacy Policy
 ==============
 
-Effective date: **September  30, 2019**
+Effective date: **February 21, 2023**
 
 Welcome to Read the Docs.
 At Read the Docs, we believe in protecting the privacy of our
@@ -192,14 +192,13 @@ Analytics
 +++++++++
 
 We go into detail on analytics in a
-:ref:`separate section specific to analytics <privacy-policy:Google Analytics>`.
+:ref:`separate section specific to analytics <privacy-policy:Plausible>`.
 
-Support Desk
+Support desk
 ++++++++++++
 
-Read the Docs uses Intercom to manage support requests
-for documentation hosted through Read the Docs for Business.
-If you request support -- typically via email -- Intercom may process
+Read the Docs uses Front to manage support requests.
+If you request support -- typically via email -- Front may process
 your contact information.
 
 Email newsletter
@@ -214,7 +213,7 @@ You can manage your email subscription
 including unsubscribing and deleting your records with MailerLite.
 There is a link to do so in the footer of any newsletter you receive from us.
 
-Public Information on Read the Docs
+Public information on Read the Docs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Most of Read the Docs is public-facing including
@@ -237,8 +236,6 @@ and the `EFF's DNT Policy`_.
 For Read the Docs, this means:
 
 * We **do not** do behavioral ad targeting regardless of your DNT preference.
-* When DNT is enabled, both logged-in and logged-out users
-  are considered opted-out of :ref:`analytics <privacy-policy:Google Analytics>`.
 * Regardless of DNT preference, our logs that contain IP addresses
   and user agent strings are deleted after 10 days unless a DNT exception applies.
 * Our full DNT policy is `available here`_.
@@ -278,29 +275,23 @@ By using our website, you agree that we can place these types of cookies on your
 If you disable your browser or device's ability to accept cookies,
 you will not be able to log in to Read the Docs.
 
-Google Analytics
-~~~~~~~~~~~~~~~~
+Plausible
+~~~~~~~~~
 
-We use Google Analytics as a third party tracking service,
+We use Plausible as a third party analytics service,
 but we don't use it to track you individually or collect your User Personal Information.
-We use Google Analytics to collect information about how our website performs
+We use Plausible to collect information about how our website performs
 and how our users, in general, navigate through and use Read the Docs.
 This helps us evaluate our users' use of Read the Docs;
 compile statistical reports on activity; and improve our content and website performance.
 
-Google Analytics gathers certain simple, non-personally identifying information over time,
-such as your IP address, browser type, internet service provider, referring and exit pages,
+Plausible gathers certain simple, non-personally identifying information over time,
+such as browser type, internet service provider, referring and exit pages,
 time stamp, and similar data about your use of Read the Docs.
 We do not link this information to any of your personal information such as your user name.
 
 Read the Docs will not, nor will we allow any third party to,
-use the Google Analytics tool to track our users individually;
-collect any User Personal Information other than IP address;
-or correlate your IP address with your identity.
-Google provides further information about its own privacy practices and offers a
-`browser add-on to opt out of Google Analytics tracking <https://tools.google.com/dlpage/gaoptout>`_.
-You may also opt-out of analytics on Read the Docs by enabling
-:ref:`Do Not Track <privacy-policy:Do Not Track>`.
+use the Plausible tool to track our users individually or collect any User Personal Information.
 
 
 How Read the Docs secures your information
@@ -342,7 +333,7 @@ In particular:
 * We also provide our users a method of recourse and enforcement.
 
 
-Resolving Complaints
+Resolving complaints
 --------------------
 
 If you have concerns about the way Read the Docs is handling your User Personal Information,

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Helper functions to search files."""
 
 import os
@@ -13,4 +11,4 @@ def find_one(path, filename_regex):
         if re.match(filename_regex, filename):
             return os.path.join(_path, filename)
 
-    return ''
+    return ""

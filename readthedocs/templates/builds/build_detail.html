@@ -28,6 +28,22 @@ $(document).ready(function () {
 {% endblock %}
 
 {% block content %}
+  {% block build_detail_beta %}
+    {% comment %}
+      Temporary notification to point to the beta dashboard, url_beta comes from the view
+    {% endcomment %}
+    {% if url_switch_dashboard %}
+      <div class="notifications">
+        <p class="notification notification-20">
+          {% blocktrans trimmed with url=url_switch_dashboard %}
+            Our new beta dashboard is now available for testing!
+            <a href="{{ url }}">Try viewing this build on the new dashboard</a>.
+          {% endblocktrans %}
+        </p>
+      </div>
+    {% endif %}
+  {% endblock build_detail_beta %}
+
   <div class="build build-detail" id="build-detail">
 
     {% if build.state != "finished" and build.state != "cancelled" and request.user|is_admin:project %}
@@ -150,41 +166,34 @@ $(document).ready(function () {
     </div>
 
     {% if request.user|is_admin:project %}
+      {# TODO: migrate these "build ideas" to the new notification system #}
       {% if not build.success and "setup.py install" in build.commands.last.output %}
         <div class="build-ideas">
           <p>
-            {% url 'projects_advanced' build.project.slug as advanced_url %}
+            {% url 'projects_edit' build.project.slug as project_settings_url %}
             {% blocktrans trimmed %}
               Don't want <em>setup.py install</em> called?
-              Change the <strong>Install Project</strong> setting in your <a href="{{ advanced_url }}">advanced settings</a>.
-            {% endblocktrans %}
-          </p>
-        </div>
-      {% endif %}
-      {% if build.finished and not build.using_latest_config %}
-        <div class="build-ideas">
-          <p>
-            {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html" %}
-              <strong>Configure your documentation builds!</strong>
-              Adding a <a href="{{ config_file_link }}">.readthedocs.yaml</a> file to your project
-              is the recommended way to configure your documentation builds.
-              You can declare dependencies, set up submodules, and many other great features.
+              Change the <strong>Install Project</strong> setting in your <a href="{{ project_settings_url }}">project settings</a>.
             {% endblocktrans %}
           </p>
         </div>
       {% endif %}
     {% endif %}
 
-    {% if build.finished and build.config.build.commands %}
-    <div class="build-ideas">
-      <p>
-        {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/build-customization.html#override-the-build-process" %}
-        <strong>The <code>"build.commands"</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
-        Read more at <a href="{{ config_file_link }}">our documentation</a> to find out its limitations and potential issues.
-        {% endblocktrans %}
-      </p>
-    </div>
+
+    {% comment %}
+      Show non-error notifications as "build-ideas" (e.g. "build.commands is in beta")
+
+      This temporal until we render these notifications from the front-end.
+    {% endcomment %}
+    {% for notification in notifications %}
+    {% if notification.get_message.type != "error" %}
+    <p class="build-ideas">
+        <strong>{{ notification.get_message.get_rendered_header|safe }}</strong> — {{ notification.get_message.get_rendered_body|safe }}
+    </p>
     {% endif %}
+    {% endfor %}
+
 
     {% if build.output %}
       {# If we have build output, this is an old build #}
@@ -218,13 +227,43 @@ $(document).ready(function () {
     {% else %}
       {# Show new command output if lacking build.output #}
 
+    {% comment %}
+      Show error notifications as "build-error" (e.g. "syntax error in YAML")
+
+      This temporal until we render these notifications from the front-end.
+    {% endcomment %}
+    {% for notification in notifications %}
+    {% if notification.get_message.type == "error" %}
+    <div class="build-error">
+        <h3>{{ notification.get_message.type|title }}</h3>
+        <p class="build-error">{{ notification.get_message.get_rendered_body|safe }}</p>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+      {% comment %}
+      After deploying the new notification system (`Notification` model),
+      we won't be populating `Build.error` field anymore and these errors won't be shown anymore.
+      However, old builds will still need to render the `Build.error` message
+      and that's why we are keeping this HTML + KO code here.
+
+      In the future, we can decide fully migrate `Build.error` -> `Notification` and remove this
+      block completely. Read more at
+      https://github.com/readthedocs/readthedocs.org/issues/10980#issuecomment-1876785304
+      {% endcomment %}
       <div class="build-error"
            data-bind="visible: error"
            style="display: none;">
         <h3>{% trans "Error" %}</h3>
         <p class="build-error"
            data-bind="text: error">
-          {{ build.error }}
+            {#
+              I'd like to use ``build.error|urlize`` here, so we can have nice links.
+              However, this is not possible because we are using `data-bind="text: error"`
+              which means that Knockout.js will use the `.error` attribute to fill
+              the content of this tag dynamically.
+            #}
+            {{ build.error|urlize }}
         </p>
         <p>
           {% block github_issue_link %}

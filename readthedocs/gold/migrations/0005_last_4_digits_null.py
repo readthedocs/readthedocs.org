@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('gold', '0004_add_vat_id'),
+        ("gold", "0004_add_vat_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='golduser',
-            name='last_4_card_digits',
+            model_name="golduser",
+            name="last_4_card_digits",
             field=models.CharField(blank=True, max_length=4, null=True),
         ),
     ]

@@ -1,7 +1,7 @@
 # Proxito
 server {
-    listen 80 default_server;
-    server_name $NGINX_PROXITO_SERVER_NAME;
+    listen 8080;
+    server_name proxito;
 
     # Docker Compose's "logging.driver: none" is not working anymore.
     # So, we are disabling the logs from NGINX directly.
@@ -20,13 +20,20 @@ server {
         rewrite ^ http://$project--$version.org.dev.readthedocs.build/page/$path;
     }
 
+    # Proxy the "readthedocs-addons.js" to be downloaded from GitHub
+    location /_/static/javascript/readthedocs-addons.js {
+        proxy_pass http://addons:8000/readthedocs-addons.js;
+    }
+
+    location /_/static/javascript/readthedocs-addons.js.map {
+        proxy_pass http://addons:8000/readthedocs-addons.js.map;
+    }
+
     # Proxito doc serving
     location / {
         proxy_pass http://proxito:8000;
-        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Host $host;
 
         proxy_intercept_errors on;
         error_page 404 = @notfoundfallback;
@@ -66,6 +73,8 @@ server {
         add_header X-RTD-Project-Method $rtd_project_method always;
         set $rtd_redirect $upstream_http_x_rtd_redirect;
         add_header X-RTD-Redirect $rtd_redirect always;
+        set $rtd_resolver_filename $upstream_http_x_rtd_resolver_filename;
+        add_header X-RTD-Resolver-Filename $rtd_resolver_filename always;
         set $cdn_cache_control $upstream_http_cdn_cache_control;
         add_header CDN-Cache-Control $cdn_cache_control always;
         set $cache_tag $upstream_http_cache_tag;
@@ -76,16 +85,38 @@ server {
         add_header Permissions-Policy $permissions_policy always;
         set $feature_policy $upstream_http_feature_policy;
         add_header Feature-Policy $feature_policy always;
+
+        # CORS headers.
+        # Minio sets these headers, and we don't want to copy
+        # them to the response, since our application sets them.
+        proxy_hide_header Access-Control-Allow-Credentials;
+        proxy_hide_header Access-Control-Expose-Headers;
+
+        proxy_hide_header Access-Control-Allow-Origin;
         set $access_control_allow_origin $upstream_http_access_control_allow_origin;
         add_header Access-Control-Allow-Origin $access_control_allow_origin always;
+
+        proxy_hide_header Access-Control-Allow-Headers;
         set $access_control_allow_headers $upstream_http_access_control_allow_headers;
         add_header Access-Control-Allow-Headers $access_control_allow_headers always;
+
+        proxy_hide_header Access-Control-Allow-Methods;
+        set $access_control_allow_methods $upstream_http_access_control_allow_methods;
+        add_header Access-Control-Allow-Methods $access_control_allow_methods always;
+
         set $x_frame_options $upstream_http_x_frame_options;
         add_header X-Frame-Options $x_frame_options always;
+        set $x_content_type_options $upstream_http_x_content_type_options;
+        add_header X-Content-Type-Options $x_content_type_options always;
         # Minio sets this header on the response, and we don't want to copy it to the response
         proxy_hide_header Content-Security-Policy;
         set $content_security_policy $upstream_http_content_security_policy;
         add_header Content-Security-Policy $content_security_policy always;
+
+        # This header allows us to decide whether or not inject the script at CloudFlare level
+        # Now, I'm injecting it in all the NGINX responses because `sub_filter` is not allowed inside an `if` statement.
+        set $rtd_force_addons $upstream_http_x_rtd_force_addons;
+        add_header X-RTD-Force-Addons $rtd_force_addons always;
     }
 
     # Serve 404 pages here
@@ -95,7 +126,6 @@ server {
         proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Host $host;
         add_header X-Served Proxito-404-Fallback always;
     }
 

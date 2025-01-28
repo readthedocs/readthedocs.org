@@ -1,0 +1,18 @@
+{
+  "_links": {
+    "_self": "https://readthedocs.org/api/v3/users/testuser/notifications/4/"
+  },
+  "attached_to_content_type": "user",
+  "attached_to_id": 1,
+  "dismissable": false,
+  "id": 4,
+  "message": {
+    "body": "Your primary email address is not verified.\nPlease <a href=\"/accounts/email/\">verify it here</a>.",
+    "header": "Email address not verified",
+    "icon_classes": "fas fa-circle-exclamation",
+    "id": "core:email:validation-pending",
+    "type": "warning"
+  },
+  "news": false,
+  "state": "unread"
+}

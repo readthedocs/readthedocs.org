@@ -2,12 +2,10 @@ import django_dynamic_fixture as fixture
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from readthedocs.integrations.models import (
-    GitHubWebhook,
-    HttpExchange,
-    Integration,
-)
+from readthedocs.api.v2.views.integrations import GITHUB_SIGNATURE_HEADER
+from readthedocs.integrations.models import GitHubWebhook, HttpExchange, Integration
 from readthedocs.projects.models import Project
+from readthedocs.rtd_tests.tests.test_api import get_signature
 
 
 class HttpExchangeTests(TestCase):
@@ -21,19 +19,23 @@ class HttpExchangeTests(TestCase):
 
     def test_exchange_json_request_body(self):
         client = APIClient()
-        client.login(username='super', password='test')
+        client.login(username="super", password="test")
         project = fixture.get(Project, main_language_project=None)
         integration = fixture.get(
             Integration,
             project=project,
             integration_type=Integration.GITHUB_WEBHOOK,
-            provider_data='',
-            secret=None,
+            provider_data="",
         )
+        payload = {"ref": "exchange_json"}
+        signature = get_signature(integration, payload)
         resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(project.slug),
-            {'ref': 'exchange_json'},
-            format='json',
+            "/api/v2/webhook/github/{}/".format(project.slug),
+            payload,
+            format="json",
+            headers={
+                GITHUB_SIGNATURE_HEADER: signature,
+            },
         )
         exchange = HttpExchange.objects.get(integrations=integration)
         self.assertEqual(
@@ -43,38 +45,47 @@ class HttpExchangeTests(TestCase):
         self.assertEqual(
             exchange.request_headers,
             {
-                'Content-Type': 'application/json',
-                'Cookie': '',
+                "Content-Type": "application/json",
+                "Cookie": "",
+                "X-Hub-Signature-256": signature,
             },
         )
         self.assertEqual(
             exchange.response_body,
-            ('{{"build_triggered": false, "project": "{0}", "versions": []}}'
-             .format(project.slug)),
+            (
+                '{{"build_triggered": false, "project": "{0}", "versions": []}}'.format(
+                    project.slug
+                )
+            ),
         )
         self.assertEqual(
             exchange.response_headers,
             {
-                'Allow': 'POST, OPTIONS',
-                'Content-Type': 'text/html; charset=utf-8',
+                "Allow": "POST, OPTIONS",
+                "Content-Type": "text/html; charset=utf-8",
             },
         )
 
     def test_exchange_form_request_body(self):
         client = APIClient()
-        client.login(username='super', password='test')
+        client.login(username="super", password="test")
         project = fixture.get(Project, main_language_project=None)
         integration = fixture.get(
             Integration,
             project=project,
             integration_type=Integration.GITHUB_WEBHOOK,
-            provider_data='',
+            provider_data="",
             secret=None,
         )
+        payload = "payload=%7B%22ref%22%3A+%22exchange_form%22%7D"
+        signature = get_signature(integration, payload)
         resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(project.slug),
-            'payload=%7B%22ref%22%3A+%22exchange_form%22%7D',
-            content_type='application/x-www-form-urlencoded',
+            "/api/v2/webhook/github/{}/".format(project.slug),
+            payload,
+            content_type="application/x-www-form-urlencoded",
+            headers={
+                GITHUB_SIGNATURE_HEADER: signature,
+            },
         )
         exchange = HttpExchange.objects.get(integrations=integration)
         self.assertEqual(
@@ -84,31 +95,36 @@ class HttpExchangeTests(TestCase):
         self.assertEqual(
             exchange.request_headers,
             {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Cookie': '',
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Cookie": "",
+                "X-Hub-Signature-256": signature,
             },
         )
         self.assertEqual(
             exchange.response_body,
-            ('{{"build_triggered": false, "project": "{0}", "versions": []}}'
-             .format(project.slug)),
+            (
+                '{{"build_triggered": false, "project": "{0}", "versions": []}}'.format(
+                    project.slug
+                )
+            ),
         )
         self.assertEqual(
             exchange.response_headers,
             {
-                'Allow': 'POST, OPTIONS',
-                'Content-Type': 'text/html; charset=utf-8',
+                "Allow": "POST, OPTIONS",
+                "Content-Type": "text/html; charset=utf-8",
             },
         )
 
     def test_extraneous_exchanges_deleted_in_correct_order(self):
         client = APIClient()
-        client.login(username='super', password='test')
+        client.login(username="super", password="test")
         project = fixture.get(Project, main_language_project=None)
         integration = fixture.get(
-            Integration, project=project,
+            Integration,
+            project=project,
             integration_type=Integration.GITHUB_WEBHOOK,
-            provider_data='',
+            provider_data="",
         )
 
         self.assertEqual(
@@ -118,15 +134,15 @@ class HttpExchangeTests(TestCase):
 
         for _ in range(10):
             resp = client.post(
-                '/api/v2/webhook/github/{}/'.format(project.slug),
-                {'ref': 'deleted'},
-                format='json',
+                "/api/v2/webhook/github/{}/".format(project.slug),
+                {"ref": "deleted"},
+                format="json",
             )
         for _ in range(10):
             resp = client.post(
-                '/api/v2/webhook/github/{}/'.format(project.slug),
-                {'ref': 'preserved'},
-                format='json',
+                "/api/v2/webhook/github/{}/".format(project.slug),
+                {"ref": "preserved"},
+                format="json",
             )
 
         self.assertEqual(
@@ -143,34 +159,34 @@ class HttpExchangeTests(TestCase):
 
     def test_request_headers_are_removed(self):
         client = APIClient()
-        client.login(username='super', password='test')
+        client.login(username="super", password="test")
         project = fixture.get(Project, main_language_project=None)
         integration = fixture.get(
-            Integration, project=project,
+            Integration,
+            project=project,
             integration_type=Integration.GITHUB_WEBHOOK,
-            provider_data='',
+            provider_data="",
         )
         resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(project.slug),
-            {'ref': 'exchange_json'},
-            format='json',
-            HTTP_X_FORWARDED_FOR='1.2.3.4',
-            HTTP_X_REAL_IP='5.6.7.8',
-            HTTP_X_FOO='bar',
+            "/api/v2/webhook/github/{}/".format(project.slug),
+            {"ref": "exchange_json"},
+            format="json",
+            HTTP_X_FORWARDED_FOR="1.2.3.4",
+            HTTP_X_REAL_IP="5.6.7.8",
+            HTTP_X_FOO="bar",
         )
         exchange = HttpExchange.objects.get(integrations=integration)
         self.assertEqual(
             exchange.request_headers,
             {
-                'Content-Type': 'application/json',
-                'Cookie': '',
-                'X-Foo': 'bar',
+                "Content-Type": "application/json",
+                "Cookie": "",
+                "X-Foo": "bar",
             },
         )
 
 
 class IntegrationModelTests(TestCase):
-
     def test_subclass_is_replaced_on_get(self):
         project = fixture.get(Project, main_language_project=None)
         integration = Integration.objects.create(

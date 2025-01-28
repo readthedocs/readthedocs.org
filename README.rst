@@ -6,54 +6,52 @@ Welcome to Read the Docs
 Purpose
 -------
 
-`Read the Docs`_ hosts documentation for the open source community. It supports
-Sphinx_ docs written with reStructuredText_, and can pull from your Subversion_,
-Bazaar_, Git_, and Mercurial_ repositories.
+`Read the Docs`_ hosts documentation for the open source community.
+It supports many documentation tools
+(e.g. Sphinx_ docs written with reStructuredText_, MkDocs_ docs written with markdown_, among others),
+and can pull Git_ repositories.
 Then we build documentation and host it for you.
-Think of it as *Continuous Documentation*.
+Think of it as *Continuous Documentation*, or Docs as Code.
 
 .. _Read the docs: https://readthedocs.org/
 .. _Sphinx: http://www.sphinx-doc.org/
 .. _reStructuredText: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
-.. _Subversion: http://subversion.tigris.org/
-.. _Bazaar: http://bazaar.canonical.com/
 .. _Git: http://git-scm.com/
-.. _Mercurial: https://www.mercurial-scm.org/
+.. _MkDocs: https://www.mkdocs.org/
+.. _markdown: https://daringfireball.net/projects/markdown/
 
-Documentation for RTD
----------------------
+Documentation for Read the Docs
+-------------------------------
 
-You will find complete documentation for setting up your project at `the Read
-the Docs site`_.
+You will find complete documentation for setting up your project at `the Read the Docs site`_.
 
 .. _the Read the Docs site: https://docs.readthedocs.io/
 
 Get in touch
 ------------
 
-You can find information about getting in touch with Read the Docs at our `Contribution page <https://docs.readthedocs.io/en/latest/contribute.html#get-in-touch>`_.
+You can find information about getting in touch with Read the Docs at our
+`Contribution page <https://docs.readthedocs.io/en/latest/contribute.html#get-in-touch>`_.
 
 Contributing
 ------------
 
-You can find information about contributing to Read the Docs at our `Contribution page <https://docs.readthedocs.io/en/latest/contribute.html>`_.
+You can find information about contributing to Read the Docs at our
+`Contribution page <https://docs.readthedocs.io/en/latest/contribute.html>`_.
 
-Quickstart for GitHub-Hosted Projects
+Quickstart for GitHub hosted projects
 -------------------------------------
 
-By the end of this quickstart, you will have a new project automatically updated
-when you push to GitHub.
+By the end of this quickstart, you will have a new project automatically updated when you push to GitHub.
 
-#. Create an account on `Read the Docs`_.  You will get an email verifying your
-   email address which you should accept within 7 days.
-
-#. Log in and click on "Import a Project".
-
-#. Click "Connect to GitHub" in order to connect your account's repositories to GitHub.
+#. Create an account on `Read the Docs`_ by signing up with GitHub.
 
 #. When prompted on GitHub, give access to your account.
 
-#. Click "Import a Repository" and select any desired repository.
+#. Log in and click on "Add project".
+
+#. Start typing the name of your repository and select it from the list,
+   and click "Continue".
 
 #. Change any information if desired and click "Next".
 

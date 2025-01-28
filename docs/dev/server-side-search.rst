@@ -1,4 +1,4 @@
-Server Side Search
+Server side search
 ==================
 
 Read the Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search
@@ -62,7 +62,7 @@ You can fix this by deleting the page index and :ref:`re-indexing <server-side-s
 .. prompt:: bash
 
    inv docker.manage 'search_index --delete'
-   inv docker.manage reindex_elasticsearch
+   inv docker.manage 'reindex_elasticsearch --queue web'
 
 How we index documentations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

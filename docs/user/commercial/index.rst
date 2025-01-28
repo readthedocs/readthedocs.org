@@ -1,10 +1,27 @@
-Read the Docs for Business
---------------------------
+Business hosting
+================
 
-Read the Docs is our community solution for open source projects at `readthedocs.org`_
-and we offer Read the Docs for Business
-for building and hosting commercial documentation at `readthedocs.com`_.
-Features in this section are specific to Read the Docs for Business.
+.. this page is currently moving towards becoming "About Read the Docs for Business"
+.. rather than an index of features.
+
+We offer |com_brand| for building and hosting documentation for private repositories.
+
+In order to get started quickly, you can start a `free 30-day trial <https://about.readthedocs.com/pricing/>`__ to test out the platform.
+
+.. seealso::
+
+   `Read the Docs features <https://about.readthedocs.com/features/>`__
+      A high-level overview of platform features, and the
+      `pricing page <https://about.readthedocs.com/pricing/>`__ has a feature breakdown by subscription level.
+
+Commercial documentation solutions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to providing the same features as |org_brand|,
+commercial subscriptions to Read the Docs add additional features and run on separate infrastructure.
+
+The following list is a high-level overview of the areas covered by |com_brand|.
+If you want a full feature breakdown, please refer to our `pricing page <https://about.readthedocs.com/pricing/>`__.
 
 Private repositories and private documentation
     The largest difference between the community solution and our commercial offering
@@ -12,27 +29,18 @@ Private repositories and private documentation
     to restrict documentation access to certain users,
     or to share private documentation via private hyperlinks.
 
-Additional build resources
-    Do you have a complicated build process that uses large amounts
-    of CPU, memory, disk, or networking resources?
-    Our commercial offering has much higher default resources
-    that result in faster documentation build times
-    and we can increase it further for very demanding projects.
-
 Priority support
     We have a dedicated support team that responds to support requests during business hours.
-    If you need a quick turnaround, please signup for readthedocs.com.
 
 Advertising-free
     All commercially hosted documentation is always ad-free.
 
-.. _readthedocs.org: https://readthedocs.org
-.. _readthedocs.com: https://readthedocs.com
+Business features
+    Enjoy additional functionality specifically for larger organizations such as
+    team management, single-sign on, and audit logging.
 
-.. toctree::
-   :caption: Additional commercial features
+    .. seealso::
 
-   organizations
-   single-sign-on
-   sharing
-   privacy-level
+       - :doc:`/commercial/organizations`
+       - :doc:`/commercial/single-sign-on`
+       - :doc:`/security-log`

@@ -1,10 +1,18 @@
-import structlog
+from functools import cached_property
 from pathlib import Path
 
+import structlog
 from django.conf import settings
+from django.contrib.staticfiles.storage import (
+    StaticFilesStorage as BaseStaticFilesStorage,
+)
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
-from storages.utils import get_available_overwrite_name, safe_join
+from storages.utils import get_available_overwrite_name
+
+from readthedocs.core.utils.filesystem import safe_open
+from readthedocs.storage.rclone import RCloneLocal
+from readthedocs.storage.utils import safe_join
 
 log = structlog.get_logger(__name__)
 
@@ -22,6 +30,10 @@ class BuildMediaStorageMixin:
     See: https://docs.djangoproject.com/en/1.11/ref/files/storage
     """
 
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito"
+
     @staticmethod
     def _dirpath(path):
         """
@@ -30,8 +42,8 @@ class BuildMediaStorageMixin:
         It may just be Azure, but for listdir to work correctly, this is needed.
         """
         path = str(path)
-        if not path.endswith('/'):
-            path += '/'
+        if not path.endswith("/"):
+            path += "/"
 
         return path
 
@@ -56,10 +68,10 @@ class BuildMediaStorageMixin:
 
         :param path: the path to the directory to remove
         """
-        if path in ('', '/'):
-            raise SuspiciousFileOperation('Deleting all storage cannot be right')
+        if path in ("", "/"):
+            raise SuspiciousFileOperation("Deleting all storage cannot be right")
 
-        log.debug('Deleting path from media storage', path=path)
+        log.debug("Deleting path from media storage", path=path)
         folders, files = self.listdir(self._dirpath(path))
         for folder_name in folders:
             if folder_name:
@@ -77,71 +89,65 @@ class BuildMediaStorageMixin:
         :param destination: the destination path in storage
         """
         log.debug(
-            'Copying source directory to media storage',
+            "Copying source directory to media storage",
             source=source,
             destination=destination,
         )
         source = Path(source)
+        self._check_suspicious_path(source)
         for filepath in source.iterdir():
             sub_destination = self.join(destination, filepath.name)
+
+            # Don't follow symlinks when uploading to storage.
+            if filepath.is_symlink():
+                log.info(
+                    "Skipping symlink upload.",
+                    path_resolved=str(filepath.resolve()),
+                )
+                continue
+
             if filepath.is_dir():
                 # Recursively copy the subdirectory
                 self.copy_directory(filepath, sub_destination)
             elif filepath.is_file():
-                with filepath.open('rb') as fd:
+                with safe_open(filepath, "rb") as fd:
                     self.save(sub_destination, fd)
 
-    def sync_directory(self, source, destination):
-        """
-        Sync a directory recursively to storage.
+    def _check_suspicious_path(self, path):
+        """Check that the given path isn't a symlink or outside the doc root."""
+        path = Path(path)
+        resolved_path = path.resolve()
+        if path.is_symlink():
+            msg = "Suspicious operation over a symbolic link."
+            log.error(msg, path=str(path), resolved_path=str(resolved_path))
+            raise SuspiciousFileOperation(msg)
 
-        Overwrites files in remote storage with files from ``source`` (no timstamp/hash checking).
-        Removes files and folders in remote storage that are not present in ``source``.
+        docroot = Path(settings.DOCROOT).absolute()
+        if not path.is_relative_to(docroot):
+            msg = "Suspicious operation outside the docroot directory."
+            log.error(msg, path=str(path), resolved_path=str(resolved_path))
+            raise SuspiciousFileOperation(msg)
 
-        :param source: the source path on the local disk
-        :param destination: the destination path in storage
-        """
-        if destination in ('', '/'):
-            raise SuspiciousFileOperation('Syncing all storage cannot be right')
+    @cached_property
+    def _rclone(self):
+        raise NotImplementedError
 
-        log.debug(
-            'Syncing to media storage.',
-            source=source,
-            destination=destination,
-        )
-        source = Path(source)
-        copied_files = set()
-        copied_dirs = set()
-        for filepath in source.iterdir():
-            sub_destination = self.join(destination, filepath.name)
-            if filepath.is_dir():
-                # Recursively sync the subdirectory
-                self.sync_directory(filepath, sub_destination)
-                copied_dirs.add(filepath.name)
-            elif filepath.is_file():
-                with filepath.open('rb') as fd:
-                    self.save(sub_destination, fd)
-                copied_files.add(filepath.name)
+    def rclone_sync_directory(self, source, destination):
+        """Sync a directory recursively to storage using rclone sync."""
+        if destination in ("", "/"):
+            raise SuspiciousFileOperation("Syncing all storage cannot be right")
 
-        # Remove files that are not present in ``source``
-        dest_folders, dest_files = self.listdir(self._dirpath(destination))
-        for folder in dest_folders:
-            if folder not in copied_dirs:
-                self.delete_directory(self.join(destination, folder))
-        for filename in dest_files:
-            if filename not in copied_files:
-                filepath = self.join(destination, filename)
-                log.debug('Deleting file from media storage.', filepath=filepath)
-                self.delete(filepath)
+        self._check_suspicious_path(source)
+        return self._rclone.sync(source, destination)
 
     def join(self, directory, filepath):
         return safe_join(directory, filepath)
 
     def walk(self, top):
-        if top in ('', '/'):
-            raise SuspiciousFileOperation('Iterating all storage cannot be right')
+        if top in ("", "/"):
+            raise SuspiciousFileOperation("Iterating all storage cannot be right")
 
-        log.debug('Walking path in media storage', path=top)
+        log.debug("Walking path in media storage", path=top)
         folders, files = self.listdir(self._dirpath(top))
 
         yield top, folders, files
@@ -157,16 +163,20 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
     """Storage subclass that writes build artifacts in PRODUCTION_MEDIA_ARTIFACTS or MEDIA_ROOT."""
 
     def __init__(self, **kwargs):
-        location = kwargs.pop('location', None)
+        location = kwargs.pop("location", None)
 
         if not location:
             # Mirrors the logic of getting the production media path
-            if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+            if settings.DEFAULT_PRIVACY_LEVEL == "public" or settings.DEBUG:
                 location = settings.MEDIA_ROOT
             else:
                 location = settings.PRODUCTION_MEDIA_ARTIFACTS
 
         super().__init__(location)
+
+    @cached_property
+    def _rclone(self):
+        return RCloneLocal(location=self.location)
 
     def get_available_name(self, name, max_length=None):
         """
@@ -204,3 +214,9 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
         https://docs.djangoproject.com/en/2.2/ref/files/storage/#django.core.files.storage.Storage.url
         """
         return super().url(name)
+
+
+class StaticFilesStorage(BaseStaticFilesStorage):
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito-static"

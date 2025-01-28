@@ -41,11 +41,8 @@ def log_logged_out(sender, request, user, **kwargs):
 def log_login_failed(sender, credentials, request, **kwargs):
     """Log when a user has failed to logged in."""
     # pylint: disable=unused-argument
-    username = credentials.get('username')
-    user = (
-        User.objects.filter(Q(username=username) | Q(email=username))
-        .first()
-    )
+    username = credentials.get("username")
+    user = User.objects.filter(Q(username=username) | Q(email=username)).first()
     AuditLog.objects.new(
         action=AuditLog.AUTHN_FAILURE,
         user=user,

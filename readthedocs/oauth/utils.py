@@ -25,13 +25,16 @@ def update_webhook(project, integration, request=None):
     if service_cls is None:
         return None
 
+    # TODO: remove after integrations without a secret are removed.
+    if not integration.secret:
+        integration.save()
+
     updated = False
     if project.remote_repository:
         remote_repository_relations = (
             project.remote_repository.remote_repository_relations.filter(
-                account__isnull=False,
-                user=request.user
-            ).select_related('account')
+                account__isnull=False, user=request.user
+            ).select_related("account")
         )
 
         for relation in remote_repository_relations:
@@ -51,7 +54,7 @@ def update_webhook(project, integration, request=None):
                 break
 
     if updated:
-        messages.success(request, _('Webhook activated'))
+        messages.success(request, _("Webhook activated"))
         project.has_valid_webhook = True
         project.save()
         return True
@@ -59,8 +62,8 @@ def update_webhook(project, integration, request=None):
     messages.error(
         request,
         _(
-            'Webhook activation failed. '
-            'Make sure you have the necessary permissions.',
+            "Webhook activation failed. "
+            "Make sure you have the necessary permissions.",
         ),
     )
     project.has_valid_webhook = False
