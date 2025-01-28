@@ -55,7 +55,7 @@ as those are special versions that Read the Docs uses.
 Position
 ^^^^^^^^
 
-The flyout position can be configured as:
+The flyout can be configured in the :term:`dashboard` with the following positions:
 
 - :guilabel:`Default (from theme or Read the Docs)` - **Default**. If the theme author defines a specific position for the flyout, that position will be used.
   Otherwise, the default position from Read the Docs will be used: ``Bottom right``.
@@ -74,7 +74,7 @@ The flyout position can be configured as:
      <readthedocs-flyout position="bottom-left"></readthedocs-flyout>
 
 
-   Available positions: ``bottom-left``, ``bottom-right``, ``top-left``, ``top-right``, ``inline``.
+   Available positions: ``bottom-left``, ``bottom-right``, ``top-left`` and ``top-right``.
 
 Custom event integration
 ------------------------
