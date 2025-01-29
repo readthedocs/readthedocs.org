@@ -102,11 +102,11 @@ class VersionForm(forms.ModelForm):
 
     def clean_slug(self):
         slug = self.cleaned_data["slug"]
-        final_slug = generate_version_slug(slug)
-        if slug != final_slug:
+        validated_slug = generate_version_slug(slug)
+        if slug != validated_slug:
             msg = _(
                 "The slug can contain lowercase letters, numbers, dots, dashes or underscores, "
-                f"and it must start with a lowercase letter or a number. Consider using '{final_slug}'."
+                f"and it must start with a lowercase letter or a number. Consider using '{validated_slug}'."
             )
             raise forms.ValidationError(msg)
 

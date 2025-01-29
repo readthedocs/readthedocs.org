@@ -193,13 +193,11 @@ class TestVersionForm(TestCase):
         )
 
         test_slugs = (
-            "",
             "???//",
-            "long" * 100,
             "Slug-with-uppercase",
             "no-ascíí",
             "with spaces",
-            "-almos-valid",
+            "-almost-valid",
             "no/valid",
         )
         for slug in test_slugs:
@@ -214,6 +212,33 @@ class TestVersionForm(TestCase):
             )
             assert not form.is_valid()
             assert "slug" in form.errors
+            assert "The slug can contain lowercase letters" in form.errors["slug"][0]
+
+        form = VersionForm(
+            {
+                "slug": "",
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+            instance=version,
+            project=self.project,
+        )
+        assert not form.is_valid()
+        assert "slug" in form.errors
+        assert "This field is required" in form.errors["slug"][0]
+
+        form = VersionForm(
+            {
+                "slug": "a" * 256,
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+            instance=version,
+            project=self.project,
+        )
+        assert not form.is_valid()
+        assert "slug" in form.errors
+        assert "Ensure this value has at most" in form.errors["slug"][0]
 
     def test_change_slug_already_in_use(self):
         version_one = get(
@@ -240,6 +265,7 @@ class TestVersionForm(TestCase):
         )
         assert not form.is_valid()
         assert "slug" in form.errors
+        assert "A version with that slug already exists." in form.errors["slug"][0]
 
     def test_cant_change_slug_machine_created_versions(self):
         version = self.project.versions.get(slug="latest")
@@ -302,7 +328,10 @@ class TestVersionForm(TestCase):
             project_slug=version.project.slug,
             version_slug="slug",
         )
-        trigger_build.assert_called_once()
+        trigger_build.assert_called_once_with(
+            project=version.project,
+            version=version,
+        )
 
     @mock.patch("readthedocs.builds.models.trigger_build")
     @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
