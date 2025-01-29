@@ -175,6 +175,7 @@ class AddonsConfig(TimeStampedModel):
         "builds.Version",
         verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
     )
 
