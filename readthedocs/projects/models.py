@@ -1488,6 +1488,7 @@ class ImportedFile(models.Model):
     things like CDN invalidation.
     """
 
+    id = models.BigAutoField(primary_key=True)
     project = models.ForeignKey(
         Project,
         verbose_name=_("Project"),
