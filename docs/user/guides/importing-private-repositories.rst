@@ -23,6 +23,7 @@ Here is how you set it up.
 .. warning::
 
    If you have the :doc:`/commercial/single-sign-on` integration enabled, you cannot import projects manually.
+   This is because authorization to the documentation depends on a connection to your VCS provider which isn't established during manual import.
    Please disable the VCS SSO integration to proceed with manual project import.
 
 Importing your project manually
