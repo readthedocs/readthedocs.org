@@ -20,6 +20,10 @@ Here is how you set it up.
 
   Follow the steps below.
 
+.. warning::
+
+   If you have the :doc:`/commercial/single-sign-on` integration enabled, you cannot import projects manually.
+   Please disable the VCS SSO integration to proceed with manual project import.
 
 Importing your project manually
 -------------------------------
