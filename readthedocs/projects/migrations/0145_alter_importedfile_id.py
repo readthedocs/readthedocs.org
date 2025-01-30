@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy
 
     dependencies = [
-        ("projects", "0143_addons_flyout_position"),
+        ("projects", "0144_addons_blank_field"),
     ]
 
     operations = [
