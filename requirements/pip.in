@@ -48,6 +48,9 @@ pyyaml
 Pygments
 pydantic
 
+# Used for GitHub API integration
+PyGithub
+
 dnspython
 
 # Used for Redis cache Django backend (`django.core.cache.backends.redis.RedisCache`)

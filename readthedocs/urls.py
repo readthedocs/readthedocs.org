@@ -56,6 +56,7 @@ rtd_urls = [
     path("builds/", include("readthedocs.builds.urls")),
     # Put this as a unique path for the webhook, so we don't clobber existing Stripe URL's
     path("djstripe/", include("djstripe.urls", namespace="djstripe")),
+    path("webhook/", include("readthedocs.oauth.urls")),
 ]
 
 project_urls = [

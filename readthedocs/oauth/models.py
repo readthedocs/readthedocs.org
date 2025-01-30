@@ -15,8 +15,47 @@ from .constants import VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
 
-class RemoteOrganization(TimeStampedModel):
+class GitHubAccountType(models.TextChoices):
+    USER = "User", _("User")
+    ORGANIZATION = "Organization", _("Organization")
 
+
+class GitHubAppInstallation(TimeStampedModel):
+    # Should we just use big int?
+    installation_id = models.CharField(
+        help_text=_("The application installation ID"),
+        max_length=255,
+        unique=True,
+        db_index=True,
+    )
+    target_id = models.CharField(
+        help_text=_("A GitHub account ID, it can be from a user or an organization"),
+        max_length=255,
+    )
+    target_type = models.CharField(
+        help_text=_(
+            "Account type that the target_id belongs to (user or organization)"
+        ),
+        choices=GitHubAccountType.choices,
+        max_length=255,
+    )
+    extra_data = models.JSONField(
+        help_text=_(
+            "Extra data returned by the webhook when the installation is created"
+        ),
+        default=dict,
+    )
+
+    class Meta(TimeStampedModel.Meta):
+        constraints = [
+            models.UniqueConstraint(
+                fields=["target_id", "target_type"],
+                name="unique_target_id_target_type",
+            )
+        ]
+
+
+class RemoteOrganization(TimeStampedModel):
     """
     Organization from remote service.
 
@@ -172,6 +211,17 @@ class RemoteRepository(TimeStampedModel):
     remote_id = models.CharField(db_index=True, max_length=128)
     vcs_provider = models.CharField(
         _("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32
+    )
+
+    github_app_installation = models.ForeignKey(
+        GitHubAppInstallation,
+        verbose_name=_("GitHub App Installation"),
+        related_name="repositories",
+        null=True,
+        blank=True,
+        # Delete the repository if the installation is deleted?
+        # or keep the repository and just remove the installation?
+        on_delete=models.SET_NULL,
     )
 
     objects = RemoteRepositoryQuerySet.as_manager()
