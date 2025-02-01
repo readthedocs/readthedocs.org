@@ -1,0 +1,22 @@
+.. tabs::
+
+    .. tab:: Sphinx
+
+        If your project uses Sphinx,
+        we offer a special builder optimized for Sphinx projects.
+
+        .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+           :caption: .readthedocs.yaml
+
+
+    .. tab:: MkDocs
+
+        If your project uses MkDocs,
+        we offer a special builder optimized for MkDocs projects.
+
+        .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+           :caption: .readthedocs.yaml
