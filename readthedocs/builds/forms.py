@@ -131,12 +131,10 @@ class VersionForm(forms.ModelForm):
     def save(self, commit=True):
         # If the slug was changed, and the version was active,
         # we need to delete all the resources, since the old slug is used in several places.
-        # NOTE: we call clean_resources over the instance with the previous slug,
+        # NOTE: we call clean_resources with the previous slug,
         # as all resources are associated with that slug.
         if "slug" in self.changed_data and self._was_active:
-            self.instance.slug = self._previous_slug
-            self.instance.clean_resources()
-            self.instance.slug = self.cleaned_data["slug"]
+            self.instance.clean_resources(version_slug=self._previous_slug)
             # We need to set the flag to False,
             # so the post_save method triggers a new build.
             self._was_active = False
