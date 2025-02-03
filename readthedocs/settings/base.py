@@ -752,6 +752,7 @@ class CommunityBaseSettings(Settings):
     GITHUB_APP_PRIVATE_KEY = ""
     GITHUB_APP_WEBHOOK_SECRET = ""
 
+    @property
     def GITHUB_APP_CLIENT_ID(self):
         return self.SOCIALACCOUNT_PROVIDERS["githubapp"]["APPS"][0]["client_id"]
 

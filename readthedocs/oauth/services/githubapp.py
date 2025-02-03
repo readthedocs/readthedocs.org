@@ -188,10 +188,13 @@ class GitHubAppService:
         for account in self._get_social_accounts(collaborators.keys()):
             remote_repo_relation, _ = RemoteRepositoryRelation.objects.get_or_create(
                 remote_repository=remote_repo,
+                user=account.user,
                 account=account,
             )
             remote_repo_relation.user = account.user
-            remote_repo_relation.admin = collaborators[account.uid].permissions.admin
+            remote_repo_relation.admin = collaborators[
+                int(account.uid)
+            ].permissions.admin
             remote_repo_relation.save()
             remote_repo_relations_ids.append(remote_repo_relation.pk)
 
@@ -201,9 +204,6 @@ class GitHubAppService:
         ).exclude(
             pk__in=remote_repo_relations_ids,
         ).delete()
-
-    def _get_social_account(self, id):
-        return self._get_social_accounts([id]).first()
 
     def _get_social_accounts(self, ids):
         return SocialAccount.objects.filter(

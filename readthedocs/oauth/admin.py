@@ -3,11 +3,14 @@
 from django.contrib import admin
 
 from .models import (
+    GitHubAppInstallation,
     RemoteOrganization,
     RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
+
+admin.site.register(GitHubAppInstallation)
 
 
 @admin.register(RemoteRepository)

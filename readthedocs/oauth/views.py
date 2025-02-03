@@ -114,7 +114,9 @@ class GitHubAppWebhookView(APIView):
             gha_installation, _ = self._get_or_create_installation(installation, data)
             # We do a full sync, since it's a new installation.
             GitHubAppService(gha_installation).sync_repositories()
-        elif action == "deleted":
+            return
+
+        if action == "deleted":
             gha_installation = GitHubAppInstallation.objects.filter(
                 installation_id=installation["id"]
             ).first()
@@ -123,6 +125,7 @@ class GitHubAppWebhookView(APIView):
                 # Maybe don't raise an error?
                 raise ValidationError(f"Installation {installation['id']} not found")
             gha_installation.delete()
+            return
 
         # NOTE: should we handle the suspended/unsuspended/new_permissions_accepted actions?
         raise ValidationError(f"Unsupported action: {action}")
@@ -203,10 +206,13 @@ class GitHubAppWebhookView(APIView):
                 service.add_repositories(
                     [repo["id"] for repo in data["repositories_added"]]
                 )
-        elif action == "removed":
+            return
+
+        if action == "removed":
             service.remove_repositories(
                 [repo["id"] for repo in data["repositories_removed"]]
             )
+            return
 
         raise ValidationError(f"Unsupported action: {action}")
 
