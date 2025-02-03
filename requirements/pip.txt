@@ -34,7 +34,9 @@ certifi==2024.12.14
     #   elastic-transport
     #   requests
 cffi==1.17.1
-    # via cryptography
+    # via
+    #   cryptography
+    #   pynacl
 charset-normalizer==3.4.1
     # via requests
 click==8.1.8
@@ -60,6 +62,8 @@ cryptography==44.0.0
     #   pyjwt
 cssselect==1.2.0
     # via pyquery
+deprecated==1.2.18
+    # via pygithub
 distlib==0.3.9
     # via virtualenv
 dj-pagination==2.5.0
@@ -230,10 +234,16 @@ pydantic==2.10.6
     # via -r requirements/pip.in
 pydantic-core==2.27.2
     # via pydantic
+pygithub==2.5.0
+    # via -r requirements/pip.in
 pygments==2.19.1
     # via -r requirements/pip.in
 pyjwt[crypto]==2.10.1
-    # via django-allauth
+    # via
+    #   django-allauth
+    #   pygithub
+pynacl==1.5.0
+    # via pygithub
 pyquery==2.0.1
     # via -r requirements/pip.in
 python-crontab==3.2.0
@@ -265,6 +275,7 @@ requests==2.30.0
     #   -r requirements/pip.in
     #   django-allauth
     #   docker
+    #   pygithub
     #   requests-oauthlib
     #   requests-toolbelt
     #   slumber
@@ -313,6 +324,7 @@ typing-extensions==4.12.2
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
+    #   pygithub
 tzdata==2025.1
     # via
     #   -r requirements/pip.in
@@ -331,6 +343,7 @@ urllib3==2.3.0
     #   botocore
     #   docker
     #   elastic-transport
+    #   pygithub
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.in
@@ -345,6 +358,8 @@ wcwidth==0.2.13
     # via prompt-toolkit
 websocket-client==1.8.0
     # via docker
+wrapt==1.17.2
+    # via deprecated
 xmlsec==1.3.14
     # via python3-saml
 

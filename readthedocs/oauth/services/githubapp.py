@@ -1,3 +1,5 @@
+from functools import cached_property
+
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -18,11 +20,12 @@ from readthedocs.oauth.models import (
 
 log = structlog.get_logger(__name__)
 
+
 class GitHubAppService:
     vcs_provider_slug = GITHUB
+
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
-        self._client = None
 
     def _get_auth(self):
         app_auth = Auth.AppAuth(
@@ -34,27 +37,27 @@ class GitHubAppService:
         )
         return app_auth
 
-    @property
+    @cached_property
     def client(self):
         """Return a client authenticated as the GitHub App to interact with most of the GH API"""
-        if self._client is None:
-            self._client = self.integration_client.get_github_for_installation(self.installation.installation_id)
-        return self._client
+        return self.integration_client.get_github_for_installation(
+            self.installation.installation_id
+        )
 
-    @property
+    @cached_property
     def integration_client(self):
         """Return a client authenticated as the GitHub App to interact with the installation API"""
-        if self._integration_client is None:
-            self._integration_client = GithubIntegration(auth=self._get_auth())
-        return self._integration_client
+        return GithubIntegration(auth=self._get_auth())
 
-    @property
+    @cached_property
     def app_installation(self) -> GHInstallation:
-        return self.integration_client.get_app_installation(self.installation.installation_id)
+        return self.integration_client.get_app_installation(
+            self.installation.installation_id
+        )
 
     def sync_repositories(self):
-        if self.installation.target_type != GitHubAccountType.USER:
-            return
+        # if self.installation.target_type != GitHubAccountType.USER:
+        #     return
         return self._sync_installation_repositories()
 
     def _sync_installation_repositories(self):
@@ -64,10 +67,12 @@ class GitHubAppService:
             if remote_repo:
                 remote_repositories.append(remote_repo)
 
-        # Remove repositories that are no longer in the list.
+        # Remove repositories that are no longer in the list,
+        # and that are not linked to a project.
         RemoteRepository.objects.filter(
             github_app_installation=self.installation,
             vcs_provider=self.vcs_provider_slug,
+            projects=None,
         ).exclude(
             pk__in=[repo.pk for repo in remote_repositories],
         ).delete()
@@ -78,14 +83,38 @@ class GitHubAppService:
             self.create_or_update_repository(repo)
 
     def remove_repositories(self, repository_ids: list[int]):
+        """
+        Remove repositories from the given list that are not linked to a project.
+
+        We don't remove repositories that are linked to a project, since a user could
+        grant access to the repository again, and we don't want users having to manually
+        link the project to the repository again.
+        """
         RemoteRepository.objects.filter(
             github_app_installation=self.installation,
             vcs_provider=self.vcs_provider_slug,
             remote_id__in=repository_ids,
+            projects=None,
         ).delete()
 
-    def create_or_update_repository(self, repo: GHRepository) -> RemoteRepository | None
+    def create_or_update_repository(
+        self, repo: GHRepository
+    ) -> RemoteRepository | None:
         if not settings.ALLOW_PRIVATE_REPOS and repo.private:
+            return
+
+        target_id = self.installation.target_id
+        target_type = self.installation.target_type
+        # NOTE: All the repositories should be owned by the installation account.
+        # This should never happen, unless our assumptions are wrong.
+        if repo.owner.id != target_id or repo.owner.type != target_type:
+            log.exception(
+                "Repository owner does not match the installation account",
+                repository_id=repo.id,
+                repository_owner_id=repo.owner.id,
+                installation_target_id=target_id,
+                installation_target_type=target_type,
+            )
             return
 
         remote_repo, _ = RemoteRepository.objects.get_or_create(
@@ -99,7 +128,7 @@ class GitHubAppService:
         remote_repo.avatar_url = repo.owner.avatar_url
         remote_repo.ssh_url = repo.ssh_url
         remote_repo.html_url = repo.html_url
-        remote_repo.private = repo.private 
+        remote_repo.private = repo.private
         remote_repo.default_branch = repo.default_branch
 
         # TODO: Do we need the SSH URL for private repositories now that we can clone using a token?
@@ -107,7 +136,10 @@ class GitHubAppService:
 
         # NOTE: Only one installation of our APP should give access to a repository.
         # This should only happen if our data is out of sync.
-        if remote_repo.github_app_installation and remote_repo.github_app_installation != self.installation:
+        if (
+            remote_repo.github_app_installation
+            and remote_repo.github_app_installation != self.installation
+        ):
             log.info(
                 "Repository linked to another installation",
                 repository_id=remote_repo.remote_id,
@@ -121,7 +153,7 @@ class GitHubAppService:
             remote_repo.organization = self.create_or_update_organization(repo.owner)
 
         self._resync_collaborators(repo, remote_repo)
-        # What about memmbers of the organization? do we care?
+        # What about members of the organization? Do we care?
         # I think all of our permissions are based on the collaborators of the repository,
         # not the members of the organization.
         remote_repo.save()
@@ -172,7 +204,7 @@ class GitHubAppService:
 
     def _get_social_account(self, id):
         return self._get_social_accounts([id]).first()
-    
+
     def _get_social_accounts(self, ids):
         return SocialAccount.objects.filter(
             uid__in=ids,
@@ -180,6 +212,6 @@ class GitHubAppService:
         ).select_related("user")
 
     def sync_organizations(self):
-        expected_organization = self.app_installation.account
         if self.installation.target_type != GitHubAccountType.ORGANIZATION:
             return
+        return self._sync_installation_repositories()

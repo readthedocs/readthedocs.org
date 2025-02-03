@@ -48,7 +48,7 @@ pyyaml
 Pygments
 pydantic
 
-# Used for GitHub API integration
+# Used to interact with the GitHub API
 PyGithub
 
 dnspython

@@ -21,16 +21,13 @@ class GitHubAccountType(models.TextChoices):
 
 
 class GitHubAppInstallation(TimeStampedModel):
-    # Should we just use big int?
-    installation_id = models.CharField(
+    installation_id = models.PositiveBigIntegerField(
         help_text=_("The application installation ID"),
-        max_length=255,
         unique=True,
         db_index=True,
     )
-    target_id = models.CharField(
+    target_id = models.PositiveBigIntegerField(
         help_text=_("A GitHub account ID, it can be from a user or an organization"),
-        max_length=255,
     )
     target_type = models.CharField(
         help_text=_(
@@ -47,12 +44,7 @@ class GitHubAppInstallation(TimeStampedModel):
     )
 
     class Meta(TimeStampedModel.Meta):
-        constraints = [
-            models.UniqueConstraint(
-                fields=["target_id", "target_type"],
-                name="unique_target_id_target_type",
-            )
-        ]
+        pass
 
 
 class RemoteOrganization(TimeStampedModel):
@@ -137,7 +129,6 @@ class RemoteOrganizationRelation(TimeStampedModel):
 
 
 class RemoteRepository(TimeStampedModel):
-
     """
     Remote importable repositories.
 
@@ -221,6 +212,9 @@ class RemoteRepository(TimeStampedModel):
         blank=True,
         # Delete the repository if the installation is deleted?
         # or keep the repository and just remove the installation?
+        # I think we should keep the repository, but only if it's linked to a project,
+        # since a user could re-install the app, they shouldn't need to
+        # manually link each project to the repository again.
         on_delete=models.SET_NULL,
     )
 
