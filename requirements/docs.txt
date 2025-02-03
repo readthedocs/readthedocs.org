@@ -10,11 +10,11 @@ anyio==4.8.0
     # via
     #   starlette
     #   watchfiles
-babel==2.16.0
+babel==2.17.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2024.12.14
+certifi==2025.1.31
     # via
     #   requests
     #   sphinx-prompt
@@ -39,7 +39,7 @@ docutils==0.21.2
     #   sphinx-tabs
 exceptiongroup==1.2.2
     # via anyio
-fonttools==4.55.6
+fonttools==4.55.8
     # via matplotlib
 h11==0.14.0
     # via uvicorn
@@ -129,7 +129,7 @@ sphinx-intl==2.3.1
     # via -r requirements/docs.in
 sphinx-multiproject==1.0.0
     # via -r requirements/docs.in
-sphinx-notfound-page==1.0.4
+sphinx-notfound-page==1.1.0
     # via -r requirements/docs.in
 sphinx-prompt==1.9.0
     # via -r requirements/docs.in
