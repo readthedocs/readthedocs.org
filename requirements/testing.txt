@@ -24,17 +24,17 @@ async-timeout==5.0.1
     # via
     #   -r requirements/pip.txt
     #   redis
-babel==2.16.0
+babel==2.17.0
     # via sphinx
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.2
+boto3==1.36.11
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.2
+botocore==1.36.11
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -45,7 +45,7 @@ celery==5.2.7
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-certifi==2024.12.14
+certifi==2025.1.31
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -172,7 +172,7 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-safemigrate==4.3
     # via -r requirements/pip.txt
-django-simple-history==3.7.0
+django-simple-history==3.8.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.14.3
     # via -r requirements/pip.txt
@@ -214,7 +214,7 @@ elastic-transport==8.17.0
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.17.0
+elasticsearch==8.17.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -228,7 +228,7 @@ fido2==1.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.16.1
+filelock==3.17.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -300,7 +300,7 @@ platformdirs==4.3.6
     #   virtualenv
 pluggy==1.5.0
     # via pytest
-prompt-toolkit==3.0.48
+prompt-toolkit==3.0.50
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -318,7 +318,7 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.5
+pydantic==2.10.6
     # via -r requirements/pip.txt
 pydantic-core==2.27.2
     # via
@@ -364,7 +364,7 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2024.2
+pytz==2025.1
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -401,7 +401,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-s3transfer==0.11.1
+s3transfer==0.11.2
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -466,12 +466,12 @@ typing-extensions==4.12.2
     #   pydantic
     #   pydantic-core
     #   sphinx
-tzdata==2024.2
+tzdata==2025.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   kombu
-ua-parser==1.0.0
+ua-parser==1.0.1
     # via
     #   -r requirements/pip.txt
     #   user-agents

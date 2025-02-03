@@ -118,6 +118,9 @@
   "readthedocs": {
     "analytics": {
       "code": null
+    },
+    "resolver": {
+      "filename": "/index.html"
     }
   },
   "addons": {

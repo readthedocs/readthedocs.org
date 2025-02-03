@@ -10,11 +10,11 @@ anyio==4.8.0
     # via
     #   starlette
     #   watchfiles
-babel==2.16.0
+babel==2.17.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2024.12.14
+certifi==2025.1.31
     # via
     #   requests
     #   sphinx-prompt
@@ -39,7 +39,7 @@ docutils==0.21.2
     #   sphinx-tabs
 exceptiongroup==1.2.2
     # via anyio
-fonttools==4.55.3
+fonttools==4.55.8
     # via matplotlib
 h11==0.14.0
     # via uvicorn
@@ -129,7 +129,7 @@ sphinx-intl==2.3.1
     # via -r requirements/docs.in
 sphinx-multiproject==1.0.0
     # via -r requirements/docs.in
-sphinx-notfound-page==1.0.4
+sphinx-notfound-page==1.1.0
     # via -r requirements/docs.in
 sphinx-prompt==1.9.0
     # via -r requirements/docs.in
@@ -159,7 +159,7 @@ sphinxemoji==0.3.1
     # via -r requirements/docs.in
 sphinxext-opengraph==0.9.1
     # via -r requirements/docs.in
-starlette==0.45.2
+starlette==0.45.3
     # via sphinx-autobuild
 tomli==2.2.1
     # via sphinx
@@ -175,7 +175,7 @@ uvicorn==0.34.0
     # via sphinx-autobuild
 watchfiles==1.0.4
     # via sphinx-autobuild
-websockets==14.1
+websockets==14.2
     # via sphinx-autobuild
 
 # The following packages are considered to be unsafe in a requirements file:
