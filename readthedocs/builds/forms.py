@@ -23,6 +23,7 @@ from readthedocs.builds.models import (
     VersionAutomationRule,
 )
 from readthedocs.builds.version_slug import generate_version_slug
+from readthedocs.projects.models import Feature
 
 
 class VersionForm(forms.ModelForm):
@@ -76,6 +77,9 @@ class VersionForm(forms.ModelForm):
         # (stable/latest), as we rely on the slug to identify them.
         if self.instance and self.instance.machine:
             self.fields["slug"].disabled = True
+
+        if not self.project.has_feature(Feature.ALLOW_CHANGING_VERSION_SLUG):
+            self.fields.pop("slug")
 
         self.helper = FormHelper()
         self.helper.layout = Layout(*field_sets)
