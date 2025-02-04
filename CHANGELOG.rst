@@ -1,3 +1,23 @@
+Version 11.20.0
+---------------
+
+:Date: February 04, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11968 <https://github.com/readthedocs/readthedocs.org/pull/11968>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a warning about VCS SSO to import guide (`#11966 <https://github.com/readthedocs/readthedocs.org/pull/11966>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Always run sync_versions on the default queue (`#11965 <https://github.com/readthedocs/readthedocs.org/pull/11965>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix migration (`#11964 <https://github.com/readthedocs/readthedocs.org/pull/11964>`__)
+* `@humitos <https://github.com/humitos>`__: Addons API: return FTD enabled/disabled based on addons config (`#11963 <https://github.com/readthedocs/readthedocs.org/pull/11963>`__)
+* `@humitos <https://github.com/humitos>`__: Admin: allow blank field from admin (`#11962 <https://github.com/readthedocs/readthedocs.org/pull/11962>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.19.2 (`#11959 <https://github.com/readthedocs/readthedocs.org/pull/11959>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version: use field validator instead of custom field for slug (`#11957 <https://github.com/readthedocs/readthedocs.org/pull/11957>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: explains flyout position (`#11954 <https://github.com/readthedocs/readthedocs.org/pull/11954>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Copy updates for intro pages (`#11948 <https://github.com/readthedocs/readthedocs.org/pull/11948>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove embed API v2 code (`#11945 <https://github.com/readthedocs/readthedocs.org/pull/11945>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: expose `readthedocs.resolver.filename` in the API response (`#11940 <https://github.com/readthedocs/readthedocs.org/pull/11940>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow users to change version slug (`#11930 <https://github.com/readthedocs/readthedocs.org/pull/11930>`__)
+* `@stsewd <https://github.com/stsewd>`__: ImportedFile: use BigAutoField for primary key (`#9669 <https://github.com/readthedocs/readthedocs.org/pull/9669>`__)
+
 Version 11.19.2
 ---------------
 
