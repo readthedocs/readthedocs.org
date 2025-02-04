@@ -176,6 +176,7 @@ class AddonsConfig(TimeStampedModel):
         "builds.Version",
         verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
     )
 
@@ -1519,6 +1520,7 @@ class ImportedFile(models.Model):
     things like CDN invalidation.
     """
 
+    id = models.BigAutoField(primary_key=True)
     project = models.ForeignKey(
         Project,
         verbose_name=_("Project"),

@@ -18,12 +18,12 @@ you can escape it like ``project\:docs``.
 
 .. note::
 
-   Unknown parameters like ``foo:bar`` don't require escaping
+   Unknown parameters like ``foo:bar`` don't require escaping.
 
 The available parameters are:
 
 project
-   Indicates the project and version to includes results from
+   Indicates the project and version to include results from
    (this doesn’t include subprojects or translations).
    If the version isn’t provided, the default version will be used.
    More than one parameter can be included.
@@ -36,8 +36,8 @@ project
 
 subprojects
    Include results from the given project and its subprojects.
-   If the version isn't provided, the default version of all projects will be used,
-   if a version is provided, all subprojects matching that version
+   If the version isn't provided, the default version of all projects will be used.
+   If a version is provided, all subprojects matching that version
    will be included, and if they don't have a version with that name,
    we use their default version.
    More than one parameter can be included.
@@ -52,8 +52,8 @@ user
    Include results from projects the given user has access to.
    The only supported value is ``@me``,
    which is an alias for the current user.
-   Only one parameter can be included,
-   if duplicated, the last one will override the previous one.
+   Only one parameter can be included.
+   If duplicated, the last one will override the previous one.
 
    Examples:
 
@@ -108,7 +108,7 @@ Prefix query
 ~~~~~~~~~~~~
 
 ``*`` (asterisk) at the end of any term signifies a prefix query.
-It returns the results containing the words with specific prefix.
+It returns the results containing the words with the specific prefix.
 
 Examples:
 
