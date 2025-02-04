@@ -1,12 +1,10 @@
 """Allauth overrides."""
 
-from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-from allauth.socialaccount.models import SocialAccount
-from allauth.socialaccount.providers.github.provider import GitHubProvider
-
 import structlog
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.utils.encoding import force_str
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
@@ -69,7 +67,6 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         """
         sociallogin.email_addresses = [
             email for email in sociallogin.email_addresses if email.primary
-
         ]
 
         provider = sociallogin.account.get_provider()

@@ -1,12 +1,12 @@
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
-
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2CallbackView,
     OAuth2LoginView,
 )
 
+
 class GitHubAppOAuth2Adapter(GitHubOAuth2Adapter):
-    provider_id = 'githubapp'
+    provider_id = "githubapp"
 
 
 oauth2_login = OAuth2LoginView.adapter_view(GitHubAppOAuth2Adapter)
