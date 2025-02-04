@@ -472,7 +472,7 @@ class EnvironmentVariableAdmin(admin.ModelAdmin):
 class AddonsConfigAdmin(admin.ModelAdmin):
     model = AddonsConfig
     raw_id_fields = ("project", "options_base_version")
-    list_display = ("project", "slug", "enabled")
+    list_display = ("project", "project__slug", "enabled")
     search_fields = ("project__slug",)
     list_editable = ("enabled",)
 
