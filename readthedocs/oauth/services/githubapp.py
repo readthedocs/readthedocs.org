@@ -106,7 +106,7 @@ class GitHubAppService:
         target_id = self.installation.target_id
         target_type = self.installation.target_type
         # NOTE: All the repositories should be owned by the installation account.
-        # This should never happen, unless our assumptions are wrong.
+        # This should never happen, unless this assumption is wrong.
         if repo.owner.id != target_id or repo.owner.type != target_type:
             log.exception(
                 "Repository owner does not match the installation account",

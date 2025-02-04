@@ -9,10 +9,19 @@ from rest_framework.views import APIView
 from readthedocs.api.v2.views.integrations import (
     GITHUB_EVENT_HEADER,
     GITHUB_SIGNATURE_HEADER,
+    ExternalVersionData,
     WebhookMixin,
 )
+from readthedocs.builds.constants import BRANCH, TAG
+from readthedocs.core.views.hooks import (
+    build_external_version,
+    build_versions_from_names,
+    close_external_version,
+    get_or_create_external_version,
+    trigger_sync_versions,
+)
 from readthedocs.oauth.models import GitHubAppInstallation
-from readthedocs.oauth.services.githubapp import GitHubAppService
+from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
@@ -31,6 +40,12 @@ class GitHubAppWebhookView(APIView):
             "installation_repositories": self._handle_installation_repositories_event,
             # Hmm, don't think we need this one.
             "installation_target": self._handle_installation_target_event,
+            # "create": self._handle_create_event,
+            # "delete": self._handle_delete_event,
+            # TODO: this triggers when a branch or tag is deleted,
+            # do we need to handle the delete and create events as well?
+            "push": self._handle_push_event,
+            "pull_request": self._handle_pull_request_event,
         }
         if event in event_handlers:
             event_handlers[event]()
@@ -107,13 +122,16 @@ class GitHubAppWebhookView(APIView):
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#installation.
         """
         data = self.request.data
-        action = data.get("action")
-        installation = data.get("installation", {})
+        action = data["action"]
+        installation = data["installation"]
 
         if action == "created":
-            gha_installation, _ = self._get_or_create_installation(installation, data)
-            # We do a full sync, since it's a new installation.
-            GitHubAppService(gha_installation).sync_repositories()
+            gha_installation, created = self._get_or_create_installation()
+            if not created:
+                log.info(
+                    "Installation already exists", installation_id=installation["id"]
+                )
+
             return
 
         if action == "deleted":
@@ -189,27 +207,24 @@ class GitHubAppWebhookView(APIView):
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#installation_repositories.
         """
         data = self.request.data
-        action = data.get("action")
-        installation = data.get("installation", {})
-        gha_installation, created = self._get_or_create_installation(installation, data)
-        service = GitHubAppService(gha_installation)
+        action = data["action"]
+        gha_installation, created = self._get_or_create_installation()
 
+        # If we didn't have the installation, all repositories were synced on creation.
         if created:
-            # If we didn't have the installation, we do a full sync.
-            service.sync_repositories()
             return
 
         if action == "added":
             if data["repository_selection"] == "all":
-                service.sync_repositories()
+                gha_installation.service.sync_repositories()
             else:
-                service.add_repositories(
+                gha_installation.service.add_repositories(
                     [repo["id"] for repo in data["repositories_added"]]
                 )
             return
 
         if action == "removed":
-            service.remove_repositories(
+            gha_installation.service.remove_repositories(
                 [repo["id"] for repo in data["repositories_removed"]]
             )
             return
@@ -224,35 +239,168 @@ class GitHubAppWebhookView(APIView):
         like when the user or organization changes its username/slug.
         """
 
-    def _get_or_create_installation(self, installation: dict, extra_data: dict):
+    def _handle_create_event(self):
+        """
+        Handle the create event.
+
+        Triggered when a branch or tag is created.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#create.
+        """
+        self._sync_repo_versions()
+
+    def _handle_delete_event(self):
+        """
+        Handle the delete event.
+
+        Triggered when a branch or tag is deleted.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#delete.
+        """
+        self._sync_repo_versions()
+
+    def _sync_repo_versions(self):
+        for project in self._get_projects():
+            trigger_sync_versions(project)
+
+    def _handle_push_event(self):
+        """
+        Handle the push event.
+
+        Triggered when a commit is pushed, when a commit tag is pushed,
+        when a branch is deleted, when a tag is deleted,
+        or when a repository is created from a template.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#push.
+        """
+        data = self.request.data
+        created = data.get("created", False)
+        deleted = data.get("deleted", False)
+        if created or deleted:
+            self._sync_repo_versions()
+            return
+
+        version_name, version_type = self._parse_version_from_ref(data["ref"])
+        for project in self._get_projects():
+            build_versions_from_names(project, [(version_name, version_type)])
+
+    def _parse_version_from_ref(self, ref: str):
+        """
+        Parse the version name and type from a GitHub ref.
+
+        The ref can be a branch or a tag.
+
+        :param ref: The ref to parse.
+        :returns: A tuple with the version name and type.
+        """
+        heads_prefix = "refs/heads/"
+        tags_prefix = "refs/tags/"
+        if ref.startswith(heads_prefix):
+            return ref.removeprefix(heads_prefix), BRANCH
+        if ref.startswith(tags_prefix):
+            return ref.removeprefix(tags_prefix), TAG
+
+        # NOTE: this should never happen.
+        raise ValidationError(f"Invalid ref: {ref}")
+
+    def _handle_pull_request_event(self):
+        """
+        Handle the pull_request event.
+
+        Triggered when there is activity on a pull request.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#pull_request.
+        """
+        data = self.request.data
+        action = data["action"]
+
+        pr = data["pull_request"]
+        ExternalVersionData(
+            id=str(pr["number"]),
+            commit=pr["head"]["sha"],
+            source_branch=pr["head"]["ref"],
+            base_branch=pr["base"]["ref"],
+        )
+
+        if action in ("opened", "reopened", "synchronize"):
+            for project in self._get_projects():
+                external_version = get_or_create_external_version(
+                    project=project,
+                    version_data=ExternalVersionData,
+                )
+                build_external_version(project, external_version)
+            return
+
+        if action == "closed":
+            # Queue the external version for deletion.
+            for project in self._get_projects():
+                close_external_version(
+                    project=project,
+                    version_data=ExternalVersionData,
+                )
+            return
+
+        # We don't need to handle the other actions.
+        return
+
+    def _get_projects(self):
+        remote_repository = self._get_remote_repository()
+        if not remote_repository:
+            return Project.objects.none()
+        return remote_repository.projects.all()
+
+    def _get_remote_repository(self):
+        """
+        Get the remote repository from the request data.
+
+        If the repository doesn't exist, return None.
+        """
+        data = self.request.data
+        remote_id = data["repository"]["id"]
+        gha_installation, _ = self._get_or_create_installation()
+        return gha_installation.repositories.filter(remote_id=remote_id).first()
+
+    def _get_or_create_installation(self, sync_repositories_on_create: bool = True):
+        """
+        Get or create the GitHub App installation.
+
+        If the installation didn't exist, and `sync_repositories_on_create` is True,
+        we sync the repositories.
+        """
+        data = self.request.data
+        # All webhook payloads should have an installation object.
+        installation = data["installation"]
+        installation_id = installation["id"]
         target_id = installation["target_id"]
         target_type = installation["target_type"]
-        installation, created = GitHubAppInstallation.objects.get_or_create(
-            installation_id=installation["id"],
+        gha_installation, created = GitHubAppInstallation.objects.get_or_create(
+            installation_id=installation_id,
             defaults={
-                "extra_data": extra_data,
+                "extra_data": data,
                 "target_id": target_id,
                 "target_type": target_type,
             },
         )
         # NOTE: An installation can't change its target_id or target_type.
-        # This should never happen, unless our assumptions are wrong.
+        # This should never happen, unless this assumption is wrong.
         if (
-            installation.target_id != target_id
-            or installation.target_type != target_type
+            gha_installation.target_id != target_id
+            or gha_installation.target_type != target_type
         ):
             log.exception(
                 "Installation target_id or target_type changed",
-                installation_id=installation.installation_id,
-                target_id=installation.target_id,
-                target_type=installation.target_type,
+                installation_id=gha_installation.installation_id,
+                target_id=gha_installation.target_id,
+                target_type=gha_installation.target_type,
                 new_target_id=target_id,
                 new_target_type=target_type,
             )
-            installation.target_id = target_id
-            installation.target_type = target_type
-            installation.save()
-        return installation, created
+            gha_installation.target_id = target_id
+            gha_installation.target_type = target_type
+            gha_installation.save()
+        if created and sync_repositories_on_create:
+            gha_installation.service.sync_repositories()
+        return gha_installation, created
 
     def _is_payload_signature_valid(self):
         """

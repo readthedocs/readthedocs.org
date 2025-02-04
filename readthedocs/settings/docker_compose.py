@@ -1,6 +1,5 @@
 import os
 import socket
-from pathlib import Path
 
 from .base import CommunityBaseSettings
 
@@ -228,13 +227,7 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     GITHUB_APP_ID = os.environ.get("RTD_GITHUB_APP_ID")
     GITHUB_APP_WEBHOOK_SECRET = os.environ.get("RTD_GITHUB_APP_WEBHOOK_SECRET")
-
-    @property
-    def GITHUB_APP_PRIVATE_KEY(self):
-        pem_file = os.environ.get("RTD_GITHUB_APP_PRIVATE_KEY_PATH")
-        if not pem_file:
-            return ""
-        return Path(pem_file).read_text()
+    GITHUB_APP_PRIVATE_KEY = os.environ.get("RTD_GITHUB_APP_PRIVATE_KEY")
 
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"

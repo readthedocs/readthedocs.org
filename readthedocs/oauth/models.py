@@ -1,5 +1,7 @@
 """OAuth service models."""
 
+from functools import cached_property
+
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
@@ -45,6 +47,13 @@ class GitHubAppInstallation(TimeStampedModel):
 
     class Meta(TimeStampedModel.Meta):
         pass
+
+    @cached_property
+    def service(self):
+        """Return the service for this installation."""
+        from readthedocs.oauth.services.githubapp import GitHubAppService
+
+        return GitHubAppService(self)
 
 
 class RemoteOrganization(TimeStampedModel):
