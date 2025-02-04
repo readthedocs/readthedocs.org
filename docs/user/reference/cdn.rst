@@ -11,7 +11,7 @@ We support CDNs on both of our sites:
     we are able to provide a CDN to all the projects that we host.
     This service is graciously sponsored by `Cloudflare`_.
 * On |com_brand|,
-    the CDN is included as part of our all of our plans.
+    the CDN is included as part of all of our plans.
     We use `Cloudflare`_ for this as well.
 
 CDN benefits
@@ -33,6 +33,6 @@ We automatically refresh the cache on the CDN when the following actions happen:
 
 By refreshing the cache according to these rules,
 readers should **never see outdated content**.
-This makes the end-user experience seamless, and fast.
+This makes the end-user experience seamless and fast.
 
 .. _Cloudflare: https://www.cloudflare.com/

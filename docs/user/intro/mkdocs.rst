@@ -5,7 +5,7 @@ MkDocs
    :description lang=en: Hosting MkDocs sites on Read the Docs.
 
 `MkDocs`_ is a fast, simple static site generator that's geared towards building project documentation.
-Mkdocs is written in Python, and supports documentation written in Markdown.
+MkDocs is written in Python, and supports documentation written in Markdown.
 When using MkDocs, we recommend using the `Material for MkDocs`_ theme,
 and this guide is mostly focused on the integration required to make it work well on Read the Docs.
 
@@ -68,7 +68,7 @@ Set the canonical URL
 A :doc:`canonical URL </canonical-urls>` allows you to specify the preferred version of a web page
 to prevent duplicated content.
 
-Set your MkDocs `site URL`_  to your Read the Docs canonical URL using a
+Set your MkDocs `site URL`_ to your Read the Docs canonical URL using a
 :doc:`Read the Docs environment variable </reference/environment-variables>`:
 
 .. code-block:: yaml
@@ -76,7 +76,7 @@ Set your MkDocs `site URL`_  to your Read the Docs canonical URL using a
 
     site_url: !ENV READTHEDOCS_CANONICAL_URL
 
-.. _Site URL: https://www.mkdocs.org/user-guide/configuration/#site_url
+.. _site URL: https://www.mkdocs.org/user-guide/configuration/#site_url
 
 Configuring Material for MkDocs and Read the Docs Addons
 --------------------------------------------------------
@@ -114,17 +114,15 @@ To configure your site to use :doc:`Read the Docs search </server-side-search/in
         extra_javascript:
             - javascript/readthedocs.js
 
-
 Integrate the Read the Docs version menu into your site navigation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To integrate the :ref:`flyout-menu:Addons flyout menu` version menu into your site navigation
+To integrate the :ref:`flyout-menu:Addons flyout menu` version menu into your site navigation:
 
 #. Override the ``main.html`` template to include the data in the ``meta`` attribute:
 
     .. code-block:: html
         :caption: overrides/main.html
-
 
         {% extends "base.html" %}
 

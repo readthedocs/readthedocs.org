@@ -4,7 +4,7 @@ Account authentication methods
 Read the Docs supports several authentication methods for creating an account and logging in.
 The method you choose depends on your preferences and the security requirements of your organization.
 
-These authentication methods are not mutually exclusive,
+These authentication methods are not mutually exclusive;
 you can use multiple methods to access your account.
 
 Email and password
@@ -42,7 +42,7 @@ Google authentication works well for users already using Google services,
 and easily integrates into your existing workflow.
 
 Google provides authentication, but not authorization.
-This means that you can login to Read the Docs with this method,
+This means that you can log in to Read the Docs with this method,
 but we aren't able to determine which projects you have access to automatically.
 
 .. seealso::
@@ -61,7 +61,7 @@ This is only available on Enterprise plans,
 and requires custom integration to be enabled.
 
 SAML provides authentication, but not authorization.
-This means that users can login to Read the Docs with this method,
+This means that users can log in to Read the Docs with this method,
 but we aren't able to determine which projects each user has access to automatically.
 
 .. seealso::

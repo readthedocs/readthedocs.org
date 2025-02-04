@@ -14,17 +14,17 @@ Minimal configuration is required to build an existing mdBook project on Read th
     version: 2
 
     build:
-        os: ubuntu-lts-latest
-        tools:
-            rust: latest
-        jobs:
-          install:
-            - cargo install mdbook
-          build:
-            html:
-              # For an example book..
-              # - mdbook init docs
-              - mdbook build docs --dest-dir $READTHEDOCS_OUTPUT/html
+      os: ubuntu-lts-latest
+      tools:
+        rust: latest
+      jobs:
+        install:
+          - cargo install mdbook
+        build:
+          html:
+            # For an example book..
+            # - mdbook init docs
+            - mdbook build docs --dest-dir $READTHEDOCS_OUTPUT/html
 
 .. _mdBook: https://rust-lang.github.io/mdBook/
 
@@ -35,7 +35,6 @@ Getting started
 - If you're new to mdBook, check out the official `Getting started with mdBook`_ guide.
 
 .. _Getting started with mdBook: https://rust-lang.github.io/mdBook/guide/creating.html
-
 
 Example repository and demo
 ---------------------------

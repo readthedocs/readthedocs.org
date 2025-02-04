@@ -3,8 +3,6 @@ Server side search
 
 Read the Docs provides full-text search across all of the pages of all projects,
 this is powered by Elasticsearch_.
-You can search all projects at https://readthedocs.org/search/,
-or search only on your project from the :guilabel:`Search` tab of your project.
 
 .. seealso::
 
@@ -33,7 +31,7 @@ Full control over which results should be listed first
    See :ref:`config-file/v2:search.ranking`.
 
 Search across projects you have access to
-   Search across all the projects you access to in your Dashboard.
+   Search across all the projects you have access to in your Dashboard.
    **Don't remember where you found that document the other day?
    No problem, you can search across them all.**
 
