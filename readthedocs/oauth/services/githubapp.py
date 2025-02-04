@@ -21,11 +21,9 @@ from readthedocs.oauth.models import (
 log = structlog.get_logger(__name__)
 
 
-class GitHubAppService:
-    vcs_provider_slug = GITHUB
-
-    def __init__(self, installation: GitHubAppInstallation):
-        self.installation = installation
+class GitHubAppClient:
+    def __init__(self, installation_id: int):
+        self.installation_id = installation_id
 
     def _get_auth(self):
         app_auth = Auth.AppAuth(
@@ -38,22 +36,26 @@ class GitHubAppService:
         return app_auth
 
     @cached_property
-    def client(self):
-        """Return a client authenticated as the GitHub App to interact with most of the GH API"""
-        return self.integration_client.get_github_for_installation(
-            self.installation.installation_id
-        )
-
-    @cached_property
     def integration_client(self):
         """Return a client authenticated as the GitHub App to interact with the installation API"""
         return GithubIntegration(auth=self._get_auth())
 
     @cached_property
+    def client(self):
+        """Return a client authenticated as the GitHub App to interact with most of the GH API"""
+        return self.integration_client.get_github_for_installation(self.installation_id)
+
+    @cached_property
     def app_installation(self) -> GHInstallation:
-        return self.integration_client.get_app_installation(
-            self.installation.installation_id
-        )
+        return self.integration_client.get_app_installation(self.installation_id)
+
+
+class GitHubAppService:
+    vcs_provider_slug = GITHUB
+
+    def __init__(self, installation: GitHubAppInstallation):
+        self.installation = installation
+        self.gha_client = GitHubAppClient(self.installation.installation_id)
 
     def sync_repositories(self):
         # if self.installation.target_type != GitHubAccountType.USER:
@@ -62,7 +64,7 @@ class GitHubAppService:
 
     def _sync_installation_repositories(self):
         remote_repositories = []
-        for repo in self.app_installation.get_repos():
+        for repo in self.gha_client.app_installation.get_repos():
             remote_repo = self.create_or_update_repository(repo)
             if remote_repo:
                 remote_repositories.append(remote_repo)
@@ -79,7 +81,7 @@ class GitHubAppService:
 
     def add_repositories(self, repository_ids: list[int]):
         for repository_id in repository_ids:
-            repo = self.client.get_repo(repository_id)
+            repo = self.gha_client.client.get_repo(repository_id)
             self.create_or_update_repository(repo)
 
     def remove_repositories(self, repository_ids: list[int]):

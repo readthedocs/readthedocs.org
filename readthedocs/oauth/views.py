@@ -21,6 +21,7 @@ from readthedocs.core.views.hooks import (
     trigger_sync_versions,
 )
 from readthedocs.oauth.models import GitHubAppInstallation
+from readthedocs.oauth.services.githubapp import GitHubAppClient
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
@@ -371,8 +372,19 @@ class GitHubAppWebhookView(APIView):
         # All webhook payloads should have an installation object.
         installation = data["installation"]
         installation_id = installation["id"]
-        target_id = installation["target_id"]
-        target_type = installation["target_type"]
+
+        # These fields are not always present in all payloads.
+        target_id = installation.get("target_id")
+        target_type = installation.get("target_type")
+        # If they aren't present, fetch them from the API,
+        # so we can create the installation object if needed.
+        if not target_id or not target_type:
+            installation = GitHubAppClient(installation_id).app_installation
+            target_id = installation.target_id
+            target_type = installation.target_type
+            data = data.copy()
+            data["installation"] = installation.raw_data
+
         gha_installation, created = GitHubAppInstallation.objects.get_or_create(
             installation_id=installation_id,
             defaults={

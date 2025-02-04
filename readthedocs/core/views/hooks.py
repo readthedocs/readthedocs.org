@@ -36,7 +36,7 @@ def _build_version(project, version):
         trigger_build(project=project, version=version)
         return version.slug
 
-    log.info("Not building.", version_slug=slug)
+    log.info("Not building.", version_slug=version.slug)
     return None
 
 
