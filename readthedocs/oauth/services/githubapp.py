@@ -102,6 +102,9 @@ class GitHubAppService:
     def create_or_update_repository(
         self, repo: GHRepository
     ) -> RemoteRepository | None:
+        # What about a project that is public, and then becomes private?
+        # I think we should allow creating remote repositories for these,
+        # but block import/clone and other operations.
         if not settings.ALLOW_PRIVATE_REPOS and repo.private:
             return
 

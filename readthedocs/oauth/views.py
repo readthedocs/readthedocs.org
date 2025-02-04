@@ -41,12 +41,11 @@ class GitHubAppWebhookView(APIView):
             "installation_repositories": self._handle_installation_repositories_event,
             # Hmm, don't think we need this one.
             "installation_target": self._handle_installation_target_event,
-            # "create": self._handle_create_event,
-            # "delete": self._handle_delete_event,
-            # TODO: this triggers when a branch or tag is deleted,
-            # do we need to handle the delete and create events as well?
             "push": self._handle_push_event,
             "pull_request": self._handle_pull_request_event,
+            "repository": self._handle_repository_event,
+            "organization": self._handle_organization_event,
+            "member": self._handle_member_event,
         }
         if event in event_handlers:
             event_handlers[event]()
@@ -146,8 +145,10 @@ class GitHubAppWebhookView(APIView):
             gha_installation.delete()
             return
 
-        # NOTE: should we handle the suspended/unsuspended/new_permissions_accepted actions?
-        raise ValidationError(f"Unsupported action: {action}")
+        # Ignore other actions:
+        # - new_permissions_accepted: We don't need to do anything here for now.
+        # - suspended/unsuspended: We don't do anything with suspended installations.
+        return
 
     def _handle_installation_repositories_event(self):
         """
@@ -230,6 +231,7 @@ class GitHubAppWebhookView(APIView):
             )
             return
 
+        # NOTE: this should never happen.
         raise ValidationError(f"Unsupported action: {action}")
 
     def _handle_installation_target_event(self):
@@ -240,25 +242,33 @@ class GitHubAppWebhookView(APIView):
         like when the user or organization changes its username/slug.
         """
 
-    def _handle_create_event(self):
+    def _handle_repository_event(self):
         """
-        Handle the create event.
+        Handle the repository event.
 
-        Triggered when a branch or tag is created.
+        Triggered when a repository is created, deleted, or updated.
 
-        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#create.
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#repository.
         """
-        self._sync_repo_versions()
+        data = self.request.data
+        action = data["action"]
 
-    def _handle_delete_event(self):
-        """
-        Handle the delete event.
+        gha_installation, created = self._get_or_create_installation()
 
-        Triggered when a branch or tag is deleted.
+        # If the installation was just created, we already synced the repositories.
+        if created:
+            return
 
-        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#delete.
-        """
-        self._sync_repo_versions()
+        if action in ("edited", "privatized", "publicized", "renamed", "trasferred"):
+            gha_installation.service.add_repositories([data["repository"]["id"]])
+            return
+
+        # Ignore other actions:
+        # - created: If the user granted access to all repositories,
+        #   GH will trigger an installation_repositories event.
+        # - deleted: If the repository was linked to an installation,
+        #   GH will be trigger an installation_repositories event.
+        # - archived/unarchived: We don't do anything with archived repositories.
 
     def _sync_repo_versions(self):
         for project in self._get_projects():
@@ -281,6 +291,8 @@ class GitHubAppWebhookView(APIView):
             self._sync_repo_versions()
             return
 
+        # If this is a push to an existing branch or tag,
+        # we need to build the version if active.
         version_name, version_type = self._parse_version_from_ref(data["ref"])
         for project in self._get_projects():
             build_versions_from_names(project, [(version_name, version_type)])
@@ -341,8 +353,59 @@ class GitHubAppWebhookView(APIView):
                 )
             return
 
-        # We don't need to handle the other actions.
+        # We don't care about the other actions.
         return
+
+    def _handle_organization_event(self):
+        """
+        Handle the organization event.
+
+        Triggered when an organization is added or removed from a repository.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#organization
+        """
+        data = self.request.data
+        action = data["action"]
+
+        if action == "member_added":
+            return
+
+        if action == "member_removed":
+            # Don't actually remove the user from the organization,
+            # it could also have been deranked to outside collaborator.
+            # See if GH sends a different event for that.
+            return
+
+        if action == "renamed":
+            # Update organization.
+            return
+
+        if action == "deleted":
+            # Delete the organization only if it's not linked to any project.
+            return
+
+        # Ignore other actions:
+        # - member_invited: We don't do anything with invited members.
+
+    def _handle_member_event(self):
+        """
+        Handle the member event.
+
+        Triggered when a user is added or removed from a repository.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#member
+        """
+        data = self.request.data
+        action = data["action"]
+
+        if action in ("added", "edited"):
+            # Sync collaborators
+            return
+        if action == "removed":
+            return
+
+        # NOTE: this should never happen.
+        raise ValidationError(f"Unsupported action: {action}")
 
     def _get_projects(self):
         remote_repository = self._get_remote_repository()
