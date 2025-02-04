@@ -540,7 +540,7 @@ class AddonsResponseBase:
                     },
                 },
                 "filetreediff": {
-                    "enabled": False,
+                    "enabled": project.addons.filetreediff_enabled,
                 },
             },
         }

@@ -3,7 +3,7 @@ import re
 from django.test import TestCase
 
 from readthedocs.builds.models import Version
-from readthedocs.builds.version_slug import VERSION_SLUG_REGEX, VersionSlugField
+from readthedocs.builds.version_slug import VERSION_SLUG_REGEX, _uniquifying_suffix
 from readthedocs.projects.models import Project
 
 
@@ -99,11 +99,10 @@ class VersionSlugFieldTests(TestCase):
         self.assertEqual(version.slug, "1-0_b")
 
     def test_uniquifying_suffix(self):
-        field = VersionSlugField(populate_from="foo")
-        self.assertEqual(field.uniquifying_suffix(0), "_a")
-        self.assertEqual(field.uniquifying_suffix(25), "_z")
-        self.assertEqual(field.uniquifying_suffix(26), "_ba")
-        self.assertEqual(field.uniquifying_suffix(52), "_ca")
+        self.assertEqual(_uniquifying_suffix(0), "a")
+        self.assertEqual(_uniquifying_suffix(25), "z")
+        self.assertEqual(_uniquifying_suffix(26), "ba")
+        self.assertEqual(_uniquifying_suffix(52), "ca")
 
     def test_unicode(self):
         version = Version.objects.create(

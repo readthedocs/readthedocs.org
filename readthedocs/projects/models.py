@@ -175,6 +175,7 @@ class AddonsConfig(TimeStampedModel):
         "builds.Version",
         verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
     )
 
@@ -1487,6 +1488,7 @@ class ImportedFile(models.Model):
     things like CDN invalidation.
     """
 
+    id = models.BigAutoField(primary_key=True)
     project = models.ForeignKey(
         Project,
         verbose_name=_("Project"),
@@ -1908,6 +1910,7 @@ class Feature(models.Model):
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
     DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
+    ALLOW_CHANGING_VERSION_SLUG = "allow_changing_version_slug"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1958,6 +1961,10 @@ class Feature(models.Model):
         (
             DONT_SYNC_WITH_REMOTE_REPO,
             _("Remote repository: Don't keep project in sync with remote repository."),
+        ),
+        (
+            ALLOW_CHANGING_VERSION_SLUG,
+            _("Dashboard: Allow changing the version slug."),
         ),
         # Versions sync related features
         (

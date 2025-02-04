@@ -8,13 +8,18 @@ from django_dynamic_fixture import get
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Feature, HTMLFile, Project
 
 
 class TestVersionForm(TestCase):
     def setUp(self):
         self.user = get(User)
-        self.project = get(Project, users=(self.user,))
+        self.project = get(Project, users=(self.user,), slug="project")
+        get(
+            Feature,
+            feature_id=Feature.ALLOW_CHANGING_VERSION_SLUG,
+            projects=[self.project],
+        )
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_default_version_is_active(self):
@@ -28,9 +33,11 @@ class TestVersionForm(TestCase):
 
         form = VersionForm(
             {
+                "slug": version.slug,
                 "active": True,
             },
             instance=version,
+            project=self.project,
         )
         self.assertTrue(form.is_valid())
 
@@ -45,9 +52,11 @@ class TestVersionForm(TestCase):
 
         form = VersionForm(
             {
+                "slug": version.slug,
                 "active": False,
             },
             instance=version,
+            project=self.project,
         )
         self.assertFalse(form.is_valid())
         self.assertIn("active", form.errors)
@@ -62,10 +71,12 @@ class TestVersionForm(TestCase):
         )
         form = VersionForm(
             {
+                "slug": version.slug,
                 "active": True,
                 "privacy_level": PRIVATE,
             },
             instance=version,
+            project=self.project,
         )
         # The form is valid, but the field is ignored
         self.assertTrue(form.is_valid())
@@ -81,10 +92,12 @@ class TestVersionForm(TestCase):
         )
         form = VersionForm(
             {
+                "slug": version.slug,
                 "active": True,
                 "privacy_level": PRIVATE,
             },
             instance=version,
+            project=self.project,
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(version.privacy_level, PRIVATE)
@@ -125,6 +138,7 @@ class TestVersionForm(TestCase):
         r = self.client.post(
             url,
             data={
+                "slug": version.slug,
                 "active": True,
                 "privacy_level": PRIVATE,
             },
@@ -138,6 +152,7 @@ class TestVersionForm(TestCase):
         r = self.client.post(
             url,
             data={
+                "slug": version.slug,
                 "active": False,
                 "privacy_level": PRIVATE,
             },
@@ -147,3 +162,211 @@ class TestVersionForm(TestCase):
         remove_search_indexes.delay.assert_called_once()
         self.assertFalse(version.imported_files.exists())
         self.assertTrue(another_version.imported_files.exists())
+
+    def test_change_slug(self):
+        version = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="slug",
+        )
+
+        test_slugs = [
+            "anotherslug",
+            "another_slug",
+            "another-slug",
+        ]
+        for slug in test_slugs:
+            form = VersionForm(
+                {
+                    "slug": slug,
+                    "active": True,
+                    "privacy_level": PUBLIC,
+                },
+                instance=version,
+                project=self.project,
+            )
+            assert form.is_valid()
+            assert version.slug == slug
+
+    def test_change_slug_wrong_value(self):
+        version = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="slug",
+        )
+
+        test_slugs = (
+            "???//",
+            "Slug-with-uppercase",
+            "no-ascíí",
+            "with spaces",
+            "-almost-valid",
+            "no/valid",
+        )
+        for slug in test_slugs:
+            form = VersionForm(
+                {
+                    "slug": slug,
+                    "active": True,
+                    "privacy_level": PUBLIC,
+                },
+                instance=version,
+                project=self.project,
+            )
+            assert not form.is_valid()
+            assert "slug" in form.errors
+            assert "The slug can contain lowercase letters" in form.errors["slug"][0]
+
+        form = VersionForm(
+            {
+                "slug": "",
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+            instance=version,
+            project=self.project,
+        )
+        assert not form.is_valid()
+        assert "slug" in form.errors
+        assert "This field is required" in form.errors["slug"][0]
+
+        form = VersionForm(
+            {
+                "slug": "a" * 256,
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+            instance=version,
+            project=self.project,
+        )
+        assert not form.is_valid()
+        assert "slug" in form.errors
+        assert "Ensure this value has at most" in form.errors["slug"][0]
+
+    def test_change_slug_already_in_use(self):
+        version_one = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="one",
+        )
+        version_two = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="two",
+        )
+
+        form = VersionForm(
+            {
+                "slug": version_two.slug,
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+            instance=version_one,
+            project=self.project,
+        )
+        assert not form.is_valid()
+        assert "slug" in form.errors
+        assert "A version with that slug already exists." in form.errors["slug"][0]
+
+    def test_cant_change_slug_machine_created_versions(self):
+        version = self.project.versions.get(slug="latest")
+        assert version.machine
+
+        form = VersionForm(
+            {
+                "slug": "change",
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+            instance=version,
+            project=self.project,
+        )
+        assert form.is_valid()
+        version.refresh_from_db()
+        assert version.slug == "latest"
+
+    @mock.patch("readthedocs.builds.models.trigger_build")
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def test_clean_resources_when_changing_slug_of_active_version(
+        self, remove_build_storage_paths, remove_search_indexes, trigger_build
+    ):
+        version = get(
+            Version,
+            project=self.project,
+            active=True,
+            slug="slug",
+        )
+
+        self.client.force_login(self.user)
+        url = reverse(
+            "project_version_detail", args=(version.project.slug, version.slug)
+        )
+        r = self.client.post(
+            url,
+            data={
+                "slug": "change-me",
+                "active": True,
+                "privacy_level": PUBLIC,
+            },
+        )
+        assert r.status_code == 302
+
+        version.refresh_from_db()
+        assert version.slug == "change-me"
+
+        remove_build_storage_paths.delay.assert_called_once_with(
+            [
+                "html/project/slug",
+                "pdf/project/slug",
+                "epub/project/slug",
+                "htmlzip/project/slug",
+                "json/project/slug",
+                "diff/project/slug",
+            ]
+        )
+        remove_search_indexes.delay.assert_called_once_with(
+            project_slug=version.project.slug,
+            version_slug="slug",
+        )
+        trigger_build.assert_called_once_with(
+            project=version.project,
+            version=version,
+        )
+
+    @mock.patch("readthedocs.builds.models.trigger_build")
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def test_dont_clean_resources_when_changing_slug_of_inactive_version(
+        self, remove_build_storage_paths, remove_search_indexes, trigger_build
+    ):
+        version = get(
+            Version,
+            project=self.project,
+            active=False,
+            slug="slug",
+        )
+
+        self.client.force_login(self.user)
+        url = reverse(
+            "project_version_detail", args=(version.project.slug, version.slug)
+        )
+        r = self.client.post(
+            url,
+            data={
+                "slug": "change-me",
+                "active": False,
+                "privacy_level": PUBLIC,
+            },
+        )
+        assert r.status_code == 302
+        version.refresh_from_db()
+        assert version.slug == "change-me"
+
+        remove_build_storage_paths.delay.assert_not_called()
+        remove_search_indexes.delay.assert_not_called()
+        trigger_build.assert_not_called()

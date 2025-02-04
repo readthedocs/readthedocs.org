@@ -102,11 +102,6 @@ def trigger_sync_versions(project):
             log.info("Skipping sync versions for project.", project_slug=project.slug)
             return None
 
-        options = {}
-        if project.build_queue:
-            # respect the queue for this project
-            options["queue"] = project.build_queue
-
         _, build_api_key = BuildAPIKey.objects.create_key(project=project)
 
         log.debug(
@@ -117,7 +112,6 @@ def trigger_sync_versions(project):
         sync_repository_task.apply_async(
             args=[version.pk],
             kwargs={"build_api_key": build_api_key},
-            **options,
         )
         return version.slug
     except Exception:
