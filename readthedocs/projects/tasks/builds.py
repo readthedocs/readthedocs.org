@@ -744,7 +744,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(build_state)
         self.save_build_data()
 
-        build_complete.send(sender=Build, build=self.data.build)
+        # Be defensive with the signal, so if a listener fails we still clean up
+        try:
+            build_complete.send(sender=Build, build=self.data.build)
+        except Exception:
+            log.exception("Error during build_complete", exc_info=True)
 
         if self.data.version:
             clean_build(self.data.version)
