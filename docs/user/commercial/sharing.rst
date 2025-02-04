@@ -20,7 +20,7 @@ Creating a shared item
 * Select access type (secret link, password, or HTTP header token),
   add an expiration date and a *Description* to help with managing access in the future.
 * Check ``Allow access to all versions?`` if you want to grant access to all versions,
-  or uncheck that option and select the specific versions you want grant access to.
+  or uncheck that option and select the specific versions you want to grant access to.
 * Click :guilabel:`Save`.
 * Get the info needed to share your documentation with other users:
 
@@ -32,7 +32,7 @@ Creating a shared item
 
 .. note::
 
-   You can always revoke access by removing the sharing item in this page.
+   You can always revoke access by removing the sharing item on this page.
 
 Sharing methods
 ---------------
@@ -93,12 +93,11 @@ For example:
 
    curl --url https://docs.example.com/en/latest/example.html --user '$TOKEN:'
 
-
 Typical sharing configurations
 ------------------------------
 
 There are a few common ways to architect sharing,
-with trade offs between them,
+with trade-offs between them,
 and you should choose the one that best fits your use case.
 
 Bulk passwords
@@ -132,7 +131,7 @@ If you want a more transparent experience for your users,
 you can create a proxy that authenticates users against your system,
 and then proxies the request to Read the Docs.
 This is more complex to set up,
-but will allow users to access the documentation directly from a bookmark,
+but will allow users to access the documentation directly from a bookmark.
 
 This approach would use a :ref:`commercial/sharing:HTTP Authorization Header` to authenticate users,
 and would be configured in your proxy server.
