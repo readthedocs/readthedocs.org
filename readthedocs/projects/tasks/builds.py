@@ -676,6 +676,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Index search data
         index_build.delay(build_id=self.data.build["id"])
 
+        # Check if the project is spam
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.tasks import (  # noqa
+                spam_check_after_build_complete,
+            )
+
+            spam_check_after_build_complete.delay(build_id=self.data.build["id"])
+
         if not self.data.project.has_valid_clone:
             self.set_valid_clone()
 
