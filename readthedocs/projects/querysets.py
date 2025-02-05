@@ -89,7 +89,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         organization = project.organizations.first()
 
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
-            from readthedocsext.spamfighting.utils import spam_score
+            from readthedocsext.spamfighting.utils import spam_score  # noqa
 
             if spam_score(project) > settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS:
                 spam_project = True
