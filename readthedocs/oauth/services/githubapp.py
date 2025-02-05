@@ -59,8 +59,6 @@ class GitHubAppService:
         self.gha_client = GitHubAppClient(self.installation.installation_id)
 
     def sync_repositories(self):
-        # if self.installation.target_type != GitHubAccountType.USER:
-        #     return
         return self._sync_installation_repositories()
 
     def _sync_installation_repositories(self):
@@ -186,18 +184,16 @@ class GitHubAppService:
                 gh_organization
             )
 
-        self._resync_collaborators(gh_repo, remote_repo)
-        # What about members of the organization? Do we care?
-        # I think all of our permissions are based on the collaborators of the repository,
-        # not the members of the organization.
         remote_repo.save()
+        self._resync_collaborators(gh_repo, remote_repo)
         return remote_repo
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...
     @lru_cache(maxsize=50)
     def _get_gh_organization(self, org_id: int) -> GHOrganization:
-        # NOTE: cast to str, since the GitHub API expects a string,
+        # NOTE: cast to str, since PyGithub expects a string,
         # even if the API accepts a string or an int.
+        # TODO: send a PR upstream to fix this.
         return self.gha_client.client.get_organization(str(org_id))
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...
@@ -292,8 +288,3 @@ class GitHubAppService:
         ).exclude(
             pk__in=remote_org_relations_ids,
         ).delete()
-
-    def sync_organizations(self):
-        if self.installation.target_type != GitHubAccountType.ORGANIZATION:
-            return
-        return self._sync_installation_repositories()
