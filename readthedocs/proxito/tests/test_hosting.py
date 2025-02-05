@@ -885,6 +885,30 @@ class TestReadTheDocsConfigJson(TestCase):
             )
         assert r.status_code == 200
 
+    def test_file_tree_diff_ignored_files(self):
+        ignored_files = [
+            "index.html",
+            "^commercial/guides/.+\.html$",
+        ]
+
+        self.project.addons.filetreediff_ignored_files = ignored_files
+        self.project.addons.save()
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["addons"]["filetreediff"]["ignored_files"] == ignored_files
+
     @mock.patch("readthedocs.filetreediff.get_manifest")
     def test_file_tree_diff(self, get_manifest):
         self.project.addons.filetreediff_enabled = True
@@ -959,6 +983,7 @@ class TestReadTheDocsConfigJson(TestCase):
         filetreediff_response = r.json()["addons"]["filetreediff"]
         assert filetreediff_response == {
             "enabled": True,
+            "ignored_files": None,
             "outdated": False,
             "diff": {
                 "added": [
