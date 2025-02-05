@@ -666,13 +666,13 @@ class OnePerLineList(forms.Field):
     )
 
     def to_python(self, value):
-        """Convert a text area into a list of items (one per line)"""
+        """Convert a text area into a list of items (one per line)."""
         if not value:
             return []
         return value.splitlines()
 
     def prepare_value(self, value):
-        """Convert a list of items into a text area (one per line)"""
+        """Convert a list of items into a text area (one per line)."""
         if not value:
             return ""
         return "\n".join(value)

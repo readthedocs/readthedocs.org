@@ -659,7 +659,6 @@ class AddonsResponseBase:
             return None
 
         return {
-            "enabled": True,
             "outdated": diff.outdated,
             "diff": {
                 "added": [
