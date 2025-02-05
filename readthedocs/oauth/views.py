@@ -123,26 +123,26 @@ class GitHubAppWebhookView(APIView):
         """
         data = self.request.data
         action = data["action"]
-        installation = data["installation"]
+        gh_installation = data["installation"]
 
         if action == "created":
-            gha_installation, created = self._get_or_create_installation()
+            installation, created = self._get_or_create_installation()
             if not created:
                 log.info(
-                    "Installation already exists", installation_id=installation["id"]
+                    "Installation already exists", installation_id=gh_installation["id"]
                 )
 
             return
 
         if action == "deleted":
-            gha_installation = GitHubAppInstallation.objects.filter(
-                installation_id=installation["id"]
+            installation = GitHubAppInstallation.objects.filter(
+                installation_id=gh_installation["id"]
             ).first()
-            if not gha_installation:
+            if not installation:
                 # If we never created the installation, we can ignore the event.
                 # Maybe don't raise an error?
-                raise ValidationError(f"Installation {installation['id']} not found")
-            gha_installation.delete()
+                raise ValidationError(f"Installation {gh_installation['id']} not found")
+            installation.delete()
             return
 
         # Ignore other actions:
@@ -210,7 +210,7 @@ class GitHubAppWebhookView(APIView):
         """
         data = self.request.data
         action = data["action"]
-        gha_installation, created = self._get_or_create_installation()
+        installation, created = self._get_or_create_installation()
 
         # If we didn't have the installation, all repositories were synced on creation.
         if created:
@@ -218,15 +218,15 @@ class GitHubAppWebhookView(APIView):
 
         if action == "added":
             if data["repository_selection"] == "all":
-                gha_installation.service.sync_repositories()
+                installation.service.sync_repositories()
             else:
-                gha_installation.service.add_repositories(
+                installation.service.add_repositories(
                     [repo["id"] for repo in data["repositories_added"]]
                 )
             return
 
         if action == "removed":
-            gha_installation.service.remove_repositories(
+            installation.service.delete_repositories(
                 [repo["id"] for repo in data["repositories_removed"]]
             )
             return
@@ -253,14 +253,14 @@ class GitHubAppWebhookView(APIView):
         data = self.request.data
         action = data["action"]
 
-        gha_installation, created = self._get_or_create_installation()
+        installation, created = self._get_or_create_installation()
 
         # If the installation was just created, we already synced the repositories.
         if created:
             return
 
         if action in ("edited", "privatized", "publicized", "renamed", "trasferred"):
-            gha_installation.service.add_repositories([data["repository"]["id"]])
+            installation.service.add_repositories([data["repository"]["id"]])
             return
 
         # Ignore other actions:
@@ -367,21 +367,34 @@ class GitHubAppWebhookView(APIView):
         data = self.request.data
         action = data["action"]
 
-        if action == "member_added":
+        installation, created = self._get_or_create_installation()
+
+        # If the installation was just created, we already synced the repositories and organization.
+        if created:
             return
 
-        if action == "member_removed":
-            # Don't actually remove the user from the organization,
-            # it could also have been deranked to outside collaborator.
-            # See if GH sends a different event for that.
+        # We need to do a full sync of the repositories if members were added or removed,
+        # this is since we don't know to which repositories the members have access.
+        # GH doesn't send a member event for this.
+        if action in ("member_added", "member_removed"):
+            installation.service.sync_repositories()
             return
 
         if action == "renamed":
-            # Update organization.
+            # Update organization and its members only.
+            # We don't need to sync the repositories.
+            installation.service.update_or_create_organization(
+                data["organization"]["id"]
+            )
             return
 
         if action == "deleted":
             # Delete the organization only if it's not linked to any project.
+            # GH sends a repository and installation_repositories events for each repository
+            # when the organization is deleted.
+            # I didn't see that GH send the deleted action for the organization event...
+            # But handle it just in case.
+            installation.service.delete_organization(data["organization"]["id"])
             return
 
         # Ignore other actions:
@@ -421,8 +434,8 @@ class GitHubAppWebhookView(APIView):
         """
         data = self.request.data
         remote_id = data["repository"]["id"]
-        gha_installation, _ = self._get_or_create_installation()
-        return gha_installation.repositories.filter(remote_id=remote_id).first()
+        installation, _ = self._get_or_create_installation()
+        return installation.repositories.filter(remote_id=remote_id).first()
 
     def _get_or_create_installation(self, sync_repositories_on_create: bool = True):
         """
@@ -433,22 +446,22 @@ class GitHubAppWebhookView(APIView):
         """
         data = self.request.data
         # All webhook payloads should have an installation object.
-        installation = data["installation"]
-        installation_id = installation["id"]
+        gh_installation = data["installation"]
+        installation_id = gh_installation["id"]
 
         # These fields are not always present in all payloads.
-        target_id = installation.get("target_id")
-        target_type = installation.get("target_type")
+        target_id = gh_installation.get("target_id")
+        target_type = gh_installation.get("target_type")
         # If they aren't present, fetch them from the API,
         # so we can create the installation object if needed.
         if not target_id or not target_type:
-            installation = GitHubAppClient(installation_id).app_installation
-            target_id = installation.target_id
-            target_type = installation.target_type
+            gh_installation = GitHubAppClient(installation_id).app_installation
+            target_id = gh_installation.target_id
+            target_type = gh_installation.target_type
             data = data.copy()
-            data["installation"] = installation.raw_data
+            data["installation"] = gh_installation.raw_data
 
-        gha_installation, created = GitHubAppInstallation.objects.get_or_create(
+        installation, created = GitHubAppInstallation.objects.get_or_create(
             installation_id=installation_id,
             defaults={
                 "extra_data": data,
@@ -459,23 +472,23 @@ class GitHubAppWebhookView(APIView):
         # NOTE: An installation can't change its target_id or target_type.
         # This should never happen, unless this assumption is wrong.
         if (
-            gha_installation.target_id != target_id
-            or gha_installation.target_type != target_type
+            installation.target_id != target_id
+            or installation.target_type != target_type
         ):
             log.exception(
                 "Installation target_id or target_type changed",
-                installation_id=gha_installation.installation_id,
-                target_id=gha_installation.target_id,
-                target_type=gha_installation.target_type,
+                installation_id=installation.installation_id,
+                target_id=installation.target_id,
+                target_type=installation.target_type,
                 new_target_id=target_id,
                 new_target_type=target_type,
             )
-            gha_installation.target_id = target_id
-            gha_installation.target_type = target_type
-            gha_installation.save()
+            installation.target_id = target_id
+            installation.target_type = target_type
+            installation.save()
         if created and sync_repositories_on_create:
-            gha_installation.service.sync_repositories()
-        return gha_installation, created
+            installation.service.sync_repositories()
+        return installation, created
 
     def _is_payload_signature_valid(self):
         """

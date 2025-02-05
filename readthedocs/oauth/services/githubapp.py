@@ -1,11 +1,11 @@
-from functools import cached_property
+from functools import cached_property, lru_cache
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from github import Auth, GithubIntegration
 from github.Installation import Installation as GHInstallation
-from github.NamedUser import NamedUser as GHNamedUser
+from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
@@ -14,6 +14,7 @@ from readthedocs.oauth.models import (
     GitHubAccountType,
     GitHubAppInstallation,
     RemoteOrganization,
+    RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
@@ -65,7 +66,7 @@ class GitHubAppService:
     def _sync_installation_repositories(self):
         remote_repositories = []
         for repo in self.gha_client.app_installation.get_repos():
-            remote_repo = self.create_or_update_repository(repo)
+            remote_repo = self._create_or_update_repository_from_gh(repo)
             if remote_repo:
                 remote_repositories.append(remote_repo)
 
@@ -82,16 +83,24 @@ class GitHubAppService:
     def add_repositories(self, repository_ids: list[int]):
         for repository_id in repository_ids:
             repo = self.gha_client.client.get_repo(repository_id)
-            self.create_or_update_repository(repo)
+            self._create_or_update_repository_from_gh(repo)
 
-    def remove_repositories(self, repository_ids: list[int]):
+    def delete_repositories(self, repository_ids: list[int]):
         """
-        Remove repositories from the given list that are not linked to a project.
+        Delete repositories from the given list that are not linked to a project.
 
         We don't remove repositories that are linked to a project, since a user could
         grant access to the repository again, and we don't want users having to manually
         link the project to the repository again.
         """
+        # Extract all the organizations linked to these repositories,
+        # so we can remove organizations that don't have any repositories
+        # after removing the repositories.
+        remote_organizations = RemoteOrganization.objects.filter(
+            repositories__remote_id__in=repository_ids,
+            vcs_provider=self.vcs_provider_slug,
+        )
+
         RemoteRepository.objects.filter(
             github_app_installation=self.installation,
             vcs_provider=self.vcs_provider_slug,
@@ -99,45 +108,60 @@ class GitHubAppService:
             projects=None,
         ).delete()
 
-    def create_or_update_repository(
-        self, repo: GHRepository
+        # Delete organizations that don't have any repositories.
+        remote_organizations.filter(repositories=None).delete()
+
+    def delete_organization(self, organization_id: int):
+        """
+        Delete an organization and all its repositories from the database only if they are not linked to a project.
+        """
+        RemoteOrganization.objects.filter(
+            remote_id=str(organization_id),
+            vcs_provider=self.vcs_provider_slug,
+            repositories__projects=None,
+        ).delete()
+
+    def _create_or_update_repository_from_gh(
+        self, gh_repo: GHRepository
     ) -> RemoteRepository | None:
         # What about a project that is public, and then becomes private?
         # I think we should allow creating remote repositories for these,
         # but block import/clone and other operations.
-        if not settings.ALLOW_PRIVATE_REPOS and repo.private:
+        if not settings.ALLOW_PRIVATE_REPOS and gh_repo.private:
             return
 
         target_id = self.installation.target_id
         target_type = self.installation.target_type
         # NOTE: All the repositories should be owned by the installation account.
         # This should never happen, unless this assumption is wrong.
-        if repo.owner.id != target_id or repo.owner.type != target_type:
+        if gh_repo.owner.id != target_id or gh_repo.owner.type != target_type:
             log.exception(
                 "Repository owner does not match the installation account",
-                repository_id=repo.id,
-                repository_owner_id=repo.owner.id,
+                repository_id=gh_repo.id,
+                repository_owner_id=gh_repo.owner.id,
                 installation_target_id=target_id,
                 installation_target_type=target_type,
             )
             return
 
         remote_repo, _ = RemoteRepository.objects.get_or_create(
-            remote_id=str(repo.id),
+            remote_id=str(gh_repo.id),
             vcs_provider=self.vcs_provider_slug,
         )
 
-        remote_repo.name = repo.name
-        remote_repo.full_name = repo.full_name
-        remote_repo.description = repo.description
-        remote_repo.avatar_url = repo.owner.avatar_url
-        remote_repo.ssh_url = repo.ssh_url
-        remote_repo.html_url = repo.html_url
-        remote_repo.private = repo.private
-        remote_repo.default_branch = repo.default_branch
+        remote_repo.name = gh_repo.name
+        remote_repo.full_name = gh_repo.full_name
+        remote_repo.description = gh_repo.description
+        remote_repo.avatar_url = gh_repo.owner.avatar_url
+        remote_repo.ssh_url = gh_repo.ssh_url
+        remote_repo.html_url = gh_repo.html_url
+        remote_repo.private = gh_repo.private
+        remote_repo.default_branch = gh_repo.default_branch
 
         # TODO: Do we need the SSH URL for private repositories now that we can clone using a token?
-        remote_repo.clone_url = repo.ssh_url if repo.private else repo.clone_url
+        remote_repo.clone_url = (
+            gh_repo.ssh_url if gh_repo.private else gh_repo.clone_url
+        )
 
         # NOTE: Only one installation of our APP should give access to a repository.
         # This should only happen if our data is out of sync.
@@ -154,31 +178,57 @@ class GitHubAppService:
         remote_repo.github_app_installation = self.installation
 
         remote_repo.organization = None
-        if repo.owner.type == GitHubAccountType.ORGANIZATION:
-            remote_repo.organization = self.create_or_update_organization(repo.owner)
+        if gh_repo.owner.type == GitHubAccountType.ORGANIZATION:
+            # NOTE: The owner object doesn't have all attributes of an organization,
+            # so we need to fetch the organization object.
+            gh_organization = self._get_gh_organization(gh_repo.owner.id)
+            remote_repo.organization = self._create_or_update_organization_from_gh(
+                gh_organization
+            )
 
-        self._resync_collaborators(repo, remote_repo)
+        self._resync_collaborators(gh_repo, remote_repo)
         # What about members of the organization? Do we care?
         # I think all of our permissions are based on the collaborators of the repository,
         # not the members of the organization.
         remote_repo.save()
         return remote_repo
 
-    def create_or_update_organization(self, org: GHNamedUser) -> RemoteOrganization:
+    # NOTE: normally, this should cache only one organization at a time, but just in case...
+    @lru_cache(maxsize=50)
+    def _get_gh_organization(self, org_id: int) -> GHOrganization:
+        # NOTE: cast to str, since the GitHub API expects a string,
+        # even if the API accepts a string or an int.
+        return self.gha_client.client.get_organization(str(org_id))
+
+    # NOTE: normally, this should cache only one organization at a time, but just in case...
+    @lru_cache(maxsize=50)
+    def _create_or_update_organization_from_gh(
+        self, gh_org: GHOrganization
+    ) -> RemoteOrganization:
+        """
+        Create or update a remote organization from a GitHub organization object.
+
+        We also sync the members of the organization with the database.
+
+        This method is cached, since we want to update the organization only once per sync of an installation.
+        """
         remote_org, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=str(org.id),
+            remote_id=str(gh_org.id),
             vcs_provider=self.vcs_provider_slug,
         )
-        remote_org.slug = org.login
-        remote_org.name = org.name
+        remote_org.slug = gh_org.login
+        remote_org.name = gh_org.name
         # NOTE: do we need the email of the organization?
-        remote_org.email = org.email
-        remote_org.avatar_url = org.avatar_url
-        remote_org.url = org.html_url
+        remote_org.email = gh_org.email
+        remote_org.avatar_url = gh_org.avatar_url
+        remote_org.url = gh_org.html_url
         remote_org.save()
+        self._resync_organization_members(gh_org, remote_org)
         return remote_org
 
-    def _resync_collaborators(self, repo: GHRepository, remote_repo: RemoteRepository):
+    def _resync_collaborators(
+        self, gh_repo: GHRepository, remote_repo: RemoteRepository
+    ):
         """
         Sync collaborators of a repository with the database.
 
@@ -186,8 +236,7 @@ class GitHubAppService:
         """
         collaborators = {
             collaborator.id: collaborator
-            # Return all collaborators or just the ones with admin permission?
-            for collaborator in repo.get_collaborators()
+            for collaborator in gh_repo.get_collaborators()
         }
         remote_repo_relations_ids = []
         for account in self._get_social_accounts(collaborators.keys()):
@@ -196,7 +245,6 @@ class GitHubAppService:
                 user=account.user,
                 account=account,
             )
-            remote_repo_relation.user = account.user
             remote_repo_relation.admin = collaborators[
                 int(account.uid)
             ].permissions.admin
@@ -215,6 +263,35 @@ class GitHubAppService:
             uid__in=ids,
             provider=GitHubAppProvider.id,
         ).select_related("user")
+
+    def update_or_create_organization(self, org_id: int) -> RemoteOrganization:
+        gh_org = self._get_gh_organization(org_id)
+        return self._create_or_update_organization_from_gh(gh_org)
+
+    def _resync_organization_members(
+        self, gh_org: GHOrganization, remote_org: RemoteOrganization
+    ):
+        """
+        Sync members of an organization with the database.
+
+        This method will remove members that are no longer in the list.
+        """
+        members = {member.id: member for member in gh_org.get_members()}
+        remote_org_relations_ids = []
+        for account in self._get_social_accounts(members.keys()):
+            remote_org_relation, _ = RemoteOrganizationRelation.objects.get_or_create(
+                remote_organization=remote_org,
+                user=account.user,
+                account=account,
+            )
+            remote_org_relations_ids.append(remote_org_relation.pk)
+
+        # Remove members that are no longer in the list.
+        RemoteOrganizationRelation.objects.filter(
+            remote_organization=remote_org,
+        ).exclude(
+            pk__in=remote_org_relations_ids,
+        ).delete()
 
     def sync_organizations(self):
         if self.installation.target_type != GitHubAccountType.ORGANIZATION:
