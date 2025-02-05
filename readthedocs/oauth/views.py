@@ -220,7 +220,7 @@ class GitHubAppWebhookView(APIView):
             if data["repository_selection"] == "all":
                 installation.service.sync_repositories()
             else:
-                installation.service.add_repositories(
+                installation.service.update_or_create_repositories(
                     [repo["id"] for repo in data["repositories_added"]]
                 )
             return
@@ -260,7 +260,9 @@ class GitHubAppWebhookView(APIView):
             return
 
         if action in ("edited", "privatized", "publicized", "renamed", "trasferred"):
-            installation.service.add_repositories([data["repository"]["id"]])
+            installation.service.update_or_create_repositories(
+                [data["repository"]["id"]]
+            )
             return
 
         # Ignore other actions:
@@ -411,11 +413,17 @@ class GitHubAppWebhookView(APIView):
         data = self.request.data
         action = data["action"]
 
-        if action in ("added", "edited"):
+        installation, created = self._get_or_create_installation()
+
+        # If we didn't have the installation, all repositories were synced on creation.
+        if created:
+            return
+
+        if action in ("added", "edited", "removed"):
             # Sync collaborators
-            return
-        if action == "removed":
-            return
+            installation.service.update_or_create_repositories(
+                [data["repository"]["id"]]
+            )
 
         # NOTE: this should never happen.
         raise ValidationError(f"Unsupported action: {action}")

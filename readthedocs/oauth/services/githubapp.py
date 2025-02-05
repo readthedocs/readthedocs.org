@@ -80,7 +80,7 @@ class GitHubAppService:
             pk__in=[repo.pk for repo in remote_repositories],
         ).delete()
 
-    def add_repositories(self, repository_ids: list[int]):
+    def update_or_create_repositories(self, repository_ids: list[int]):
         for repository_id in repository_ids:
             repo = self.gha_client.client.get_repo(repository_id)
             self._create_or_update_repository_from_gh(repo)
