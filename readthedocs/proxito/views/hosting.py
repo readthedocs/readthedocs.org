@@ -541,6 +541,7 @@ class AddonsResponseBase:
                 },
                 "filetreediff": {
                     "enabled": project.addons.filetreediff_enabled,
+                    "ignored_files": project.addons.filetreediff_ignored_files,
                 },
             },
         }
