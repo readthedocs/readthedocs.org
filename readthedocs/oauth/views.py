@@ -272,10 +272,6 @@ class GitHubAppWebhookView(APIView):
         #   GH will be trigger an installation_repositories event.
         # - archived/unarchived: We don't do anything with archived repositories.
 
-    def _sync_repo_versions(self):
-        for project in self._get_projects():
-            trigger_sync_versions(project)
-
     def _handle_push_event(self):
         """
         Handle the push event.
@@ -290,7 +286,8 @@ class GitHubAppWebhookView(APIView):
         created = data.get("created", False)
         deleted = data.get("deleted", False)
         if created or deleted:
-            self._sync_repo_versions()
+            for project in self._get_projects():
+                trigger_sync_versions(project)
             return
 
         # If this is a push to an existing branch or tag,
