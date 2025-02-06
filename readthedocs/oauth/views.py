@@ -135,6 +135,7 @@ class GitHubAppWebhookView(APIView):
             return
 
         if action == "deleted":
+            # NOTE: does the app trigger a installation_repositories event?
             installation = GitHubAppInstallation.objects.filter(
                 installation_id=gh_installation["id"]
             ).first()
@@ -327,7 +328,7 @@ class GitHubAppWebhookView(APIView):
         action = data["action"]
 
         pr = data["pull_request"]
-        ExternalVersionData(
+        external_version_data = ExternalVersionData(
             id=str(pr["number"]),
             commit=pr["head"]["sha"],
             source_branch=pr["head"]["ref"],
@@ -338,7 +339,7 @@ class GitHubAppWebhookView(APIView):
             for project in self._get_projects():
                 external_version = get_or_create_external_version(
                     project=project,
-                    version_data=ExternalVersionData,
+                    version_data=external_version_data,
                 )
                 build_external_version(project, external_version)
             return
@@ -348,7 +349,7 @@ class GitHubAppWebhookView(APIView):
             for project in self._get_projects():
                 close_external_version(
                     project=project,
-                    version_data=ExternalVersionData,
+                    version_data=external_version_data,
                 )
             return
 

@@ -1015,6 +1015,7 @@ class Project(models.Model):
                 version_type=version_type,
                 version_identifier=version_identifier,
                 version_machine=version_machine,
+                token=self.clone_token,
             )
         return repo
 
@@ -1436,6 +1437,14 @@ class Project(models.Model):
     def organization(self):
         return self.organizations.first()
 
+    @property
+    def clone_token(self):
+        remote_repository = self.remote_repository
+        if remote_repository and remote_repository.github_app_installation:
+            service = remote_repository.github_app_installation.service
+            return f"x-access-token:{service.get_installation_token()}"
+        return None
+
 
 class APIProject(Project):
 
@@ -1453,12 +1462,17 @@ class APIProject(Project):
     """
 
     features = []
+    # This is a property in the original model, in order to
+    # be able to assign it a value in the constructor, we need to re-declare it
+    # as an attribute here.
+    clone_token = None
 
     class Meta:
         proxy = True
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop("features", [])
+        self.clone_token = kwargs.pop("clone_token", None)
         environment_variables = kwargs.pop("environment_variables", {})
         ad_free = not kwargs.pop("show_advertising", True)
         # These fields only exist on the API return, not on the model, so we'll

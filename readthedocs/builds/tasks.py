@@ -412,6 +412,21 @@ def send_build_status(build_pk, commit, status):
 
     log.debug("Sending build status.")
 
+    remote_repository = build.project.remote_repository
+    if remote_repository and remote_repository.github_app_installation:
+        # Send status report using the GitHub App API.
+        service = remote_repository.github_app_installation.service
+        try:
+            service.send_build_status(
+                build=build,
+                commit=commit,
+                status=status,
+            )
+            return True
+        except Exception:
+            log.exception("Failed to send build status.")
+            return False
+
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()

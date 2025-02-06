@@ -9,6 +9,7 @@ from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.models import (
     GitHubAccountType,
@@ -49,6 +50,17 @@ class GitHubAppClient:
     @cached_property
     def app_installation(self) -> GHInstallation:
         return self.integration_client.get_app_installation(self.installation_id)
+
+    def get_installation_token(self, permissions: dict | None = None):
+        """
+
+        https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
+        """
+        # TODO: we can pass the repository_ids to get a token with access to specific repositories.
+        # We should upstream this feature to PyGithub.
+        return self.integration_client.get_access_token(
+            self.installation_id, permissions=permissions
+        ).token
 
 
 class GitHubAppService:
@@ -288,3 +300,27 @@ class GitHubAppService:
         ).exclude(
             pk__in=remote_org_relations_ids,
         ).delete()
+
+    def send_build_status(self, *, build, commit, status):
+        project = build.project
+        remote_repo = project.remote_repository
+
+        if status == BUILD_STATUS_SUCCESS:
+            target_url = build.version.get_absolute_url()
+        else:
+            target_url = build.get_full_url()
+
+        state = SELECT_BUILD_STATUS[status]["github"]
+        description = SELECT_BUILD_STATUS[status]["description"]
+        context = f"{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}"
+
+        gh_repo = self.gha_client.client.get_repo(int(remote_repo.remote_id))
+        gh_repo.get_commit(commit).create_status(
+            state=state,
+            target_url=target_url,
+            description=description,
+            context=context,
+        )
+
+    def get_installation_token(self, permissions: dict | None = None):
+        return self.gha_client.get_installation_token(permissions=permissions)
