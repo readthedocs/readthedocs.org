@@ -46,6 +46,7 @@ class GitHubAppWebhookView(APIView):
             "repository": self._handle_repository_event,
             "organization": self._handle_organization_event,
             "member": self._handle_member_event,
+            "github_app_authorization": self._handle_github_app_authorization_event,
         }
         if event in event_handlers:
             event_handlers[event]()
@@ -131,7 +132,6 @@ class GitHubAppWebhookView(APIView):
                 log.info(
                     "Installation already exists", installation_id=gh_installation["id"]
                 )
-
             return
 
         if action == "deleted":
@@ -380,6 +380,7 @@ class GitHubAppWebhookView(APIView):
             installation.service.sync_repositories()
             return
 
+        # Hmm, installation_target should handle this instead?
         if action == "renamed":
             # Update organization and its members only.
             # We don't need to sync the repositories.
@@ -425,6 +426,16 @@ class GitHubAppWebhookView(APIView):
 
         # NOTE: this should never happen.
         raise ValidationError(f"Unsupported action: {action}")
+
+    def _handle_github_app_authorization_event(self):
+        """
+        Revoking the authorization of a GitHub App does not uninstall the GitHub App.
+        You should program your GitHub App so that when it receives this webhook,
+        it stops calling the API on behalf of the person who revoked the token.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#github_app_authorization.
+        """
+        pass
 
     def _get_projects(self):
         remote_repository = self._get_remote_repository()
