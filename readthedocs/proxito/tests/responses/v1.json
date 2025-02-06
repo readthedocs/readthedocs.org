@@ -155,8 +155,7 @@
       "inject_styles": true
     },
     "filetreediff": {
-      "enabled": false,
-      "ignored_files": null
+      "enabled": false
     },
     "flyout": {
       "enabled": true,

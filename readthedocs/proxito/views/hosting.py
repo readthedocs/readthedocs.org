@@ -1,4 +1,5 @@
 """Views for hosting features."""
+import fnmatch
 from functools import lru_cache
 
 import packaging
@@ -541,7 +542,6 @@ class AddonsResponseBase:
                 },
                 "filetreediff": {
                     "enabled": project.addons.filetreediff_enabled,
-                    "ignored_files": project.addons.filetreediff_ignored_files,
                 },
             },
         }
@@ -658,63 +658,40 @@ class AddonsResponseBase:
         if not diff:
             return None
 
+        def _filter_diff_files(files):
+            # Filter out all the files that match the ignored patterns
+            for filename in files.copy():
+                for ignore_pattern in project.addons.filetreediff_ignored_files or []:
+                    if fnmatch.fnmatch(filename, ignore_pattern):
+                        files.remove(filename)
+
+            result = []
+            for filename in files:
+                result.append(
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                )
+            return result
+
         return {
             "outdated": diff.outdated,
             "diff": {
-                "added": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.added
-                ],
-                "deleted": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.deleted
-                ],
-                "modified": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.modified
-                ],
+                "added": _filter_diff_files(diff.added),
+                "deleted": _filter_diff_files(diff.deleted),
+                "modified": _filter_diff_files(diff.modified),
             },
         }
 

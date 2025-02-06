@@ -657,9 +657,12 @@ class OnePerLineList(forms.Field):
         attrs={
             "placeholder": "\n".join(
                 [
-                    "/whatsnew.html",
-                    "/guides/getting-started.html",
-                    "/changelog.html",
+                    "whatsnew.html",
+                    "archive/*",
+                    "tags/*",
+                    "guides/getting-started.html",
+                    "changelog.html",
+                    "release/*",
                 ]
             ),
         },
@@ -669,7 +672,7 @@ class OnePerLineList(forms.Field):
         """Convert a text area into a list of items (one per line)."""
         if not value:
             return []
-        return value.splitlines()
+        return [line.strip() for line in value.splitlines()]
 
     def prepare_value(self, value):
         """Convert a list of items into a text area (one per line)."""
