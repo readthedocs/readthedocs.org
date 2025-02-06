@@ -401,7 +401,7 @@ class Version(TimeStampedModel):
         clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
-    def clean_resources(self):
+    def clean_resources(self, version_slug=None):
         """
         Remove all resources from this version.
 
@@ -410,6 +410,11 @@ class Version(TimeStampedModel):
         - Files from storage
         - Search index
         - Imported files
+
+        :param version_slug: The version slug to use.
+         Version resources are stored using the version's slug,
+         since slugs can change, we need to be able to provide a different slug
+         sometimes to clean old resources.
         """
         from readthedocs.projects.tasks.utils import clean_project_resources
 
@@ -418,9 +423,14 @@ class Version(TimeStampedModel):
             project_slug=self.project.slug,
             version_slug=self.slug,
         )
-        clean_project_resources(project=self.project, version=self)
+        clean_project_resources(
+            project=self.project,
+            version=self,
+            version_slug=version_slug,
+        )
         self.built = False
         self.save()
+        self.purge_cdn(version_slug=version_slug)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -447,11 +457,25 @@ class Version(TimeStampedModel):
         # If the version is deactivated, we need to clean up the files.
         if was_active and not self.active:
             self.clean_resources()
+            return
         # If the version is activated, we need to trigger a build.
         if not was_active and self.active:
             trigger_build(project=self.project, version=self)
-        # Purge the cache from the CDN.
-        version_changed.send(sender=self.__class__, version=self)
+        # Purge the cache from the CDN for any other changes.
+        self.purge_cdn()
+
+    def purge_cdn(self, version_slug=None):
+        """
+        Purge the cache from the CDN.
+
+        :param version_slug: The version slug to use.
+         Version resources are stored using the version's slug,
+         since slugs can change, we need to be able to provide a different slug
+         sometimes to clean old resources.
+        """
+        version_changed.send(
+            sender=self.__class__, version=self, version_slug=version_slug
+        )
 
     @property
     def identifier_friendly(self):
@@ -516,19 +540,24 @@ class Version(TimeStampedModel):
         conf_py_path = os.path.relpath(conf_py_path, checkout_prefix)
         return conf_py_path
 
-    def get_storage_paths(self):
+    def get_storage_paths(self, version_slug=None):
         """
         Return a list of all build artifact storage paths for this version.
 
+        :param version_slug: The version slug to use.
+         Version resources are stored using the version's slug,
+         since slugs can change, we need to be able to provide a different slug
+         sometimes to clean old resources.
         :rtype: list
         """
         paths = []
 
+        slug = version_slug or self.slug
         for type_ in MEDIA_TYPES:
             paths.append(
                 self.project.get_storage_path(
                     type_=type_,
-                    version_slug=self.slug,
+                    version_slug=slug,
                     include_file=False,
                     version_type=self.type,
                 )

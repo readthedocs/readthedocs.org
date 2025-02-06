@@ -275,11 +275,6 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
             only_active=False,
         )
 
-    def get_form(self, data=None, files=None, **kwargs):
-        # This overrides the method from `ProjectAdminMixin`,
-        # since we don't have a project.
-        return self.get_form_class()(data, files, **kwargs)
-
     def form_valid(self, form):
         form.save()
         return HttpResponseRedirect(self.get_success_url())
