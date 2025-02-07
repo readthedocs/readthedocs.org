@@ -200,7 +200,7 @@ def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
             dismissable=True,
             attached_to=project,
             format_values={
-                "provider_name": service_class.vcs_provider_name,
+                "provider_name": service_class.provider_name,
                 "url_connect_account": reverse(
                     "projects_integrations",
                     args=[project.slug],
@@ -221,7 +221,7 @@ def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
         dismissable=True,
         attached_to=project,
         format_values={
-            "provider_name": service_class.vcs_provider_name,
+            "provider_name": service_class.provider_name,
             "url_docs_webhook": "https://docs.readthedocs.io/page/webhooks.html",
         },
     )
