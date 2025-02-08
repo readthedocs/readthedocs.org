@@ -1,3 +1,6 @@
+from unittest import mock
+
+import dns.resolver
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
@@ -28,6 +31,12 @@ class ModelTests(TestCase):
         self.assertEqual(domain.domain, "www.google.com")
 
 
+# We are using random domain names to test the form validation,
+# so we are mocking the DNS resolver to avoid making real DNS queries.
+@mock.patch(
+    "readthedocs.projects.forms.dns.resolver.resolve",
+    new=mock.MagicMock(side_effect=dns.resolver.NoAnswer),
+)
 class FormTests(TestCase):
     def setUp(self):
         self.project = get(Project, slug="kong")
@@ -145,6 +154,7 @@ class FormTests(TestCase):
             "1.23.45.67",
             "127.0.0.1",
             "127.0.0.10",
+            "[1.2.3.4.com",
         ]
         for domain in domains:
             form = DomainForm(

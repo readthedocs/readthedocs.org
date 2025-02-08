@@ -56,7 +56,6 @@ from readthedocs.doc_builder.exceptions import (
     MkDocsYAMLParseError,
 )
 from readthedocs.projects.models import Feature
-from readthedocs.projects.notifications import MESSAGE_PROJECT_ADDONS_BY_DEFAULT
 from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
@@ -480,7 +479,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Known errors in our application code (e.g. we couldn't connect to
         # Docker API). Report a generic message to the user.
         if isinstance(exc, BuildAppError):
-            message_id = BuildAppError.GENERIC_WITH_BUILD_ID
+            message_id = exc.message_id
 
         # Known errors in the user's project (e.g. invalid config file, invalid
         # repository, command failed, etc). Report the error back to the user
@@ -594,7 +593,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 continue
 
             if not os.path.isdir(artifact_directory):
-                log.error(
+                log.debug(
                     "The output path is not a directory.",
                     output_format=artifact_type,
                 )
@@ -612,7 +611,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 list_dir = os.listdir(artifact_directory)
                 artifact_format_files = len(list_dir)
                 if artifact_format_files > 1:
-                    log.error(
+                    log.debug(
                         "Multiple files are not supported for this format. "
                         "Skipping this output format.",
                         output_format=artifact_type,
@@ -676,6 +675,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Index search data
         index_build.delay(build_id=self.data.build["id"])
+
+        # Check if the project is spam
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.tasks import (  # noqa
+                spam_check_after_build_complete,
+            )
+
+            spam_check_after_build_complete.delay(build_id=self.data.build["id"])
 
         if not self.data.project.has_valid_clone:
             self.set_valid_clone()
@@ -745,7 +752,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(build_state)
         self.save_build_data()
 
-        build_complete.send(sender=Build, build=self.data.build)
+        # Be defensive with the signal, so if a listener fails we still clean up
+        try:
+            build_complete.send(sender=Build, build=self.data.build)
+        except Exception:
+            log.exception("Error during build_complete", exc_info=True)
 
         if self.data.version:
             clean_build(self.data.version)
@@ -820,12 +831,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     self.update_build(state=BUILD_STATE_BUILDING)
                     self.data.build_director.run_build_commands()
                 else:
-                    # Temporal notification while we migrate to addons enabled by default.
-                    if self.data.build_director.is_type_sphinx():
-                        self.data.build_director.attach_notification(
-                            MESSAGE_PROJECT_ADDONS_BY_DEFAULT
-                        )
-
                     # Installing
                     self.update_build(state=BUILD_STATE_INSTALLING)
                     self.data.build_director.setup_environment()
@@ -958,7 +963,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # Re-raise the exception to fail the build and handle it
                 # automatically at `on_failure`.
                 # It will clearly communicate the error to the user.
-                raise BuildAppError("Error uploading files to the storage.") from exc
+                raise BuildAppError(
+                    BuildAppError.UPLOAD_FAILED,
+                    exception_message="Error uploading files to the storage.",
+                ) from exc
 
         # Delete formats
         for media_type in types_to_delete:
@@ -980,7 +988,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # Re-raise the exception to fail the build and handle it
                 # automatically at `on_failure`.
                 # It will clearly communicate the error to the user.
-                raise BuildAppError("Error deleting files from storage.") from exc
+                raise BuildAppError(
+                    BuildAppError.GENERIC_WITH_BUILD_ID,
+                    exception_message="Error deleting files from storage.",
+                ) from exc
 
         log.info(
             "Store build artifacts finished.",

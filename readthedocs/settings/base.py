@@ -2,19 +2,17 @@
 
 import os
 import re
-import subprocess
 import socket
+import subprocess
 
 import structlog
-
 from celery.schedules import crontab
-
-from readthedocs.core.logs import shared_processors
 from corsheaders.defaults import default_headers
-from readthedocs.core.settings import Settings
-from readthedocs.builds import constants_docker
-
 from django.conf.global_settings import PASSWORD_HASHERS
+
+from readthedocs.builds import constants_docker
+from readthedocs.core.logs import shared_processors
+from readthedocs.core.settings import Settings
 
 try:
     import readthedocsext.cdn  # noqa
@@ -36,7 +34,6 @@ log = structlog.get_logger(__name__)
 
 
 class CommunityBaseSettings(Settings):
-
     """Community base settings, don't use this directly."""
 
     # Django settings
@@ -53,6 +50,9 @@ class CommunityBaseSettings(Settings):
     DEBUG = True
     RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
 
+    # Build FTD index for all versions
+    RTD_FILETREEDIFF_ALL = False
+
     @property
     def DEBUG_TOOLBAR_CONFIG(self):
         def _show_debug_toolbar(request):
@@ -63,6 +63,17 @@ class CommunityBaseSettings(Settings):
 
         return {
             "SHOW_TOOLBAR_CALLBACK": _show_debug_toolbar,
+            "DISABLE_PANELS": [
+                # Default ones
+                "debug_toolbar.panels.profiling.ProfilingPanel",
+                "debug_toolbar.panels.redirects.RedirectsPanel",
+                # Custome ones
+                # We are disabling these because they take a lot of time to execute in the new dashboard.
+                # We make an intensive usage of the ``include`` template tag there.
+                # It's a "known issue/bug" and there is no solution as far as we can tell.
+                "debug_toolbar.panels.sql.SQLPanel",
+                "debug_toolbar.panels.templates.TemplatesPanel",
+            ],
         }
 
     @property
@@ -86,6 +97,12 @@ class CommunityBaseSettings(Settings):
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
 
+    @property
+    def SWITCH_PRODUCTION_DOMAIN(self):
+        if self.RTD_EXT_THEME_ENABLED:
+            return self.PRODUCTION_DOMAIN.removeprefix("app.")
+        return f"app.{self.PRODUCTION_DOMAIN}"
+
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
     SPHINX_BACKEND = "readthedocs.doc_builder.backends.sphinx"
@@ -104,16 +121,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = False
-
-    @property
-    def SESSION_COOKIE_SAMESITE(self):
-        """
-        Cookie used in cross-origin API requests from *.rtd.io to rtd.org/api/v2/sustainability/.
-        """
-        if self.USE_PROMOS:
-            return "None"
-        # This is django's default.
-        return "Lax"
+    SESSION_COOKIE_SAMESITE = "Lax"
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
@@ -289,6 +297,11 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "allauth.mfa",
+            # Others
+            # NOTE: impersonate functionality is only enabled when ALLOW_ADMIN is True,
+            # but we still need to include it even when not enabled, since it has objects
+            # related to the user model that Django needs to know about when deleting users.
+            "impersonate",
             "cacheops",
         ]
         if ext:
@@ -322,7 +335,7 @@ class CommunityBaseSettings(Settings):
     def MIDDLEWARE(self):
         middlewares = [
             "readthedocs.core.middleware.NullCharactersMiddleware",
-            "readthedocs.core.middleware.ReadTheDocsSessionMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
             "django.middleware.locale.LocaleMiddleware",
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
@@ -334,13 +347,14 @@ class CommunityBaseSettings(Settings):
             "allauth.account.middleware.AccountMiddleware",
             "dj_pagination.middleware.PaginationMiddleware",
             "csp.middleware.CSPMiddleware",
-            "readthedocs.core.middleware.ReferrerPolicyMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
             "django_structlog.middlewares.CeleryMiddleware",
         ]
         if self.SHOW_DEBUG_TOOLBAR:
             middlewares.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+        if self.ALLOW_ADMIN:
+            middlewares.append("impersonate.middleware.ImpersonateMiddleware")
         return middlewares
 
     AUTHENTICATION_BACKENDS = (
@@ -640,8 +654,8 @@ class CommunityBaseSettings(Settings):
         """
         # Our normal default
         limits = {
-            "memory": "1g",
-            "time": 600,
+            "memory": "2g",
+            "time": 900,
         }
 
         # Only run on our servers
@@ -665,7 +679,13 @@ class CommunityBaseSettings(Settings):
 
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
+    SOCIALACCOUNT_ADAPTER = 'readthedocs.core.adapters.SocialAccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
+    # By preventing enumeration, we will always send an email,
+    # even if the email is not registered, that's hurting
+    # our email reputation. We are okay with people knowing
+    # if an email is registered or not.
+    ACCOUNT_PREVENT_ENUMERATION = False
 
     # Make email verification mandatory.
     # Users won't be able to login until they verify the email address.
@@ -682,7 +702,6 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
-            "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "user:email",
                 "read:org",
@@ -694,6 +713,7 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
+            # GitLab returns the primary email only, we can trust it's verified.
             "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "api",
@@ -724,17 +744,12 @@ class CommunityBaseSettings(Settings):
     # CORS
     # Don't allow sending cookies in cross-domain requests, this is so we can
     # relax our CORS headers for more views, but at the same time not opening
-    # users to CSRF attacks. The sustainability API is the only view that requires
-    # cookies to be send cross-site, we override that for that view only.
+    # users to CSRF attacks.
     CORS_ALLOW_CREDENTIALS = False
 
     # Allow cross-site requests from any origin,
     # all information from our allowed endpoits is public.
-    #
-    # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
-    # since that will set the `Access-Control-Allow-Origin` header to `*`,
-    # we won't be able to pass credentials fo the sustainability API with that value.
-    CORS_ALLOWED_ORIGIN_REGEXES = [re.compile(".+")]
+    CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_HEADERS = list(default_headers) + [
         "x-hoverxref-version",
     ]
@@ -749,8 +764,7 @@ class CommunityBaseSettings(Settings):
     CORS_URLS_REGEX = re.compile(
         r"""
         ^(
-            /api/v2/footer_html
-            |/api/v2/search
+            /api/v2/search
             |/api/v2/docsearch
             |/api/v2/embed
             |/api/v3/embed
@@ -823,6 +837,12 @@ class CommunityBaseSettings(Settings):
     ABSOLUTE_URL_OVERRIDES = {"auth.user": lambda o: "/profiles/{}/".format(o.username)}
 
     INTERNAL_IPS = ("127.0.0.1",)
+
+    # django-impersonate.
+    IMPERSONATE = {
+        # By default, only staff users can impersonate.
+        "REQUIRE_SUPERUSER": True,
+    }
 
     # Taggit
     # https://django-taggit.readthedocs.io

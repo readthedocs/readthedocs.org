@@ -2,12 +2,10 @@ import functools
 
 import structlog
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 
 from readthedocs.core.unresolver import UnresolverError, unresolve
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Project
 from readthedocs.proxito.cache import add_cache_tags
 
 log = structlog.get_logger(__name__)
@@ -77,11 +75,6 @@ class EmbedAPIMixin:
     to avoid hitting the database multiple times on the same request.
     """
 
-    # This class is shared between EmbedAPI v2 and v3.
-    # In v3, we only support the `url` parameter,
-    # but in v2 we support `project` and `version` as well.
-    support_url_parameter_only = False
-
     @cached_property
     def unresolved_url(self):
         url = self.request.GET.get("url")
@@ -102,11 +95,7 @@ class EmbedAPIMixin:
         if self.unresolved_url:
             return self.unresolved_url.project
 
-        if self.support_url_parameter_only:
-            raise Http404
-
-        project_slug = self.request.GET.get("project")
-        return get_object_or_404(Project, slug=project_slug)
+        raise Http404
 
     @functools.lru_cache(maxsize=1)
     def _get_version(self):
@@ -116,9 +105,4 @@ class EmbedAPIMixin:
         if self.unresolved_url:
             return self.unresolved_url.version
 
-        if self.support_url_parameter_only:
-            raise Http404
-
-        version_slug = self.request.GET.get("version", "latest")
-        project = self._get_project()
-        return get_object_or_404(project.versions.all(), slug=version_slug)
+        raise Http404

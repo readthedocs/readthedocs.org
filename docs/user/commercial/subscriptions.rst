@@ -10,7 +10,7 @@ It's easy to achieve a number of common tasks in this dashboard:
 * View, download, and pay invoices.
 * Add additional tax (VAT/EIN) or contact email addresses on your invoices.
 
-You can always find our most up to date pricing information on our `pricing page <https://about.readthedocs.com/pricing/>`_.
+You can always find our most up-to-date pricing information on our `pricing page <https://about.readthedocs.com/pricing/>`_.
 
 Managing your subscription
 --------------------------
@@ -32,7 +32,7 @@ Cancelling your subscription can be done following the instructions in `Managing
 Your subscription will remain active for the remainder of the current billing period,
 and will not renew for the next billing period.
 
-**We can not cancel subscriptions through an email request,
+**We cannot cancel subscriptions through an email request,
 as email is an insecure method of verifying a user's identity.**
 If you email us about this,
 we require you to verify your identity by logging into your Read the Docs account and submitting an official support request there.
@@ -65,5 +65,5 @@ is generally where we recommend most academic projects to host their projects.
 If you have constraints on how public your documentation can be,
 our commercial hosting is probably a better fit.
 
-We offer a 50% discount on our all of our commercial plans to certified academic and non-profit organizations.
+We offer a 50% discount on all of our commercial plans to certified academic and non-profit organizations.
 Please contact :doc:`/support` to request this discount.

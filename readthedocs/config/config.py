@@ -1,14 +1,16 @@
 """Build configuration for rtd."""
-
 import copy
+import datetime
 import os
 import re
 from contextlib import contextmanager
 from functools import lru_cache
 
+import pytz
 from django.conf import settings
+from pydantic import BaseModel
 
-from readthedocs.config.utils import list_to_dict, to_dict
+from readthedocs.config.utils import list_to_dict
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
 
@@ -16,13 +18,13 @@ from .exceptions import ConfigError, ConfigValidationError
 from .find import find_one
 from .models import (
     BuildJobs,
+    BuildJobsBuildTypes,
     BuildTool,
     BuildWithOs,
     Conda,
     Mkdocs,
     Python,
     PythonInstall,
-    PythonInstallRequirements,
     Search,
     Sphinx,
     Submodules,
@@ -86,7 +88,13 @@ class BuildConfigBase:
 
     version = None
 
-    def __init__(self, raw_config, source_file, base_path=None):
+    def __init__(
+        self,
+        raw_config,
+        source_file,
+        base_path=None,
+        deprecate_implicit_keys=None,
+    ):
         self._raw_config = copy.deepcopy(raw_config)
         self.source_config = copy.deepcopy(raw_config)
         self.source_file = source_file
@@ -100,6 +108,25 @@ class BuildConfigBase:
                 self.base_path = os.path.dirname(self.source_file)
 
         self._config = {}
+
+        if deprecate_implicit_keys is not None:
+            self.deprecate_implicit_keys = deprecate_implicit_keys
+        elif settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
+            tzinfo = pytz.timezone("America/Los_Angeles")
+            now = datetime.datetime.now(tz=tzinfo)
+            # Dates as per https://about.readthedocs.com/blog/2024/12/deprecate-config-files-without-sphinx-or-mkdocs-config/
+            # fmt: off
+            self.deprecate_implicit_keys = (
+                # 12 hours brownout.
+                datetime.datetime(2025, 1, 6, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 6, 12, 0, 0, tzinfo=tzinfo)
+                # 24 hours brownout.
+                or datetime.datetime(2025, 1, 13, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 14, 0, 0, 0, tzinfo=tzinfo)
+                # Permanent removal.
+                or datetime.datetime(2025, 1, 20, 0, 0, 0, tzinfo=tzinfo) < now
+            )
+            # fmt: on
+        else:
+            self.deprecate_implicit_keys = False
 
     @contextmanager
     def catch_validation_error(self, key):
@@ -206,7 +233,7 @@ class BuildConfigBase:
         config = {}
         for name in self.PUBLIC_ATTRIBUTES:
             attr = getattr(self, name)
-            config[name] = to_dict(attr)
+            config[name] = attr.model_dump() if isinstance(attr, BaseModel) else attr
         return config
 
     def __getattr__(self, name):
@@ -218,7 +245,6 @@ class BuildConfigBase:
 
 
 class BuildConfigV2(BuildConfigBase):
-
     """Version 2 of the configuration file."""
 
     version = "2"
@@ -250,6 +276,8 @@ class BuildConfigV2(BuildConfigBase):
         self._config["sphinx"] = self.validate_sphinx()
         self._config["submodules"] = self.validate_submodules()
         self._config["search"] = self.validate_search()
+        if self.deprecate_implicit_keys:
+            self.validate_deprecated_implicit_keys()
         self.validate_keys()
 
     def validate_formats(self):
@@ -318,11 +346,9 @@ class BuildConfigV2(BuildConfigBase):
             # ones, we could validate the value of each of them is a list of
             # commands. However, I don't think we should validate the "command"
             # looks like a real command.
+            valid_jobs = list(BuildJobs.model_fields.keys())
             for job in jobs.keys():
-                validate_choice(
-                    job,
-                    BuildJobs.__slots__,
-                )
+                validate_choice(job, valid_jobs)
 
         commands = []
         with self.catch_validation_error("build.commands"):
@@ -346,6 +372,14 @@ class BuildConfigV2(BuildConfigBase):
             )
 
         build["jobs"] = {}
+
+        with self.catch_validation_error("build.jobs.build"):
+            build["jobs"]["build"] = self.validate_build_jobs_build(jobs)
+        # Remove the build.jobs.build key from the build.jobs dict,
+        # since it's the only key that should be a dictionary,
+        # it was already validated above.
+        jobs.pop("build", None)
+
         for job, job_commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [
@@ -369,6 +403,29 @@ class BuildConfigV2(BuildConfigBase):
 
         build["apt_packages"] = self.validate_apt_packages()
         return build
+
+    def validate_build_jobs_build(self, build_jobs):
+        result = {}
+        build_jobs_build = build_jobs.get("build", {})
+        validate_dict(build_jobs_build)
+
+        allowed_build_types = list(BuildJobsBuildTypes.model_fields.keys())
+        for build_type, build_commands in build_jobs_build.items():
+            validate_choice(build_type, allowed_build_types)
+            if build_type != "html" and build_type not in self.formats:
+                raise ConfigError(
+                    message_id=ConfigError.BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS,
+                    format_values={
+                        "build_type": build_type,
+                    },
+                )
+            with self.catch_validation_error(f"build.jobs.build.{build_type}"):
+                result[build_type] = [
+                    validate_string(build_command)
+                    for build_command in validate_list(build_commands)
+                ]
+
+        return result
 
     def validate_apt_packages(self):
         apt_packages = []
@@ -692,6 +749,54 @@ class BuildConfigV2(BuildConfigBase):
 
         return search
 
+    def validate_deprecated_implicit_keys(self):
+        """
+        Check for deprecated usages and raise an exception if found.
+
+        - If the user is using build.commands, we don't need the sphinx or mkdocs keys.
+        - If the sphinx key is used, a path to the configuration file is required.
+        - If the mkdocs key is used, a path to the configuration file is required.
+        - If none of the sphinx or mkdocs keys are used,
+          and the user isn't overriding the new build jobs,
+          the sphinx key is explicitly required.
+        """
+        if self.is_using_build_commands:
+            return
+
+        has_sphinx_key = "sphinx" in self.source_config
+        has_mkdocs_key = "mkdocs" in self.source_config
+        if has_sphinx_key and not self.sphinx.configuration:
+            raise ConfigError(
+                message_id=ConfigError.SPHINX_CONFIG_MISSING,
+            )
+
+        if has_mkdocs_key and not self.mkdocs.configuration:
+            raise ConfigError(
+                message_id=ConfigError.MKDOCS_CONFIG_MISSING,
+            )
+
+        if not self.new_jobs_overriden and not has_sphinx_key and not has_mkdocs_key:
+            raise ConfigError(
+                message_id=ConfigError.SPHINX_CONFIG_MISSING,
+            )
+
+    @property
+    def new_jobs_overriden(self):
+        """Check if any of the new (undocumented) build jobs are overridden."""
+        build_jobs = self.build.jobs
+        new_jobs = (
+            build_jobs.create_environment,
+            build_jobs.install,
+            build_jobs.build.html,
+            build_jobs.build.pdf,
+            build_jobs.build.epub,
+            build_jobs.build.htmlzip,
+        )
+        for job in new_jobs:
+            if job is not None:
+                return True
+        return False
+
     def validate_keys(self):
         """
         Checks that we don't have extra keys (invalid ones).
@@ -763,21 +868,7 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def python(self):
-        python_install = []
-        python = self._config["python"]
-        for install in python["install"]:
-            if "requirements" in install:
-                python_install.append(
-                    PythonInstallRequirements(**install),
-                )
-            elif "path" in install:
-                python_install.append(
-                    PythonInstall(**install),
-                )
-
-        return Python(
-            install=python_install,
-        )
+        return Python(**self._config["python"])
 
     @property
     def sphinx(self):
@@ -794,6 +885,11 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def doctype(self):
         if "commands" in self._config["build"] and self._config["build"]["commands"]:
+            return GENERIC
+
+        has_sphinx_key = "sphinx" in self.source_config
+        has_mkdocs_key = "mkdocs" in self.source_config
+        if self.new_jobs_overriden and not has_sphinx_key and not has_mkdocs_key:
             return GENERIC
 
         if self.mkdocs:

@@ -11,7 +11,6 @@ sphinx-design
 sphinx-multiproject
 
 # RTD deps :)
-sphinx-hoverxref
 sphinx-notfound-page
 
 # Docs

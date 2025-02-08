@@ -87,7 +87,7 @@ jobs:
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: pipx install 'tox<5'
+      - run: pip install --user tox
       - run: tox -e pre-commit
       - run: tox -e migrations
       - node/install:

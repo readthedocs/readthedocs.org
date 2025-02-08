@@ -24,7 +24,7 @@ from readthedocs.projects.constants import (
     PUBLIC,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
-from readthedocs.projects.models import AddonsConfig, Domain, Feature, Project
+from readthedocs.projects.models import Domain, Project
 
 
 @override_settings(
@@ -138,19 +138,18 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.json() == self._get_response_dict("v3")
 
     def test_disabled_addons_via_addons_config(self):
-        addons = fixture.get(
-            AddonsConfig,
-            project=self.project,
-        )
-        addons.analytics_enabled = False
-        addons.doc_diff_enabled = False
-        addons.external_version_warning_enabled = False
-        addons.ethicalads_enabled = False
-        addons.flyout_enabled = False
-        addons.hotkeys_enabled = False
-        addons.search_enabled = False
-        addons.stable_latest_version_warning_enabled = False
-        addons.save()
+        self.project.addons.analytics_enabled = False
+        self.project.addons.doc_diff_enabled = False
+        self.project.addons.external_version_warning_enabled = False
+        self.project.addons.ethicalads_enabled = False
+        self.project.addons.flyout_enabled = False
+        self.project.addons.hotkeys_enabled = False
+        self.project.addons.search_enabled = False
+        self.project.addons.notifications_enabled = False
+        self.project.addons.notifications_show_on_latest = False
+        self.project.addons.notifications_show_on_non_stable = False
+        self.project.addons.notifications_show_on_external = False
+        self.project.addons.save()
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -166,8 +165,10 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
         assert r.json()["addons"]["analytics"]["enabled"] is False
-        assert r.json()["addons"]["external_version_warning"]["enabled"] is False
-        assert r.json()["addons"]["non_latest_version_warning"]["enabled"] is False
+        assert r.json()["addons"]["notifications"]["enabled"] is False
+        assert r.json()["addons"]["notifications"]["show_on_latest"] is False
+        assert r.json()["addons"]["notifications"]["show_on_non_stable"] is False
+        assert r.json()["addons"]["notifications"]["show_on_external"] is False
         assert r.json()["addons"]["doc_diff"]["enabled"] is False
         assert r.json()["addons"]["flyout"]["enabled"] is False
         assert r.json()["addons"]["search"]["enabled"] is False
@@ -384,6 +385,18 @@ class TestReadTheDocsConfigJson(TestCase):
         self.version.has_htmlzip = True
         self.version.save()
 
+        # Add extra built and active versions to emulate a project that went
+        # from multiple versions to single version.
+        # These versions shouldn't be included in the `versions.active` field.
+        for i in range(5):
+            fixture.get(
+                Version,
+                privacy_level=PUBLIC,
+                active=True,
+                built=True,
+                project=self.project,
+            )
+
         self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
 
@@ -400,9 +413,8 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         )
         assert r.status_code == 200
-
-        expected = []
-        assert r.json()["versions"]["active"] == expected
+        expected = ["latest"]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
 
         expected = {
             "pdf": "https://project.dev.readthedocs.io/_/downloads/en/latest/pdf/",
@@ -655,6 +667,7 @@ class TestReadTheDocsConfigJson(TestCase):
         expected_response = self._get_response_dict("v1")
         # Remove `addons.doc_diff` from the response because it's not present when `url=` is not sent
         expected_response["addons"].pop("doc_diff")
+        expected_response["readthedocs"]["resolver"]["filename"] = None
 
         assert self._normalize_datetime_fields(r.json()) == expected_response
 
@@ -706,6 +719,29 @@ class TestReadTheDocsConfigJson(TestCase):
             == "https://docs.example.com/en/latest/"
         )
 
+    def test_linkpreviews(self):
+        self.project.addons.linkpreviews_enabled = True
+        self.project.addons.save()
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "1.0.0",
+                "client-version": "0.6.0",
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        expected = {
+            "enabled": True,
+        }
+
+        assert r.status_code == 200
+        assert r.json()["addons"]["linkpreviews"] == expected
+
     def test_non_existent_project(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -743,7 +779,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(20):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -772,7 +808,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(22):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -808,7 +844,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(35):
+        with self.assertNumQueries(26):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -834,7 +870,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(62):
+        with self.assertNumQueries(42):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -851,11 +887,8 @@ class TestReadTheDocsConfigJson(TestCase):
 
     @mock.patch("readthedocs.filetreediff.get_manifest")
     def test_file_tree_diff(self, get_manifest):
-        get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF,
-        )
+        self.project.addons.filetreediff_enabled = True
+        self.project.addons.save()
         pr_version = get(
             Version,
             project=self.project,
@@ -909,27 +942,52 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        r = self.client.get(
-            reverse("proxito_readthedocs_docs_addons"),
-            {
-                "url": "https://project--123.dev.readthedocs.build/en/123/",
-                "client-version": "0.6.0",
-                "api-version": "1.0.0",
-            },
-            secure=True,
-            headers={
-                "host": "project--123.dev.readthedocs.build",
-            },
-        )
+        with self.assertNumQueries(25):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project--123.dev.readthedocs.build/en/123/",
+                    "client-version": "0.6.0",
+                    "api-version": "1.0.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project--123.dev.readthedocs.build",
+                },
+            )
         assert r.status_code == 200
         filetreediff_response = r.json()["addons"]["filetreediff"]
         assert filetreediff_response == {
             "enabled": True,
             "outdated": False,
             "diff": {
-                "added": [{"file": "new-file.html"}],
-                "deleted": [{"file": "deleted.html"}],
-                "modified": [{"file": "tutorial/index.html"}],
+                "added": [
+                    {
+                        "filename": "new-file.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/new-file.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/new-file.html",
+                        },
+                    },
+                ],
+                "deleted": [
+                    {
+                        "filename": "deleted.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/deleted.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                        },
+                    },
+                ],
+                "modified": [
+                    {
+                        "filename": "tutorial/index.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/tutorial/index.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/tutorial/index.html",
+                        },
+                    },
+                ],
             },
         }
 

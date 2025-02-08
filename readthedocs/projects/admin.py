@@ -74,6 +74,7 @@ class VersionInline(ReadOnlyInlineMixin, admin.TabularInline):
 
     formset = VersionInlineFormSet
     model = Version
+    classes = ["collapse"]
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("project")
@@ -84,6 +85,7 @@ class RedirectInline(admin.TabularInline):
     """Redirect inline relationship view for :py:class:`ProjectAdmin`."""
 
     model = Redirect
+    classes = ["collapse"]
 
 
 class DomainInline(admin.TabularInline):
@@ -469,7 +471,7 @@ class EnvironmentVariableAdmin(admin.ModelAdmin):
 @admin.register(AddonsConfig)
 class AddonsConfigAdmin(admin.ModelAdmin):
     model = AddonsConfig
-    raw_id_fields = ("project",)
+    raw_id_fields = ("project", "options_base_version")
     list_display = ("project", "enabled")
     search_fields = ("project__slug",)
     list_editable = ("enabled",)

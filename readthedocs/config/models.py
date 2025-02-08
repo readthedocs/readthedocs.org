@@ -1,102 +1,116 @@
-"""Models for the response of the configuration object."""
+"""
+Models for the response of the configuration object.
 
-from readthedocs.config.utils import to_dict
+We make use of pydantic to define the models/dataclasses for all the
+options that the user can define in the configuration file.
+
+Pydantic does runtime type checking and validation,
+but we aren't using it yet, and instead we are doing the validation
+in a separate step.
+"""
+
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict
 
 
-class Base:
-
+class ConfigBaseModel(BaseModel):
     """
-    Base class for every configuration.
+    Base class for all the models used in the configuration object.
 
-    Each inherited class should define
-    its attributes in the `__slots__` attribute.
-
-    We are using `__slots__` so we can't add more attributes by mistake,
-    this is similar to a namedtuple.
+    Useful to define common configuration options for all the models.
     """
 
-    def __init__(self, **kwargs):
-        for name in self.__slots__:
-            setattr(self, name, kwargs[name])
+    model_config = ConfigDict(
+        # Don't allow extra fields in the models.
+        # It will raise an error if there are extra fields.
+        extra="forbid",
+    )
 
-    def as_dict(self):
-        return {name: to_dict(getattr(self, name)) for name in self.__slots__}
+
+class BuildTool(ConfigBaseModel):
+    version: str
+    full_version: str
+
+
+class BuildJobsBuildTypes(ConfigBaseModel):
+    """Object used for `build.jobs.build` key."""
+
+    html: list[str] | None = None
+    pdf: list[str] | None = None
+    epub: list[str] | None = None
+    htmlzip: list[str] | None = None
+
+
+class BuildJobs(ConfigBaseModel):
+    """Object used for `build.jobs` key."""
+
+    pre_checkout: list[str] = []
+    post_checkout: list[str] = []
+    pre_system_dependencies: list[str] = []
+    post_system_dependencies: list[str] = []
+    pre_create_environment: list[str] = []
+    create_environment: list[str] | None = None
+    post_create_environment: list[str] = []
+    pre_install: list[str] = []
+    install: list[str] | None = None
+    post_install: list[str] = []
+    pre_build: list[str] = []
+    build: BuildJobsBuildTypes = BuildJobsBuildTypes()
+    post_build: list[str] = []
 
 
 # TODO: rename this class to `Build`
-class BuildWithOs(Base):
-    __slots__ = ("os", "tools", "jobs", "apt_packages", "commands")
-
-    def __init__(self, **kwargs):
-        kwargs.setdefault("apt_packages", [])
-        kwargs.setdefault("commands", [])
-        super().__init__(**kwargs)
-
-
-class BuildTool(Base):
-    __slots__ = ("version", "full_version")
+class BuildWithOs(ConfigBaseModel):
+    os: str
+    tools: dict[str, BuildTool]
+    jobs: BuildJobs = BuildJobs()
+    apt_packages: list[str] = []
+    commands: list[str] = []
 
 
-class BuildJobs(Base):
-
-    """Object used for `build.jobs` key."""
-
-    __slots__ = (
-        "pre_checkout",
-        "post_checkout",
-        "pre_system_dependencies",
-        "post_system_dependencies",
-        "pre_create_environment",
-        "post_create_environment",
-        "pre_install",
-        "post_install",
-        "pre_build",
-        "post_build",
-    )
-
-    def __init__(self, **kwargs):
-        """
-        Create an empty list as a default for all possible builds.jobs configs.
-
-        This is necessary because it makes the code cleaner when we add items to these lists,
-        without having to check for a dict to be created first.
-        """
-        for step in self.__slots__:
-            kwargs.setdefault(step, [])
-        super().__init__(**kwargs)
+class PythonInstallRequirements(ConfigBaseModel):
+    requirements: str
 
 
-class Python(Base):
-    __slots__ = ("install",)
+class PythonInstall(ConfigBaseModel):
+    path: str
+    method: Literal["pip", "setuptools"] = "pip"
+    extra_requirements: list[str] = []
 
 
-class PythonInstallRequirements(Base):
-    __slots__ = ("requirements",)
+class Python(ConfigBaseModel):
+    install: list[PythonInstall | PythonInstallRequirements] = []
 
 
-class PythonInstall(Base):
-    __slots__ = (
-        "path",
-        "method",
-        "extra_requirements",
-    )
+class Conda(ConfigBaseModel):
+    environment: str
 
 
-class Conda(Base):
-    __slots__ = ("environment",)
+class Sphinx(ConfigBaseModel):
+    configuration: str | None
+    # NOTE: This is how we save the object in the DB,
+    # the actual options for users are "html", "htmldir", "singlehtml".
+    builder: Literal["sphinx", "sphinx_htmldir", "sphinx_singlehtml"] = "sphinx"
+    fail_on_warning: bool = False
 
 
-class Sphinx(Base):
-    __slots__ = ("builder", "configuration", "fail_on_warning")
+class Mkdocs(ConfigBaseModel):
+    configuration: str | None
+    fail_on_warning: bool = False
 
 
-class Mkdocs(Base):
-    __slots__ = ("configuration", "fail_on_warning")
+class Submodules(ConfigBaseModel):
+    include: list[str] | Literal["all"] = []
+    exclude: list[str] | Literal["all"] = []
+    recursive: bool = False
 
 
-class Submodules(Base):
-    __slots__ = ("include", "exclude", "recursive")
-
-
-class Search(Base):
-    __slots__ = ("ranking", "ignore")
+class Search(ConfigBaseModel):
+    ranking: dict[str, int] = {}
+    ignore: list[str] = [
+        "search.html",
+        "search/index.html",
+        "404.html",
+        "404/index.html",
+    ]

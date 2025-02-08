@@ -1,12 +1,13 @@
 from fnmatch import fnmatch
 
 import structlog
+from django.conf import settings
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
-from readthedocs.projects.models import Feature, HTMLFile, Project
+from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.utils import index_objects, remove_indexed_files
@@ -166,10 +167,16 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
 
     # File tree diff is under a feature flag for now,
     # and we only allow to compare PR previews against the latest version.
-    has_feature = version.project.has_feature(
-        Feature.GENERATE_MANIFEST_FOR_FILE_TREE_DIFF
+    base_version = (
+        version.project.addons.options_base_version.slug
+        if version.project.addons.options_base_version
+        else LATEST
     )
-    create_manifest = has_feature and (version.is_external or version.slug == LATEST)
+    create_manifest = version.project.addons.filetreediff_enabled and (
+        version.is_external
+        or version.slug == base_version
+        or settings.RTD_FILETREEDIFF_ALL
+    )
     if create_manifest:
         file_manifest_indexer = FileManifestIndexer(
             version=version,

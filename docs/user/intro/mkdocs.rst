@@ -1,23 +1,15 @@
-
-.. _material:
-
-Material for MkDocs
-===================
+MkDocs
+======
 
 .. meta::
-   :description lang=en: Hosting Material for MkDocs sites on Read the Docs.
+   :description lang=en: Hosting MkDocs sites on Read the Docs.
 
 `MkDocs`_ is a fast, simple static site generator that's geared towards building project documentation.
-`Material for MkDocs`_ is a powerful documentation framework on top of MkDocs.
-Mkdocs is written in Python, and supports documentation written in Markdown.
+MkDocs is written in Python, and supports documentation written in Markdown.
+When using MkDocs, we recommend using the `Material for MkDocs`_ theme,
+and this guide is mostly focused on the integration required to make it work well on Read the Docs.
 
-.. note::
-
-    This page is explicitly about Material for MkDocs. We're working on a guide for plain MkDocs as well.
-
-Minimal configuration required to build an existing Material for MkDocs project on Read the Docs looks like this,
-specifying a python toolchain on Ubuntu, defining the location of the installation requirements, and using the built-in
-:ref:`mkdocs <config-file/v2:mkdocs>` command:
+Minimal configuration is required to build an existing MkDocs project on Read the Docs:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -25,13 +17,15 @@ specifying a python toolchain on Ubuntu, defining the location of the installati
     version: 2
 
     build:
-      os: ubuntu-24.04
+      os: "ubuntu-24.04"
       tools:
         python: "3"
-
-    python:
-      install:
-        - requirements: requirements.txt
+      # We recommend using a requirements file for reproducible builds.
+      # This is just a quick example to get started.
+      # https://docs.readthedocs.io/page/guides/reproducible-builds.html
+      jobs:
+        pre_install:
+          - pip install mkdocs-material
 
     mkdocs:
       configuration: mkdocs.yml
@@ -39,25 +33,34 @@ specifying a python toolchain on Ubuntu, defining the location of the installati
 .. _MkDocs: https://www.mkdocs.org/
 .. _Material for MkDocs: https://squidfunk.github.io/mkdocs-material
 
+Configuring Material for MkDocs on Read the Docs
+------------------------------------------------
+
+In order to use the Material for MkDocs theme on Read the Docs,
+you need to install and configure it.
+In your `mkdocs.yml` file, set the theme to `material`:
+
+.. code-block:: yaml
+   :caption: mkdocs.yml
+
+    theme:
+      name: material
+
+With these changes, your MkDocs project will use the Material for MkDocs theme when built on Read the Docs,
+and should work with the configuration file shown above.
 
 Quick start
 -----------
 
-- If you have an existing Material for MkDocs project you want to host on Read the Docs, check out our :doc:`/intro/add-project` guide.
+- You can use our :ref:`MkDocs example project <examples:mkdocs>` as a reference to create a new MkDocs project.
+- If you have an existing MkDocs project you want to host on Read the Docs, check out our :doc:`/intro/add-project` guide.
+- If you're new to MkDocs, check out the official `Getting Started <https://www.mkdocs.org/getting-started/>`_ guide.
 
-- If you're new to Material for MkDocs, check out the official `Getting started with Material for MkDocs`_ guide.
+Configuring MkDocs and Read the Docs Addons
+-------------------------------------------
 
-.. _Getting started with Material for MkDocs: https://squidfunk.github.io/mkdocs-material/getting-started/
-
-Configuring Material for MkDocs and Read the Docs addons
---------------------------------------------------------
-
-For optimal integration with Read the Docs, make the optional following configuration changes to your Material for MkDocs config.
-
-.. contents::
-   :depth: 1
-   :local:
-   :backlinks: none
+There are some additional steps you can take to configure your MkDocs project to work better with Read the Docs,
+and these apply to all MkDocs projects.
 
 Set the canonical URL
 ~~~~~~~~~~~~~~~~~~~~~
@@ -65,7 +68,7 @@ Set the canonical URL
 A :doc:`canonical URL </canonical-urls>` allows you to specify the preferred version of a web page
 to prevent duplicated content.
 
-Set your MkDocs `site URL`_  to your Read the Docs canonical URL using a
+Set your MkDocs `site URL`_ to your Read the Docs canonical URL using a
 :doc:`Read the Docs environment variable </reference/environment-variables>`:
 
 .. code-block:: yaml
@@ -73,8 +76,17 @@ Set your MkDocs `site URL`_  to your Read the Docs canonical URL using a
 
     site_url: !ENV READTHEDOCS_CANONICAL_URL
 
-.. _Site URL: https://www.mkdocs.org/user-guide/configuration/#site_url
+.. _site URL: https://www.mkdocs.org/user-guide/configuration/#site_url
 
+Configuring Material for MkDocs and Read the Docs Addons
+--------------------------------------------------------
+
+`Material for MkDocs`_ is a powerful documentation theme on top of MkDocs.
+The following steps are specific to integrating Material for MkDocs and Read the Docs.
+
+.. contents::
+   :local:
+   :backlinks: none
 
 Configure Read the Docs search
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,17 +114,15 @@ To configure your site to use :doc:`Read the Docs search </server-side-search/in
         extra_javascript:
             - javascript/readthedocs.js
 
-
 Integrate the Read the Docs version menu into your site navigation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To integrate the :ref:`flyout-menu:Addons flyout menu` version menu into your site navigation
+To integrate the :ref:`flyout-menu:Addons flyout menu` version menu into your site navigation:
 
 #. Override the ``main.html`` template to include the data in the ``meta`` attribute:
 
     .. code-block:: html
         :caption: overrides/main.html
-
 
         {% extends "base.html" %}
 
@@ -158,26 +168,6 @@ To integrate the :ref:`flyout-menu:Addons flyout menu` version menu into your si
 
         extra_javascript:
             - javascript/readthedocs.js
-
-Adjust the flyout menu font size
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Edit ``readthedocs.css`` to so that the font in the :ref:`flyout-menu:Addons flyout menu` matches the theme better.
-
-.. code-block:: css
-    :caption: readthedocs.css:
-
-    :root {
-        /* Reduce Read the Docs' flyout font a little bit */
-        --readthedocs-flyout-font-size: 0.7rem;
-
-        /* Reduce Read the Docs' notification font a little bit */
-        --readthedocs-notification-font-size: 0.8rem;
-
-        /* This customization is not yet perfect because we can't change the `line-height` yet. */
-        /* See https://github.com/readthedocs/addons/issues/197 */
-        --readthedocs-search-font-size: 0.7rem;
-    }
 
 Example repository and demo
 ---------------------------

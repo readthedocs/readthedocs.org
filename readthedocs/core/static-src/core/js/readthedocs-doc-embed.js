@@ -1,5 +1,3 @@
-const sponsorship = require('./doc-embed/sponsorship');
-const footer = require('./doc-embed/footer.js');
 // grokthedocs = require('./doc-embed/grokthedocs-client'),
 // mkdocs = require('./doc-embed/mkdocs'),
 const sphinx = require('./doc-embed/sphinx');
@@ -39,10 +37,8 @@ function injectJQuery(init) {
     domReady(function () {
         // Block on jQuery loading before we run any of our code.
         injectJQuery(function () {
-            footer.init();
             sphinx.init();
             search.init();
-            sponsorship.init();
         });
     });
 }());

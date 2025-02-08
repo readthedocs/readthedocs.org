@@ -13,6 +13,9 @@ class ConfigError(BuildUserError):
     INVALID_VERSION = "config:base:invalid-version"
     NOT_BUILD_TOOLS_OR_COMMANDS = "config:build:missing-build-tools-commands"
     BUILD_JOBS_AND_COMMANDS = "config:build:jobs-and-commands"
+    BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS = (
+        "config:build:jobs:build:missing-in-formats"
+    )
     APT_INVALID_PACKAGE_NAME_PREFIX = "config:apt:invalid-package-name-prefix"
     APT_INVALID_PACKAGE_NAME = "config:apt:invalid-package-name"
     USE_PIP_FOR_EXTRA_REQUIREMENTS = "config:python:pip-required"
@@ -22,6 +25,9 @@ class ConfigError(BuildUserError):
     INVALID_KEY_NAME = "config:base:invalid-key-name"
     SYNTAX_INVALID = "config:base:invalid-syntax"
     CONDA_KEY_REQUIRED = "config:conda:required"
+
+    SPHINX_CONFIG_MISSING = "config:sphinx:missing-config"
+    MKDOCS_CONFIG_MISSING = "config:mkdocs:missing-config"
 
 
 # TODO: improve these error messages shown to the user
