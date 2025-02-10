@@ -1052,7 +1052,7 @@ class Project(models.Model):
     @property
     def git_provider_name(self):
         """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
-        service_class = self.get_git_service_class()
+        service_class = self.get_git_service_class(fallback_to_clone_url=True)
         return service_class.provider_name if service_class else None
 
     def find(self, filename, version):
