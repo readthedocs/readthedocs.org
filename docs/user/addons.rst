@@ -55,7 +55,7 @@ To configure your site to use :doc:`Read the Docs search </server-side-search/in
         :caption: javascript/readthedocs.js
 
         // TODO: Change me if needed
-        const selector = ".search-button__button";
+        const selector = "input[type='search']";
 
         document.addEventListener("DOMContentLoaded", function(event) {
             // Trigger Read the Docs' search addon instead of the default search
