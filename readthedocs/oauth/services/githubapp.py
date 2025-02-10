@@ -3,7 +3,7 @@ from functools import cached_property, lru_cache
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
-from github import Auth, GithubIntegration
+from github import Auth, Github, GithubIntegration
 from github.Installation import Installation as GHInstallation
 from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
@@ -19,63 +19,84 @@ from readthedocs.oauth.models import (
     RemoteRepository,
     RemoteRepositoryRelation,
 )
+from readthedocs.oauth.services.base import Service
 
 log = structlog.get_logger(__name__)
 
 
-class GitHubAppClient:
-    def __init__(self, installation_id: int):
-        self.installation_id = installation_id
-
-    def _get_auth(self):
-        app_auth = Auth.AppAuth(
-            app_id=settings.GITHUB_APP_CLIENT_ID,
-            private_key=settings.GITHUB_APP_PRIVATE_KEY,
-            # 10 minutes is the maximum allowed by GitHub.
-            # PyGithub will handle the token expiration and renew it automatically.
-            jwt_expiry=60 * 10,
-        )
-        return app_auth
-
-    @cached_property
-    def integration_client(self):
-        """Return a client authenticated as the GitHub App to interact with the installation API"""
-        return GithubIntegration(auth=self._get_auth())
-
-    @cached_property
-    def client(self):
-        """Return a client authenticated as the GitHub App to interact with most of the GH API"""
-        return self.integration_client.get_github_for_installation(self.installation_id)
-
-    @cached_property
-    def app_installation(self) -> GHInstallation:
-        return self.integration_client.get_app_installation(self.installation_id)
-
-    def get_installation_token(self, permissions: dict | None = None):
-        """
-
-        https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
-        """
-        # TODO: we can pass the repository_ids to get a token with access to specific repositories.
-        # We should upstream this feature to PyGithub.
-        return self.integration_client.get_access_token(
-            self.installation_id, permissions=permissions
-        ).token
+# TODO: cache this?
+def get_gh_app_client() -> GithubIntegration:
+    """Return a client authenticated as the GitHub App to interact with the API"""
+    app_auth = Auth.AppAuth(
+        app_id=settings.GITHUB_APP_CLIENT_ID,
+        private_key=settings.GITHUB_APP_PRIVATE_KEY,
+        # 10 minutes is the maximum allowed by GitHub.
+        # PyGithub will handle the token expiration and renew it automatically.
+        jwt_expiry=60 * 10,
+    )
+    return GithubIntegration(auth=app_auth)
 
 
-class GitHubAppService:
+class GitHubAppService(Service):
     vcs_provider_slug = GITHUB
+    provider_name = "GitHub"
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
-        self.gha_client = GitHubAppClient(self.installation.installation_id)
+        self.gha_client = get_gh_app_client()
 
-    def sync_repositories(self):
-        return self._sync_installation_repositories()
+    @cached_property
+    def app_installation(self) -> GHInstallation:
+        return self.gha_client.get_app_installation(
+            self.installation.installation_id,
+        )
 
-    def _sync_installation_repositories(self):
+    @cached_property
+    def installation_client(self) -> Github:
+        """Return a client authenticated as the GitHub installation to interact with the GH API."""
+        return self.gha_client.get_github_for_installation(
+            self.installation.installation_id
+        )
+
+    @classmethod
+    def for_project(cls, project):
+        if (
+            not project.remote_repository
+            or not project.remote_repository.github_app_installation
+        ):
+            return None
+
+        yield cls(project.remote_repository.github_app_installation)
+
+    @classmethod
+    def for_user(cls, user):
+        social_accounts = SocialAccount.objects.filter(
+            user=user,
+            provider=GitHubAppProvider.id,
+        )
+        for account in social_accounts:
+            account_id = account.uid
+            account_login = account.extra_data.get("login")
+
+            # GH doens't have an API to get the user based on the account_id,
+            # so we need to make sure we are getting the correct user.
+            # We don't want to mix up the accounts of different users in case the account was renamed.
+            gh_installation = get_gh_app_client().get_user_installation(account_login)
+            if gh_installation.target_id != account_id:
+                continue
+
+            # TODO: get or create the installation object.
+            installation = GitHubAppInstallation.objects.filter(
+                installation_id=gh_installation.id
+            ).first()
+            if installation:
+                yield cls(installation)
+
+            # TODO: what about organizations installations?
+
+    def sync(self):
         remote_repositories = []
-        for repo in self.gha_client.app_installation.get_repos():
+        for repo in self.app_installation.get_repos():
             remote_repo = self._create_or_update_repository_from_gh(repo)
             if remote_repo:
                 remote_repositories.append(remote_repo)
@@ -92,7 +113,7 @@ class GitHubAppService:
 
     def update_or_create_repositories(self, repository_ids: list[int]):
         for repository_id in repository_ids:
-            repo = self.gha_client.client.get_repo(repository_id)
+            repo = self.installation_client.get_repo(repository_id)
             self._create_or_update_repository_from_gh(repo)
 
     def delete_repositories(self, repository_ids: list[int]):
@@ -206,7 +227,7 @@ class GitHubAppService:
         # NOTE: cast to str, since PyGithub expects a string,
         # even if the API accepts a string or an int.
         # TODO: send a PR upstream to fix this.
-        return self.gha_client.client.get_organization(str(org_id))
+        return self.installation_client.get_organization(str(org_id))
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...
     @lru_cache(maxsize=50)
@@ -314,7 +335,7 @@ class GitHubAppService:
         description = SELECT_BUILD_STATUS[status]["description"]
         context = f"{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}"
 
-        gh_repo = self.gha_client.client.get_repo(int(remote_repo.remote_id))
+        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id))
         gh_repo.get_commit(commit).create_status(
             state=state,
             target_url=target_url,
@@ -322,5 +343,24 @@ class GitHubAppService:
             context=context,
         )
 
-    def get_installation_token(self, permissions: dict | None = None):
-        return self.gha_client.get_installation_token(permissions=permissions)
+    def get_clone_token(self, project):
+        """
+        See https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation.
+
+        https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
+        """
+        # TODO: we can pass the repository_ids to get a token with access to specific repositories.
+        # We should upstream this feature to PyGithub.
+        # We can also pass a specific permissions object to get a token with specific permissions.
+        access_token = self.gha_client.get_access_token(
+            self.installation.installation_id
+        )
+        return f"x-access-token:{access_token.token}"
+
+    def setup_webhook(self, project, integration=None):
+        """When using a GitHub App, we don't need to set up a webhook."""
+        return True
+
+    def update_webhook(self, project, integration=None):
+        """When using a GitHub App, we don't need to set up a webhook."""
+        return True

@@ -395,6 +395,6 @@ class BitbucketService(UserService):
 
         return (False, resp)
 
-    def send_build_status(self, build, commit, status):
+    def send_build_status(self, *, build, commit, status):
         """Send build status is not supported/implemented for Bitbucket."""
         return True

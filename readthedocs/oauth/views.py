@@ -21,7 +21,7 @@ from readthedocs.core.views.hooks import (
     trigger_sync_versions,
 )
 from readthedocs.oauth.models import GitHubAppInstallation
-from readthedocs.oauth.services.githubapp import GitHubAppClient
+from readthedocs.oauth.services.githubapp import get_gh_app_client
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
@@ -29,6 +29,10 @@ log = structlog.get_logger(__name__)
 
 class GitHubAppWebhookView(APIView):
     authentication_classes = []
+
+    def __init__(self, **kwargs):
+        self.gha_client = get_gh_app_client()
+        super().__init__(**kwargs)
 
     def post(self, request):
         if not self._is_payload_signature_valid():
@@ -471,7 +475,7 @@ class GitHubAppWebhookView(APIView):
         # If they aren't present, fetch them from the API,
         # so we can create the installation object if needed.
         if not target_id or not target_type:
-            gh_installation = GitHubAppClient(installation_id).app_installation
+            gh_installation = self.gha_client.get_app_installation(installation_id)
             target_id = gh_installation.target_id
             target_type = gh_installation.target_type
             data = data.copy()

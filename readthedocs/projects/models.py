@@ -1446,13 +1446,11 @@ class Project(models.Model):
 
     @property
     def clone_token(self):
-        """
-        See https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation.
-        """
-        remote_repository = self.remote_repository
-        if remote_repository and remote_repository.github_app_installation:
-            service = remote_repository.github_app_installation.service
-            return f"x-access-token:{service.get_installation_token()}"
+        service_class = self.get_git_service_class()
+        for service in service_class.for_project(self):
+            token = service.get_clone_token(self)
+            if token:
+                return token
         return None
 
 

@@ -33,8 +33,8 @@ class Service:
     """Base class for service that interacts with a VCS provider and a project."""
 
     vcs_provider_slug: str
-    url_pattern: re.Pattern | None
     provider_name: str
+    url_pattern: re.Pattern | None = None
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
 
@@ -85,7 +85,7 @@ class Service:
         """
         raise NotImplementedError
 
-    def send_build_status(self, build, commit, status):
+    def send_build_status(self, *, build, commit, status):
         """
         Create commit status for project.
 
@@ -97,6 +97,15 @@ class Service:
         :type status: str
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
+        """
+        raise NotImplementedError
+
+    def get_clone_token(self, project):
+        """
+        Get a clone token for the project.
+
+        :param project: project to get clone token for
+        :type project: Project
         """
         raise NotImplementedError
 
@@ -389,3 +398,7 @@ class UserService(Service):
 
     def sync_organizations(self):
         raise NotImplementedError
+
+    def get_clone_token(self, project):
+        """User services make use of SSH keys only for cloning."""
+        return None

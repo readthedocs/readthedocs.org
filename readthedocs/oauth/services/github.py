@@ -408,7 +408,7 @@ class GitHubService(UserService):
 
         return (False, resp)
 
-    def send_build_status(self, build, commit, status):
+    def send_build_status(self, *, build, commit, status):
         """
         Create GitHub commit status for project.
 
