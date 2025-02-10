@@ -1180,7 +1180,8 @@ class TestAddonsConfigForm(TestCase):
             "analytics_enabled": False,
             "doc_diff_enabled": False,
             "filetreediff_enabled": True,
-            "filetreediff_ignored_files": "user/index.html\nchangelog.html",
+            # Empty lines, lines with trailing spaces or lines full of spaces are ignored
+            "filetreediff_ignored_files": "user/index.html\n     \n\n\n   changelog.html    \n",
             "flyout_enabled": True,
             "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
             "flyout_sorting_latest_stable_at_beginning": True,
