@@ -12,8 +12,8 @@ from django.utils.translation import gettext_lazy as _
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 
-from readthedocs.allauth.clients import get_oauth2_client
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.oauth.clients import get_oauth2_client
 
 log = structlog.get_logger(__name__)
 
