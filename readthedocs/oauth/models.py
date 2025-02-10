@@ -1,7 +1,5 @@
 """OAuth service models."""
-
 from functools import cached_property
-
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
@@ -15,6 +13,8 @@ from readthedocs.projects.models import Project
 
 from .constants import VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
+
+log = structlog.get_logger(__name__)
 
 
 class GitHubAccountType(models.TextChoices):
@@ -276,6 +276,19 @@ class RemoteRepository(TimeStampedModel):
             remote_repository=self, user=user, account=social_account
         )
         return remote_repository_relation
+
+    def get_service_class(self):
+        from readthedocs.oauth.services import registry
+
+        for service_cls in registry:
+            if service_cls.vcs_provider_slug == self.vcs_provider:
+                return service_cls
+
+        # NOTE: this should never happen, but we log it just in case
+        log.exception(
+            "Service not found for the VCS provider", vcs_provider=self.vcs_provider
+        )
+        return None
 
 
 class RemoteRepositoryRelation(TimeStampedModel):

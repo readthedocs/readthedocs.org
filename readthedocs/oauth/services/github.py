@@ -15,12 +15,12 @@ from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service, SyncServiceError
+from .base import SyncServiceError, UserService
 
 log = structlog.get_logger(__name__)
 
 
-class GitHubService(Service):
+class GitHubService(UserService):
 
     """Provider service for GitHub."""
 
@@ -28,6 +28,7 @@ class GitHubService(Service):
     # TODO replace this with a less naive check
     url_pattern = re.compile(r"github\.com")
     vcs_provider_slug = GITHUB
+    provider_name = "GitHub"
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
