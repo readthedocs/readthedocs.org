@@ -660,10 +660,15 @@ class AddonsResponseBase:
 
         def _filter_diff_files(files):
             # Filter out all the files that match the ignored patterns
-            for filename in files.copy():
-                for ignore_pattern in project.addons.filetreediff_ignored_files or []:
-                    if fnmatch.fnmatch(filename, ignore_pattern):
-                        files.remove(filename)
+            ignore_patterns = project.addons.filetreediff_ignored_files or []
+            files = [
+                filename
+                for filename in files
+                if not any(
+                    fnmatch.fnmatch(filename, ignore_pattern)
+                    for ignore_pattern in ignore_patterns
+                )
+            ]
 
             result = []
             for filename in files:
