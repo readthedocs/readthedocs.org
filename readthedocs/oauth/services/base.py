@@ -2,6 +2,7 @@
 from datetime import datetime
 
 import structlog
+import re
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.conf import settings
@@ -32,7 +33,7 @@ class Service:
     """Base class for service that interacts with a VCS provider and a project."""
 
     vcs_provider_slug: str
-    url_pattern: str
+    url_pattern: re.Pattern | None
     provider_name: str
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
@@ -53,8 +54,8 @@ class Service:
 
         - Creates a new RemoteRepository/Organization per new repository
         - Updates fields for existing RemoteRepository/Organization
-        - Deletes old RemoteRepository/Organization that are not present
-          for this user in the current provider
+        - Deletes old RemoteRepository/Organization that are no longer present
+          in this provider.
         """
         raise NotImplementedError
 
