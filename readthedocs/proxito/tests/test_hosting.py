@@ -889,6 +889,9 @@ class TestReadTheDocsConfigJson(TestCase):
             )
         assert r.status_code == 200
 
+    @override_settings(
+        RTD_FILETREEDIFF_ALL=True,
+    )
     @mock.patch("readthedocs.proxito.views.hosting.get_diff")
     def test_file_tree_diff_ignored_files(self, get_diff):
         ignored_files = [
