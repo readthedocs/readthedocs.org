@@ -1447,6 +1447,8 @@ class Project(models.Model):
     @property
     def clone_token(self):
         service_class = self.get_git_service_class()
+        if not service_class:
+            return None
         for service in service_class.for_project(self):
             token = service.get_clone_token(self)
             if token:
