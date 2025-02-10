@@ -1,6 +1,7 @@
 """OAuth service models."""
 from functools import cached_property
 
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
@@ -280,6 +281,10 @@ class RemoteRepository(TimeStampedModel):
 
     def get_service_class(self):
         from readthedocs.oauth.services import registry
+        from readthedocs.oauth.services.githubapp import GitHubAppService
+
+        if self.github_app_installation:
+            return GitHubAppService
 
         for service_cls in registry:
             if service_cls.vcs_provider_slug == self.vcs_provider:
