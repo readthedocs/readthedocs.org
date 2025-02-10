@@ -435,7 +435,6 @@ class GitHubAppWebhookView(APIView):
 
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#github_app_authorization.
         """
-        pass
 
     def _get_projects(self):
         remote_repository = self._get_remote_repository()
