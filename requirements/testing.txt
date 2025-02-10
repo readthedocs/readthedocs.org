@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.11
+boto3==1.36.16
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.11
+botocore==1.36.16
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -82,7 +82,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.6.10
+coverage[toml]==7.6.11
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
@@ -109,7 +109,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.18
+django==4.2.19
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -132,7 +132,7 @@ django==4.2.18
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.3.1
+django-allauth[mfa,saml,socialaccount]==65.4.1
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
@@ -142,7 +142,7 @@ django-cacheops==7.1
     # via -r requirements/pip.txt
 django-celery-beat==2.7.0
     # via -r requirements/pip.txt
-django-cors-headers==4.6.0
+django-cors-headers==4.7.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
