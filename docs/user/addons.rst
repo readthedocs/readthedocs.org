@@ -49,17 +49,17 @@ Integrating with Addons
 Integrate with Search as you type
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To configure your site to use :doc:`Read the Docs search </server-side-search/index>` instead of the default search, add the following block of JavaScript:
+To configure your site to use :doc:`Read the Docs search </server-side-search/index>` instead of the default search, adapt the following block of JavaScript to your own site:
 
     .. code-block:: js
         :caption: javascript/readthedocs.js
 
         // TODO: Change me if needed
-        selector = "input[type='search']";
+        const selector = ".search-button__button";
 
         document.addEventListener("DOMContentLoaded", function(event) {
-        // Trigger Read the Docs' search addon instead of the default search
-        document.querySelector(selector).addEventListener("focus", (e) => {
+            // Trigger Read the Docs' search addon instead of the default search
+            document.querySelector(selector).addEventListener("click", (e) => {
                 const event = new CustomEvent("readthedocs-search-show");
                 document.dispatchEvent(event);
             });
