@@ -1,25 +1,24 @@
 """OAuth utility functions."""
+
 import re
-from datetime import datetime
+from functools import cached_property
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
-from requests_oauthlib import OAuth2Session
 
+from readthedocs.allauth.clients import get_oauth2_client
 from readthedocs.core.permissions import AdminPermission
 
 log = structlog.get_logger(__name__)
 
 
 class SyncServiceError(Exception):
-
     """Error raised when a service failed to sync."""
 
     INVALID_OR_REVOKED_ACCESS_TOKEN = _(
@@ -29,7 +28,6 @@ class SyncServiceError(Exception):
 
 
 class Service:
-
     """Base class for service that interacts with a VCS provider and a project."""
 
     vcs_provider_slug: str
@@ -101,12 +99,7 @@ class Service:
         raise NotImplementedError
 
     def get_clone_token(self, project):
-        """
-        Get a clone token for the project.
-
-        :param project: project to get clone token for
-        :type project: Project
-        """
+        """Get a token used for cloning the repository."""
         raise NotImplementedError
 
     @classmethod
@@ -127,7 +120,6 @@ class Service:
 
 
 class UserService(Service):
-
     """
     Subclass of Service that interacts with a VCS provider using the user's OAuth token.
 
@@ -138,7 +130,6 @@ class UserService(Service):
     adapter = None
 
     def __init__(self, user, account):
-        self.session = None
         self.user = user
         self.account = account
         log.bind(
@@ -169,18 +160,9 @@ class UserService(Service):
     def provider_id(self):
         return self.get_adapter().provider_id
 
-    def get_session(self):
-        if self.session is None:
-            self.create_session()
-        return self.session
-
-    def get_access_token_url(self):
-        # ``access_token_url`` is a property in some adapters,
-        # so we need to instantiate it to get the actual value.
-        # pylint doesn't recognize that get_adapter returns a class.
-        # pylint: disable=not-callable
-        adapter = self.get_adapter()(request=None)
-        return adapter.access_token_url
+    @cached_property
+    def session(self):
+        return get_oauth2_client(self.account)
 
     def create_session(self):
         """
@@ -190,63 +172,6 @@ class UserService(Service):
         attributes. If there is an ``expires_at``, treat the session as an auto
         renewing token. Some providers expire tokens after as little as 2 hours.
         """
-        token = self.account.socialtoken_set.first()
-        if token is None:
-            return None
-
-        token_config = {
-            "access_token": token.token,
-            "token_type": "bearer",
-        }
-        if token.expires_at is not None:
-            token_expires = (token.expires_at - timezone.now()).total_seconds()
-            token_config.update(
-                {
-                    "refresh_token": token.token_secret,
-                    "expires_in": token_expires,
-                }
-            )
-
-        social_app = self.account.get_provider().app
-        self.session = OAuth2Session(
-            client_id=social_app.client_id,
-            token=token_config,
-            auto_refresh_kwargs={
-                "client_id": social_app.client_id,
-                "client_secret": social_app.secret,
-            },
-            auto_refresh_url=self.get_access_token_url(),
-            token_updater=self.token_updater(token),
-        )
-
-        return self.session or None
-
-    def token_updater(self, token):
-        """
-        Update token given data from OAuth response.
-
-        Expect the following response into the closure::
-
-            {
-                u'token_type': u'bearer',
-                u'scopes': u'webhook repository team account',
-                u'refresh_token': u'...',
-                u'access_token': u'...',
-                u'expires_in': 3600,
-                u'expires_at': 1449218652.558185
-            }
-        """
-
-        def _updater(data):
-            token.token = data["access_token"]
-            token.token_secret = data.get("refresh_token", "")
-            token.expires_at = timezone.make_aware(
-                datetime.fromtimestamp(data["expires_at"]),
-            )
-            token.save()
-            log.info("Updated token.", token_id=token.pk)
-
-        return _updater
 
     def paginate(self, url, **kwargs):
         """
@@ -259,7 +184,7 @@ class UserService(Service):
         """
         resp = None
         try:
-            resp = self.get_session().get(url, params=kwargs)
+            resp = self.session.get(url, params=kwargs)
 
             # TODO: this check of the status_code would be better in the
             # ``create_session`` method since it could be used from outside, but

@@ -235,7 +235,6 @@ class BitbucketService(UserService):
         if integration.provider_data:
             return integration.provider_data
 
-        session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
         url = f"https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks"
 
@@ -247,7 +246,7 @@ class BitbucketService(UserService):
             url=url,
         )
         try:
-            resp = session.get(url)
+            resp = self.session.get(url)
 
             if resp.status_code == 200:
                 recv_data = resp.json()
@@ -284,7 +283,6 @@ class BitbucketService(UserService):
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
-        session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
         url = f"https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks"
         if not integration:
@@ -302,7 +300,7 @@ class BitbucketService(UserService):
         )
 
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -355,13 +353,12 @@ class BitbucketService(UserService):
         if not provider_data:
             return self.setup_webhook(project, integration)
 
-        session = self.get_session()
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
             # Expect to throw KeyError here if provider_data is invalid
             url = provider_data["links"]["self"]["href"]
-            resp = session.put(
+            resp = self.session.put(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},

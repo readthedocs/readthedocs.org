@@ -130,7 +130,7 @@ class GitLabService(UserService):
                         # admin permission fields for GitLab projects.
                         # So, fetch every single project data from the API
                         # which contains the admin permission fields.
-                        resp = self.get_session().get(
+                        resp = self.session.get(
                             "{url}/api/v4/projects/{id}".format(
                                 url=self.adapter.provider_default_url, id=repo["id"]
                             )
@@ -326,7 +326,6 @@ class GitLabService(UserService):
         if repo_id is None:
             return None
 
-        session = self.get_session()
         log.bind(
             project_slug=project.slug,
             integration_id=integration.pk,
@@ -335,7 +334,7 @@ class GitLabService(UserService):
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
         try:
-            resp = session.get(
+            resp = self.session.get(
                 "{url}/api/v4/projects/{repo_id}/hooks".format(
                     url=self.adapter.provider_default_url,
                     repo_id=repo_id,
@@ -395,9 +394,8 @@ class GitLabService(UserService):
             url=url,
         )
         data = self.get_webhook_data(repo_id, project, integration)
-        session = self.get_session()
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -447,7 +445,6 @@ class GitLabService(UserService):
             return self.setup_webhook(project, integration)
 
         resp = None
-        session = self.get_session()
         repo_id = self._get_repo_id(project)
 
         if repo_id is None:
@@ -461,7 +458,7 @@ class GitLabService(UserService):
         )
         try:
             hook_id = provider_data.get("id")
-            resp = session.put(
+            resp = self.session.put(
                 "{url}/api/v4/projects/{repo_id}/hooks/{hook_id}".format(
                     url=self.adapter.provider_default_url,
                     repo_id=repo_id,
@@ -511,7 +508,6 @@ class GitLabService(UserService):
         :rtype: Bool
         """
         resp = None
-        session = self.get_session()
         project = build.project
 
         repo_id = self._get_repo_id(project)
@@ -547,7 +543,7 @@ class GitLabService(UserService):
             url=url,
         )
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=json.dumps(data),
                 headers={"content-type": "application/json"},

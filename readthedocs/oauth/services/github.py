@@ -56,7 +56,7 @@ class GitHubService(UserService):
         try:
             orgs = self.paginate("https://api.github.com/user/orgs", per_page=100)
             for org in orgs:
-                org_details = self.get_session().get(org["url"]).json()
+                org_details = self.session.get(org["url"]).json()
                 remote_organization = self.create_organization(
                     org_details,
                     create_user_relationship=True,
@@ -240,7 +240,6 @@ class GitHubService(UserService):
         if integration.provider_data:
             return integration.provider_data
 
-        session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
         url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
         log.bind(
@@ -252,7 +251,7 @@ class GitHubService(UserService):
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
         try:
-            resp = session.get(url)
+            resp = self.session.get(url)
             if resp.status_code == 200:
                 recv_data = resp.json()
 
@@ -287,7 +286,6 @@ class GitHubService(UserService):
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
-        session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
         if not integration:
@@ -305,7 +303,7 @@ class GitHubService(UserService):
         )
         resp = None
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -352,7 +350,6 @@ class GitHubService(UserService):
         :returns: boolean based on webhook update success, and requests Response object
         :rtype: (Bool, Response)
         """
-        session = self.get_session()
         data = self.get_webhook_data(project, integration)
         resp = None
 
@@ -369,7 +366,7 @@ class GitHubService(UserService):
 
         try:
             url = provider_data.get("url")
-            resp = session.patch(
+            resp = self.session.patch(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -421,7 +418,6 @@ class GitHubService(UserService):
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
-        session = self.get_session()
         project = build.project
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
@@ -456,7 +452,7 @@ class GitHubService(UserService):
         )
         resp = None
         try:
-            resp = session.post(
+            resp = self.session.post(
                 statuses_url,
                 data=json.dumps(data),
                 headers={"content-type": "application/json"},

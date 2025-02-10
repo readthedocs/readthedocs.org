@@ -3,13 +3,15 @@ from functools import cached_property, lru_cache
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
-from github import Auth, Github, GithubIntegration
+from github import Github
 from github.Installation import Installation as GHInstallation
 from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
+from readthedocs.allauth.providers.githubapp.views import GitHubAppOAuth2Adapter
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
+from readthedocs.oauth.clients import get_gh_app_client, get_oauth2_client
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.models import (
     GitHubAccountType,
@@ -24,22 +26,10 @@ from readthedocs.oauth.services.base import Service
 log = structlog.get_logger(__name__)
 
 
-# TODO: cache this?
-def get_gh_app_client() -> GithubIntegration:
-    """Return a client authenticated as the GitHub App to interact with the API"""
-    app_auth = Auth.AppAuth(
-        app_id=settings.GITHUB_APP_CLIENT_ID,
-        private_key=settings.GITHUB_APP_PRIVATE_KEY,
-        # 10 minutes is the maximum allowed by GitHub.
-        # PyGithub will handle the token expiration and renew it automatically.
-        jwt_expiry=60 * 10,
-    )
-    return GithubIntegration(auth=app_auth)
-
-
 class GitHubAppService(Service):
     vcs_provider_slug = GITHUB
     provider_name = "GitHub"
+    adapter = GitHubAppOAuth2Adapter
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
@@ -70,29 +60,27 @@ class GitHubAppService(Service):
 
     @classmethod
     def for_user(cls, user):
+        """
+        https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#list-app-installations-accessible-to-the-user-access-token instead.
+        """
         social_accounts = SocialAccount.objects.filter(
             user=user,
             provider=GitHubAppProvider.id,
         )
         for account in social_accounts:
-            account_id = account.uid
-            account_login = account.extra_data.get("login")
+            oauth2_client = get_oauth2_client(account)
+            resp = oauth2_client.get("https://api.github.com/app/installations")
 
-            # GH doens't have an API to get the user based on the account_id,
-            # so we need to make sure we are getting the correct user.
-            # We don't want to mix up the accounts of different users in case the account was renamed.
-            gh_installation = get_gh_app_client().get_user_installation(account_login)
-            if gh_installation.target_id != account_id:
+            if resp.status_code != 200:
                 continue
 
-            # TODO: get or create the installation object.
-            installation = GitHubAppInstallation.objects.filter(
-                installation_id=gh_installation.id
-            ).first()
-            if installation:
-                yield cls(installation)
-
-            # TODO: what about organizations installations?
+            for gh_installation in resp.json()["installations"]:
+                # TODO: get or create the installation object.
+                installation = GitHubAppInstallation.objects.filter(
+                    installation_id=gh_installation["id"],
+                ).first()
+                if installation:
+                    yield cls(installation)
 
     def sync(self):
         remote_repositories = []
