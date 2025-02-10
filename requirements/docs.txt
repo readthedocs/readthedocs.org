@@ -39,7 +39,7 @@ docutils==0.21.2
     #   sphinx-tabs
 exceptiongroup==1.2.2
     # via anyio
-fonttools==4.55.8
+fonttools==4.56.0
     # via matplotlib
 h11==0.14.0
     # via uvicorn
@@ -78,7 +78,7 @@ packaging==24.2
     # via
     #   matplotlib
     #   sphinx
-pbr==6.1.0
+pbr==6.1.1
     # via sphinxcontrib-video
 pillow==11.1.0
     # via matplotlib
