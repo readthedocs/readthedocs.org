@@ -1,8 +1,8 @@
 """OAuth utility functions."""
+import re
 from datetime import datetime
 
 import structlog
-import re
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.conf import settings
