@@ -672,7 +672,7 @@ class OnePerLineList(forms.Field):
         """Convert a text area into a list of items (one per line)."""
         if not value:
             return []
-        # Sanitize lines:
+        # Normalize paths and filter empty lines:
         #  - remove trailing spaces
         #  - skip empty lines
         #  - remove starting `/`
