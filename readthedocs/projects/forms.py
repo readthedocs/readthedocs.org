@@ -739,6 +739,9 @@ class AddonsConfigForm(forms.ModelForm):
         kwargs["instance"] = self.project.addons
         super().__init__(*args, **kwargs)
 
+        if self.project.addons.filetreediff_enabled is not None:
+            self.fields["filetreediff_enabled"] = forms.BooleanField(required=True)
+
         # Keep the ability to disable addons completely on Read the Docs for Business
         if not settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields["enabled"].disabled = True
