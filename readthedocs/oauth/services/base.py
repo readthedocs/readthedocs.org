@@ -6,7 +6,6 @@ from functools import cached_property
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
-from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -128,14 +127,12 @@ class UserService(Service):
     :param account: :py:class:`SocialAccount` instance for user
     """
 
-    adapter = None
-
     def __init__(self, user, account):
         self.user = user
         self.account = account
         log.bind(
             user_username=self.user.username,
-            social_provider=self.provider_id,
+            social_provider=self.allauth_provider.id,
             social_account_id=self.account.pk,
         )
 
@@ -149,17 +146,10 @@ class UserService(Service):
     def for_user(cls, user):
         accounts = SocialAccount.objects.filter(
             user=user,
-            provider=cls.adapter.provider_id,
+            provider=cls.allauth_provider.id,
         )
         for account in accounts:
             yield cls(user=user, account=account)
-
-    def get_adapter(self) -> type[OAuth2Adapter]:
-        return self.adapter
-
-    @property
-    def provider_id(self):
-        return self.get_adapter().provider_id
 
     @cached_property
     def session(self):
