@@ -35,6 +35,11 @@ class GitHubAppService(Service):
 
     @cached_property
     def app_installation(self) -> GHInstallation:
+        """
+        Return the installation object from the GitHub API.
+
+        Usefull to interact with installation related endpoints.
+        """
         return self.gha_client.get_app_installation(
             self.installation.installation_id,
         )
@@ -48,6 +53,13 @@ class GitHubAppService(Service):
 
     @classmethod
     def for_project(cls, project):
+        """
+        Return a GitHubAppService for the installation linked to the project.
+
+        Since this service only works for projects that have a remote repository,
+        and are linked to a GitHub App installation,
+        this returns only one service or None.
+        """
         if (
             not project.remote_repository
             or not project.remote_repository.github_app_installation
@@ -59,7 +71,21 @@ class GitHubAppService(Service):
     @classmethod
     def for_user(cls, user):
         """
-        https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#list-app-installations-accessible-to-the-user-access-token instead.
+        Return a GitHubAppService for each installation accessible to the user.
+
+        In order to get the installations accessible to the user, we need to use
+        the GitHub API authenticated as the user, making use of the user's access token
+        (not the installation token).
+
+        See:
+
+        - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-with-a-github-app-on-behalf-of-a-user
+        - https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#list-app-installations-accessible-to-the-user-access-token
+
+        .. note::
+
+           If the installation wasn't in our database, we create it
+           (but we don't sync the repositories, since the caller should be responsible for that).
         """
         social_accounts = SocialAccount.objects.filter(
             user=user,
@@ -83,6 +109,15 @@ class GitHubAppService(Service):
                     yield cls(installation)
 
     def sync(self):
+        """
+        Sync all repositories and organizations that are accessible to the installation.
+
+        Repositories that are no longer accessible to the installation are removed from the database
+        only if they are not linked to a project. This is in case the user wants to grant access to the repository again.
+
+        If a remote organization doesn't have any repositories after removing the repositories,
+        we remove the organization from the database.
+        """
         remote_repositories = []
         for repo in self.app_installation.get_repos():
             remote_repo = self._create_or_update_repository_from_gh(repo)
@@ -100,6 +135,7 @@ class GitHubAppService(Service):
         ).delete()
 
     def update_or_create_repositories(self, repository_ids: list[int]):
+        """Update or create repositories from the given list of repository IDs."""
         for repository_id in repository_ids:
             repo = self.installation_client.get_repo(repository_id)
             self._create_or_update_repository_from_gh(repo)
@@ -111,6 +147,8 @@ class GitHubAppService(Service):
         We don't remove repositories that are linked to a project, since a user could
         grant access to the repository again, and we don't want users having to manually
         link the project to the repository again.
+
+        We also remove organizations that don't have any repositories after removing the repositories.
         """
         # Extract all the organizations linked to these repositories,
         # so we can remove organizations that don't have any repositories
@@ -131,9 +169,7 @@ class GitHubAppService(Service):
         remote_organizations.filter(repositories=None).delete()
 
     def delete_organization(self, organization_id: int):
-        """
-        Delete an organization and all its repositories from the database only if they are not linked to a project.
-        """
+        """Delete an organization and all its repositories from the database only if they are not linked to a project."""
         RemoteOrganization.objects.filter(
             remote_id=str(organization_id),
             vcs_provider=self.vcs_provider_slug,
@@ -143,12 +179,12 @@ class GitHubAppService(Service):
     def _create_or_update_repository_from_gh(
         self, gh_repo: GHRepository
     ) -> RemoteRepository | None:
-        # What about a project that is public, and then becomes private?
-        # I think we should allow creating remote repositories for these,
-        # but block import/clone and other operations.
-        # if not settings.ALLOW_PRIVATE_REPOS and gh_repo.private:
-        #     return
+        """
+        Create or update a remote repository from a GitHub repository object.
 
+        We also sync the collaborators of the repository with the database,
+        and create or update the organization of the repository.
+        """
         target_id = self.installation.target_id
         target_type = self.installation.target_type
         # NOTE: All the repositories should be owned by the installation account.
@@ -214,6 +250,7 @@ class GitHubAppService(Service):
     # NOTE: normally, this should cache only one organization at a time, but just in case...
     @lru_cache(maxsize=50)
     def _get_gh_organization(self, org_id: int) -> GHOrganization:
+        """Get a GitHub organization object given its numeric ID."""
         # NOTE: cast to str, since PyGithub expects a string,
         # even if the API accepts a string or an int.
         # TODO: send a PR upstream to fix this.
@@ -335,13 +372,17 @@ class GitHubAppService(Service):
 
     def get_clone_token(self, project):
         """
-        See https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation.
+        Return a token for HTTP Git clone access to the repository.
 
-        https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
+        See:
+
+        - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
+        - https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
         """
         # TODO: we can pass the repository_ids to get a token with access to specific repositories.
         # We should upstream this feature to PyGithub.
-        # We can also pass a specific permissions object to get a token with specific permissions.
+        # We can also pass a specific permissions object to get a token with specific permissions
+        # if we want to scope this token even more.
         access_token = self.gha_client.get_access_token(
             self.installation.installation_id
         )

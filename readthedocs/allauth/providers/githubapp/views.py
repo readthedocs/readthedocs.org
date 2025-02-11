@@ -1,3 +1,5 @@
+"""Copied from allauth.socialaccount.providers.github.views."""
+
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2CallbackView,

@@ -38,8 +38,15 @@ class GitHubAppWebhookView(APIView):
         if not self._is_payload_signature_valid():
             raise ValidationError("Invalid webhook signature")
 
-        event = self.request.headers.get(GITHUB_EVENT_HEADER)
+        # Most of the events have an installation object and action.
+        installation_id = request.data.get("installation", {}).get("id", "unknown")
+        action = request.data.get("action", "unknown")
+        log.bind(
+            installation_id=installation_id,
+            action=action,
+        )
 
+        event = self.request.headers.get(GITHUB_EVENT_HEADER)
         event_handlers = {
             "installation": self._handle_installation_event,
             "installation_repositories": self._handle_installation_repositories_event,
@@ -61,6 +68,9 @@ class GitHubAppWebhookView(APIView):
         Handle the installation event.
 
         Triggered when a user installs or uninstalls the GitHub App under an account (user or organization).
+        We create the installation object and sync the repositories, or delete the installation accordingly.
+
+        Payload example:
 
         .. code-block:: json
 
@@ -128,25 +138,25 @@ class GitHubAppWebhookView(APIView):
         data = self.request.data
         action = data["action"]
         gh_installation = data["installation"]
+        installation_id = gh_installation["id"]
 
         if action == "created":
-            installation, created = self._get_or_create_installation()
+            _, created = self._get_or_create_installation()
             if not created:
-                log.info(
-                    "Installation already exists", installation_id=gh_installation["id"]
-                )
+                log.info("Installation already exists")
             return
 
         if action == "deleted":
             # NOTE: does the app trigger a installation_repositories event?
-            installation = GitHubAppInstallation.objects.filter(
-                installation_id=gh_installation["id"]
-            ).first()
-            if not installation:
-                # If we never created the installation, we can ignore the event.
-                # Maybe don't raise an error?
-                raise ValidationError(f"Installation {gh_installation['id']} not found")
-            installation.delete()
+            # TODO: what to do with the repositories?
+            # Maybe delete the ones that are on linked to any projects?
+            count, _ = GitHubAppInstallation.objects.filter(
+                installation_id=installation_id
+            ).delete()
+            if count > 0:
+                log.info("Installation deleted")
+            else:
+                log.info("Installation not found")
             return
 
         # Ignore other actions:
@@ -159,6 +169,14 @@ class GitHubAppWebhookView(APIView):
         Handle the installation_repositories event.
 
         Triggered when a repository is added or removed from an installation.
+
+        If the installation had access to a repository, and the repository is deleted,
+        this event will be triggered.
+
+        When a repository is deleted, we delete its remote repository object,
+        but only if it's not linked to any project.
+
+        Payload example:
 
         .. code-block:: json
            {
@@ -244,10 +262,14 @@ class GitHubAppWebhookView(APIView):
 
         Triggered when the target of an installation changes,
         like when the user or organization changes its username/slug.
-         
-        Looks like this is only triggered when a username is changed,
-        when an organization is renamed, it doesn't trigger this event
-        (maybe a bug?).
+
+        .. note::
+
+           Looks like this is only triggered when a username is changed,
+           when an organization is renamed, it doesn't trigger this event
+           (maybe a bug?).
+
+        When this happens, we re-sync all the repositories, so they use the new name.
         """
         installation, created = self._get_or_create_installation()
 
@@ -291,9 +313,11 @@ class GitHubAppWebhookView(APIView):
         """
         Handle the push event.
 
-        Triggered when a commit is pushed, when a commit tag is pushed,
-        when a branch is deleted, when a tag is deleted,
-        or when a repository is created from a template.
+        Triggered when a commit is pushed (including a new branch or tag is created),
+        when a branch or tag is deleted, or when a repository is created from a template.
+
+        If a new branch or tag is created, we trigger a sync of the versions,
+        if the version already exists, we build it if it's active.
 
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#push.
         """
@@ -317,7 +341,7 @@ class GitHubAppWebhookView(APIView):
 
         The ref can be a branch or a tag.
 
-        :param ref: The ref to parse.
+        :param ref: The ref to parse (e.g. refs/heads/main, refs/tags/v1.0.0).
         :returns: A tuple with the version name and type.
         """
         heads_prefix = "refs/heads/"
@@ -374,7 +398,8 @@ class GitHubAppWebhookView(APIView):
         """
         Handle the organization event.
 
-        Triggered when an organization is added or removed from a repository.
+        Triggered when an member is added or removed from an organization,
+        or when the organization is renamed or deleted.
 
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#organization
         """
@@ -394,14 +419,12 @@ class GitHubAppWebhookView(APIView):
             installation.service.sync()
             return
 
-        # Hmm, installation_target should handle this instead?
-        # But I wasn't able to trigger neitehr of those events when renaming an organization.
+        # NOTE: installation_target should handle this instead?
+        # But I wasn't able to trigger neither of those events when renaming an organization.
+        # Maybe a bug?
+        # If the organization is renamed, we need to sync the repositories, so they use the new name.
         if action == "renamed":
-            # Update organization and its members only.
-            # We don't need to sync the repositories.
-            installation.service.update_or_create_organization(
-                data["organization"]["id"]
-            )
+            installation.service.sync()
             return
 
         if action == "deleted":
@@ -452,6 +475,13 @@ class GitHubAppWebhookView(APIView):
         """
 
     def _get_projects(self):
+        """
+        Get all projects linked to the repository that triggered the event.
+
+        .. note::
+
+           This should only be used for events that have a repository object.
+        """
         remote_repository = self._get_remote_repository()
         if not remote_repository:
             return Project.objects.none()
@@ -462,6 +492,10 @@ class GitHubAppWebhookView(APIView):
         Get the remote repository from the request data.
 
         If the repository doesn't exist, return None.
+
+        .. note::
+
+           This should only be used for events that have a repository object.
         """
         data = self.request.data
         remote_id = data["repository"]["id"]

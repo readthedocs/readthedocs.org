@@ -24,6 +24,12 @@ class GitHubAppInstallationManager(models.Manager):
     def get_or_create_installation(
         self, *, installation_id, target_id, target_type, extra_data=None
     ):
+        """
+        Get or create a GitHub app installation.
+
+        Only the installation_id is unique, the target_id and target_type could change,
+        but this should never happen.
+        """
         installation, created = self.get_or_create(
             installation_id=installation_id,
             defaults={
@@ -83,7 +89,7 @@ class GitHubAppInstallation(TimeStampedModel):
     objects = GitHubAppInstallationManager()
 
     class Meta(TimeStampedModel.Meta):
-        pass
+        verbose_name = _("GitHub app installation")
 
     @cached_property
     def service(self):
@@ -256,11 +262,10 @@ class RemoteRepository(TimeStampedModel):
         related_name="repositories",
         null=True,
         blank=True,
-        # Delete the repository if the installation is deleted?
-        # or keep the repository and just remove the installation?
-        # I think we should keep the repository, but only if it's linked to a project,
-        # since a user could re-install the app, they shouldn't need to
-        # manually link each project to the repository again.
+        # When an installation is deleted, we don't delete the repository
+        # if it's linked to a project. This is in case the user re-installs the app,
+        # they shouldn't need to manually link each project to the repository again.
+        # NOTE: I also see how this may be unexpected behavior in some cases.
         on_delete=models.SET_NULL,
     )
 

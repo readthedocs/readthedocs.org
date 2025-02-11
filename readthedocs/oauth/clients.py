@@ -74,7 +74,7 @@ def get_oauth2_client(account):
 
 
 def get_gh_app_client() -> GithubIntegration:
-    """Return a client authenticated as the GitHub App to interact with the API"""
+    """Return a client authenticated as the GitHub App to interact with the API."""
     app_auth = Auth.AppAuth(
         app_id=settings.GITHUB_APP_CLIENT_ID,
         private_key=settings.GITHUB_APP_PRIVATE_KEY,

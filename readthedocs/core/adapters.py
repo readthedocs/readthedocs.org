@@ -58,12 +58,18 @@ class AccountAdapter(DefaultAccountAdapter):
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         """
-        Remove all email addresses except the primary one.
+        Additional logic to apply before social login.
 
-        We don't want to populate all email addresses from the social account,
-        it also makes it easy to mark only the primary email address as verified
-        for providers that don't return information about email verification
-        even if the email is verified (like GitLab).
+        - Remove all email addresses except the primary one.
+
+          We don't want to populate all email addresses from the social account,
+          it also makes it easy to mark only the primary email address as verified
+          for providers that don't return information about email verification
+          even if the email is verified (like GitLab).
+
+        - Connect a GitHub App (new integration) account to an existing GitHub account (old integration)
+          if it belongs to the same user. This avoids creating a new account when the user
+          signs up with the new integration.
         """
         sociallogin.email_addresses = [
             email for email in sociallogin.email_addresses if email.primary

@@ -1446,6 +1446,13 @@ class Project(models.Model):
 
     @property
     def clone_token(self):
+        """
+        Return a token for HTTP Git clone access to the repository.
+
+        .. note::
+
+           Only repositories granted acces by a GitHub app installation will return a token.
+        """
         service_class = self.get_git_service_class()
         if not service_class:
             return None

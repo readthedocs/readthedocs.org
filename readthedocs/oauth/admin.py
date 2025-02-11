@@ -10,7 +10,14 @@ from .models import (
     RemoteRepositoryRelation,
 )
 
-admin.site.register(GitHubAppInstallation)
+
+@admin.register(GitHubAppInstallation)
+class GitHubAppInstallationAdmin(admin.ModelAdmin):
+    list_display = (
+        "installation_id",
+        "target_type",
+        "target_id",
+    )
 
 
 @admin.register(RemoteRepository)

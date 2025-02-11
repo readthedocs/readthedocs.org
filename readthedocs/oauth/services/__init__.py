@@ -24,4 +24,6 @@ class GitHubAppService(SettingsOverrideObject):
     _override_setting = "OAUTH_GITHUB_APP_SERVICE"
 
 
+# NOTE: GitHubAppService should be listed after GitHubService,
+# since they share the same vcs_provider_slug.
 registry = [GitHubService, BitbucketService, GitLabService, GitHubAppService]
