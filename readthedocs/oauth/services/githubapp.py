@@ -9,7 +9,6 @@ from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
-from readthedocs.allauth.providers.githubapp.views import GitHubAppOAuth2Adapter
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
 from readthedocs.oauth.clients import get_gh_app_client, get_oauth2_client
 from readthedocs.oauth.constants import GITHUB
@@ -29,7 +28,6 @@ log = structlog.get_logger(__name__)
 class GitHubAppService(Service):
     vcs_provider_slug = GITHUB
     provider_name = "GitHub"
-    adapter = GitHubAppOAuth2Adapter
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
@@ -69,15 +67,17 @@ class GitHubAppService(Service):
         )
         for account in social_accounts:
             oauth2_client = get_oauth2_client(account)
-            resp = oauth2_client.get("https://api.github.com/app/installations")
+            resp = oauth2_client.get("https://api.github.com/user/installations")
 
             if resp.status_code != 200:
                 continue
 
             for gh_installation in resp.json()["installations"]:
-                # TODO: get or create the installation object.
-                installation = GitHubAppInstallation.objects.filter(
+                installation = GitHubAppInstallation.objects.get_or_create_installation(
                     installation_id=gh_installation["id"],
+                    target_id=gh_installation["target_id"],
+                    target_type=gh_installation["target_type"],
+                    extra_data={"installation": gh_installation},
                 ).first()
                 if installation:
                     yield cls(installation)
@@ -146,8 +146,8 @@ class GitHubAppService(Service):
         # What about a project that is public, and then becomes private?
         # I think we should allow creating remote repositories for these,
         # but block import/clone and other operations.
-        if not settings.ALLOW_PRIVATE_REPOS and gh_repo.private:
-            return
+        # if not settings.ALLOW_PRIVATE_REPOS and gh_repo.private:
+        #     return
 
         target_id = self.installation.target_id
         target_type = self.installation.target_type

@@ -73,7 +73,6 @@ def get_oauth2_client(account):
     return session
 
 
-# TODO: cache this?
 def get_gh_app_client() -> GithubIntegration:
     """Return a client authenticated as the GitHub App to interact with the API"""
     app_auth = Auth.AppAuth(

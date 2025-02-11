@@ -1,4 +1,5 @@
 """OAuth service models."""
+
 from functools import cached_property
 
 import structlog
@@ -17,6 +18,38 @@ from .constants import VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
 log = structlog.get_logger(__name__)
+
+
+class GitHubAppInstallationManager(models.Manager):
+    def get_or_create_installation(
+        self, *, installation_id, target_id, target_type, extra_data=None
+    ):
+        installation, created = self.get_or_create(
+            installation_id=installation_id,
+            defaults={
+                "target_id": target_id,
+                "target_type": target_type,
+                "extra_data": extra_data or {},
+            },
+        )
+        # NOTE: An installation can't change its target_id or target_type.
+        # This should never happen, unless this assumption is wrong.
+        if (
+            installation.target_id != target_id
+            or installation.target_type != target_type
+        ):
+            log.exception(
+                "Installation target_id or target_type changed",
+                installation_id=installation.installation_id,
+                target_id=installation.target_id,
+                target_type=installation.target_type,
+                new_target_id=target_id,
+                new_target_type=target_type,
+            )
+            installation.target_id = target_id
+            installation.target_type = target_type
+            installation.save()
+        return installation, created
 
 
 class GitHubAccountType(models.TextChoices):

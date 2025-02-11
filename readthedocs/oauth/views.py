@@ -223,7 +223,7 @@ class GitHubAppWebhookView(APIView):
 
         if action == "added":
             if data["repository_selection"] == "all":
-                installation.service.sync_repositories()
+                installation.service.sync()
             else:
                 installation.service.update_or_create_repositories(
                     [repo["id"] for repo in data["repositories_added"]]
@@ -381,7 +381,7 @@ class GitHubAppWebhookView(APIView):
         # this is since we don't know to which repositories the members have access.
         # GH doesn't send a member event for this.
         if action in ("member_added", "member_removed"):
-            installation.service.sync_repositories()
+            installation.service.sync()
             return
 
         # Hmm, installation_target should handle this instead?
@@ -481,33 +481,17 @@ class GitHubAppWebhookView(APIView):
             data = data.copy()
             data["installation"] = gh_installation.raw_data
 
-        installation, created = GitHubAppInstallation.objects.get_or_create(
+        (
+            installation,
+            created,
+        ) = GitHubAppInstallation.objects.get_or_create_installation(
             installation_id=installation_id,
-            defaults={
-                "extra_data": data,
-                "target_id": target_id,
-                "target_type": target_type,
-            },
+            target_id=target_id,
+            target_type=target_type,
+            extra_data=data,
         )
-        # NOTE: An installation can't change its target_id or target_type.
-        # This should never happen, unless this assumption is wrong.
-        if (
-            installation.target_id != target_id
-            or installation.target_type != target_type
-        ):
-            log.exception(
-                "Installation target_id or target_type changed",
-                installation_id=installation.installation_id,
-                target_id=installation.target_id,
-                target_type=installation.target_type,
-                new_target_id=target_id,
-                new_target_type=target_type,
-            )
-            installation.target_id = target_id
-            installation.target_type = target_type
-            installation.save()
         if created and sync_repositories_on_create:
-            installation.service.sync_repositories()
+            installation.service.sync()
         return installation, created
 
     def _is_payload_signature_valid(self):
