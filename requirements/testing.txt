@@ -54,6 +54,7 @@ cffi==1.17.1
     # via
     #   -r requirements/pip.txt
     #   cryptography
+    #   pynacl
 charset-normalizer==3.4.1
     # via
     #   -r requirements/pip.txt
@@ -101,6 +102,10 @@ cython==3.0.11
     # via sphinx
 defusedxml==0.7.1
     # via sphinx
+deprecated==1.2.18
+    # via
+    #   -r requirements/pip.txt
+    #   pygithub
 distlib==0.3.9
     # via
     #   -r requirements/pip.txt
@@ -324,6 +329,8 @@ pydantic-core==2.27.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
+pygithub==2.5.0
+    # via -r requirements/pip.txt
 pygments==2.19.1
     # via
     #   -r requirements/pip.txt
@@ -332,6 +339,11 @@ pyjwt[crypto]==2.10.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
+    #   pygithub
+pynacl==1.5.0
+    # via
+    #   -r requirements/pip.txt
+    #   pygithub
 pyquery==2.0.1
     # via -r requirements/pip.txt
 pytest==8.3.4
@@ -385,6 +397,7 @@ requests==2.30.0
     #   -r requirements/pip.txt
     #   django-allauth
     #   docker
+    #   pygithub
     #   requests-mock
     #   requests-oauthlib
     #   requests-toolbelt
@@ -465,6 +478,7 @@ typing-extensions==4.12.2
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
+    #   pygithub
     #   sphinx
 tzdata==2025.1
     # via
@@ -491,6 +505,7 @@ urllib3==2.3.0
     #   botocore
     #   docker
     #   elastic-transport
+    #   pygithub
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
@@ -510,6 +525,10 @@ websocket-client==1.8.0
     # via
     #   -r requirements/pip.txt
     #   docker
+wrapt==1.17.2
+    # via
+    #   -r requirements/pip.txt
+    #   deprecated
 xmlsec==1.3.14
     # via
     #   -r requirements/pip.txt

@@ -294,6 +294,7 @@ class CommunityBaseSettings(Settings):
             "allauth.account",
             "allauth.socialaccount",
             "allauth.socialaccount.providers.github",
+            "readthedocs.allauth.providers.githubapp",
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "allauth.mfa",
@@ -709,6 +710,12 @@ class CommunityBaseSettings(Settings):
                 "repo:status",
             ],
         },
+        "githubapp": {
+            "APPS": [
+                {"client_id": "123", "secret": "456", "key": ""},
+            ],
+            "SCOPE": [],
+        },
         "gitlab": {
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
@@ -740,6 +747,14 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_FORMS = {
         "signup": "readthedocs.forms.SignupFormWithNewsletter",
     }
+
+    GITHUB_APP_ID = 1234
+    GITHUB_APP_PRIVATE_KEY = ""
+    GITHUB_APP_WEBHOOK_SECRET = ""
+
+    @property
+    def GITHUB_APP_CLIENT_ID(self):
+        return self.SOCIALACCOUNT_PROVIDERS["githubapp"]["APPS"][0]["client_id"]
 
     # CORS
     # Don't allow sending cookies in cross-domain requests, this is so we can

@@ -4,8 +4,8 @@ import json
 import re
 
 import structlog
-from allauth.socialaccount.providers.bitbucket_oauth2.views import (
-    BitbucketOAuth2Adapter,
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import (
+    BitbucketOAuth2Provider,
 )
 from django.conf import settings
 from requests.exceptions import RequestException
@@ -15,20 +15,20 @@ from readthedocs.integrations.models import Integration
 
 from ..constants import BITBUCKET
 from ..models import RemoteOrganization, RemoteRepository, RemoteRepositoryRelation
-from .base import Service, SyncServiceError
+from .base import SyncServiceError, UserService
 
 log = structlog.get_logger(__name__)
 
 
-class BitbucketService(Service):
+class BitbucketService(UserService):
 
     """Provider service for Bitbucket."""
 
-    adapter = BitbucketOAuth2Adapter
+    allauth_provider = BitbucketOAuth2Provider
+    vcs_provider_slug = BITBUCKET
     # TODO replace this with a less naive check
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
-    vcs_provider_slug = BITBUCKET
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
@@ -234,7 +234,6 @@ class BitbucketService(Service):
         if integration.provider_data:
             return integration.provider_data
 
-        session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
         url = f"https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks"
 
@@ -246,7 +245,7 @@ class BitbucketService(Service):
             url=url,
         )
         try:
-            resp = session.get(url)
+            resp = self.session.get(url)
 
             if resp.status_code == 200:
                 recv_data = resp.json()
@@ -283,7 +282,6 @@ class BitbucketService(Service):
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
-        session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
         url = f"https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks"
         if not integration:
@@ -301,7 +299,7 @@ class BitbucketService(Service):
         )
 
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -354,13 +352,12 @@ class BitbucketService(Service):
         if not provider_data:
             return self.setup_webhook(project, integration)
 
-        session = self.get_session()
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
             # Expect to throw KeyError here if provider_data is invalid
             url = provider_data["links"]["self"]["href"]
-            resp = session.put(
+            resp = self.session.put(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -393,3 +390,7 @@ class BitbucketService(Service):
             log.exception("Bitbucket webhook update failed for project.")
 
         return (False, resp)
+
+    def send_build_status(self, *, build, commit, status):
+        """Send build status is not supported/implemented for Bitbucket."""
+        return True

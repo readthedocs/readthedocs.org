@@ -7,12 +7,12 @@ from shlex import quote
 from urllib.parse import urlparse
 
 import structlog
-from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -1019,6 +1019,7 @@ class Project(models.Model):
                 version_type=version_type,
                 version_identifier=version_identifier,
                 version_machine=version_machine,
+                token=self.clone_token,
             )
         return repo
 
@@ -1030,28 +1031,36 @@ class Project(models.Model):
         """
         return backend_cls.get(self.repo_type)
 
-    def git_service_class(self):
-        """Get the service class for project. e.g: GitHubService, GitLabService."""
+    def _guess_service_class(self):
         from readthedocs.oauth.services import registry
 
         for service_cls in registry:
             if service_cls.is_project_service(self):
-                service = service_cls
-                break
-        else:
-            log.warning("There are no registered services in the application.")
-            service = None
+                return service_cls
+        return None
 
-        return service
+    def get_git_service_class(self, fallback_to_clone_url=False):
+        """
+        Get the service class for project. e.g: GitHubService, GitLabService.
+
+        :param fallback_to_clone_url: If the project doesn't have a remote repository,
+         we try to guess the service class based on the clone URL.
+        """
+        service_cls = None
+        if self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
+            return self._guess_service_class()
+        service_cls = (
+            self.remote_repository and self.remote_repository.get_service_class()
+        )
+        if not service_cls and fallback_to_clone_url:
+            return self._guess_service_class()
+        return service_cls
 
     @property
     def git_provider_name(self):
         """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
-        service = self.git_service_class()
-        if service:
-            provider_class = allauth_registry.get_class(service.adapter.provider_id)
-            return provider_class.name
-        return None
+        service_class = self.get_git_service_class(fallback_to_clone_url=True)
+        return service_class.allauth_provider.name if service_class else None
 
     def find(self, filename, version):
         """
@@ -1235,13 +1244,44 @@ class Project(models.Model):
                 )
                 return new_stable
 
+    def versions_from_name(self, name, type=None):
+        """
+        Get all versions attached to the branch or tag name.
+
+        Normally, only one version should be returned, but since LATEST and STABLE
+        are aliases for the branch/tag, they may be returned as well.
+        """
+        queryset = self.versions(manager=INTERNAL)
+        queryset = queryset.filter(
+            # Normal branches
+            Q(verbose_name=name, machine=False)
+            # Latest and stable have the name of the branch/tag in the identifier.
+            # NOTE: if stable is a branch, identifier will be the commit hash,
+            # so we don't have a way to match it by name.
+            # We should do another lookup to get the original stable version,
+            # or change our logic to store the tags name in the identifier of stable.
+            | Q(identifier=name, machine=True)
+        )
+
+        if type:
+            queryset = queryset.filter(type=type)
+
+        return queryset.distinct()
+
     def versions_from_branch_name(self, branch):
+        """
+        Get all versions attached to the branch or tag name.
+
+        .. warning::
+
+           Deprecated, use ``versions_from_name`` instead.
+        """
         return (
             self.versions.filter(identifier=branch)
             | self.versions.filter(identifier="remotes/origin/%s" % branch)
             | self.versions.filter(identifier="origin/%s" % branch)
             | self.versions.filter(verbose_name=branch)
-        )
+        ).distinct()
 
     def get_default_version(self):
         """
@@ -1409,6 +1449,24 @@ class Project(models.Model):
     def organization(self):
         return self.organizations.first()
 
+    @property
+    def clone_token(self):
+        """
+        Return a token for HTTP Git clone access to the repository.
+
+        .. note::
+
+           Only repositories granted acces by a GitHub app installation will return a token.
+        """
+        service_class = self.get_git_service_class()
+        if not service_class:
+            return None
+        for service in service_class.for_project(self):
+            token = service.get_clone_token(self)
+            if token:
+                return token
+        return None
+
 
 class APIProject(Project):
 
@@ -1426,12 +1484,17 @@ class APIProject(Project):
     """
 
     features = []
+    # This is a property in the original model, in order to
+    # be able to assign it a value in the constructor, we need to re-declare it
+    # as an attribute here.
+    clone_token = None
 
     class Meta:
         proxy = True
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop("features", [])
+        self.clone_token = kwargs.pop("clone_token", None)
         environment_variables = kwargs.pop("environment_variables", {})
         ad_free = not kwargs.pop("show_advertising", True)
         # These fields only exist on the API return, not on the model, so we'll

@@ -254,7 +254,7 @@ class GitHubOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         """User without a GitHub SocialToken does not return a service."""
-        services = GitHubService.for_user(get(User))
+        services = list(GitHubService.for_user(get(User)))
         self.assertEqual(services, [])
 
     def test_multiple_users_same_repo(self):
@@ -776,7 +776,7 @@ class BitbucketOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         """User without a Bitbucket SocialToken does not return a service."""
-        services = BitbucketService.for_user(get(User))
+        services = list(BitbucketService.for_user(get(User)))
         self.assertEqual(services, [])
 
     @mock.patch("readthedocs.oauth.services.bitbucket.log")

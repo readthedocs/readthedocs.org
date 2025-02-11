@@ -1,5 +1,8 @@
 """OAuth service models."""
 
+from functools import cached_property
+
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
@@ -14,9 +17,89 @@ from readthedocs.projects.models import Project
 from .constants import VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
+log = structlog.get_logger(__name__)
+
+
+class GitHubAppInstallationManager(models.Manager):
+    def get_or_create_installation(
+        self, *, installation_id, target_id, target_type, extra_data=None
+    ):
+        """
+        Get or create a GitHub app installation.
+
+        Only the installation_id is unique, the target_id and target_type could change,
+        but this should never happen.
+        """
+        installation, created = self.get_or_create(
+            installation_id=installation_id,
+            defaults={
+                "target_id": target_id,
+                "target_type": target_type,
+                "extra_data": extra_data or {},
+            },
+        )
+        # NOTE: An installation can't change its target_id or target_type.
+        # This should never happen, unless this assumption is wrong.
+        if (
+            installation.target_id != target_id
+            or installation.target_type != target_type
+        ):
+            log.exception(
+                "Installation target_id or target_type changed",
+                installation_id=installation.installation_id,
+                target_id=installation.target_id,
+                target_type=installation.target_type,
+                new_target_id=target_id,
+                new_target_type=target_type,
+            )
+            installation.target_id = target_id
+            installation.target_type = target_type
+            installation.save()
+        return installation, created
+
+
+class GitHubAccountType(models.TextChoices):
+    USER = "User", _("User")
+    ORGANIZATION = "Organization", _("Organization")
+
+
+class GitHubAppInstallation(TimeStampedModel):
+    installation_id = models.PositiveBigIntegerField(
+        help_text=_("The application installation ID"),
+        unique=True,
+        db_index=True,
+    )
+    target_id = models.PositiveBigIntegerField(
+        help_text=_("A GitHub account ID, it can be from a user or an organization"),
+    )
+    target_type = models.CharField(
+        help_text=_(
+            "Account type that the target_id belongs to (user or organization)"
+        ),
+        choices=GitHubAccountType.choices,
+        max_length=255,
+    )
+    extra_data = models.JSONField(
+        help_text=_(
+            "Extra data returned by the webhook when the installation is created"
+        ),
+        default=dict,
+    )
+
+    objects = GitHubAppInstallationManager()
+
+    class Meta(TimeStampedModel.Meta):
+        verbose_name = _("GitHub app installation")
+
+    @cached_property
+    def service(self):
+        """Return the service for this installation."""
+        from readthedocs.oauth.services.githubapp import GitHubAppService
+
+        return GitHubAppService(self)
+
 
 class RemoteOrganization(TimeStampedModel):
-
     """
     Organization from remote service.
 
@@ -98,7 +181,6 @@ class RemoteOrganizationRelation(TimeStampedModel):
 
 
 class RemoteRepository(TimeStampedModel):
-
     """
     Remote importable repositories.
 
@@ -174,6 +256,19 @@ class RemoteRepository(TimeStampedModel):
         _("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32
     )
 
+    github_app_installation = models.ForeignKey(
+        GitHubAppInstallation,
+        verbose_name=_("GitHub App Installation"),
+        related_name="repositories",
+        null=True,
+        blank=True,
+        # When an installation is deleted, we don't delete the repository
+        # if it's linked to a project. This is in case the user re-installs the app,
+        # they shouldn't need to manually link each project to the repository again.
+        # NOTE: I also see how this may be unexpected behavior in some cases.
+        on_delete=models.SET_NULL,
+    )
+
     objects = RemoteRepositoryQuerySet.as_manager()
 
     class Meta:
@@ -223,6 +318,23 @@ class RemoteRepository(TimeStampedModel):
             remote_repository=self, user=user, account=social_account
         )
         return remote_repository_relation
+
+    def get_service_class(self):
+        from readthedocs.oauth.services import registry
+        from readthedocs.oauth.services.githubapp import GitHubAppService
+
+        if self.github_app_installation:
+            return GitHubAppService
+
+        for service_cls in registry:
+            if service_cls.vcs_provider_slug == self.vcs_provider:
+                return service_cls
+
+        # NOTE: this should never happen, but we log it just in case
+        log.exception(
+            "Service not found for the VCS provider", vcs_provider=self.vcs_provider
+        )
+        return None
 
 
 class RemoteRepositoryRelation(TimeStampedModel):

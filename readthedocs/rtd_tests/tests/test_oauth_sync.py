@@ -70,7 +70,7 @@ class GitHubOAuthSyncTests(TestCase):
             SocialToken,
             account=self.socialaccount,
         )
-        self.service = GitHubService.for_user(self.user)[0]
+        self.service = list(GitHubService.for_user(self.user))[0]
 
     @requests_mock.Mocker(kw="mock_request")
     def test_sync_delete_stale(self, mock_request):
