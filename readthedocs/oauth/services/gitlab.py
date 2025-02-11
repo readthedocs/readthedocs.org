@@ -5,6 +5,7 @@ import re
 from urllib.parse import quote_plus, urlparse
 
 import structlog
+from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
@@ -31,12 +32,11 @@ class GitLabService(UserService):
      - https://docs.gitlab.com/ce/api/oauth2.html
     """
 
-    provider_name = "GitLab"
-    adapter = GitLabOAuth2Adapter
+    allauth_provider = GitLabProvider
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(
-        re.escape(urlparse(adapter.provider_default_url).netloc),
+        re.escape(urlparse(GitLabOAuth2Adapter.provider_default_url).netloc),
     )
 
     PERMISSION_NO_ACCESS = 0

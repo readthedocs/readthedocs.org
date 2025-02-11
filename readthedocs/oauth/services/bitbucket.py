@@ -4,8 +4,8 @@ import json
 import re
 
 import structlog
-from allauth.socialaccount.providers.bitbucket_oauth2.views import (
-    BitbucketOAuth2Adapter,
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import (
+    BitbucketOAuth2Provider,
 )
 from django.conf import settings
 from requests.exceptions import RequestException
@@ -24,12 +24,11 @@ class BitbucketService(UserService):
 
     """Provider service for Bitbucket."""
 
-    adapter = BitbucketOAuth2Adapter
+    allauth_provider = BitbucketOAuth2Provider
+    vcs_provider_slug = BITBUCKET
     # TODO replace this with a less naive check
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
-    vcs_provider_slug = BITBUCKET
-    provider_name = "Bitbucket"
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""

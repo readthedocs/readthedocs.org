@@ -4,7 +4,7 @@ import json
 import re
 
 import structlog
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
@@ -24,11 +24,10 @@ class GitHubService(UserService):
 
     """Provider service for GitHub."""
 
-    adapter = GitHubOAuth2Adapter
+    vcs_provider_slug = GITHUB
+    allauth_provider = GitHubProvider
     # TODO replace this with a less naive check
     url_pattern = re.compile(r"github\.com")
-    vcs_provider_slug = GITHUB
-    provider_name = "GitHub"
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""

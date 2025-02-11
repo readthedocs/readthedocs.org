@@ -80,6 +80,8 @@ class GitHubAppInstallation(TimeStampedModel):
         default=dict,
     )
 
+    objects = GitHubAppInstallationManager()
+
     class Meta(TimeStampedModel.Meta):
         pass
 

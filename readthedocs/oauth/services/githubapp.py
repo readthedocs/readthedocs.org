@@ -27,7 +27,7 @@ log = structlog.get_logger(__name__)
 
 class GitHubAppService(Service):
     vcs_provider_slug = GITHUB
-    provider_name = "GitHub"
+    allauth_provider = GitHubAppProvider
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
@@ -63,7 +63,7 @@ class GitHubAppService(Service):
         """
         social_accounts = SocialAccount.objects.filter(
             user=user,
-            provider=GitHubAppProvider.id,
+            provider=cls.allauth_provider.id,
         )
         for account in social_accounts:
             oauth2_client = get_oauth2_client(account)
@@ -171,7 +171,9 @@ class GitHubAppService(Service):
         remote_repo.name = gh_repo.name
         remote_repo.full_name = gh_repo.full_name
         remote_repo.description = gh_repo.description
-        remote_repo.avatar_url = gh_repo.owner.avatar_url
+        remote_repo.avatar_url = (
+            gh_repo.owner.avatar_url or self.default_user_avatar_url
+        )
         remote_repo.ssh_url = gh_repo.ssh_url
         remote_repo.html_url = gh_repo.html_url
         remote_repo.private = gh_repo.private
@@ -237,7 +239,7 @@ class GitHubAppService(Service):
         remote_org.name = gh_org.name
         # NOTE: do we need the email of the organization?
         remote_org.email = gh_org.email
-        remote_org.avatar_url = gh_org.avatar_url
+        remote_org.avatar_url = gh_org.avatar_url or self.default_org_avatar_url
         remote_org.url = gh_org.html_url
         remote_org.save()
         self._resync_organization_members(gh_org, remote_org)
@@ -278,7 +280,7 @@ class GitHubAppService(Service):
     def _get_social_accounts(self, ids):
         return SocialAccount.objects.filter(
             uid__in=ids,
-            provider=GitHubAppProvider.id,
+            provider=self.allauth_provider.id,
         ).select_related("user")
 
     def update_or_create_organization(self, org_id: int) -> RemoteOrganization:

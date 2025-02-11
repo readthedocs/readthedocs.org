@@ -5,6 +5,7 @@ from functools import cached_property
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
@@ -31,7 +32,7 @@ class Service:
     """Base class for service that interacts with a VCS provider and a project."""
 
     vcs_provider_slug: str
-    provider_name: str
+    allauth_provider = type[OAuth2Provider]
     url_pattern: re.Pattern | None = None
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
@@ -196,7 +197,7 @@ class UserService(Service):
                 # needs to reconnect his account
                 raise SyncServiceError(
                     SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                        provider=self.provider_name
+                        provider=self.allauth_provider.name
                     )
                 )
 
@@ -210,7 +211,7 @@ class UserService(Service):
             log.warning("access_token or refresh_token failed.", url=url)
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.provider_name
+                    provider=self.allauth_provider.name
                 )
             )
         # Catch exceptions with request or deserializing JSON
