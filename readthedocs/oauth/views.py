@@ -43,7 +43,6 @@ class GitHubAppWebhookView(APIView):
         event_handlers = {
             "installation": self._handle_installation_event,
             "installation_repositories": self._handle_installation_repositories_event,
-            # Hmm, don't think we need this one.
             "installation_target": self._handle_installation_target_event,
             "push": self._handle_push_event,
             "pull_request": self._handle_pull_request_event,
@@ -245,7 +244,18 @@ class GitHubAppWebhookView(APIView):
 
         Triggered when the target of an installation changes,
         like when the user or organization changes its username/slug.
+         
+        Looks like this is only triggered when a username is changed,
+        when an organization is renamed, it doesn't trigger this event
+        (maybe a bug?).
         """
+        installation, created = self._get_or_create_installation()
+
+        # If we didn't have the installation, all repositories were synced on creation.
+        if created:
+            return
+
+        installation.service.sync()
 
     def _handle_repository_event(self):
         """
@@ -385,6 +395,7 @@ class GitHubAppWebhookView(APIView):
             return
 
         # Hmm, installation_target should handle this instead?
+        # But I wasn't able to trigger neitehr of those events when renaming an organization.
         if action == "renamed":
             # Update organization and its members only.
             # We don't need to sync the repositories.
