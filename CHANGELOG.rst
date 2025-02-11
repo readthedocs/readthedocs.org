@@ -1,3 +1,24 @@
+Version 11.21.0
+---------------
+
+:Date: February 11, 2025
+
+* `@humitos <https://github.com/humitos>`__: File Tree Diff: normalize ignore files (`#11987 <https://github.com/readthedocs/readthedocs.org/pull/11987>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11985 <https://github.com/readthedocs/readthedocs.org/pull/11985>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a doc for how to integrate search without other customization (`#11984 <https://github.com/readthedocs/readthedocs.org/pull/11984>`__)
+* `@humitos <https://github.com/humitos>`__: Update common to its latest version (`#11982 <https://github.com/readthedocs/readthedocs.org/pull/11982>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Show slug on AddonsConfigAdmin (#11974)" (`#11981 <https://github.com/readthedocs/readthedocs.org/pull/11981>`__)
+* `@humitos <https://github.com/humitos>`__: Run spam check after a sucessful build (`#11980 <https://github.com/readthedocs/readthedocs.org/pull/11980>`__)
+* `@humitos <https://github.com/humitos>`__: File Tree Diff: allow users to ignore files (`#11977 <https://github.com/readthedocs/readthedocs.org/pull/11977>`__)
+* `@humitos <https://github.com/humitos>`__: Build: don't trigger build if the project is spam (`#11976 <https://github.com/readthedocs/readthedocs.org/pull/11976>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Show slug on AddonsConfigAdmin (`#11974 <https://github.com/readthedocs/readthedocs.org/pull/11974>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Be defensive with build_complete signal (`#11973 <https://github.com/readthedocs/readthedocs.org/pull/11973>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 11.20.0 (`#11972 <https://github.com/readthedocs/readthedocs.org/pull/11972>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a warning about VCS SSO to import guide (`#11966 <https://github.com/readthedocs/readthedocs.org/pull/11966>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Always run sync_versions on the default queue (`#11965 <https://github.com/readthedocs/readthedocs.org/pull/11965>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Copy updates for intro pages (`#11948 <https://github.com/readthedocs/readthedocs.org/pull/11948>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow users to change version slug (`#11930 <https://github.com/readthedocs/readthedocs.org/pull/11930>`__)
+
 Version 11.20.0
 ---------------
 
