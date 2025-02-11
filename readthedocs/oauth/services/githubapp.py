@@ -80,12 +80,19 @@ class GitHubAppService(Service):
         See:
 
         - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-with-a-github-app-on-behalf-of-a-user
+        - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app
         - https://docs.github.com/en/rest/apps/installations?apiVersion=2022-11-28#list-app-installations-accessible-to-the-user-access-token
 
         .. note::
 
            If the installation wasn't in our database, we create it
            (but we don't sync the repositories, since the caller should be responsible for that).
+
+        .. note::
+
+           User access tokens expire after 8 hours, but our OAuth2 client should handle refreshing the token.
+           But, the refresh token expires after 6 months, in order to refresh that token,
+           the user needs to sign in using GitHub again (just a normal sing-in, not a re-authorization or sign-up).
         """
         social_accounts = SocialAccount.objects.filter(
             user=user,
