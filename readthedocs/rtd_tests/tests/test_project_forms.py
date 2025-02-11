@@ -1176,14 +1176,20 @@ class TestAddonsConfigForm(TestCase):
     def test_addonsconfig_form(self):
         data = {
             "enabled": True,
+            "options_root_selector": "main",
             "analytics_enabled": False,
             "doc_diff_enabled": False,
+            "filetreediff_enabled": True,
+            # Empty lines, lines with trailing spaces or lines full of spaces are ignored
+            "filetreediff_ignored_files": "user/index.html\n     \n\n\n   changelog.html    \n/normalized.html",
             "flyout_enabled": True,
             "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
             "flyout_sorting_latest_stable_at_beginning": True,
             "flyout_sorting_custom_pattern": None,
+            "flyout_position": "bottom-left",
             "hotkeys_enabled": False,
             "search_enabled": False,
+            "linkpreviews_enabled": True,
             "notifications_enabled": True,
             "notifications_show_on_latest": True,
             "notifications_show_on_non_stable": True,
@@ -1194,8 +1200,18 @@ class TestAddonsConfigForm(TestCase):
         form.save()
 
         self.assertEqual(self.project.addons.enabled, True)
+        self.assertEqual(self.project.addons.options_root_selector, "main")
         self.assertEqual(self.project.addons.analytics_enabled, False)
         self.assertEqual(self.project.addons.doc_diff_enabled, False)
+        self.assertEqual(self.project.addons.filetreediff_enabled, True)
+        self.assertEqual(
+            self.project.addons.filetreediff_ignored_files,
+            [
+                "user/index.html",
+                "changelog.html",
+                "normalized.html",
+            ],
+        )
         self.assertEqual(self.project.addons.notifications_enabled, True)
         self.assertEqual(self.project.addons.notifications_show_on_latest, True)
         self.assertEqual(self.project.addons.notifications_show_on_non_stable, True)
@@ -1210,8 +1226,11 @@ class TestAddonsConfigForm(TestCase):
             True,
         )
         self.assertEqual(self.project.addons.flyout_sorting_custom_pattern, None)
+        self.assertEqual(self.project.addons.flyout_position, "bottom-left")
         self.assertEqual(self.project.addons.hotkeys_enabled, False)
         self.assertEqual(self.project.addons.search_enabled, False)
+        self.assertEqual(self.project.addons.linkpreviews_enabled, True)
+        self.assertEqual(self.project.addons.notifications_enabled, True)
         self.assertEqual(self.project.addons.notifications_show_on_latest, True)
         self.assertEqual(self.project.addons.notifications_show_on_non_stable, True)
         self.assertEqual(self.project.addons.notifications_show_on_external, True)

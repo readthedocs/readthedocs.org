@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.36.11
+boto3==1.36.16
     # via django-storages
-botocore==1.36.11
+botocore==1.36.16
     # via
     #   boto3
     #   s3transfer
@@ -66,7 +66,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==4.2.18
+django==4.2.19
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -89,7 +89,7 @@ django==4.2.18
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.3.1
+django-allauth[mfa,saml,socialaccount]==65.4.1
     # via -r requirements/pip.in
 django-annoying==0.10.7
     # via -r requirements/pip.in
@@ -99,7 +99,7 @@ django-cacheops==7.1
     # via -r requirements/pip.in
 django-celery-beat==2.7.0
     # via -r requirements/pip.in
-django-cors-headers==4.6.0
+django-cors-headers==4.7.0
     # via -r requirements/pip.in
 django-crispy-forms==1.14.0
     # via -r requirements/pip.in
