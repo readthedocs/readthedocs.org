@@ -1181,7 +1181,7 @@ class TestAddonsConfigForm(TestCase):
             "doc_diff_enabled": False,
             "filetreediff_enabled": True,
             # Empty lines, lines with trailing spaces or lines full of spaces are ignored
-            "filetreediff_ignored_files": "user/index.html\n     \n\n\n   changelog.html    \n",
+            "filetreediff_ignored_files": "user/index.html\n     \n\n\n   changelog.html    \n/normalized.html",
             "flyout_enabled": True,
             "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
             "flyout_sorting_latest_stable_at_beginning": True,
@@ -1206,7 +1206,11 @@ class TestAddonsConfigForm(TestCase):
         self.assertEqual(self.project.addons.filetreediff_enabled, True)
         self.assertEqual(
             self.project.addons.filetreediff_ignored_files,
-            ["user/index.html", "changelog.html"],
+            [
+                "user/index.html",
+                "changelog.html",
+                "normalized.html",
+            ],
         )
         self.assertEqual(self.project.addons.notifications_enabled, True)
         self.assertEqual(self.project.addons.notifications_show_on_latest, True)

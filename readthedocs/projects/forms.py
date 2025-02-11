@@ -672,8 +672,16 @@ class OnePerLineList(forms.Field):
         """Convert a text area into a list of items (one per line)."""
         if not value:
             return []
-        # Sanitize lines removing trailing spaces and skipping empty lines
-        return [line.strip() for line in value.splitlines() if line.strip()]
+        # Normalize paths and filter empty lines:
+        #  - remove trailing spaces
+        #  - skip empty lines
+        #  - remove starting `/`
+        result = []
+        for line in value.splitlines():
+            normalized = line.strip().lstrip("/")
+            if normalized:
+                result.append(normalized)
+        return result
 
     def prepare_value(self, value):
         """Convert a list of items into a text area (one per line)."""
