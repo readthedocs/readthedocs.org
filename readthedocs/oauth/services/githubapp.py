@@ -31,7 +31,10 @@ class GitHubAppService(Service):
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
-        self.gha_client = get_gh_app_client()
+
+    @cached_property
+    def gha_client(self):
+        return get_gh_app_client()
 
     @cached_property
     def app_installation(self) -> GHInstallation:

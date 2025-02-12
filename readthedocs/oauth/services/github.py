@@ -103,6 +103,12 @@ class GitHubService(UserService):
                 vcs_provider=self.vcs_provider_slug,
             )
 
+            if repo.github_app_installation:
+                log.info(
+                    "Repository is managed by a GitHub App installation, skipping.",
+                )
+                return
+
             # TODO: For debugging: https://github.com/readthedocs/readthedocs.org/pull/9449.
             if created:
                 _old_remote_repository = RemoteRepository.objects.filter(

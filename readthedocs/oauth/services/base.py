@@ -155,15 +155,6 @@ class UserService(Service):
     def session(self):
         return get_oauth2_client(self.account)
 
-    def create_session(self):
-        """
-        Create OAuth session for user.
-
-        This configures the OAuth session based on the :py:class:`SocialToken`
-        attributes. If there is an ``expires_at``, treat the session as an auto
-        renewing token. Some providers expire tokens after as little as 2 hours.
-        """
-
     def paginate(self, url, **kwargs):
         """
         Recursively combine results from service's pagination.
@@ -248,7 +239,13 @@ class UserService(Service):
                 remote_repository__remote_id__in=repository_remote_ids,
                 remote_repository__vcs_provider=self.vcs_provider_slug,
             )
-            .filter(account=self.account)
+            .filter(
+                account=self.account,
+                # Skip repositories that are managed by a GH app installation.
+                # NOTE: this is leaking the GH app logic into the parent class,
+                # but this works for now.
+                remote_repository__github_app_installation=None,
+            )
             .delete()
         )
 
@@ -261,7 +258,13 @@ class UserService(Service):
                 remote_organization__remote_id__in=organization_remote_ids,
                 remote_organization__vcs_provider=self.vcs_provider_slug,
             )
-            .filter(account=self.account)
+            .filter(
+                account=self.account,
+                # Skip organization that have repositories managed by a GH app installation.
+                # NOTE: this is leaking the GH app logic into the parent class,
+                # but this works for now.
+                remote_organization__remote_repositories__github_app_installation=None,
+            )
             .delete()
         )
 
