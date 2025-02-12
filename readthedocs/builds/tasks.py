@@ -407,7 +407,7 @@ def send_build_status(build_pk, commit, status):
     # in the future we should only consider projects that have a remote repository.
     service_class = build.project.get_git_service_class(fallback_to_clone_url=True)
     if not service_class:
-        log.info("Project isn't connected to a Git service.")
+        log.info("Project isn't connected to a Git service, not sending build status.")
         return False
 
     for service in service_class.for_project(build.project):
@@ -430,7 +430,7 @@ def send_build_status(build_pk, commit, status):
         dismissable=True,
     )
 
-    log.info("No social account or repository permission available.")
+    log.info("No social account or repository permission available, no build status sent.")
     return False
 
 
