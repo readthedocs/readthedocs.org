@@ -87,23 +87,26 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
                 provider=GitHubProvider.id,
                 uid=sociallogin.account.uid,
             ).first()
-            if social_account:
-                # If the user is logged in, and the GH OAuth account belongs to
-                # a different user, we should not connect the accounts,
-                # this is the same as trying to connect an existing GH account to another user.
-                if (
-                    request.user.is_authenticated
-                    and request.user != social_account.user
-                ):
-                    message_template = (
-                        "socialaccount/messages/account_connected_other.txt"
-                    )
-                    get_account_adapter(request).add_message(
-                        request=request,
-                        level=messages.ERROR,
-                        message_template=message_template,
-                    )
-                    url = reverse("socialaccount_connections")
-                    raise ImmediateHttpResponse(HttpResponseRedirect(url))
+            # No existing GitHub account found, nothing to do.
+            if not social_account:
+                return
 
-                sociallogin.connect(request, social_account.user)
+            # If the user is logged in, and the GH OAuth account belongs to
+            # a different user, we should not connect the accounts,
+            # this is the same as trying to connect an existing GH account to another user.
+            if (
+                request.user.is_authenticated
+                and request.user != social_account.user
+            ):
+                message_template = (
+                    "socialaccount/messages/account_connected_other.txt"
+                )
+                get_account_adapter(request).add_message(
+                    request=request,
+                    level=messages.ERROR,
+                    message_template=message_template,
+                )
+                url = reverse("socialaccount_connections")
+                raise ImmediateHttpResponse(HttpResponseRedirect(url))
+
+            sociallogin.connect(request, social_account.user)
