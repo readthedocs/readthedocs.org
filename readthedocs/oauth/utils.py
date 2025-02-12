@@ -29,10 +29,19 @@ def update_webhook(project, integration, request=None):
     if not integration.secret:
         integration.save()
 
-    # The project was imported manually and doesn't have a RemoteRepository
-    # attached. We do brute force over all the accounts registered for this
-    # service
-    service_class = project.get_git_service_class() or service_class
+    # If the integration's service class is different from the project's
+    # git service class, we skip the update, as the webhook is not valid
+    # (we can't create a GitHub webhook for a GitLab project, for example).
+    if service_class != project.get_git_service_class(fallback_to_clone_url=True):
+        messages.error(
+            request,
+            _(
+                "This integration type is not compatible with the project's Git provider."
+            ),
+        )
+        project.has_valid_webhook = False
+        project.save()
+        return False
 
     for service in service_class.for_project(project):
         updated, __ = service.update_webhook(project, integration)
