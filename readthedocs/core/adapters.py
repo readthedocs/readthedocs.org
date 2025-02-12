@@ -1,10 +1,16 @@
 """Allauth overrides."""
 
+
 import structlog
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.account.adapter import get_adapter as get_account_adapter
+from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils.encoding import force_str
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
@@ -82,4 +88,22 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
                 uid=sociallogin.account.uid,
             ).first()
             if social_account:
+                # If the user is logged in, and the GH OAuth account belongs to
+                # a different user, we should not connect the accounts,
+                # this is the same as trying to connect an existing GH account to another user.
+                if (
+                    request.user.is_authenticated
+                    and request.user != social_account.user
+                ):
+                    message_template = (
+                        "socialaccount/messages/account_connected_other.txt"
+                    )
+                    get_account_adapter(request).add_message(
+                        request=request,
+                        level=messages.ERROR,
+                        message_template=message_template,
+                    )
+                    url = reverse("socialaccount_connections")
+                    raise ImmediateHttpResponse(HttpResponseRedirect(url))
+
                 sociallogin.connect(request, social_account.user)
