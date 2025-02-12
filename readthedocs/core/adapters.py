@@ -94,13 +94,8 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             # If the user is logged in, and the GH OAuth account belongs to
             # a different user, we should not connect the accounts,
             # this is the same as trying to connect an existing GH account to another user.
-            if (
-                request.user.is_authenticated
-                and request.user != social_account.user
-            ):
-                message_template = (
-                    "socialaccount/messages/account_connected_other.txt"
-                )
+            if request.user.is_authenticated and request.user != social_account.user:
+                message_template = "socialaccount/messages/account_connected_other.txt"
                 get_account_adapter(request).add_message(
                     request=request,
                     level=messages.ERROR,
