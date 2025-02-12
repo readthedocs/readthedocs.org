@@ -14,7 +14,7 @@ from django_extensions.db.models import TimeStampedModel
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
-from .constants import VCS_PROVIDER_CHOICES
+from .constants import GITHUB, VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
 log = structlog.get_logger(__name__)
@@ -97,6 +97,86 @@ class GitHubAppInstallation(TimeStampedModel):
         from readthedocs.oauth.services.githubapp import GitHubAppService
 
         return GitHubAppService(self)
+
+    def delete(self, *args, **kwargs):
+        """Override delete method to remove orphaned linked repositories."""
+        self.delete_orphaned_repositories()
+        return super().delete(*args, **kwargs)
+
+    def delete_orphaned_repositories(self, repository_ids: list[int] | None = None):
+        """
+        Delete orphaned repositories linked to this installation.
+
+        When an installation is deleted, we delete all its remote repositories
+        that are not linked to a project. This is in case the user re-installs the app,
+        they shouldn't need to manually link each project to the repository again.
+
+        We also remove organizations that don't have any repositories after removing the repositories.
+
+        :param repository_ids: List of repository ids (remote ID) to delete.
+         If None, all repositories will be considered for deletion.
+        """
+        if repository_ids is not None and not repository_ids:
+            log.info("No repositories to delete")
+            return
+
+        remote_organizations = RemoteOrganization.objects.filter(
+            repositories__github_app_installation=self,
+            vcs_provider=GITHUB,
+        )
+        remote_repositories = self.repositories.filter(
+            projects=None,
+            vcs_provider=GITHUB,
+        )
+        if repository_ids:
+            remote_organizations = remote_organizations.filter(
+                repositories__remote_id__in=repository_ids
+            )
+            remote_repositories = remote_repositories.filter(
+                remote_id__in=repository_ids
+            )
+
+        # Fetch all IDs before deleting the repositories, so we can filter the organizations later.
+        remote_organizations_ids = list(
+            remote_organizations.values_list("id", flat=True)
+        )
+
+        count, deleted = remote_repositories.delete()
+        log.info(
+            "Deleted repositories without projects",
+            count=count,
+            deleted=deleted,
+            installation_id=self.installation_id,
+        )
+        # TODO: we should probably remove the user relation as well,
+        # since we want to keep the remote repository linked to the project,
+        # but not to the user.
+
+        count, deleted = RemoteOrganization.objects.filter(
+            id__in=remote_organizations_ids,
+            repositories=None,
+        ).delete()
+        log.info(
+            "Deleted orphaned organizations",
+            count=count,
+            deleted=deleted,
+            installation_id=self.installation_id,
+        )
+
+    def delete_orphaned_organization(self, organization_id: int):
+        """Delete an organization and all its repositories from the database only if they are not linked to a project."""
+        count, deleted = RemoteOrganization.objects.filter(
+            remote_id=str(organization_id),
+            vcs_provider=GITHUB,
+            repositories__projects=None,
+        ).delete()
+        log.info(
+            "Deleted orphaned organization",
+            count=count,
+            deleted=deleted,
+            organization_id=organization_id,
+            installation_id=self.installation_id,
+        )
 
 
 class RemoteOrganization(TimeStampedModel):

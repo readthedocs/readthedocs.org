@@ -36,16 +36,12 @@ class GitHubAppWebhookView(APIView):
 
     def post(self, request):
         if not self._is_payload_signature_valid():
+            log.debug("Invalid webhook signature")
             raise ValidationError("Invalid webhook signature")
 
         # Most of the events have an installation object and action.
         installation_id = request.data.get("installation", {}).get("id", "unknown")
         action = request.data.get("action", "unknown")
-        log.bind(
-            installation_id=installation_id,
-            action=action,
-        )
-
         event = self.request.headers.get(GITHUB_EVENT_HEADER)
         event_handlers = {
             "installation": self._handle_installation_event,
@@ -58,9 +54,17 @@ class GitHubAppWebhookView(APIView):
             "member": self._handle_member_event,
             "github_app_authorization": self._handle_github_app_authorization_event,
         }
+        log.bind(
+            installation_id=installation_id,
+            action=action,
+            event=event,
+        )
         if event in event_handlers:
+            log.debug("Handling event")
             event_handlers[event]()
             return Response(status=200)
+
+        log.debug("Unsupported event")
         raise ValidationError(f"Unsupported event: {event}")
 
     def _handle_installation_event(self):
@@ -147,13 +151,13 @@ class GitHubAppWebhookView(APIView):
             return
 
         if action == "deleted":
-            # NOTE: does the app trigger a installation_repositories event?
-            # TODO: what to do with the repositories?
-            # Maybe delete the ones that are on linked to any projects?
-            count, _ = GitHubAppInstallation.objects.filter(
+            # NOTE: When an installation is deleted, this doesn't trigger an installation_repositories event.
+            # So we need to call the delete method explicitly here, so we delete orphan remote repositories.
+            installation = GitHubAppInstallation.objects.filter(
                 installation_id=installation_id
-            ).delete()
-            if count > 0:
+            ).first()
+            if installation:
+                installation.delete()
                 log.info("Installation deleted")
             else:
                 log.info("Installation not found")
@@ -248,7 +252,7 @@ class GitHubAppWebhookView(APIView):
             return
 
         if action == "removed":
-            installation.service.delete_repositories(
+            installation.delete_orphaned_repositories(
                 [repo["id"] for repo in data["repositories_removed"]]
             )
             return
@@ -431,9 +435,9 @@ class GitHubAppWebhookView(APIView):
             # Delete the organization only if it's not linked to any project.
             # GH sends a repository and installation_repositories events for each repository
             # when the organization is deleted.
-            # I didn't see that GH send the deleted action for the organization event...
+            # I didn't see GH send the deleted action for the organization event...
             # But handle it just in case.
-            installation.service.delete_organization(data["organization"]["id"])
+            installation.delete_orphaned_organization(data["organization"]["id"])
             return
 
         # Ignore other actions:
@@ -473,6 +477,7 @@ class GitHubAppWebhookView(APIView):
 
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#github_app_authorization.
         """
+        # TODO: what to do here?
 
     def _get_projects(self):
         """
@@ -520,6 +525,7 @@ class GitHubAppWebhookView(APIView):
         # If they aren't present, fetch them from the API,
         # so we can create the installation object if needed.
         if not target_id or not target_type:
+            log.debug("Incomplete installation object, fetching from the API")
             gh_installation = self.gha_client.get_app_installation(installation_id)
             target_id = gh_installation.target_id
             target_type = gh_installation.target_type

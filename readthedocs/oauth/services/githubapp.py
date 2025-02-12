@@ -3,7 +3,7 @@ from functools import cached_property, lru_cache
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
-from github import Github
+from github import Github, GithubException
 from github.Installation import Installation as GHInstallation
 from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
@@ -20,7 +20,7 @@ from readthedocs.oauth.models import (
     RemoteRepository,
     RemoteRepositoryRelation,
 )
-from readthedocs.oauth.services.base import Service
+from readthedocs.oauth.services.base import Service, SyncServiceError
 
 log = structlog.get_logger(__name__)
 
@@ -39,6 +39,8 @@ class GitHubAppService(Service):
         Return the installation object from the GitHub API.
 
         Usefull to interact with installation related endpoints.
+
+        If the installation is no longer accessible, this will raise a GithubException.
         """
         return self.gha_client.get_app_installation(
             self.installation.installation_id,
@@ -101,8 +103,14 @@ class GitHubAppService(Service):
         for account in social_accounts:
             oauth2_client = get_oauth2_client(account)
             resp = oauth2_client.get("https://api.github.com/user/installations")
-
             if resp.status_code != 200:
+                log.info(
+                    "Failed to fetch installations from GitHub",
+                    user=user,
+                    account_id=account.uid,
+                    status_code=resp.status_code,
+                    response=resp.json(),
+                )
                 continue
 
             for gh_installation in resp.json()["installations"]:
@@ -126,62 +134,43 @@ class GitHubAppService(Service):
         we remove the organization from the database.
         """
         remote_repositories = []
-        for repo in self.app_installation.get_repos():
-            remote_repo = self._create_or_update_repository_from_gh(repo)
-            if remote_repo:
-                remote_repositories.append(remote_repo)
+        try:
+            for repo in self.app_installation.get_repos():
+                remote_repo = self._create_or_update_repository_from_gh(repo)
+                if remote_repo:
+                    remote_repositories.append(remote_repo)
+        except GithubException:
+            # TODO: if we lost access to the installations,
+            # we should remove the installation from the database,
+            # and clean up the repositories, organizations, and relations.
+            log.info(
+                "Failed to sync repositories for installation",
+                installation_id=self.installation.installation_id,
+                exc_info=True,
+            )
+            raise SyncServiceError()
 
-        # Remove repositories that are no longer in the list,
-        # and that are not linked to a project.
-        RemoteRepository.objects.filter(
-            github_app_installation=self.installation,
-            vcs_provider=self.vcs_provider_slug,
-            projects=None,
-        ).exclude(
+        repos_to_delete = self.installation.repositories.exclude(
             pk__in=[repo.pk for repo in remote_repositories],
-        ).delete()
+        ).values_list("remote_id", flat=True)
+        self.installation.delete_orphaned_repositories(repos_to_delete)
 
     def update_or_create_repositories(self, repository_ids: list[int]):
         """Update or create repositories from the given list of repository IDs."""
         for repository_id in repository_ids:
-            repo = self.installation_client.get_repo(repository_id)
+            try:
+                repo = self.installation_client.get_repo(repository_id)
+            except GithubException:
+                log.info(
+                    "Failed to fetch repository from GitHub",
+                    repository_id=repository_id,
+                    exc_info=True,
+                )
+                # TODO: if we lost access to the repository,
+                # we should remove the repository from the database,
+                # and clean up the collaborators and relations.
+                continue
             self._create_or_update_repository_from_gh(repo)
-
-    def delete_repositories(self, repository_ids: list[int]):
-        """
-        Delete repositories from the given list that are not linked to a project.
-
-        We don't remove repositories that are linked to a project, since a user could
-        grant access to the repository again, and we don't want users having to manually
-        link the project to the repository again.
-
-        We also remove organizations that don't have any repositories after removing the repositories.
-        """
-        # Extract all the organizations linked to these repositories,
-        # so we can remove organizations that don't have any repositories
-        # after removing the repositories.
-        remote_organizations = RemoteOrganization.objects.filter(
-            repositories__remote_id__in=repository_ids,
-            vcs_provider=self.vcs_provider_slug,
-        )
-
-        RemoteRepository.objects.filter(
-            github_app_installation=self.installation,
-            vcs_provider=self.vcs_provider_slug,
-            remote_id__in=repository_ids,
-            projects=None,
-        ).delete()
-
-        # Delete organizations that don't have any repositories.
-        remote_organizations.filter(repositories=None).delete()
-
-    def delete_organization(self, organization_id: int):
-        """Delete an organization and all its repositories from the database only if they are not linked to a project."""
-        RemoteOrganization.objects.filter(
-            remote_id=str(organization_id),
-            vcs_provider=self.vcs_provider_slug,
-            repositories__projects=None,
-        ).delete()
 
     def _create_or_update_repository_from_gh(
         self, gh_repo: GHRepository
@@ -322,14 +311,26 @@ class GitHubAppService(Service):
         ).delete()
 
     def _get_social_accounts(self, ids):
+        """Get social accounts given a list of GitHub user IDs."""
         return SocialAccount.objects.filter(
             uid__in=ids,
             provider=self.allauth_provider.id,
         ).select_related("user")
 
-    def update_or_create_organization(self, org_id: int) -> RemoteOrganization:
-        gh_org = self._get_gh_organization(org_id)
-        return self._create_or_update_organization_from_gh(gh_org)
+    def update_or_create_organization(self, org_id: int) -> RemoteOrganization | None:
+        try:
+            gh_org = self._get_gh_organization(org_id)
+            return self._create_or_update_organization_from_gh(gh_org)
+        except GithubException:
+            log.info(
+                "Failed to fetch organization from GitHub",
+                organization_id=org_id,
+                exc_info=True,
+            )
+            # TODO: if we lost access to the organization,
+            # we should remove the organization from the database,
+            # and clean up the members and relations.
+            return None
 
     def _resync_organization_members(
         self, gh_org: GHOrganization, remote_org: RemoteOrganization
@@ -357,6 +358,11 @@ class GitHubAppService(Service):
         ).delete()
 
     def send_build_status(self, *, build, commit, status):
+        """
+        Create a commit status on GitHub for the given build.
+
+        See https://docs.github.com/en/rest/commits/statuses?apiVersion=2022-11-28#create-a-commit-status.
+        """
         project = build.project
         remote_repo = project.remote_repository
 
@@ -369,13 +375,29 @@ class GitHubAppService(Service):
         description = SELECT_BUILD_STATUS[status]["description"]
         context = f"{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}"
 
-        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id))
-        gh_repo.get_commit(commit).create_status(
-            state=state,
-            target_url=target_url,
-            description=description,
-            context=context,
-        )
+        try:
+            # NOTE: we use the lazy option to avoid fetching the repository object,
+            # since we only need the object to interact with the commit status API.
+            gh_repo = self.installation_client.get_repo(
+                int(remote_repo.remote_id), lazy=True
+            )
+            gh_repo.get_commit(commit).create_status(
+                state=state,
+                target_url=target_url,
+                description=description,
+                context=context,
+            )
+            return True
+        except GithubException:
+            log.info(
+                "Failed to send build status to GitHub",
+                project=project.slug,
+                build=build.pk,
+                commit=commit,
+                status=status,
+                exc_info=True,
+            )
+            return False
 
     def get_clone_token(self, project):
         """
@@ -390,10 +412,19 @@ class GitHubAppService(Service):
         # We should upstream this feature to PyGithub.
         # We can also pass a specific permissions object to get a token with specific permissions
         # if we want to scope this token even more.
-        access_token = self.gha_client.get_access_token(
-            self.installation.installation_id
-        )
-        return f"x-access-token:{access_token.token}"
+        try:
+            access_token = self.gha_client.get_access_token(
+                self.installation.installation_id
+            )
+            return f"x-access-token:{access_token.token}"
+        except GithubException:
+            log.info(
+                "Failed to get clone token for project",
+                installation_id=self.installation.installation_id,
+                project=project.slug,
+                exc_info=True,
+            )
+            return None
 
     def setup_webhook(self, project, integration=None):
         """When using a GitHub App, we don't need to set up a webhook."""
