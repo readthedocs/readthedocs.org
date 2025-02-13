@@ -26,7 +26,7 @@ class BitbucketService(UserService):
 
     vcs_provider_slug = BITBUCKET
     allauth_provider = BitbucketOAuth2Provider
-    base_api_url = "https://api.bitbucket.org/2.0"
+    base_api_url = "https://api.bitbucket.org"
     # TODO replace this with a less naive check
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
@@ -82,7 +82,7 @@ class BitbucketService(UserService):
 
         try:
             workspaces = self.paginate(
-                f"{self.base_api_url}/workspaces/",
+                f"{self.base_api_url}/2.0/workspaces/",
                 role="member",
             )
             for workspace in workspaces:
@@ -236,7 +236,7 @@ class BitbucketService(UserService):
             return integration.provider_data
 
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        url = f"{self.base_api_url}/repositories/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/2.0/repositories/{owner}/{repo}/hooks"
 
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
@@ -284,7 +284,7 @@ class BitbucketService(UserService):
         :rtype: (Bool, Response)
         """
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        url = f"{self.base_api_url}/repositories/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/2.0/repositories/{owner}/{repo}/hooks"
         if not integration:
             integration, _ = Integration.objects.get_or_create(
                 project=project,
