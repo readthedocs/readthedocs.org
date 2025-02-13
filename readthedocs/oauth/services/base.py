@@ -14,6 +14,11 @@ from requests.exceptions import RequestException
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.oauth.clients import get_oauth2_client
+from readthedocs.oauth.models import (
+    GitHubAccountType,
+    GitHubAppInstallation,
+    RemoteOrganization,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -241,6 +246,7 @@ class UserService(Service):
             )
             .filter(
                 account=self.account,
+                remote_repository__vcs_provider=self.vcs_provider_slug,
                 # Skip repositories that are managed by a GH app installation.
                 # NOTE: this is leaking the GH app logic into the parent class,
                 # but this works for now.
@@ -253,6 +259,17 @@ class UserService(Service):
         organization_remote_ids = [
             o.remote_id for o in remote_organizations if o is not None
         ]
+
+        account_organizations = RemoteOrganization.objects.filter(
+            remote_organization_relations__account=self.account,
+            vcs_provider=self.vcs_provider_slug,
+        )
+
+        organizations_ids_managed_by_gh_app = GitHubAppInstallation.objects.filter(
+            target_id__in=account_organizations.values_list("remote_id", flat=True),
+            target_type=GitHubAccountType.ORGANIZATION,
+        ).values_list("target_id", flat=True)
+
         (
             self.user.remote_organization_relations.exclude(
                 remote_organization__remote_id__in=organization_remote_ids,
@@ -260,10 +277,14 @@ class UserService(Service):
             )
             .filter(
                 account=self.account,
-                # Skip organization that have repositories managed by a GH app installation.
+                remote_organization__vcs_provider=self.vcs_provider_slug,
+            )
+            .exclude(
+                # Skip organization that are managed by a GH app installation.
                 # NOTE: this is leaking the GH app logic into the parent class,
                 # but this works for now.
-                remote_organization__remote_repositories__github_app_installation=None,
+                remote_organization__remote_id__in=organizations_ids_managed_by_gh_app,
+                remote_organization__vcs_provider=self.vcs_provider_slug,
             )
             .delete()
         )

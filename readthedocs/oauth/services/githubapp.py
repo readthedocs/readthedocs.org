@@ -250,10 +250,12 @@ class GitHubAppService(Service):
     @lru_cache(maxsize=50)
     def _get_gh_organization(self, org_id: int) -> GHOrganization:
         """Get a GitHub organization object given its numeric ID."""
-        # NOTE: cast to str, since PyGithub expects a string,
-        # even if the API accepts a string or an int.
-        # TODO: send a PR upstream to fix this.
-        return self.installation_client.get_organization(str(org_id))
+        # NOTE: getting an organization by its numeric ID is not supported by PyGithub yet,
+        # see https://github.com/PyGithub/PyGithub/pull/3192.
+        # return self.installation_client.get_organization(org_id)
+        requester = self.installation_client.requester
+        headers, data = requester.requestJsonAndCheck("GET", f"/organizations/{org_id}")
+        return GHOrganization(requester, headers, data, completed=True)
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...
     @lru_cache(maxsize=50)

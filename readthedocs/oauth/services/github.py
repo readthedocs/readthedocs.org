@@ -14,14 +14,18 @@ from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STAT
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
-from ..models import RemoteOrganization, RemoteRepository
+from ..models import (
+    GitHubAccountType,
+    GitHubAppInstallation,
+    RemoteOrganization,
+    RemoteRepository,
+)
 from .base import SyncServiceError, UserService
 
 log = structlog.get_logger(__name__)
 
 
 class GitHubService(UserService):
-
     """Provider service for GitHub."""
 
     vcs_provider_slug = GITHUB
@@ -60,6 +64,9 @@ class GitHubService(UserService):
                     org_details,
                     create_user_relationship=True,
                 )
+                if not remote_organization:
+                    continue
+
                 remote_organizations.append(remote_organization)
 
                 org_url = org["url"]
@@ -188,8 +195,17 @@ class GitHubService(UserService):
          will be created/updated.
         :rtype: RemoteOrganization
         """
+        remote_id = fields["id"]
+        if GitHubAppInstallation.objects.filter(
+            target_id=remote_id, target_type=GitHubAccountType.ORGANIZATION
+        ).exists():
+            log.info(
+                "Organization is managed by a GitHub App installation, skipping.",
+            )
+            return
+
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=str(fields["id"]),
+            remote_id=str(remote_id),
             vcs_provider=self.vcs_provider_slug,
         )
         if create_user_relationship:
