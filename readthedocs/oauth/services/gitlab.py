@@ -33,6 +33,7 @@ class GitLabService(UserService):
 
     provider_name = "GitLab"
     adapter = GitLabOAuth2Adapter
+    supports_build_status = True
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(

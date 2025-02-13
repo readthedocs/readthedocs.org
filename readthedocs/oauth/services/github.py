@@ -29,6 +29,7 @@ class GitHubService(UserService):
     url_pattern = re.compile(r"github\.com")
     vcs_provider_slug = GITHUB
     provider_name = "GitHub"
+    supports_build_status = True
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""

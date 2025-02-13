@@ -410,6 +410,10 @@ def send_build_status(build_pk, commit, status):
         log.info("Project isn't connected to a Git service, not sending build status.")
         return False
 
+    if not service_class.supports_build_status:
+        log.info("Git service doesn't support build status.")
+        return False
+
     for service in service_class.for_project(build.project):
         success = service.send_build_status(
             build,
@@ -430,7 +434,9 @@ def send_build_status(build_pk, commit, status):
         dismissable=True,
     )
 
-    log.info("No social account or repository permission available, no build status sent.")
+    log.info(
+        "No social account or repository permission available, no build status sent."
+    )
     return False
 
 
