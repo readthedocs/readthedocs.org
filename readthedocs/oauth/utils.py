@@ -21,43 +21,35 @@ def update_webhook(project, integration, request=None):
     # FIXME: this method supports ``request=None`` on its definition.
     # However, it does not work when passing ``request=None`` as
     # it uses that object without checking if it's ``None`` or not.
-    service_cls = SERVICE_MAP.get(integration.integration_type)
-    if service_cls is None:
+    service_class = SERVICE_MAP.get(integration.integration_type)
+    if service_class is None:
         return None
 
     # TODO: remove after integrations without a secret are removed.
     if not integration.secret:
         integration.save()
 
-    updated = False
-    if project.remote_repository:
-        remote_repository_relations = (
-            project.remote_repository.remote_repository_relations.filter(
-                account__isnull=False, user=request.user
-            ).select_related("account")
+    # If the integration's service class is different from the project's
+    # git service class, we skip the update, as the webhook is not valid
+    # (we can't create a GitHub webhook for a GitLab project, for example).
+    if service_class != project.get_git_service_class(fallback_to_clone_url=True):
+        messages.error(
+            request,
+            _(
+                "This integration type is not compatible with the project's Git provider."
+            ),
         )
-
-        for relation in remote_repository_relations:
-            service = service_cls(request.user, relation.account)
-            updated, __ = service.update_webhook(project, integration)
-
-            if updated:
-                break
-    else:
-        # The project was imported manually and doesn't have a RemoteRepository
-        # attached. We do brute force over all the accounts registered for this
-        # service
-        service_accounts = service_cls.for_user(request.user)
-        for service in service_accounts:
-            updated, __ = service.update_webhook(project, integration)
-            if updated:
-                break
-
-    if updated:
-        messages.success(request, _("Webhook activated"))
-        project.has_valid_webhook = True
+        project.has_valid_webhook = False
         project.save()
-        return True
+        return False
+
+    for service in service_class.for_project(project):
+        updated, __ = service.update_webhook(project, integration)
+        if updated:
+            messages.success(request, _("Webhook activated"))
+            project.has_valid_webhook = True
+            project.save()
+            return True
 
     messages.error(
         request,

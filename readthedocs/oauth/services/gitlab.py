@@ -16,12 +16,12 @@ from readthedocs.integrations.models import Integration
 
 from ..constants import GITLAB
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service, SyncServiceError
+from .base import SyncServiceError, UserService
 
 log = structlog.get_logger(__name__)
 
 
-class GitLabService(Service):
+class GitLabService(UserService):
 
     """
     Provider service for GitLab.
@@ -31,7 +31,9 @@ class GitLabService(Service):
      - https://docs.gitlab.com/ce/api/oauth2.html
     """
 
+    provider_name = "GitLab"
     adapter = GitLabOAuth2Adapter
+    supports_build_status = True
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(

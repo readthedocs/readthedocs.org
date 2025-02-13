@@ -15,12 +15,12 @@ from readthedocs.integrations.models import Integration
 
 from ..constants import BITBUCKET
 from ..models import RemoteOrganization, RemoteRepository, RemoteRepositoryRelation
-from .base import Service, SyncServiceError
+from .base import SyncServiceError, UserService
 
 log = structlog.get_logger(__name__)
 
 
-class BitbucketService(Service):
+class BitbucketService(UserService):
 
     """Provider service for Bitbucket."""
 
@@ -29,6 +29,7 @@ class BitbucketService(Service):
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
     vcs_provider_slug = BITBUCKET
+    provider_name = "Bitbucket"
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""

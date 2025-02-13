@@ -7,7 +7,6 @@ from shlex import quote
 from urllib.parse import urlparse
 
 import structlog
-from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
@@ -1030,28 +1029,36 @@ class Project(models.Model):
         """
         return backend_cls.get(self.repo_type)
 
-    def git_service_class(self):
-        """Get the service class for project. e.g: GitHubService, GitLabService."""
+    def _guess_service_class(self):
         from readthedocs.oauth.services import registry
 
         for service_cls in registry:
             if service_cls.is_project_service(self):
-                service = service_cls
-                break
-        else:
-            log.warning("There are no registered services in the application.")
-            service = None
+                return service_cls
+        return None
 
-        return service
+    def get_git_service_class(self, fallback_to_clone_url=False):
+        """
+        Get the service class for project. e.g: GitHubService, GitLabService.
+
+        :param fallback_to_clone_url: If the project doesn't have a remote repository,
+         we try to guess the service class based on the clone URL.
+        """
+        service_cls = None
+        if self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
+            return self._guess_service_class()
+        service_cls = (
+            self.remote_repository and self.remote_repository.get_service_class()
+        )
+        if not service_cls and fallback_to_clone_url:
+            return self._guess_service_class()
+        return service_cls
 
     @property
     def git_provider_name(self):
         """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
-        service = self.git_service_class()
-        if service:
-            provider_class = allauth_registry.get_class(service.adapter.provider_id)
-            return provider_class.name
-        return None
+        service_class = self.get_git_service_class(fallback_to_clone_url=True)
+        return service_class.provider_name if service_class else None
 
     def find(self, filename, version):
         """

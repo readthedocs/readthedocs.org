@@ -999,8 +999,10 @@ class IntegrationCreate(IntegrationMixin, CreateView):
         if self.object.has_sync:
             attach_webhook(
                 project_pk=self.get_project().pk,
-                user_pk=self.request.user.pk,
                 integration=self.object,
+                # TODO: Remove user_pk on the next release,
+                # it's used just to keep backward compatibility with the old task signature.
+                user_pk=None,
             )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -1056,7 +1058,9 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
             # the per-integration sync instead.
             attach_webhook(
                 project_pk=self.get_project().pk,
-                user_pk=request.user.pk,
+                # TODO: Remove user_pk on the next release,
+                # it's used just to keep backward compatibility with the old task signature.
+                user_pk=None,
             )
         return HttpResponseRedirect(self.get_success_url())
 
