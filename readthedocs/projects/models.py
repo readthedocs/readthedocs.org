@@ -194,6 +194,11 @@ class AddonsConfig(TimeStampedModel):
 
     # File Tree Diff
     filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
+    filetreediff_ignored_files = models.JSONField(
+        help_text=_("List of ignored files. One per line."),
+        null=True,
+        blank=True,
+    )
 
     # Flyout
     flyout_enabled = models.BooleanField(
