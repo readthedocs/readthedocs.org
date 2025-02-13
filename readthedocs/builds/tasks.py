@@ -428,7 +428,7 @@ def send_build_status(build_pk, commit, status):
         message_id=MESSAGE_OAUTH_BUILD_STATUS_FAILURE,
         attached_to=build.project,
         format_values={
-            "provider_name": service_class.provider_name,
+            "provider_name": service_class.allauth_provider.name,
             "url_connect_account": reverse("socialaccount_connections"),
         },
         dismissable=True,

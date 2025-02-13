@@ -49,7 +49,7 @@ def sync_remote_repositories(user_id):
             try:
                 service.sync()
             except SyncServiceError:
-                failed_services.add(service.provider_name)
+                failed_services.add(service_cls.allauth_provider.name)
     if failed_services:
         raise SyncServiceError(
             SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
@@ -200,7 +200,7 @@ def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
             dismissable=True,
             attached_to=project,
             format_values={
-                "provider_name": service_class.provider_name,
+                "provider_name": service_class.allauth_provider.name,
                 "url_connect_account": reverse(
                     "projects_integrations",
                     args=[project.slug],
@@ -221,7 +221,7 @@ def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
         dismissable=True,
         attached_to=project,
         format_values={
-            "provider_name": service_class.provider_name,
+            "provider_name": service_class.allauth_provider.name,
             "url_docs_webhook": "https://docs.readthedocs.io/page/webhooks.html",
         },
     )
