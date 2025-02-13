@@ -49,7 +49,7 @@ def sync_remote_repositories(user_id):
             try:
                 service.sync()
             except SyncServiceError:
-                failed_services.add(service.allauth_provider.name)
+                failed_services.add(service_cls.allauth_provider.name)
     if failed_services:
         raise SyncServiceError(
             SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(

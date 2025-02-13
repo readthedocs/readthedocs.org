@@ -30,15 +30,17 @@ class GitHubService(UserService):
 
     vcs_provider_slug = GITHUB
     allauth_provider = GitHubProvider
+    base_api_url = "https://api.github.com"
     # TODO replace this with a less naive check
     url_pattern = re.compile(r"github\.com")
+    supports_build_status = True
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
         remote_repositories = []
 
         try:
-            repos = self.paginate("https://api.github.com/user/repos", per_page=100)
+            repos = self.paginate(f"{self.base_api_url}/user/repos", per_page=100)
             for repo in repos:
                 remote_repository = self.create_repository(repo)
                 remote_repositories.append(remote_repository)
@@ -57,7 +59,7 @@ class GitHubService(UserService):
         remote_repositories = []
 
         try:
-            orgs = self.paginate("https://api.github.com/user/orgs", per_page=100)
+            orgs = self.paginate(f"{self.base_api_url}/user/orgs", per_page=100)
             for org in orgs:
                 org_details = self.session.get(org["url"]).json()
                 remote_organization = self.create_organization(
@@ -82,7 +84,7 @@ class GitHubService(UserService):
             log.warning("Error syncing GitHub organizations")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.vcs_provider_slug
+                    provider=self.allauth_provider.name
                 )
             )
 
@@ -262,7 +264,7 @@ class GitHubService(UserService):
             return integration.provider_data
 
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/repos/{owner}/{repo}/hooks"
         log.bind(
             url=url,
             project_slug=project.slug,
@@ -316,7 +318,7 @@ class GitHubService(UserService):
             )
 
         data = self.get_webhook_data(project, integration)
-        url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/repos/{owner}/{repo}/hooks"
         log.bind(
             url=url,
             project_slug=project.slug,
@@ -445,7 +447,7 @@ class GitHubService(UserService):
         # select the correct status and description.
         github_build_status = SELECT_BUILD_STATUS[status]["github"]
         description = SELECT_BUILD_STATUS[status]["description"]
-        statuses_url = f"https://api.github.com/repos/{owner}/{repo}/statuses/{commit}"
+        statuses_url = f"{self.base_api_url}/repos/{owner}/{repo}/statuses/{commit}"
 
         if status == BUILD_STATUS_SUCCESS:
             # Link to the documentation for this version

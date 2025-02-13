@@ -6,7 +6,6 @@ from urllib.parse import quote_plus, urlparse
 
 import structlog
 from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
-from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
@@ -33,10 +32,12 @@ class GitLabService(UserService):
     """
 
     allauth_provider = GitLabProvider
+    base_api_url = "https://gitlab.com"
+    supports_build_status = True
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(
-        re.escape(urlparse(GitLabOAuth2Adapter.provider_default_url).netloc),
+        re.escape(urlparse(base_api_url).netloc),
     )
 
     PERMISSION_NO_ACCESS = 0
@@ -74,7 +75,7 @@ class GitLabService(UserService):
         remote_repositories = []
         try:
             repos = self.paginate(
-                "{url}/api/v4/projects".format(url=self.adapter.provider_default_url),
+                f"{self.base_api_url}/api/v4/projects",
                 per_page=100,
                 archived=False,
                 order_by="path",
@@ -101,7 +102,7 @@ class GitLabService(UserService):
 
         try:
             orgs = self.paginate(
-                "{url}/api/v4/groups".format(url=self.adapter.provider_default_url),
+                f"{self.base_api_url}/api/v4/groups",
                 per_page=100,
                 all_available=False,
                 order_by="path",
@@ -111,7 +112,7 @@ class GitLabService(UserService):
                 remote_organization = self.create_organization(org)
                 org_repos = self.paginate(
                     "{url}/api/v4/groups/{id}/projects".format(
-                        url=self.adapter.provider_default_url,
+                        url=self.base_api_url,
                         id=org["id"],
                     ),
                     per_page=100,
@@ -132,7 +133,7 @@ class GitLabService(UserService):
                         # which contains the admin permission fields.
                         resp = self.session.get(
                             "{url}/api/v4/projects/{id}".format(
-                                url=self.adapter.provider_default_url, id=repo["id"]
+                                url=self.base_api_url, id=repo["id"]
                             )
                         )
 
@@ -271,7 +272,7 @@ class GitLabService(UserService):
         organization.name = fields.get("name")
         organization.slug = fields.get("path")
         organization.url = "{url}/{path}".format(
-            url=self.adapter.provider_default_url,
+            url=self.base_api_url,
             path=fields.get("path"),
         )
         organization.avatar_url = fields.get("avatar_url")
@@ -336,7 +337,7 @@ class GitLabService(UserService):
         try:
             resp = self.session.get(
                 "{url}/api/v4/projects/{repo_id}/hooks".format(
-                    url=self.adapter.provider_default_url,
+                    url=self.base_api_url,
                     repo_id=repo_id,
                 ),
             )
@@ -383,7 +384,7 @@ class GitLabService(UserService):
             )
 
         repo_id = self._get_repo_id(project)
-        url = f"{self.adapter.provider_default_url}/api/v4/projects/{repo_id}/hooks"
+        url = f"{self.base_api_url}/api/v4/projects/{repo_id}/hooks"
 
         if repo_id is None:
             return (False, resp)
@@ -460,7 +461,7 @@ class GitLabService(UserService):
             hook_id = provider_data.get("id")
             resp = self.session.put(
                 "{url}/api/v4/projects/{repo_id}/hooks/{hook_id}".format(
-                    url=self.adapter.provider_default_url,
+                    url=self.base_api_url,
                     repo_id=repo_id,
                     hook_id=hook_id,
                 ),
@@ -534,7 +535,7 @@ class GitLabService(UserService):
             "description": description,
             "context": context,
         }
-        url = f"{self.adapter.provider_default_url}/api/v4/projects/{repo_id}/statuses/{commit}"
+        url = f"{self.base_api_url}/api/v4/projects/{repo_id}/statuses/{commit}"
 
         log.bind(
             project_slug=project.slug,

@@ -489,7 +489,7 @@ class ImportView(PrivateViewMixin, TemplateView):
         deprecated_accounts = SocialAccount.objects.filter(
             user=self.request.user
         ).exclude(
-            provider__in=[service.allauth_provider_id for service in registry],
+            provider__in=[service.allauth_provider.id for service in registry],
         )  # yapf: disable
         for account in deprecated_accounts:
             provider_account = account.get_provider_account()

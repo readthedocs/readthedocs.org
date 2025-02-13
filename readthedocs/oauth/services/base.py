@@ -40,6 +40,7 @@ class Service:
     url_pattern: re.Pattern | None = None
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
+    supports_build_status = False
 
     @classmethod
     def for_project(self, project):
