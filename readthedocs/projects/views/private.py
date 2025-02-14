@@ -350,7 +350,7 @@ def show_config_step(wizard):
         )
         for relation in remote_repository_relations:
             service = GitHubService(relation.user, relation.account)
-            session = service.get_session()
+            session = service.session
 
             for yaml in [
                 ".readthedocs.yaml",
