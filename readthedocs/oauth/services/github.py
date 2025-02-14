@@ -26,6 +26,7 @@ log = structlog.get_logger(__name__)
 
 
 class GitHubService(UserService):
+
     """Provider service for GitHub."""
 
     vcs_provider_slug = GITHUB

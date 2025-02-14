@@ -14,7 +14,11 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
+from readthedocs.filetreediff.dataclasses import (
+    FileTreeDiff,
+    FileTreeDiffFile,
+    FileTreeDiffManifest,
+)
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
     ADDONS_FLYOUT_SORTING_CALVER,
@@ -884,6 +888,75 @@ class TestReadTheDocsConfigJson(TestCase):
                 },
             )
         assert r.status_code == 200
+
+    @override_settings(
+        RTD_FILETREEDIFF_ALL=True,
+    )
+    @mock.patch("readthedocs.proxito.views.hosting.get_diff")
+    def test_file_tree_diff_ignored_files(self, get_diff):
+        ignored_files = [
+            "ignored.html",
+            "archives/*",
+        ]
+
+        self.project.addons.filetreediff_enabled = True
+        self.project.addons.filetreediff_ignored_files = ignored_files
+        self.project.addons.save()
+
+        get_diff.return_value = FileTreeDiff(
+            added=["tags/newtag.html"],
+            modified=["ignored.html", "archives/2025.html", "changelog/2025.2.html"],
+            deleted=["deleted.html"],
+        )
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+
+        expected = {
+            "enabled": True,
+            "outdated": False,
+            "diff": {
+                "added": [
+                    {
+                        "filename": "tags/newtag.html",
+                        "urls": {
+                            "current": "https://project.dev.readthedocs.io/en/latest/tags/newtag.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/tags/newtag.html",
+                        },
+                    },
+                ],
+                "deleted": [
+                    {
+                        "filename": "deleted.html",
+                        "urls": {
+                            "current": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                        },
+                    },
+                ],
+                "modified": [
+                    {
+                        "filename": "changelog/2025.2.html",
+                        "urls": {
+                            "current": "https://project.dev.readthedocs.io/en/latest/changelog/2025.2.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/changelog/2025.2.html",
+                        },
+                    },
+                ],
+            },
+        }
+        assert r.status_code == 200
+        assert r.json()["addons"]["filetreediff"] == expected
 
     @mock.patch("readthedocs.filetreediff.get_manifest")
     def test_file_tree_diff(self, get_manifest):

@@ -101,7 +101,9 @@ class CommunityBaseSettings(Settings):
     def SWITCH_PRODUCTION_DOMAIN(self):
         if self.RTD_EXT_THEME_ENABLED:
             return self.PRODUCTION_DOMAIN.removeprefix("app.")
-        return f"app.{self.PRODUCTION_DOMAIN}"
+        if not self.PRODUCTION_DOMAIN.startswith("app."):
+            return f"app.{self.PRODUCTION_DOMAIN}"
+        return self.PRODUCTION_DOMAIN
 
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
