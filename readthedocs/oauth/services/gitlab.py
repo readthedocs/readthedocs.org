@@ -5,7 +5,7 @@ import re
 from urllib.parse import quote_plus, urlparse
 
 import structlog
-from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
+from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 from django.conf import settings
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
@@ -31,13 +31,13 @@ class GitLabService(UserService):
      - https://docs.gitlab.com/ce/api/oauth2.html
     """
 
-    provider_name = "GitLab"
-    adapter = GitLabOAuth2Adapter
+    allauth_provider = GitLabProvider
+    base_api_url = "https://gitlab.com"
     supports_build_status = True
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(
-        re.escape(urlparse(adapter.provider_default_url).netloc),
+        re.escape(urlparse(base_api_url).netloc),
     )
 
     PERMISSION_NO_ACCESS = 0
@@ -75,7 +75,7 @@ class GitLabService(UserService):
         remote_repositories = []
         try:
             repos = self.paginate(
-                "{url}/api/v4/projects".format(url=self.adapter.provider_default_url),
+                f"{self.base_api_url}/api/v4/projects",
                 per_page=100,
                 archived=False,
                 order_by="path",
@@ -102,7 +102,7 @@ class GitLabService(UserService):
 
         try:
             orgs = self.paginate(
-                "{url}/api/v4/groups".format(url=self.adapter.provider_default_url),
+                f"{self.base_api_url}/api/v4/groups",
                 per_page=100,
                 all_available=False,
                 order_by="path",
@@ -112,7 +112,7 @@ class GitLabService(UserService):
                 remote_organization = self.create_organization(org)
                 org_repos = self.paginate(
                     "{url}/api/v4/groups/{id}/projects".format(
-                        url=self.adapter.provider_default_url,
+                        url=self.base_api_url,
                         id=org["id"],
                     ),
                     per_page=100,
@@ -131,9 +131,9 @@ class GitLabService(UserService):
                         # admin permission fields for GitLab projects.
                         # So, fetch every single project data from the API
                         # which contains the admin permission fields.
-                        resp = self.get_session().get(
+                        resp = self.session.get(
                             "{url}/api/v4/projects/{id}".format(
-                                url=self.adapter.provider_default_url, id=repo["id"]
+                                url=self.base_api_url, id=repo["id"]
                             )
                         )
 
@@ -272,7 +272,7 @@ class GitLabService(UserService):
         organization.name = fields.get("name")
         organization.slug = fields.get("path")
         organization.url = "{url}/{path}".format(
-            url=self.adapter.provider_default_url,
+            url=self.base_api_url,
             path=fields.get("path"),
         )
         organization.avatar_url = fields.get("avatar_url")
@@ -327,7 +327,6 @@ class GitLabService(UserService):
         if repo_id is None:
             return None
 
-        session = self.get_session()
         log.bind(
             project_slug=project.slug,
             integration_id=integration.pk,
@@ -336,9 +335,9 @@ class GitLabService(UserService):
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
         try:
-            resp = session.get(
+            resp = self.session.get(
                 "{url}/api/v4/projects/{repo_id}/hooks".format(
-                    url=self.adapter.provider_default_url,
+                    url=self.base_api_url,
                     repo_id=repo_id,
                 ),
             )
@@ -385,7 +384,7 @@ class GitLabService(UserService):
             )
 
         repo_id = self._get_repo_id(project)
-        url = f"{self.adapter.provider_default_url}/api/v4/projects/{repo_id}/hooks"
+        url = f"{self.base_api_url}/api/v4/projects/{repo_id}/hooks"
 
         if repo_id is None:
             return (False, resp)
@@ -396,9 +395,8 @@ class GitLabService(UserService):
             url=url,
         )
         data = self.get_webhook_data(repo_id, project, integration)
-        session = self.get_session()
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -448,7 +446,6 @@ class GitLabService(UserService):
             return self.setup_webhook(project, integration)
 
         resp = None
-        session = self.get_session()
         repo_id = self._get_repo_id(project)
 
         if repo_id is None:
@@ -462,9 +459,9 @@ class GitLabService(UserService):
         )
         try:
             hook_id = provider_data.get("id")
-            resp = session.put(
+            resp = self.session.put(
                 "{url}/api/v4/projects/{repo_id}/hooks/{hook_id}".format(
-                    url=self.adapter.provider_default_url,
+                    url=self.base_api_url,
                     repo_id=repo_id,
                     hook_id=hook_id,
                 ),
@@ -512,7 +509,6 @@ class GitLabService(UserService):
         :rtype: Bool
         """
         resp = None
-        session = self.get_session()
         project = build.project
 
         repo_id = self._get_repo_id(project)
@@ -539,7 +535,7 @@ class GitLabService(UserService):
             "description": description,
             "context": context,
         }
-        url = f"{self.adapter.provider_default_url}/api/v4/projects/{repo_id}/statuses/{commit}"
+        url = f"{self.base_api_url}/api/v4/projects/{repo_id}/statuses/{commit}"
 
         log.bind(
             project_slug=project.slug,
@@ -548,7 +544,7 @@ class GitLabService(UserService):
             url=url,
         )
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=json.dumps(data),
                 headers={"content-type": "application/json"},
