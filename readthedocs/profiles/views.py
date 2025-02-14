@@ -31,7 +31,10 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.oauth.migrate import get_installation_targets_for_user, get_old_app_link
+from readthedocs.oauth.migrate import (
+    get_installation_targets_for_user,
+    get_old_app_link,
+)
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
@@ -284,7 +287,6 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
 
 
 class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
-
     template_name = "profiles/private/migrate-to-gh-app.html"
 
     def get(self, request, *args, **kwargs):

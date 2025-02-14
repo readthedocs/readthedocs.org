@@ -400,7 +400,7 @@ class RemoteRepository(TimeStampedModel):
         return remote_repository_relation
 
     def get_service_class(self):
-        from readthedocs.oauth.services import registry, GitHubAppService
+        from readthedocs.oauth.services import GitHubAppService, registry
 
         if self.github_app_installation:
             return GitHubAppService
