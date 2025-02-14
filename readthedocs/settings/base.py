@@ -749,6 +749,7 @@ class CommunityBaseSettings(Settings):
     }
 
     GITHUB_APP_ID = 1234
+    GITHUB_APP_NAME = "readthedocs"
     GITHUB_APP_PRIVATE_KEY = ""
     GITHUB_APP_WEBHOOK_SECRET = ""
 

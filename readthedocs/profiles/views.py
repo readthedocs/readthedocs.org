@@ -12,8 +12,17 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
-from vanilla import CreateView, DeleteView, DetailView, FormView, ListView, UpdateView
+from vanilla import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    FormView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.audit.filters import UserSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm, UserProfileForm
@@ -22,6 +31,7 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.oauth.migrate import get_installation_targets_for_user, get_old_app_link
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
@@ -44,7 +54,6 @@ class LogoutView(SettingsOverrideObject):
 
 
 class ProfileEdit(PrivateViewMixin, UpdateView):
-
     """Edit the current user's profile."""
 
     model = UserProfile
@@ -147,7 +156,6 @@ class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):
 
 
 class TokenMixin(PrivateViewMixin):
-
     """User token to access APIv3."""
 
     model = Token
@@ -169,7 +177,6 @@ class TokenListView(TokenMixin, ListView):
 
 
 class TokenCreateView(TokenMixin, CreateView):
-
     """Simple view to generate a Token object for the logged in User."""
 
     http_method_names = ["post"]
@@ -182,7 +189,6 @@ class TokenCreateView(TokenMixin, CreateView):
 
 
 class TokenDeleteView(TokenMixin, DeleteView):
-
     """View to delete/revoke the current Token of the logged in User."""
 
     http_method_names = ["post"]
@@ -275,3 +281,28 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             queryset=queryset,
         )
         return self.filter.qs
+
+
+class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
+
+    template_name = "profiles/private/migrate-to-gh-app.html"
+
+    def get(self, request, *args, **kwargs):
+        # TODO: check if the user already migrated all their projects,
+        # or if the user doesn't have projects to migrate.
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        context["has_gh_app_social_account"] = user.socialaccount_set.filter(
+            provider=GitHubAppProvider.id
+        ).exists()
+        context["installation_targets"] = get_installation_targets_for_user(user)
+
+        context["projects"] = AdminPermission.projects(user, admin=True)
+
+        context["old_application_link"] = get_old_app_link()
+
+        return context

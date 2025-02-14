@@ -1,0 +1,78 @@
+{% extends "profiles/base_profile_edit.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Migrate account to GitHub App" %}{% endblock %}
+
+{% block profile-admin-tokens %}active{% endblock %}
+
+{% block edit_content_header %} {% trans "Migrate account to GitHub App" %} {% endblock %}
+
+{% block edit_content %}
+<ol>
+  <li>
+    Connect your account to the GH app: ({% if has_gh_app_social_account %}y{% else %}n{% endif %})
+  </li>
+  <li>
+    Grant access to all your repositories connected to a project:
+    {# Group by user and organization #}
+    <ul>
+    {% for installation_target in installation_targets %}
+    <li>
+      <a href="{{ installation_target.link }}">
+        Install app on {{ installation_target.target_name }} ({{ installation_target.target_type }})
+      </a>
+    </li>
+    {% endfor %}
+    </ul>
+
+    Or select one by one:
+    <ul>
+      {% for project in projects %}
+      <li>
+        <a href="{% url 'profiles_profile_edit' %}?project={{ project.slug }}">
+          {{ project.name }}
+        </a>
+        :
+        <a href="#">
+          Install app
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </li>
+
+  <li>
+    Migrate your projects to the GH app:
+
+    <a href="#">Migrate all</a>
+
+    or migrate one by one:
+
+    <ul>
+      {% for project in projects %}
+      <li>
+        <a href="{% url 'profiles_profile_edit' %}?project={{ project.slug }}">
+          {{ project.name }}
+        </a>
+        :
+        <a href="#">
+          Migrate
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </li>
+
+  <li>
+    <a href="{{ old_application_link }}">
+      Revoke access to the old GH OAuth app from your account
+    </a>
+  </li>
+
+  <li>
+    <a href="#">Remove the old GH app from your RTD account</a>
+    (you will no longer see this page)
+  </li>
+</ol>
+{% endblock %}

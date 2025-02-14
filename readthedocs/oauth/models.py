@@ -94,7 +94,7 @@ class GitHubAppInstallation(TimeStampedModel):
     @cached_property
     def service(self):
         """Return the service for this installation."""
-        from readthedocs.oauth.services.githubapp import GitHubAppService
+        from readthedocs.oauth.services import GitHubAppService
 
         return GitHubAppService(self)
 
@@ -400,8 +400,7 @@ class RemoteRepository(TimeStampedModel):
         return remote_repository_relation
 
     def get_service_class(self):
-        from readthedocs.oauth.services import registry
-        from readthedocs.oauth.services.githubapp import GitHubAppService
+        from readthedocs.oauth.services import registry, GitHubAppService
 
         if self.github_app_installation:
             return GitHubAppService
