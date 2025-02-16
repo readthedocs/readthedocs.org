@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.17
+boto3==1.36.21
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.17
+botocore==1.36.21
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -149,7 +149,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==24.3
+django-filter==25.1
     # via -r requirements/pip.txt
 django-formtools==2.5.1
     # via -r requirements/pip.txt
@@ -384,7 +384,7 @@ s3transfer==0.11.2
     #   boto3
 selectolax==0.3.27
     # via -r requirements/pip.txt
-sentry-sdk==2.20.0
+sentry-sdk==2.21.0
     # via structlog-sentry
 six==1.17.0
     # via
