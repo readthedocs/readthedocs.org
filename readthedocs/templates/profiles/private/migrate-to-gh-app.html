@@ -1,5 +1,6 @@
 {% extends "profiles/base_profile_edit.html" %}
 
+{% load provider_login_url from socialaccount %}
 {% load i18n %}
 
 {% block title %}{% trans "Migrate account to GitHub App" %}{% endblock %}
@@ -12,6 +13,18 @@
 <ol>
   <li>
     Connect your account to the GH app: ({% if has_gh_app_social_account %}y{% else %}n{% endif %})
+
+    <form
+      method="post"
+      action="{% provider_login_url gh_app_provider.id process="connect" %}">
+      {% csrf_token %}
+      <button
+          class="socialaccount-provider {{ gh_app_provider.id }} button"
+          type="submit"
+          title="{{ gh_app_provider.name }}">
+        {% trans verbiage|default:'Connect to' %} {{ gh_app_provider.name }}
+      </button>
+    </form>
   </li>
   <li>
     Grant access to all your repositories connected to a project:

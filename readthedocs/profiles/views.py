@@ -298,6 +298,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
+        context["gh_app_provider"] = GitHubAppProvider
         context["has_gh_app_social_account"] = user.socialaccount_set.filter(
             provider=GitHubAppProvider.id
         ).exists()
