@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.17
+boto3==1.36.21
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.17
+botocore==1.36.21
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -82,7 +82,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.6.11
+coverage[toml]==7.6.12
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
@@ -97,7 +97,7 @@ cssselect==1.2.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
-cython==3.0.11
+cython==3.0.12
     # via sphinx
 defusedxml==0.7.1
     # via sphinx
@@ -156,7 +156,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==24.3
+django-filter==25.1
     # via -r requirements/pip.txt
 django-formtools==2.5.1
     # via -r requirements/pip.txt
@@ -345,7 +345,7 @@ pytest-cov==6.0.0
     # via -r requirements/testing.in
 pytest-custom-exit-code==0.3.0
     # via -r requirements/testing.in
-pytest-django==4.9.0
+pytest-django==4.10.0
     # via -r requirements/testing.in
 pytest-mock==3.14.0
     # via -r requirements/testing.in

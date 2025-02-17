@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.36.17
+boto3==1.36.21
     # via django-storages
-botocore==1.36.17
+botocore==1.36.21
     # via
     #   boto3
     #   s3transfer
@@ -111,7 +111,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.in
 django-extensions==3.2.3
     # via -r requirements/pip.in
-django-filter==24.3
+django-filter==25.1
     # via -r requirements/pip.in
 django-formtools==2.5.1
     # via -r requirements/pip.in
