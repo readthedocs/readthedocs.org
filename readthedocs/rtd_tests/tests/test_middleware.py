@@ -2,17 +2,12 @@ from corsheaders.middleware import (
     ACCESS_CONTROL_ALLOW_CREDENTIALS,
     ACCESS_CONTROL_ALLOW_ORIGIN,
 )
-from django.conf import settings
-from django.http import HttpResponse
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.core.middleware import (
-    NullCharactersMiddleware,
-    ReadTheDocsSessionMiddleware,
-)
+from readthedocs.core.middleware import NullCharactersMiddleware
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -241,52 +236,6 @@ class TestCORSMiddleware(TestCase):
         )
         self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
-
-
-class TestSessionMiddleware(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.middleware = ReadTheDocsSessionMiddleware(lambda request: HttpResponse())
-
-        self.user = create_user(username="owner", password="test")
-
-    @override_settings(SESSION_COOKIE_SAMESITE="None")
-    def test_fallback_cookie(self):
-        request = self.factory.get("/")
-        response = HttpResponse()
-        self.middleware.process_request(request)
-        request.session["test"] = "value"
-        response = self.middleware.process_response(request, response)
-
-        self.assertTrue(settings.SESSION_COOKIE_NAME in response.cookies)
-        self.assertTrue(self.middleware.cookie_name_fallback in response.cookies)
-
-    @override_settings(SESSION_COOKIE_SAMESITE="None")
-    def test_main_cookie_samesite_none(self):
-        request = self.factory.get("/")
-        response = HttpResponse()
-        self.middleware.process_request(request)
-        request.session["test"] = "value"
-        response = self.middleware.process_response(request, response)
-
-        self.assertEqual(
-            response.cookies[settings.SESSION_COOKIE_NAME]["samesite"], "None"
-        )
-        self.assertEqual(
-            response.cookies[self.middleware.cookie_name_fallback]["samesite"], ""
-        )
-
-    def test_main_cookie_samesite_lax(self):
-        request = self.factory.get("/")
-        response = HttpResponse()
-        self.middleware.process_request(request)
-        request.session["test"] = "value"
-        response = self.middleware.process_response(request, response)
-
-        self.assertEqual(
-            response.cookies[settings.SESSION_COOKIE_NAME]["samesite"], "Lax"
-        )
-        self.assertTrue(self.test_main_cookie_samesite_none not in response.cookies)
 
 
 class TestNullCharactersMiddleware(TestCase):

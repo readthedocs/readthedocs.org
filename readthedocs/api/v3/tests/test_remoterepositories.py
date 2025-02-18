@@ -1,7 +1,6 @@
-from django.urls import reverse
-
-from allauth.socialaccount.models import SocialAccount
 import django_dynamic_fixture as fixture
+from allauth.socialaccount.models import SocialAccount
+from django.urls import reverse
 
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.models import (
@@ -11,6 +10,7 @@ from readthedocs.oauth.models import (
     RemoteRepositoryRelation,
 )
 from readthedocs.projects.constants import REPO_TYPE_GIT
+
 from .mixins import APIEndpointMixin
 
 
@@ -65,7 +65,7 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
 
     def test_remote_repository_list(self):
         url = reverse("remoterepositories-list")
-        data = {"expand": ("projects," "remote_organization")}
+        data = {"expand": ["remote_organization"]}
 
         self.client.logout()
         response = self.client.get(url, data)
@@ -84,7 +84,7 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
             reverse("remoterepositories-list"),
-            {"expand": ("projects," "remote_organization"), "name": "proj"},
+            {"expand": ["remote_organization"], "name": "proj"},
         )
         self.assertEqual(response.status_code, 200)
 
@@ -100,7 +100,7 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
             reverse("remoterepositories-list"),
-            {"expand": ("projects," "remote_organization"), "full_name": "proj"},
+            {"expand": ["remote_organization"], "full_name": "proj"},
         )
         self.assertEqual(response.status_code, 200)
 

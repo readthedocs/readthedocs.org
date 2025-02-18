@@ -3,7 +3,7 @@ import datetime
 
 import structlog
 from django.db import models
-from django.db.models import OuterRef, Prefetch, Q, Subquery
+from django.db.models import Q
 from django.utils import timezone
 
 from readthedocs.builds.constants import (
@@ -119,6 +119,11 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
     def api(self, user=None):
         return self.public(user, only_active=False)
 
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
+
     def for_reindex(self):
         """
         Get all versions that can be reindexed.
@@ -140,30 +145,6 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
             .exclude(project__is_spam=True)
             .distinct()
         )
-
-    def prefetch_subquery(self):
-        """
-        Prefetch related objects via subquery for each version.
-
-        .. note::
-
-            This should come after any filtering.
-        """
-        from readthedocs.builds.models import Build
-
-        # Prefetch the latest build for each project.
-        subquery_builds = Subquery(
-            Build.internal.filter(version=OuterRef("version_id"))
-            .order_by("-date")
-            .values_list("id", flat=True)[:1]
-        )
-        prefetch_builds = Prefetch(
-            "builds",
-            Build.internal.filter(pk__in=subquery_builds),
-            to_attr=self.model.LATEST_BUILD_CACHE,
-        )
-
-        return self.prefetch_related(prefetch_builds)
 
 
 class VersionQuerySet(SettingsOverrideObject):
@@ -228,6 +209,11 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
 
     def concurrent(self, project):
         """
@@ -329,3 +315,8 @@ class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)

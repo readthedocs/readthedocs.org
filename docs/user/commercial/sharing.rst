@@ -3,37 +3,36 @@ Sharing private documentation
 
 .. include:: /shared/admonition-rtd-business.rst
 
-You can share your project with users outside of your company:
+Sharing private documentation is useful for giving quick access to your documentation to users outside of your organization.
+It allows you to share specific projects or versions of a project with users who don't have access to your organization.
 
-* by sending them a *secret link*,
-* by giving them a *password*.
+Common sharing use cases include:
 
-These methods will allow them to view specific projects or versions of a project inside your organization.
+* Sharing a project with contractors or partners.
+* Sharing documentation for your product only to specific customers.
+* Embedding documentation in a SaaS application dashboard.
 
-Additionally, you can use a HTTP Authorization Header.
-This is useful to have access from a script.
-
-Enabling sharing
-----------------
+Creating a shared item
+----------------------
 
 * Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
 * Click on :guilabel:`New Share`
 * Select access type (secret link, password, or HTTP header token),
-  add an expiration date and a *Description* so you remember who you're sharing it with.
+  add an expiration date and a *Description* to help with managing access in the future.
 * Check ``Allow access to all versions?`` if you want to grant access to all versions,
-  or uncheck that option and select the specific versions you want grant access to.
+  or uncheck that option and select the specific versions you want to grant access to.
 * Click :guilabel:`Save`.
 * Get the info needed to share your documentation with other users:
 
-  * If you have selected secret link, copy the link that is generated
-  * In case of password, copy the link and password
-  * For HTTP header token, you need to pass the ``Authorization`` header in your HTTP request.
+  * **Secret link:** copy the link that is generated
+  * **Password:** copy the link and password
+  * **HTTP header token**: Copy the token, and then pass the ``Authorization`` header in your HTTP request.
 
 * Give that information to the person who you want to give access.
 
 .. note::
 
-   You can always revoke access in the same panel.
+   You can always revoke access by removing the sharing item on this page.
 
 Sharing methods
 ---------------
@@ -41,7 +40,7 @@ Sharing methods
 Secret link
 ***********
 
-Once the person you send the link to clicks the link,
+Once the person you send the link to clicks it,
 they will have access to the documentation while their browser window is open.
 
 If you want to link to a specific page,
@@ -58,7 +57,7 @@ Password
 
 Once the person you send the link to clicks on the link, they will see
 an *Authorization required* page asking them for the password you
-generated. When the user enters the password, they will have access to
+generated. When the user enters the password, they will gain access to
 view your project.
 
 .. tip::
@@ -77,12 +76,12 @@ Token Authorization
 ~~~~~~~~~~~~~~~~~~~
 
 You need to send the ``Authorization`` header with the token on each HTTP request.
-The header has the form ``Authorization: Token <ACCESS_TOKEN>``.
+The header has the form ``Authorization: Token <TOKEN>``.
 For example:
 
 .. prompt:: bash $
 
-   curl -H "Authorization: Token 19okmz5k0i6yk17jp70jlnv91v" https://docs.example.com/en/latest/example.html
+   curl -H "Authorization: Token $TOKEN" https://docs.example.com/en/latest/example.html
 
 Basic Authorization
 ~~~~~~~~~~~~~~~~~~~
@@ -92,4 +91,72 @@ For example:
 
 .. prompt:: bash $
 
-   curl --url https://docs.example.com/en/latest/example.html --user '19okmz5k0i6yk17jp70jlnv91v:'
+   curl --url https://docs.example.com/en/latest/example.html --user '$TOKEN:'
+
+Typical sharing configurations
+------------------------------
+
+There are a few common ways to architect sharing,
+with trade-offs between them,
+and you should choose the one that best fits your use case.
+
+Bulk passwords
+**************
+
+If you want to limit access to a group of users,
+you can create a password for each user,
+and then share the password with them.
+This allows users to access the documentation directly,
+but requires more management on your end.
+Any time a new user needs access or you want to remove access,
+you will need to generate a new password for them.
+
+Authenticated redirect
+**********************
+
+If you want to share documentation with a group of users,
+you need to authenticate those users against your own system first.
+The simplest way to do this is to create an authenticated redirect on your site,
+which then redirects to the Read the Docs :ref:`commercial/sharing:secret link`.
+
+This should require very little customization,
+and will ensure that only authenticated users can access the documentation.
+The downside is that users won't be able to access the documentation directly from a bookmark,
+and will have to go through your site first.
+
+Authenticated proxy
+*******************
+
+If you want a more transparent experience for your users,
+you can create a proxy that authenticates users against your system,
+and then proxies the request to Read the Docs.
+This is more complex to set up,
+but will allow users to access the documentation directly from a bookmark.
+
+This approach would use a :ref:`commercial/sharing:HTTP Authorization Header` to authenticate users,
+and would be configured in your proxy server.
+
+Proxy example
+-------------
+
+Below is an example of how to configure Nginx to proxy requests to Read the Docs while adding the token in the `Authorization` header.
+
+.. code-block:: nginx
+
+   server {
+       listen 80;
+       server_name docs.example.com;
+
+       location / {
+           proxy_pass https://docs-example.readthedocs-hosted.com;
+
+           # Add Authorization header with the token
+           proxy_set_header Authorization "Token <TOKEN>";
+
+           # Optionally forward other headers
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+   }

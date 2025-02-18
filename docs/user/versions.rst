@@ -1,36 +1,51 @@
 Versions
 ========
 
-Read the Docs supports publishing multiple versions of your documentation
-at the same time.
-On initial import, we will create a ``latest`` version
-that points to the default branch defined in your Git repository.
+Read the Docs supports publishing multiple versions of your documentation.
+This allows your users to read the exact documentation for the specific version of the project they are using.
 
-If your project has any tags or branches with a name following `semantic versioning <https://semver.org/>`_,
+Versioning is useful for many reasons, but a few common use cases are:
+
+* Shipping API client libraries that release versions across time.
+* Having a "stable" and "latest" branch so that users can see the current release and the upcoming changes.
+* Having a private development branch and a public stable branch so that in development releases aren't accidentally seen by users until they are released.
+
+Versions are Git tags and branches
+----------------------------------
+
+When you add a project to Read the Docs,
+all Git tags and branches are created as **Inactive** and **Not Hidden** versions by default.
+During initial setup, Read the Docs also creates a ``latest`` version
+that points to the default branch defined in your Git repository (usually ``main``).
+This version should always exist and is the default version for your project.
+
+If your project has any tags or branches with a name following
+`semantic versioning <https://semver.org/>`_ (with or without a ``v`` prefix),
 we also create a ``stable`` version tracking your most recent release.
 If you want a custom ``stable`` version,
 create either a tag or branch in your project with that name.
 
-When you have :doc:`/integrations` configured for your repository,
+.. note::
+   If you have at least one tag,
+   tags will take preference over branches when selecting the stable version.
+
+When you have :doc:`/reference/git-integration` configured for your repository,
 we will automatically build each version when you push a commit.
 
 Version states
 --------------
 
-Each version of your documentation has a combination of three states (**Active**, **Public**, and **Hidden**) which determine its visibility on your site:
-
-You can change the states for each version of your documentation in the :guilabel:`Versions` tab of your project.
+Each version of your documentation has a state that changes the visibility of it to other users.
 
 **Active** or **Inactive**
   - **Active** docs are visible, and builds can be triggered for the documentation.
-  - Docs for **Inactive** versions *are deleted* and builds cannot be triggered.
+  - **Inactive** versions *have their documentation content deleted* and builds cannot be triggered.
 
 **Hidden** or **Not hidden**
-  - **Hidden** docs are not listed on the :term:`flyout menu` on the docs site,
-    or shown in search results from another version on the docs site
-    (like on search results from a superproject).
-  - **Not hidden** docs are listed on the :term:`flyout menu` on the docs site,
-    and are shown in search results on the docs site.
+  - **Not hidden** docs are listed on the :term:`flyout menu` on the docs site
+    and are shown in search results.
+  - **Hidden** docs are not listed on the :term:`flyout menu` on the docs site
+    and are not shown in search results.
 
   Hiding a version doesn't make it private,
   any user with a link to its docs can still see it.
@@ -43,30 +58,46 @@ You can change the states for each version of your documentation in the :guilabe
   in the default :doc:`/reference/robots` created by Read the Docs.
 
 **Public** or **Private** (only available on on :doc:`/commercial/index`)
-  - Public versions are visible to everyone.
-  - Private versions are available only to people who have permissions to see them.
-    They will not display on any list view, and will 404 when visted by people without viewing permissions.
+  - **Public** versions are visible to everyone, and are browsable by unauthenticated users.
+  - **Private** versions are available only to people who have permissions to see them.
+    They will return a `404 Not Found` when visited by people without viewing permissions.
     If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 
-    In addition, if you want other users to view the build page of your public versions,
+    If you want unauthenticated people to be able to view the build page of your public versions,
     you'll need to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
 
-
-Tags and branches
------------------
-
-Read the Docs supports two workflows for versioning:
-
-- based on tags
-- based on branches
-
-If you have at least one tag,
-tags will take preference over branches when selecting the stable version.
-
-Version warning
+Version syncing
 ---------------
 
-As part of the new :doc:`addons`, Read the Docs displays notifications in the following situations:
+Versions are automatically synced when the following events happen:
+
+* A commit is pushed to your Git repository and you have a :doc:`Git integration </reference/git-integration>` configured.
+* A build for any of your version is triggered.
+
+If you find that your versions are out of date,
+triggering a build is the best approach to ensuring they are synced again.
+
+Managing your versions
+----------------------
+
+When you activate a version,
+a :doc:`build </builds>` will be triggered to automatically deploy your documentation.
+
+When you deactivate a version,
+all of the artifacts of your version will be deleted and a ``404 Not Found`` page will be served for it.
+
+You can change the state for each version of your documentation in the :guilabel:`Versions` tab of your project.
+
+Disabling versioning completely
+-------------------------------
+
+You can :doc:`configure a single version project </versioning-schemes>`,
+and the version will be hidden from the URL.
+
+Version warning notifications
+-----------------------------
+
+As part of :doc:`addons`, Read the Docs displays notifications in the following situations:
 
 Non-stable notification
     A notification on all non-stable versions is shown to clearly communicate to readers they may be reading an outdated version of the documentation.
@@ -77,13 +108,9 @@ Non-stable notification
 Latest version notification
     A notification shown on the latest version tells readers they are reading the latest/development version of the documentation that may include features not yet deployed.
 
-    Specically, when the ``latest`` version is being shown, and there's also an active ``stable`` version that is not hidden.
+    Specifically, when the ``latest`` version is being shown, and there's also an active ``stable`` version that is not hidden.
 
-Each of these notifcations can be configured by project admins in :ref:`addons:Configuring Read the Docs Addons`
-
-.. note::
-
-   An older version of these warning banners is only available to projects that had enabled it before the release of :doc:`addons`.
+Each of these notifications can be configured by project admins in :ref:`addons:Configuring Read the Docs Addons`.
 
 Redirects on root URLs
 ----------------------
@@ -92,7 +119,7 @@ When a user hits the root URL for your documentation,
 for example ``https://pip.readthedocs.io/``,
 they will be redirected to the **Default version**.
 This defaults to **latest**,
-but could also point to your latest released version.
+but another common configuration is setting it to your **stable** version.
 
 Versioning workflows
 --------------------
@@ -100,18 +127,18 @@ Versioning workflows
 Read the Docs makes certain assumptions about your documentation version defaults,
 all of which can be reconfigured if necessary:
 
-- ``latest`` version points to the most up to date development code.
+- The ``latest`` version points to the most up to date development code.
   If you develop on a branch that is different than the default for your version control system,
   set the **Default Branch** to the branch you use.
 
-- **tags** are semantic versioning compatible (according to  `PEP 440`_) snapshots
+- **Tags** are semantic versioning compatible (according to  `PEP 440`_) snapshots
   of your documentation. The most recent semantic tag maps to the ``stable`` version.
 
   Semantic versioning allows "normal" version numbers like ``1.4.2``, as
   well as pre-releases like this: ``2.0a1``. The ``stable`` version of your documentation never includes a pre-release.
+  An optional ``v`` prefix like ``v1.4.2`` or ``v2.0a1`` is also allowed.
 
-- If you have documentation changes on a **long-lived branch**,
-  you can build those too, to see how the new docs will be built.
+- Branches are assumed to be **long-lived branches**,
   This is most useful for **release branches**, which are maintained over time for a specific release.
   An example would be a ``2.1`` branch that is kept up to date with the latest ``2.1.x`` release.
 

@@ -31,17 +31,18 @@ Feature reference
 ⏩️ :doc:`/build-notifications`
   Build notifications can alert you when your builds fail so you can take immediate action.
 
-⏩️ :doc:`/reference/analytics`
-  Traffic and Search analytics are built into the platform.
-  This allows you to easily see what the most popular pages are,
-  and what people are searching for.
+⏩️ :doc:`/traffic-analytics`
+  Traffic analytics help you understand how your documentation is being used.
+
+⏩️ :doc:`/search-analytics`
+  Search analytics allow you to see what your users are searching for.
 
 ⏩️ :doc:`/user-defined-redirects`
   Projects may define their own custom URL redirects,
   with advanced functionality like folder redirects.
 
 ⏩️ :doc:`/commercial/sharing`
-  It is possible to host private and password protected documentation on Read the Docs for Business.
+  It is possible to host private and password-protected documentation on Read the Docs for Business.
 
 ⏩️ :doc:`/reference/cdn`
   Documentation projects are primarily static HTML pages along with media files.

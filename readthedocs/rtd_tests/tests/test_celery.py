@@ -10,6 +10,7 @@ from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.notifications.models import Notification
+from readthedocs.oauth.constants import GITHUB, GITLAB
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
 from readthedocs.projects.models import Project
@@ -85,8 +86,8 @@ class TestCeleryBuilding(TestCase):
         self.project.repo = "https://github.com/test/test/"
         self.project.save()
 
-        social_account = get(SocialAccount, user=self.eric, provider="gitlab")
-        remote_repo = get(RemoteRepository)
+        social_account = get(SocialAccount, user=self.eric, provider="github")
+        remote_repo = get(RemoteRepository, vcs_provider=GITHUB)
         remote_repo.projects.add(self.project)
         get(
             RemoteRepositoryRelation,
@@ -159,7 +160,7 @@ class TestCeleryBuilding(TestCase):
         self.project.save()
 
         social_account = get(SocialAccount, user=self.eric, provider="gitlab")
-        remote_repo = get(RemoteRepository)
+        remote_repo = get(RemoteRepository, vcs_provider=GITLAB)
         remote_repo.projects.add(self.project)
         get(
             RemoteRepositoryRelation,

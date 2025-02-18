@@ -95,15 +95,17 @@ class DisableListEndpoint:
 
         disabled = True
 
+        # DRF strips whitespaces from query params, and if the final string is empty
+        # the filter is ignored. So we do the same to check if the filter is going to be used or not.
+        project_slug = self.request.GET.get("project__slug", "").strip()
+        commit = self.request.GET.get("commit", "").strip()
+        slug = self.request.GET.get("slug", "").strip()
         # NOTE: keep list endpoint that specifies a resource
         if any(
             [
-                self.basename == "version" and "project__slug" in self.request.GET,
-                self.basename == "build"
-                and (
-                    "commit" in self.request.GET or "project__slug" in self.request.GET
-                ),
-                self.basename == "project" and "slug" in self.request.GET,
+                self.basename == "version" and project_slug,
+                self.basename == "build" and (commit or project_slug),
+                self.basename == "project" and slug,
             ]
         ):
             disabled = False
@@ -161,7 +163,7 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
         api_key = getattr(self.request, "build_api_key", None)
         if api_key:
             return self.get_queryset_for_api_key(api_key)
-        return self.model.objects.api(self.request.user)
+        return self.model.objects.api_v2(self.request.user)
 
 
 class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
@@ -415,10 +417,10 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return (
-            self.model.objects.api(self.request.user)
+            self.model.objects.api_v2(self.request.user)
             .filter(
                 remote_organization_relations__account__provider__in=[
-                    service.adapter.provider_id for service in registry
+                    service.allauth_provider.id for service in registry
                 ]
             )
             .distinct()
@@ -437,7 +439,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
             return self.model.objects.none()
 
         # TODO: Optimize this query after deployment
-        query = self.model.objects.api(self.request.user).annotate(
+        query = self.model.objects.api_v2(self.request.user).annotate(
             admin=Case(
                 When(
                     remote_repository_relations__user=self.request.user,
@@ -464,7 +466,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         query = query.filter(
             remote_repository_relations__account__provider__in=[
-                service.adapter.provider_id for service in registry
+                service.allauth_provider.id for service in registry
             ],
         ).distinct()
 

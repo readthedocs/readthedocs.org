@@ -1,6 +1,7 @@
 {
   "path": "page.html",
   "title": "I Need Secrets (or Environment Variables) in my Build",
+  "main_content_hash": "95daf5cde2bee38d4bb23edaa1d5c0f3",
   "sections": [
     {
       "id": "test_py_module.test.Foo",
@@ -51,6 +52,11 @@
       "id": "footnotes-and-domains",
       "title": "Footnotes and domains",
       "content": ""
+    },
+    {
+      "content": "Contributing How to contribute changes to the theme.",
+      "id": "development",
+      "title": "Development"
     },
     {
       "id": "subsub-title",

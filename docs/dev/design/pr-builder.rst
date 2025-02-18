@@ -43,7 +43,7 @@ We might consider adding a ``VERSION_TYPES`` to the ``Version`` model.
 - If we go with ``VERSION_TYPES`` we can add something like ``pull_request`` alongside Tag and Branch.
 
 We should add ``Version`` and ``Build`` Model Managers for PR and Regular Versions and Builds.
-The proposed names for PR and Regular Version and Build Mangers are ``external`` and ``internal``.
+The proposed names for PR and Regular Version and Build Managers are ``external`` and ``internal``.
 
 We can then use ``Version.internal.all()`` to get all regular versions,
 ``Version.external.all()`` to get all PR versions.

@@ -1,28 +1,20 @@
 Configuration file overview
 ===========================
 
-As part of the initial set up for your Read the Docs site,
+As part of the initial set up of a Read the Docs project,
 you need to create a **configuration file** called ``.readthedocs.yaml``.
 The configuration file tells Read the Docs what specific settings to use for your project.
 
 This tutorial covers:
 
-#. Where to put your configuration file.
-#. What to put in the configuration file.
-#. How to customize the configuration for your project.
-
-.. seealso::
-
-   :doc:`/tutorial/index`.
-     Following the steps in our tutorial will help you setup your first documentation project.
-
+.. contents::
+    :local:
+    :depth: 1
 
 Where to put your configuration file
 ------------------------------------
 
 The ``.readthedocs.yaml`` file should be placed in the top-most directory of your project's repository.
-We will get to the contents of the file in the next steps.
-
 When you have changed the configuration file,
 you need to commit and push the changes to your Git repository.
 Read the Docs will then automatically find and use the configuration to build your project.
@@ -43,7 +35,8 @@ Getting started with a template
 
 Here are some configuration file examples to help you get started.
 Pick an example based on the tool that your project is using,
-copy its contents to ``.readthedocs.yaml`` and add the file to your Git repository.
+copy its contents to ``.readthedocs.yaml``,
+and add the file to your Git repository.
 
 .. tabs::
 
@@ -68,6 +61,8 @@ copy its contents to ``.readthedocs.yaml`` and add the file to your Git reposito
            :linenos:
            :caption: .readthedocs.yaml
 
+You can find more information about these tools in our :doc:`/intro/doctools`.
+
 Editing the template
 --------------------
 
@@ -88,6 +83,10 @@ Skip: file header and comments
 
 There are some parts of the templates that you can leave in place:
 
+``version`` key
+  The version key tells the system how to read the rest of the configuration file.
+  The current and only supported version is **version 2**.
+
 Comments
   We added comments that explain the configuration options and optional features.
   These lines begin with a ``#``.
@@ -96,11 +95,6 @@ Commented out features
   We use the ``#`` in front of some popular configuration options.
   They are there as examples,
   which you can choose to enable, delete or save for later.
-
-``version`` key
-  The version key tells the system how to read the rest of the configuration file.
-  The current and only supported version is **version 2**.
-
 
 Adjust: ``build.os``
 ~~~~~~~~~~~~~~~~~~~~
@@ -117,7 +111,6 @@ or in the future when you need features from a newer Ubuntu.
 
    :ref:`config-file/v2:build.os`
      Configuration file reference with all values possible for ``build.os``.
-
 
 Adjust: Python configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

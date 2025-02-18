@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from unittest import mock
 
 import django_dynamic_fixture as fixture
 import pytest
@@ -9,17 +10,25 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
+from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.filetreediff.dataclasses import (
+    FileTreeDiff,
+    FileTreeDiffFile,
+    FileTreeDiffManifest,
+)
 from readthedocs.projects.constants import (
+    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+    ADDONS_FLYOUT_SORTING_CALVER,
+    ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
-from readthedocs.projects.models import AddonsConfig, Domain, Project
-from readthedocs.proxito.views.hosting import ClientError
+from readthedocs.projects.models import Domain, Project
 
 
 @override_settings(
@@ -28,6 +37,7 @@ from readthedocs.proxito.views.hosting import ClientError
     PUBLIC_DOMAIN_USES_HTTPS=True,
     GLOBAL_ANALYTICS_CODE=None,
     RTD_ALLOW_ORGANIZATIONS=False,
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 @pytest.mark.proxito
 class TestReadTheDocsConfigJson(TestCase):
@@ -132,19 +142,18 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.json() == self._get_response_dict("v3")
 
     def test_disabled_addons_via_addons_config(self):
-        addons = fixture.get(
-            AddonsConfig,
-            project=self.project,
-        )
-        addons.analytics_enabled = False
-        addons.doc_diff_enabled = False
-        addons.external_version_warning_enabled = False
-        addons.ethicalads_enabled = False
-        addons.flyout_enabled = False
-        addons.hotkeys_enabled = False
-        addons.search_enabled = False
-        addons.stable_latest_version_warning_enabled = False
-        addons.save()
+        self.project.addons.analytics_enabled = False
+        self.project.addons.doc_diff_enabled = False
+        self.project.addons.external_version_warning_enabled = False
+        self.project.addons.ethicalads_enabled = False
+        self.project.addons.flyout_enabled = False
+        self.project.addons.hotkeys_enabled = False
+        self.project.addons.search_enabled = False
+        self.project.addons.notifications_enabled = False
+        self.project.addons.notifications_show_on_latest = False
+        self.project.addons.notifications_show_on_non_stable = False
+        self.project.addons.notifications_show_on_external = False
+        self.project.addons.save()
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -160,8 +169,10 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 200
         assert r.json()["addons"]["analytics"]["enabled"] is False
-        assert r.json()["addons"]["external_version_warning"]["enabled"] is False
-        assert r.json()["addons"]["non_latest_version_warning"]["enabled"] is False
+        assert r.json()["addons"]["notifications"]["enabled"] is False
+        assert r.json()["addons"]["notifications"]["show_on_latest"] is False
+        assert r.json()["addons"]["notifications"]["show_on_non_stable"] is False
+        assert r.json()["addons"]["notifications"]["show_on_external"] is False
         assert r.json()["addons"]["doc_diff"]["enabled"] is False
         assert r.json()["addons"]["flyout"]["enabled"] is False
         assert r.json()["addons"]["search"]["enabled"] is False
@@ -284,6 +295,7 @@ class TestReadTheDocsConfigJson(TestCase):
             slug="translation",
             main_language_project=self.project,
             language="ja",
+            privacy_level=PUBLIC,
         )
         translation_ja.versions.update(
             built=True,
@@ -377,6 +389,18 @@ class TestReadTheDocsConfigJson(TestCase):
         self.version.has_htmlzip = True
         self.version.save()
 
+        # Add extra built and active versions to emulate a project that went
+        # from multiple versions to single version.
+        # These versions shouldn't be included in the `versions.active` field.
+        for i in range(5):
+            fixture.get(
+                Version,
+                privacy_level=PUBLIC,
+                active=True,
+                built=True,
+                project=self.project,
+            )
+
         self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
 
@@ -393,9 +417,8 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         )
         assert r.status_code == 200
-
-        expected = []
-        assert r.json()["versions"]["active"] == expected
+        expected = ["latest"]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
 
         expected = {
             "pdf": "https://project.dev.readthedocs.io/_/downloads/en/latest/pdf/",
@@ -530,20 +553,24 @@ class TestReadTheDocsConfigJson(TestCase):
             slug="translation",
             language="es",
             repo="https://github.com/readthedocs/subproject",
+            privacy_level=PUBLIC,
         )
         translation.versions.update(
             built=True,
             active=True,
         )
         subproject = fixture.get(
-            Project, slug="subproject", repo="https://github.com/readthedocs/subproject"
+            Project,
+            slug="subproject",
+            repo="https://github.com/readthedocs/subproject",
+            privacy_level=PUBLIC,
         )
         self.project.add_subproject(subproject)
         subproject.translations.add(translation)
         subproject.save()
 
-        fixture.get(Version, slug="v1", project=subproject)
-        fixture.get(Version, slug="v2.3", project=subproject)
+        fixture.get(Version, slug="v1", project=subproject, privacy_level=PUBLIC)
+        fixture.get(Version, slug="v2.3", project=subproject, privacy_level=PUBLIC)
         subproject.versions.update(
             privacy_level=PUBLIC,
             built=True,
@@ -571,15 +598,15 @@ class TestReadTheDocsConfigJson(TestCase):
             r.json()["versions"]["active"][0]["urls"]["documentation"]
             == "https://project.dev.readthedocs.io/projects/subproject/en/latest/"
         )
-        assert r.json()["versions"]["active"][1]["slug"] == "v1"
+        assert r.json()["versions"]["active"][1]["slug"] == "v2.3"
         assert (
             r.json()["versions"]["active"][1]["urls"]["documentation"]
-            == "https://project.dev.readthedocs.io/projects/subproject/en/v1/"
+            == "https://project.dev.readthedocs.io/projects/subproject/en/v2.3/"
         )
-        assert r.json()["versions"]["active"][2]["slug"] == "v2.3"
+        assert r.json()["versions"]["active"][2]["slug"] == "v1"
         assert (
             r.json()["versions"]["active"][2]["urls"]["documentation"]
-            == "https://project.dev.readthedocs.io/projects/subproject/en/v2.3/"
+            == "https://project.dev.readthedocs.io/projects/subproject/en/v1/"
         )
 
         assert len(r.json()["projects"]["translations"]) == 1
@@ -644,6 +671,7 @@ class TestReadTheDocsConfigJson(TestCase):
         expected_response = self._get_response_dict("v1")
         # Remove `addons.doc_diff` from the response because it's not present when `url=` is not sent
         expected_response["addons"].pop("doc_diff")
+        expected_response["readthedocs"]["resolver"]["filename"] = None
 
         assert self._normalize_datetime_fields(r.json()) == expected_response
 
@@ -695,6 +723,29 @@ class TestReadTheDocsConfigJson(TestCase):
             == "https://docs.example.com/en/latest/"
         )
 
+    def test_linkpreviews(self):
+        self.project.addons.linkpreviews_enabled = True
+        self.project.addons.save()
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "1.0.0",
+                "client-version": "0.6.0",
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        expected = {
+            "enabled": True,
+        }
+
+        assert r.status_code == 200
+        assert r.json()["addons"]["linkpreviews"] == expected
+
     def test_non_existent_project(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -710,9 +761,7 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         )
         assert r.status_code == 404
-        assert r.json() == {
-            "error": ClientError.PROJECT_NOT_FOUND,
-        }
+        assert r.json() == {"detail": "No Project matches the given query."}
 
     def test_number_of_queries_project_version_slug(self):
         # The number of queries should not increase too much, even if we change
@@ -734,7 +783,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(23):
+        with self.assertNumQueries(20):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -763,7 +812,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(22):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -799,7 +848,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(31):
+        with self.assertNumQueries(26):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -825,7 +874,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(56):
+        with self.assertNumQueries(42):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -839,3 +888,330 @@ class TestReadTheDocsConfigJson(TestCase):
                 },
             )
         assert r.status_code == 200
+
+    @override_settings(
+        RTD_FILETREEDIFF_ALL=True,
+    )
+    @mock.patch("readthedocs.proxito.views.hosting.get_diff")
+    def test_file_tree_diff_ignored_files(self, get_diff):
+        ignored_files = [
+            "ignored.html",
+            "archives/*",
+        ]
+
+        self.project.addons.filetreediff_enabled = True
+        self.project.addons.filetreediff_ignored_files = ignored_files
+        self.project.addons.save()
+
+        get_diff.return_value = FileTreeDiff(
+            added=["tags/newtag.html"],
+            modified=["ignored.html", "archives/2025.html", "changelog/2025.2.html"],
+            deleted=["deleted.html"],
+        )
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+
+        expected = {
+            "enabled": True,
+            "outdated": False,
+            "diff": {
+                "added": [
+                    {
+                        "filename": "tags/newtag.html",
+                        "urls": {
+                            "current": "https://project.dev.readthedocs.io/en/latest/tags/newtag.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/tags/newtag.html",
+                        },
+                    },
+                ],
+                "deleted": [
+                    {
+                        "filename": "deleted.html",
+                        "urls": {
+                            "current": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                        },
+                    },
+                ],
+                "modified": [
+                    {
+                        "filename": "changelog/2025.2.html",
+                        "urls": {
+                            "current": "https://project.dev.readthedocs.io/en/latest/changelog/2025.2.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/changelog/2025.2.html",
+                        },
+                    },
+                ],
+            },
+        }
+        assert r.status_code == 200
+        assert r.json()["addons"]["filetreediff"] == expected
+
+    @mock.patch("readthedocs.filetreediff.get_manifest")
+    def test_file_tree_diff(self, get_manifest):
+        self.project.addons.filetreediff_enabled = True
+        self.project.addons.save()
+        pr_version = get(
+            Version,
+            project=self.project,
+            slug="123",
+            active=True,
+            built=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+        pr_build = get(
+            Build,
+            project=self.project,
+            version=pr_version,
+            commit="a1b2c3",
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+        get_manifest.side_effect = [
+            FileTreeDiffManifest(
+                build_id=pr_build.id,
+                files=[
+                    FileTreeDiffFile(
+                        path="index.html",
+                        main_content_hash="hash1",
+                    ),
+                    FileTreeDiffFile(
+                        path="tutorial/index.html",
+                        main_content_hash="hash1",
+                    ),
+                    FileTreeDiffFile(
+                        path="new-file.html",
+                        main_content_hash="hash1",
+                    ),
+                ],
+            ),
+            FileTreeDiffManifest(
+                build_id=self.build.id,
+                files=[
+                    FileTreeDiffFile(
+                        path="index.html",
+                        main_content_hash="hash1",
+                    ),
+                    FileTreeDiffFile(
+                        path="tutorial/index.html",
+                        main_content_hash="hash-changed",
+                    ),
+                    FileTreeDiffFile(
+                        path="deleted.html",
+                        main_content_hash="hash-deleted",
+                    ),
+                ],
+            ),
+        ]
+        with self.assertNumQueries(25):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project--123.dev.readthedocs.build/en/123/",
+                    "client-version": "0.6.0",
+                    "api-version": "1.0.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project--123.dev.readthedocs.build",
+                },
+            )
+        assert r.status_code == 200
+        filetreediff_response = r.json()["addons"]["filetreediff"]
+        assert filetreediff_response == {
+            "enabled": True,
+            "outdated": False,
+            "diff": {
+                "added": [
+                    {
+                        "filename": "new-file.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/new-file.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/new-file.html",
+                        },
+                    },
+                ],
+                "deleted": [
+                    {
+                        "filename": "deleted.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/deleted.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/deleted.html",
+                        },
+                    },
+                ],
+                "modified": [
+                    {
+                        "filename": "tutorial/index.html",
+                        "urls": {
+                            "current": "https://project--123.dev.readthedocs.build/en/123/tutorial/index.html",
+                            "base": "https://project.dev.readthedocs.io/en/latest/tutorial/index.html",
+                        },
+                    },
+                ],
+            },
+        }
+
+    def test_version_ordering(self):
+        for slug in ["1.0", "1.2", "1.12", "2.0", "2020.01.05", "a-slug", "z-slug"]:
+            fixture.get(
+                Version,
+                project=self.project,
+                privacy_level=PUBLIC,
+                slug=slug,
+                verbose_name=slug,
+                built=True,
+                active=True,
+            )
+        self.project.update_stable_version()
+        self.project.versions.update(
+            privacy_level=PUBLIC,
+            built=True,
+            active=True,
+        )
+
+        kwargs = {
+            "path": reverse("proxito_readthedocs_docs_addons"),
+            "data": {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            "secure": True,
+            "headers": {
+                "host": "project.dev.readthedocs.io",
+            },
+        }
+
+        # Default ordering (SemVer)
+        expected = [
+            "latest",
+            "stable",
+            "2020.01.05",
+            "2.0",
+            "1.12",
+            "1.2",
+            "1.0",
+            "z-slug",
+            "a-slug",
+        ]
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        self.project.refresh_from_db()
+        addons = self.project.addons
+
+        # The order of latest and stable doesn't change when using semver.
+        addons.flyout_sorting_latest_stable_at_beginning = False
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting = ADDONS_FLYOUT_SORTING_ALPHABETICALLY
+        addons.flyout_sorting_latest_stable_at_beginning = True
+        addons.save()
+        expected = [
+            "z-slug",
+            "stable",
+            "latest",
+            "a-slug",
+            "2020.01.05",
+            "2.0",
+            "1.2",
+            "1.12",
+            "1.0",
+        ]
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        # The order of latest and stable doesn't change when using alphabetical sorting.
+        addons.flyout_sorting_latest_stable_at_beginning = False
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting = ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
+        addons.flyout_sorting_latest_stable_at_beginning = True
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        expected = [
+            "latest",
+            "stable",
+            "2020.01.05",
+            "2.0",
+            "1.12",
+            "1.2",
+            "1.0",
+            "z-slug",
+            "a-slug",
+        ]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting_latest_stable_at_beginning = False
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        expected = [
+            "2020.01.05",
+            "2.0",
+            "1.12",
+            "1.2",
+            "1.0",
+            "z-slug",
+            "stable",
+            "latest",
+            "a-slug",
+        ]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting = ADDONS_FLYOUT_SORTING_CALVER
+        addons.flyout_sorting_latest_stable_at_beginning = True
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        expected = [
+            "latest",
+            "stable",
+            "2020.01.05",
+            "z-slug",
+            "a-slug",
+            "2.0",
+            "1.2",
+            "1.12",
+            "1.0",
+        ]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected
+
+        addons.flyout_sorting_latest_stable_at_beginning = False
+        addons.save()
+        r = self.client.get(**kwargs)
+        assert r.status_code == 200
+        expected = [
+            "2020.01.05",
+            "z-slug",
+            "stable",
+            "latest",
+            "a-slug",
+            "2.0",
+            "1.2",
+            "1.12",
+            "1.0",
+        ]
+        assert [v["slug"] for v in r.json()["versions"]["active"]] == expected

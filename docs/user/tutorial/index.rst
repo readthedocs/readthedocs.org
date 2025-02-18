@@ -76,7 +76,7 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
    that ensure that the workflow is as smooth as possible,
    like installing :term:`webhooks <webhook>`.
    If you want to learn more,
-   check out :ref:`guides/setup/git-repo-automatic:permissions for connected accounts`.
+   check out :ref:`reference/git-integration:permissions for connected accounts`.
 
 After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
 open your :term:`dashboard`.
@@ -119,7 +119,7 @@ To import your GitHub project to Read the Docs:
    Default branch
       Name of the default branch of the project, leave it as ``main``.
 
-   Then click the :guilabel:`Next` button to create the poject and open the :term:`project home`.
+   Then click the :guilabel:`Next` button to create the project and open the :term:`project home`.
 
 You just created your first project on Read the Docs! |:tada:|
 
@@ -167,7 +167,7 @@ To see the build logs:
 
    If you don't see the ad, you might be using an ad blocker.
    Our EthicalAds network respects your privacy, doesn't target you,
-   and tries to be as unobstrusive as possible,
+   and tries to be as unobtrusive as possible,
    so we would like to kindly ask you to :doc:`not block us </advertising/ad-blocking>` |:heart:|
 
 Configuring the project
@@ -242,7 +242,7 @@ Build process configuration settings are in ``.readthedocs.yaml`` :doc:`configur
 .. TODO: We are adding a how-to that we need to include in this tutorial.
 .. Maybe by reference or maybe as full-featured content.
 
-.. TODO there is a bit of handwaving about whether you're commiting and merging branches here, we might need to be a bit more explicit. Or at least add a mention at this level that wherever we talk about editing, we mean on main and pushing to GH.
+.. TODO there is a bit of handwaving about whether you're committing and merging branches here, we might need to be a bit more explicit. Or at least add a mention at this level that wherever we talk about editing, we mean on main and pushing to GH.
 
 Using different Python versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -527,7 +527,7 @@ Understanding traffic analytics
 
 The Traffic Analytics view gives you a simple overview of how your readers browse your documentation. It respects visitor privacy by not storing identifying information about your them.
 
-The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
+This page shows the most viewed documentation pages of the past 30 days,
 plus a visualization of the daily views during that period.
 
 To see the Traffic Analytics view, go back the :term:`project page` again,
@@ -550,7 +550,7 @@ and click the :guilabel:`Download all data` button.
 Understanding search analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As well as traffic analytics, Read the Docs shows :doc:`what terms your readers are searching for </guides/search-analytics>`.
+As well as traffic analytics, Read the Docs shows :doc:`what terms your readers are searching for </search-analytics>`.
 This can inform decisions on what areas to focus on,
 or what parts of your project are less understood or more difficult to find.
 

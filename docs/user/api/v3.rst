@@ -287,8 +287,8 @@ Project details
         }
 
     :query string expand: Add additional fields in the response.
-                          Allowed values are ``active_versions``, ``active_versions.last_build`` and
-                          ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
+                          Allowed values are: ``active_versions``.
+                          Multiple fields can be passed separated by commas.
 
     .. note::
 
@@ -308,11 +308,20 @@ Project details
 
          * **expand** (*string*) -- Add additional fields in the response.
            Allowed values are: ``organization``.
+           We used to return a full organization object in the response,
+           due to privacy concerns, now we return only the slug of the organization.
+           If you need to get the full organization object, you can use the organization endpoint with the slug.
 
     .. note::
 
        The ``single_version`` attribute is deprecated,
        use ``versioning_scheme`` instead.
+
+    .. note::
+
+       Previously, ``translation_of`` and ``subproject_of`` returned a full project object,
+       due to privacy concerns, now they return only the slug of the project.
+       If you need to get the full project object, you can use the project endpoint with the slug.
 
 Project create
 ++++++++++++++
@@ -588,7 +597,6 @@ Version detail
             "aliases": ["VERSION"],
             "hidden": false,
             "type": "tag",
-            "last_build": "{BUILD}",
             "privacy_level": "public",
             "downloads": {
                 "pdf": "https://pip.readthedocs.io/_/downloads/pdf/pip/stable/",
@@ -612,10 +620,6 @@ Version detail
     :>json string ref: the version slug where the ``stable`` version points to.
                        ``null`` when it's not the stable version.
     :>json boolean built: the version has at least one successful build.
-
-    :query string expand: Add additional fields in the response.
-                          Allowed values are ``last_build`` and ``last_build.config``.
-                          Multiple fields can be passed separated by commas.
 
 Version update
 ++++++++++++++
@@ -1860,12 +1864,12 @@ Remote repository listing
 
         .. code-tab:: bash
 
-            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=projects,remote_organization
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=remote_organization
 
         .. code-tab:: python
 
             import requests
-            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=projects,remote_organization'
+            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=remote_organization'
             TOKEN = '<token>'
             HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.get(URL, headers=HEADERS)
@@ -1877,7 +1881,7 @@ Remote repository listing
 
         {
             "count": 20,
-            "next": "api/v3/remote/repositories/?expand=projects,remote_organization&limit=10&offset=10",
+            "next": "api/v3/remote/repositories/?expand=remote_organization&limit=10&offset=10",
             "previous": null,
             "results": [
                 {
@@ -1891,7 +1895,7 @@ Remote repository listing
                         "url": "https://github.com/organization",
                         "vcs_provider": "github"
                     },
-                    "project": [{
+                    "projects": [{
                         "id": 12345,
                         "name": "project",
                         "slug": "project",
@@ -1958,11 +1962,11 @@ Remote repository listing
     The ``results`` in response is an array of remote repositories data.
 
     :query string name: return remote repositories containing the name
-    :query string full_name: return remote repositories containing the full name (it inclues the username/organization the project belongs to)
+    :query string full_name: return remote repositories containing the full name (it includes the username/organization the project belongs to)
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
     :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
     :query string expand: Add additional fields in the response.
-                          Allowed values are ``projects`` and ``remote_organization``.
+                          Allowed values are: ``remote_organization``.
                           Multiple fields can be passed separated by commas.
 
     :requestheader Authorization: token to authenticate.
@@ -2006,10 +2010,11 @@ Embed
     :query string url: full URL of the document (with optional fragment) to fetch content from.
     :query string doctool: *optional* documentation tool key name used to generate the target documentation (currently, only ``sphinx`` is accepted)
     :query string doctoolversion: *optional* documentation tool version used to generate the target documentation (e.g. ``4.2.0``).
+    :query string maincontent: *optional* CSS selector for the main content of the page (e.g. ``div#main``).
 
     .. note::
 
-       Passing ``?doctool=`` and ``?doctoolversion=`` may improve the response,
+       Passing ``?doctool=``, ``?doctoolversion=`` and ``?maincontent=`` may improve the response
        since the endpoint will know more about the exact structure of the HTML and can make better decisions.
 
 Additional APIs

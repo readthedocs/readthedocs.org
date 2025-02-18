@@ -7,13 +7,11 @@ from shlex import quote
 from urllib.parse import urlparse
 
 import structlog
-from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -30,12 +28,14 @@ from readthedocs.builds.constants import (
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE,
+    STABLE_VERBOSE_NAME,
 )
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
+from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -46,12 +46,12 @@ from readthedocs.projects.querysets import (
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_build_config_file,
     validate_custom_prefix,
     validate_custom_subproject_prefix,
     validate_domain_name,
+    validate_environment_variable_size,
     validate_no_ip,
     validate_repository_url,
 )
@@ -61,8 +61,9 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
-    ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+    ADDONS_FLYOUT_POSITION_CHOICES,
     ADDONS_FLYOUT_SORTING_CHOICES,
+    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -142,8 +143,6 @@ class AddonsConfig(TimeStampedModel):
     Everything is enabled by default.
     """
 
-    DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
-
     # Model history
     history = ExtraHistoricalRecords()
 
@@ -160,6 +159,25 @@ class AddonsConfig(TimeStampedModel):
         help_text="Enable/Disable all the addons on this project",
     )
 
+    options_root_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector for the main content of the page. Leave it blank for auto-detect.",
+    )
+
+    # Whether or not load addons library when the requested page is embedded (e.g. inside an iframe)
+    # https://github.com/readthedocs/addons/pull/415
+    options_load_when_embedded = models.BooleanField(default=False)
+
+    options_base_version = models.ForeignKey(
+        "builds.Version",
+        verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
     # Analytics
 
     # NOTE: we keep analytics disabled by default to save resources.
@@ -170,24 +188,27 @@ class AddonsConfig(TimeStampedModel):
     doc_diff_enabled = models.BooleanField(default=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(
-        null=True,
-        blank=True,
-        max_length=128,
-        help_text="CSS selector for the main content of the page",
-    )
-
-    # External version warning
-    external_version_warning_enabled = models.BooleanField(default=True)
 
     # EthicalAds
     ethicalads_enabled = models.BooleanField(default=True)
 
+    # File Tree Diff
+    filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
+    filetreediff_ignored_files = models.JSONField(
+        help_text=_("List of ignored files. One per line."),
+        null=True,
+        blank=True,
+    )
+
     # Flyout
-    flyout_enabled = models.BooleanField(default=True)
+    flyout_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_("Enabled"),
+    )
     flyout_sorting = models.CharField(
+        verbose_name=_("Sorting of versions"),
         choices=ADDONS_FLYOUT_SORTING_CHOICES,
-        default=ADDONS_FLYOUT_SORTING_ALPHABETICALLY,
+        default=ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
         max_length=64,
     )
     flyout_sorting_custom_pattern = models.CharField(
@@ -195,12 +216,24 @@ class AddonsConfig(TimeStampedModel):
         default=None,
         null=True,
         blank=True,
+        verbose_name=_("Custom version sorting pattern"),
         help_text="Sorting pattern supported by BumpVer "
         '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
     )
     flyout_sorting_latest_stable_at_beginning = models.BooleanField(
+        verbose_name=_(
+            "Show <code>latest</code> and <code>stable</code> at the beginning"
+        ),
         default=True,
-        help_text="Show <code>latest</code> and <code>stable</code> at the beginning",
+    )
+
+    flyout_position = models.CharField(
+        choices=ADDONS_FLYOUT_POSITION_CHOICES,
+        max_length=64,
+        default=None,  # ``None`` means use the default (theme override if present or Read the Docs default)
+        null=True,
+        blank=True,
+        verbose_name=_("Position"),
     )
 
     # Hotkeys
@@ -210,8 +243,26 @@ class AddonsConfig(TimeStampedModel):
     search_enabled = models.BooleanField(default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
 
-    # Stable/Latest version warning
-    stable_latest_version_warning_enabled = models.BooleanField(default=True)
+    # User JavaScript File
+    customscript_enabled = models.BooleanField(default=False)
+
+    # This is a user-defined file that will be injected at serve time by our
+    # Cloudflare Worker if defined
+    customscript_src = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        help_text="URL to a JavaScript file to inject at serve time",
+    )
+
+    # Notifications
+    notifications_enabled = models.BooleanField(default=True)
+    notifications_show_on_latest = models.BooleanField(default=True)
+    notifications_show_on_non_stable = models.BooleanField(default=True)
+    notifications_show_on_external = models.BooleanField(default=True)
+
+    # Link Previews
+    linkpreviews_enabled = models.BooleanField(default=False)
 
 
 class AddonSearchFilter(TimeStampedModel):
@@ -576,7 +627,6 @@ class Project(models.Model):
 
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = "_latest_build"
-    LATEST_SUCCESSFUL_BUILD_CACHE = "_latest_successful_build"
 
     class Meta:
         ordering = ("slug",)
@@ -600,6 +650,12 @@ class Project(models.Model):
         if self.remote_repository and not self.remote_repository.private:
             self.external_builds_privacy_level = PUBLIC
 
+        # If the project is linked to a remote repository,
+        # make sure to use the clone URL from the repository.
+        dont_sync = self.pk and self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO)
+        if self.remote_repository and not dont_sync:
+            self.repo = self.remote_repository.clone_url
+
         super().save(*args, **kwargs)
 
         try:
@@ -615,7 +671,9 @@ class Project(models.Model):
         log.debug(
             "Updating default branch.", slug=LATEST, identifier=self.default_branch
         )
-        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
+        self.versions.filter(slug=LATEST, machine=True).update(
+            identifier=self.default_branch
+        )
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -922,13 +980,6 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
-        # Check if there is `_latest_successful_build` attribute in the Queryset.
-        # Used for database optimization.
-        if hasattr(self, self.LATEST_SUCCESSFUL_BUILD_CACHE):
-            if build_successful := getattr(self, self.LATEST_SUCCESSFUL_BUILD_CACHE):
-                return build_successful[0]
-            return None
-
         # Check if there is `_good_build` annotation in the Queryset.
         # Used for Database optimization.
         if hasattr(self, "_good_build"):
@@ -979,28 +1030,36 @@ class Project(models.Model):
         """
         return backend_cls.get(self.repo_type)
 
-    def git_service_class(self):
-        """Get the service class for project. e.g: GitHubService, GitLabService."""
+    def _guess_service_class(self):
         from readthedocs.oauth.services import registry
 
         for service_cls in registry:
             if service_cls.is_project_service(self):
-                service = service_cls
-                break
-        else:
-            log.warning("There are no registered services in the application.")
-            service = None
+                return service_cls
+        return None
 
-        return service
+    def get_git_service_class(self, fallback_to_clone_url=False):
+        """
+        Get the service class for project. e.g: GitHubService, GitLabService.
+
+        :param fallback_to_clone_url: If the project doesn't have a remote repository,
+         we try to guess the service class based on the clone URL.
+        """
+        service_cls = None
+        if self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
+            return self._guess_service_class()
+        service_cls = (
+            self.remote_repository and self.remote_repository.get_service_class()
+        )
+        if not service_cls and fallback_to_clone_url:
+            return self._guess_service_class()
+        return service_cls
 
     @property
     def git_provider_name(self):
         """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
-        service = self.git_service_class()
-        if service:
-            provider_class = allauth_registry.get_class(service.adapter.provider_id)
-            return provider_class.name
-        return None
+        service_class = self.get_git_service_class(fallback_to_clone_url=True)
+        return service_class.allauth_provider.name if service_class else None
 
     def find(self, filename, version):
         """
@@ -1053,43 +1112,6 @@ class Project(models.Model):
         return versions.filter(built=True, active=True) | versions.filter(
             active=True, uploaded=True
         )
-
-    def ordered_active_versions(self, **kwargs):
-        """
-        Get all active versions, sorted.
-
-        :param kwargs: All kwargs are passed down to the
-                       `Version.internal.public` queryset.
-        """
-        from readthedocs.builds.models import Version
-
-        kwargs.update(
-            {
-                "project": self,
-                "only_active": True,
-                "only_built": True,
-            },
-        )
-        versions = (
-            Version.internal.public(**kwargs)
-            .select_related(
-                "project",
-                "project__main_language_project",
-            )
-            .prefetch_related(
-                Prefetch(
-                    "project__superprojects",
-                    ProjectRelationship.objects.all().select_related("parent"),
-                    to_attr="_superprojects",
-                ),
-                Prefetch(
-                    "project__domains",
-                    Domain.objects.filter(canonical=True),
-                    to_attr="_canonical_domains",
-                ),
-            )
-        )
-        return sort_version_aware(versions)
 
     def all_active_versions(self):
         """
@@ -1193,6 +1215,7 @@ class Project(models.Model):
                 version_updated = (
                     new_stable.identifier != current_stable.identifier
                     or new_stable.type != current_stable.type
+                    or current_stable.verbose_name != STABLE_VERBOSE_NAME
                 )
                 if version_updated:
                     log.info(
@@ -1202,6 +1225,7 @@ class Project(models.Model):
                         version_type=new_stable.type,
                     )
                     current_stable.identifier = new_stable.identifier
+                    current_stable.verbose_name = STABLE_VERBOSE_NAME
                     current_stable.type = new_stable.type
                     current_stable.save()
                     return new_stable
@@ -1477,6 +1501,7 @@ class ImportedFile(models.Model):
     things like CDN invalidation.
     """
 
+    id = models.BigAutoField(primary_key=True)
     project = models.ForeignKey(
         Project,
         verbose_name=_("Project"),
@@ -1818,6 +1843,9 @@ class Domain(TimeStampedModel):
             self.validation_process_start = timezone.now()
             self.save()
 
+    def clean(self):
+        check_domains_limit(self.project)
+
     def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
@@ -1889,13 +1917,13 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     API_LARGE_DATA = "api_large_data"
-    CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
-    ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
+    DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
+    ALLOW_CHANGING_VERSION_SLUG = "allow_changing_version_slug"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1908,10 +1936,8 @@ class Feature(models.Model):
     DONT_INSTALL_LATEST_PIP = "dont_install_latest_pip"
     USE_SPHINX_RTD_EXT_LATEST = "rtd_sphinx_ext_latest"
     INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
-    DISABLE_SPHINX_MANIPULATION = "disable_sphinx_manipulation"
 
     # Search related features
-    DISABLE_SERVER_SIDE_SEARCH = "disable_server_side_search"
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = "enable_mkdocs_server_side_search"
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
 
@@ -1922,17 +1948,6 @@ class Feature(models.Model):
         (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            CONDA_APPEND_CORE_REQUIREMENTS,
-            _("Conda: Append Read the Docs core requirements to environment.yml file"),
-        ),
-        (
-            ALL_VERSIONS_IN_HTML_CONTEXT,
-            _(
-                "Sphinx: Pass all versions (including private) into the html context "
-                "when building with Sphinx"
-            ),
         ),
         (
             RECORD_404_PAGE_VIEWS,
@@ -1955,6 +1970,14 @@ class Feature(models.Model):
         (
             ALLOW_VERSION_WARNING_BANNER,
             _("Dashboard: Allow project to use the version warning banner."),
+        ),
+        (
+            DONT_SYNC_WITH_REMOTE_REPO,
+            _("Remote repository: Don't keep project in sync with remote repository."),
+        ),
+        (
+            ALLOW_CHANGING_VERSION_SLUG,
+            _("Dashboard: Allow changing the version slug."),
         ),
         # Versions sync related features
         (
@@ -1986,17 +2009,7 @@ class Feature(models.Model):
                 "Build: Install all the latest versions of Read the Docs core requirements"
             ),
         ),
-        (
-            DISABLE_SPHINX_MANIPULATION,
-            _(
-                "Sphinx: Don't append `conf.py` and don't install ``readthedocs-sphinx-ext``"
-            ),
-        ),
         # Search related features.
-        (
-            DISABLE_SERVER_SIDE_SEARCH,
-            _("Search: Disable server side search"),
-        ),
         (
             ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
             _("Search: Enable server side search for MkDocs projects"),
@@ -2061,7 +2074,7 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         help_text=_("Name of the environment variable"),
     )
     value = models.CharField(
-        max_length=2048,
+        max_length=48000,
         help_text=_("Value of the environment variable"),
     )
     project = models.ForeignKey(
@@ -2084,3 +2097,9 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     def save(self, *args, **kwargs):
         self.value = quote(self.value)
         return super().save(*args, **kwargs)
+
+    def clean(self):
+        validate_environment_variable_size(
+            project=self.project, new_env_value=self.value
+        )
+        return super().clean()

@@ -70,7 +70,7 @@ For each project, it's now possible to configure:
 * :doc:`Custom redirect rules </guides/custom-domains>`
 * :doc:`Custom domains </guides/custom-domains>`
 * :doc:`Automation rules </automation-rules>`
-* :doc:`Traffic and search analytics </reference/analytics>`
+* :doc:`Traffic analytics </traffic-analytics>`
 * Additional documentation tools with individual :doc:`build processes </build-customization>`:
   One project might use :doc:`Sphinx <sphinx:index>`,
   while another project setup might use `Asciidoctor <https://asciidoctor.org/>`__.

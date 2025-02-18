@@ -97,8 +97,21 @@ BUILD_MESSAGES = [
         type=ERROR,
     ),
     Message(
+        id=BuildAppError.UPLOAD_FAILED,
+        header=_("There was a problem while updating your documentation"),
+        body=_(
+            textwrap.dedent(
+                """
+                Make sure this project is outputting files to the correct directory, or try again later.
+                If this problem persists, report this error to us with your build id ({{ instance.pk }}).
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
-        header=_("Build terminated due inactivity"),
+        header=_("Build terminated due to inactivity"),
         body=_(
             textwrap.dedent(
                 """

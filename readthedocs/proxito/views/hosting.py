@@ -1,5 +1,5 @@
 """Views for hosting features."""
-
+import fnmatch
 from functools import lru_cache
 
 import packaging
@@ -7,6 +7,8 @@ import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
+from django.shortcuts import get_object_or_404
+from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 
@@ -15,20 +17,22 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.serializers import (
     BuildSerializer,
     ProjectSerializer,
+    RelatedProjectSerializer,
     VersionSerializer,
 )
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
-from readthedocs.builds.models import Version
+from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
     ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
     ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
 )
-from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     comparable_version,
     sort_versions_calver,
@@ -48,6 +52,29 @@ class ClientError(Exception):
     )
     VERSION_INVALID = "The version specifified in 'api-version' is invalid"
     PROJECT_NOT_FOUND = "There is no project with the 'project-slug' requested"
+
+
+class IsAuthorizedToViewProject(permissions.BasePermission):
+
+    """
+    Checks if the user from the request has permissions to see the project.
+
+    This is only valid if the view doesn't have a version,
+    since the version permissions must be checked by the
+    IsAuthorizedToViewVersion permission.
+    """
+
+    def has_permission(self, request, view):
+        project = view._get_project()
+        version = view._get_version()
+
+        if version:
+            return False
+
+        has_access = (
+            Project.objects.public(user=request.user).filter(pk=project.pk).exists()
+        )
+        return has_access
 
 
 class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
@@ -76,7 +103,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
     """
 
     http_method_names = ["get"]
-    permission_classes = [IsAuthorizedToViewVersion]
+    permission_classes = [IsAuthorizedToViewProject | IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer]
     project_cache_tag = "rtd-addons"
 
@@ -91,11 +118,6 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         build = None
         filename = None
 
-        unresolved_domain = self.request.unresolved_domain
-
-        # Main project from the domain.
-        project = unresolved_domain.project
-
         if url:
             try:
                 unresolved_url = unresolver.unresolve_url(url)
@@ -104,18 +126,6 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 project = unresolved_url.project
                 version = unresolved_url.version
                 filename = unresolved_url.filename
-                # This query should use a particular index:
-                # ``builds_build_version_id_state_date_success_12dfb214_idx``.
-                # Otherwise, if the index is not used, the query gets too slow.
-                build = (
-                    version.builds.filter(
-                        success=True,
-                        state=BUILD_STATE_FINISHED,
-                    )
-                    .select_related("project", "version")
-                    .first()
-                )
-
             except UnresolverError as exc:
                 # If an exception is raised and there is a ``project`` in the
                 # exception, it's a partial match. This could be because of an
@@ -123,25 +133,31 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 # continue with the ``project``, but without a ``version``.
                 # Otherwise, we return 404 NOT FOUND.
                 project = getattr(exc, "project", None)
-                if not project:
-                    raise Http404() from exc
-
         else:
-            project = Project.objects.filter(slug=project_slug).first()
-            version = (
-                Version.objects.filter(slug=version_slug, project=project)
-                .select_related("project")
+            # When not sending "url", we require "project-slug" and "version-slug".
+            project = get_object_or_404(Project, slug=project_slug)
+            version = get_object_or_404(project.versions.all(), slug=version_slug)
+
+        # A project is always required.
+        if not project:
+            raise Http404(ClientError.PROJECT_NOT_FOUND)
+
+        # If we have a version, we also return its latest successful build.
+        if version:
+            # This query should use a particular index:
+            # ``builds_build_version_id_state_date_success_12dfb214_idx``.
+            # Otherwise, if the index is not used, the query gets too slow.
+            build = (
+                Build.objects.api(user=self.request.user)
+                .filter(
+                    project=project,
+                    version=version,
+                    success=True,
+                    state=BUILD_STATE_FINISHED,
+                )
+                .select_related("project", "version")
                 .first()
             )
-            if version:
-                build = (
-                    version.builds.filter(
-                        success=True,
-                        state=BUILD_STATE_FINISHED,
-                    )
-                    .select_related("project", "version")
-                    .first()
-                )
 
         return project, version, build, filename
 
@@ -153,19 +169,24 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         _, version, _, _ = self._resolve_resources()
         return version
 
-    def get(self, request, format=None):
+    def dispatch(self, request, *args, **kwargs):
+        # We check if the correct parameters are sent
+        # in dispatch, since we want to return a useful error message
+        # before checking for permissions.
         url = request.GET.get("url")
         project_slug = request.GET.get("project-slug")
         version_slug = request.GET.get("version-slug")
-        if not url:
-            if not project_slug or not version_slug:
-                return JsonResponse(
-                    {
-                        "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
-                    },
-                    status=400,
-                )
+        if not url and (not project_slug or not version_slug):
+            return JsonResponse(
+                {
+                    "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
+                },
+                status=400,
+            )
+        return super().dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        url = request.GET.get("url")
         addons_version = request.GET.get("api-version")
         if not addons_version:
             return JsonResponse(
@@ -190,20 +211,15 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             )
 
         project, version, build, filename = self._resolve_resources()
-        if not project:
-            return JsonResponse(
-                {"error": ClientError.PROJECT_NOT_FOUND},
-                status=404,
-            )
 
         data = AddonsResponse().get(
-            addons_version,
-            project,
-            version,
-            build,
-            filename,
-            url,
-            user=request.user,
+            addons_version=addons_version,
+            project=project,
+            request=request,
+            version=version,
+            build=build,
+            filename=filename,
+            url=url,
         )
         return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
 
@@ -231,7 +247,13 @@ class NoLinksMixin:
 # on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
+class RelatedProjectSerializerNoLinks(NoLinksMixin, RelatedProjectSerializer):
+    pass
+
+
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
+    related_project_serializer = RelatedProjectSerializerNoLinks
+
     def __init__(self, *args, **kwargs):
         resolver = kwargs.pop("resolver", Resolver())
         super().__init__(
@@ -256,16 +278,16 @@ class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
     pass
 
 
-class AddonsResponse:
+class AddonsResponseBase:
     def get(
         self,
         addons_version,
         project,
+        request,
         version=None,
         build=None,
         filename=None,
         url=None,
-        user=None,
     ):
         """
         Unique entry point to get the proper API response.
@@ -274,12 +296,40 @@ class AddonsResponse:
         best JSON structure for that particular version.
         """
         if addons_version.major == 1:
-            return self._v1(project, version, build, filename, url, user)
+            return self._v1(project, version, build, filename, url, request)
 
         if addons_version.major == 2:
-            return self._v2(project, version, build, filename, url, user)
+            return self._v2(project, version, build, filename, url, request)
 
-    def _v1(self, project, version, build, filename, url, user):
+    def _get_versions(self, request, project):
+        """
+        Get all active for a project that the user has access to.
+
+        This includes versions matching the following conditions:
+
+        - The user has access to it
+        - They are built
+        - They are active
+        - They are not hidden
+        """
+        return Version.internal.public(
+            project=project,
+            user=request.user,
+            only_active=True,
+            only_built=True,
+            include_hidden=False,
+        )
+
+    def _has_permission(self, request, version):
+        """
+        Check if user from the request is authorized to access `version`.
+
+        This is mainly to be overridden in .com to make use of
+        the auth backends in the proxied API.
+        """
+        return True
+
+    def _v1(self, project, version, build, filename, url, request):
         """
         Initial JSON data structure consumed by the JavaScript client.
 
@@ -293,28 +343,24 @@ class AddonsResponse:
         """
         resolver = Resolver()
         versions_active_built_not_hidden = Version.objects.none()
-        sorted_versions_active_built_not_hidden = (
-            versions_active_built_not_hidden
-        ) = Version.objects.none()
+        sorted_versions_active_built_not_hidden = Version.objects.none()
+        user = request.user
 
-        # Automatically create an AddonsConfig with the default values for
-        # projects that don't have one already
-        AddonsConfig.objects.get_or_create(project=project)
-
-        if project.supports_multiple_versions:
-            versions_active_built_not_hidden = (
-                Version.internal.public(
-                    project=project,
-                    only_active=True,
-                    only_built=True,
-                    user=user,
+        versions_active_built_not_hidden = (
+            self._get_versions(request, project)
+            .select_related("project")
+            .order_by("-slug")
+        )
+        sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
+        if not project.supports_multiple_versions:
+            # Return only one version when the project doesn't support multiple versions.
+            # That version is the only one the project serves.
+            sorted_versions_active_built_not_hidden = (
+                sorted_versions_active_built_not_hidden.filter(
+                    slug=project.get_default_version()
                 )
-                .exclude(hidden=True)
-                .select_related("project")
-                .order_by("slug")
             )
-            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
-
+        else:
             if (
                 project.addons.flyout_sorting
                 == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
@@ -325,6 +371,7 @@ class AddonsResponse:
                         version.verbose_name,
                         repo_type=project.repo_type,
                     ),
+                    reverse=True,
                 )
             elif (
                 project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
@@ -350,13 +397,20 @@ class AddonsResponse:
         main_project = project.main_language_project or project
 
         # Exclude the current project since we don't want to return itself as a translation
-        project_translations = main_project.translations.all().exclude(
-            slug=project.slug
+        project_translations = (
+            Project.objects.public(user=user)
+            .filter(pk__in=main_project.translations.all())
+            .exclude(slug=project.slug)
         )
+
         # Include main project as translation if the current project is one of the translations
         if project != main_project:
-            project_translations |= Project.objects.filter(slug=main_project.slug)
-        project_translations = project_translations.order_by("language")
+            project_translations |= Project.objects.public(user=user).filter(
+                slug=main_project.slug
+            )
+        project_translations = project_translations.order_by("language").select_related(
+            "main_language_project"
+        )
 
         data = {
             "api_version": "1",
@@ -399,11 +453,18 @@ class AddonsResponse:
                 "analytics": {
                     "code": settings.GLOBAL_ANALYTICS_CODE,
                 },
+                "resolver": {
+                    "filename": filename,
+                },
             },
             # TODO: the ``features`` is not polished and we expect to change drastically.
             # Mainly, all the fields including a Project, Version or Build will use the exact same
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
+                "options": {
+                    "load_when_embedded": project.addons.options_load_when_embedded,
+                    "root_selector": project.addons.options_root_selector,
+                },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
                     # TODO: consider adding this field into the ProjectSerializer itself.
@@ -412,17 +473,11 @@ class AddonsResponse:
                     # https://github.com/readthedocs/readthedocs.org/issues/9530
                     "code": project.analytics_code,
                 },
-                "external_version_warning": {
-                    "enabled": project.addons.external_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
-                },
-                "non_latest_version_warning": {
-                    "enabled": project.addons.stable_latest_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
+                "notifications": {
+                    "enabled": project.addons.notifications_enabled,
+                    "show_on_latest": project.addons.notifications_show_on_latest,
+                    "show_on_non_stable": project.addons.notifications_show_on_non_stable,
+                    "show_on_external": project.addons.notifications_show_on_external,
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
@@ -442,21 +497,37 @@ class AddonsResponse:
                     #     "branch": version.identifier if version else None,
                     #     "filepath": "/docs/index.rst",
                     # },
+                    "position": project.addons.flyout_position,
+                },
+                "customscript": {
+                    "enabled": project.addons.customscript_enabled,
+                    "src": project.addons.customscript_src,
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,
-                    # TODO: figure it out where this data comes from
+                    # TODO: figure it out where this data comes from.
+                    #
+                    # Originally, this was thought to be customizable by the user
+                    # adding these filters from the Admin UI.
+                    #
+                    # I'm removing this feature for now until we implement it correctly.
                     "filters": [
-                        [
-                            "Include subprojects",
-                            f"subprojects:{project.slug}/{version.slug}",
-                        ],
-                    ]
-                    if version
-                    else [],
+                        # NOTE: this is an example of the structure of the this object.
+                        # It contains the name of the filter and the search syntax to prepend
+                        # to the user's query.
+                        # It uses "Search query sintax":
+                        # https://docs.readthedocs.io/en/stable/server-side-search/syntax.html
+                        # [
+                        #     "Include subprojects",
+                        #     f"subprojects:{project.slug}/{version.slug}",
+                        # ],
+                    ],
                     "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
                     else None,
+                },
+                "linkpreviews": {
+                    "enabled": project.addons.linkpreviews_enabled,
                 },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,
@@ -469,14 +540,53 @@ class AddonsResponse:
                         "trigger": "Slash",  # Could be something like "Ctrl + D"
                     },
                 },
+                "filetreediff": {
+                    "enabled": project.addons.filetreediff_enabled,
+                },
             },
         }
+
+        if version:
+            response = self._get_filetreediff_response(
+                request=request,
+                project=project,
+                version=version,
+                resolver=resolver,
+            )
+            if response:
+                data["addons"]["filetreediff"].update(response)
+
+            # Show the subprojects filter on the parent project and subproject
+            # TODO: Remove these queries and try to find a way to get this data
+            # from the resolver, which has already done these queries.
+            # TODO: Replace this fixed filters with the work proposed in
+            # https://github.com/readthedocs/addons/issues/22
+            if project.subprojects.exists():
+                data["addons"]["search"]["filters"].append(
+                    [
+                        "Include subprojects",
+                        f"subprojects:{project.slug}/{version.slug}",
+                    ]
+                )
+            if project.superprojects.exists():
+                superproject = project.superprojects.first().parent
+                data["addons"]["search"]["filters"].append(
+                    [
+                        "Include subprojects",
+                        f"subprojects:{superproject.slug}/{version.slug}",
+                    ]
+                )
 
         # DocDiff depends on `url=` GET attribute.
         # This attribute allows us to know the exact filename where the request was made.
         # If we don't know the filename, we cannot return the data required by DocDiff to work.
         # In that case, we just don't include the `doc_diff` object in the response.
         if url:
+            base_version_slug = (
+                project.addons.options_base_version.slug
+                if project.addons.options_base_version
+                else LATEST
+            )
             data["addons"].update(
                 {
                     "doc_diff": {
@@ -484,28 +594,16 @@ class AddonsResponse:
                         # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                         "base_url": resolver.resolve(
                             project=project,
-                            # NOTE: we are using LATEST version to compare against to for now.
-                            # Ideally, this should be configurable by the user.
-                            version_slug=LATEST,
+                            version_slug=base_version_slug,
                             language=project.language,
                             filename=filename,
                         )
                         if filename
                         else None,
-                        "root_selector": project.addons.doc_diff_root_selector,
                         "inject_styles": True,
-                        # NOTE: `base_host` and `base_page` are not required, since
-                        # we are constructing the `base_url` in the backend instead
-                        # of the frontend, as the doc-diff extension does.
-                        "base_host": "",
-                        "base_page": "",
                     },
                 }
             )
-
-        # Update this data with the one generated at build time by the doctool
-        if version and version.build_data:
-            data.update(version.build_data)
 
         # Update this data with ethicalads
         if "readthedocsext.donate" in settings.INSTALLED_APPS:
@@ -535,11 +633,82 @@ class AddonsResponse:
 
         return data
 
+    def _get_filetreediff_response(self, *, request, project, version, resolver):
+        """
+        Get the file tree diff response for the given version.
+
+        This response is only enabled for external versions,
+        we do the comparison between the current version and the latest version.
+        """
+        if not version.is_external and not settings.RTD_FILETREEDIFF_ALL:
+            return None
+
+        if not project.addons.filetreediff_enabled:
+            return None
+
+        base_version = (
+            project.addons.options_base_version or project.get_latest_version()
+        )
+        if not base_version or not self._has_permission(
+            request=request, version=base_version
+        ):
+            return None
+
+        diff = get_diff(version_a=version, version_b=base_version)
+        if not diff:
+            return None
+
+        def _filter_diff_files(files):
+            # Filter out all the files that match the ignored patterns
+            ignore_patterns = project.addons.filetreediff_ignored_files or []
+            files = [
+                filename
+                for filename in files
+                if not any(
+                    fnmatch.fnmatch(filename, ignore_pattern)
+                    for ignore_pattern in ignore_patterns
+                )
+            ]
+
+            result = []
+            for filename in files:
+                result.append(
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                )
+            return result
+
+        return {
+            "outdated": diff.outdated,
+            "diff": {
+                "added": _filter_diff_files(diff.added),
+                "deleted": _filter_diff_files(diff.deleted),
+                "modified": _filter_diff_files(diff.modified),
+            },
+        }
+
     def _v2(self, project, version, build, filename, url, user):
         return {
             "api_version": "2",
             "comment": "Undefined yet. Use v1 for now",
         }
+
+
+class AddonsResponse(SettingsOverrideObject):
+    _default_class = AddonsResponseBase
 
 
 class ReadTheDocsConfigJson(SettingsOverrideObject):

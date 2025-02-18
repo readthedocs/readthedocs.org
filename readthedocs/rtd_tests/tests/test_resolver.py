@@ -20,7 +20,7 @@ resolver = Resolver()
 
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.org",
-    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME, value=2).to_item()]),
 )
 class ResolverBase(TestCase):
     def setUp(self):
@@ -606,9 +606,6 @@ class ResolverTests(ResolverBase):
         url = resolver.resolve_project(self.pip, filename="index.html")
         self.assertEqual(url, "http://pip.readthedocs.org/index.html")
 
-        url = resolver.resolve_project(self.pip, filename="/_/api/v2/footer_html")
-        self.assertEqual(url, "http://pip.readthedocs.org/_/api/v2/footer_html")
-
     def test_resolve_subproject_object(self):
         url = resolver.resolve_project(self.subproject)
         self.assertEqual(url, "http://pip.readthedocs.org/")
@@ -616,22 +613,12 @@ class ResolverTests(ResolverBase):
         url = resolver.resolve_project(self.subproject, filename="index.html")
         self.assertEqual(url, "http://pip.readthedocs.org/index.html")
 
-        url = resolver.resolve_project(
-            self.subproject, filename="/_/api/v2/footer_html"
-        )
-        self.assertEqual(url, "http://pip.readthedocs.org/_/api/v2/footer_html")
-
     def test_resolve_translation_object(self):
         url = resolver.resolve_project(self.translation)
         self.assertEqual(url, "http://pip.readthedocs.org/")
 
         url = resolver.resolve_project(self.translation, filename="index.html")
         self.assertEqual(url, "http://pip.readthedocs.org/index.html")
-
-        url = resolver.resolve_project(
-            self.translation, filename="/_/api/v2/footer_html"
-        )
-        self.assertEqual(url, "http://pip.readthedocs.org/_/api/v2/footer_html")
 
     def test_resolve_version_object(self):
         url = resolver.resolve_version(self.pip)

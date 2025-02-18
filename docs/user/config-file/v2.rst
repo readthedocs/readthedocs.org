@@ -211,7 +211,7 @@ Configuration for Conda support.
    version: 2
 
    build:
-     os: "ubuntu-22.04"
+     os: "ubuntu-24.04"
      tools:
        python: "mambaforge-22.9"
 
@@ -244,12 +244,12 @@ Python, Node.js, Rust, and Go.
    version: 2
 
    build:
-     os: ubuntu-22.04
+     os: ubuntu-24.04
      tools:
-       python: "3.12"
-       nodejs: "18"
-       rust: "1.64"
-       golang: "1.19"
+       python: "3.13"
+       nodejs: "22"
+       rust: "1.82"
+       golang: "1.23"
 
 build.os
 ````````
@@ -316,9 +316,11 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``3.10``
   - ``3.11``
   - ``3.12``
+  - ``3.13``
   - ``latest`` (alias for the latest version available on Read the Docs)
   - ``miniconda3-4.7``
   - ``miniconda3-3.12-24.1``
+  - ``miniconda3-3.12-24.9``
   - ``miniconda-latest`` (alias for the latest version available on Read the Docs)
   - ``mambaforge-4.10``
   - ``mambaforge-22.9``
@@ -337,6 +339,8 @@ Node.js version to use.
    - ``18``
    - ``19``
    - ``20``
+   - ``22``
+   - ``23``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.ruby
@@ -362,6 +366,7 @@ Rust version to use.
    - ``1.70``
    - ``1.75``
    - ``1.78``
+   - ``1.82``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.golang
@@ -377,6 +382,7 @@ Go version to use.
    - ``1.20``
    - ``1.21``
    - ``1.22``
+   - ``1.23``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.apt_packages
@@ -413,7 +419,7 @@ We don't currently support PPA's or other custom repositories.
 build.jobs
 ``````````
 
-Commands to be run before or after a Read the Docs :term:`pre-defined build jobs`.
+Commands to be run before or after a Read the Docs :term:`pre-defined build jobs`, or to override a specific job.
 This allows you to run custom commands at a particular moment in the build process.
 See :doc:`/build-customization` for more details.
 
@@ -423,9 +429,9 @@ See :doc:`/build-customization` for more details.
    version: 2
 
    build:
-     os: ubuntu-22.04
+     os: ubuntu-24.04
      tools:
-       python: "3.12"
+       python: "3.13"
      jobs:
        pre_create_environment:
          - echo "Command run at 'pre_create_environment' step"
@@ -435,45 +441,114 @@ See :doc:`/build-customization` for more details.
 
 .. note::
 
-   Each key under ``build.jobs`` must be a list of strings.
+   Each build step consists of a list of commands to be executed.
    ``build.os`` and ``build.tools`` are also required to use ``build.jobs``.
 
+.. note::
+
+   If the :ref:`config-file/v2:sphinx` or  :ref:`config-file/v2:mkdocs` keys are present in the configuration file,
+   the default steps for each tool will be executed for the ``create_environment``, ``install``, and ``build`` steps.
+   You can override any of these steps, but be aware that some steps may depend on others,
+   for example, the default ``install`` and ``build`` steps depend on the ``create_environment`` step creating the Python virtual environment in a specific directory.
+
+   If neither of the ``sphinx`` or ``mkdocs`` keys are present in the configuration file,
+   only the specified ``build.tools`` and ``build.apt_packages`` will be installed,
+   you will in charge of generating the documentation in the :ref:`$READTHEDOCS_OUTPUT <build-customization:where to put files>` directory.
 
 :Type: ``dict``
 :Allowed keys: ``post_checkout``, ``pre_system_dependencies``, ``post_system_dependencies``,
-   ``pre_create_environment``, ``post_create_environment``, ``pre_install``, ``post_install``,
-   ``pre_build``, ``post_build``
+   ``pre_create_environment``, ``create_environment``, ``post_create_environment``, ``pre_install``, ``post_install``,
+   ``pre_build``, ``build``, ``post_build``
 :Required: ``false``
 :Default: ``{}``
 
+build.jobs.build
+````````````````
+
+Commands to override the default build process.
+When running builds from pull requests, only the ``html`` step will be executed.
+
+.. code-block:: yaml
+
+   version: 2
+
+   formats: [pdf, epub]
+   build:
+     os: ubuntu-24.04
+     tools:
+       python: "3.13"
+     jobs:
+       create_environment:
+         - echo "Preparing environment"
+       install:
+         - echo "Installing dependencies"
+       build:
+         html:
+           - echo "Building HTML"
+           - mkdir -p $READTHEDOCS_OUTPUT/html/
+           - echo "Hello world!" > $READTHEDOCS_OUTPUT/html/index.html
+         pdf:
+           - echo "Building PDF"
+           - mkdir -p $READTHEDOCS_OUTPUT/pdf/
+           - echo "Hello world!" > $READTHEDOCS_OUTPUT/pdf/index.pdf
+         epub:
+           - echo "Building ePub"
+           - mkdir -p $READTHEDOCS_OUTPUT/epub/
+           - echo "Hello world!" > $READTHEDOCS_OUTPUT/epub/index.epub
+
+:Type: ``dict``
+:Allowed keys: ``html``, ``pdf``, ``epub``, ``htmlzip``
+:Required: ``false``
+:Default: ``{}``
+
+.. note::
+
+   If any of the ``pdf``, ``epub``, or ``htmlzip`` steps are overridden,
+   they should be included in the :ref:`config-file/v2:formats` list.
+
+.. note::
+
+   For each format, you need to generate their output in the :ref:`$READTHEDOCS_OUTPUT <build-customization:where to put files>` directory.
 
 build.commands
 ``````````````
 
 Specify a list of commands that Read the Docs will run on the build process.
 When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will be executed.
-(see :doc:`/build-customization` for more details).
-This allows you to run custom commands and control the build process completely.
-The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read the Docs.
-
-.. note::
-
-   We are using :ref:`our new addons integration <rtd-blog:addons-flyout-menu-beta>`
-   on projects using ``build.commands``.
-   `This will become the default soon <https://about.readthedocs.com/blog/2024/07/addons-by-default/>`_,
-   but has some slight differences from our previous flyout.
 
 .. code-block:: yaml
 
    version: 2
 
    build:
-     os: ubuntu-22.04
+     os: ubuntu-24.04
      tools:
-       python: "3.12"
+       python: "3.13"
      commands:
        - pip install pelican
        - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
+
+But we recommend using :ref:`config-file/v2:build.jobs` instead:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.10"
+     jobs:
+       install:
+         - pip install pelican
+       build:
+         html:
+           - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
+
+``build.jobs`` offers the same functionality as ``build.commands``,
+but in a more structured way that allows you to define different commands for each format,
+while also supporting installing system dependencies via ``build.apt_packages``.
+See :doc:`/build-customization` for more details.
 
 .. note::
 
@@ -487,8 +562,7 @@ The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read t
 sphinx
 ~~~~~~
 
-Configuration for Sphinx documentation
-(this is the default documentation type).
+Configuration for Sphinx documentation.
 
 .. code-block:: yaml
 
@@ -529,10 +603,7 @@ sphinx.configuration
 The path to the ``conf.py`` file, relative to the root of the project.
 
 :Type: ``path``
-:Default: ``null``
-
-If the value is ``null``,
-Read the Docs will try to find a ``conf.py`` file in your project.
+:Required: ``true``
 
 sphinx.fail_on_warning
 ``````````````````````
@@ -574,10 +645,7 @@ mkdocs.configuration
 The path to the ``mkdocs.yml`` file, relative to the root of the project.
 
 :Type: ``path``
-:Default: ``null``
-
-If the value is ``null``,
-Read the Docs will try to find a ``mkdocs.yml`` file in your project.
+:Required: ``true``
 
 mkdocs.fail_on_warning
 ``````````````````````

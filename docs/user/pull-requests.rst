@@ -1,7 +1,7 @@
 Pull request previews
 =====================
 
-Your project can be configured to build and host documentation for every new
+Your project can be configured to build and preview documentation for every new
 pull request. Previewing changes during review makes it
 easier to catch formatting and display issues before they go live.
 
@@ -10,7 +10,7 @@ Features
 
 Build on pull request events
     We create and build a new version when a pull request is opened,
-    and rebuild the version whenever a new commit is pushed.
+    and rebuild it whenever a new commit is pushed.
 
 Build status report
     Your project's pull request build status will show as one of your pull
@@ -24,19 +24,14 @@ Build status report
 
        GitHub build status reporting
 
-Pull request banner
-    A pull request banner is shown at the top of documentation pages
-    to let readers know they aren't viewing an active version of the project.
+Pull request notifications
+    A pull request notifications is shown at the top of preview pages,
+    which let readers know they aren't viewing an active version of the project.
 
-    .. note:: Warning banners are available only for projects using :doc:`Read the Docs Addons </addons>`.
+:doc:`Visual diff </visual-diff>`
+    Visual diff shows proposed changes by visually highlighting the differences between the current pull request and the latest version of the project's documentation.
 
-DocDiff
-    DocDiff shows proposed changes by visually highlighting the differences between the current pull request and the latest version of the project's documentation.
-
-    Press ``d`` to toggle between DocDiff and normal pull request preview.
-
-    .. note:: DocDiff is available only for projects using :doc:`Read the Docs Addons </addons>`.
-
+    Press ``d`` to toggle between Visual diff and normal pull request preview.
 
 .. seealso::
 
@@ -56,7 +51,7 @@ if you have environment variables with private information, make sure they aren'
 See :ref:`environment-variables:Environment variables and build process` for more information.
 
 On |com_brand| you can set pull request previews to be private or public,
-If you didn’t import your project manually and your repository is public,
+If you didn't import your project manually and your repository is public,
 the privacy level of pull request previews will be set to *Public*.
 Public pull request previews are available to anyone with the link to the preview,
 while private previews are only available to users with access to the Read the Docs project.

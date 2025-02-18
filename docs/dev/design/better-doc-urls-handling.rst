@@ -42,7 +42,7 @@ Instead of trying to map a URL to a view,
 we first analyze the root project (given from the subdomain),
 and based on that we map each part of the URL to the *current* project and version.
 
-This will allow us to re-use this code in our unresolver
+This will allow us to reuse this code in our unresolver
 without the need to override the Django's urlconf at runtime,
 or guessing a project only by the structure of its URL.
 
@@ -61,7 +61,7 @@ Look up process
 ---------------
 
 Proxito will process all documentation requests from a single *docs serve* view,
-exluding ``/_`` URLs.
+excluding ``/_`` URLs.
 
 This view then will process the current URL using the root project as follows:
 

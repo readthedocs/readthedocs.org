@@ -1,9 +1,14 @@
+from unittest import mock
+
+import dns.resolver
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.models import Domain, Project
+from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.products import RTDProductFeature, get_feature
 
 
 class ModelTests(TestCase):
@@ -26,6 +31,12 @@ class ModelTests(TestCase):
         self.assertEqual(domain.domain, "www.google.com")
 
 
+# We are using random domain names to test the form validation,
+# so we are mocking the DNS resolver to avoid making real DNS queries.
+@mock.patch(
+    "readthedocs.projects.forms.dns.resolver.resolve",
+    new=mock.MagicMock(side_effect=dns.resolver.NoAnswer),
+)
 class FormTests(TestCase):
     def setUp(self):
         self.project = get(Project, slug="kong")
@@ -143,6 +154,7 @@ class FormTests(TestCase):
             "1.23.45.67",
             "127.0.0.1",
             "127.0.0.10",
+            "[1.2.3.4.com",
         ]
         for domain in domains:
             form = DomainForm(
@@ -205,3 +217,53 @@ class FormTests(TestCase):
         self.assertTrue(form.is_valid())
         domain = form.save()
         self.assertTrue(domain.https)
+
+    @override_settings(
+        RTD_DEFAULT_FEATURES=dict(
+            [RTDProductFeature(type=TYPE_CNAME, value=2).to_item()]
+        ),
+    )
+    def test_domains_limit(self):
+        feature = get_feature(self.project, TYPE_CNAME)
+        form = DomainForm(
+            {
+                "domain": "docs.user.example.com",
+                "canonical": True,
+            },
+            project=self.project,
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertEqual(self.project.domains.all().count(), 1)
+
+        form = DomainForm(
+            {
+                "domain": "docs.dev.example.com",
+                "canonical": False,
+            },
+            project=self.project,
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertEqual(self.project.domains.all().count(), 2)
+
+        # Creating the third (3) domain should fail the validation form
+        form = DomainForm(
+            {
+                "domain": "docs.customer.example.com",
+                "canonical": False,
+            },
+            project=self.project,
+        )
+        self.assertFalse(form.is_valid())
+
+        msg = (
+            f"This project has reached the limit of {feature.value} domains. "
+            "Consider removing unused domains."
+        )
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            msg = (
+                f"Your organization has reached the limit of {feature.value} domains. "
+                "Consider removing unused domains or upgrading your plan."
+            )
+        self.assertEqual(form.errors["__all__"][0], msg)

@@ -139,7 +139,7 @@ like the projects, versions, and the query that were used in the final search.
 And the ``version``, ``project``, and ``project_alias`` attributes will
 now be objects.
 
-We could just re-use the old response too,
+We could just reuse the old response too,
 since the only breaking changes would be the attributes now being objects,
 and we aren't adding any new information to those objects (yet).
 But also, re-using the current serializers shouldn't be a problem either.
@@ -230,7 +230,7 @@ the readthedocs.org/readthedocs.com domains.
 We have two types:
 
 Project scoped search:
-   Search files and versions of the curent project only.
+   Search files and versions of the current project only.
 
 Global search:
    Search files and versions of all projects in .org,

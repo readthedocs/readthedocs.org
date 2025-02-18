@@ -2,6 +2,7 @@
   {
     "path": "index.html",
     "title": "MkDocs",
+    "main_content_hash": "aca1f625e559fe49718abe801532b3ef",
     "sections": [
       {
         "id": "mkdocs",
@@ -38,6 +39,7 @@
   {
     "path": "404.html",
     "title": "404",
+    "main_content_hash": "2f582057ff73758c152d6925eb149099",
     "sections": [
       {
         "id": "404-page-not-found",
@@ -49,6 +51,7 @@
   {
     "path": "configuration.html",
     "title": "Configuration",
+    "main_content_hash": "6a5526f41cfef3da4c541f0465ac42e8",
     "sections": [
       {
         "id": "configuration",
@@ -90,6 +93,7 @@
   {
     "path": "no-title.html",
     "title": "No title - Read the Docs MkDocs Test",
+    "main_content_hash": "c02e4800b9da5e96ed35841f11072777",
     "sections": [
       {
         "id": "",
@@ -101,6 +105,7 @@
   {
     "path": "no-main-header.html",
     "title": "I'm the header",
+    "main_content_hash": "43010c91ae89c036b157c2a3947d63b8",
     "sections": [
       {
         "id": "",

@@ -31,6 +31,10 @@ so that you have a reference for how we're using them.
       Projects have a *default version*, usually the latest stable version of a project.
       The *default version* is the URL that is redirected to when a users loads the `/` URL for your project.
 
+   diff
+      A way to see the changes between two pieces of text,
+      which shows the added and removed content with a green and red color respectively.
+
    discoverability
       A documentation page is said to be *discoverable* when a user that needs it can find it through various methods:
       Navigation, search, and links from other pages are the most typical ways of making content *discoverable*.
@@ -58,8 +62,6 @@ so that you have a reference for how we're using them.
       The creator of a project on |org_brand| can invite other collaborators as *maintainers* with full ownership rights.
 
       The *maintainer* role does not exist on |com_brand|, which instead provides :doc:`/commercial/organizations`.
-
-      Please see :ref:`guides/setup/git-repo-automatic:git provider integrations` for more information.
 
    pinning
       To *pin* a requirement means to explicitly specify which version should be used.
@@ -97,7 +99,7 @@ so that you have a reference for how we're using them.
       Another name for :term:`project home`.
 
    reproducible
-      A documentation project is said to be *reproducible* when its sources build correctly on Read the Docs over a periode of many years.
+      A documentation project is said to be *reproducible* when its sources build correctly on Read the Docs over a period of many years.
       You can also think of being *reproducible* as being *robust* or *resillient*.
 
       Being "reproducible" is an important positive quality goal of documentation.
@@ -143,6 +145,9 @@ so that you have a reference for how we're using them.
 
    user-defined build jobs
       Commands defined by the user that Read the Docs will execute when performing the build process.
+
+   virtualenv
+      The default way for Python projects to create an isolated environment. This ensures that a :doc:`reproducible set of dependencies </guides/reproducible-builds>` are installed so that you project builds the same way each time.
 
    webhook
       A webhook is a special URL that can be called from another service,

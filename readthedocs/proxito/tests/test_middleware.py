@@ -21,7 +21,7 @@ from readthedocs.subscriptions.products import RTDProductFeature
 @pytest.mark.proxito
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",
-    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME, value=2).to_item()]),
 )
 class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     def setUp(self):

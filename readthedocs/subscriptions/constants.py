@@ -23,7 +23,7 @@ TYPE_SSO_SAML = "sso-saml"
 
 FEATURE_TYPES = (
     (TYPE_CNAME, _("Custom domain")),
-    (TYPE_CDN, _("CDN public documentation")),
+    (TYPE_CDN, _("CDN for public documentation")),
     (TYPE_SSL, _("Custom SSL configuration")),
     (TYPE_SUPPORT, _("Support SLA")),
     (TYPE_PRIVATE_DOCS, _("Private documentation")),

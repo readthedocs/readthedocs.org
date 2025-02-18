@@ -53,7 +53,7 @@ Permission denied (publickey)
 
 1. Navigate to :guilabel:`Admin > SSH Keys`
 2. Copy the contents of the public key.
-3. Ensure that the key exists as a deploy key at your VCS provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
+3. Ensure that the key exists as a deploy key at your Git provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your Git provider and repository details:
 
    - ``https://github.com/<username>/<repo>/settings/keys``
    - ``https://gitlab.com/<username>/<repo>/-/settings/repository``
@@ -72,7 +72,7 @@ ERROR: Repository not found.
 
 1. Navigate to :guilabel:`Admin > SSH Keys`
 2. Copy the contents of the public key.
-3. Ensure that the key exists as a deploy key at your VCS provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
+3. Ensure that the key exists as a deploy key at your Git provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
 
    - ``https://github.com/<username>/<repo>/settings/keys``
    - ``https://gitlab.com/<username>/<repo>/-/settings/repository``

@@ -39,6 +39,7 @@ def email_pending_custom_domains(number_of_emails=3):
         Notification.objects.add(
             message_id=MESSAGE_DOMAIN_VALIDATION_PENDING,
             attached_to=domain.project,
+            dismissable=True,
             format_values={
                 "domain": domain.domain,
                 "domain_url": reverse(

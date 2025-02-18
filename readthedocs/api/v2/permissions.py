@@ -29,7 +29,7 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
     """
     Checks if the user from the request has permissions to see the version.
 
-    This permission class used in the FooterHTML and PageSearchAPIView views.
+    This permission class used in PageSearchAPIView views.
 
     .. note::
 
@@ -40,17 +40,6 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
     def has_permission(self, request, view):
         project = view._get_project()
         version = view._get_version()
-
-        # I had to add this condition here because I want to return a 400 when
-        # the `project-slug` or `version-slug` are not sent to the API
-        # endpoint. In those cases, we don't have a Project/Version and this
-        # function was failing.
-        #
-        # I think it's a valid use case when Project/Version is invalid to be
-        # able to return a good response from the API view.
-        if project is None or version is None:
-            return True
-
         has_access = (
             Version.objects.public(
                 user=request.user,

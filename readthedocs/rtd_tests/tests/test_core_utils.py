@@ -1,5 +1,5 @@
 """Test core util functions."""
-
+import signal
 from unittest import mock
 
 import pytest
@@ -172,39 +172,46 @@ class CoreUtilTests(TestCase):
             immutable=True,
         )
 
-    @pytest.mark.xfail(reason="Fails while we work out Docker time limits", strict=True)
+    @mock.patch("readthedocs.core.utils.app")
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
-    def test_trigger_max_concurrency_reached(self, update_docs):
+    def test_trigger_max_concurrency_reached(self, update_docs, app):
         max_concurrent_builds = 2
-        for _ in range(max_concurrent_builds):
+        for i in range(max_concurrent_builds):
             get(
                 Build,
                 state=BUILD_STATE_BUILDING,
                 project=self.project,
                 version=self.version,
+                task_id=str(i),
             )
         self.project.max_concurrent_builds = max_concurrent_builds
         self.project.save()
 
         trigger_build(project=self.project, version=self.version)
-        kwargs = {"build_pk": mock.ANY, "commit": None}
+        kwargs = {"build_commit": None, "build_api_key": mock.ANY}
         options = {
-            "queue": mock.ANY,
-            "time_limit": 720,
-            "soft_time_limit": 600,
+            "time_limit": int(7200 * 1.2),
+            "soft_time_limit": 7200,
             "countdown": 5 * 60,
             "max_retries": 25,
         }
         update_docs.signature.assert_called_with(
-            args=(self.version.pk,),
+            args=(self.version.pk, mock.ANY),
             kwargs=kwargs,
             options=options,
             immutable=True,
         )
         build = self.project.builds.first()
+        notification = build.notifications.first()
         self.assertEqual(
-            build.error,
-            BuildMaxConcurrencyError.message.format(limit=max_concurrent_builds),
+            notification.message_id,
+            BuildMaxConcurrencyError.LIMIT_REACHED,
+        )
+        app.control.revoke.assert_has_calls(
+            [
+                mock.call("1", signal=signal.SIGINT, terminate=True),
+                mock.call("0", signal=signal.SIGINT, terminate=True),
+            ]
         )
 
     def test_slugify(self):

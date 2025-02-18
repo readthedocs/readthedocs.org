@@ -4,18 +4,23 @@
 #
 #    pip-compile --output-file=requirements/deploy.txt requirements/deploy.in
 #
-amqp==5.2.0
+amqp==5.3.1
     # via
     #   -r requirements/pip.txt
     #   kombu
+annotated-types==0.7.0
+    # via
+    #   -r requirements/pip.txt
+    #   pydantic
 asgiref==3.8.1
     # via
     #   -r requirements/pip.txt
     #   django
+    #   django-allauth
     #   django-cors-headers
-asttokens==2.4.1
+asttokens==3.0.0
     # via stack-data
-async-timeout==4.0.3
+async-timeout==5.0.1
     # via
     #   -r requirements/pip.txt
     #   redis
@@ -23,22 +28,22 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.35.24
+boto3==1.36.21
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.35.24
+botocore==1.36.21
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
-bumpver==2023.1129
+bumpver==2024.1130
     # via -r requirements/pip.txt
 celery==5.2.7
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-certifi==2024.8.30
+certifi==2025.1.31
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -48,11 +53,11 @@ cffi==1.17.1
     # via
     #   -r requirements/pip.txt
     #   cryptography
-charset-normalizer==3.3.2
+charset-normalizer==3.4.1
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.1.7
+click==8.1.8
     # via
     #   -r requirements/pip.txt
     #   bumpver
@@ -80,7 +85,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==43.0.1
+cryptography==44.0.1
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -91,7 +96,7 @@ cssselect==1.2.0
     #   pyquery
 decorator==5.1.1
     # via ipython
-distlib==0.3.8
+distlib==0.3.9
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -99,7 +104,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.16
+django==4.2.19
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -115,39 +120,42 @@ django==4.2.16
     #   django-formtools
     #   django-polymorphic
     #   django-safemigrate
+    #   django-simple-history
     #   django-storages
     #   django-structlog
     #   django-taggit
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==64.2.1
+django-allauth[mfa,saml,socialaccount]==65.4.1
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
-django-cacheops==7.0.2
+django-cacheops==7.1
     # via -r requirements/pip.txt
 django-celery-beat==2.7.0
     # via -r requirements/pip.txt
-django-cors-headers==4.4.0
+django-cors-headers==4.7.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==4.4.6
+django-debug-toolbar==5.0.1
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==24.3
+django-filter==25.1
     # via -r requirements/pip.txt
-django-formtools==2.3
+django-formtools==2.5.1
     # via -r requirements/pip.txt
 django-gravatar2==1.4.5
+    # via -r requirements/pip.txt
+django-impersonate==1.9.4
     # via -r requirements/pip.txt
 django-ipware==5.0.2
     # via
@@ -157,15 +165,15 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-safemigrate==4.3
     # via -r requirements/pip.txt
-django-simple-history==3.0.0
+django-simple-history==3.8.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.14.3
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
-django-taggit==6.0.0
+django-taggit==6.1.0
     # via -r requirements/pip.txt
-django-timezone-field==7.0
+django-timezone-field==7.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -180,37 +188,40 @@ djangorestframework-api-key==3.0.0
     # via -r requirements/pip.txt
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
-docker==6.1.2
+dnspython==2.7.0
+    # via -r requirements/pip.txt
+docker==7.1.0
     # via -r requirements/pip.txt
 docutils==0.21.2
     # via -r requirements/pip.txt
-dparse==0.6.3
+dparse==0.6.4
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.15.0
+elastic-transport==8.17.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.15.1
+    #   elasticsearch-dsl
+elasticsearch==8.17.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.15.3
+elasticsearch-dsl==8.17.1
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
 exceptiongroup==1.2.2
     # via ipython
-executing==2.1.0
+executing==2.2.0
     # via stack-data
-fido2==1.1.3
+fido2==1.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.16.1
+filelock==3.17.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -224,13 +235,13 @@ idna==3.10
     # via
     #   -r requirements/pip.txt
     #   requests
-ipython==8.27.0
+ipython==8.32.0
     # via -r requirements/deploy.in
-isodate==0.6.1
+isodate==0.7.2
     # via
     #   -r requirements/pip.txt
     #   python3-saml
-jedi==0.19.1
+jedi==0.19.2
     # via ipython
 jmespath==1.0.1
     # via
@@ -249,11 +260,7 @@ lexid==2021.1006
     # via
     #   -r requirements/pip.txt
     #   bumpver
-looseversion==1.3.0
-    # via
-    #   -r requirements/pip.txt
-    #   bumpver
-lxml==5.3.0
+lxml==5.3.1
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -263,19 +270,18 @@ markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==9.13.0
+newrelic==10.6.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.7
+orjson==3.10.15
     # via -r requirements/pip.txt
-packaging==24.1
+packaging==24.2
     # via
     #   -r requirements/pip.txt
     #   djangorestframework-api-key
-    #   docker
     #   dparse
     #   gunicorn
 parso==0.8.4
@@ -286,18 +292,18 @@ platformdirs==4.3.6
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-prompt-toolkit==3.0.47
+prompt-toolkit==3.0.50
     # via
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.2.2
+psycopg[binary,pool]==3.2.4
     # via -r requirements/pip.txt
-psycopg-binary==3.2.2
+psycopg-binary==3.2.4
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.2.3
+psycopg-pool==3.2.4
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -309,18 +315,20 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pygments==2.18.0
+pydantic==2.10.6
+    # via -r requirements/pip.txt
+pydantic-core==2.27.2
+    # via
+    #   -r requirements/pip.txt
+    #   pydantic
+pygments==2.19.1
     # via
     #   -r requirements/pip.txt
     #   ipython
-pyjwt[crypto]==2.9.0
+pyjwt[crypto]==2.10.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pypng==0.20220715.0
-    # via
-    #   -r requirements/pip.txt
-    #   qrcode
 pyquery==2.0.1
     # via -r requirements/pip.txt
 python-crontab==3.2.0
@@ -337,23 +345,23 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2024.2
+pytz==2025.1
     # via
     #   -r requirements/pip.txt
     #   celery
 pyyaml==6.0.2
     # via -r requirements/pip.txt
-qrcode==7.4.2
+qrcode==8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==5.0.8
+redis==5.2.1
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-regex==2024.9.11
+regex==2024.11.6
     # via -r requirements/pip.txt
-requests==2.30.0
+requests==2.32.3
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -370,26 +378,24 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-s3transfer==0.10.2
+s3transfer==0.11.2
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.21
+selectolax==0.3.27
     # via -r requirements/pip.txt
-sentry-sdk==2.14.0
+sentry-sdk==2.21.0
     # via structlog-sentry
-six==1.16.0
+six==1.17.0
     # via
     #   -r requirements/pip.txt
-    #   asttokens
     #   django-annoying
     #   django-elasticsearch-dsl
-    #   isodate
     #   python-dateutil
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.txt
-sqlparse==0.5.1
+sqlparse==0.5.3
     # via
     #   -r requirements/pip.txt
     #   django
@@ -405,13 +411,13 @@ structlog==23.2.0
     #   -r requirements/pip.txt
     #   django-structlog
     #   structlog-sentry
-structlog-sentry==2.1.0
+structlog-sentry==2.2.1
     # via -r requirements/deploy.in
 toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tomli==2.0.1
+tomli==2.2.1
     # via
     #   -r requirements/pip.txt
     #   dparse
@@ -427,23 +433,28 @@ typing-extensions==4.12.2
     #   ipython
     #   psycopg
     #   psycopg-pool
-    #   qrcode
-tzdata==2024.1
+    #   pydantic
+    #   pydantic-core
+tzdata==2025.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   kombu
-ua-parser==0.18.0
+ua-parser==1.0.1
     # via
     #   -r requirements/pip.txt
     #   user-agents
-unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
+ua-parser-builtins==0.18.0.post1
+    # via
+    #   -r requirements/pip.txt
+    #   ua-parser
+unicode-slugify==0.1.5
     # via -r requirements/pip.txt
 unidecode==1.3.8
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.2.3
+urllib3==2.3.0
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -459,16 +470,12 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.5
+virtualenv==20.29.2
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.8.0
-    # via
-    #   -r requirements/pip.txt
-    #   docker
 xmlsec==1.3.14
     # via
     #   -r requirements/pip.txt

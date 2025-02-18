@@ -13,19 +13,18 @@ import tarfile
 import structlog
 import yaml
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config.config import CONFIG_FILENAME_REGEX
 from readthedocs.config.find import find_one
 from readthedocs.core.utils.filesystem import safe_open
+from readthedocs.core.utils.objects import get_dotted_attribute
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
+from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML, GENERIC
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
 from readthedocs.storage import build_tools_storage
 
@@ -61,9 +60,6 @@ class BuildDirector:
         """
         self.data = data
 
-        # Reset `addons` field. It will be set to `True` only when it's built via `build.commands`
-        self.data.version.addons = False
-
     def setup_vcs(self):
         """
         Perform all VCS related steps.
@@ -78,11 +74,7 @@ class BuildDirector:
             os.makedirs(self.data.project.doc_path)
 
         if not self.data.project.vcs_class():
-            raise RepositoryError(
-                _('Repository type "{repo_type}" unknown').format(
-                    repo_type=self.data.project.repo_type,
-                ),
-            )
+            raise RepositoryError(RepositoryError.UNSUPPORTED_VCS)
 
         before_vcs.send(
             sender=self.data.version,
@@ -189,7 +181,6 @@ class BuildDirector:
         3. build PDF
         4. build ePub
         """
-
         self.run_build_job("pre_build")
 
         # Build all formats
@@ -200,10 +191,6 @@ class BuildDirector:
 
         self.run_build_job("post_build")
         self.store_readthedocs_build_yaml()
-
-        if self.data.project.has_feature(Feature.DISABLE_SPHINX_MANIPULATION):
-            # Mark this version to inject the new js client when serving it via El Proxito
-            self.data.version.addons = True
 
         after_build.send(
             sender=self.data.version,
@@ -311,20 +298,45 @@ class BuildDirector:
 
     # Language environment
     def create_environment(self):
+        if self.data.config.build.jobs.create_environment is not None:
+            self.run_build_job("create_environment")
+            return
+
+        # If the builder is generic, we have nothing to do here,
+        # as the commnads are provided by the user.
+        if self.data.config.doctype == GENERIC:
+            return
+
         self.language_environment.setup_base()
 
     # Install
     def install(self):
+        if self.data.config.build.jobs.install is not None:
+            self.run_build_job("install")
+            return
+
+        # If the builder is generic, we have nothing to do here,
+        # as the commnads are provided by the user.
+        if self.data.config.doctype == GENERIC:
+            return
+
         self.language_environment.install_core_requirements()
         self.language_environment.install_requirements()
 
     # Build
     def build_html(self):
+        if self.data.config.build.jobs.build.html is not None:
+            self.run_build_job("build.html")
+            return
         return self.build_docs_class(self.data.config.doctype)
 
     def build_pdf(self):
         if "pdf" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
+
+        if self.data.config.build.jobs.build.pdf is not None:
+            self.run_build_job("build.pdf")
+            return
 
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
@@ -339,6 +351,10 @@ class BuildDirector:
         ):
             return False
 
+        if self.data.config.build.jobs.build.htmlzip is not None:
+            self.run_build_job("build.htmlzip")
+            return
+
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
             return self.build_docs_class("sphinx_singlehtmllocalmedia")
@@ -347,6 +363,10 @@ class BuildDirector:
     def build_epub(self):
         if "epub" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
+
+        if self.data.config.build.jobs.build.epub is not None:
+            self.run_build_job("build.epub")
+            return
 
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
@@ -377,14 +397,17 @@ class BuildDirector:
                 - python path/to/myscript.py
               pre_build:
                 - sed -i **/*.rst -e "s|{version}|v3.5.1|g"
+              build:
+                html:
+                  - make html
+                pdf:
+                  - make pdf
 
         In this case, `self.data.config.build.jobs.pre_build` will contains
         `sed` command.
         """
-        if (
-            getattr(self.data.config.build, "jobs", None) is None
-            or getattr(self.data.config.build.jobs, job, None) is None
-        ):
+        commands = get_dotted_attribute(self.data.config, f"build.jobs.{job}", None)
+        if not commands:
             return
 
         cwd = self.data.project.checkout_path(self.data.version.slug)
@@ -392,7 +415,6 @@ class BuildDirector:
         if job not in ("pre_checkout", "post_checkout"):
             environment = self.build_environment
 
-        commands = getattr(self.data.config.build.jobs, job, [])
         for command in commands:
             environment.run(command, escape_command=False, cwd=cwd)
 
@@ -423,7 +445,7 @@ class BuildDirector:
     def run_build_commands(self):
         """Runs each build command in the build environment."""
 
-        reshim_commands = (
+        python_reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},
             {"conda", "install"},
@@ -431,6 +453,8 @@ class BuildDirector:
             {"mamba", "install"},
             {"poetry", "install"},
         )
+        rust_reshim_commands = ({"cargo", "install"},)
+
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.build_environment
         for command in self.data.config.build.commands:
@@ -439,13 +463,23 @@ class BuildDirector:
             # Execute ``asdf reshim python`` if the user is installing a
             # package since the package may contain an executable
             # See https://github.com/readthedocs/readthedocs.org/pull/9150#discussion_r882849790
-            for reshim_command in reshim_commands:
+            for python_reshim_command in python_reshim_commands:
                 # Convert tuple/list into set to check reshim command is a
                 # subset of the command itself. This is to find ``pip install``
                 # but also ``pip -v install`` and ``python -m pip install``
-                if reshim_command.issubset(command.split()):
+                if python_reshim_command.issubset(command.split()):
                     environment.run(
                         *["asdf", "reshim", "python"],
+                        escape_command=False,
+                        cwd=cwd,
+                        record=False,
+                    )
+
+            # Do same for Rust
+            for rust_reshim_command in rust_reshim_commands:
+                if rust_reshim_command.issubset(command.split()):
+                    environment.run(
+                        *["asdf", "reshim", "rust"],
                         escape_command=False,
                         cwd=cwd,
                         record=False,
@@ -458,9 +492,6 @@ class BuildDirector:
         # Update the `Version.documentation_type` to match the doctype defined
         # by the config file. When using `build.commands` it will be `GENERIC`
         self.data.version.documentation_type = self.data.config.doctype
-
-        # Mark this version to inject the new js client when serving it via El Proxito
-        self.data.version.addons = True
 
         self.store_readthedocs_build_yaml()
 
@@ -622,13 +653,18 @@ class BuildDirector:
         only raise a warning exception here. A hard error will halt the build
         process.
         """
+        # If the builder is generic, we have nothing to do here,
+        # as the commnads are provided by the user.
+        if builder_class == GENERIC:
+            return
+
         builder = get_builder_class(builder_class)(
             build_env=self.build_environment,
             python_env=self.language_environment,
         )
 
         if builder_class == self.data.config.doctype:
-            builder.append_conf()
+            builder.show_conf()
             self.data.version.documentation_type = builder.get_final_doctype()
 
         success = builder.build()
@@ -660,7 +696,7 @@ class BuildDirector:
             # TODO: we don't have access to the database from the builder.
             # We need to find a way to expose HTML_URL here as well.
             # "READTHEDOCS_GIT_HTML_URL": self.data.project.remote_repository.html_url,
-            "READTHEDOCS_GIT_IDENTIFIER": self.data.version.identifier,
+            "READTHEDOCS_GIT_IDENTIFIER": self.data.version.git_identifier,
             "READTHEDOCS_GIT_COMMIT_HASH": self.data.build["commit"],
             "READTHEDOCS_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         }

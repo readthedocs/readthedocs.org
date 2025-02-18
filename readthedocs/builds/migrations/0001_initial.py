@@ -1,10 +1,12 @@
 import taggit.managers
 from django.db import migrations, models
+from django_safemigrate import Safe
 
 import readthedocs.builds.version_slug
 
 
 class Migration(migrations.Migration):
+    safe = Safe.always
     dependencies = [
         ("projects", "0001_initial"),
         ("taggit", "0001_initial"),
@@ -146,7 +148,6 @@ class Migration(migrations.Migration):
                 (
                     "slug",
                     readthedocs.builds.version_slug.VersionSlugField(
-                        populate_from=b"verbose_name",
                         max_length=255,
                         verbose_name="Slug",
                         db_index=True,

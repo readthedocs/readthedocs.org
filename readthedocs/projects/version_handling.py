@@ -126,18 +126,6 @@ def sort_versions(version_list):
     return versions
 
 
-def highest_version(version_list):
-    """
-    Return the highest version for a given ``version_list``.
-
-    :rtype: tupe(readthedocs.builds.models.Version, packaging.version.Version)
-    """
-    versions = sort_versions(version_list)
-    if versions:
-        return versions[0]
-    return (None, None)
-
-
 def determine_stable_version(version_list):
     """
     Determine a stable version for version list.
@@ -187,15 +175,15 @@ def sort_versions_generic(
     alphabetically_sorted_version_list = sorted(
         version_list,
         key=operator.attrgetter("slug"),
+        reverse=True,
     )
 
     initial_versions = []
     valid_versions = []
     invalid_versions = []
-    for i, version in enumerate(alphabetically_sorted_version_list):
+    for version in alphabetically_sorted_version_list:
         if latest_stable_at_beginning:
             if version.slug in (STABLE, LATEST):
-                # It relies on the version list sorted alphabetically first ("l" comes first than "s")
                 initial_versions.append((version, version.slug))
                 continue
 
@@ -215,7 +203,8 @@ def sort_versions_generic(
             invalid_versions.append((version, None))
 
     all_versions = (
-        initial_versions
+        # It relies on the version list sorted alphabetically first ("l" comes first than "s")
+        sorted(initial_versions, key=operator.itemgetter(1))
         + sorted(valid_versions, key=operator.itemgetter(1), reverse=True)
         + invalid_versions
     )

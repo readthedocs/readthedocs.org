@@ -190,7 +190,7 @@ will be indexed as part of the section content:
          <h1 id="3">This is also a valid section title</h1>
       </header>
       <p>
-         Thi is the content of the third section.
+         This is the content of the third section.
       </p>
    </div>
 

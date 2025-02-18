@@ -22,24 +22,14 @@ import re
 import string
 from operator import truediv
 
+from django.core.validators import RegexValidator
 from django.db import models
-from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
 from slugify import slugify as unicode_slugify
 
 
-def get_fields_with_model(cls):
-    """
-    Replace deprecated function of the same name in Model._meta.
-
-    This replaces deprecated function (as of Django 1.10) in Model._meta as
-    prescrived in the Django docs.
-    https://docs.djangoproject.com/en/1.11/ref/models/meta/#migrating-from-the-old-api
-    """
-    return [
-        (f, f.model if f.model != cls else None)
-        for f in cls._meta.get_fields()
-        if not f.is_relation or f.one_to_one or (f.many_to_one and f.related_model)
-    ]
+class VersionSlugField(models.CharField):
+    """Just for backwards compatibility with old migrations."""
 
 
 # Regex breakdown:
@@ -50,164 +40,89 @@ def get_fields_with_model(cls):
 #                regexes.
 VERSION_SLUG_REGEX = "(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)"
 
+version_slug_validator = RegexValidator(
+    # NOTE: we use the lower case version of the regex here,
+    # since slugs are always lower case,
+    # maybe we can change the VERSION_SLUG_REGEX itself,
+    # but that may be a breaking change somewhere else...
+    regex=f"^{VERSION_SLUG_REGEX.lower()}$",
+    message=_(
+        "Enter a valid slug consisting of lowercase letters, numbers, dots, dashes or underscores. It must start with a letter or a number."
+    ),
+)
 
-class VersionSlugField(models.CharField):
 
-    """
-    Inspired by ``django_extensions.db.fields.AutoSlugField``.
+def generate_unique_version_slug(source, version):
+    slug = generate_version_slug(source) or "unknown"
+    queryset = version.project.versions.all()
+    if version.pk:
+        queryset = queryset.exclude(pk=version.pk)
+    base_slug = slug
+    iteration = 0
+    while queryset.filter(slug=slug).exists():
+        suffix = _uniquifying_suffix(iteration)
+        slug = f"{base_slug}_{suffix}"
+        iteration += 1
+    return slug
 
-    Uses ``unicode-slugify`` to generate the slug.
-    """
 
+def generate_version_slug(source):
+    normalized = _normalize(source)
     ok_chars = "-._"  # dash, dot, underscore
-    test_pattern = re.compile("^{pattern}$".format(pattern=VERSION_SLUG_REGEX))
-    fallback_slug = "unknown"
+    slugified = unicode_slugify(
+        normalized,
+        only_ascii=True,
+        spaces=False,
+        lower=True,
+        ok=ok_chars,
+        space_replacement="-",
+    )
+    # Remove first character wile it's an invalid character for the beginning of the slug.
+    slugified = slugified.lstrip(ok_chars)
+    return slugified
 
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("db_index", True)
 
-        populate_from = kwargs.pop("populate_from", None)
-        if populate_from is None:
-            raise ValueError("missing 'populate_from' argument")
+def _normalize(value):
+    """
+    Normalize some invalid characters (/, %, !, ?) to become a dash (``-``).
 
-        self._populate_from = populate_from
-        super().__init__(*args, **kwargs)
+    .. note::
 
-    def get_queryset(self, model_cls, slug_field):
-        for field, model in get_fields_with_model(model_cls):
-            if model and field == slug_field:
-                return model._default_manager.all()
-        return model_cls._default_manager.all()
+        We replace these characters to a dash to keep compatibility with the
+        old behavior and also because it makes this more readable.
 
-    def _normalize(self, content):
-        """
-        Normalize some invalid characters (/, %, !, ?) to become a dash (``-``).
+    For example, ``release/1.0`` will become ``release-1.0``.
+    """
+    return re.sub("[/%!?]", "-", value)
 
-        .. note::
 
-            We replace these characters to a dash to keep compatibility with the
-            old behavior and also because it makes this more readable.
+def _uniquifying_suffix(iteration):
+    """
+    Create a unique suffix.
 
-        For example, ``release/1.0`` will become ``release-1.0``.
-        """
-        return re.sub("[/%!?]", "-", content)
+    This creates a suffix based on the number given as ``iteration``. It
+    will return a value encoded as lowercase ascii letter. So we have an
+    alphabet of 26 letters. The returned suffix will be for example ``yh``
+    where ``yh`` is the encoding of ``iteration``. The length of it will be
+    ``math.log(iteration, 26)``.
 
-    def slugify(self, content):
-        """
-        Make ``content`` a valid slug.
+    Examples::
 
-        It uses ``unicode-slugify`` behind the scenes which works properly with
-        Unicode characters.
-        """
-        if not content:
-            return ""
-
-        normalized = self._normalize(content)
-        slugified = unicode_slugify(
-            normalized,
-            only_ascii=True,
-            spaces=False,
-            lower=True,
-            ok=self.ok_chars,
-            space_replacement="-",
-        )
-
-        # Remove first character wile it's an invalid character for the
-        # beginning of the slug
-        slugified = slugified.lstrip(self.ok_chars)
-
-        if not slugified:
-            return self.fallback_slug
-        return slugified
-
-    def uniquifying_suffix(self, iteration):
-        """
-        Create a unique suffix.
-
-        This creates a suffix based on the number given as ``iteration``. It
-        will return a value encoded as lowercase ascii letter. So we have an
-        alphabet of 26 letters. The returned suffix will be for example ``_yh``
-        where ``yh`` is the encoding of ``iteration``. The length of it will be
-        ``math.log(iteration, 26)``.
-
-        Examples::
-
-            uniquifying_suffix(0) == '_a'
-            uniquifying_suffix(25) == '_z'
-            uniquifying_suffix(26) == '_ba'
-            uniquifying_suffix(52) == '_ca'
-        """
-        alphabet = string.ascii_lowercase
-        length = len(alphabet)
-        if iteration == 0:
-            power = 0
-        else:
-            power = int(math.log(iteration, length))
-        current = iteration
-        suffix = ""
-        for exp in reversed(list(range(0, power + 1))):
-            digit = int(truediv(current, length**exp))
-            suffix += alphabet[digit]
-            current = current % length**exp
-        return "_{suffix}".format(suffix=suffix)
-
-    def create_slug(self, model_instance):
-        """Generate a unique slug for a model instance."""
-
-        # get fields to populate from and slug field to set
-        slug_field = model_instance._meta.get_field(self.attname)
-
-        slug = self.slugify(getattr(model_instance, self._populate_from))
-        count = 0
-
-        # strip slug depending on max_length attribute of the slug field
-        # and clean-up
-        slug_len = slug_field.max_length
-        if slug_len:
-            slug = slug[:slug_len]
-        original_slug = slug
-
-        # exclude the current model instance from the queryset used in finding
-        # the next valid slug
-        queryset = self.get_queryset(model_instance.__class__, slug_field)
-        if model_instance.pk:
-            queryset = queryset.exclude(pk=model_instance.pk)
-
-        # form a kwarg dict used to implement any unique_together constraints
-        kwargs = {}
-        for params in model_instance._meta.unique_together:
-            if self.attname in params:
-                for param in params:
-                    kwargs[param] = getattr(model_instance, param, None)
-        kwargs[self.attname] = slug
-
-        # increases the number while searching for the next valid slug
-        # depending on the given slug, clean-up
-        while not slug or queryset.filter(**kwargs).exists():
-            slug = original_slug
-            end = self.uniquifying_suffix(count)
-            end_len = len(end)
-            if slug_len and len(slug) + end_len > slug_len:
-                slug = slug[: slug_len - end_len]
-            slug = slug + end
-            kwargs[self.attname] = slug
-            count += 1
-
-        is_slug_valid = self.test_pattern.match(slug)
-        if not is_slug_valid:
-            # pylint: disable=broad-exception-raised
-            raise Exception("Invalid generated slug: {slug}".format(slug=slug))
-        return slug
-
-    def pre_save(self, model_instance, add):
-        value = getattr(model_instance, self.attname)
-        # We only create a new slug if none was set yet.
-        if not value and add:
-            value = force_str(self.create_slug(model_instance))
-            setattr(model_instance, self.attname, value)
-        return value
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        kwargs["populate_from"] = self._populate_from
-        return name, path, args, kwargs
+        uniquifying_suffix(0) == 'a'
+        uniquifying_suffix(25) == 'z'
+        uniquifying_suffix(26) == 'ba'
+        uniquifying_suffix(52) == 'ca'
+    """
+    alphabet = string.ascii_lowercase
+    length = len(alphabet)
+    if iteration == 0:
+        power = 0
+    else:
+        power = int(math.log(iteration, length))
+    current = iteration
+    suffix = ""
+    for exp in reversed(list(range(0, power + 1))):
+        digit = int(truediv(current, length**exp))
+        suffix += alphabet[digit]
+        current = current % length**exp
+    return suffix

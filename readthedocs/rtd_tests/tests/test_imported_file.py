@@ -1,14 +1,18 @@
 import os
+from unittest import mock
 
 import pytest
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
 from django.test.utils import override_settings
+from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
+from readthedocs.builds.models import Build, Version
+from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
-from readthedocs.projects.tasks.search import _create_imported_files_and_search_index
+from readthedocs.projects.tasks.search import index_build
 from readthedocs.search.documents import PageDocument
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
@@ -17,17 +21,22 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 @pytest.mark.search
 @override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class ImportedFileTests(TestCase):
-    fixtures = ["eric", "test_data"]
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     def setUp(self):
-        self.project = Project.objects.get(slug="pip")
-        self.version = self.project.versions.first()
+        self.project = get(Project)
+        self.version = self.project.versions.get(slug=LATEST)
+        self.build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
 
         self.test_dir = os.path.join(base_dir, "files")
         with override_settings(DOCROOT=self.test_dir):
-            self._copy_storage_dir()
+            self._copy_storage_dir(self.version)
 
         self._create_index()
 
@@ -42,25 +51,15 @@ class ImportedFileTests(TestCase):
         # Delete index
         PageDocument._index.delete(ignore=404)
 
-    def _manage_imported_files(self, version, search_ranking=None, search_ignore=None):
-        """Helper function for the tests to create and sync ImportedFiles."""
-        search_ranking = search_ranking or {}
-        search_ignore = search_ignore or []
-        return _create_imported_files_and_search_index(
-            version=version,
-            search_ranking=search_ranking,
-            search_ignore=search_ignore,
-        )
-
-    def _copy_storage_dir(self):
+    def _copy_storage_dir(self, version):
         """Copy the test directory (rtd_tests/files) to storage"""
         self.storage.copy_directory(
             self.test_dir,
             self.project.get_storage_path(
                 type_="html",
-                version_slug=self.version.slug,
+                version_slug=version.slug,
                 include_file=False,
-                version_type=self.version.type,
+                version_type=version.type,
             ),
         )
 
@@ -77,7 +76,7 @@ class ImportedFileTests(TestCase):
         """
         self.assertEqual(ImportedFile.objects.count(), 0)
 
-        sync_id = self._manage_imported_files(version=self.version)
+        sync_id = index_build(self.build.pk)
         self.assertEqual(ImportedFile.objects.count(), 3)
         self.assertEqual(
             set(HTMLFile.objects.all().values_list("path", flat=True)),
@@ -90,7 +89,7 @@ class ImportedFileTests(TestCase):
             {"index.html", "404.html", "test.html", "api/index.html"},
         )
 
-        sync_id = self._manage_imported_files(version=self.version)
+        sync_id = index_build(self.build.pk)
         self.assertEqual(ImportedFile.objects.count(), 3)
         self.assertEqual(
             set(HTMLFile.objects.all().values_list("path", flat=True)),
@@ -109,9 +108,9 @@ class ImportedFileTests(TestCase):
         self.version.save()
 
         with override_settings(DOCROOT=self.test_dir):
-            self._copy_storage_dir()
+            self._copy_storage_dir(self.version)
 
-        sync_id = self._manage_imported_files(version=self.version)
+        sync_id = index_build(self.build.pk)
         self.assertEqual(ImportedFile.objects.count(), 3)
         self.assertEqual(
             set(HTMLFile.objects.all().values_list("path", flat=True)),
@@ -121,7 +120,7 @@ class ImportedFileTests(TestCase):
         results = PageDocument().search().filter("term", build=sync_id).execute()
         self.assertEqual(len(results), 0)
 
-        sync_id = self._manage_imported_files(version=self.version)
+        sync_id = index_build(self.build.pk)
         self.assertEqual(ImportedFile.objects.count(), 3)
         self.assertEqual(
             set(HTMLFile.objects.all().values_list("path", flat=True)),
@@ -132,7 +131,7 @@ class ImportedFileTests(TestCase):
 
     def test_update_build(self):
         self.assertEqual(ImportedFile.objects.count(), 0)
-        sync_id = self._manage_imported_files(self.version)
+        sync_id = index_build(self.build.pk)
         for obj in ImportedFile.objects.all():
             self.assertEqual(obj.build, sync_id)
 
@@ -141,7 +140,7 @@ class ImportedFileTests(TestCase):
         for result in results:
             self.assertEqual(result.build, sync_id)
 
-        sync_id = self._manage_imported_files(self.version)
+        sync_id = index_build(self.build.pk)
         for obj in ImportedFile.objects.all():
             self.assertEqual(obj.build, sync_id)
 
@@ -151,11 +150,8 @@ class ImportedFileTests(TestCase):
         self.assertEqual(len(results), 4)
 
     def test_page_default_rank(self):
-        search_ranking = {}
         self.assertEqual(HTMLFile.objects.count(), 0)
-        sync_id = self._manage_imported_files(
-            self.version, search_ranking=search_ranking
-        )
+        sync_id = index_build(self.build.pk)
 
         results = (
             PageDocument()
@@ -172,12 +168,15 @@ class ImportedFileTests(TestCase):
             self.assertEqual(result.rank, 0)
 
     def test_page_custom_rank_glob(self):
-        search_ranking = {
-            "*index.html": 5,
+        self.build.config = {
+            "search": {
+                "ranking": {
+                    "*index.html": 5,
+                }
+            }
         }
-        sync_id = self._manage_imported_files(
-            self.version, search_ranking=search_ranking
-        )
+        self.build.save()
+        sync_id = index_build(self.build.pk)
 
         results = (
             PageDocument()
@@ -197,13 +196,16 @@ class ImportedFileTests(TestCase):
                 self.assertEqual(result.rank, 0, result.path)
 
     def test_page_custom_rank_several(self):
-        search_ranking = {
-            "test.html": 5,
-            "api/index.html": 2,
+        self.build.config = {
+            "search": {
+                "ranking": {
+                    "test.html": 5,
+                    "api/index.html": 2,
+                }
+            }
         }
-        sync_id = self._manage_imported_files(
-            self.version, search_ranking=search_ranking
-        )
+        self.build.save()
+        sync_id = index_build(self.build.pk)
 
         results = (
             PageDocument()
@@ -225,13 +227,16 @@ class ImportedFileTests(TestCase):
                 self.assertEqual(result.rank, 0)
 
     def test_page_custom_rank_precedence(self):
-        search_ranking = {
-            "*.html": 5,
-            "api/index.html": 2,
+        self.build.config = {
+            "search": {
+                "ranking": {
+                    "*.html": 5,
+                    "api/index.html": 2,
+                }
+            }
         }
-        sync_id = self._manage_imported_files(
-            self.version, search_ranking=search_ranking
-        )
+        self.build.save()
+        sync_id = index_build(self.build.pk)
 
         results = (
             PageDocument()
@@ -251,13 +256,16 @@ class ImportedFileTests(TestCase):
                 self.assertEqual(result.rank, 5, result.path)
 
     def test_page_custom_rank_precedence_inverted(self):
-        search_ranking = {
-            "api/index.html": 2,
-            "*.html": 5,
+        self.build.config = {
+            "search": {
+                "ranking": {
+                    "api/index.html": 2,
+                    "*.html": 5,
+                }
+            }
         }
-        sync_id = self._manage_imported_files(
-            self.version, search_ranking=search_ranking
-        )
+        self.build.save()
+        sync_id = index_build(self.build.pk)
 
         results = (
             PageDocument()
@@ -274,11 +282,13 @@ class ImportedFileTests(TestCase):
             self.assertEqual(result.rank, 5)
 
     def test_search_page_ignore(self):
-        search_ignore = ["api/index.html"]
-        self._manage_imported_files(
-            self.version,
-            search_ignore=search_ignore,
-        )
+        self.build.config = {
+            "search": {
+                "ignore": ["api/index.html"],
+            }
+        }
+        self.build.save()
+        index_build(self.build.pk)
 
         self.assertEqual(
             set(HTMLFile.objects.all().values_list("path", flat=True)),
@@ -304,9 +314,9 @@ class ImportedFileTests(TestCase):
             f.write("Woo")
 
         with override_settings(DOCROOT=self.test_dir):
-            self._copy_storage_dir()
+            self._copy_storage_dir(self.version)
 
-        sync_id = self._manage_imported_files(self.version)
+        sync_id = index_build(self.build.pk)
         self.assertEqual(ImportedFile.objects.count(), 3)
         document = (
             PageDocument()
@@ -323,9 +333,9 @@ class ImportedFileTests(TestCase):
             f.write("Something Else")
 
         with override_settings(DOCROOT=self.test_dir):
-            self._copy_storage_dir()
+            self._copy_storage_dir(self.version)
 
-        sync_id = self._manage_imported_files(self.version)
+        sync_id = index_build(self.build.pk)
         self.assertEqual(ImportedFile.objects.count(), 3)
         document = (
             PageDocument()
@@ -337,3 +347,57 @@ class ImportedFileTests(TestCase):
             .execute()[0]
         )
         self.assertEqual(document.sections[0].content, "Something Else")
+
+    @mock.patch("readthedocs.projects.tasks.search.write_manifest")
+    def test_create_file_tree_manifest(self, write_manifest):
+        assert self.version.slug == LATEST
+        index_build(self.build.pk)
+        # File Tree Diff is not enabled by default
+        write_manifest.assert_not_called()
+
+        self.project.addons.filetreediff_enabled = True
+        self.project.addons.save()
+        index_build(self.build.pk)
+        manifest = FileTreeDiffManifest(
+            build_id=self.build.pk,
+            files=[
+                FileTreeDiffFile(
+                    path="index.html",
+                    main_content_hash="f3336aabed1ae8057ffb0cca20d23d4c",
+                ),
+                FileTreeDiffFile(
+                    path="404.html",
+                    main_content_hash="b855c3d54f84e075b70faa9958123377",
+                ),
+                FileTreeDiffFile(
+                    path="test.html",
+                    main_content_hash="04e5dc4003413e36b8bec86bc5e28b07",
+                ),
+                FileTreeDiffFile(
+                    path="api/index.html",
+                    main_content_hash="15958dc725d925c8524b1766cde73d66",
+                ),
+            ],
+        )
+        write_manifest.assert_called_once_with(self.version, manifest)
+
+        # The version is not the latest nor a PR.
+        new_version = get(
+            Version,
+            project=self.project,
+            slug="new-version",
+        )
+        self.build.version = new_version
+        self.build.save()
+        write_manifest.reset_mock()
+        index_build(self.build.pk)
+        write_manifest.assert_not_called()
+
+        # Now it is a PR.
+        new_version.type = EXTERNAL
+        new_version.save()
+        with override_settings(DOCROOT=self.test_dir):
+            self._copy_storage_dir(new_version)
+        write_manifest.reset_mock()
+        index_build(self.build.pk)
+        write_manifest.assert_called_once_with(new_version, manifest)

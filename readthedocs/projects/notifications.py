@@ -1,9 +1,14 @@
 """Notifications related to projects."""
 import textwrap
 
+from django.contrib.auth.models import User
+from django.db.models import Count
+from django.utils import timezone
 from django.utils.translation import gettext_noop as _
 
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.notifications.constants import ERROR, INFO, WARNING
+from readthedocs.notifications.email import EmailNotification
 from readthedocs.notifications.messages import Message, registry
 from readthedocs.projects.exceptions import (
     ProjectConfigurationError,
@@ -11,6 +16,62 @@ from readthedocs.projects.exceptions import (
     SyncRepositoryLocked,
     UserFileNotFound,
 )
+from readthedocs.projects.models import Project
+
+
+class NewDashboardNotification(EmailNotification):
+
+    """
+    Notification about new dashboard rollout and changes for Business users.
+
+    To send:
+
+        for user in NewDashboardNotification.for_admins():
+            notify = NewDashboardNotificaiton(user, user)
+            notify.send()
+
+    NOTE: This can be removed with RTD_EXT_THEME_ENABLED.
+    """
+
+    app_templates = "projects"
+    name = "new_dashboard"
+    subject = "Upcoming changes to our dashboard"
+
+    @staticmethod
+    def for_projects():
+        # Only send to admin users of recently built projects
+        projects = (
+            Project.objects.filter(builds__date__gte=timezone.datetime(2023, 1, 1))
+            .annotate(successful_builds=Count("builds__success"))
+            .filter(successful_builds__gte=3)
+            .distinct()
+            .order_by("slug")
+        )
+
+        # Filter out projects that are spam. This is conditional as this module
+        # doesn't seem available in our tests.
+        try:
+            from readthedocsext.spamfighting.utils import spam_score
+
+            projects = filter(lambda p: spam_score(p) < 200, projects)
+
+            # Convert back to queryset
+            return Project.objects.filter(slug__in=[p.slug for p in projects])
+        except ImportError:
+            return projects
+
+    @staticmethod
+    def for_admins(projects=None):
+        if projects is None:
+            projects = NewDashboardNotification.for_projects()
+        usernames = set()
+        for project in projects:
+            usernames.update(
+                set(AdminPermission.admins(project).values_list("username", flat=True))
+            )
+
+        return User.objects.filter(username__in=usernames)
+
 
 MESSAGE_PROJECT_SKIP_BUILDS = "project:invalid:skip-builds"
 MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
@@ -95,6 +156,19 @@ messages = [
         type=ERROR,
     ),
     Message(
+        id=RepositoryError.UNSUPPORTED_VCS,
+        header=_("Repository type not suported"),
+        body=_(
+            textwrap.dedent(
+                """
+                Subversion, Mercurial, and Bazaar are not supported anymore.
+                Read more about this deprecation in <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">our blog</a>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=ProjectConfigurationError.NOT_FOUND,
         header=_("Sphinx configuration file is missing"),
         body=_(
@@ -149,12 +223,14 @@ messages = [
     # Temporary notification until October 7th.
     Message(
         id=MESSAGE_PROJECT_ADDONS_BY_DEFAULT,
-        header=_("""Read the Docs Addons will be enabled by default on October 7th"""),
+        header=_(
+            """Read the Docs Addons were enabled by default on October 7th, 2024"""
+        ),
         body=_(
             textwrap.dedent(
                 """
                 Read the <a href="https://about.readthedocs.com/blog/2024/07/addons-by-default/" target="_blank">full announcement in our blog</a>
-                to know if your project will be affected and how to update.
+                to know if your project is affected and how to update.
                 """
             ).strip(),
         ),

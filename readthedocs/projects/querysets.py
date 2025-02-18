@@ -1,4 +1,5 @@
 """Project model QuerySet classes."""
+from django.conf import settings
 from django.db import models
 from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
 
@@ -74,6 +75,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
         * the Project shouldn't be marked as skipped.
         * any of the project's owners shouldn't be banned.
+        * the project shouldn't have a high spam score.
         * the organization associated to the project should not be disabled.
 
         :param project: project to be checked
@@ -82,9 +84,22 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         :returns: whether or not the project is active
         :rtype: bool
         """
+        spam_project = False
         any_owner_banned = any(u.profile.banned for u in project.users.all())
         organization = project.organizations.first()
-        if project.skip or any_owner_banned or (organization and organization.disabled):
+
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import spam_score  # noqa
+
+            if spam_score(project) > settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS:
+                spam_project = True
+
+        if (
+            project.skip
+            or any_owner_banned
+            or (organization and organization.disabled)
+            or spam_project
+        ):
             return False
 
         return True
@@ -132,42 +147,34 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         from readthedocs.builds.models import Build
 
         # Prefetch the latest build for each project.
-        subquery_build_latest = Subquery(
+        subquery = Subquery(
             Build.internal.filter(project=OuterRef("project_id"))
             .order_by("-date")
             .values_list("id", flat=True)[:1]
         )
-        prefetch_build_latest = Prefetch(
+        latest_build = Prefetch(
             "builds",
-            Build.internal.filter(pk__in=subquery_build_latest),
+            Build.internal.filter(pk__in=subquery),
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
-
-        # Prefetch the latest successful build for each project.
-        subquery_build_successful = Subquery(
-            Build.internal.filter(project=OuterRef("project_id"))
-            .order_by("-date")
-            .values_list("id", flat=True)[:1]
-        )
-        prefetch_build_successful = Prefetch(
-            "builds",
-            Build.internal.filter(pk__in=subquery_build_successful),
-            to_attr=self.model.LATEST_SUCCESSFUL_BUILD_CACHE,
-        )
-
-        return self.prefetch_related(
-            prefetch_build_latest,
-            prefetch_build_successful,
-        )
+        return self.prefetch_related(latest_build)
 
     # Aliases
 
     def dashboard(self, user):
         """Get the projects for this user including the latest build."""
-        return self.for_user(user).prefetch_latest_build()
+        # Prefetching seems to cause some inconsistent performance issues,
+        # disabling for now. For more background, see:
+        # https://github.com/readthedocs/readthedocs.org/pull/11621
+        return self.for_user(user)
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
 
     def single_owner(self, user):
         """
@@ -225,6 +232,11 @@ class RelatedProjectQuerySet(NoReprQuerySet, models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
 
 
 class ParentRelatedProjectQuerySet(RelatedProjectQuerySet):

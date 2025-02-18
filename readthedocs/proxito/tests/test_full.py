@@ -1554,6 +1554,17 @@ class TestAdditionalDocViews(BaseDocServing):
             active=True,
             type=EXTERNAL,
         )
+
+        hidden_version = fixture.get(
+            Version,
+            identifier="hidden-version",
+            verbose_name="hidden-version",
+            slug="hidden-version",
+            privacy_level=constants.PUBLIC,
+            project=self.project,
+            active=True,
+            hidden=True,
+        )
         # This also creates a Version `latest` Automatically for this project
         translation = fixture.get(
             Project,
@@ -1580,7 +1591,8 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "application/xml")
         for version in self.project.versions(manager=INTERNAL).filter(
-            privacy_level=constants.PUBLIC
+            privacy_level=constants.PUBLIC,
+            hidden=False,
         ):
             self.assertContains(
                 response,
@@ -1598,6 +1610,16 @@ class TestAdditionalDocViews(BaseDocServing):
                 lang_slug=self.project.language,
             ),
         )
+
+        # Hidden version should not appear here
+        self.assertNotContains(
+            response,
+            self.project.get_docs_url(
+                version_slug=hidden_version.slug,
+                lang_slug=self.project.language,
+            ),
+        )
+
         # The `translation` project doesn't have a version named `not-translated-version`
         # so, the sitemap should not have a doc url for
         # `not-translated-version` with `translation-es` language.
@@ -1725,7 +1747,7 @@ class TestAdditionalDocViews(BaseDocServing):
     ALLOW_PRIVATE_REPOS=True,
     PUBLIC_DOMAIN="dev.readthedocs.io",
     PUBLIC_DOMAIN_USES_HTTPS=True,
-    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME, value=2).to_item()]),
 )
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
 # since the setting is evaluated just once (first test to use the storage

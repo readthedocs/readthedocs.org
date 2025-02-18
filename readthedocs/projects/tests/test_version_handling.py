@@ -2,7 +2,7 @@ import django_dynamic_fixture as fixture
 import pytest
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     sort_versions_calver,
     sort_versions_custom_pattern,
@@ -18,7 +18,6 @@ class TestVersionHandling:
         self.requests_mock = requests_mock
 
         self.project = fixture.get(Project, slug="project")
-        self.addons = fixture.get(AddonsConfig, project=self.project)
         self.version = self.project.versions.get(slug="latest")
         self.build = fixture.get(
             Build,
@@ -40,12 +39,12 @@ class TestVersionHandling:
             # `latest` and `stable` are at the beginning
             "latest",
             "2.5.3",
-            "1.1",
             "1.1.0",
+            "1.1",
             "v1.0",
             # Invalid versions are at the end sorted alphabetically.
-            "another-invalid",
             "invalid",
+            "another-invalid",
         ]
 
         for slug in slugs:
@@ -73,13 +72,13 @@ class TestVersionHandling:
 
         expected = [
             "2.5.3",
-            "1.1",
             "1.1.0",
+            "1.1",
             "v1.0",
             # Invalid versions are at the end sorted alphabetically.
-            "another-invalid",
-            "invalid",
             "latest",
+            "invalid",
+            "another-invalid",
         ]
 
         for slug in slugs:
@@ -121,14 +120,14 @@ class TestVersionHandling:
             "2022.01.22",
             "2021.01.22",
             # invalid ones (alphabetically)
-            "1.1",
-            "1.1.0",
-            "2.5.3",
-            "2001-02-27",
-            "2001.02.2",
-            "2001.16.32",
-            "another-invalid",
             "invalid",
+            "another-invalid",
+            "2001.16.32",
+            "2001.02.2",
+            "2001-02-27",
+            "2.5.3",
+            "1.1.0",
+            "1.1",
         ]
 
         for slug in slugs:
@@ -175,13 +174,13 @@ class TestVersionHandling:
             "v1.1",
             "v1.0",
             # invalid ones (alphabetically)
-            "1.1",
-            "2.5.3",
-            "2022.01.22",
-            "another-invalid",
-            "invalid",
-            "v1.1.0",
             "v2.3rc1",
+            "v1.1.0",
+            "invalid",
+            "another-invalid",
+            "2022.01.22",
+            "2.5.3",
+            "1.1",
         ]
 
         for slug in slugs:
