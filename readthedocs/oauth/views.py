@@ -1,4 +1,5 @@
 import hmac
+from functools import cached_property
 
 import structlog
 from django.conf import settings
@@ -30,9 +31,9 @@ log = structlog.get_logger(__name__)
 class GitHubAppWebhookView(APIView):
     authentication_classes = []
 
-    def __init__(self, **kwargs):
-        self.gha_client = get_gh_app_client()
-        super().__init__(**kwargs)
+    @cached_property
+    def gha_client(self):
+        return get_gh_app_client()
 
     def post(self, request):
         if not self._is_payload_signature_valid():

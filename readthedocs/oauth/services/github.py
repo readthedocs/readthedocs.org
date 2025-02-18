@@ -14,12 +14,7 @@ from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STAT
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
-from ..models import (
-    GitHubAccountType,
-    GitHubAppInstallation,
-    RemoteOrganization,
-    RemoteRepository,
-)
+from ..models import RemoteOrganization, RemoteRepository
 from .base import SyncServiceError, UserService
 
 log = structlog.get_logger(__name__)
@@ -67,9 +62,6 @@ class GitHubService(UserService):
                     org_details,
                     create_user_relationship=True,
                 )
-                if not remote_organization:
-                    continue
-
                 remote_organizations.append(remote_organization)
 
                 org_url = org["url"]
@@ -112,12 +104,6 @@ class GitHubService(UserService):
                 remote_id=str(fields["id"]),
                 vcs_provider=self.vcs_provider_slug,
             )
-
-            # if repo.github_app_installation:
-            #     log.info(
-            #         "Repository is managed by a GitHub App installation, skipping.",
-            #     )
-            #     return
 
             # TODO: For debugging: https://github.com/readthedocs/readthedocs.org/pull/9449.
             if created:
@@ -198,17 +184,8 @@ class GitHubService(UserService):
          will be created/updated.
         :rtype: RemoteOrganization
         """
-        remote_id = fields["id"]
-        # if GitHubAppInstallation.objects.filter(
-        #     target_id=remote_id, target_type=GitHubAccountType.ORGANIZATION
-        # ).exists():
-        #     log.info(
-        #         "Organization is managed by a GitHub App installation, skipping.",
-        #     )
-        #     return
-
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=str(remote_id),
+            remote_id=str(fields["id"]),
             vcs_provider=self.vcs_provider_slug,
         )
         if create_user_relationship:
@@ -430,7 +407,6 @@ class GitHubService(UserService):
         return (False, resp)
 
     def remove_webhook(self, project):
-        # TODO: use remote repo instead?
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
         try:
@@ -454,7 +430,9 @@ class GitHubService(UserService):
             for hook_target in hook_targets:
                 if hook_url.startswith(hook_target):
                     try:
-                        self.session.delete(f"{self.base_api_url}/repos/{owner}/{repo}/hooks/{hook['id']}").raise_for_status()
+                        self.session.delete(
+                            f"{self.base_api_url}/repos/{owner}/{repo}/hooks/{hook['id']}"
+                        ).raise_for_status()
                     except Exception:
                         log.info("Failed to remove GitHub webhook for project.")
                         return False
@@ -463,7 +441,6 @@ class GitHubService(UserService):
     def remove_ssh_key(self, project):
         # Overridden in corporate
         return True
-
 
     def send_build_status(self, *, build, commit, status):
         """

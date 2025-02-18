@@ -400,10 +400,7 @@ class RemoteRepository(TimeStampedModel):
         return remote_repository_relation
 
     def get_service_class(self):
-        from readthedocs.oauth.services import GitHubAppService, registry
-
-        if self.github_app_installation:
-            return GitHubAppService
+        from readthedocs.oauth.services import registry
 
         for service_cls in registry:
             if service_cls.vcs_provider_slug == self.vcs_provider:

@@ -1,9 +1,9 @@
 """Managers for OAuth models."""
 
 from django.db import models
-from django.db.models import Q
 
 from readthedocs.core.querysets import NoReprQuerySet
+from readthedocs.oauth.constants import GITHUB, GITHUB_APP
 
 
 class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
@@ -29,7 +29,17 @@ class RemoteRepositoryQuerySet(RelatedUserQuerySet):
 
         Repositories can be imported if the user has admin access to the repository on the VCS service.
         """
-        return self.filter(remote_repository_relations__user=user, remote_repository_relations__admin=True).distinct()
+        queryset = self.filter(
+            remote_repository_relations__user=user,
+            remote_repository_relations__admin=True,
+        )
+
+        # If the user has already started using the GitHub App,
+        # we shouldn't show repositories from the old GitHub integration.
+        if queryset.filter(vcs_provider=GITHUB_APP).exists():
+            queryset = queryset.exclude(vcs_provider=GITHUB)
+
+        return queryset.distinct()
 
 
 class RemoteOrganizationQuerySet(RelatedUserQuerySet):
