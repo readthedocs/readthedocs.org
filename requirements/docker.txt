@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.16
+boto3==1.36.21
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.16
+botocore==1.36.21
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -91,7 +91,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==44.0.0
+cryptography==44.0.1
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -159,7 +159,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==24.3
+django-filter==25.1
     # via -r requirements/pip.txt
 django-formtools==2.5.1
     # via -r requirements/pip.txt
@@ -200,7 +200,7 @@ djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
 dnspython==2.7.0
     # via -r requirements/pip.txt
-docker==6.1.2
+docker==7.1.0
     # via -r requirements/pip.txt
 docutils==0.21.2
     # via -r requirements/pip.txt
@@ -275,7 +275,7 @@ lexid==2021.1006
     # via
     #   -r requirements/pip.txt
     #   bumpver
-lxml==5.3.0
+lxml==5.3.1
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -299,7 +299,6 @@ packaging==24.2
     # via
     #   -r requirements/pip.txt
     #   djangorestframework-api-key
-    #   docker
     #   dparse
     #   gunicorn
     #   pyproject-api
@@ -392,7 +391,7 @@ redis==5.2.1
     #   django-cacheops
 regex==2024.11.6
     # via -r requirements/pip.txt
-requests==2.30.0
+requests==2.32.3
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -504,7 +503,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.29.1
+virtualenv==20.29.2
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -512,10 +511,6 @@ wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.8.0
-    # via
-    #   -r requirements/pip.txt
-    #   docker
 wmctrl==0.5
     # via pdbpp
 xmlsec==1.3.14
