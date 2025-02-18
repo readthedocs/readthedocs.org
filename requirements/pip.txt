@@ -15,17 +15,17 @@ asgiref==3.8.1
     #   django-cors-headers
 async-timeout==5.0.1
     # via redis
-billiard==3.6.4.0
+billiard==4.2.1
     # via celery
-boto3==1.36.21
+boto3==1.36.22
     # via django-storages
-botocore==1.36.21
+botocore==1.36.22
     # via
     #   boto3
     #   s3transfer
 bumpver==2024.1130
     # via -r requirements/pip.in
-celery==5.2.7
+celery==5.4.0
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
@@ -241,14 +241,13 @@ python-dateutil==2.9.0.post0
     # via
     #   -r requirements/pip.in
     #   botocore
+    #   celery
     #   elasticsearch-dsl
     #   python-crontab
 python3-saml==1.16.0
     # via django-allauth
 pytz==2025.1
-    # via
-    #   -r requirements/pip.in
-    #   celery
+    # via -r requirements/pip.in
 pyyaml==6.0.2
     # via -r requirements/pip.in
 qrcode==8.0
@@ -278,7 +277,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
 s3transfer==0.11.2
     # via boto3
-selectolax==0.3.27
+selectolax==0.3.28
     # via -r requirements/pip.in
 six==1.17.0
     # via
@@ -315,6 +314,7 @@ typing-extensions==4.12.2
 tzdata==2025.1
     # via
     #   -r requirements/pip.in
+    #   celery
     #   django-celery-beat
     #   kombu
 ua-parser==1.0.1

@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ARG GITHUB_USER
 ARG GITHUB_TOKEN
@@ -26,8 +26,8 @@ RUN apt-get -y install \
         libmysqlclient-dev \
         libfreetype6 \
         libjpeg-dev \
-        sqlite \
-        netcat \
+        sqlite3 \
+        netcat-traditional \
         telnet \
         lsb-release \
         npm \
@@ -57,7 +57,9 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
 
 # Install ``uv`` package manager
-RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/bin/" sh
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin/:$PATH"
+RUN uv venv
 
 # Ensure that ``python`` is in the PATH so that ``./manage.py`` works
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -65,17 +67,17 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 WORKDIR /tmp
 
 COPY requirements/docker.txt docker.txt
-RUN uv pip sync --system docker.txt
+RUN uv pip sync docker.txt
 
 # Install readthedocs-ext only if GITHUB_TOKEN is provided
 WORKDIR /usr/src/app/checkouts/
 RUN if [ -n "$GITHUB_TOKEN" ] ; \
         then \
         git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
-        uv pip install --system --no-cache-dir -e readthedocs-ext ; \
+        uv pip install --no-cache-dir -e readthedocs-ext ; \
         fi
 
 RUN git clone --depth 1 https://github.com/readthedocs/ext-theme ; \
-    uv pip install --system --no-cache-dir -e ext-theme
+    uv pip install --no-cache-dir -e ext-theme
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org
