@@ -140,6 +140,8 @@ class ProjectImportMixin:
         from readthedocs.oauth.tasks import attach_webhook
 
         task_promise = chain(
+            # TODO: Remove user_pk on the next release,
+            # it's used just to keep backward compatibility with the old task signature.
             attach_webhook.si(project.pk, user.pk),
             update_docs,
         )

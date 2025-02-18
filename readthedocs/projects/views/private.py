@@ -350,7 +350,7 @@ def show_config_step(wizard):
         )
         for relation in remote_repository_relations:
             service = GitHubService(relation.user, relation.account)
-            session = service.get_session()
+            session = service.session
 
             for yaml in [
                 ".readthedocs.yaml",
@@ -489,7 +489,7 @@ class ImportView(PrivateViewMixin, TemplateView):
         deprecated_accounts = SocialAccount.objects.filter(
             user=self.request.user
         ).exclude(
-            provider__in=[service.adapter.provider_id for service in registry],
+            provider__in=[service.allauth_provider.id for service in registry],
         )  # yapf: disable
         for account in deprecated_accounts:
             provider_account = account.get_provider_account()
@@ -999,8 +999,10 @@ class IntegrationCreate(IntegrationMixin, CreateView):
         if self.object.has_sync:
             attach_webhook(
                 project_pk=self.get_project().pk,
-                user_pk=self.request.user.pk,
                 integration=self.object,
+                # TODO: Remove user_pk on the next release,
+                # it's used just to keep backward compatibility with the old task signature.
+                user_pk=None,
             )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -1056,7 +1058,9 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
             # the per-integration sync instead.
             attach_webhook(
                 project_pk=self.get_project().pk,
-                user_pk=request.user.pk,
+                # TODO: Remove user_pk on the next release,
+                # it's used just to keep backward compatibility with the old task signature.
+                user_pk=None,
             )
         return HttpResponseRedirect(self.get_success_url())
 
