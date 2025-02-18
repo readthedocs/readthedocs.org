@@ -237,7 +237,7 @@ class GitHubAppService(Service):
         if gh_repo.owner.type == GitHubAccountType.ORGANIZATION:
             # NOTE: The owner object doesn't have all attributes of an organization,
             # so we need to fetch the organization object.
-            gh_organization = self._get_gh_organization(gh_repo.owner.id)
+            gh_organization = self._get_gh_organization(gh_repo.owner.login)
             remote_repo.organization = self._create_or_update_organization_from_gh(
                 gh_organization
             )
@@ -248,14 +248,9 @@ class GitHubAppService(Service):
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...
     @lru_cache(maxsize=50)
-    def _get_gh_organization(self, org_id: int) -> GHOrganization:
-        """Get a GitHub organization object given its numeric ID."""
-        # NOTE: getting an organization by its numeric ID is not supported by PyGithub yet,
-        # see https://github.com/PyGithub/PyGithub/pull/3192.
-        # return self.installation_client.get_organization(org_id)
-        requester = self.installation_client.requester
-        headers, data = requester.requestJsonAndCheck("GET", f"/organizations/{org_id}")
-        return GHOrganization(requester, headers, data, completed=True)
+    def _get_gh_organization(self, login: str) -> GHOrganization:
+        """Get a GitHub organization object given its login identifier."""
+        return self.installation_client.get_organization(login)
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...
     @lru_cache(maxsize=50)
@@ -321,21 +316,6 @@ class GitHubAppService(Service):
             uid__in=ids,
             provider=self.allauth_provider.id,
         ).select_related("user")
-
-    def update_or_create_organization(self, org_id: int) -> RemoteOrganization | None:
-        try:
-            gh_org = self._get_gh_organization(org_id)
-            return self._create_or_update_organization_from_gh(gh_org)
-        except GithubException:
-            log.info(
-                "Failed to fetch organization from GitHub",
-                organization_id=org_id,
-                exc_info=True,
-            )
-            # TODO: if we lost access to the organization,
-            # we should remove the organization from the database,
-            # and clean up the members and relations.
-            return None
 
     def _resync_organization_members(
         self, gh_org: GHOrganization, remote_org: RemoteOrganization
