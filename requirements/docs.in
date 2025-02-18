@@ -1,8 +1,6 @@
 # Packages required to build docs, independent of application dependencies
 
-# There is an error when copying assets
-# TypeError: unsupported operand type(s) for /: 'str' and 'str'
-sphinx<8
+sphinx
 
 matplotlib  # opengraph social cards
 
@@ -13,7 +11,6 @@ sphinx-design
 sphinx-multiproject
 
 # RTD deps :)
-sphinx-hoverxref
 sphinx-notfound-page
 
 # Docs

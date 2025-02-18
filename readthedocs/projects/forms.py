@@ -1,19 +1,18 @@
 """Project forms."""
 
-import datetime
 import json
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
-import pytz
+import dns.name
+import dns.resolver
 from allauth.socialaccount.models import SocialAccount
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
@@ -66,7 +65,15 @@ class ProjectForm(SimpleHistoryModelForm):
             coerce=lambda x: RemoteRepository.objects.get(pk=x),
             required=False,
             empty_value=None,
+            help_text=self.fields["remote_repository"].help_text,
+            label=self.fields["remote_repository"].label,
         )
+
+        # The clone URL will be set from the remote repository.
+        if self.instance.remote_repository and not self.instance.has_feature(
+            Feature.DONT_SYNC_WITH_REMOTE_REPO
+        ):
+            self.fields["repo"].disabled = True
 
     def _get_remote_repository_choices(self):
         """
@@ -396,6 +403,11 @@ class ProjectBasicsForm(ProjectForm):
         super().__init__(*args, **kwargs)
         self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
         self.fields["repo"].widget.attrs["required"] = True
+        # Make the repo field readonly if a remote repository is given,
+        # since it will be derived from the remote repository.
+        # In the form we already populate this field with the remote repository's clone URL.
+        if self.initial.get("remote_repository"):
+            self.fields["repo"].disabled = True
         self.fields["remote_repository"].widget = forms.HiddenInput()
 
 
@@ -640,62 +652,103 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
             self.fields.pop("external_builds_privacy_level")
 
 
+class OnePerLineList(forms.Field):
+    widget = forms.Textarea(
+        attrs={
+            "placeholder": "\n".join(
+                [
+                    "whatsnew.html",
+                    "archive/*",
+                    "tags/*",
+                    "guides/getting-started.html",
+                    "changelog.html",
+                    "release/*",
+                ]
+            ),
+        },
+    )
+
+    def to_python(self, value):
+        """Convert a text area into a list of items (one per line)."""
+        if not value:
+            return []
+        # Normalize paths and filter empty lines:
+        #  - remove trailing spaces
+        #  - skip empty lines
+        #  - remove starting `/`
+        result = []
+        for line in value.splitlines():
+            normalized = line.strip().lstrip("/")
+            if normalized:
+                result.append(normalized)
+        return result
+
+    def prepare_value(self, value):
+        """Convert a list of items into a text area (one per line)."""
+        if not value:
+            return ""
+        return "\n".join(value)
+
+
 class AddonsConfigForm(forms.ModelForm):
 
     """Form to opt-in into new addons."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
+    filetreediff_ignored_files = OnePerLineList(required=False)
 
     class Meta:
         model = AddonsConfig
         fields = (
             "enabled",
             "project",
+            "options_root_selector",
             "analytics_enabled",
             "doc_diff_enabled",
-            "doc_diff_root_selector",
-            "external_version_warning_enabled",
+            "filetreediff_enabled",
+            "filetreediff_ignored_files",
             "flyout_enabled",
             "flyout_sorting",
             "flyout_sorting_latest_stable_at_beginning",
             "flyout_sorting_custom_pattern",
+            "flyout_position",
             "hotkeys_enabled",
             "search_enabled",
-            "stable_latest_version_warning_enabled",
+            "linkpreviews_enabled",
+            "notifications_enabled",
+            "notifications_show_on_latest",
+            "notifications_show_on_non_stable",
+            "notifications_show_on_external",
         )
         labels = {
             "enabled": _("Enable Addons"),
-            "external_version_warning_enabled": _(
+            "doc_diff_enabled": _("Visual diff enabled"),
+            "filetreediff_enabled": _("Enabled"),
+            "filetreediff_ignored_files": _("Ignored files"),
+            "notifications_show_on_external": _(
                 "Show a notification on builds from pull requests"
             ),
-            "stable_latest_version_warning_enabled": _(
-                "Show a notification on non-stable and latest versions"
+            "notifications_show_on_non_stable": _(
+                "Show a notification on non-stable versions"
             ),
+            "notifications_show_on_latest": _("Show a notification on latest version"),
+            "linkpreviews_enabled": _("Enabled"),
+            "options_root_selector": _("CSS main content selector"),
         }
+
         widgets = {
-            "doc_diff_root_selector": forms.TextInput(
+            "options_root_selector": forms.TextInput(
                 attrs={"placeholder": "[role=main]"}
             ),
         }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
-
-        tzinfo = pytz.timezone("America/Los_Angeles")
-        addons_enabled_by_default = timezone.now() > datetime.datetime(
-            2024, 10, 7, 0, 0, 0, tzinfo=tzinfo
-        )
-
-        addons, created = AddonsConfig.objects.get_or_create(project=self.project)
-        if created:
-            addons.enabled = addons_enabled_by_default
-            addons.save()
-
-        kwargs["instance"] = addons
+        kwargs["instance"] = self.project.addons
         super().__init__(*args, **kwargs)
 
         # Keep the ability to disable addons completely on Read the Docs for Business
-        if not settings.RTD_ALLOW_ORGANIZATIONS and addons_enabled_by_default:
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields["enabled"].disabled = True
 
     def clean(self):
@@ -999,11 +1052,11 @@ class DomainForm(forms.ModelForm):
     def clean_domain(self):
         """Validates domain."""
         domain = self.cleaned_data["domain"].lower()
-        parsed = urlparse(domain)
+        parsed = self._safe_urlparse(domain)
 
         # Force the scheme to have a valid netloc.
         if not parsed.scheme:
-            parsed = urlparse(f"https://{domain}")
+            parsed = self._safe_urlparse(f"https://{domain}")
 
         if not parsed.netloc:
             raise forms.ValidationError(f"{domain} is not a valid domain.")
@@ -1022,7 +1075,79 @@ class DomainForm(forms.ModelForm):
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(f"{invalid_domain} is not a valid domain.")
 
+        self._check_for_suspicious_cname(domain_string)
+
         return domain_string
+
+    def _check_for_suspicious_cname(self, domain):
+        """
+        Check if a domain has a suspicious CNAME record.
+
+        The domain is suspicious if:
+
+        - Has a CNAME pointing to another CNAME.
+          This prevents the subdomain from being hijacked if the last subdomain is on RTD,
+          but the user didn't register the other subdomain.
+          Example: doc.example.com -> docs.example.com -> readthedocs.io,
+          We don't want to allow doc.example.com to be added.
+        - Has a CNAME pointing to the APEX domain.
+          This prevents a subdomain from being hijacked if the APEX domain is on RTD.
+          A common case is `www` pointing to the APEX domain, but users didn't register the
+          `www` subdomain, only the APEX domain.
+          Example: www.example.com -> example.com -> readthedocs.io,
+          we don't want to allow www.example.com to be added.
+        """
+        cname = self._get_cname(domain)
+        # Doesn't have a CNAME record, we are good.
+        if not cname:
+            return
+
+        # If the domain has a CNAME pointing to the APEX domain, that's not good.
+        # This check isn't perfect, but it's a good enoug heuristic
+        # to dectect CNAMES like www.example.com -> example.com.
+        if f"{domain}.".endswith(f".{cname}"):
+            raise forms.ValidationError(
+                _(
+                    "This domain has a CNAME record pointing to the APEX domain. "
+                    "Please remove the CNAME before adding the domain.",
+                ),
+            )
+
+        second_cname = self._get_cname(cname)
+        # The domain has a CNAME pointing to another CNAME, That's not good.
+        if second_cname:
+            raise forms.ValidationError(
+                _(
+                    "This domain has a CNAME record pointing to another CNAME. "
+                    "Please remove the CNAME before adding the domain.",
+                ),
+            )
+
+    def _get_cname(self, domain):
+        try:
+            answers = dns.resolver.resolve(domain, "CNAME", lifetime=1)
+            # dnspython doesn't recursively resolve CNAME records.
+            # We always have one response or none.
+            return str(answers[0].target)
+        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+            return None
+        except dns.resolver.LifetimeTimeout:
+            raise forms.ValidationError(
+                _(
+                    "DNS resolution timed out. Make sure the domain is correct, or try again later."
+                ),
+            )
+        except dns.name.EmptyLabel:
+            raise forms.ValidationError(
+                _("The domain is not valid."),
+            )
+
+    def _safe_urlparse(self, url):
+        """Wrapper around urlparse to throw ValueError exceptions as ValidationError."""
+        try:
+            return urlparse(url)
+        except ValueError:
+            raise forms.ValidationError("Invalid domain")
 
     def clean_canonical(self):
         canonical = self.cleaned_data["canonical"]

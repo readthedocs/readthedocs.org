@@ -1,8 +1,11 @@
-from .mixins import APIEndpointMixin
-from django.urls import reverse
-
 import django_dynamic_fixture as fixture
+from django.urls import reverse
+from django_dynamic_fixture import get
+
 from readthedocs.projects.models import EnvironmentVariable
+from readthedocs.projects.validators import MAX_SIZE_ENV_VARS_PER_PROJECT
+
+from .mixins import APIEndpointMixin
 
 
 class EnvironmentVariablessEndpointTests(APIEndpointMixin):
@@ -154,3 +157,54 @@ class EnvironmentVariablessEndpointTests(APIEndpointMixin):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.project.environmentvariable_set.count(), 0)
+
+    def test_create_large_environment_variable(self):
+        url = reverse(
+            "projects-environmentvariables-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        resp = self.client.post(
+            url,
+            data={"name": "NEWENVVAR", "value": "a" * (48000 + 1), "public": True},
+        )
+        assert resp.status_code == 400
+        assert resp.data == {
+            "value": ["Ensure this field has no more than 48000 characters."]
+        }
+
+    def test_environment_variables_total_size_per_project(self):
+        size = 2000
+        for i in range((MAX_SIZE_ENV_VARS_PER_PROJECT - size) // size):
+            get(
+                EnvironmentVariable,
+                project=self.project,
+                name=f"ENVVAR{i}",
+                value="a" * size,
+                public=False,
+            )
+
+        url = reverse(
+            "projects-environmentvariables-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        resp = self.client.post(
+            url,
+            data={"name": "A", "value": "a" * (size // 2), "public": True},
+        )
+        assert resp.status_code == 201
+
+        resp = self.client.post(
+            url,
+            data={"name": "B", "value": "a" * size, "public": True},
+        )
+        assert resp.status_code == 400
+        assert resp.json() == [
+            "The total size of all environment variables in the project cannot exceed 256 KB."
+        ]

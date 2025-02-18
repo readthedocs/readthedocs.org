@@ -4,11 +4,11 @@ import textwrap
 
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.notifications.constants import INFO, WARNING
+from readthedocs.notifications.constants import TIP, WARNING
 from readthedocs.notifications.messages import Message, registry
 
 MESSAGE_EMAIL_VALIDATION_PENDING = "core:email:validation-pending"
-MESSAGE_BETA_DASHBOARD_AVAILABLE = "core:dashboard:beta-available"
+MESSAGE_NEW_DASHBOARD = "core:dashboard:new"
 messages = [
     Message(
         id=MESSAGE_EMAIL_VALIDATION_PENDING,
@@ -23,24 +23,38 @@ messages = [
         ),
         type=WARNING,
     ),
+    # This message looks quite odd because we need to show different content in
+    # the notification depending on which instance the user is on -- if the user
+    # is on our legacy dashboard, we don't want a notification "Welcome to our
+    # new dashboard!".
+    #
+    # Localization is avoided because the body has template logic inside and we
+    # don't want to push that to our translations sources.
     Message(
-        id=MESSAGE_BETA_DASHBOARD_AVAILABLE,
-        header=_("New beta dashboard"),
-        body=_(
-            textwrap.dedent(
-                """
-                {% if RTD_EXT_THEME_ENABLED %}
-                This dashboard is currently in beta,
-                you can <a href="https://{{ PRODUCTION_DOMAIN }}">return to the legacy dashboard</a> if you encounter any problems.
-                Feel free to <a href="https://{{ PRODUCTION_DOMAIN }}/support/">report any feedback</a> you may have.
-                {% else %}
-                Our new <strong>beta dashboard</strong> is now available for testing.
-                <a href="https://app.{{ PRODUCTION_DOMAIN }}/">Give it a try</a> and send us feedback.
-                {% endif %}
+        id=MESSAGE_NEW_DASHBOARD,
+        header=textwrap.dedent(
             """
-            ).strip(),
-        ),
-        type=INFO,
+            {% if RTD_EXT_THEME_ENABLED %}
+              Welcome to our new dashboard!
+            {% else %}
+              Our new dashboard is ready!
+            {% endif %}
+            """
+        ).strip(),
+        body=textwrap.dedent(
+            """
+            {% if RTD_EXT_THEME_ENABLED %}
+              We are beginning to direct users to our new dashboard as we work to retire our legacy dashboard.
+            {% else %}
+              You are currently using our legacy dashboard, which will be retired on <time datetime="2025-03-11">March 11th, 2025</time>.
+              You should <a href="//{{ SWITCH_PRODUCTION_DOMAIN }}{% url "account_login" %}">switch to our new dashboard</a> before then.
+            {% endif %}
+            For more information on this change and what to expect,
+            <a href="https://about.readthedocs.com/blog/2024/11/rollout-of-our-new-dashboard/">read our blog post</a>.
+            """
+        ).strip(),
+        type=TIP,
+        icon_classes="fad fa-sparkles",
     ),
 ]
 

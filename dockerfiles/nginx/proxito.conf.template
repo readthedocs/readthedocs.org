@@ -22,16 +22,11 @@ server {
 
     # Proxy the "readthedocs-addons.js" to be downloaded from GitHub
     location /_/static/javascript/readthedocs-addons.js {
-        proxy_pass https://raw.githubusercontent.com/readthedocs/addons/$NGINX_ADDONS_GITHUB_TAG/dist/readthedocs-addons.js;
-        proxy_cache_valid 24h;
-        proxy_hide_header Content-Type;
-        add_header Content-Type	"text/javascript; charset=utf-8" always;
+        proxy_pass http://addons:8000/readthedocs-addons.js;
     }
 
     location /_/static/javascript/readthedocs-addons.js.map {
-        proxy_pass https://raw.githubusercontent.com/readthedocs/addons/$NGINX_ADDONS_GITHUB_TAG/dist/readthedocs-addons.js.map;
-        proxy_cache_valid 24h;
-        add_header Content-Type	"text/javascript; charset=utf-8" always;
+        proxy_pass http://addons:8000/readthedocs-addons.js.map;
     }
 
     # Proxito doc serving
@@ -120,8 +115,6 @@ server {
 
         # This header allows us to decide whether or not inject the script at CloudFlare level
         # Now, I'm injecting it in all the NGINX responses because `sub_filter` is not allowed inside an `if` statement.
-        set $rtd_hosting_integrations $upstream_http_x_rtd_hosting_integrations;
-        add_header X-RTD-Hosting-Integrations $rtd_hosting_integrations always;
         set $rtd_force_addons $upstream_http_x_rtd_force_addons;
         add_header X-RTD-Force-Addons $rtd_force_addons always;
     }

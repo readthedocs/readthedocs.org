@@ -1,3 +1,5 @@
+from unittest import mock
+
 import docutils
 import pytest
 import sphinx
@@ -5,7 +7,7 @@ from django.core.cache import cache
 from django.urls import reverse
 from packaging.version import Version
 
-from .utils import get_anchor_link_title, srcdir
+from .utils import compare_content_without_blank_lines, get_anchor_link_title, srcdir
 
 
 @pytest.mark.django_db
@@ -40,16 +42,75 @@ class TestEmbedAPIv3ExternalPages:
         # The output is different because docutils is outputting this,
         # and we're not sanitizing it, but just passing it through.
         if Version(docutils.__version__) >= Version("0.17"):
-            content = f'<div class="body" role="main">\n            \n  <section id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>\n<section id="manual-reference-section">\n<span id="manual-reference"></span><h2>Manual Reference Section<a class="headerlink" href="https://docs.project.com#manual-reference-section" title="{title}">¶</a></h2>\n<p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>\n</section>\n</section>\n\n\n          </div>'
+            content = f"""
+                <div class="body" role="main">
+                    <section id="title">
+                        <h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>
+                        <p>This is an example page used to test EmbedAPI parsing features.</p>
+                        <section id="sub-title">
+                            <h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>
+                            <p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>
+                        </section>
+                        <section id="manual-reference-section">
+                            <span id="manual-reference"></span><h2>Manual Reference Section<a class="headerlink" href="https://docs.project.com#manual-reference-section" title="{title}">¶</a></h2>
+                            <p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>
+                        </section>
+                    </section>
+                    <div class="clearer"></div>
+                </div>
+            """
         else:
-            content = f'<div class="body" role="main">\n            \n  <div class="section" id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>\n<div class="section" id="manual-reference-section">\n<span id="manual-reference"></span><h2>Manual Reference Section<a class="headerlink" href="https://docs.project.com#manual-reference-section" title="{title}">¶</a></h2>\n<p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>\n</div>\n</div>\n\n\n          </div>'
+            content = """
+                <div class="body" role="main">
+                    <div class="section" id="title">
+                        <h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>
+                        <p>This is an example page used to test EmbedAPI parsing features.</p>
+                        <div class="section" id="sub-title">
+                            <h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>
+                            <p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>
+                        </div>
+                        <div class="section" id="manual-reference-section">
+                            <span id="manual-reference"></span><h2>Manual Reference Section<a class="headerlink" href="https://docs.project.com#manual-reference-section" title="{title}">¶</a></h2>
+                            <p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>
+                        </div>
+                    </div>
+                </div>
+            """
 
-        assert response.json() == {
+        json_response = response.json()
+        assert json_response == {
             "url": "https://docs.project.com",
             "fragment": None,
-            "content": content,
+            "content": mock.ANY,
             "external": True,
         }
+        compare_content_without_blank_lines(json_response["content"], content)
+
+    @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=True)
+    def test_specific_main_content_selector(self, app, client, requests_mock):
+        app.build()
+        path = app.outdir / "index.html"
+        assert path.exists() is True
+        content = open(path).read()
+        requests_mock.get("https://docs.project.com", text=content)
+
+        params = {
+            "url": "https://docs.project.com",
+            "maincontent": "#invalid-selector",
+        }
+        response = client.get(self.api_url, params)
+        assert response.status_code == 404
+
+        params = {
+            "url": "https://docs.project.com",
+            "maincontent": "section",
+        }
+        response = client.get(self.api_url, params)
+        assert response.status_code == 200
+        # Check the main three sections are returned.
+        assert "Title" in response.json()["content"]
+        assert "Sub-title" in response.json()["content"]
+        assert "Manual Reference Section" in response.json()["content"]
 
     @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=True)
     def test_specific_identifier(self, app, client, requests_mock):

@@ -19,7 +19,8 @@ During initial setup, Read the Docs also creates a ``latest`` version
 that points to the default branch defined in your Git repository (usually ``main``).
 This version should always exist and is the default version for your project.
 
-If your project has any tags or branches with a name following `semantic versioning <https://semver.org/>`_,
+If your project has any tags or branches with a name following
+`semantic versioning <https://semver.org/>`_ (with or without a ``v`` prefix),
 we also create a ``stable`` version tracking your most recent release.
 If you want a custom ``stable`` version,
 create either a tag or branch in your project with that name.
@@ -135,6 +136,7 @@ all of which can be reconfigured if necessary:
 
   Semantic versioning allows "normal" version numbers like ``1.4.2``, as
   well as pre-releases like this: ``2.0a1``. The ``stable`` version of your documentation never includes a pre-release.
+  An optional ``v`` prefix like ``v1.4.2`` or ``v2.0a1`` is also allowed.
 
 - Branches are assumed to be **long-lived branches**,
   This is most useful for **release branches**, which are maintained over time for a specific release.

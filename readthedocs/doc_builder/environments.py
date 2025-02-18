@@ -80,7 +80,10 @@ class BuildCommand(BuildCommandResultMixin):
         self.user = user or settings.RTD_DOCKER_USER
         self._environment = environment.copy() if environment else {}
         if "PATH" in self._environment:
-            raise BuildAppError("'PATH' can't be set. Use bin_path")
+            raise BuildAppError(
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message="'PATH' can't be set. Use bin_path",
+            )
 
         self.build_env = build_env
         self.output = None
@@ -493,7 +496,10 @@ class BaseBuildEnvironment:
         if "bin_path" not in kwargs and env_path:
             kwargs["bin_path"] = env_path
         if "environment" in kwargs:
-            raise BuildAppError("environment can't be passed in via commands.")
+            raise BuildAppError(
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message="environment can't be passed in via commands.",
+            )
         kwargs["environment"] = environment
         kwargs["build_env"] = self
         build_cmd = cls(cmd, **kwargs)
@@ -616,7 +622,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             if state is not None:
                 if state.get("Running") is True:
                     raise BuildAppError(
-                        _(
+                        BuildAppError.GENERIC_WITH_BUILD_ID,
+                        exception_message=_(
                             "A build environment is currently "
                             "running for this version",
                         ),
@@ -629,7 +636,9 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 client = self.get_client()
                 client.remove_container(self.container_id)
         except (DockerAPIError, ConnectionError) as exc:
-            raise BuildAppError(exc.explanation) from exc
+            raise BuildAppError(
+                BuildAppError.GENERIC_WITH_BUILD_ID, exception_message=exc.explanation
+            ) from exc
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
         if not os.path.exists(self.project.doc_path):
@@ -703,7 +712,9 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 )
             return self.client
         except DockerException as exc:
-            raise BuildAppError(exc.explanation) from exc
+            raise BuildAppError(
+                BuildAppError.GENERIC_WITH_BUILD_ID, exception_message=exc.explanation
+            ) from exc
 
     def _get_binds(self):
         """
@@ -816,4 +827,6 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             )
             client.start(container=self.container_id)
         except (DockerAPIError, ConnectionError) as exc:
-            raise BuildAppError(exc.explanation) from exc
+            raise BuildAppError(
+                BuildAppError.GENERIC_WITH_BUILD_ID, exception_messag=exc.explanation
+            ) from exc

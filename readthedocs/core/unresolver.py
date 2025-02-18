@@ -208,7 +208,7 @@ class Unresolver:
         parsed_url = urlparse(url)
         if parsed_url.scheme not in ["http", "https"]:
             raise InvalidSchemeError(parsed_url.scheme)
-        domain = self.get_domain_from_host(parsed_url.netloc)
+        domain = parsed_url.hostname
         unresolved_domain = self.unresolve_domain(domain)
         return self._unresolve(
             unresolved_domain=unresolved_domain,
@@ -551,8 +551,18 @@ class Unresolver:
         Unresolve domain by extracting relevant information from it.
 
         :param str domain: Domain to extract the information from.
+         It can be a full URL, in that case, only the domain is used.
         :returns: A UnresolvedDomain object.
         """
+        parsed_domain = urlparse(domain)
+        if parsed_domain.scheme:
+            if parsed_domain.scheme not in ["http", "https"]:
+                raise InvalidSchemeError(parsed_domain.scheme)
+            domain = parsed_domain.hostname
+
+        if not domain:
+            raise InvalidSubdomainError(domain)
+
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
         external_domain = self.get_domain_from_host(
             settings.RTD_EXTERNAL_VERSION_DOMAIN

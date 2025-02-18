@@ -2,6 +2,7 @@
 
 import structlog
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.utils.encoding import force_str
 
 from readthedocs.core.utils import send_email_from_object
@@ -11,7 +12,6 @@ log = structlog.get_logger(__name__)
 
 
 class AccountAdapter(DefaultAccountAdapter):
-
     """Customize Allauth emails to match our current patterns."""
 
     def format_email_subject(self, subject):
@@ -50,3 +50,18 @@ class AccountAdapter(DefaultAccountAdapter):
                 invitation.delete()
             else:
                 log.info("Invitation not found", invitation_pk=invitation_pk)
+
+
+class SocialAccountAdapter(DefaultSocialAccountAdapter):
+    def pre_social_login(self, request, sociallogin):
+        """
+        Remove all email addresses except the primary one.
+
+        We don't want to populate all email addresses from the social account,
+        it also makes it easy to mark only the primary email address as verified
+        for providers that don't return information about email verification
+        even if the email is verified (like GitLab).
+        """
+        sociallogin.email_addresses = [
+            email for email in sociallogin.email_addresses if email.primary
+        ]

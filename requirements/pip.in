@@ -10,9 +10,7 @@ django-autoslug
 # https://www.psycopg.org/psycopg3/docs/basic/install.html
 psycopg[binary,pool]
 
-# 3.1.0 includes changes that require running `makemigrations`
-# https://django-simple-history.readthedocs.io/en/latest/#changes
-django-simple-history==3.0.0
+django-simple-history
 
 djangorestframework
 djangorestframework-api-key
@@ -37,14 +35,17 @@ jsonfield
 
 django-safemigrate
 
-# The latest version of requests isn't compatible with the
-# version of the docker-py library we're using.
-# See https://github.com/docker/docker-py/issues/3256.
-requests==2.30.0
+# Impersonate users in the Django admin for support.
+django-impersonate
+
+requests
 requests-toolbelt
 slumber
 pyyaml
 Pygments
+pydantic
+
+dnspython
 
 # Used for Redis cache Django backend (`django.core.cache.backends.redis.RedisCache`)
 redis
@@ -84,9 +85,7 @@ django-celery-beat
 # TODO: remove this dependency once we upgrade Celery. It should auto-install it.
 tzdata
 
-# We need to update some 2FA templates to update to 65+
-# https://github.com/readthedocs/ext-theme/issues/501
-django-allauth[socialaccount,saml,mfa]<65
+django-allauth[socialaccount,saml,mfa]
 
 requests-oauthlib
 
@@ -125,20 +124,15 @@ dj-stripe==2.6.3
 
 markdown
 
-# unicode-slugify==0.1.5 is not released on PyPI yet
-git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
+unicode-slugify
 
-# Version 2.4 makes tests to fail with:
-# "RecursionError: maximum recursion depth exceeded in comparison"
-django-formtools<2.4
+django-formtools
 
 # We cannot upgrade to >=2 because it fails with
 # django.template.exceptions.TemplateDoesNotExist: bootstrap/field.html
 django-crispy-forms<2
 
-# Force to upgrade to a version with a fix for socket timeouts
-# https://docker-py.readthedocs.io/en/stable/change-log.html#bugfixes
-docker==6.1.2
+docker
 
 django-annoying
 djangorestframework-jsonp

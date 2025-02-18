@@ -3,7 +3,6 @@
 import datetime
 
 import structlog
-from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
 from django.db.models.functions import ExtractIsoWeekDay
 from django.urls import reverse
@@ -50,7 +49,7 @@ def sync_remote_repositories(user_id):
             try:
                 service.sync()
             except SyncServiceError:
-                failed_services.add(service.provider_name)
+                failed_services.add(service_cls.allauth_provider.name)
     if failed_services:
         raise SyncServiceError(
             SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
@@ -153,8 +152,9 @@ def sync_active_users_remote_repositories():
             log.exception("There was a problem re-syncing RemoteRepository.")
 
 
+# TODO: remove user_pk from the signature on the next release.
 @app.task(queue="web")
-def attach_webhook(project_pk, user_pk, integration=None):
+def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
     """
     Add post-commit hook on project import.
 
@@ -162,86 +162,67 @@ def attach_webhook(project_pk, user_pk, integration=None):
     all accounts until we set up a webhook. This should remain around for legacy
     connections -- that is, projects that do not have a remote repository them
     and were not set up with a VCS provider.
+
+    :param project_pk: Project primary key
+    :param integration: Integration instance. If used, this function should
+     be called directly, not as a task.
     """
     project = Project.objects.filter(pk=project_pk).first()
-    user = User.objects.filter(pk=user_pk).first()
-
-    if not project or not user:
+    if not project:
         return False
 
     if integration:
-        service = SERVICE_MAP.get(integration.integration_type)
-
-        if not service:
-            log.warning("There are no registered services in the application.")
-            Notification.objects.add(
-                message_id=MESSAGE_OAUTH_WEBHOOK_INVALID,
-                attached_to=project,
-                dismissable=True,
-                format_values={
-                    "url_integrations": reverse(
-                        "projects_integrations",
-                        args=[project.slug],
-                    ),
-                },
-            )
-            return None
+        service_class = SERVICE_MAP.get(integration.integration_type)
     else:
-        for service_cls in registry:
-            if service_cls.is_project_service(project):
-                service = service_cls
-                break
-        else:
-            log.warning("There are no registered services in the application.")
-            Notification.objects.add(
-                message_id=MESSAGE_OAUTH_WEBHOOK_INVALID,
-                attached_to=project,
-                dismissable=True,
-                format_values={
-                    "url_integrations": reverse(
-                        "projects_integrations",
-                        args=[project.slug],
-                    ),
-                },
-            )
-            return None
+        # Get the service class for the project e.g: GitHubService.
+        # We fallback to guess the service from the repo,
+        # in the future we should only consider projects that have a remote repository.
+        service_class = project.get_git_service_class(fallback_to_clone_url=True)
 
-    provider_class = allauth_registry.get_class(service.adapter.provider_id)
-
-    user_accounts = service.for_user(user)
-    for account in user_accounts:
-        success, __ = account.setup_webhook(project, integration=integration)
-        if success:
-            # NOTE: do we want to communicate that we connect the webhook here?
-            # messages.add_message(request, "Webhook successfully added.")
-
-            project.has_valid_webhook = True
-            project.save()
-            return True
-
-    # No valid account found
-    if user_accounts:
+    if not service_class:
         Notification.objects.add(
-            message_id=MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS,
-            dismissable=True,
+            message_id=MESSAGE_OAUTH_WEBHOOK_INVALID,
             attached_to=project,
+            dismissable=True,
             format_values={
-                "provider_name": provider_class.name,
-                "url_docs_webhook": "https://docs.readthedocs.io/page/webhooks.html",
+                "url_integrations": reverse(
+                    "projects_integrations",
+                    args=[project.slug],
+                ),
             },
         )
-    else:
+        return False
+
+    services = list(service_class.for_project(project))
+    if not services:
         Notification.objects.add(
             message_id=MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
             dismissable=True,
             attached_to=project,
             format_values={
-                "provider_name": provider_class.name,
+                "provider_name": service_class.allauth_provider.name,
                 "url_connect_account": reverse(
                     "projects_integrations",
                     args=[project.slug],
                 ),
             },
         )
+        return False
 
+    for service in services:
+        success, _ = service.setup_webhook(project, integration=integration)
+        if success:
+            project.has_valid_webhook = True
+            project.save()
+            return True
+
+    Notification.objects.add(
+        message_id=MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS,
+        dismissable=True,
+        attached_to=project,
+        format_values={
+            "provider_name": service_class.allauth_provider.name,
+            "url_docs_webhook": "https://docs.readthedocs.io/page/webhooks.html",
+        },
+    )
     return False

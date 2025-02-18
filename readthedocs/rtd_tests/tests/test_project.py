@@ -168,9 +168,6 @@ class TestProject(ProjectMixin, TestCase):
             "external/htmlzip/pip/99/pip.zip",
         )
 
-    def test_ordered_active_versions_excludes_external_versions(self):
-        self.assertNotIn(self.external_version, self.pip.ordered_active_versions())
-
     def test_active_versions_excludes_external_versions(self):
         self.assertNotIn(self.external_version, self.pip.active_versions())
 
@@ -242,7 +239,10 @@ class TestProject(ProjectMixin, TestCase):
     def test_git_service_class_github(self):
         self.pip.repo = "https://github.com/pypa/pip"
         self.pip.save()
-        self.assertEqual(self.pip.git_service_class(), GitHubService)
+        self.assertEqual(self.pip.get_git_service_class(), None)
+        self.assertEqual(
+            self.pip.get_git_service_class(fallback_to_clone_url=True), GitHubService
+        )
 
     def test_git_provider_name_gitlab(self):
         self.pip.repo = "https://gitlab.com/pypa/pip"
@@ -252,7 +252,10 @@ class TestProject(ProjectMixin, TestCase):
     def test_git_service_class_gitlab(self):
         self.pip.repo = "https://gitlab.com/pypa/pip"
         self.pip.save()
-        self.assertEqual(self.pip.git_service_class(), GitLabService)
+        self.assertEqual(self.pip.get_git_service_class(), None)
+        self.assertEqual(
+            self.pip.get_git_service_class(fallback_to_clone_url=True), GitLabService
+        )
 
 
 @mock.patch("readthedocs.projects.forms.trigger_build", mock.MagicMock())

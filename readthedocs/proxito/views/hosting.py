@@ -1,4 +1,5 @@
 """Views for hosting features."""
+import fnmatch
 from functools import lru_cache
 
 import packaging
@@ -16,6 +17,7 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.serializers import (
     BuildSerializer,
     ProjectSerializer,
+    RelatedProjectSerializer,
     VersionSerializer,
 )
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
@@ -23,13 +25,14 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
     ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
     ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
 )
-from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     comparable_version,
     sort_versions_calver,
@@ -244,7 +247,13 @@ class NoLinksMixin:
 # on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
+class RelatedProjectSerializerNoLinks(NoLinksMixin, RelatedProjectSerializer):
+    pass
+
+
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
+    related_project_serializer = RelatedProjectSerializerNoLinks
+
     def __init__(self, *args, **kwargs):
         resolver = kwargs.pop("resolver", Resolver())
         super().__init__(
@@ -311,6 +320,15 @@ class AddonsResponseBase:
             include_hidden=False,
         )
 
+    def _has_permission(self, request, version):
+        """
+        Check if user from the request is authorized to access `version`.
+
+        This is mainly to be overridden in .com to make use of
+        the auth backends in the proxied API.
+        """
+        return True
+
     def _v1(self, project, version, build, filename, url, request):
         """
         Initial JSON data structure consumed by the JavaScript client.
@@ -328,18 +346,21 @@ class AddonsResponseBase:
         sorted_versions_active_built_not_hidden = Version.objects.none()
         user = request.user
 
-        # Automatically create an AddonsConfig with the default values for
-        # projects that don't have one already
-        AddonsConfig.objects.get_or_create(project=project)
-
-        if project.supports_multiple_versions:
-            versions_active_built_not_hidden = (
-                self._get_versions(request, project)
-                .select_related("project")
-                .order_by("slug")
+        versions_active_built_not_hidden = (
+            self._get_versions(request, project)
+            .select_related("project")
+            .order_by("-slug")
+        )
+        sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
+        if not project.supports_multiple_versions:
+            # Return only one version when the project doesn't support multiple versions.
+            # That version is the only one the project serves.
+            sorted_versions_active_built_not_hidden = (
+                sorted_versions_active_built_not_hidden.filter(
+                    slug=project.get_default_version()
+                )
             )
-            sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
-
+        else:
             if (
                 project.addons.flyout_sorting
                 == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
@@ -350,6 +371,7 @@ class AddonsResponseBase:
                         version.verbose_name,
                         repo_type=project.repo_type,
                     ),
+                    reverse=True,
                 )
             elif (
                 project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
@@ -431,11 +453,18 @@ class AddonsResponseBase:
                 "analytics": {
                     "code": settings.GLOBAL_ANALYTICS_CODE,
                 },
+                "resolver": {
+                    "filename": filename,
+                },
             },
             # TODO: the ``features`` is not polished and we expect to change drastically.
             # Mainly, all the fields including a Project, Version or Build will use the exact same
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
+                "options": {
+                    "load_when_embedded": project.addons.options_load_when_embedded,
+                    "root_selector": project.addons.options_root_selector,
+                },
                 "analytics": {
                     "enabled": project.addons.analytics_enabled,
                     # TODO: consider adding this field into the ProjectSerializer itself.
@@ -444,17 +473,11 @@ class AddonsResponseBase:
                     # https://github.com/readthedocs/readthedocs.org/issues/9530
                     "code": project.analytics_code,
                 },
-                "external_version_warning": {
-                    "enabled": project.addons.external_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
-                },
-                "non_latest_version_warning": {
-                    "enabled": project.addons.stable_latest_version_warning_enabled,
-                    # NOTE: I think we are moving away from these selectors
-                    # since we are doing floating noticications now.
-                    # "query_selector": "[role=main]",
+                "notifications": {
+                    "enabled": project.addons.notifications_enabled,
+                    "show_on_latest": project.addons.notifications_show_on_latest,
+                    "show_on_non_stable": project.addons.notifications_show_on_non_stable,
+                    "show_on_external": project.addons.notifications_show_on_external,
                 },
                 "flyout": {
                     "enabled": project.addons.flyout_enabled,
@@ -474,6 +497,11 @@ class AddonsResponseBase:
                     #     "branch": version.identifier if version else None,
                     #     "filepath": "/docs/index.rst",
                     # },
+                    "position": project.addons.flyout_position,
+                },
+                "customscript": {
+                    "enabled": project.addons.customscript_enabled,
+                    "src": project.addons.customscript_src,
                 },
                 "search": {
                     "enabled": project.addons.search_enabled,
@@ -498,6 +526,9 @@ class AddonsResponseBase:
                     if version
                     else None,
                 },
+                "linkpreviews": {
+                    "enabled": project.addons.linkpreviews_enabled,
+                },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,
                     "doc_diff": {
@@ -509,11 +540,23 @@ class AddonsResponseBase:
                         "trigger": "Slash",  # Could be something like "Ctrl + D"
                     },
                 },
+                "filetreediff": {
+                    "enabled": project.addons.filetreediff_enabled,
+                },
             },
         }
 
-        # Show the subprojects filter on the parent project and subproject
         if version:
+            response = self._get_filetreediff_response(
+                request=request,
+                project=project,
+                version=version,
+                resolver=resolver,
+            )
+            if response:
+                data["addons"]["filetreediff"].update(response)
+
+            # Show the subprojects filter on the parent project and subproject
             # TODO: Remove these queries and try to find a way to get this data
             # from the resolver, which has already done these queries.
             # TODO: Replace this fixed filters with the work proposed in
@@ -539,6 +582,11 @@ class AddonsResponseBase:
         # If we don't know the filename, we cannot return the data required by DocDiff to work.
         # In that case, we just don't include the `doc_diff` object in the response.
         if url:
+            base_version_slug = (
+                project.addons.options_base_version.slug
+                if project.addons.options_base_version
+                else LATEST
+            )
             data["addons"].update(
                 {
                     "doc_diff": {
@@ -546,21 +594,13 @@ class AddonsResponseBase:
                         # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                         "base_url": resolver.resolve(
                             project=project,
-                            # NOTE: we are using LATEST version to compare against to for now.
-                            # Ideally, this should be configurable by the user.
-                            version_slug=LATEST,
+                            version_slug=base_version_slug,
                             language=project.language,
                             filename=filename,
                         )
                         if filename
                         else None,
-                        "root_selector": project.addons.doc_diff_root_selector,
                         "inject_styles": True,
-                        # NOTE: `base_host` and `base_page` are not required, since
-                        # we are constructing the `base_url` in the backend instead
-                        # of the frontend, as the doc-diff extension does.
-                        "base_host": "",
-                        "base_page": "",
                     },
                 }
             )
@@ -592,6 +632,73 @@ class AddonsResponseBase:
             )
 
         return data
+
+    def _get_filetreediff_response(self, *, request, project, version, resolver):
+        """
+        Get the file tree diff response for the given version.
+
+        This response is only enabled for external versions,
+        we do the comparison between the current version and the latest version.
+        """
+        if not version.is_external and not settings.RTD_FILETREEDIFF_ALL:
+            return None
+
+        if not project.addons.filetreediff_enabled:
+            return None
+
+        base_version = (
+            project.addons.options_base_version or project.get_latest_version()
+        )
+        if not base_version or not self._has_permission(
+            request=request, version=base_version
+        ):
+            return None
+
+        diff = get_diff(version_a=version, version_b=base_version)
+        if not diff:
+            return None
+
+        def _filter_diff_files(files):
+            # Filter out all the files that match the ignored patterns
+            ignore_patterns = project.addons.filetreediff_ignored_files or []
+            files = [
+                filename
+                for filename in files
+                if not any(
+                    fnmatch.fnmatch(filename, ignore_pattern)
+                    for ignore_pattern in ignore_patterns
+                )
+            ]
+
+            result = []
+            for filename in files:
+                result.append(
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                )
+            return result
+
+        return {
+            "outdated": diff.outdated,
+            "diff": {
+                "added": _filter_diff_files(diff.added),
+                "deleted": _filter_diff_files(diff.deleted),
+                "modified": _filter_diff_files(diff.modified),
+            },
+        }
 
     def _v2(self, project, version, build, filename, url, user):
         return {

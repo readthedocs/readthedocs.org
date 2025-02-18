@@ -109,10 +109,10 @@ class TestBasicsForm(WizardTestCase):
         self.assertEqual(resp.status_code, 200)
 
         # The form is filled with the previous information
-        self.assertEqual(
-            resp.context["form"].initial,
-            data,
-        )
+        form = resp.context_data["form"]
+        self.assertEqual(form.initial, data)
+        # Since a remote repository was given, the repo field should be disabled.
+        self.assertTrue(form.fields["repo"].disabled)
 
     def test_form_pass(self):
         """Only submit the basics."""
@@ -300,6 +300,8 @@ class TestAdvancedForm(TestBasicsForm):
         # The correct initial data for the basic form is set.
         form = resp.context_data["form"]
         self.assertEqual(form.initial, basic_initial)
+        # A remote repository was not given, so the repo option should be enabled.
+        self.assertFalse(form.fields["repo"].disabled)
 
     def test_form_pass(self):
         """Test all forms pass validation."""
@@ -453,8 +455,8 @@ class TestPrivateViews(TestCase):
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_called_once_with(
             project_pk=self.project.pk,
-            user_pk=self.user.pk,
             integration=integration.first(),
+            user_pk=None,
         )
 
     @mock.patch("readthedocs.projects.views.private.attach_webhook")

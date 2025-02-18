@@ -62,7 +62,7 @@ Thank you for supporting Read the Docs.
    `Supporters <https://readthedocs.org/sustainability/#donations>`_
    were provided an ad-free reading experience across all projects on Read the Docs while logged-in.
    However, the cross-site cookies needed to make that work are no longer supported by major browsers outside of Chrome,
-   and this feature will soon disappear entirely.
+   and this feature has been removed.
 
 
 Statistics and data

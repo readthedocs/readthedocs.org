@@ -40,8 +40,8 @@ class BaseBuilder:
         """Some builders may have a different doctype at build time."""
         return self.config.doctype
 
-    def append_conf(self):
-        """Set custom configurations for this builder."""
+    def show_conf(self):
+        """Show the configuration used for this builder."""
 
     def build(self):
         """Do the actual building of the documentation."""
