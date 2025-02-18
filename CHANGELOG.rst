@@ -1,3 +1,17 @@
+Version 11.21.1
+---------------
+
+:Date: February 18, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11999 <https://github.com/readthedocs/readthedocs.org/pull/11999>`__)
+* `@stsewd <https://github.com/stsewd>`__: Import: fix session (`#11997 <https://github.com/readthedocs/readthedocs.org/pull/11997>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git service: attach each service to an allauth provider (`#11995 <https://github.com/readthedocs/readthedocs.org/pull/11995>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: unpin `requests` and `docker` (`#11992 <https://github.com/readthedocs/readthedocs.org/pull/11992>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: avoid having `app.app.readthedocs.org` (`#11991 <https://github.com/readthedocs/readthedocs.org/pull/11991>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.21.0 (`#11989 <https://github.com/readthedocs/readthedocs.org/pull/11989>`__)
+* `@humitos <https://github.com/humitos>`__: File Tree Diff: normalize ignore files (`#11987 <https://github.com/readthedocs/readthedocs.org/pull/11987>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git service: depend on the project instead of users (`#11983 <https://github.com/readthedocs/readthedocs.org/pull/11983>`__)
+
 Version 11.21.0
 ---------------
 
