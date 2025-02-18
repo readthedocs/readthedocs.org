@@ -136,22 +136,21 @@ class GitHubAppService(Service):
         If a remote organization doesn't have any repositories after removing the repositories,
         we remove the organization from the database.
         """
-        remote_repositories = []
         try:
-            for repo in self.app_installation.get_repos():
-                remote_repo = self._create_or_update_repository_from_gh(repo)
-                if remote_repo:
-                    remote_repositories.append(remote_repo)
+            app_installation = self.app_installation
         except GithubException:
-            # TODO: if we lost access to the installations,
-            # we should remove the installation from the database,
-            # and clean up the repositories, organizations, and relations.
             log.info(
-                "Failed to sync repositories for installation",
+                "Failed to get installation",
                 installation_id=self.installation.installation_id,
                 exc_info=True,
             )
             raise SyncServiceError()
+
+        remote_repositories = []
+        for repo in app_installation.get_repos():
+            remote_repo = self._create_or_update_repository_from_gh(repo)
+            if remote_repo:
+                remote_repositories.append(remote_repo)
 
         repos_to_delete = self.installation.repositories.exclude(
             pk__in=[repo.pk for repo in remote_repositories],
@@ -163,15 +162,17 @@ class GitHubAppService(Service):
         for repository_id in repository_ids:
             try:
                 repo = self.installation_client.get_repo(repository_id)
-            except GithubException:
+            except GithubException as e:
                 log.info(
                     "Failed to fetch repository from GitHub",
                     repository_id=repository_id,
                     exc_info=True,
                 )
-                # TODO: if we lost access to the repository,
-                # we should remove the repository from the database,
+                # if we lost access to the repository,
+                # we remove the repository from the database,
                 # and clean up the collaborators and relations.
+                if e.status == 404:
+                    self.installation.delete_orphaned_repositories([repository_id])
                 continue
             self._create_or_update_repository_from_gh(repo)
 
