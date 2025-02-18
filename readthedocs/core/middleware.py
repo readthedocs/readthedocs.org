@@ -54,7 +54,13 @@ class UpdateCSPMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        url_name = request.resolver_match.url_name
+
+        # Views that raised an exception don't have a resolver_match object.
+        resolver_match = request.resolver_match
+        if not resolver_match:
+            return response
+
+        url_name = resolver_match.url_name
         update_csp_headers = settings.RTD_CSP_UPDATE_HEADERS
         if settings.RTD_EXT_THEME_ENABLED and url_name in update_csp_headers:
             if hasattr(response, "_csp_update"):
