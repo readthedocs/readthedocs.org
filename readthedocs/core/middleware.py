@@ -1,4 +1,5 @@
 import structlog
+from django.conf import settings
 from django.http import HttpResponse
 
 log = structlog.get_logger(__name__)
@@ -33,3 +34,33 @@ class NullCharactersMiddleware:
                     status=400,
                 )
         return self.get_response(request)
+
+
+class UpdateCSPMiddleware:
+    """
+    Middleware to update the CSP headers for specific views given its URL name.
+
+    This is useful for views that we don't have much control over,
+    like views from third-party packages. For views that we have control over,
+    we should update the CSP headers directly in the view.
+
+    Use the `RTD_CSP_UPDATE_HEADERS` setting to define the views that need to
+    update the CSP headers. The setting should be a dictionary where the key is
+    the URL name of the view and the value is a dictionary with the CSP headers
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        url_name = request.resolver_match.url_name
+        update_csp_headers = settings.RTD_CSP_UPDATE_HEADERS
+        if settings.RTD_EXT_THEME_ENABLED and url_name in update_csp_headers:
+            if hasattr(response, "_csp_update"):
+                raise ValueError(
+                    "Can't update CSP headers at the view and middleware at the same time, use one or the other."
+                )
+            response._csp_update = update_csp_headers[url_name]
+
+        return response
