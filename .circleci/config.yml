@@ -27,7 +27,7 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install -y rclone
       - run: pip install --user tox
-      - run: tox -e py310
+      - run: tox -e py312
       - codecov/upload
 
   tests-ext-theme:
