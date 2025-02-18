@@ -61,9 +61,6 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin/:$PATH"
 RUN uv venv
 
-# Required by polymorphic
-RUN uv pip install --no-cache-dir -U setuptools
-
 # Ensure that ``python`` is in the PATH so that ``./manage.py`` works
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
@@ -82,5 +79,8 @@ RUN if [ -n "$GITHUB_TOKEN" ] ; \
 
 RUN git clone --depth 1 https://github.com/readthedocs/ext-theme ; \
     uv pip install --no-cache-dir -e ext-theme
+
+# Required by polymorphic
+RUN uv pip install --no-cache-dir -U setuptools
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org
