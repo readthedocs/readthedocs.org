@@ -113,11 +113,11 @@ class GitHubService(UserService):
                 vcs_provider=self.vcs_provider_slug,
             )
 
-            if repo.github_app_installation:
-                log.info(
-                    "Repository is managed by a GitHub App installation, skipping.",
-                )
-                return
+            # if repo.github_app_installation:
+            #     log.info(
+            #         "Repository is managed by a GitHub App installation, skipping.",
+            #     )
+            #     return
 
             # TODO: For debugging: https://github.com/readthedocs/readthedocs.org/pull/9449.
             if created:
@@ -199,13 +199,13 @@ class GitHubService(UserService):
         :rtype: RemoteOrganization
         """
         remote_id = fields["id"]
-        if GitHubAppInstallation.objects.filter(
-            target_id=remote_id, target_type=GitHubAccountType.ORGANIZATION
-        ).exists():
-            log.info(
-                "Organization is managed by a GitHub App installation, skipping.",
-            )
-            return
+        # if GitHubAppInstallation.objects.filter(
+        #     target_id=remote_id, target_type=GitHubAccountType.ORGANIZATION
+        # ).exists():
+        #     log.info(
+        #         "Organization is managed by a GitHub App installation, skipping.",
+        #     )
+        #     return
 
         organization, _ = RemoteOrganization.objects.get_or_create(
             remote_id=str(remote_id),
@@ -428,6 +428,42 @@ class GitHubService(UserService):
             log.exception("GitHub webhook update failed for project.")
 
         return (False, resp)
+
+    def remove_webhook(self, project):
+        # TODO: use remote repo instead?
+        owner, repo = build_utils.get_github_username_repo(url=project.repo)
+
+        try:
+            resp = self.session.get(f"{self.base_api_url}/repos/{owner}/{repo}/hooks")
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception:
+            log.info("Failed to get GitHub webhooks for project.")
+            return False
+
+        hook_targets = [
+            f"{settings.PUBLIC_API_URL}/api/v2/webhook/{project.slug}/",
+            f"{settings.PUBLIC_API_URL}/api/v2/webhook/github/{project.slug}/",
+        ]
+        if "app." in settings.PUBLIC_API_URL:
+            hook_targets.append(hook_targets[0].replace("app.", "", 1))
+            hook_targets.append(hook_targets[1].replace("app.", "", 1))
+
+        for hook in data:
+            hook_url = hook["config"]["url"]
+            for hook_target in hook_targets:
+                if hook_url.startswith(hook_target):
+                    try:
+                        self.session.delete(f"{self.base_api_url}/repos/{owner}/{repo}/hooks/{hook['id']}").raise_for_status()
+                    except Exception:
+                        log.info("Failed to remove GitHub webhook for project.")
+                        return False
+        return True
+
+    def remove_ssh_key(self, project):
+        # Overridden in corporate
+        return True
+
 
     def send_build_status(self, *, build, commit, status):
         """

@@ -11,7 +11,7 @@ from github.Repository import Repository as GHRepository
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
 from readthedocs.oauth.clients import get_gh_app_client, get_oauth2_client
-from readthedocs.oauth.constants import GITHUB
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import (
     GitHubAccountType,
     GitHubAppInstallation,
@@ -26,7 +26,7 @@ log = structlog.get_logger(__name__)
 
 
 class GitHubAppService(Service):
-    vcs_provider_slug = GITHUB
+    vcs_provider_slug = GITHUB_APP
     allauth_provider = GitHubAppProvider
 
     def __init__(self, installation: GitHubAppInstallation):

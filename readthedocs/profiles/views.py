@@ -2,6 +2,8 @@
 
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
+from allauth.socialaccount.adapter import get_adapter as get_social_account_adapter
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -32,8 +34,11 @@ from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.oauth.migrate import (
-    get_installation_targets_for_user,
+    get_installation_target_groups_for_user,
+    get_migration_targets,
     get_old_app_link,
+    get_projects_missing_migration,
+    migrate_project_to_github_app,
 )
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
@@ -298,14 +303,45 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        context["gh_app_provider"] = GitHubAppProvider
+        # NOTE: I tried passing the GitHubAppProvider class directly to the template,
+        # but it doesn't work for some reason.
+        context["gh_app_provider"] = get_social_account_adapter().get_provider(
+            request=self.request, provider=GitHubAppProvider.id
+        )
+        context["gh_provider"] = get_social_account_adapter().get_provider(
+            request=self.request, provider=GitHubProvider.id
+        )
+
         context["has_gh_app_social_account"] = user.socialaccount_set.filter(
             provider=GitHubAppProvider.id
         ).exists()
-        context["installation_targets"] = get_installation_targets_for_user(user)
-
-        context["projects"] = AdminPermission.projects(user, admin=True)
-
+        context["installation_target_groups"] = get_installation_target_groups_for_user(
+            user
+        )
+        context["migration_targets"] = get_migration_targets(user)
         context["old_application_link"] = get_old_app_link()
-
         return context
+
+    def post(self, request, *args, **kwargs):
+        project_slug = request.POST.get("project")
+        if project_slug:
+            projects = AdminPermission.projects(request.user, admin=True).filter(
+                slug=project_slug
+            )
+        else:
+            projects = get_projects_missing_migration(request.user)
+
+        has_errors = False
+        for project in projects:
+            try:
+                migrate_project_to_github_app(project=project, user=request.user)
+            except Exception as e:
+                has_errors = True
+                messages.error(request, f"Error migrating project {project.slug}: {e}")
+
+        if not has_errors:
+            messages.success(request, _("Projects migrated successfully"))
+
+        # if has_errors:
+        #     return HttpResponseRedirect(reverse("migrate_to_gh_app"))
+        return HttpResponseRedirect(reverse("migrate_to_github_app"))

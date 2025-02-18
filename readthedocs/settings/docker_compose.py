@@ -226,6 +226,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         return providers
 
     GITHUB_APP_ID = os.environ.get("RTD_GITHUB_APP_ID")
+    GITHUB_APP_NAME = os.environ.get("RTD_GITHUB_APP_NAME")
     GITHUB_APP_WEBHOOK_SECRET = os.environ.get("RTD_GITHUB_APP_WEBHOOK_SECRET")
     GITHUB_APP_PRIVATE_KEY = os.environ.get("RTD_GITHUB_APP_PRIVATE_KEY")
 
