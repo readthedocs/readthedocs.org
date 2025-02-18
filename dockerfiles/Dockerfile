@@ -62,7 +62,7 @@ ENV PATH="/root/.local/bin/:$PATH"
 RUN uv venv
 
 # Required by polymorphic
-RUN uv pip install setuptools
+RUN uv pip install --no-cache-dir -U setuptools
 
 # Ensure that ``python`` is in the PATH so that ``./manage.py`` works
 RUN ln -s /usr/bin/python3 /usr/bin/python
