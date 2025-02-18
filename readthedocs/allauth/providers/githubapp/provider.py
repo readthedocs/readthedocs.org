@@ -7,7 +7,7 @@ class GitHubAppProvider(GitHubProvider):
     """
     Provider for GitHub App.
 
-    We subclass the GitHubProvider to so we have two separate providers for GitHub and GitHub App.
+    We subclass the GitHubProvider to have two separate providers for the GitHub OAuth App and the GitHub App.
     """
 
     id = "githubapp"
