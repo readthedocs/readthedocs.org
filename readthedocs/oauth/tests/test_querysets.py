@@ -72,10 +72,10 @@ class TestRemoteRepositoryQuerysets(TestCase):
 
     def test_for_project_linking(self):
         repositories = RemoteRepository.objects.for_project_linking(user=self.user)
-        self.assertEqual(repositories.count(), 3)
+        self.assertEqual(repositories.count(), 2)
         self.assertIn(self.remote_repository_admin_public, repositories)
-        self.assertIn(self.remote_repository_not_admin_public, repositories)
         self.assertIn(self.remote_repository_admin_private, repositories)
+        self.assertNotIn(self.remote_repository_not_admin_public, repositories)
         self.assertNotIn(self.remote_repository_not_admin_private, repositories)
         self.assertNotIn(self.remote_repository_other_user, repositories)
 
