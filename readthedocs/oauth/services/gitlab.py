@@ -495,7 +495,7 @@ class GitLabService(UserService):
 
         return (False, resp)
 
-    def send_build_status(self, build, commit, status):
+    def send_build_status(self, *, build, commit, status):
         """
         Create GitLab commit status for project.
 
