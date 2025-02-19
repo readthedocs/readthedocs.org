@@ -309,7 +309,6 @@ class Project(models.Model):
         max_length=255,
         validators=[validate_repository_url],
         help_text=_("Git repository URL"),
-        db_index=True,
     )
 
     # NOTE: this field is going to be completely removed soon.
@@ -586,7 +585,9 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True, ordering=["name"])
-    history = ExtraHistoricalRecords()
+    history = ExtraHistoricalRecords(
+        no_db_index=["repo", "slug", "remote_repository_id", "main_language_project_id"]
+    )
     objects = ProjectQuerySet.as_manager()
 
     remote_repository = models.ForeignKey(
