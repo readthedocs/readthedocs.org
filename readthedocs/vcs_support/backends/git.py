@@ -147,13 +147,10 @@ class Backend(BaseVCS):
             return f"refs/tags/{tag_name}:refs/tags/{tag_name}"
 
         if self.version_type == EXTERNAL:
-            # TODO: We should be able to resolve this without looking up in oauth registry
-            git_provider_name = self.project.git_provider_name
-
             # Remote reference for Git providers where pull request builds are supported
-            if git_provider_name == GITHUB_BRAND:
+            if self.project.is_github_project:
                 return GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
-            if self.project.git_provider_name == GITLAB_BRAND:
+            if self.project.is_gitlab_project:
                 return GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
 
             log.warning(

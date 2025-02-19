@@ -90,10 +90,10 @@ def external_version_name(build_or_version):
 
     project = build_or_version.project
 
-    if project.git_provider_name == GITHUB_BRAND:
+    if project.is_github_project:
         return GITHUB_EXTERNAL_VERSION_NAME
 
-    if project.git_provider_name == GITLAB_BRAND:
+    if project.is_gitlab_project:
         return GITLAB_EXTERNAL_VERSION_NAME
 
     # TODO: Add External Version Name for Bitbucket.
