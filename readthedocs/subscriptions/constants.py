@@ -20,6 +20,7 @@ TYPE_AUDIT_LOGS = "audit-logs"
 TYPE_AUDIT_PAGEVIEWS = "audit-pageviews"
 TYPE_REDIRECTS_LIMIT = "redirects-limit"
 TYPE_SSO_SAML = "sso-saml"
+TYPE_FASTER_BUILDS = "faster_builds"
 
 FEATURE_TYPES = (
     (TYPE_CNAME, _("Custom domain")),
@@ -37,4 +38,5 @@ FEATURE_TYPES = (
     (TYPE_AUDIT_LOGS, _("Audit logs")),
     (TYPE_AUDIT_PAGEVIEWS, _("Audit logs for every page view")),
     (TYPE_REDIRECTS_LIMIT, _("Redirects limit")),
+    (TYPE_FASTER_BUILDS, _("Faster builds")),
 )
