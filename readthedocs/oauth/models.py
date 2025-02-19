@@ -99,21 +99,16 @@ class GitHubAppInstallation(TimeStampedModel):
         return GitHubAppService(self)
 
     def delete(self, *args, **kwargs):
-        """Override delete method to remove orphaned linked repositories."""
-        self.delete_orphaned_repositories()
+        """Override delete method to remove orphaned organizations."""
+        self.delete_repositories()
         return super().delete(*args, **kwargs)
 
-    def delete_orphaned_repositories(self, repository_ids: list[int] | None = None):
+    def delete_repositories(self, repository_ids: list[int] | None = None):
         """
-        Delete orphaned repositories linked to this installation.
+        Delete repositories linked to this installation.
 
         When an installation is deleted, we delete all its remote repositories
-        that are not linked to a project. This is in case the user re-installs the app,
-        they shouldn't need to manually link each project to the repository again.
-
-        All the repository relations are deleted as well,
-        since we want to keep the remote repository linked to the project,
-        but not to users.
+        and relations, users will need to manually link the projects to each repository again.
 
         We also remove organizations that don't have any repositories after removing the repositories.
 
@@ -128,10 +123,7 @@ class GitHubAppInstallation(TimeStampedModel):
             repositories__github_app_installation=self,
             vcs_provider=GITHUB_APP,
         )
-        remote_repositories = self.repositories.filter(
-            projects=None,
-            vcs_provider=GITHUB_APP,
-        )
+        remote_repositories = self.repositories.filter(vcs_provider=GITHUB_APP)
         if repository_ids:
             remote_organizations = remote_organizations.filter(
                 repositories__remote_id__in=repository_ids
@@ -147,19 +139,7 @@ class GitHubAppInstallation(TimeStampedModel):
 
         count, deleted = remote_repositories.delete()
         log.info(
-            "Deleted repositories without projects",
-            count=count,
-            deleted=deleted,
-            installation_id=self.installation_id,
-        )
-
-        count, deleted = RemoteRepositoryRelation.objects.filter(
-            remote_repository__id__in=repository_ids,
-            remote_repository__vcs_provider=GITHUB_APP,
-            remote_reposotory__github_app_installation=self,
-        ).delete()
-        log.info(
-            "Deleted repository relations",
+            "Deleted repositories projects",
             count=count,
             deleted=deleted,
             installation_id=self.installation_id,
@@ -176,45 +156,14 @@ class GitHubAppInstallation(TimeStampedModel):
             installation_id=self.installation_id,
         )
 
-    def delete_orphaned_organization(self, organization_id: int):
-        """
-        Delete an organization and all its repositories from the database only if they are not linked to a project.
-
-        All the organization and repository relations are deleted as well,
-        since we want to keep the remote repository linked to the project,
-        but not to users.
-        """
+    def delete_organization(self, organization_id: int):
+        """Delete an organization and all its repositories and relations from the database."""
         count, deleted = RemoteOrganization.objects.filter(
             remote_id=str(organization_id),
             vcs_provider=GITHUB_APP,
-            repositories__projects=None,
         ).delete()
         log.info(
-            "Deleted orphaned organization",
-            count=count,
-            deleted=deleted,
-            organization_id=organization_id,
-            installation_id=self.installation_id,
-        )
-
-        count, deleted = RemoteOrganizationRelation.objects.filter(
-            remote_organization__remote_id=str(organization_id),
-            remote_organization__vcs_provider=GITHUB_APP,
-        ).delete()
-        log.info(
-            "Deleted organization relations",
-            count=count,
-            deleted=deleted,
-            organization_id=organization_id,
-            installation_id=self.installation_id,
-        )
-
-        count, deleted = RemoteRepositoryRelation.objects.filter(
-            remote_repository__organization__remote_id=str(organization_id),
-            remote_repository__vcs_provider=GITHUB_APP,
-        ).delete()
-        log.info(
-            "Deleted repository relations",
+            "Deleted organization",
             count=count,
             deleted=deleted,
             organization_id=organization_id,
@@ -385,11 +334,9 @@ class RemoteRepository(TimeStampedModel):
         related_name="repositories",
         null=True,
         blank=True,
-        # When an installation is deleted, we don't delete the repository
-        # if it's linked to a project. This is in case the user re-installs the app,
-        # they shouldn't need to manually link each project to the repository again.
-        # NOTE: I also see how this may be unexpected behavior in some cases.
-        on_delete=models.SET_NULL,
+        # When an installation is deleted, we delete all its remote repositories
+        # and relations, users will need to manually link the projects to each repository again.
+        on_delete=models.CASCADE,
     )
 
     objects = RemoteRepositoryQuerySet.as_manager()

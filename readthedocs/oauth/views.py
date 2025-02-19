@@ -153,7 +153,7 @@ class GitHubAppWebhookView(APIView):
 
         if action == "deleted":
             # NOTE: When an installation is deleted, this doesn't trigger an installation_repositories event.
-            # So we need to call the delete method explicitly here, so we delete orphan remote repositories.
+            # So we need to call the delete method explicitly here, so we delete its repositories.
             installation = GitHubAppInstallation.objects.filter(
                 installation_id=installation_id
             ).first()
@@ -253,7 +253,7 @@ class GitHubAppWebhookView(APIView):
             return
 
         if action == "removed":
-            installation.delete_orphaned_repositories(
+            installation.delete_repositories(
                 [repo["id"] for repo in data["repositories_removed"]]
             )
             return
@@ -438,7 +438,7 @@ class GitHubAppWebhookView(APIView):
             # when the organization is deleted.
             # I didn't see GH send the deleted action for the organization event...
             # But handle it just in case.
-            installation.delete_orphaned_organization(data["organization"]["id"])
+            installation.delete_organization(data["organization"]["id"])
             return
 
         # Ignore other actions:

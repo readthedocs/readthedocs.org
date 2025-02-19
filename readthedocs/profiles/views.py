@@ -334,7 +334,26 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         has_errors = False
         for project in projects:
             try:
-                migrate_project_to_github_app(project=project, user=request.user)
+                result = migrate_project_to_github_app(project=project, user=request.user)
+                if not result.webhook_removed:
+                    messages.warning(
+                        request,
+                        _(
+                            "The webhook from the old GitHub integration "
+                            "was not removed for project {project}. "
+                            "Please remove it manually."
+                        ).format(project=project.slug),
+                    )
+
+                if not result.ssh_key_removed:
+                    messages.warning(
+                        request,
+                        _(
+                            "The SSH key from the old GitHub integration "
+                            "was not removed for project {project}. "
+                            "Please remove it manually."
+                        ).format(project=project.slug),
+                    )
             except Exception as e:
                 has_errors = True
                 messages.error(request, f"Error migrating project {project.slug}: {e}")

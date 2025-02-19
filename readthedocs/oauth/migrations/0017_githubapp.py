@@ -34,6 +34,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='remoterepository',
             name='github_app_installation',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='repositories', to='oauth.githubappinstallation', verbose_name='GitHub App Installation'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='repositories', to='oauth.githubappinstallation', verbose_name='GitHub App Installation'),
         ),
     ]
