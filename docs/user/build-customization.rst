@@ -460,23 +460,22 @@ Take a look at the following example:
 
    version: 2
 
+   sphinx:
+      configuration: docs/conf.py
+
    build:
       os: ubuntu-24.04
       tools:
          python: "3.13"
       jobs:
-         create_environment:
+         post_system_dependencies:
             - asdf plugin add uv
             - asdf install uv latest
             - asdf global uv latest
-            - uv venv
+         create_environment:
+            - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
          install:
-            - uv pip install -r requirements.txt
-         build:
-            html:
-               - uv run sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
-
-MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
+            - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
 
 Update Conda version
 ~~~~~~~~~~~~~~~~~~~~
