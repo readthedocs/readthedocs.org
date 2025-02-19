@@ -15,9 +15,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.config import ALL
 from readthedocs.projects.constants import (
-    GITHUB_BRAND,
     GITHUB_PR_PULL_PATTERN,
-    GITLAB_BRAND,
     GITLAB_MR_PULL_PATTERN,
 )
 from readthedocs.projects.exceptions import RepositoryError

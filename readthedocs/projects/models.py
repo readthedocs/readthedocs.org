@@ -1057,17 +1057,22 @@ class Project(models.Model):
     @property
     def is_github_project(self):
         from readthedocs.oauth.services import GitHubService
+
         return self.get_git_service_class(fallback_to_clone_url=True) == GitHubService
 
     @property
     def is_gitlab_project(self):
         from readthedocs.oauth.services import GitLabService
+
         return self.get_git_service_class(fallback_to_clone_url=True) == GitLabService
 
     @property
     def is_bitbucket_project(self):
         from readthedocs.oauth.services import BitbucketService
-        return self.get_git_service_class(fallback_to_clone_url=True) == BitbucketService
+
+        return (
+            self.get_git_service_class(fallback_to_clone_url=True) == BitbucketService
+        )
 
     def find(self, filename, version):
         """

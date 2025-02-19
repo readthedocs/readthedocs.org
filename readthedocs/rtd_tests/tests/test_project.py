@@ -22,8 +22,6 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.services import GitHubService, GitLabService
 from readthedocs.projects.constants import (
-    GITHUB_BRAND,
-    GITLAB_BRAND,
     MEDIA_TYPE_EPUB,
     MEDIA_TYPE_HTML,
     MEDIA_TYPE_HTMLZIP,

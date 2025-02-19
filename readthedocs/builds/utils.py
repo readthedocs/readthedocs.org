@@ -12,10 +12,8 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.projects.constants import (
     BITBUCKET_REGEXS,
-    GITHUB_BRAND,
     GITHUB_PULL_REQUEST_URL,
     GITHUB_REGEXS,
-    GITLAB_BRAND,
     GITLAB_MERGE_REQUEST_URL,
     GITLAB_REGEXS,
 )
