@@ -334,7 +334,9 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         has_errors = False
         for project in projects:
             try:
-                result = migrate_project_to_github_app(project=project, user=request.user)
+                result = migrate_project_to_github_app(
+                    project=project, user=request.user
+                )
                 if not result.webhook_removed:
                     messages.warning(
                         request,
