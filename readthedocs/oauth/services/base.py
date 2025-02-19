@@ -86,7 +86,7 @@ class Service:
         """
         raise NotImplementedError
 
-    def send_build_status(self, *, build, commit, status):
+    def send_build_status(self, build, commit, status):
         """
         Create commit status for project.
 

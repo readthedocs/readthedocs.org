@@ -305,9 +305,7 @@ class GitHubOAuthTests(TestCase):
     def test_send_build_status_successful(self, session, mock_logger):
         session.post.return_value.status_code = 201
         success = self.service.send_build_status(
-            build=self.external_build,
-            commit=self.external_build.commit,
-            status=BUILD_STATUS_SUCCESS,
+            self.external_build, self.external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         self.assertTrue(success)
@@ -321,9 +319,7 @@ class GitHubOAuthTests(TestCase):
     def test_send_build_status_404_error(self, session, mock_logger):
         session.post.return_value.status_code = 404
         success = self.service.send_build_status(
-            build=self.external_build,
-            commit=self.external_build.commit,
-            status=BUILD_STATUS_SUCCESS,
+            self.external_build, self.external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         self.assertFalse(success)
@@ -337,9 +333,7 @@ class GitHubOAuthTests(TestCase):
     def test_send_build_status_value_error(self, session, mock_logger):
         session.post.side_effect = ValueError
         success = self.service.send_build_status(
-            build=self.external_build,
-            commit=self.external_build.commit,
-            status=BUILD_STATUS_SUCCESS,
+            self.external_build, self.external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         self.assertFalse(success)
@@ -1169,9 +1163,7 @@ class GitLabOAuthTests(TestCase):
         repo_id().return_value = "9999"
 
         success = self.service.send_build_status(
-            build=self.external_build,
-            commit=self.external_build.commit,
-            status=BUILD_STATUS_SUCCESS,
+            self.external_build, self.external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         self.assertTrue(success)
@@ -1188,9 +1180,7 @@ class GitLabOAuthTests(TestCase):
         repo_id.return_value = "9999"
 
         success = self.service.send_build_status(
-            build=self.external_build,
-            commit=self.external_build.commit,
-            status=BUILD_STATUS_SUCCESS,
+            self.external_build, self.external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         self.assertFalse(success)
@@ -1207,9 +1197,7 @@ class GitLabOAuthTests(TestCase):
         repo_id().return_value = "9999"
 
         success = self.service.send_build_status(
-            build=self.external_build,
-            commit=self.external_build.commit,
-            status=BUILD_STATUS_SUCCESS,
+            self.external_build, self.external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         self.assertFalse(success)
