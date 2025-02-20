@@ -43,6 +43,7 @@ def _build_version(project, version):
 def build_versions_from_names(project, version_names: list[tuple[str, str | None]]):
     """
     Build the branches or tags from the project.
+
     :param project: Project instance
     :param version_names: A list of tuples with the version name and type.
     :returns: A tuple with the versions that were built and the versions that were not built.
