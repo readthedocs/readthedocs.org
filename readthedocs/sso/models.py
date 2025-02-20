@@ -8,7 +8,6 @@ from readthedocs.projects.validators import validate_domain_name
 
 
 class SSOIntegration(models.Model):
-
     """Single Sign-On integration for an Organization."""
 
     PROVIDER_ALLAUTH = "allauth"
@@ -51,6 +50,13 @@ class SSOIntegration(models.Model):
         "sso.SSODomain",
         related_name="ssointegrations",
         blank=True,
+    )
+
+    using_old_dashboard = models.BooleanField(
+        default=False,
+        help_text=(
+            "Whether the SSO integration is using the old dashboard for authentication. Mainly used for SAML integrations."
+        ),
     )
 
     def __str__(self):
