@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -1256,13 +1257,29 @@ class Project(models.Model):
                 )
                 return new_stable
 
-    def versions_from_branch_name(self, branch):
-        return (
-            self.versions.filter(identifier=branch)
-            | self.versions.filter(identifier="remotes/origin/%s" % branch)
-            | self.versions.filter(identifier="origin/%s" % branch)
-            | self.versions.filter(verbose_name=branch)
+    def versions_from_name(self, name, type=None):
+        """
+        Get all versions attached to the branch or tag name.
+
+        Normally, only one version should be returned, but since LATEST and STABLE
+        are aliases for the branch/tag, they may be returned as well.
+        """
+        queryset = self.versions(manager=INTERNAL)
+        queryset = queryset.filter(
+            # Normal branches
+            Q(verbose_name=name, machine=False)
+            # Latest and stable have the name of the branch/tag in the identifier.
+            # NOTE: if stable is a branch, identifier will be the commit hash,
+            # so we don't have a way to match it by name.
+            # We should do another lookup to get the original stable version,
+            # or change our logic to store the tags name in the identifier of stable.
+            | Q(identifier=name, machine=True)
         )
+
+        if type:
+            queryset = queryset.filter(type=type)
+
+        return queryset.distinct()
 
     def get_default_version(self):
         """
