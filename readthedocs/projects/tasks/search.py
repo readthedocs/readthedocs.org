@@ -5,6 +5,8 @@ from django.conf import settings
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.filesections import write_section_manifest
+from readthedocs.filesections.dataclasses import FileSection, FileSectionManifest, Page
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
 from readthedocs.projects.models import HTMLFile, Project
@@ -143,6 +145,36 @@ class FileManifestIndexer(Indexer):
         write_manifest(self.version, manifest)
 
 
+class FileSectionIndexer(Indexer):
+    def __init__(self, version: Version, build: Build):
+        self.version = version
+        self.build = build
+        self.pages = []
+
+    def process(self, html_file: HTMLFile, sync_id: int):
+        log.debug("Processing file for sections", path=html_file.path)
+        processed_json = html_file.processed_json
+        if processed_json:
+            sections = [
+                FileSection(
+                    id=section["id"],
+                    title=section["title"],
+                )
+                for section in processed_json.get("sections", [])
+            ]
+            self.pages.append(Page(path=html_file.path, sections=sections))
+        log.debug("Finished processing file for sections", path=html_file.path)
+
+    def collect(self, sync_id: int):
+        log.debug("Collecting sections for manifest", build_id=self.build.id)
+        manifest = FileSectionManifest(
+            build_id=self.build.id,
+            pages=self.pages,
+        )
+        write_section_manifest(self.version, manifest)
+        log.debug("Finished collecting sections for manifest", build_id=self.build.id)
+
+
 def _get_indexers(*, version: Version, build: Build, search_index_name=None):
     build_config = build.config or {}
     search_config = build_config.get("search", {})
@@ -189,6 +221,13 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
         version=version,
     )
     indexers.append(index_file_indexer)
+
+    file_section_indexer = FileSectionIndexer(
+        version=version,
+        build=build,
+    )
+    indexers.append(file_section_indexer)
+
     return indexers
 
 

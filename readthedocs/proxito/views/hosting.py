@@ -25,6 +25,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.filesections import get_section_manifest
 from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
@@ -543,6 +544,9 @@ class AddonsResponseBase:
                 "filetreediff": {
                     "enabled": project.addons.filetreediff_enabled,
                 },
+                "filesections": {
+                    "enabled": False,
+                },
             },
         }
 
@@ -555,6 +559,13 @@ class AddonsResponseBase:
             )
             if response:
                 data["addons"]["filetreediff"].update(response)
+
+            sections_response = self._get_filesections_response(
+                project=project,
+                version=version,
+            )
+            if sections_response:
+                data["addons"]["filesections"].update(sections_response)
 
             # Show the subprojects filter on the parent project and subproject
             # TODO: Remove these queries and try to find a way to get this data
@@ -698,6 +709,31 @@ class AddonsResponseBase:
                 "deleted": _filter_diff_files(diff.deleted),
                 "modified": _filter_diff_files(diff.modified),
             },
+        }
+
+    def _get_filesections_response(self, *, project, version):
+        """
+        Get the file sections response for the given version.
+        """
+        manifest = get_section_manifest(version)
+        if not manifest:
+            return None
+
+        return {
+            "enabled": True,
+            "pages": [
+                {
+                    "path": page.path,
+                    "sections": [
+                        {
+                            "id": section.id,
+                            "title": section.title,
+                        }
+                        for section in page.sections
+                    ],
+                }
+                for page in manifest.pages
+            ],
         }
 
     def _v2(self, project, version, build, filename, url, user):
