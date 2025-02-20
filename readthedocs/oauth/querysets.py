@@ -1,7 +1,6 @@
 """Managers for OAuth models."""
 
 from django.db import models
-from django.db.models import Q
 
 from readthedocs.core.querysets import NoReprQuerySet
 
@@ -27,16 +26,13 @@ class RemoteRepositoryQuerySet(RelatedUserQuerySet):
         """
         Return repositories that can be linked to a project by the given user.
 
-        Repositories can be imported if:
-
-        - The user has read or adming access to the repository on the VCS service.
-        - If the repository is private, the user must be an admin.
-        - If the repository is public, the user doesn't need to be an admin.
+        Repositories can be linked to a project only if the user has admin access
+        to the repository on the VCS service.
         """
-        query = Q(remote_repository_relations__user=user) & (
-            Q(private=False) | Q(private=True, remote_repository_relations__admin=True)
-        )
-        return self.filter(query).distinct()
+        return self.filter(
+            remote_repository_relations__user=user,
+            remote_repository_relations__admin=True,
+        ).distinct()
 
 
 class RemoteOrganizationQuerySet(RelatedUserQuerySet):
