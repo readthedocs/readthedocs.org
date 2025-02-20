@@ -126,6 +126,31 @@ class GitHubAppService(Service):
                 if installation:
                     yield cls(installation)
 
+    @classmethod
+    def sync_user_access(cls, user):
+        """
+        Sync the user's access to the provider repositories and organizations.
+
+        Since we are using a GitHub App, we don't have a way to check all the repositories and organizations
+        the user has access to or if it lost access to a repository or organization.
+
+        Our webhooks should keep permissions in sync, but just in case,
+        we first sync the repositories from all installations accessible to the user (refresh access to new repositories),
+        and then we sync each repository the user has access to (check if the user lost access to a repository, or his access level changed).
+        """
+        # Refresh access to all installations accessible to the user.
+        for service in cls.for_user(user):
+            service.sync()
+
+        # Update the access to each repository the user has access to.
+        queryset = RemoteRepository.objects.filter(
+            remote_repository_relations__user=user,
+            vcs_provider=cls.vcs_provider_slug,
+        )
+        for repository in queryset:
+            service = cls(repository.github_app_installation)
+            service.update_or_create_repositories([repository.remote_id])
+
     def sync(self):
         """
         Sync all repositories and organizations that are accessible to the installation.
@@ -155,7 +180,7 @@ class GitHubAppService(Service):
         repos_to_delete = self.installation.repositories.exclude(
             pk__in=[repo.pk for repo in remote_repositories],
         ).values_list("remote_id", flat=True)
-        self.installation.delete_orphaned_repositories(repos_to_delete)
+        self.installation.delete_repositories(repos_to_delete)
 
     def update_or_create_repositories(self, repository_ids: list[int]):
         """Update or create repositories from the given list of repository IDs."""
@@ -172,7 +197,7 @@ class GitHubAppService(Service):
                 # we remove the repository from the database,
                 # and clean up the collaborators and relations.
                 if e.status == 404:
-                    self.installation.delete_orphaned_repositories([repository_id])
+                    self.installation.delete_repositories([repository_id])
                 continue
             self._create_or_update_repository_from_gh(repo)
 
