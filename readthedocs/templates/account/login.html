@@ -73,7 +73,8 @@
       {% include "socialaccount/snippets/provider_list.html" with process="login" next=request.GET.next verbiage="Log in using" %}
       {% if USE_ORGANIZATIONS %}
       <li>
-        <form action="{% url "saml_resolve_login" %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value }}{% endif %}" method="get">
+        {# Link to the new dashboard, since we want to use the new dashboard for SAML. #}
+        <form action="https://app.{{ PRODUCTION_DOMAIN }}{% url "saml_resolve_login" %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value }}{% endif %}" method="get">
           <button class="socialaccount-provider button" type="submit">
               {% trans "Log in using single sign-on" %}
           </button>
