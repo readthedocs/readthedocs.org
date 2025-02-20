@@ -46,7 +46,14 @@ class UpdateCSPMiddleware:
 
     Use the `RTD_CSP_UPDATE_HEADERS` setting to define the views that need to
     update the CSP headers. The setting should be a dictionary where the key is
-    the URL name of the view and the value is a dictionary with the CSP headers
+    the URL name of the view and the value is a dictionary with the CSP headers,
+    for example:
+
+    .. code-block:: python
+
+       RTD_CSP_UPDATE_HEADERS ={
+           "login": {"form-action": ["https:"]},
+       }
     """
 
     def __init__(self, get_response):
