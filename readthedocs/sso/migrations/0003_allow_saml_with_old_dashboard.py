@@ -16,6 +16,8 @@ class Migration(migrations.Migration):
             name="using_old_dashboard",
             field=models.BooleanField(
                 default=False,
+                null=True,
+                blank=True,
                 help_text="Whether the SSO integration is using the old dashboard for authentication. Mainly used for SAML integrations.",
             ),
         ),
