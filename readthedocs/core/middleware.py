@@ -51,7 +51,7 @@ class UpdateCSPMiddleware:
 
     .. code-block:: python
 
-       RTD_CSP_UPDATE_HEADERS ={
+       RTD_CSP_UPDATE_HEADERS = {
            "login": {"form-action": ["https:"]},
        }
     """
