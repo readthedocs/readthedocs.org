@@ -160,6 +160,7 @@ class UserService(Service):
     def sync_user_access(cls, user):
         """
         Sync the user's access to the provider repositories and organizations.
+
         Since UserService makes use of the user's OAuth token,
         we can just sync the user's repositories in order to
         update the user access to repositories and organizations.
