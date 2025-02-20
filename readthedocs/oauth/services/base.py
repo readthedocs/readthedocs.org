@@ -238,7 +238,8 @@ class UserService(Service):
             self.user.remote_repository_relations.filter(
                 account=self.account,
                 remote_repository__vcs_provider=self.vcs_provider_slug,
-            ).exclude(
+            )
+            .exclude(
                 remote_repository__remote_id__in=repository_remote_ids,
             )
             .delete()
@@ -252,9 +253,11 @@ class UserService(Service):
             self.user.remote_organization_relations.filter(
                 account=self.account,
                 remote_organization__vcs_provider=self.vcs_provider_slug,
-            ).exclude(
+            )
+            .exclude(
                 remote_organization__remote_id__in=organization_remote_ids,
-            ).delete()
+            )
+            .delete()
         )
 
     def get_next_url_to_paginate(self, response):
