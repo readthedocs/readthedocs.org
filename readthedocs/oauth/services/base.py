@@ -235,11 +235,12 @@ class UserService(Service):
             r.remote_id for r in all_remote_repositories if r is not None
         ]
         (
-            self.user.remote_repository_relations.exclude(
-                remote_repository__remote_id__in=repository_remote_ids,
+            self.user.remote_repository_relations.filter(
+                account=self.account,
                 remote_repository__vcs_provider=self.vcs_provider_slug,
+            ).exclude(
+                remote_repository__remote_id__in=repository_remote_ids,
             )
-            .filter(account=self.account)
             .delete()
         )
 
@@ -248,12 +249,12 @@ class UserService(Service):
             o.remote_id for o in remote_organizations if o is not None
         ]
         (
-            self.user.remote_organization_relations.exclude(
-                remote_organization__remote_id__in=organization_remote_ids,
+            self.user.remote_organization_relations.filter(
+                account=self.account,
                 remote_organization__vcs_provider=self.vcs_provider_slug,
-            )
-            .filter(account=self.account)
-            .delete()
+            ).exclude(
+                remote_organization__remote_id__in=organization_remote_ids,
+            ).delete()
         )
 
     def get_next_url_to_paginate(self, response):
