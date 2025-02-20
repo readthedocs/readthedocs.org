@@ -469,3 +469,22 @@ class Backend(BaseVCS):
             "git", "show-ref", "--verify", "--quiet", "--", ref, record=False
         )
         return exit_code == 0
+
+
+def parse_version_from_ref(ref: str):
+    """
+    Parse the version name and type from a Git ref.
+
+    The ref can be a branch or a tag.
+
+    :param ref: The ref to parse (e.g. refs/heads/main, refs/tags/v1.0.0).
+    :returns: A tuple with the version name and type.
+    """
+    heads_prefix = "refs/heads/"
+    tags_prefix = "refs/tags/"
+    if ref.startswith(heads_prefix):
+        return ref.removeprefix(heads_prefix), BRANCH
+    if ref.startswith(tags_prefix):
+        return ref.removeprefix(tags_prefix), TAG
+
+    raise ValueError(f"Invalid ref: {ref}")

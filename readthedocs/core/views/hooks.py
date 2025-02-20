@@ -15,7 +15,7 @@ from readthedocs.projects.tasks.builds import sync_repository_task
 log = structlog.get_logger(__name__)
 
 
-def _build_version(project, slug, already_built=()):
+def _build_version(project, version):
     """
     Where we actually trigger builds for a project and slug.
 
@@ -27,44 +27,42 @@ def _build_version(project, slug, already_built=()):
     # Previously we were building the latest version (inactive or active)
     # when building the default version,
     # some users may have relied on this to update the version list #4450
-    version = project.versions.filter(active=True, slug=slug).first()
-    if version and slug not in already_built:
+    if version.active:
         log.info(
             "Building.",
             project_slug=project.slug,
             version_slug=version.slug,
         )
         trigger_build(project=project, version=version)
-        return slug
+        return True
 
-    log.info("Not building.", version_slug=slug)
-    return None
+    log.info("Not building.", version_slug=version.slug)
+    return False
 
 
-def build_branches(project, branch_list):
+def build_versions_from_names(project, version_names: list[tuple[str, str | None]]):
     """
-    Build the branches for a specific project.
-
-    Returns:
-        to_build - a list of branches that were built
-        not_building - a list of branches that we won't build
+    Build the branches or tags from the project.
+    :param project: Project instance
+    :param version_names: A list of tuples with the version name and type.
+    :returns: A tuple with the versions that were built and the versions that were not built.
     """
     to_build = set()
     not_building = set()
-    for branch in branch_list:
-        versions = project.versions_from_branch_name(branch)
-        for version in versions:
+    for version_name, version_type in version_names:
+        for version in project.versions_from_name(version_name, version_type):
             log.debug(
                 "Processing.",
                 project_slug=project.slug,
                 version_slug=version.slug,
             )
-            ret = _build_version(project, version.slug, already_built=to_build)
-            if ret:
-                to_build.add(ret)
+            if version.slug in to_build:
+                continue
+            if _build_version(project, version):
+                to_build.add(version.slug)
             else:
                 not_building.add(version.slug)
-    return (to_build, not_building)
+    return to_build, not_building
 
 
 def trigger_sync_versions(project):
