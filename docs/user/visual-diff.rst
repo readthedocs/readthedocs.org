@@ -22,7 +22,7 @@ all the files that have changed between the base version (e.g. ``latest``) and t
 You can select any of those files from the dropdown to jump directly into that page.
 Once there, you can toggle it on/off by pressing the :guilabel:`Show diff` link from the UI element, or pressing the `d` key if you have hotkeys enabled.
 Visual diff will show all the sections that have changed and their differences highlighted with red/green background colors.
-Besides, you can jump between each of these chunks by clinking on the up/down arrows.
+Then you can jump between each of these chunks by clinking on the up/down arrows.
 
 All the available configuration for the visual diff addon can be found under :guilabel:`Settings > Addons > Visual diff` in the :term:`dashboard`.
 
