@@ -37,5 +37,5 @@ There are also some known issues that currently don't display properly.
 We are working to improve the UX, but so far we've found the following issues:
 
 * **Tables** are shown to have changes when they may not have changed. This is due to do subtly in how HTML tables are rendered, and will be fixed in a future version.
-* **Invisible changes** sometimes are marked as diff due than the underlying HTML changed, but there is no visual change. This could happen if the URL of a link changed, for example.
+* **Invisible changes** sometimes are marked as diff due than the underlying HTML changing, but there is no visual change. This could happen if the URL of a link changed, for example.
 * **Chunks background is incorrect** when we are unable to detect the correct main parent element for the chunk.
