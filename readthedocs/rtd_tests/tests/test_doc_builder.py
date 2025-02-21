@@ -123,7 +123,7 @@ class BuilderTest(TestCase):
     @patch("readthedocs.builds.models.Version.get_mkdocs_yml_path")
     @patch("readthedocs.projects.models.Project.checkout_path")
     @patch("readthedocs.doc_builder.python_environments.load_yaml_config")
-    def test_project_without_conf_py(
+    def test_project_without_mkdocs_yml(
         self,
         load_yaml_config,
         checkout_path,
