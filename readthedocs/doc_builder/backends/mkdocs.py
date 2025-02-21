@@ -12,6 +12,7 @@ from django.conf import settings
 
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 
 log = structlog.get_logger(__name__)
@@ -33,7 +34,6 @@ def get_absolute_static_url():
 
 
 class BaseMkdocs(BaseBuilder):
-
     """Mkdocs builder."""
 
     # The default theme for mkdocs is the 'mkdocs' theme
@@ -80,6 +80,11 @@ class BaseMkdocs(BaseBuilder):
     def show_conf(self):
         """Show the current ``mkdocs.yaml`` being used."""
         # Write the mkdocs.yml to the build logs
+        if not os.path.exists(self.yaml_file):
+            raise MkDocsYAMLParseError(
+                message_id=MkDocsYAMLParseError.NOT_FOUND,
+            )
+
         self.run(
             "cat",
             os.path.relpath(self.yaml_file, self.project_path),
@@ -122,7 +127,6 @@ class ProxyPythonName(yaml.YAMLObject):
 
 
 class SafeLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
-
     """
     Safe YAML loader.
 
@@ -141,7 +145,6 @@ class SafeLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
 
 
 class SafeDumper(yaml.SafeDumper):
-
     """
     Safe YAML dumper.
 
