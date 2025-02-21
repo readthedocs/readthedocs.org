@@ -8,14 +8,16 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from readthedocs.config.tests.test_config import get_build_config
+from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 
 
 @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
-class SphinxBuilderTest(TestCase):
+class BuilderTest(TestCase):
     fixtures = ["test_data", "eric"]
 
     def setUp(self):
@@ -33,6 +35,9 @@ class SphinxBuilderTest(TestCase):
         BaseSphinx.type = "base"
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
         BaseSphinx.relative_output_dir = "_readthedocs/"
+        BaseMkdocs.type = "base"
+        BaseMkdocs.sphinx_build_dir = tempfile.mkdtemp()
+        BaseMkdocs.relative_output_dir = "_readthedocs/"
 
     @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir")
     @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.run")
@@ -112,3 +117,45 @@ class SphinxBuilderTest(TestCase):
         with pytest.raises(ProjectConfigurationError):
             with override_settings(DOCROOT=tmp_docs_dir):
                 base_sphinx.show_conf()
+
+    @patch("readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.docs_dir")
+    @patch("readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run")
+    @patch("readthedocs.builds.models.Version.get_mkdocs_yml_path")
+    @patch("readthedocs.projects.models.Project.checkout_path")
+    @patch("readthedocs.doc_builder.python_environments.load_yaml_config")
+    def test_project_without_conf_py(
+        self,
+        load_yaml_config,
+        checkout_path,
+        get_mkdocs_yml_path,
+        _,
+        docs_dir,
+    ):
+        """
+        Test for a project without ``mkdocs.yml`` file.
+
+        When this happen, the ``get_mkdocs_yml_path`` raises a
+        ``MkDocsYAMLParseError`` which is captured by our own code.
+        """
+        tmp_dir = tempfile.mkdtemp()
+        checkout_path.return_value = tmp_dir
+        docs_dir.return_value = tmp_dir
+        get_mkdocs_yml_path.side_effect = MkDocsYAMLParseError
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
+        )
+        base_mkdocs = BaseMkdocs(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        with self.assertRaises(MkDocsYAMLParseError) as e:
+            base_mkdocs.show_conf()
+
+        self.assertEqual(
+            e.exception.message_id,
+            MkDocsYAMLParseError.NOT_FOUND,
+        )

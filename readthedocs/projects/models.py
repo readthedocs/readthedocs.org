@@ -1,4 +1,5 @@
 """Project models."""
+
 import fnmatch
 import hashlib
 import hmac
@@ -34,6 +35,7 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
@@ -80,7 +82,6 @@ def default_privacy_level():
 
 
 class ProjectRelationship(models.Model):
-
     """
     Project to project relationship.
 
@@ -135,7 +136,6 @@ class ProjectRelationship(models.Model):
 
 
 class AddonsConfig(TimeStampedModel):
-
     """
     Addons project configuration.
 
@@ -266,7 +266,6 @@ class AddonsConfig(TimeStampedModel):
 
 
 class AddonSearchFilter(TimeStampedModel):
-
     """
     Addon search user defined filter.
 
@@ -279,7 +278,6 @@ class AddonSearchFilter(TimeStampedModel):
 
 
 class Project(models.Model):
-
     """Project model."""
 
     # Auto fields
@@ -962,7 +960,6 @@ class Project(models.Model):
             # contains the `doc` word in its path and return this one
             if filename.find("doc", 70) != -1:
                 return filename
-
         # If the project has more than one conf.py file but none of them have
         # the `doc` word in the path, we raise an error informing this to the user
         if len(files) > 1:
@@ -972,10 +969,26 @@ class Project(models.Model):
 
         raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
+    def yml_file(self, version=LATEST):
+        """Find a Mkdocs ``mkdocs.yml`` file in the project checkout."""
+        files = self.find("mkdocs.yml", version)
+        if not files:
+            files = self.full_find("mkdocs.yml", version)
+        if len(files) == 1:
+            return files[0]
+        # TODO: handle for multiple mkdocs.yml files
+
+        raise MkDocsYAMLParseError(MkDocsYAMLParseError.NOT_FOUND)
+
     def conf_dir(self, version=LATEST):
         conf_file = self.conf_file(version)
         if conf_file:
             return os.path.dirname(conf_file)
+
+    def mkdocs_dir(self, version=LATEST):
+        yml_file = self.yml_file(version)
+        if yml_file:
+            return os.path.dirname(yml_file)
 
     @property
     def has_good_build(self):
@@ -1432,7 +1445,6 @@ class Project(models.Model):
 
 
 class APIProject(Project):
-
     """
     Project proxy model for API data deserialization.
 
@@ -1506,7 +1518,6 @@ class APIProject(Project):
 
 
 class ImportedFile(models.Model):
-
     """
     Imported files model.
 
@@ -1558,7 +1569,6 @@ class ImportedFile(models.Model):
 
 
 class HTMLFile(ImportedFile):
-
     """
     Imported HTML file Proxy model.
 
@@ -1580,7 +1590,6 @@ class HTMLFile(ImportedFile):
 
 
 class Notification(TimeStampedModel):
-
     """WebHook / Email notification attached to a Project."""
 
     # TODO: Overridden from TimeStampedModel just to allow null values,
@@ -1745,7 +1754,6 @@ class WebHook(Notification):
 
 
 class Domain(TimeStampedModel):
-
     """A custom domain name for a project."""
 
     # TODO: Overridden from TimeStampedModel just to allow null values,
@@ -1869,7 +1877,6 @@ class Domain(TimeStampedModel):
 
 
 class HTTPHeader(TimeStampedModel, models.Model):
-
     """
     Define a HTTP header for a user Domain.
 
@@ -1912,7 +1919,6 @@ class HTTPHeader(TimeStampedModel, models.Model):
 
 
 class Feature(models.Model):
-
     """
     Project feature flags.
 
