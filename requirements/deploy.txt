@@ -28,11 +28,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.22
+boto3==1.36.26
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.22
+botocore==1.36.26
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -94,7 +94,7 @@ cssselect==1.2.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
-decorator==5.1.1
+decorator==5.2.0
     # via ipython
 distlib==0.3.9
     # via
@@ -297,13 +297,13 @@ prompt-toolkit==3.0.50
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.2.4
+psycopg[binary,pool]==3.2.5
     # via -r requirements/pip.txt
-psycopg-binary==3.2.4
+psycopg-binary==3.2.5
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.2.4
+psycopg-pool==3.2.5
     # via
     #   -r requirements/pip.txt
     #   psycopg
