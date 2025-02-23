@@ -540,6 +540,12 @@ class Version(TimeStampedModel):
         conf_py_path = os.path.relpath(conf_py_path, checkout_prefix)
         return conf_py_path
 
+    def get_mkdocs_yml_path(self):
+        mkdocs_yml_path = self.project.mkdocs_dir(self.slug)
+        checkout_prefix = self.project.checkout_path(self.slug)
+        mkdocs_yml_path = os.path.relpath(mkdocs_yml_path, checkout_prefix)
+        return mkdocs_yml_path
+
     def get_storage_paths(self, version_slug=None):
         """
         Return a list of all build artifact storage paths for this version.
