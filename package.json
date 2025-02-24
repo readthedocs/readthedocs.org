@@ -1,6 +1,6 @@
 {
   "name": "readthedocs",
-  "version": "11.17.0",
+  "version": "11.21.1",
   "description": "Read the Docs build dependencies",
   "author": "Read the Docs, Inc <support@readthedocs.com>",
   "scripts": {

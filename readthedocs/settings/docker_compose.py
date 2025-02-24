@@ -14,7 +14,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_COMPOSE = True
     RTD_DOCKER_COMPOSE_VOLUME = "community_build-user-builds"
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
-    DOCKER_LIMITS = {"memory": "1g", "time": 900}
+    DOCKER_LIMITS = {"memory": "2g", "time": 900}
 
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
@@ -238,6 +238,8 @@ class DockerBaseSettings(CommunityBaseSettings):
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
     SUPPORT_EMAIL = "support@example.com"
+
+    RTD_FILETREEDIFF_ALL = "RTD_FILETREEDIFF_ALL" in os.environ
 
 
 DockerBaseSettings.load_settings(__name__)

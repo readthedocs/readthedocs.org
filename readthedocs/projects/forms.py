@@ -65,7 +65,15 @@ class ProjectForm(SimpleHistoryModelForm):
             coerce=lambda x: RemoteRepository.objects.get(pk=x),
             required=False,
             empty_value=None,
+            help_text=self.fields["remote_repository"].help_text,
+            label=self.fields["remote_repository"].label,
         )
+
+        # The clone URL will be set from the remote repository.
+        if self.instance.remote_repository and not self.instance.has_feature(
+            Feature.DONT_SYNC_WITH_REMOTE_REPO
+        ):
+            self.fields["repo"].disabled = True
 
     def _get_remote_repository_choices(self):
         """
@@ -395,6 +403,11 @@ class ProjectBasicsForm(ProjectForm):
         super().__init__(*args, **kwargs)
         self.fields["repo"].widget.attrs["placeholder"] = self.placehold_repo()
         self.fields["repo"].widget.attrs["required"] = True
+        # Make the repo field readonly if a remote repository is given,
+        # since it will be derived from the remote repository.
+        # In the form we already populate this field with the remote repository's clone URL.
+        if self.initial.get("remote_repository"):
+            self.fields["repo"].disabled = True
         self.fields["remote_repository"].widget = forms.HiddenInput()
 
 
@@ -639,11 +652,50 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
             self.fields.pop("external_builds_privacy_level")
 
 
+class OnePerLineList(forms.Field):
+    widget = forms.Textarea(
+        attrs={
+            "placeholder": "\n".join(
+                [
+                    "whatsnew.html",
+                    "archive/*",
+                    "tags/*",
+                    "guides/getting-started.html",
+                    "changelog.html",
+                    "release/*",
+                ]
+            ),
+        },
+    )
+
+    def to_python(self, value):
+        """Convert a text area into a list of items (one per line)."""
+        if not value:
+            return []
+        # Normalize paths and filter empty lines:
+        #  - remove trailing spaces
+        #  - skip empty lines
+        #  - remove starting `/`
+        result = []
+        for line in value.splitlines():
+            normalized = line.strip().lstrip("/")
+            if normalized:
+                result.append(normalized)
+        return result
+
+    def prepare_value(self, value):
+        """Convert a list of items into a text area (one per line)."""
+        if not value:
+            return ""
+        return "\n".join(value)
+
+
 class AddonsConfigForm(forms.ModelForm):
 
     """Form to opt-in into new addons."""
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
+    filetreediff_ignored_files = OnePerLineList(required=False)
 
     class Meta:
         model = AddonsConfig
@@ -653,10 +705,13 @@ class AddonsConfigForm(forms.ModelForm):
             "options_root_selector",
             "analytics_enabled",
             "doc_diff_enabled",
+            "filetreediff_enabled",
+            "filetreediff_ignored_files",
             "flyout_enabled",
             "flyout_sorting",
             "flyout_sorting_latest_stable_at_beginning",
             "flyout_sorting_custom_pattern",
+            "flyout_position",
             "hotkeys_enabled",
             "search_enabled",
             "linkpreviews_enabled",
@@ -667,6 +722,9 @@ class AddonsConfigForm(forms.ModelForm):
         )
         labels = {
             "enabled": _("Enable Addons"),
+            "doc_diff_enabled": _("Visual diff enabled"),
+            "filetreediff_enabled": _("Enabled"),
+            "filetreediff_ignored_files": _("Ignored files"),
             "notifications_show_on_external": _(
                 "Show a notification on builds from pull requests"
             ),

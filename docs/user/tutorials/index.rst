@@ -30,15 +30,3 @@ Tutorials
 ⏩️ :doc:`/examples`
   If you are bootstrapping a new documentation project,
   here is a list of example projects that you can derive your setup from.
-
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   /tutorial/index
-   /intro/sphinx
-   /intro/mkdocs
-   /intro/add-project
-   /config-file/index
-   /examples

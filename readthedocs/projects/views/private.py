@@ -275,11 +275,6 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
             only_active=False,
         )
 
-    def get_form(self, data=None, files=None, **kwargs):
-        # This overrides the method from `ProjectAdminMixin`,
-        # since we don't have a project.
-        return self.get_form_class()(data, files, **kwargs)
-
     def form_valid(self, form):
         form.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -355,7 +350,7 @@ def show_config_step(wizard):
         )
         for relation in remote_repository_relations:
             service = GitHubService(relation.user, relation.account)
-            session = service.get_session()
+            session = service.session
 
             for yaml in [
                 ".readthedocs.yaml",
@@ -494,7 +489,7 @@ class ImportView(PrivateViewMixin, TemplateView):
         deprecated_accounts = SocialAccount.objects.filter(
             user=self.request.user
         ).exclude(
-            provider__in=[service.adapter.provider_id for service in registry],
+            provider__in=[service.allauth_provider.id for service in registry],
         )  # yapf: disable
         for account in deprecated_accounts:
             provider_account = account.get_provider_account()
@@ -622,9 +617,8 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             username=username,
         )
         if self._is_last_user():
-            return HttpResponseBadRequest(
-                _(f"{username} is the last owner, can't be removed")
-            )
+            # NOTE: don't include user input in the message, since it's a security risk.
+            return HttpResponseBadRequest(_("User is the last owner, can't be removed"))
 
         project = self.get_project()
         project.users.remove(user)
@@ -1005,8 +999,10 @@ class IntegrationCreate(IntegrationMixin, CreateView):
         if self.object.has_sync:
             attach_webhook(
                 project_pk=self.get_project().pk,
-                user_pk=self.request.user.pk,
                 integration=self.object,
+                # TODO: Remove user_pk on the next release,
+                # it's used just to keep backward compatibility with the old task signature.
+                user_pk=None,
             )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -1062,7 +1058,9 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
             # the per-integration sync instead.
             attach_webhook(
                 project_pk=self.get_project().pk,
-                user_pk=request.user.pk,
+                # TODO: Remove user_pk on the next release,
+                # it's used just to keep backward compatibility with the old task signature.
+                user_pk=None,
             )
         return HttpResponseRedirect(self.get_success_url())
 

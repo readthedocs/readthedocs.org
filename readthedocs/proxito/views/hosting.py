@@ -1,4 +1,5 @@
 """Views for hosting features."""
+import fnmatch
 from functools import lru_cache
 
 import packaging
@@ -16,6 +17,7 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.serializers import (
     BuildSerializer,
     ProjectSerializer,
+    RelatedProjectSerializer,
     VersionSerializer,
 )
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
@@ -245,7 +247,13 @@ class NoLinksMixin:
 # on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
+class RelatedProjectSerializerNoLinks(NoLinksMixin, RelatedProjectSerializer):
+    pass
+
+
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
+    related_project_serializer = RelatedProjectSerializerNoLinks
+
     def __init__(self, *args, **kwargs):
         resolver = kwargs.pop("resolver", Resolver())
         super().__init__(
@@ -445,6 +453,9 @@ class AddonsResponseBase:
                 "analytics": {
                     "code": settings.GLOBAL_ANALYTICS_CODE,
                 },
+                "resolver": {
+                    "filename": filename,
+                },
             },
             # TODO: the ``features`` is not polished and we expect to change drastically.
             # Mainly, all the fields including a Project, Version or Build will use the exact same
@@ -486,6 +497,7 @@ class AddonsResponseBase:
                     #     "branch": version.identifier if version else None,
                     #     "filepath": "/docs/index.rst",
                     # },
+                    "position": project.addons.flyout_position,
                 },
                 "customscript": {
                     "enabled": project.addons.customscript_enabled,
@@ -529,7 +541,7 @@ class AddonsResponseBase:
                     },
                 },
                 "filetreediff": {
-                    "enabled": False,
+                    "enabled": project.addons.filetreediff_enabled,
                 },
             },
         }
@@ -556,7 +568,7 @@ class AddonsResponseBase:
                         f"subprojects:{project.slug}/{version.slug}",
                     ]
                 )
-            if project.superprojects.exists():
+            elif project.superprojects.exists():
                 superproject = project.superprojects.first().parent
                 data["addons"]["search"]["filters"].append(
                     [
@@ -628,7 +640,7 @@ class AddonsResponseBase:
         This response is only enabled for external versions,
         we do the comparison between the current version and the latest version.
         """
-        if not version.is_external:
+        if not version.is_external and not settings.RTD_FILETREEDIFF_ALL:
             return None
 
         if not project.addons.filetreediff_enabled:
@@ -646,64 +658,45 @@ class AddonsResponseBase:
         if not diff:
             return None
 
+        def _filter_diff_files(files):
+            # Filter out all the files that match the ignored patterns
+            ignore_patterns = project.addons.filetreediff_ignored_files or []
+            files = [
+                filename
+                for filename in files
+                if not any(
+                    fnmatch.fnmatch(filename, ignore_pattern)
+                    for ignore_pattern in ignore_patterns
+                )
+            ]
+
+            result = []
+            for filename in files:
+                result.append(
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                )
+            return result
+
         return {
-            "enabled": True,
             "outdated": diff.outdated,
             "diff": {
-                "added": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.added
-                ],
-                "deleted": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.deleted
-                ],
-                "modified": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.modified
-                ],
+                "added": _filter_diff_files(diff.added),
+                "deleted": _filter_diff_files(diff.deleted),
+                "modified": _filter_diff_files(diff.modified),
             },
         }
 

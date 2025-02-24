@@ -7,13 +7,11 @@ from shlex import quote
 from urllib.parse import urlparse
 
 import structlog
-from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -30,6 +28,7 @@ from readthedocs.builds.constants import (
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE,
+    STABLE_VERBOSE_NAME,
 )
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
@@ -47,7 +46,6 @@ from readthedocs.projects.querysets import (
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_build_config_file,
     validate_custom_prefix,
@@ -63,6 +61,7 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
+    ADDONS_FLYOUT_POSITION_CHOICES,
     ADDONS_FLYOUT_SORTING_CHOICES,
     ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
     DOWNLOADABLE_MEDIA_TYPES,
@@ -175,6 +174,7 @@ class AddonsConfig(TimeStampedModel):
         "builds.Version",
         verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
     )
 
@@ -194,9 +194,17 @@ class AddonsConfig(TimeStampedModel):
 
     # File Tree Diff
     filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
+    filetreediff_ignored_files = models.JSONField(
+        help_text=_("List of ignored files. One per line."),
+        null=True,
+        blank=True,
+    )
 
     # Flyout
-    flyout_enabled = models.BooleanField(default=True)
+    flyout_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_("Enabled"),
+    )
     flyout_sorting = models.CharField(
         verbose_name=_("Sorting of versions"),
         choices=ADDONS_FLYOUT_SORTING_CHOICES,
@@ -217,6 +225,15 @@ class AddonsConfig(TimeStampedModel):
             "Show <code>latest</code> and <code>stable</code> at the beginning"
         ),
         default=True,
+    )
+
+    flyout_position = models.CharField(
+        choices=ADDONS_FLYOUT_POSITION_CHOICES,
+        max_length=64,
+        default=None,  # ``None`` means use the default (theme override if present or Read the Docs default)
+        null=True,
+        blank=True,
+        verbose_name=_("Position"),
     )
 
     # Hotkeys
@@ -632,6 +649,12 @@ class Project(models.Model):
         if self.remote_repository and not self.remote_repository.private:
             self.external_builds_privacy_level = PUBLIC
 
+        # If the project is linked to a remote repository,
+        # make sure to use the clone URL from the repository.
+        dont_sync = self.pk and self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO)
+        if self.remote_repository and not dont_sync:
+            self.repo = self.remote_repository.clone_url
+
         super().save(*args, **kwargs)
 
         try:
@@ -647,7 +670,9 @@ class Project(models.Model):
         log.debug(
             "Updating default branch.", slug=LATEST, identifier=self.default_branch
         )
-        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
+        self.versions.filter(slug=LATEST, machine=True).update(
+            identifier=self.default_branch
+        )
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -1004,28 +1029,50 @@ class Project(models.Model):
         """
         return backend_cls.get(self.repo_type)
 
-    def git_service_class(self):
-        """Get the service class for project. e.g: GitHubService, GitLabService."""
+    def _guess_service_class(self):
         from readthedocs.oauth.services import registry
 
         for service_cls in registry:
             if service_cls.is_project_service(self):
-                service = service_cls
-                break
-        else:
-            log.warning("There are no registered services in the application.")
-            service = None
+                return service_cls
+        return None
 
-        return service
+    def get_git_service_class(self, fallback_to_clone_url=False):
+        """
+        Get the service class for project. e.g: GitHubService, GitLabService.
+
+        :param fallback_to_clone_url: If the project doesn't have a remote repository,
+         we try to guess the service class based on the clone URL.
+        """
+        service_cls = None
+        if self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
+            return self._guess_service_class()
+        service_cls = (
+            self.remote_repository and self.remote_repository.get_service_class()
+        )
+        if not service_cls and fallback_to_clone_url:
+            return self._guess_service_class()
+        return service_cls
 
     @property
-    def git_provider_name(self):
-        """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
-        service = self.git_service_class()
-        if service:
-            provider_class = allauth_registry.get_class(service.adapter.provider_id)
-            return provider_class.name
-        return None
+    def is_github_project(self):
+        from readthedocs.oauth.services import GitHubService
+
+        return self.get_git_service_class(fallback_to_clone_url=True) == GitHubService
+
+    @property
+    def is_gitlab_project(self):
+        from readthedocs.oauth.services import GitLabService
+
+        return self.get_git_service_class(fallback_to_clone_url=True) == GitLabService
+
+    @property
+    def is_bitbucket_project(self):
+        from readthedocs.oauth.services import BitbucketService
+
+        return (
+            self.get_git_service_class(fallback_to_clone_url=True) == BitbucketService
+        )
 
     def find(self, filename, version):
         """
@@ -1078,43 +1125,6 @@ class Project(models.Model):
         return versions.filter(built=True, active=True) | versions.filter(
             active=True, uploaded=True
         )
-
-    def ordered_active_versions(self, **kwargs):
-        """
-        Get all active versions, sorted.
-
-        :param kwargs: All kwargs are passed down to the
-                       `Version.internal.public` queryset.
-        """
-        from readthedocs.builds.models import Version
-
-        kwargs.update(
-            {
-                "project": self,
-                "only_active": True,
-                "only_built": True,
-            },
-        )
-        versions = (
-            Version.internal.public(**kwargs)
-            .select_related(
-                "project",
-                "project__main_language_project",
-            )
-            .prefetch_related(
-                Prefetch(
-                    "project__superprojects",
-                    ProjectRelationship.objects.all().select_related("parent"),
-                    to_attr="_superprojects",
-                ),
-                Prefetch(
-                    "project__domains",
-                    Domain.objects.filter(canonical=True),
-                    to_attr="_canonical_domains",
-                ),
-            )
-        )
-        return sort_version_aware(versions)
 
     def all_active_versions(self):
         """
@@ -1218,6 +1228,7 @@ class Project(models.Model):
                 version_updated = (
                     new_stable.identifier != current_stable.identifier
                     or new_stable.type != current_stable.type
+                    or current_stable.verbose_name != STABLE_VERBOSE_NAME
                 )
                 if version_updated:
                     log.info(
@@ -1227,6 +1238,7 @@ class Project(models.Model):
                         version_type=new_stable.type,
                     )
                     current_stable.identifier = new_stable.identifier
+                    current_stable.verbose_name = STABLE_VERBOSE_NAME
                     current_stable.type = new_stable.type
                     current_stable.save()
                     return new_stable
@@ -1502,6 +1514,7 @@ class ImportedFile(models.Model):
     things like CDN invalidation.
     """
 
+    id = models.BigAutoField(primary_key=True)
     project = models.ForeignKey(
         Project,
         verbose_name=_("Project"),
@@ -1917,12 +1930,13 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     API_LARGE_DATA = "api_large_data"
-    CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
+    DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
+    ALLOW_CHANGING_VERSION_SLUG = "allow_changing_version_slug"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1949,10 +1963,6 @@ class Feature(models.Model):
             _("Build: Try alternative method of posting large data"),
         ),
         (
-            CONDA_APPEND_CORE_REQUIREMENTS,
-            _("Conda: Append Read the Docs core requirements to environment.yml file"),
-        ),
-        (
             RECORD_404_PAGE_VIEWS,
             _("Proxito: Record 404s page views."),
         ),
@@ -1973,6 +1983,14 @@ class Feature(models.Model):
         (
             ALLOW_VERSION_WARNING_BANNER,
             _("Dashboard: Allow project to use the version warning banner."),
+        ),
+        (
+            DONT_SYNC_WITH_REMOTE_REPO,
+            _("Remote repository: Don't keep project in sync with remote repository."),
+        ),
+        (
+            ALLOW_CHANGING_VERSION_SLUG,
+            _("Dashboard: Allow changing the version slug."),
         ),
         # Versions sync related features
         (

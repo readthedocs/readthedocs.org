@@ -1,6 +1,5 @@
-
-Docusarus
-=========
+Docusaurus
+==========
 
 .. meta::
    :description lang=en: Hosting Docusaurus sites on Read the Docs.
@@ -8,7 +7,7 @@ Docusarus
 `Docusaurus`_ is a static-site generator that builds a single-page application with fast client-side navigation and out-of-the-box documentation features.
 
 Minimal configuration required to build a Docusaurus project on Read the Docs looks like this,
-specifying a nodejs toolchain on Ubuntu, using multiple :ref:`build <config-file/v2:build>` commands to install the requirements,
+specifying a Node.js toolchain on Ubuntu, using multiple :ref:`build <config-file/v2:build>` jobs to install the requirements,
 build the site, and copy the output to $READTHEDOCS_OUTPUT:
 
 .. code-block:: yaml
@@ -16,21 +15,23 @@ build the site, and copy the output to $READTHEDOCS_OUTPUT:
 
     version: 2
     build:
-    os: "ubuntu-22.04"
-    tools:
+      os: "ubuntu-22.04"
+      tools:
         nodejs: "18"
-    commands:
+      jobs:
         # "docs/" was created following the Docusaurus tutorial:
         # npx create-docusaurus@latest docs classic
         # but you can just use your existing Docusaurus site
-        #
-        # Install Docusaurus dependencies
-        - cd docs/ && npm install
-        # Build the site
-        - cd docs/ && npm run build
-        # Copy generated files into Read the Docs directory
-        - mkdir --parents $READTHEDOCS_OUTPUT/html/
-        - cp --recursive docs/build/* $READTHEDOCS_OUTPUT/html/
+        install:
+          # Install Docusaurus dependencies
+          - cd docs/ && npm install
+        build:
+          html:
+            # Build the site
+            - cd docs/ && npm run build
+            # Copy generated files into Read the Docs directory
+            - mkdir --parents $READTHEDOCS_OUTPUT/html/
+            - cp --recursive docs/build/* $READTHEDOCS_OUTPUT/html/
 
 .. _Docusaurus: https://docusaurus.io/
 
@@ -41,22 +42,20 @@ Limitations
    :header: "Feature", "Description", "Supported"
 
    "Search", "Provides full-text search capabilities.", "Not supported"
-   "Files changed", "Ability to see what HTML files changes in pull request previews", "Not supported"
-
+   "Files changed", "Ability to see what HTML files change in pull request previews.", "Not supported"
 
 Quick start
 -----------
 
 - If you have an existing Docusaurus project you want to host on Read the Docs, check out our :doc:`/intro/add-project` guide.
-
 - If you're new to Docusaurus, check out the official `Fast Track`_ guide.
 
 .. _Fast Track: https://docusaurus.io/docs#fast-track
 
-Configuring Docusaurus and Read the Docs addons
+Configuring Docusaurus and Read the Docs Addons
 -----------------------------------------------
 
-For optimal integration with Read the Docs, make the optional following configuration changes to your Docusaurus config.
+For optimal integration with Read the Docs, make the following optional configuration changes to your Docusaurus config.
 
 .. contents::
    :depth: 1
@@ -69,7 +68,7 @@ Set the canonical URL
 A :doc:`canonical URL </canonical-urls>` allows you to specify the preferred version of a web page
 to prevent duplicated content.
 
-Set your Docusaurus `url`_  to your Read the Docs canonical URL using `dotenv <https://www.npmjs.com/package/dotenv>`__ and a
+Set your Docusaurus `url`_ to your Read the Docs canonical URL using `dotenv <https://www.npmjs.com/package/dotenv>`__ and a
 :doc:`Read the Docs environment variable </reference/environment-variables>`:
 
 .. code-block:: js

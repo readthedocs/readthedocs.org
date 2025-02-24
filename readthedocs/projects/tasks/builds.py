@@ -593,7 +593,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 continue
 
             if not os.path.isdir(artifact_directory):
-                log.error(
+                log.debug(
                     "The output path is not a directory.",
                     output_format=artifact_type,
                 )
@@ -611,7 +611,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 list_dir = os.listdir(artifact_directory)
                 artifact_format_files = len(list_dir)
                 if artifact_format_files > 1:
-                    log.error(
+                    log.debug(
                         "Multiple files are not supported for this format. "
                         "Skipping this output format.",
                         output_format=artifact_type,
@@ -675,6 +675,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Index search data
         index_build.delay(build_id=self.data.build["id"])
+
+        # Check if the project is spam
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.tasks import (  # noqa
+                spam_check_after_build_complete,
+            )
+
+            spam_check_after_build_complete.delay(build_id=self.data.build["id"])
 
         if not self.data.project.has_valid_clone:
             self.set_valid_clone()
@@ -744,7 +752,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(build_state)
         self.save_build_data()
 
-        build_complete.send(sender=Build, build=self.data.build)
+        # Be defensive with the signal, so if a listener fails we still clean up
+        try:
+            build_complete.send(sender=Build, build=self.data.build)
+        except Exception:
+            log.exception("Error during build_complete", exc_info=True)
 
         if self.data.version:
             clean_build(self.data.version)

@@ -4,7 +4,7 @@ import json
 import re
 
 import structlog
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
@@ -15,26 +15,28 @@ from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service, SyncServiceError
+from .base import SyncServiceError, UserService
 
 log = structlog.get_logger(__name__)
 
 
-class GitHubService(Service):
+class GitHubService(UserService):
 
     """Provider service for GitHub."""
 
-    adapter = GitHubOAuth2Adapter
+    vcs_provider_slug = GITHUB
+    allauth_provider = GitHubProvider
+    base_api_url = "https://api.github.com"
     # TODO replace this with a less naive check
     url_pattern = re.compile(r"github\.com")
-    vcs_provider_slug = GITHUB
+    supports_build_status = True
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
         remote_repositories = []
 
         try:
-            repos = self.paginate("https://api.github.com/user/repos", per_page=100)
+            repos = self.paginate(f"{self.base_api_url}/user/repos", per_page=100)
             for repo in repos:
                 remote_repository = self.create_repository(repo)
                 remote_repositories.append(remote_repository)
@@ -53,9 +55,9 @@ class GitHubService(Service):
         remote_repositories = []
 
         try:
-            orgs = self.paginate("https://api.github.com/user/orgs", per_page=100)
+            orgs = self.paginate(f"{self.base_api_url}/user/orgs", per_page=100)
             for org in orgs:
-                org_details = self.get_session().get(org["url"]).json()
+                org_details = self.session.get(org["url"]).json()
                 remote_organization = self.create_organization(
                     org_details,
                     create_user_relationship=True,
@@ -75,7 +77,7 @@ class GitHubService(Service):
             log.warning("Error syncing GitHub organizations")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.vcs_provider_slug
+                    provider=self.allauth_provider.name
                 )
             )
 
@@ -239,9 +241,8 @@ class GitHubService(Service):
         if integration.provider_data:
             return integration.provider_data
 
-        session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/repos/{owner}/{repo}/hooks"
         log.bind(
             url=url,
             project_slug=project.slug,
@@ -251,7 +252,7 @@ class GitHubService(Service):
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
         try:
-            resp = session.get(url)
+            resp = self.session.get(url)
             if resp.status_code == 200:
                 recv_data = resp.json()
 
@@ -286,7 +287,6 @@ class GitHubService(Service):
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
-        session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
         if not integration:
@@ -296,7 +296,7 @@ class GitHubService(Service):
             )
 
         data = self.get_webhook_data(project, integration)
-        url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/repos/{owner}/{repo}/hooks"
         log.bind(
             url=url,
             project_slug=project.slug,
@@ -304,7 +304,7 @@ class GitHubService(Service):
         )
         resp = None
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -351,7 +351,6 @@ class GitHubService(Service):
         :returns: boolean based on webhook update success, and requests Response object
         :rtype: (Bool, Response)
         """
-        session = self.get_session()
         data = self.get_webhook_data(project, integration)
         resp = None
 
@@ -368,7 +367,7 @@ class GitHubService(Service):
 
         try:
             url = provider_data.get("url")
-            resp = session.patch(
+            resp = self.session.patch(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -407,7 +406,7 @@ class GitHubService(Service):
 
         return (False, resp)
 
-    def send_build_status(self, build, commit, status):
+    def send_build_status(self, *, build, commit, status):
         """
         Create GitHub commit status for project.
 
@@ -420,14 +419,13 @@ class GitHubService(Service):
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
-        session = self.get_session()
         project = build.project
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
         # select the correct status and description.
         github_build_status = SELECT_BUILD_STATUS[status]["github"]
         description = SELECT_BUILD_STATUS[status]["description"]
-        statuses_url = f"https://api.github.com/repos/{owner}/{repo}/statuses/{commit}"
+        statuses_url = f"{self.base_api_url}/repos/{owner}/{repo}/statuses/{commit}"
 
         if status == BUILD_STATUS_SUCCESS:
             # Link to the documentation for this version
@@ -455,7 +453,7 @@ class GitHubService(Service):
         )
         resp = None
         try:
-            resp = session.post(
+            resp = self.session.post(
                 statuses_url,
                 data=json.dumps(data),
                 headers={"content-type": "application/json"},

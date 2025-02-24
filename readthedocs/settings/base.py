@@ -2,19 +2,17 @@
 
 import os
 import re
-import subprocess
 import socket
+import subprocess
 
 import structlog
-
 from celery.schedules import crontab
-
-from readthedocs.core.logs import shared_processors
 from corsheaders.defaults import default_headers
-from readthedocs.core.settings import Settings
-from readthedocs.builds import constants_docker
-
 from django.conf.global_settings import PASSWORD_HASHERS
+
+from readthedocs.builds import constants_docker
+from readthedocs.core.logs import shared_processors
+from readthedocs.core.settings import Settings
 
 try:
     import readthedocsext.cdn  # noqa
@@ -36,7 +34,6 @@ log = structlog.get_logger(__name__)
 
 
 class CommunityBaseSettings(Settings):
-
     """Community base settings, don't use this directly."""
 
     # Django settings
@@ -52,6 +49,9 @@ class CommunityBaseSettings(Settings):
     # Debug settings
     DEBUG = True
     RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
+
+    # Build FTD index for all versions
+    RTD_FILETREEDIFF_ALL = False
 
     @property
     def DEBUG_TOOLBAR_CONFIG(self):
@@ -73,7 +73,7 @@ class CommunityBaseSettings(Settings):
                 # It's a "known issue/bug" and there is no solution as far as we can tell.
                 "debug_toolbar.panels.sql.SQLPanel",
                 "debug_toolbar.panels.templates.TemplatesPanel",
-            ]
+            ],
         }
 
     @property
@@ -101,7 +101,9 @@ class CommunityBaseSettings(Settings):
     def SWITCH_PRODUCTION_DOMAIN(self):
         if self.RTD_EXT_THEME_ENABLED:
             return self.PRODUCTION_DOMAIN.removeprefix("app.")
-        return f"app.{self.PRODUCTION_DOMAIN}"
+        if not self.PRODUCTION_DOMAIN.startswith("app."):
+            return f"app.{self.PRODUCTION_DOMAIN}"
+        return self.PRODUCTION_DOMAIN
 
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
@@ -141,6 +143,7 @@ class CommunityBaseSettings(Settings):
     CSP_REPORT_URI = None
     CSP_REPORT_ONLY = False
     CSP_EXCLUDE_URL_PREFIXES = ("/admin/",)
+    RTD_CSP_UPDATE_HEADERS = {}
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -297,6 +300,11 @@ class CommunityBaseSettings(Settings):
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "allauth.mfa",
+            # Others
+            # NOTE: impersonate functionality is only enabled when ALLOW_ADMIN is True,
+            # but we still need to include it even when not enabled, since it has objects
+            # related to the user model that Django needs to know about when deleting users.
+            "impersonate",
             "cacheops",
         ]
         if ext:
@@ -342,12 +350,15 @@ class CommunityBaseSettings(Settings):
             "allauth.account.middleware.AccountMiddleware",
             "dj_pagination.middleware.PaginationMiddleware",
             "csp.middleware.CSPMiddleware",
+            "readthedocs.core.middleware.UpdateCSPMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
             "django_structlog.middlewares.CeleryMiddleware",
         ]
         if self.SHOW_DEBUG_TOOLBAR:
             middlewares.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+        if self.ALLOW_ADMIN:
+            middlewares.append("impersonate.middleware.ImpersonateMiddleware")
         return middlewares
 
     AUTHENTICATION_BACKENDS = (
@@ -672,6 +683,7 @@ class CommunityBaseSettings(Settings):
 
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
+    SOCIALACCOUNT_ADAPTER = 'readthedocs.core.adapters.SocialAccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
     # By preventing enumeration, we will always send an email,
     # even if the email is not registered, that's hurting
@@ -694,7 +706,6 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
-            "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "user:email",
                 "read:org",
@@ -706,6 +717,7 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
+            # GitLab returns the primary email only, we can trust it's verified.
             "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "api",
@@ -829,6 +841,12 @@ class CommunityBaseSettings(Settings):
     ABSOLUTE_URL_OVERRIDES = {"auth.user": lambda o: "/profiles/{}/".format(o.username)}
 
     INTERNAL_IPS = ("127.0.0.1",)
+
+    # django-impersonate.
+    IMPERSONATE = {
+        # By default, only staff users can impersonate.
+        "REQUIRE_SUPERUSER": True,
+    }
 
     # Taggit
     # https://django-taggit.readthedocs.io
