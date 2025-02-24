@@ -17,7 +17,7 @@ log = structlog.get_logger(__name__)
 
 def _build_version(project, version):
     """
-    Where we actually trigger builds for a project and slug.
+    Where we actually trigger builds for a project and version.
 
     All webhook logic should route here to call ``trigger_build``.
     """
@@ -29,7 +29,7 @@ def _build_version(project, version):
     # some users may have relied on this to update the version list #4450
     if version.active:
         log.info(
-            "Building.",
+            "Triggering build.",
             project_slug=project.slug,
             version_slug=version.slug,
         )
