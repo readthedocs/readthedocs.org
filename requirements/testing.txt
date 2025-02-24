@@ -30,11 +30,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.22
+boto3==1.36.26
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.22
+botocore==1.36.26
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -303,13 +303,13 @@ prompt-toolkit==3.0.50
     # via
     #   -r requirements/pip.txt
     #   click-repl
-psycopg[binary,pool]==3.2.4
+psycopg[binary,pool]==3.2.5
     # via -r requirements/pip.txt
-psycopg-binary==3.2.4
+psycopg-binary==3.2.5
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.2.4
+psycopg-pool==3.2.5
     # via
     #   -r requirements/pip.txt
     #   psycopg
