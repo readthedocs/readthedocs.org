@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy
 
     dependencies = [
-        ('projects', '0146_addons_filetreediff_ignored_files'),
+        ('projects', '0147_addons_filetreediff_enabled_by_default'),
     ]
 
     operations = [
