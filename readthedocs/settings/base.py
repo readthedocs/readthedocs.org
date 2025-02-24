@@ -297,6 +297,7 @@ class CommunityBaseSettings(Settings):
             "allauth.account",
             "allauth.socialaccount",
             "allauth.socialaccount.providers.github",
+            "readthedocs.allauth.providers.githubapp",
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "allauth.mfa",
@@ -712,6 +713,13 @@ class CommunityBaseSettings(Settings):
                 "admin:repo_hook",
                 "repo:status",
             ],
+        },
+        "githubapp": {
+            "APPS": [
+                {"client_id": "123", "secret": "456", "key": ""},
+            ],
+            # Scope is determined by the GitHub App permissions.
+            "SCOPE": [],
         },
         "gitlab": {
             "APPS": [
