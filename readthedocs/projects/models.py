@@ -194,7 +194,7 @@ class AddonsConfig(TimeStampedModel):
     ethicalads_enabled = models.BooleanField(default=True)
 
     # File Tree Diff
-    filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
+    filetreediff_enabled = models.BooleanField(default=True)
     filetreediff_ignored_files = models.JSONField(
         help_text=_("List of ignored files. One per line."),
         null=True,

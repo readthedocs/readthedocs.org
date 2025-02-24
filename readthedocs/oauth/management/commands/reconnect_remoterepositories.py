@@ -1,13 +1,13 @@
 import json
 
-from django.db.models import Q, Subquery
 from django.core.management.base import BaseCommand
+from django.db.models import Q, Subquery
 
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
-from readthedocs.projects.models import Project
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import Project
 
 
 class Command(BaseCommand):
@@ -44,7 +44,9 @@ class Command(BaseCommand):
                 try:
                     service_cls.sync_user_access(owner)
                 except SyncServiceError:
-                    print(f"Service {service_cls.allauth_provider.name} failed while syncing. Skipping...")
+                    print(
+                        f"Service {service_cls.allauth_provider.name} failed while syncing. Skipping..."
+                    )
 
     def _connect_repositories(self, organization, no_dry_run, only_owners):
         connected_projects = []

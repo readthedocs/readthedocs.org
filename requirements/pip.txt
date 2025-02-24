@@ -17,9 +17,9 @@ async-timeout==5.0.1
     # via redis
 billiard==4.2.1
     # via celery
-boto3==1.36.22
+boto3==1.36.26
     # via django-storages
-botocore==1.36.22
+botocore==1.36.26
     # via
     #   boto3
     #   s3transfer
@@ -222,11 +222,11 @@ platformdirs==4.3.6
     # via virtualenv
 prompt-toolkit==3.0.50
     # via click-repl
-psycopg[binary,pool]==3.2.4
+psycopg[binary,pool]==3.2.5
     # via -r requirements/pip.in
-psycopg-binary==3.2.4
+psycopg-binary==3.2.5
     # via psycopg
-psycopg-pool==3.2.4
+psycopg-pool==3.2.5
     # via psycopg
 pycparser==2.22
     # via cffi
@@ -326,7 +326,6 @@ typing-extensions==4.12.2
     #   pygithub
 tzdata==2025.1
     # via
-    #   -r requirements/pip.in
     #   celery
     #   django-celery-beat
     #   kombu

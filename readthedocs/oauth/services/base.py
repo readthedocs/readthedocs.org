@@ -49,7 +49,7 @@ class Service:
 
     @classmethod
     def sync_user_access(cls, user):
-        """Sync the user's access to the provider repositories and organizations."""
+        """Sync the user's access to the provider's repositories and organizations."""
         raise NotImplementedError
 
     def sync(self):
@@ -165,6 +165,8 @@ class UserService(Service):
         Since UserService makes use of the user's OAuth token,
         we can just sync the user's repositories in order to
         update the user access to repositories and organizations.
+
+        :raises SyncServiceError: if the access token is invalid or revoked
         """
         for service in cls.for_user(user):
             service.sync()
