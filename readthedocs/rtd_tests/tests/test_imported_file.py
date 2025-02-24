@@ -351,12 +351,10 @@ class ImportedFileTests(TestCase):
     @mock.patch("readthedocs.projects.tasks.search.write_manifest")
     def test_create_file_tree_manifest(self, write_manifest):
         assert self.version.slug == LATEST
-        index_build(self.build.pk)
-        # File Tree Diff is not enabled by default
-        write_manifest.assert_not_called()
 
-        self.project.addons.filetreediff_enabled = True
-        self.project.addons.save()
+        # File Tree Diff is enabled by default
+        assert self.project.addons.filetreediff_enabled
+
         index_build(self.build.pk)
         manifest = FileTreeDiffManifest(
             build_id=self.build.pk,
