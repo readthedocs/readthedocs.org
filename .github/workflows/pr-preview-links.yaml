@@ -16,7 +16,7 @@ jobs:
       - uses: readthedocs/actions/preview@v1
         with:
           project-slug: "docs"
-          single-language: true
+          single-language: "true"
           message-template: |
             ---
             :books: Documentation previews :books:
@@ -26,6 +26,6 @@ jobs:
       - uses: readthedocs/actions/preview@v1
         with:
           project-slug: "dev"
-          single-language: true
+          single-language: "true"
           message-template: |
             - Developer's documentation (\`dev\`): {docs-pr-index-url}
