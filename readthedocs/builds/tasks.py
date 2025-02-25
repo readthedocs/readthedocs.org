@@ -416,9 +416,9 @@ def send_build_status(build_pk, commit, status):
 
     for service in service_class.for_project(build.project):
         success = service.send_build_status(
-            build,
-            commit,
-            status,
+            build=build,
+            commit=commit,
+            status=status,
         )
         if success:
             log.debug("Build status report sent correctly.")

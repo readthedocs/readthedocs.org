@@ -40,13 +40,18 @@ class Service:
     supports_build_status = False
 
     @classmethod
-    def for_project(self, project):
+    def for_project(cls, project):
         """Return an iterator of services that can be used for the project."""
         raise NotImplementedError
 
     @classmethod
-    def for_user(self, user):
+    def for_user(cls, user):
         """Return an iterator of services that belong to the user."""
+        raise NotImplementedError
+
+    @classmethod
+    def sync_user_access(cls, user):
+        """Sync the user's access to the provider's repositories and organizations."""
         raise NotImplementedError
 
     def sync(self):
@@ -86,7 +91,7 @@ class Service:
         """
         raise NotImplementedError
 
-    def send_build_status(self, build, commit, status):
+    def send_build_status(self, *, build, commit, status):
         """
         Create commit status for project.
 
@@ -150,6 +155,20 @@ class UserService(Service):
         )
         for account in accounts:
             yield cls(user=user, account=account)
+
+    @classmethod
+    def sync_user_access(cls, user):
+        """
+        Sync the user's access to the provider repositories and organizations.
+
+        Since UserService makes use of the user's OAuth token,
+        we can just sync the user's repositories in order to
+        update the user access to repositories and organizations.
+
+        :raises SyncServiceError: if the access token is invalid or revoked
+        """
+        for service in cls.for_user(user):
+            service.sync()
 
     @cached_property
     def session(self):

@@ -143,6 +143,7 @@ class CommunityBaseSettings(Settings):
     CSP_REPORT_URI = None
     CSP_REPORT_ONLY = False
     CSP_EXCLUDE_URL_PREFIXES = ("/admin/",)
+    RTD_CSP_UPDATE_HEADERS = {}
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -349,6 +350,7 @@ class CommunityBaseSettings(Settings):
             "allauth.account.middleware.AccountMiddleware",
             "dj_pagination.middleware.PaginationMiddleware",
             "csp.middleware.CSPMiddleware",
+            "readthedocs.core.middleware.UpdateCSPMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
             "django_structlog.middlewares.CeleryMiddleware",

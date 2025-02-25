@@ -1,3 +1,24 @@
+Version 12.0.0
+--------------
+
+:Date: February 25, 2025
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix mkdocs link (`#12019 <https://github.com/readthedocs/readthedocs.org/pull/12019>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12017 <https://github.com/readthedocs/readthedocs.org/pull/12017>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git service: add method to sync user access to remote repositories (`#12016 <https://github.com/readthedocs/readthedocs.org/pull/12016>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: add flag to allow SAML with old dashboard (`#12013 <https://github.com/readthedocs/readthedocs.org/pull/12013>`__)
+* `@humitos <https://github.com/humitos>`__: File Tree Diff: small documentation to mention the file selector (`#12011 <https://github.com/readthedocs/readthedocs.org/pull/12011>`__)
+* `@humitos <https://github.com/humitos>`__: File Tree Diff: enabled by default (`#12010 <https://github.com/readthedocs/readthedocs.org/pull/12010>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: don't depend on the brand name (`#12008 <https://github.com/readthedocs/readthedocs.org/pull/12008>`__)
+* `@stsewd <https://github.com/stsewd>`__: Service: kwargs only when sending build statuses (`#12007 <https://github.com/readthedocs/readthedocs.org/pull/12007>`__)
+* `@stsewd <https://github.com/stsewd>`__: CSP: add helper middleware (`#12004 <https://github.com/readthedocs/readthedocs.org/pull/12004>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Increase docker memory limit (`#12003 <https://github.com/readthedocs/readthedocs.org/pull/12003>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade to Ubuntu 24.04 for our application (`#12002 <https://github.com/readthedocs/readthedocs.org/pull/12002>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.21.1 (`#12001 <https://github.com/readthedocs/readthedocs.org/pull/12001>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git service: attach each service to an allauth provider (`#11995 <https://github.com/readthedocs/readthedocs.org/pull/11995>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Hosting: Don't check for superprojects on subprojects (`#11683 <https://github.com/readthedocs/readthedocs.org/pull/11683>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove indexes that aren't used and that are large (`#11623 <https://github.com/readthedocs/readthedocs.org/pull/11623>`__)
+
 Version 11.21.1
 ---------------
 

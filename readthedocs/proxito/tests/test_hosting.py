@@ -863,6 +863,22 @@ class TestReadTheDocsConfigJson(TestCase):
             )
         assert r.status_code == 200
 
+        # Test parent project has fewer queries
+        with self.assertNumQueries(21):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project.dev.readthedocs.io/en/latest/",
+                    "client-version": "0.6.0",
+                    "api-version": "1.0.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+        assert r.status_code == 200
+
     def test_number_of_queries_url_translations(self):
         # Create multiple translations to be shown in the flyout
         for language in ["ja", "es", "ru", "pt-br"]:
