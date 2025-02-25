@@ -146,10 +146,11 @@ class GitHubAppWebhookView(APIView):
         installation_id = gh_installation["id"]
 
         if action == "created":
-            _, created = self._get_or_create_installation()
-            if not created:
-                log.info("Installation already exists")
-            return
+            installation, created = self._get_or_create_installation()
+            # If the installation was just created, we already synced the repositories.
+            if created:
+                return
+            installation.service.sync()
 
         if action == "deleted":
             # NOTE: When an installation is deleted, this doesn't trigger an installation_repositories event.
@@ -275,6 +276,8 @@ class GitHubAppWebhookView(APIView):
            (maybe a bug?).
 
         When this happens, we re-sync all the repositories, so they use the new name.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#installation_target.
         """
         installation, created = self._get_or_create_installation()
 
@@ -301,7 +304,7 @@ class GitHubAppWebhookView(APIView):
         if created:
             return
 
-        if action in ("edited", "privatized", "publicized", "renamed", "trasferred"):
+        if action in ("edited", "privatized", "publicized", "renamed", "transferred"):
             installation.service.update_or_create_repositories(
                 [data["repository"]["id"]]
             )
@@ -406,7 +409,7 @@ class GitHubAppWebhookView(APIView):
         Triggered when an member is added or removed from an organization,
         or when the organization is renamed or deleted.
 
-        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#organization
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#organization.
         """
         data = self.request.data
         action = data["action"]
@@ -450,7 +453,7 @@ class GitHubAppWebhookView(APIView):
 
         Triggered when a user is added or removed from a repository.
 
-        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#member
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#member.
         """
         data = self.request.data
         action = data["action"]
@@ -466,6 +469,7 @@ class GitHubAppWebhookView(APIView):
             installation.service.update_or_create_repositories(
                 [data["repository"]["id"]]
             )
+            return
 
         # NOTE: this should never happen.
         raise ValidationError(f"Unsupported action: {action}")
@@ -506,7 +510,7 @@ class GitHubAppWebhookView(APIView):
         data = self.request.data
         remote_id = data["repository"]["id"]
         installation, _ = self._get_or_create_installation()
-        return installation.repositories.filter(remote_id=remote_id).first()
+        return installation.repositories.filter(remote_id=str(remote_id)).first()
 
     def _get_or_create_installation(self, sync_repositories_on_create: bool = True):
         """

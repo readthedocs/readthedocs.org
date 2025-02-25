@@ -37,6 +37,8 @@ class CommunityTestSettings(CommunityBaseSettings):
         }
     }
 
+    GITHUB_APP_WEBHOOK_SECRET = "secret"
+
     @property
     def PASSWORD_HASHERS(self):
         # Speed up tests by using a fast password hasher as the default.
