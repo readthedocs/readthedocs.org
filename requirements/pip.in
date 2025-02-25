@@ -50,40 +50,8 @@ dnspython
 # Used for Redis cache Django backend (`django.core.cache.backends.redis.RedisCache`)
 redis
 
-# NOTE: we have to pin to this version because Celery>=5.3.x detects our ``ConfigError`` exception is not picklable
-# and creates a ``UnpickleableExceptionWrapper`` which is not what our code expects.
-# This may be due to a Python bug which can't pickle/unpickle the exception properly.
-# We could consider either:
-#  - handle ``UnpickleableExceptionWrapper`` in our code and inspect what's the inner exception
-#  - find a way to disable pickling the exceptions
-#  - make our custom exception picklable
-#
-# References:
-#  - https://github.com/celery/celery/pull/8149
-#  - https://github.com/celery/celery/blob/2b4b500ca1212016824a5fa2996cfb752f0763a7/celery/utils/serialization.py#L154
-#  - https://github.com/python/cpython/issues/76877
-#
-# Reproducible example:
-# >>> import pickle
-# >>> class MyException(Exception):
-# ...   def __init__(self, a, b):
-# ...     self.a = a
-# ...     self.b = b
-# ...     super().__init__(a)
-# ...
-# >>> pickle.loads(pickle.dumps(MyException("a", "b")))
-# Traceback (most recent call last):
-#   File "<stdin>", line 1, in <module>
-# TypeError: MyException.__init__() missing 1 required positional argument: 'b'
-# >>>
-celery==5.2.7
+celery
 django-celery-beat
-
-# Docker images need a dependency explicity marked for tzdata in order to have
-# necessary timezone data.
-# https://github.com/readthedocs/readthedocs.org/issues/10453
-# TODO: remove this dependency once we upgrade Celery. It should auto-install it.
-tzdata
 
 django-allauth[socialaccount,saml,mfa]
 

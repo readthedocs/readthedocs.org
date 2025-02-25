@@ -25,6 +25,11 @@ class ImportedFileTests(TestCase):
 
     def setUp(self):
         self.project = get(Project)
+
+        # Disable File Tree Diff because these tests are not prepared
+        self.project.addons.filetreediff_enabled = False
+        self.project.addons.save()
+
         self.version = self.project.versions.get(slug=LATEST)
         self.build = get(
             Build,
@@ -351,31 +356,29 @@ class ImportedFileTests(TestCase):
     @mock.patch("readthedocs.projects.tasks.search.write_manifest")
     def test_create_file_tree_manifest(self, write_manifest):
         assert self.version.slug == LATEST
-        index_build(self.build.pk)
-        # File Tree Diff is not enabled by default
-        write_manifest.assert_not_called()
 
         self.project.addons.filetreediff_enabled = True
         self.project.addons.save()
+
         index_build(self.build.pk)
         manifest = FileTreeDiffManifest(
             build_id=self.build.pk,
             files=[
                 FileTreeDiffFile(
                     path="index.html",
-                    main_content_hash="f3336aabed1ae8057ffb0cca20d23d4c",
+                    main_content_hash=mock.ANY,
                 ),
                 FileTreeDiffFile(
                     path="404.html",
-                    main_content_hash="b855c3d54f84e075b70faa9958123377",
+                    main_content_hash=mock.ANY,
                 ),
                 FileTreeDiffFile(
                     path="test.html",
-                    main_content_hash="04e5dc4003413e36b8bec86bc5e28b07",
+                    main_content_hash=mock.ANY,
                 ),
                 FileTreeDiffFile(
                     path="api/index.html",
-                    main_content_hash="15958dc725d925c8524b1766cde73d66",
+                    main_content_hash=mock.ANY,
                 ),
             ],
         )

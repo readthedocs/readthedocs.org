@@ -7,7 +7,7 @@ orbs:
 jobs:
   tests:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: 'cimg/python:3.12'
         environment:
           # Don't skip search tests.
           TOX_POSARGS: ''
@@ -27,12 +27,12 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install -y rclone
       - run: pip install --user tox
-      - run: tox -e py310
+      - run: tox -e py312
       - codecov/upload
 
   tests-ext-theme:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: 'cimg/python:3.12'
         environment:
           # Don't skip search tests.
           TOX_POSARGS: ''
@@ -55,7 +55,7 @@ jobs:
 
   tests-embedapi:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: 'cimg/python:3.12'
     steps:
       - checkout
       - run: git submodule sync
@@ -66,7 +66,7 @@ jobs:
 
   checks:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: 'cimg/python:3.12'
     steps:
       - checkout
       - run: git submodule sync

@@ -26,22 +26,22 @@ async-timeout==5.0.1
     #   redis
 babel==2.17.0
     # via sphinx
-billiard==3.6.4.0
+billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.21
+boto3==1.36.26
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.21
+botocore==1.36.26
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2024.1130
     # via -r requirements/pip.txt
-celery==5.2.7
+celery==5.4.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -303,13 +303,13 @@ prompt-toolkit==3.0.50
     # via
     #   -r requirements/pip.txt
     #   click-repl
-psycopg[binary,pool]==3.2.4
+psycopg[binary,pool]==3.2.5
     # via -r requirements/pip.txt
-psycopg-binary==3.2.4
+psycopg-binary==3.2.5
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.2.4
+psycopg-pool==3.2.5
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -357,6 +357,7 @@ python-dateutil==2.9.0.post0
     # via
     #   -r requirements/pip.txt
     #   botocore
+    #   celery
     #   elasticsearch-dsl
     #   python-crontab
 python3-saml==1.16.0
@@ -364,9 +365,7 @@ python3-saml==1.16.0
     #   -r requirements/pip.txt
     #   django-allauth
 pytz==2025.1
-    # via
-    #   -r requirements/pip.txt
-    #   celery
+    # via -r requirements/pip.txt
 pyyaml==6.0.2
     # via -r requirements/pip.txt
 qrcode==8.0
@@ -404,7 +403,7 @@ s3transfer==0.11.2
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.27
+selectolax==0.3.28
     # via -r requirements/pip.txt
 six==1.17.0
     # via
@@ -468,6 +467,7 @@ typing-extensions==4.12.2
 tzdata==2025.1
     # via
     #   -r requirements/pip.txt
+    #   celery
     #   django-celery-beat
     #   kombu
 ua-parser==1.0.1
