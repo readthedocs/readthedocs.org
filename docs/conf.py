@@ -17,6 +17,7 @@ import sys
 from multiproject.utils import get_project
 
 sys.path.append(os.path.abspath("_ext"))
+
 extensions = [
     "multiproject",
     "myst_parser",
