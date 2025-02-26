@@ -718,6 +718,7 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
+            # Scope is determined by the GitHub App permissions.
             "SCOPE": [],
         },
         "gitlab": {
