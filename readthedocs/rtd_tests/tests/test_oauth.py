@@ -19,6 +19,7 @@ from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
 
+# TODO: add tests here
 class GitHubOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
 
