@@ -34,6 +34,7 @@ from readthedocs.analytics.models import PageView
 from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
 from readthedocs.builds.models import (
     AutomationRuleMatch,
+    Build,
     RegexAutomationRule,
     Version,
     VersionAutomationRule,
@@ -1369,64 +1370,22 @@ class ProjectOverview(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
-        thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
 
-        # Analytics data
-        context["total_pageviews"] = (
-            PageView.objects.filter(
-                project=project,
-                date__gte=thirty_days_ago,
-            ).aggregate(total=Sum("view_count"))["total"]
-            or 0
-        )
-
-        context["total_searches"] = SearchQuery.objects.filter(
-            project=project,
-            created__gte=thirty_days_ago,
-        ).count()
-
-        # Project statistics - removed the generic stats section
-        # and moved counts into their relevant sections
-
-        # Setup section stats
         context.update(
             {
-                "maintainers_count": project.users.count(),
-                "automation_rules_count": project.automation_rules.count(),
-                "environment_variables_count": project.environmentvariable_set.count(),
-            }
-        )
-
-        # Building section stats
-        builds = project.builds.filter(date__gte=thirty_days_ago)
-        context.update(
-            {
-                "integrations_count": project.integrations.count(),
-                "pr_build_count": builds.filter(version__type="external").count(),
-                "successful_builds": builds.filter(success=True).count(),
-                "monthly_build_time": builds.aggregate(total_time=Sum("length"))[
-                    "total_time"
-                ]
+                "project": project,
+                "concurrent_builds": {
+                    "limit_reached": limit_reached,
+                    "current": concurrent,
+                    "max": max_concurrent,
+                },
+                "successful_builds": project.builds.filter(success=True).count(),
+                "monthly_build_time": project.builds.aggregate(
+                    total_time=Sum("length")
+                )["total_time"]
                 or 0,
-                "total_builds": builds.count(),
-            }
-        )
-
-        # Hosting section stats
-        context.update(
-            {
-                "domains_count": project.domains.count(),
-                "subprojects_count": project.subprojects.count(),
-                "translation_count": project.translations.count(),
                 "active_versions_count": project.versions.filter(active=True).count(),
-            }
-        )
-
-        # Maintaining section stats
-        context.update(
-            {
-                "redirect_count": project.redirects.count(),
-                "webhook_count": project.webhook_notifications.count(),
             }
         )
 
