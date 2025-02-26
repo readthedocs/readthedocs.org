@@ -323,7 +323,7 @@ class RemoteRepository(TimeStampedModel):
         blank=True,
     )
     # VCS provider repository id
-    remote_id = models.CharField(db_index=True, max_length=128)
+    remote_id = models.CharField(max_length=128)
     vcs_provider = models.CharField(
         _("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32
     )
