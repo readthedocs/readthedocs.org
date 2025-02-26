@@ -11,7 +11,7 @@ from django_dynamic_fixture import get
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 
 
-class SAMLAdapterTest(TestCase):
+class SocialAdapterTest(TestCase):
     def setUp(self):
         self.user = get(User, username="test")
         self.adapter = get_social_account_adapter()
