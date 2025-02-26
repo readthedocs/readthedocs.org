@@ -1,13 +1,13 @@
 import json
 
-from django.db.models import Q, Subquery
 from django.core.management.base import BaseCommand
+from django.db.models import Q, Subquery
 
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
-from readthedocs.projects.models import Project
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import Project
 
 
 class Command(BaseCommand):
@@ -41,11 +41,12 @@ class Command(BaseCommand):
     def _force_owners_social_resync(self, organization):
         for owner in organization.owners.all():
             for service_cls in registry:
-                for service in service_cls.for_user(owner):
-                    try:
-                        service.sync()
-                    except SyncServiceError:
-                        print(f"Service {service} failed while syncing. Skipping...")
+                try:
+                    service_cls.sync_user_access(owner)
+                except SyncServiceError:
+                    print(
+                        f"Service {service_cls.allauth_provider.name} failed while syncing. Skipping..."
+                    )
 
     def _connect_repositories(self, organization, no_dry_run, only_owners):
         connected_projects = []

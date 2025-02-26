@@ -45,11 +45,11 @@ def sync_remote_repositories(user_id):
 
     failed_services = set()
     for service_cls in registry:
-        for service in service_cls.for_user(user):
-            try:
-                service.sync()
-            except SyncServiceError:
-                failed_services.add(service_cls.allauth_provider.name)
+        try:
+            service_cls.sync_user_access(user)
+        except SyncServiceError:
+            failed_services.add(service_cls.allauth_provider.name)
+
     if failed_services:
         raise SyncServiceError(
             SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(

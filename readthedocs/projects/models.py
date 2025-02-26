@@ -193,7 +193,7 @@ class AddonsConfig(TimeStampedModel):
     ethicalads_enabled = models.BooleanField(default=True)
 
     # File Tree Diff
-    filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
+    filetreediff_enabled = models.BooleanField(default=True)
     filetreediff_ignored_files = models.JSONField(
         help_text=_("List of ignored files. One per line."),
         null=True,
@@ -309,7 +309,6 @@ class Project(models.Model):
         max_length=255,
         validators=[validate_repository_url],
         help_text=_("Git repository URL"),
-        db_index=True,
     )
 
     # NOTE: this field is going to be completely removed soon.
@@ -586,7 +585,9 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True, ordering=["name"])
-    history = ExtraHistoricalRecords()
+    history = ExtraHistoricalRecords(
+        no_db_index=["repo", "slug", "remote_repository_id", "main_language_project_id"]
+    )
     objects = ProjectQuerySet.as_manager()
 
     remote_repository = models.ForeignKey(
@@ -1055,10 +1056,24 @@ class Project(models.Model):
         return service_cls
 
     @property
-    def git_provider_name(self):
-        """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
-        service_class = self.get_git_service_class(fallback_to_clone_url=True)
-        return service_class.allauth_provider.name if service_class else None
+    def is_github_project(self):
+        from readthedocs.oauth.services import GitHubService
+
+        return self.get_git_service_class(fallback_to_clone_url=True) == GitHubService
+
+    @property
+    def is_gitlab_project(self):
+        from readthedocs.oauth.services import GitLabService
+
+        return self.get_git_service_class(fallback_to_clone_url=True) == GitLabService
+
+    @property
+    def is_bitbucket_project(self):
+        from readthedocs.oauth.services import BitbucketService
+
+        return (
+            self.get_git_service_class(fallback_to_clone_url=True) == BitbucketService
+        )
 
     def find(self, filename, version):
         """

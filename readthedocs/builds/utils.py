@@ -12,10 +12,8 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.projects.constants import (
     BITBUCKET_REGEXS,
-    GITHUB_BRAND,
     GITHUB_PULL_REQUEST_URL,
     GITHUB_REGEXS,
-    GITLAB_BRAND,
     GITLAB_MERGE_REQUEST_URL,
     GITLAB_REGEXS,
 )
@@ -90,10 +88,10 @@ def external_version_name(build_or_version):
 
     project = build_or_version.project
 
-    if project.git_provider_name == GITHUB_BRAND:
+    if project.is_github_project:
         return GITHUB_EXTERNAL_VERSION_NAME
 
-    if project.git_provider_name == GITLAB_BRAND:
+    if project.is_gitlab_project:
         return GITLAB_EXTERNAL_VERSION_NAME
 
     # TODO: Add External Version Name for Bitbucket.
