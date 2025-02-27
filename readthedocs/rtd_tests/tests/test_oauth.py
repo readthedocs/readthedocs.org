@@ -1,7 +1,8 @@
 import copy
 from unittest import mock
 
-from allauth.socialaccount.models import SocialAccount
+import requests_mock
+from allauth.socialaccount.models import SocialAccount, SocialToken
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -9,17 +10,309 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GitHubWebhook, GitLabWebhook
-from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITLAB
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITHUB_APP, GITLAB
+from readthedocs.oauth.models import (
+    GitHubAccountType,
+    GitHubAppInstallation,
+    RemoteOrganization,
+    RemoteOrganizationRelation,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.oauth.services import BitbucketService, GitHubService, GitLabService
+from readthedocs.oauth.services.githubapp import GitHubAppService
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
 
-# TODO: add tests here
+@override_settings()
+class GitHubAppTests(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.account = get(
+            SocialAccount,
+            uid="1111",
+            user=self.user,
+            provider=GitHubAppProvider.id,
+        )
+        get(
+            SocialToken,
+            account=self.account,
+        )
+        self.installation = get(
+            GitHubAppInstallation,
+            installation_id=1111,
+            target_id=int(self.account.uid),
+            target_type=GitHubAccountType.USER,
+        )
+        self.remote_repository = get(
+            RemoteRepository,
+            name="repo",
+            full_name="user/repo",
+            vcs_provider=GITHUB_APP,
+            github_app_installation=self.installation,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=self.remote_repository,
+            user=self.user,
+            account=self.account,
+            admin=True,
+        )
+        self.project = get(
+            Project, users=[self.user], remote_repository=self.remote_repository
+        )
+
+        self.remote_organization = get(
+            RemoteOrganization,
+            slug="org",
+            remote_id="2222",
+        )
+        get(
+            RemoteOrganizationRelation,
+            remote_organization=self.remote_organization,
+            user=self.user,
+            account=self.account,
+        )
+        self.organization_installation = get(
+            GitHubAppInstallation,
+            installation_id=2222,
+            target_id=int(self.remote_organization.remote_id),
+            target_type=GitHubAccountType.ORGANIZATION,
+        )
+        self.remote_repository_with_org = get(
+            RemoteRepository,
+            name="repo",
+            full_name="org/repo",
+            vcs_provider=GITHUB_APP,
+            github_app_installation=self.organization_installation,
+            organization=self.remote_organization,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=self.remote_repository_with_org,
+            user=self.user,
+            account=self.account,
+            admin=True,
+        )
+        self.project_with_org = get(
+            Project,
+            users=[self.user],
+            remote_repository=self.remote_repository_with_org,
+        )
+
+    def _merge_dicts(self, a, b):
+        for k, v in b.items():
+            if k in a and isinstance(a[k], dict):
+                self._merge_dicts(a[k], v)
+            else:
+                a[k] = v
+
+    def _get_access_token_json(self, **kwargs):
+        default = {
+            "token": "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+            "expires_at": "2016-07-11T22:14:10Z",
+            "permissions": {"issues": "write", "contents": "read"},
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_installation_json(self, id, **kwargs):
+        default = {
+            "id": id,
+            "account": {
+                "login": "user",
+                "id": 1111,
+                "type": "User",
+            },
+            "html_url": f"https://github.com/organizations/github/settings/installations/{id}",
+            "app_id": 1,
+            "target_id": 1111,
+            "target_type": "User",
+            "permissions": {"checks": "write", "metadata": "read", "contents": "read"},
+            "events": ["push", "pull_request"],
+            "repository_selection": "all",
+            "created_at": "2017-07-08T16:18:44-04:00",
+            "updated_at": "2017-07-08T16:18:44-04:00",
+            "app_slug": "github-actions",
+            "suspended_at": None,
+            "suspended_by": None,
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_repository_json(self, full_name, **kwargs):
+        user, repo = full_name.split("/")
+        default = {
+            "id": 1111,
+            "name": repo,
+            "full_name": full_name,
+            "ssh_url": f"git@github.com:{full_name}.git",
+            "clone_url": f"https://github.com/{full_name}.git",
+            "html_url": f"https://github.com/{full_name}",
+            "private": False,
+            "default_branch": "main",
+            "url": f"https://api.github.com/repos/{full_name}",
+            "description": "Some description",
+            "owner": {
+                "login": user,
+                "id": 1111,
+                "type": "User",
+                "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+                "url": f"https://api.github.com/users/{user}",
+            },
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_collaborator_json(self, **kwargs):
+        default = {
+            "id": 1111,
+            "login": "user",
+            "permissions": {"admin": True},
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def test_for_project(self):
+        services = list(GitHubAppService.for_project(self.project))
+        assert len(services) == 1
+        service = services[0]
+        assert service.installation == self.installation
+
+        services = list(GitHubAppService.for_project(self.project_with_org))
+        assert len(services) == 1
+        service = services[0]
+        assert service.installation == self.organization_installation
+
+    @requests_mock.Mocker(kw="request")
+    def test_for_user(self, request):
+        new_installation_id = 3333
+        assert not GitHubAppInstallation.objects.filter(
+            installation_id=new_installation_id
+        ).exists()
+        request.get(
+            "https://api.github.com/user/installations",
+            json={
+                "installations": [
+                    self._get_installation_json(
+                        id=self.installation.installation_id,
+                        account={"id": self.account.uid},
+                    ),
+                    self._get_installation_json(
+                        id=new_installation_id,
+                        target_id=2,
+                        target_type="Organization",
+                        account={"login": "octocat", "id": 2, "type": "Organization"},
+                    ),
+                ]
+            },
+        )
+        services = list(GitHubAppService.for_user(self.user))
+        assert len(services) == 2
+
+        self.installation.refresh_from_db()
+        assert self.installation.installation_id == 1111
+        assert self.installation.target_id == int(self.account.uid)
+        assert self.installation.target_type == GitHubAccountType.USER
+
+        new_installation = GitHubAppInstallation.objects.get(
+            installation_id=new_installation_id
+        )
+        assert new_installation.target_id == 2
+        assert new_installation.target_type == GitHubAccountType.ORGANIZATION
+
+    @requests_mock.Mocker(kw="request")
+    @mock.patch.object(GitHubAppService, "sync")
+    @mock.patch.object(GitHubAppService, "update_or_create_repositories")
+    def test_sync_user_access(self, update_or_create_repositories, sync, request):
+        request.get(
+            "https://api.github.com/user/installations",
+            json={
+                "installations": [
+                    self._get_installation_json(
+                        id=self.installation.installation_id,
+                        account={"id": self.account.uid},
+                    ),
+                ],
+            },
+        )
+
+        GitHubAppService.sync_user_access(self.user)
+        sync.assert_called_once()
+        update_or_create_repositories.assert_has_calls(
+            [
+                mock.call([self.remote_repository.remote_id]),
+                mock.call([self.remote_repository_with_org.remote_id]),
+            ],
+            any_order=True,
+        )
+
+    @requests_mock.Mocker(kw="request")
+    def test_create_repository(self, request):
+        new_repo_id = 4444
+        assert not RemoteRepository.objects.filter(
+            remote_id=new_repo_id, vcs_provider=GitHubAppProvider.id
+        ).exists()
+
+        api_url = "https://api.github.com:443"
+        request.post(
+            f"{api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{api_url}/repositories/4444",
+            json=self._get_repository_json(
+                full_name="user/repo", id=4444, owner={"id": int(self.account.uid)}
+            ),
+        )
+        request.get(
+            f"{api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.update_or_create_repositories([new_repo_id])
+
+        repo = RemoteRepository.objects.get(
+            remote_id=new_repo_id, vcs_provider=GitHubAppProvider.id
+        )
+        assert repo.name == "repo"
+        assert repo.full_name == "user/repo"
+        assert repo.organization is None
+        assert repo.description == "Some description"
+        assert repo.avatar_url == "https://github.com/images/error/octocat_happy.gif"
+        assert repo.ssh_url == "git@github.com:user/repo.git"
+        assert repo.html_url == "https://github.com/user/repo"
+        assert repo.clone_url == "https://github.com/user/repo.git"
+        assert not repo.private
+        assert repo.default_branch == "main"
+        assert repo.github_app_installation == self.installation
+
+        relations = repo.remote_repository_relations.all()
+        assert relations.count() == 1
+        relation = relations[0]
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+
+    def test_update_repository(self):
+        pass
+
+    def test_sync(self):
+        pass
+
+    def test_send_build_status(self):
+        pass
+
+    def test_get_clone_token(self):
+        pass
+
+
 class GitHubOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
 

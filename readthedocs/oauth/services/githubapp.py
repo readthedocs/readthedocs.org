@@ -117,14 +117,16 @@ class GitHubAppService(Service):
                 continue
 
             for gh_installation in resp.json()["installations"]:
-                installation = GitHubAppInstallation.objects.get_or_create_installation(
+                (
+                    installation,
+                    _,
+                ) = GitHubAppInstallation.objects.get_or_create_installation(
                     installation_id=gh_installation["id"],
                     target_id=gh_installation["target_id"],
                     target_type=gh_installation["target_type"],
                     extra_data={"installation": gh_installation},
-                ).first()
-                if installation:
-                    yield cls(installation)
+                )
+                yield cls(installation)
 
     @classmethod
     def sync_user_access(cls, user):
@@ -150,6 +152,9 @@ class GitHubAppService(Service):
         for repository in queryset:
             service = cls(repository.github_app_installation)
             service.update_or_create_repositories([repository.remote_id])
+
+        # TODO: maybe also refresh the organizations the user has access to?
+        # But doesn't look like we are using that relation for anything?
 
     def sync(self):
         """
