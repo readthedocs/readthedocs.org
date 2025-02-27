@@ -3,11 +3,21 @@
 from django.contrib import admin
 
 from .models import (
+    GitHubAppInstallation,
     RemoteOrganization,
     RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
+
+
+@admin.register(GitHubAppInstallation)
+class GitHubAppInstallationAdmin(admin.ModelAdmin):
+    list_display = (
+        "installation_id",
+        "target_type",
+        "target_id",
+    )
 
 
 @admin.register(RemoteRepository)

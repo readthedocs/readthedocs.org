@@ -2,6 +2,15 @@
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.oauth.services import bitbucket, github, gitlab
+from readthedocs.oauth.services.githubapp import GitHubAppService
+
+__all__ = [
+    "GitHubService",
+    "BitbucketService",
+    "GitLabService",
+    "GitHubAppService",
+    "registry",
+]
 
 
 class GitHubService(SettingsOverrideObject):
@@ -19,4 +28,4 @@ class GitLabService(SettingsOverrideObject):
     _override_setting = "OAUTH_GITLAB_SERVICE"
 
 
-registry = [GitHubService, BitbucketService, GitLabService]
+registry = [GitHubService, BitbucketService, GitLabService, GitHubAppService]

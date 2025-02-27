@@ -1,4 +1,5 @@
 """OAuth utility functions."""
+
 import re
 from functools import cached_property
 
@@ -18,7 +19,6 @@ log = structlog.get_logger(__name__)
 
 
 class SyncServiceError(Exception):
-
     """Error raised when a service failed to sync."""
 
     INVALID_OR_REVOKED_ACCESS_TOKEN = _(
@@ -28,13 +28,11 @@ class SyncServiceError(Exception):
 
 
 class Service:
-
     """Base class for service that interacts with a VCS provider and a project."""
 
     vcs_provider_slug: str
     allauth_provider = type[OAuth2Provider]
-
-    url_pattern: re.Pattern | None
+    url_pattern: re.Pattern | None = None
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
     supports_build_status = False
@@ -106,6 +104,10 @@ class Service:
         """
         raise NotImplementedError
 
+    def get_clone_token(self, project):
+        """Get a token used for cloning the repository."""
+        raise NotImplementedError
+
     @classmethod
     def is_project_service(cls, project):
         """
@@ -124,7 +126,6 @@ class Service:
 
 
 class UserService(Service):
-
     """
     Subclass of Service that interacts with a VCS provider using the user's OAuth token.
 
@@ -258,7 +259,10 @@ class UserService(Service):
                 remote_repository__remote_id__in=repository_remote_ids,
                 remote_repository__vcs_provider=self.vcs_provider_slug,
             )
-            .filter(account=self.account)
+            .filter(
+                account=self.account,
+                remote_repository__vcs_provider=self.vcs_provider_slug,
+            )
             .delete()
         )
 
@@ -266,12 +270,16 @@ class UserService(Service):
         organization_remote_ids = [
             o.remote_id for o in remote_organizations if o is not None
         ]
+
         (
             self.user.remote_organization_relations.exclude(
                 remote_organization__remote_id__in=organization_remote_ids,
                 remote_organization__vcs_provider=self.vcs_provider_slug,
             )
-            .filter(account=self.account)
+            .filter(
+                account=self.account,
+                remote_organization__vcs_provider=self.vcs_provider_slug,
+            )
             .delete()
         )
 
@@ -324,3 +332,7 @@ class UserService(Service):
 
     def sync_organizations(self):
         raise NotImplementedError
+
+    def get_clone_token(self, project):
+        """User services make use of SSH keys only for cloning."""
+        return None

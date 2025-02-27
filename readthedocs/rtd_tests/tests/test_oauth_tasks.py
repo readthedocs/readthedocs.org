@@ -21,6 +21,7 @@ from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
 
 
+# TODO: add tests here for the githubapp
 class SyncRemoteRepositoriesTests(TestCase):
     def setUp(self):
         self.user = get(User)

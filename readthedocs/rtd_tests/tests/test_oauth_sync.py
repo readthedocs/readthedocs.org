@@ -16,6 +16,7 @@ from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
 
 
+# TODO: add tests here
 class GitHubOAuthSyncTests(TestCase):
     payload_user_repos = [
         {

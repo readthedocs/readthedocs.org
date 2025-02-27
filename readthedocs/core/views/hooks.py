@@ -15,7 +15,7 @@ from readthedocs.projects.tasks.builds import sync_repository_task
 log = structlog.get_logger(__name__)
 
 
-def _build_version(project, slug, already_built=()):
+def _build_version(project, version):
     """
     Where we actually trigger builds for a project and slug.
 
@@ -27,23 +27,26 @@ def _build_version(project, slug, already_built=()):
     # Previously we were building the latest version (inactive or active)
     # when building the default version,
     # some users may have relied on this to update the version list #4450
-    version = project.versions.filter(active=True, slug=slug).first()
-    if version and slug not in already_built:
+    if version.active:
         log.info(
             "Building.",
             project_slug=project.slug,
             version_slug=version.slug,
         )
         trigger_build(project=project, version=version)
-        return slug
+        return version.slug
 
-    log.info("Not building.", version_slug=slug)
+    log.info("Not building.", version_slug=version.slug)
     return None
 
 
 def build_branches(project, branch_list):
     """
     Build the branches for a specific project.
+
+    .. warning::
+
+       Deprecated, use ``build_versions_from_names`` instead.
 
     Returns:
         to_build - a list of branches that were built
@@ -59,12 +62,41 @@ def build_branches(project, branch_list):
                 project_slug=project.slug,
                 version_slug=version.slug,
             )
-            ret = _build_version(project, version.slug, already_built=to_build)
+            if version.slug in to_build:
+                continue
+            ret = _build_version(project, version)
             if ret:
                 to_build.add(ret)
             else:
                 not_building.add(version.slug)
     return (to_build, not_building)
+
+
+def build_versions_from_names(project, version_names: list[tuple[str, str]]):
+    """
+    Build the branches or tags from the project.
+
+    :param project: Project instance
+    :param version_names: A list of tuples with the version name and type.
+    :returns: A tuple with the versions that were built and the versions that were not built.
+    """
+    to_build = set()
+    not_building = set()
+    for version_name, version_type in version_names:
+        for version in project.versions_from_name(version_name, version_type):
+            log.debug(
+                "Processing.",
+                project_slug=project.slug,
+                version_slug=version.slug,
+            )
+            if version.slug in to_build:
+                continue
+            triggered = _build_version(project, version)
+            if triggered:
+                to_build.add(triggered)
+            else:
+                not_building.add(version.slug)
+    return to_build, not_building
 
 
 def trigger_sync_versions(project):
@@ -152,6 +184,7 @@ def get_or_create_external_version(project, version_data):
         external_version.identifier = version_data.commit
         # If the PR was previously closed it was marked as closed
         external_version.state = EXTERNAL_VERSION_STATE_OPEN
+        external_version.active = True
         external_version.save()
         log.info(
             "External version updated.",
@@ -177,7 +210,6 @@ def close_external_version(project, version_data):
         project.versions(manager=EXTERNAL)
         .filter(
             verbose_name=version_data.id,
-            identifier=version_data.commit,
         )
         .first()
     )
