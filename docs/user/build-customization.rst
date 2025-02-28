@@ -469,14 +469,10 @@ Take a look at the following example:
             - asdf plugin add uv
             - asdf install uv latest
             - asdf global uv latest
-            - uv venv
+            - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --all-extras --group docs
          install:
-            - uv pip install -r requirements.txt
-         build:
-            html:
-               - uv run sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
+            - "true" # or, if necessary: uv pip install -r requirements.txt
 
-MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
 
 Update Conda version
 ~~~~~~~~~~~~~~~~~~~~
