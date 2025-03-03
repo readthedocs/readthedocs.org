@@ -6,7 +6,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.http import (
     Http404,
     HttpResponse,
@@ -34,6 +34,7 @@ from readthedocs.analytics.models import PageView
 from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
 from readthedocs.builds.models import (
     AutomationRuleMatch,
+    Build,
     RegexAutomationRule,
     Version,
     VersionAutomationRule,
@@ -617,8 +618,9 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             username=username,
         )
         if self._is_last_user():
-            # NOTE: don't include user input in the message, since it's a security risk.
-            return HttpResponseBadRequest(_("User is the last owner, can't be removed"))
+            return HttpResponseBadRequest(
+                _(f"{username} is the last owner, can't be removed")
+            )
 
         project = self.get_project()
         project.users.remove(user)
@@ -1360,3 +1362,31 @@ class ProjectPullRequestsUpdate(SuccessMessageMixin, PrivateViewMixin, UpdateVie
 
     def get_success_url(self):
         return reverse("projects_pull_requests", args=[self.object.slug])
+
+
+class ProjectOverview(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+    template_name = "projects/project_overview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
+
+        context.update(
+            {
+                "project": project,
+                "concurrent_builds": {
+                    "limit_reached": limit_reached,
+                    "current": concurrent,
+                    "max": max_concurrent,
+                },
+                "successful_builds": project.builds.filter(success=True).count(),
+                "monthly_build_time": project.builds.aggregate(
+                    total_time=Sum("length")
+                )["total_time"]
+                or 0,
+                "active_versions_count": project.versions.filter(active=True).count(),
+            }
+        )
+
+        return context

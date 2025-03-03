@@ -8,6 +8,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.views import PageNotFoundView
 from readthedocs.projects.backends.views import ImportWizardView
 from readthedocs.projects.views import private
+from readthedocs.projects.views.private import ProjectOverview  # Add this import
 from readthedocs.projects.views.private import (
     AddonsConfigUpdate,
     AutomationRuleDelete,
@@ -79,6 +80,11 @@ urlpatterns = [
             RedirectView.as_view(pattern_name="projects_detail", permanent=True),
         ),
         name="projects_manage",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/overview/$",
+        ProjectOverview.as_view(),
+        name="projects_overview",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/edit/$",
