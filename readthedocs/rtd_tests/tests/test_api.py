@@ -41,12 +41,14 @@ from readthedocs.api.v2.views.integrations import (
     WebhookMixin,
 )
 from readthedocs.builds.constants import (
+    BRANCH,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
+    TAG,
 )
 from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
 from readthedocs.doc_builder.exceptions import BuildCancelled, BuildMaxConcurrencyError
@@ -69,6 +71,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
+from readthedocs.vcs_support.backends.git import parse_version_from_ref
 
 
 def get_signature(integration, payload):
@@ -1700,6 +1703,7 @@ class IntegrationsTests(TestCase):
             verbose_name="master",
             active=True,
             project=self.project,
+            type=BRANCH,
         )
         self.version_tag = get(
             Version,
@@ -1707,9 +1711,10 @@ class IntegrationsTests(TestCase):
             verbose_name="v1.0",
             active=True,
             project=self.project,
+            type=TAG,
         )
         self.github_payload = {
-            "ref": "master",
+            "ref": "refs/heads/master",
         }
         self.commit = "ec26de721c3235aad62de7213c562f8c821"
         self.github_pull_request_payload = {
@@ -1737,7 +1742,7 @@ class IntegrationsTests(TestCase):
         }
         self.gitlab_payload = {
             "object_kind": GITLAB_PUSH,
-            "ref": "master",
+            "ref": "refs/heads/master",
             "before": "95790bf891e76fee5e1747ab589903a6a1f80f22",
             "after": "95790bf891e76fee5e1747ab589903a6a1f80f23",
         }
@@ -1846,7 +1851,7 @@ class IntegrationsTests(TestCase):
         """GitHub webhook API."""
         client = APIClient()
 
-        data = {"ref": "master"}
+        data = {"ref": "refs/heads/master"}
         client.post(
             "/api/v2/webhook/github/{}/".format(self.project.slug),
             data,
@@ -1859,7 +1864,7 @@ class IntegrationsTests(TestCase):
             [mock.call(version=self.version, project=self.project)],
         )
 
-        data = {"ref": "non-existent"}
+        data = {"ref": "refs/heads/non-existent"}
         client.post(
             "/api/v2/webhook/github/{}/".format(self.project.slug),
             data,
@@ -1888,7 +1893,7 @@ class IntegrationsTests(TestCase):
     def test_github_webhook_for_tags(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
-        data = {"ref": "v1.0"}
+        data = {"ref": "refs/tags/v1.0"}
 
         client.post(
             "/api/v2/webhook/github/{}/".format(self.project.slug),
@@ -2243,14 +2248,18 @@ class IntegrationsTests(TestCase):
         )
 
     def test_github_parse_ref(self, trigger_build):
-        wh = GitHubWebhookView()
-
-        self.assertEqual(wh._normalize_ref("refs/heads/master"), "master")
-        self.assertEqual(wh._normalize_ref("refs/heads/v0.1"), "v0.1")
-        self.assertEqual(wh._normalize_ref("refs/tags/v0.1"), "v0.1")
-        self.assertEqual(wh._normalize_ref("refs/tags/tag"), "tag")
-        self.assertEqual(wh._normalize_ref("refs/heads/stable/2018"), "stable/2018")
-        self.assertEqual(wh._normalize_ref("refs/tags/tag/v0.1"), "tag/v0.1")
+        self.assertEqual(
+            parse_version_from_ref("refs/heads/master"), ("master", BRANCH)
+        )
+        self.assertEqual(parse_version_from_ref("refs/heads/v0.1"), ("v0.1", BRANCH))
+        self.assertEqual(parse_version_from_ref("refs/tags/v0.1"), ("v0.1", TAG))
+        self.assertEqual(parse_version_from_ref("refs/tags/tag"), ("tag", TAG))
+        self.assertEqual(
+            parse_version_from_ref("refs/heads/stable/2018"), ("stable/2018", BRANCH)
+        )
+        self.assertEqual(
+            parse_version_from_ref("refs/tags/tag/v0.1"), ("tag/v0.1", TAG)
+        )
 
     def test_github_invalid_webhook(self, trigger_build):
         """GitHub webhook unhandled event."""
@@ -2289,7 +2298,7 @@ class IntegrationsTests(TestCase):
 
     def test_github_valid_payload(self, trigger_build):
         client = APIClient()
-        payload = '{"ref":"master"}'
+        payload = '{"ref":"refs/heads/master"}'
         signature = get_signature(
             self.github_integration,
             payload,
@@ -2431,7 +2440,7 @@ class IntegrationsTests(TestCase):
         client = APIClient()
         self.gitlab_payload.update(
             object_kind=GITLAB_TAG_PUSH,
-            ref="v1.0",
+            ref="refs/tags/v1.0",
         )
         headers = {
             GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
