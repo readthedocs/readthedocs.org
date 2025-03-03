@@ -5,7 +5,9 @@ Adding a documentation project
    :description lang=en: Add your existing documentation from a Git repository into Read the Docs.
 
 This page takes you through the process of adding a documentation project to Read the Docs.
-If you have :doc:`connected your Read the Docs account </guides/connecting-git-account>` to GitHub, Bitbucket, or GitLab, you will be able to add your project automatically.
+If you have :doc:`connected your Read the Docs account </guides/connecting-git-account>` to GitHub, Bitbucket, or GitLab,
+and you have admin access to the repository you want to add,
+you will be able to add your project automatically.
 Otherwise, you will need to add it manually and perform some extra steps.
 
 Automatically add your project

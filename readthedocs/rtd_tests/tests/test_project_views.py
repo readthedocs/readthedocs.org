@@ -139,6 +139,7 @@ class TestBasicsForm(WizardTestCase):
             remote_repository=remote_repo,
             user=self.user,
             account=socialaccount,
+            admin=True,
         )
         self.step_data["basics"]["remote_repository"] = remote_repo.pk
         resp = self.post_step("basics")
@@ -221,13 +222,13 @@ class TestBasicsForm(WizardTestCase):
         invalid_remote_repos_pk = [
             remote_repository_not_admin_private.pk,
             remote_repository_other_user.pk,
+            remote_repository_not_admin_public.pk,
             # Doesn't exist
             99,
         ]
         valid_remote_repos_pk = [
             remote_repository_admin_private.pk,
             remote_repository_admin_public.pk,
-            remote_repository_not_admin_public.pk,
         ]
 
         for remote_repo_pk in invalid_remote_repos_pk:
@@ -253,6 +254,7 @@ class TestBasicsForm(WizardTestCase):
             remote_repository=remote_repo,
             user=user,
             account=socialaccount,
+            admin=True,
         )
         self.step_data["basics"]["remote_repository"] = remote_repo.pk
         resp = self.post_step("basics")
@@ -323,6 +325,7 @@ class TestAdvancedForm(TestBasicsForm):
             remote_repository=remote_repo,
             user=self.user,
             account=socialaccount,
+            admin=True,
         )
         self.step_data["basics"]["remote_repository"] = remote_repo.pk
         resp = self.post_step("basics")
