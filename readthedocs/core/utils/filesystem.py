@@ -12,12 +12,11 @@ import structlog
 from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 
-from readthedocs.doc_builder.exceptions import (
-    BuildUserError,
-    FileIsNotRegularFile,
-    SymlinkOutsideBasePath,
-    UnsupportedSymlinkFileError,
-)
+from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.doc_builder.exceptions import FileIsNotRegularFile
+from readthedocs.doc_builder.exceptions import SymlinkOutsideBasePath
+from readthedocs.doc_builder.exceptions import UnsupportedSymlinkFileError
+
 
 log = structlog.get_logger(__name__)
 
@@ -48,12 +47,7 @@ def assert_path_is_inside_docroot(path):
 
 
 def safe_open(
-    path,
-    *args,
-    allow_symlinks=False,
-    base_path=None,
-    max_size_bytes=MAX_FILE_SIZE_BYTES,
-    **kwargs
+    path, *args, allow_symlinks=False, base_path=None, max_size_bytes=MAX_FILE_SIZE_BYTES, **kwargs
 ):
     """
     Wrapper around path.open() to check for symlinks.

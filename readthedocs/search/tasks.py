@@ -1,5 +1,4 @@
 import structlog
-
 from dateutil.parser import parse
 from django.apps import apps
 from django.conf import settings
@@ -10,7 +9,9 @@ from readthedocs.builds.models import Version
 from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
 
-from .utils import _get_document, _get_index
+from .utils import _get_document
+from .utils import _get_index
+
 
 log = structlog.get_logger(__name__)
 
@@ -132,9 +133,7 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
     query_string = "{}__lte".format(document.modified_model_field)
-    queryset = (
-        document().get_queryset().exclude(**{query_string: index_generation_time})
-    )
+    queryset = document().get_queryset().exclude(**{query_string: index_generation_time})
     document().update(queryset.iterator())
 
     log.info(

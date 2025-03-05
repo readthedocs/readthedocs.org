@@ -1,0 +1,38 @@
+# https://docs.astral.sh/ruff/configuration/
+extend-include = ["*.ipynb"]
+
+exclude = [
+  "manage.py",
+  "docs",
+  "settings/",
+  "common/",
+  "readthedocs/rtd_tests/",
+  "readthedocs/templates/",
+  "**/tests/*.py",
+  "**/test_*.py",
+  "**/tests.py",
+  "**/conftest.py",
+]
+
+# Same as Black.
+line-length = 100
+indent-width = 4
+
+# Assume Python 3.12
+target-version = "py312"
+
+[lint]
+# Enable:
+#  Pyflakes (`F`)
+#  pycodestyle (`E`) error codes.
+#  isort (`I`) import sorting
+select = ["E4", "E7", "E9", "F", "I"]
+
+[lint.isort]
+# https://docs.astral.sh/ruff/settings/#lintisort
+force-single-line = true
+case-sensitive = false
+lines-after-imports = 2
+
+# https://docs.astral.sh/ruff/settings/#lint_isort_known-first-party
+known-first-party = ["readthedocs", "readthedocsinc", "readthedocsext"]

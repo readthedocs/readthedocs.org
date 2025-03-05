@@ -1,12 +1,14 @@
 """Filters used in our views."""
 
-from django_filters import CharFilter, ChoiceFilter, DateFromToRangeFilter, FilterSet
+from django_filters import CharFilter
+from django_filters import ChoiceFilter
+from django_filters import DateFromToRangeFilter
+from django_filters import FilterSet
 
 from readthedocs.audit.models import AuditLog
 
 
 class UserSecurityLogFilter(FilterSet):
-
     """Filter for user security logs."""
 
     allowed_actions = [
@@ -40,7 +42,6 @@ class UserSecurityLogFilter(FilterSet):
 
 
 class OrganizationSecurityLogFilter(UserSecurityLogFilter):
-
     """Filter for organization security logs."""
 
     allowed_actions = [

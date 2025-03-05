@@ -1,19 +1,23 @@
 """Backends for the objects from the invitations."""
+
 import structlog
 from django.conf import settings
 from django.urls import reverse
-from django.utils import formats, timesince, translation
+from django.utils import formats
+from django.utils import timesince
+from django.utils import translation
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import send_email
-from readthedocs.organizations.models import Organization, Team
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
 
 class Backend:
-
     """Base backend to define the behavior of the object attached the the invitation."""
 
     klass = None
@@ -109,7 +113,6 @@ class OrganizationBackend(Backend):
 
 
 class TeamBackend(Backend):
-
     """Team backend."""
 
     klass = Team
@@ -119,14 +122,10 @@ class TeamBackend(Backend):
         self.organization = self.object.organization
 
     def get_origin_url(self):
-        return reverse(
-            "organization_team_detail", args=[self.organization.slug, self.object.slug]
-        )
+        return reverse("organization_team_detail", args=[self.organization.slug, self.object.slug])
 
     def get_object_url(self):
-        return reverse(
-            "organization_team_detail", args=[self.organization.slug, self.object.slug]
-        )
+        return reverse("organization_team_detail", args=[self.organization.slug, self.object.slug])
 
     def get_success_url(self):
         return reverse("organization_detail", args=[self.organization.slug])

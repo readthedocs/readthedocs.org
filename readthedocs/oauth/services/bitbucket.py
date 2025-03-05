@@ -4,9 +4,7 @@ import json
 import re
 
 import structlog
-from allauth.socialaccount.providers.bitbucket_oauth2.provider import (
-    BitbucketOAuth2Provider,
-)
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from django.conf import settings
 from requests.exceptions import RequestException
 
@@ -14,14 +12,17 @@ from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 
 from ..constants import BITBUCKET
-from ..models import RemoteOrganization, RemoteRepository, RemoteRepositoryRelation
-from .base import SyncServiceError, UserService
+from ..models import RemoteOrganization
+from ..models import RemoteRepository
+from ..models import RemoteRepositoryRelation
+from .base import SyncServiceError
+from .base import UserService
+
 
 log = structlog.get_logger(__name__)
 
 
 class BitbucketService(UserService):
-
     """Provider service for Bitbucket."""
 
     vcs_provider_slug = BITBUCKET

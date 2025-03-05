@@ -2,20 +2,24 @@ import copy
 import textwrap
 
 import structlog
-from django.template import Context, Template
+from django.template import Context
+from django.template import Template
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.core.context_processors import readthedocs_processor
-from readthedocs.doc_builder.exceptions import (
-    BuildAppError,
-    BuildCancelled,
-    BuildMaxConcurrencyError,
-    BuildUserError,
-    MkDocsYAMLParseError,
-)
+from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildCancelled
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
-from .constants import ERROR, INFO, NOTE, TIP, WARNING
+from .constants import ERROR
+from .constants import INFO
+from .constants import NOTE
+from .constants import TIP
+from .constants import WARNING
+
 
 log = structlog.get_logger(__name__)
 
@@ -456,9 +460,7 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
-        header=_(
-            "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
-        ),
+        header=_("MkDocs <code>{{extra_config}}</code> configuration option is invalid"),
         body=_(
             textwrap.dedent(
                 """
@@ -532,9 +534,7 @@ class MessagesRegistry:
     def add(self, messages):
         if not isinstance(messages, list):
             if not isinstance(messages, Message):
-                raise ValueError(
-                    "A message should be instance of Message or a list of Messages."
-                )
+                raise ValueError("A message should be instance of Message or a list of Messages.")
 
             messages = [messages]
 
