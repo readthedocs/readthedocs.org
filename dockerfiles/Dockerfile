@@ -59,6 +59,7 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 # Install ``uv`` package manager
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin/:$PATH"
+# Install ``/.venv`` in the root directory
 RUN uv venv
 
 # Ensure that ``python`` is in the PATH so that ``./manage.py`` works
