@@ -4,24 +4,22 @@ import re
 import textwrap
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Fieldset, Layout
+from crispy_forms.layout import HTML
+from crispy_forms.layout import Fieldset
+from crispy_forms.layout import Layout
 from django import forms
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.builds.constants import (
-    ALL_VERSIONS,
-    BRANCH,
-    BRANCH_TEXT,
-    TAG,
-    TAG_TEXT,
-)
-from readthedocs.builds.models import (
-    RegexAutomationRule,
-    Version,
-    VersionAutomationRule,
-)
+from readthedocs.builds.constants import ALL_VERSIONS
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BRANCH_TEXT
+from readthedocs.builds.constants import TAG
+from readthedocs.builds.constants import TAG_TEXT
+from readthedocs.builds.models import RegexAutomationRule
+from readthedocs.builds.models import Version
+from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.builds.version_slug import generate_version_slug
 from readthedocs.projects.models import Feature
 
@@ -47,9 +45,7 @@ class VersionForm(forms.ModelForm):
         field_sets = [
             Fieldset(
                 _("States"),
-                HTML(
-                    render_to_string("projects/project_version_states_help_text.html")
-                ),
+                HTML(render_to_string("projects/project_version_states_help_text.html")),
                 *self.Meta.states_fields,
             ),
         ]
@@ -92,8 +88,7 @@ class VersionForm(forms.ModelForm):
         active = self.cleaned_data["active"]
         if self._is_default_version() and not active:
             msg = _(
-                "{version} is the default version of the project, "
-                "it should be active.",
+                "{version} is the default version of the project, it should be active.",
             )
             raise forms.ValidationError(
                 msg.format(version=self.instance.verbose_name),
@@ -117,11 +112,7 @@ class VersionForm(forms.ModelForm):
         # NOTE: Django already checks for unique slugs and raises a ValidationError,
         # but that message is attached to the whole form instead of the the slug field.
         # So we do the check here to provide a better error message.
-        if (
-            self.project.versions.filter(slug=slug)
-            .exclude(pk=self.instance.pk)
-            .exists()
-        ):
+        if self.project.versions.filter(slug=slug).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError(_("A version with that slug already exists."))
         return slug
 

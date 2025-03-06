@@ -3,6 +3,8 @@ import json
 
 import structlog
 from django.db import migrations
+from django_safemigrate import Safe
+
 
 log = structlog.get_logger(__name__)
 
@@ -45,7 +47,7 @@ def forwards_move_repos(apps, schema_editor):
             data = eval(org.json)
             new_org.avatar_url = data["avatar_url"]
             new_org.json = json.dumps(data)
-        except:
+        except Exception:
             pass
         new_org.save()
         log.info("Migrated organization.", organization_slug=org.slug)
@@ -65,7 +67,7 @@ def forwards_move_repos(apps, schema_editor):
             new_org.users.add(user)
         try:
             new_org.json = json.dumps(eval(org.json))
-        except:
+        except Exception:
             pass
         new_org.save()
         log.info("Migrated organization.", organization_slug=org.slug)
@@ -131,9 +133,7 @@ def forwards_move_repos(apps, schema_editor):
             )
         try:
             data = eval(project.json)
-            new_repo.avatar_url = (
-                data.get("links", {}).get("avatar", {}).get("href", None)
-            )
+            new_repo.avatar_url = data.get("links", {}).get("avatar", {}).get("href", None)
             new_repo.private = data.get("is_private", False)
             new_repo.json = json.dumps(data)
 
@@ -161,6 +161,7 @@ def reverse_move_repos(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy
     dependencies = [
         ("oauth", "0002_combine_services"),
     ]

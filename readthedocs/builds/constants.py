@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+
 # BUILD_STATE is our *INTERNAL* representation of build states.
 # This is not to be confused with external representations of 'status'
 # that are sent back to Git providers.

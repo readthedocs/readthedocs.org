@@ -5,22 +5,24 @@ import signal
 
 import structlog
 from django.conf import settings
-from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.functional import keep_lazy
-from django.utils.safestring import SafeText, mark_safe
+from django.utils.safestring import SafeText
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify as slugify_base
 
-from readthedocs.builds.constants import (
-    BUILD_FINAL_STATES,
-    BUILD_STATE_CANCELLED,
-    BUILD_STATE_TRIGGERED,
-    BUILD_STATUS_PENDING,
-    EXTERNAL,
-)
-from readthedocs.doc_builder.exceptions import BuildCancelled, BuildMaxConcurrencyError
+from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATUS_PENDING
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.doc_builder.exceptions import BuildCancelled
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.notifications.models import Notification
 from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 
@@ -48,7 +50,8 @@ def prepare_build(
     from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
-    from readthedocs.projects.models import Project, WebHookEvent
+    from readthedocs.projects.models import Project
+    from readthedocs.projects.models import WebHookEvent
     from readthedocs.projects.tasks.builds import update_docs_task
     from readthedocs.projects.tasks.utils import send_external_build_status
 
@@ -302,7 +305,7 @@ def send_email(
     context=None,
     request=None,
     from_email=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Alter context passed in and call email send task.
@@ -330,7 +333,7 @@ def send_email(
         content=content,
         content_html=content_html,
         from_email=from_email,
-        **kwargs
+        **kwargs,
     )
 
 

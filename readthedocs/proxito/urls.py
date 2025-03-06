@@ -37,21 +37,23 @@ from functools import reduce
 from operator import add
 
 from django.conf import settings
-from django.urls import include, path, re_path
+from django.urls import include
+from django.urls import path
+from django.urls import re_path
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core.views import HealthCheckView
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.hosting import ReadTheDocsConfigJson
-from readthedocs.proxito.views.serve import (
-    ServeDocs,
-    ServeError404,
-    ServePageRedirect,
-    ServeRobotsTXT,
-    ServeSitemapXML,
-    ServeStaticFiles,
-)
-from readthedocs.proxito.views.utils import ProxitoErrorView, proxito_404_page_handler
+from readthedocs.proxito.views.serve import ServeDocs
+from readthedocs.proxito.views.serve import ServeError404
+from readthedocs.proxito.views.serve import ServePageRedirect
+from readthedocs.proxito.views.serve import ServeRobotsTXT
+from readthedocs.proxito.views.serve import ServeSitemapXML
+from readthedocs.proxito.views.serve import ServeStaticFiles
+from readthedocs.proxito.views.utils import ProxitoErrorView
+from readthedocs.proxito.views.utils import proxito_404_page_handler
+
 
 DOC_PATH_PREFIX = getattr(settings, "DOC_PATH_PREFIX", "")
 
@@ -173,11 +175,7 @@ dummy_dashboard_urls = [
     ),
     # /projects/<project_slug>/downloads/
     re_path(
-        (
-            r"^projects/(?P<project_slug>{project_slug})/downloads/$".format(
-                **pattern_opts
-            )
-        ),
+        (r"^projects/(?P<project_slug>{project_slug})/downloads/$".format(**pattern_opts)),
         ProxitoErrorView.as_view(status_code=418),
         name="project_downloads",
     ),

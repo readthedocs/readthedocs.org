@@ -10,6 +10,7 @@ from readthedocs import __version__
 from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Project
 
+
 register = template.Library()
 
 

@@ -1,24 +1,24 @@
 """URL resolver for documentation."""
+
 from functools import lru_cache
 from urllib.parse import urlunparse
 
 import structlog
 from django.conf import settings
 
-from readthedocs.builds.constants import EXTERNAL, INTERNAL
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.utils.url import unsafe_join_url_path
-from readthedocs.projects.constants import (
-    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
-    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
-)
+from readthedocs.projects.constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import get_feature
+
 
 log = structlog.get_logger(__name__)
 
 
 class Resolver:
-
     """
     Read the Docs URL Resolver.
 
@@ -170,9 +170,7 @@ class Resolver:
         return urlunparse((protocol, domain, filename, "", "", ""))
 
     @lru_cache(maxsize=1)
-    def _get_project_domain(
-        self, project, external_version_slug=None, use_canonical_domain=True
-    ):
+    def _get_project_domain(self, project, external_version_slug=None, use_canonical_domain=True):
         """
         Get the domain from where the documentation of ``project`` is served from.
 
@@ -189,9 +187,7 @@ class Resolver:
         canonical_project, _ = self._get_canonical_project(project)
         domain = self._get_project_subdomain(canonical_project)
         if external_version_slug:
-            domain = self._get_external_subdomain(
-                canonical_project, external_version_slug
-            )
+            domain = self._get_external_subdomain(canonical_project, external_version_slug)
         elif use_canonical_domain and self._use_cname(canonical_project):
             domain_object = canonical_project.get_canonical_custom_domain()
             if domain_object:
@@ -216,9 +212,7 @@ class Resolver:
         :param project: Project object
         :param bool use_canonical_domain: If `True` use its canonical custom domain if available.
         """
-        domain, _ = self._get_project_domain(
-            project, use_canonical_domain=use_canonical_domain
-        )
+        domain, _ = self._get_project_domain(project, use_canonical_domain=use_canonical_domain)
         return domain
 
     def resolve(
@@ -338,9 +332,7 @@ class Resolver:
         subdomain_slug = project.slug.replace("_", "-")
         # Version slug is in the domain so we can properly serve single-version projects
         # and have them resolve the proper version from the PR.
-        return (
-            f"{subdomain_slug}--{version_slug}.{settings.RTD_EXTERNAL_VERSION_DOMAIN}"
-        )
+        return f"{subdomain_slug}--{version_slug}.{settings.RTD_EXTERNAL_VERSION_DOMAIN}"
 
     def _get_project_subdomain(self, project):
         """Determine canonical project domain as subdomain."""
@@ -349,11 +341,7 @@ class Resolver:
 
     @lru_cache(maxsize=1)
     def _is_external(self, project, version_slug):
-        type_ = (
-            project.versions.values_list("type", flat=True)
-            .filter(slug=version_slug)
-            .first()
-        )
+        type_ = project.versions.values_list("type", flat=True).filter(slug=version_slug).first()
         return type_ == EXTERNAL
 
     def _fix_filename(self, filename):

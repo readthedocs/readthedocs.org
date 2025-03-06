@@ -1,5 +1,6 @@
 import taggit.managers
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
 from django_safemigrate import Safe
 
 import readthedocs.builds.version_slug
@@ -75,27 +76,19 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "exit_code",
-                    models.IntegerField(
-                        null=True, verbose_name="Exit code", blank=True
-                    ),
+                    models.IntegerField(null=True, verbose_name="Exit code", blank=True),
                 ),
                 (
                     "commit",
-                    models.CharField(
-                        max_length=255, null=True, verbose_name="Commit", blank=True
-                    ),
+                    models.CharField(max_length=255, null=True, verbose_name="Commit", blank=True),
                 ),
                 (
                     "length",
-                    models.IntegerField(
-                        null=True, verbose_name="Build Length", blank=True
-                    ),
+                    models.IntegerField(null=True, verbose_name="Build Length", blank=True),
                 ),
                 (
                     "builder",
-                    models.CharField(
-                        max_length=255, null=True, verbose_name="Builder", blank=True
-                    ),
+                    models.CharField(max_length=255, null=True, verbose_name="Builder", blank=True),
                 ),
                 (
                     "project",
@@ -219,9 +212,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "from_slug",
-                    models.CharField(
-                        default=b"", max_length=255, verbose_name="From slug"
-                    ),
+                    models.CharField(default=b"", max_length=255, verbose_name="From slug"),
                 ),
                 (
                     "to_slug",

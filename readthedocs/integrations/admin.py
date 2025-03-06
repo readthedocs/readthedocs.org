@@ -6,7 +6,8 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from pygments.formatters import HtmlFormatter
 
-from .models import HttpExchange, Integration
+from .models import HttpExchange
+from .models import Integration
 
 
 def pretty_json_field(field, description, include_styles=False):
@@ -32,7 +33,6 @@ def pretty_json_field(field, description, include_styles=False):
 
 @admin.register(HttpExchange)
 class HttpExchangeAdmin(admin.ModelAdmin):
-
     """
     Admin model for HttpExchange.
 
@@ -84,7 +84,6 @@ class HttpExchangeAdmin(admin.ModelAdmin):
 
 @admin.register(Integration)
 class IntegrationAdmin(admin.ModelAdmin):
-
     """
     Admin model for Integration.
 

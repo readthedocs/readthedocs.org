@@ -1,10 +1,10 @@
 """Django storage mixin classes for different storage backends (Azure, S3)."""
 
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 
 
 class OverrideHostnameMixin:
-
     """
     Override the hostname when outputting URLs.
 
@@ -13,9 +13,7 @@ class OverrideHostnameMixin:
     See: https://github.com/jschneier/django-storages/pull/658
     """
 
-    override_hostname = (
-        None  # Just the hostname without scheme (eg. 'assets.readthedocs.org')
-    )
+    override_hostname = None  # Just the hostname without scheme (eg. 'assets.readthedocs.org')
 
     def url(self, *args, **kwargs):
         url = super().url(*args, **kwargs)
@@ -29,7 +27,6 @@ class OverrideHostnameMixin:
 
 
 class S3PrivateBucketMixin:
-
     """Make the bucket private and use auth querystring."""
 
     def __init__(self, *args, **kwargs):

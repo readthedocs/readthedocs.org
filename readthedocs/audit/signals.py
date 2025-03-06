@@ -1,13 +1,11 @@
 """Audit signals."""
 
 from django.contrib.auth.models import User
-from django.contrib.auth.signals import (
-    user_logged_in,
-    user_logged_out,
-    user_login_failed,
-)
-from django.dispatch import receiver
+from django.contrib.auth.signals import user_logged_in
+from django.contrib.auth.signals import user_logged_out
+from django.contrib.auth.signals import user_login_failed
 from django.db.models import Q
+from django.dispatch import receiver
 
 from readthedocs.audit.models import AuditLog
 

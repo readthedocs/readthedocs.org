@@ -5,8 +5,10 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 from readthedocs.invitations.models import Invitation
-from readthedocs.organizations.models import Organization, Team
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 

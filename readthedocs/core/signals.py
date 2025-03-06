@@ -5,7 +5,8 @@ import structlog
 from allauth.account.signals import email_confirmed
 from django.conf import settings
 from django.db.models.signals import pre_delete
-from django.dispatch import Signal, receiver
+from django.dispatch import Signal
+from django.dispatch import receiver
 from simple_history.models import HistoricalRecords
 from simple_history.signals import pre_create_historical_record
 
@@ -13,6 +14,7 @@ from readthedocs.analytics.utils import get_client_ip
 from readthedocs.core.models import UserProfile
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 

@@ -4,6 +4,7 @@ import structlog
 
 from readthedocs.core.utils import send_email
 
+
 log = structlog.get_logger(__name__)
 
 

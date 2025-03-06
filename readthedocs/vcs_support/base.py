@@ -1,17 +1,19 @@
 """Base classes for VCS backends."""
+
 import os
 
 import structlog
 
 from readthedocs.core.utils.filesystem import safe_rmtree
-from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
+from readthedocs.doc_builder.exceptions import BuildCancelled
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
+
 
 log = structlog.get_logger(__name__)
 
 
 class VCSVersion:
-
     """
     Represents a Version (tag or branch) in a VCS.
 
@@ -35,7 +37,6 @@ class VCSVersion:
 
 # TODO: merge this class with Git VCS class to simplify the code.
 class BaseVCS:
-
     """
     Base for VCS Classes.
 
@@ -49,13 +50,7 @@ class BaseVCS:
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
     def __init__(
-        self,
-        project,
-        version_slug,
-        environment,
-        verbose_name=None,
-        version_type=None,
-        **kwargs
+        self, project, version_slug, environment, verbose_name=None, version_type=None, **kwargs
     ):
         self.default_branch = project.default_branch
         self.project = project

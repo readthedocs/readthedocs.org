@@ -7,7 +7,6 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class PaginatorPage:
-
     """
     Mimics the result from a paginator.
 
@@ -34,7 +33,6 @@ class PaginatorPage:
 
 
 class SearchPagination(PageNumberPagination):
-
     """Paginator for the results of PageSearch."""
 
     page_size = 50

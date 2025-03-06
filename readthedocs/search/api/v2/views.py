@@ -11,17 +11,18 @@ from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
 from readthedocs.search import tasks
 from readthedocs.search.api.pagination import SearchPagination
 from readthedocs.search.api.v2.serializers import PageSearchSerializer
 from readthedocs.search.faceted_search import PageSearch
 
+
 log = structlog.get_logger(__name__)
 
 
 class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
-
     """
     Server side search API.
 
@@ -170,8 +171,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
            is compatible with DRF's paginator.
         """
         projects = {
-            project.slug: version.slug
-            for project, version in self._get_projects_to_search()
+            project.slug: version.slug for project, version in self._get_projects_to_search()
         }
         # Check to avoid searching all projects in case it's empty.
         if not projects:
@@ -201,9 +201,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
             self.request,
             view=self,
         )
-        serializer = self.get_serializer(
-            page, many=True, projects=self._get_projects_to_search()
-        )
+        serializer = self.get_serializer(page, many=True, projects=self._get_projects_to_search())
         return self.paginator.get_paginated_response(serializer.data)
 
 

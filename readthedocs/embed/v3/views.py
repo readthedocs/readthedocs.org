@@ -9,23 +9,25 @@ import structlog
 from django.conf import settings
 from django.core.cache import cache
 from rest_framework import status
-from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
+from rest_framework.renderers import BrowsableAPIRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from selectolax.parser import HTMLParser
 
-from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
+from readthedocs.api.mixins import CDNCacheTagsMixin
+from readthedocs.api.mixins import EmbedAPIMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.permissions import HasEmbedAPIAccess
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_references
 from readthedocs.storage import build_media_storage
 
+
 log = structlog.get_logger(__name__)
 
 
 class IsAuthorizedToGetContenFromVersion(IsAuthorizedToViewVersion):
-
     """
     Checks if the user from the request has permissions to get content from the version.
 
@@ -78,9 +80,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             log.debug("Cached response.", url=url)
             return cached_response
 
-        response = requests.get(
-            url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT
-        )
+        response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
         if response.ok:
             # NOTE: we use ``response.content`` to get its binary
             # representation. Then ``selectolax`` is in charge to auto-detect
@@ -135,9 +135,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             project = self.unresolved_url.project
             version = self.unresolved_url.version
             filename = self.unresolved_url.filename
-            page_content = self._get_page_content_from_storage(
-                project, version, filename
-            )
+            page_content = self._get_page_content_from_storage(project, version, filename)
 
         return self._parse_based_on_doctool(
             page_content,
@@ -309,7 +307,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
         if not url:
             return Response(
-                {"error": ("Invalid arguments. " 'Please provide "url".')},
+                {"error": ('Invalid arguments. Please provide "url".')},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -317,7 +315,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         domain = parsed_url.netloc
         if not domain or not parsed_url.scheme:
             return Response(
-                {"error": ("The URL requested is malformed. " f"url={url}")},
+                {"error": (f"The URL requested is malformed. url={url}")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -328,24 +326,18 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             else:
                 log.info("Domain not allowed.", domain=domain, url=url)
                 return Response(
-                    {"error": ("External domain not allowed. " f"domain={domain}")},
+                    {"error": (f"External domain not allowed. domain={domain}")},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
             # Check rate-limit for this particular domain
             cache_key = f"embed-api-{domain}"
-            cache.get_or_set(
-                cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT
-            )
+            cache.get_or_set(cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT)
             cache.incr(cache_key)
             if cache.get(cache_key) > settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT:
                 log.warning("Too many requests for this domain.", domain=domain)
                 return Response(
-                    {
-                        "error": (
-                            "Too many requests for this domain. " f"domain={domain}"
-                        )
-                    },
+                    {"error": (f"Too many requests for this domain. domain={domain}")},
                     status=status.HTTP_429_TOO_MANY_REQUESTS,
                 )
 
@@ -365,11 +357,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         except requests.exceptions.TooManyRedirects:
             log.exception("Too many redirects.", url=url)
             return Response(
-                {
-                    "error": (
-                        "The URL requested generates too many redirects. " f"url={url}"
-                    )
-                },
+                {"error": (f"The URL requested generates too many redirects. url={url}")},
                 # TODO: review these status codes to find out which on is better here
                 # 400 Bad Request
                 # 502 Bad Gateway
@@ -379,11 +367,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         except Exception:  # noqa
             log.exception("There was an error reading the URL requested.", url=url)
             return Response(
-                {
-                    "error": (
-                        "There was an error reading the URL requested. " f"url={url}"
-                    )
-                },
+                {"error": (f"There was an error reading the URL requested. url={url}")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -421,9 +405,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         }
         log.info(
             "EmbedAPI successful response.",
-            project_slug=self.unresolved_url.project.slug
-            if not self.external
-            else None,
+            project_slug=self.unresolved_url.project.slug if not self.external else None,
             domain=domain if self.external else None,
             doctool=doctool,
             doctoolversion=doctoolversion,

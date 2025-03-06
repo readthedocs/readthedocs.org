@@ -7,13 +7,13 @@ from djstripe import models as djstripe
 
 from readthedocs.notifications.constants import INFO
 from readthedocs.notifications.email import EmailNotification
-from readthedocs.notifications.messages import Message, registry
+from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import DISABLE_AFTER_DAYS
 
 
 class SubscriptionNotificationMixin:
-
     """Force to read templates from the subscriptions app."""
 
     app_templates = "subscriptions"
@@ -21,7 +21,6 @@ class SubscriptionNotificationMixin:
 
 
 class TrialEndingNotification(SubscriptionNotificationMixin, EmailNotification):
-
     """Trial is ending, nudge user towards subscribing."""
 
     name = "trial_ending"
@@ -36,10 +35,7 @@ class TrialEndingNotification(SubscriptionNotificationMixin, EmailNotification):
         )
 
 
-class SubscriptionRequiredNotification(
-    SubscriptionNotificationMixin, EmailNotification
-):
-
+class SubscriptionRequiredNotification(SubscriptionNotificationMixin, EmailNotification):
     """Trial has ended, push user into subscribing."""
 
     name = "subscription_required"
@@ -47,7 +43,6 @@ class SubscriptionRequiredNotification(
 
 
 class SubscriptionEndedNotification(SubscriptionNotificationMixin, EmailNotification):
-
     """
     Subscription has ended.
 
@@ -59,10 +54,7 @@ class SubscriptionEndedNotification(SubscriptionNotificationMixin, EmailNotifica
     subject = "Your subscription to Read the Docs has ended"
 
 
-class OrganizationDisabledNotification(
-    SubscriptionNotificationMixin, EmailNotification
-):
-
+class OrganizationDisabledNotification(SubscriptionNotificationMixin, EmailNotification):
     """
     Subscription has ended a month ago.
 

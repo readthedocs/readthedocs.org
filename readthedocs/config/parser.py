@@ -2,11 +2,11 @@
 
 import yaml
 
+
 __all__ = ("parse", "ParseError")
 
 
 class ParseError(Exception):
-
     """Parser related errors."""
 
 

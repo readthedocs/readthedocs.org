@@ -1,7 +1,10 @@
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy
     dependencies = [
         ("projects", "0005_sync_project_model"),
     ]
@@ -22,9 +25,7 @@ class Migration(migrations.Migration):
                 ("url", models.URLField(unique=True, verbose_name="URL")),
                 (
                     "machine",
-                    models.BooleanField(
-                        default=False, help_text="This URL was auto-created"
-                    ),
+                    models.BooleanField(default=False, help_text="This URL was auto-created"),
                 ),
                 (
                     "cname",

@@ -1,8 +1,11 @@
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -26,9 +29,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "homepage",
-                    models.CharField(
-                        max_length=100, verbose_name="Homepage", blank=True
-                    ),
+                    models.CharField(max_length=100, verbose_name="Homepage", blank=True),
                 ),
                 (
                     "allow_email",

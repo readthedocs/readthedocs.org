@@ -1,4 +1,5 @@
 """Organizations models."""
+
 import structlog
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
@@ -16,15 +17,16 @@ from readthedocs.core.utils import slugify
 from readthedocs.notifications.models import Notification
 
 from . import constants
-from .managers import TeamManager, TeamMemberManager
+from .managers import TeamManager
+from .managers import TeamMemberManager
 from .querysets import OrganizationQuerySet
 from .utils import send_team_add_email
+
 
 log = structlog.get_logger(__name__)
 
 
 class Organization(models.Model):
-
     """Organization model."""
 
     # Auto fields
@@ -202,7 +204,6 @@ class Organization(models.Model):
 
 
 class OrganizationOwner(models.Model):
-
     """Intermediate table for Organization <-> User relationships."""
 
     owner = models.ForeignKey(
@@ -216,7 +217,6 @@ class OrganizationOwner(models.Model):
 
 
 class Team(models.Model):
-
     """Team model."""
 
     # Auto fields
@@ -290,7 +290,6 @@ class Team(models.Model):
 
 
 class TeamInvite(models.Model):
-
     """Model to keep track of invitations to an organization."""
 
     # Auto fields
@@ -359,7 +358,6 @@ class TeamInvite(models.Model):
 
 
 class TeamMember(models.Model):
-
     """Intermediate table for Team <-> Member/Invite relationships."""
 
     class Meta:

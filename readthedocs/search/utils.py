@@ -7,6 +7,7 @@ from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.search.documents import PageDocument
 
+
 log = structlog.get_logger(__name__)
 
 
@@ -28,9 +29,7 @@ def index_objects(document, objects, index_name=None, chunk_size=500):
         document._index._name = old_index_name
 
 
-def remove_indexed_files(
-    project_slug, version_slug=None, sync_id=None, index_name=None
-):
+def remove_indexed_files(project_slug, version_slug=None, sync_id=None, index_name=None):
     """
     Remove files from `version_slug` of `project_slug` from the search index.
 

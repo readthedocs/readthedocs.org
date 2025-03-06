@@ -9,6 +9,7 @@ import stripe
 import structlog
 from django.conf import settings
 
+
 stripe.api_key = settings.STRIPE_SECRET
 log = structlog.get_logger(__name__)
 

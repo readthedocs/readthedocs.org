@@ -1,11 +1,10 @@
 """Project exceptions."""
 
-
-from readthedocs.doc_builder.exceptions import BuildAppError, BuildUserError
+from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildUserError
 
 
 class ProjectConfigurationError(BuildUserError):
-
     """Error raised trying to configure a project for build."""
 
     NOT_FOUND = "project:sphinx:conf-py-not-found"
@@ -17,7 +16,6 @@ class UserFileNotFound(BuildUserError):
 
 
 class RepositoryError(BuildUserError):
-
     """Failure during repository operation."""
 
     CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED = "project:repository:private-clone-error"
@@ -29,7 +27,6 @@ class RepositoryError(BuildUserError):
 
 
 class SyncRepositoryLocked(BuildAppError):
-
     """Error risen when there is another sync_repository_task already running."""
 
     REPOSITORY_LOCKED = "project:repository:locked"

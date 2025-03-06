@@ -1,5 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
+
 HTTP_STATUS_CHOICES = (
     (302, _("302 - Temporary Redirect")),
     (301, _("301 - Permanent Redirect")),

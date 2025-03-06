@@ -3,7 +3,8 @@ from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from rest_framework_api_key.models import AbstractAPIKey, BaseAPIKeyManager
+from rest_framework_api_key.models import AbstractAPIKey
+from rest_framework_api_key.models import BaseAPIKeyManager
 
 from readthedocs.projects.models import Project
 
@@ -28,7 +29,6 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
 
 
 class BuildAPIKey(AbstractAPIKey):
-
     """
     API key for securely interacting with the API from the builders.
 

@@ -5,7 +5,10 @@ from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.integrations.models import Integration
-from readthedocs.oauth.services import BitbucketService, GitHubService, GitLabService
+from readthedocs.oauth.services import BitbucketService
+from readthedocs.oauth.services import GitHubService
+from readthedocs.oauth.services import GitLabService
+
 
 log = structlog.get_logger(__name__)
 
@@ -35,9 +38,7 @@ def update_webhook(project, integration, request=None):
     if service_class != project.get_git_service_class(fallback_to_clone_url=True):
         messages.error(
             request,
-            _(
-                "This integration type is not compatible with the project's Git provider."
-            ),
+            _("This integration type is not compatible with the project's Git provider."),
         )
         project.has_valid_webhook = False
         project.save()
@@ -54,8 +55,7 @@ def update_webhook(project, integration, request=None):
     messages.error(
         request,
         _(
-            "Webhook activation failed. "
-            "Make sure you have the necessary permissions.",
+            "Webhook activation failed. Make sure you have the necessary permissions.",
         ),
     )
     project.has_valid_webhook = False

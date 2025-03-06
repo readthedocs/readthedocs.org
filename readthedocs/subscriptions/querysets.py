@@ -4,6 +4,7 @@ Querysets for djstripe models.
 Since djstripe is a third-party app,
 these are injected at runtime at readthedocs/subscriptions/apps.py.
 """
+
 from datetime import timedelta
 
 from django.db import models
@@ -14,7 +15,6 @@ from readthedocs.core.querysets import NoReprQuerySet
 
 
 class StripeSubscriptionQueryset(NoReprQuerySet, models.QuerySet):
-
     """Manager for the djstripe Subscription model."""
 
     def trial_ending(self, days=7):

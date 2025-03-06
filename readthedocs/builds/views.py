@@ -7,22 +7,27 @@ import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseForbidden
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
+from django.views.generic import ListView
 from requests.utils import quote
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.filters import BuildListFilter
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.core.utils import cancel_build, trigger_build
+from readthedocs.core.utils import cancel_build
+from readthedocs.core.utils import trigger_build
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import Project
 from readthedocs.projects.views.base import ProjectSpamMixin
+
 
 log = structlog.get_logger(__name__)
 
@@ -195,16 +200,12 @@ class BuildDetail(BuildBase, ProjectSpamMixin, DetailView):
         # We consume these notifications through the API in the new dashboard
         if not settings.RTD_EXT_THEME_ENABLED:
             context["notifications"] = build.notifications.all()
-        if not build.notifications.filter(
-            message_id=BuildAppError.GENERIC_WITH_BUILD_ID
-        ).exists():
+        if not build.notifications.filter(message_id=BuildAppError.GENERIC_WITH_BUILD_ID).exists():
             # Do not suggest to open an issue if the error is not generic
             return context
 
         scheme = (
-            "https://github.com/rtfd/readthedocs.org/issues/new"
-            "?title={title}{build_id}"
-            "&body={body}"
+            "https://github.com/rtfd/readthedocs.org/issues/new?title={title}{build_id}&body={body}"
         )
 
         # TODO: we could use ``.github/ISSUE_TEMPLATE.md`` here, but we would

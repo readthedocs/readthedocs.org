@@ -1,4 +1,5 @@
 """Analytics views that are served from the same domain as the docs."""
+
 from functools import lru_cache
 from urllib.parse import urlparse
 
@@ -12,16 +13,17 @@ from rest_framework.views import APIView
 from readthedocs.analytics.models import PageView
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.core.mixins import CDNCacheControlMixin
-from readthedocs.core.unresolver import UnresolverError, unresolve
+from readthedocs.core.unresolver import UnresolverError
+from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.requests import is_suspicious_request
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)  # noqa
 
 
 class BaseAnalyticsView(CDNCacheControlMixin, APIView):
-
     """
     Track page views.
 

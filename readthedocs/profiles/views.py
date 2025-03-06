@@ -7,16 +7,24 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
-from vanilla import CreateView, DeleteView, DetailView, FormView, ListView, UpdateView
+from vanilla import CreateView
+from vanilla import DeleteView
+from vanilla import DetailView
+from vanilla import FormView
+from vanilla import ListView
+from vanilla import UpdateView
 
 from readthedocs.audit.filters import UserSecurityLogFilter
 from readthedocs.audit.models import AuditLog
-from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm, UserProfileForm
+from readthedocs.core.forms import UserAdvertisingForm
+from readthedocs.core.forms import UserDeleteForm
+from readthedocs.core.forms import UserProfileForm
 from readthedocs.core.history import set_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
@@ -44,7 +52,6 @@ class LogoutView(SettingsOverrideObject):
 
 
 class ProfileEdit(PrivateViewMixin, UpdateView):
-
     """Edit the current user's profile."""
 
     model = UserProfile
@@ -147,7 +154,6 @@ class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):
 
 
 class TokenMixin(PrivateViewMixin):
-
     """User token to access APIv3."""
 
     model = Token
@@ -169,7 +175,6 @@ class TokenListView(TokenMixin, ListView):
 
 
 class TokenCreateView(TokenMixin, CreateView):
-
     """Simple view to generate a Token object for the logged in User."""
 
     http_method_names = ["post"]
@@ -182,7 +187,6 @@ class TokenCreateView(TokenMixin, CreateView):
 
 
 class TokenDeleteView(TokenMixin, DeleteView):
-
     """View to delete/revoke the current Token of the logged in User."""
 
     http_method_names = ["post"]
@@ -236,8 +240,7 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             end=timezone.datetime.strftime(end_date, "%Y-%m-%d"),
         )
         csv_data = [
-            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest]
-            for date, *rest in data
+            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest] for date, *rest in data
         ]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)

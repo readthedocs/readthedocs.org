@@ -1,6 +1,5 @@
 """Utilities for retrieving task data."""
 
-
 __all__ = ("TaskNotFound",)
 
 

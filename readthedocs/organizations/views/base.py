@@ -1,4 +1,5 @@
 """Base classes for organization views."""
+
 from functools import lru_cache
 
 from django.conf import settings
@@ -8,22 +9,17 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 
 from readthedocs.invitations.models import Invitation
-from readthedocs.organizations.forms import (
-    OrganizationForm,
-    OrganizationOwnerForm,
-    OrganizationTeamBasicForm,
-    OrganizationTeamMemberForm,
-)
-from readthedocs.organizations.models import (
-    Organization,
-    OrganizationOwner,
-    Team,
-    TeamMember,
-)
+from readthedocs.organizations.forms import OrganizationForm
+from readthedocs.organizations.forms import OrganizationOwnerForm
+from readthedocs.organizations.forms import OrganizationTeamBasicForm
+from readthedocs.organizations.forms import OrganizationTeamMemberForm
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import OrganizationOwner
+from readthedocs.organizations.models import Team
+from readthedocs.organizations.models import TeamMember
 
 
 class CheckOrganizationsEnabled:
-
     """
     Return 404 if organizations aren't enabled.
 
@@ -41,7 +37,6 @@ class CheckOrganizationsEnabled:
 
 # Mixins
 class OrganizationMixin(SuccessMessageMixin, CheckOrganizationsEnabled):
-
     """
     Mixin class that provides organization sublevel objects.
 
@@ -93,7 +88,6 @@ class OrganizationMixin(SuccessMessageMixin, CheckOrganizationsEnabled):
 
 
 class OrganizationTeamMixin(OrganizationMixin):
-
     """
     Add team query and instance methods for team related views.
 
@@ -133,7 +127,6 @@ class OrganizationTeamMixin(OrganizationMixin):
 
 # Base views
 class OrganizationView(SuccessMessageMixin, CheckOrganizationsEnabled):
-
     """Mixin for an organization view that doesn't have nested components."""
 
     model = Organization
@@ -169,7 +162,6 @@ class OrganizationView(SuccessMessageMixin, CheckOrganizationsEnabled):
 
 
 class OrganizationOwnerView(OrganizationMixin):
-
     """Mixin for views related to organization owners."""
 
     model = OrganizationOwner
@@ -210,7 +202,6 @@ class OrganizationOwnerView(OrganizationMixin):
 
 
 class OrganizationTeamView(OrganizationTeamMixin):
-
     """Mixin for views related to organization teams."""
 
     model = Team
@@ -233,7 +224,6 @@ class OrganizationTeamView(OrganizationTeamMixin):
 
 
 class OrganizationTeamMemberView(OrganizationTeamMixin):
-
     """Mixin for views related to organization team members."""
 
     model = TeamMember

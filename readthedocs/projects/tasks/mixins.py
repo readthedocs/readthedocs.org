@@ -3,17 +3,18 @@ from collections import Counter
 import structlog
 
 from readthedocs.builds import tasks as build_tasks
-from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.models import APIVersion
 
 from ..exceptions import RepositoryError
 from ..models import Feature
 
+
 log = structlog.get_logger(__name__)
 
 
 class SyncRepositoryMixin:
-
     """Mixin that handles the VCS sync/update."""
 
     def get_version(self, version_pk):
@@ -87,9 +88,7 @@ class SyncRepositoryMixin:
 
         :param data: Dict containing the versions from tags and branches
         """
-        version_names = [
-            version["verbose_name"] for version in tags_data + branches_data
-        ]
+        version_names = [version["verbose_name"] for version in tags_data + branches_data]
         counter = Counter(version_names)
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
             if counter[reserved_name] > 1:

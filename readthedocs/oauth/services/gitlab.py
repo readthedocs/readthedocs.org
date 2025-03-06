@@ -2,27 +2,32 @@
 
 import json
 import re
-from urllib.parse import quote_plus, urlparse
+from urllib.parse import quote_plus
+from urllib.parse import urlparse
 
 import structlog
 from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 from django.conf import settings
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
+from readthedocs.builds.constants import SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITLAB
-from ..models import RemoteOrganization, RemoteRepository
-from .base import SyncServiceError, UserService
+from ..models import RemoteOrganization
+from ..models import RemoteRepository
+from .base import SyncServiceError
+from .base import UserService
+
 
 log = structlog.get_logger(__name__)
 
 
 class GitLabService(UserService):
-
     """
     Provider service for GitLab.
 
@@ -229,22 +234,16 @@ class GitLabService(UserService):
 
             project_access = fields.get("permissions", {}).get("project_access", {})
             if project_access:
-                project_access_level = project_access.get(
-                    "access_level", self.PERMISSION_NO_ACCESS
-                )
+                project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
 
             group_access = fields.get("permissions", {}).get("group_access", {})
             if group_access:
-                group_access_level = group_access.get(
-                    "access_level", self.PERMISSION_NO_ACCESS
-                )
+                group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
 
             remote_repository_relation.admin = any(
                 [
-                    project_access_level
-                    in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
-                    group_access_level
-                    in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                    project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                    group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
                 ]
             )
             remote_repository_relation.save()
@@ -355,9 +354,7 @@ class GitLabService(UserService):
                         )
                         break
             else:
-                log.info(
-                    "GitLab project does not exist or user does not have permissions."
-                )
+                log.info("GitLab project does not exist or user does not have permissions.")
 
         except Exception:
             log.exception("GitLab webhook Listing failed for project.")
@@ -410,13 +407,9 @@ class GitLabService(UserService):
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    "Gitlab project does not exist or user does not have permissions."
-                )
+                log.info("Gitlab project does not exist or user does not have permissions.")
             else:
-                log.warning(
-                    "GitLab webhook creation failed. Unknown response from GitLab."
-                )
+                log.warning("GitLab webhook creation failed. Unknown response from GitLab.")
 
         except Exception:
             log.exception("GitLab webhook creation failed.")
@@ -556,9 +549,7 @@ class GitLabService(UserService):
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    "GitLab project does not exist or user does not have permissions."
-                )
+                log.info("GitLab project does not exist or user does not have permissions.")
                 return False
 
             return False

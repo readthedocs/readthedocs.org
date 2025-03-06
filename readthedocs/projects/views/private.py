@@ -1,108 +1,96 @@
 """Project views for authenticated users."""
 
-
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Count, Q
-from django.http import (
-    Http404,
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseRedirect,
-)
+from django.db.models import Count
+from django.db.models import Q
+from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView
+from django.views.generic import TemplateView
 from formtools.wizard.views import SessionWizardView
-from vanilla import (
-    CreateView,
-    DetailView,
-    FormView,
-    GenericModelView,
-    GenericView,
-    UpdateView,
-)
+from vanilla import CreateView
+from vanilla import DetailView
+from vanilla import FormView
+from vanilla import GenericModelView
+from vanilla import GenericView
+from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
-from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
-from readthedocs.builds.models import (
-    AutomationRuleMatch,
-    RegexAutomationRule,
-    Version,
-    VersionAutomationRule,
-)
+from readthedocs.builds.forms import RegexAutomationRuleForm
+from readthedocs.builds.forms import VersionForm
+from readthedocs.builds.models import AutomationRuleMatch
+from readthedocs.builds.models import RegexAutomationRule
+from readthedocs.builds.models import Version
+from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
-from readthedocs.core.mixins import (
-    DeleteViewWithMessage,
-    ListViewWithForm,
-    PrivateViewMixin,
-)
+from readthedocs.core.mixins import DeleteViewWithMessage
+from readthedocs.core.mixins import ListViewWithForm
+from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.integrations.models import HttpExchange, Integration
+from readthedocs.integrations.models import HttpExchange
+from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
-from readthedocs.oauth.services import GitHubService, registry
+from readthedocs.oauth.services import GitHubService
+from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
-from readthedocs.projects.forms import (
-    AddonsConfigForm,
-    DomainForm,
-    EmailHookForm,
-    EnvironmentVariableForm,
-    IntegrationForm,
-    ProjectAdvertisingForm,
-    ProjectAutomaticForm,
-    ProjectBasicsForm,
-    ProjectConfigForm,
-    ProjectManualForm,
-    ProjectPullRequestForm,
-    ProjectRelationshipForm,
-    RedirectForm,
-    TranslationForm,
-    UpdateProjectForm,
-    UserForm,
-    WebHookForm,
-)
-from readthedocs.projects.models import (
-    Domain,
-    EmailHook,
-    EnvironmentVariable,
-    Feature,
-    Project,
-    ProjectRelationship,
-    WebHook,
-)
+from readthedocs.projects.forms import AddonsConfigForm
+from readthedocs.projects.forms import DomainForm
+from readthedocs.projects.forms import EmailHookForm
+from readthedocs.projects.forms import EnvironmentVariableForm
+from readthedocs.projects.forms import IntegrationForm
+from readthedocs.projects.forms import ProjectAdvertisingForm
+from readthedocs.projects.forms import ProjectAutomaticForm
+from readthedocs.projects.forms import ProjectBasicsForm
+from readthedocs.projects.forms import ProjectConfigForm
+from readthedocs.projects.forms import ProjectManualForm
+from readthedocs.projects.forms import ProjectPullRequestForm
+from readthedocs.projects.forms import ProjectRelationshipForm
+from readthedocs.projects.forms import RedirectForm
+from readthedocs.projects.forms import TranslationForm
+from readthedocs.projects.forms import UpdateProjectForm
+from readthedocs.projects.forms import UserForm
+from readthedocs.projects.forms import WebHookForm
+from readthedocs.projects.models import Domain
+from readthedocs.projects.models import EmailHook
+from readthedocs.projects.models import EnvironmentVariable
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
+from readthedocs.projects.models import ProjectRelationship
+from readthedocs.projects.models import WebHook
 from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.projects.views.base import ProjectAdminMixin
-from readthedocs.projects.views.mixins import (
-    ProjectImportMixin,
-    ProjectRelationListMixin,
-)
+from readthedocs.projects.views.mixins import ProjectImportMixin
+from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.search.models import SearchQuery
-from readthedocs.subscriptions.constants import (
-    TYPE_CNAME,
-    TYPE_PAGEVIEW_ANALYTICS,
-    TYPE_SEARCH_ANALYTICS,
-)
+from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.constants import TYPE_PAGEVIEW_ANALYTICS
+from readthedocs.subscriptions.constants import TYPE_SEARCH_ANALYTICS
 from readthedocs.subscriptions.products import get_feature
+
 
 log = structlog.get_logger(__name__)
 
 
 class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
-
     """Project dashboard."""
 
     model = Project
@@ -136,15 +124,9 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
             ):
                 template_name = "example-projects.html"
-            elif (
-                n_projects
-                and not projects.filter(external_builds_enabled=True).exists()
-            ):
+            elif n_projects and not projects.filter(external_builds_enabled=True).exists():
                 template_name = "pull-request-previews.html"
-            elif (
-                n_projects
-                and not projects.filter(addons__analytics_enabled=True).exists()
-            ):
+            elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
                 template_name = "traffic-analytics.html"
             elif AdminPermission.organizations(
                 user=self.request.user,
@@ -153,9 +135,7 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 template_name = "security-logs.html"
 
             if template_name:
-                context[
-                    "announcement"
-                ] = f"projects/partials/announcements/{template_name}"
+                context["announcement"] = f"projects/partials/announcements/{template_name}"
 
         return context
 
@@ -195,7 +175,6 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
 # SuccessMessageMixin is used when we are operating on the Project model itself,
 # instead of a related model, where we use ProjectAdminMixin.
 class ProjectMixin(SuccessMessageMixin, PrivateViewMixin):
-
     """Common pieces for model views of Project."""
 
     model = Project
@@ -327,12 +306,7 @@ def show_config_step(wizard):
     remote_repository = cleaned_data.get("remote_repository")
     default_branch = cleaned_data.get("default_branch")
 
-    if (
-        repo
-        and default_branch
-        and remote_repository
-        and remote_repository.vcs_provider == GITHUB
-    ):
+    if repo and default_branch and remote_repository and remote_repository.vcs_provider == GITHUB:
         # I don't know why `show_config_step` is called multiple times (at least 4).
         # This is a problem for us because we perform external calls here and add messages to the request.
         # Due to that, we are adding this instance variable to prevent this function to run multiple times.
@@ -387,7 +361,6 @@ def show_config_step(wizard):
 
 
 class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
-
     """
     Project import wizard.
 
@@ -467,7 +440,6 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
 
 
 class ImportView(PrivateViewMixin, TemplateView):
-
     """
     On GET, show the source an import view, on POST, mock out a wizard.
 
@@ -548,9 +520,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
         return reverse("projects_subprojects", args=[self.get_project().slug])
 
 
-class ProjectRelationshipList(
-    ProjectRelationListMixin, ProjectRelationshipMixin, ListView
-):
+class ProjectRelationshipList(ProjectRelationListMixin, ProjectRelationshipMixin, ListView):
     pass
 
 
@@ -646,7 +616,6 @@ class ProjectNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class ProjectNotifications(ProjectNotificationsMixin, FormView):
-
     """Project notification view and form view."""
 
     # We only use this to display the form in the list view.
@@ -782,7 +751,6 @@ class ProjectTranslationsMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class ProjectTranslationsList(ProjectTranslationsMixin, FormView):
-
     """Project translations view and form view."""
 
     # We only use this to display the form in the list view.
@@ -821,7 +789,6 @@ class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
 
 
 class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
-
     """Project redirects view and form view."""
 
     form_class = RedirectForm
@@ -853,7 +820,6 @@ class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
 
 
 class ProjectRedirectsInsert(ProjectRedirectsMixin, GenericModelView):
-
     """
     Insert a redirect in a specific position.
 
@@ -951,7 +917,6 @@ class DomainDelete(DomainMixin, DeleteViewWithMessage):
 
 
 class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
-
     """Project external service mixin for listing webhook objects."""
 
     model = Integration
@@ -1041,7 +1006,6 @@ class IntegrationExchangeDetail(IntegrationMixin, DetailView):
 
 
 class IntegrationWebhookSync(IntegrationMixin, GenericView):
-
     """
     Resync a project webhook.
 
@@ -1084,7 +1048,6 @@ class ProjectAdvertisingUpdate(SuccessMessageMixin, PrivateViewMixin, UpdateView
 
 
 class EnvironmentVariableMixin(ProjectAdminMixin, PrivateViewMixin):
-
     """Environment variables to be added when building the Project."""
 
     model = EnvironmentVariable
@@ -1125,9 +1088,7 @@ class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
 class AutomationRuleList(AutomationRuleMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["matches"] = AutomationRuleMatch.objects.filter(
-            rule__project=self.get_project()
-        )
+        context["matches"] = AutomationRuleMatch.objects.filter(rule__project=self.get_project())
         return context
 
 
@@ -1236,17 +1197,14 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             .values_list(*[value for _, value in values])
         )
 
-        filename = (
-            "readthedocs_search_analytics_{project_slug}_{start}_{end}.csv".format(
-                project_slug=project.slug,
-                start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
-                end=timezone.datetime.strftime(now, "%Y-%m-%d"),
-            )
+        filename = "readthedocs_search_analytics_{project_slug}_{start}_{end}.csv".format(
+            project_slug=project.slug,
+            start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
+            end=timezone.datetime.strftime(now, "%Y-%m-%d"),
         )
 
         csv_data = [
-            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest]
-            for date, *rest in data
+            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest] for date, *rest in data
         ]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
@@ -1329,16 +1287,13 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             .values_list(*[value for _, value in values])
         )
 
-        filename = (
-            "readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv".format(
-                project_slug=project.slug,
-                start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
-                end=timezone.datetime.strftime(now, "%Y-%m-%d"),
-            )
+        filename = "readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv".format(
+            project_slug=project.slug,
+            start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
+            end=timezone.datetime.strftime(now, "%Y-%m-%d"),
         )
         csv_data = [
-            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest]
-            for date, *rest in data
+            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest] for date, *rest in data
         ]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)

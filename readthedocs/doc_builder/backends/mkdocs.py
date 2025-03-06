@@ -12,7 +12,9 @@ from django.conf import settings
 
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
-from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
+from readthedocs.projects.constants import MKDOCS
+from readthedocs.projects.constants import MKDOCS_HTML
+
 
 log = structlog.get_logger(__name__)
 
@@ -33,7 +35,6 @@ def get_absolute_static_url():
 
 
 class BaseMkdocs(BaseBuilder):
-
     """Mkdocs builder."""
 
     # The default theme for mkdocs is the 'mkdocs' theme
@@ -122,7 +123,6 @@ class ProxyPythonName(yaml.YAMLObject):
 
 
 class SafeLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
-
     """
     Safe YAML loader.
 
@@ -141,7 +141,6 @@ class SafeLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
 
 
 class SafeDumper(yaml.SafeDumper):
-
     """
     Safe YAML dumper.
 
@@ -153,9 +152,7 @@ class SafeDumper(yaml.SafeDumper):
         return self.represent_scalar("tag:yaml.org,2002:python/name:" + data.value, "")
 
 
-SafeLoader.add_multi_constructor(
-    "tag:yaml.org,2002:python/name:", SafeLoader.construct_python_name
-)
+SafeLoader.add_multi_constructor("tag:yaml.org,2002:python/name:", SafeLoader.construct_python_name)
 SafeLoader.add_constructor(None, SafeLoader.ignore_unknown)
 SafeDumper.add_representer(ProxyPythonName, SafeDumper.represent_name)
 

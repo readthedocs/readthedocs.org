@@ -1,5 +1,4 @@
 class NoReprQuerySet:
-
     """
     Basic queryset to override `__repr__` function due to logging issues.
 

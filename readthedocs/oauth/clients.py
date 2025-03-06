@@ -4,6 +4,7 @@ import structlog
 from django.utils import timezone
 from requests_oauthlib import OAuth2Session
 
+
 log = structlog.get_logger(__name__)
 
 

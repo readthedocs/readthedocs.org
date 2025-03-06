@@ -4,7 +4,6 @@ from django.apps import AppConfig
 
 
 class SubscriptionsConfig(AppConfig):
-
     """App configuration."""
 
     name = "readthedocs.subscriptions"

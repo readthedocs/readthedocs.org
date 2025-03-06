@@ -8,7 +8,6 @@ from readthedocs.search.faceted_search import PageSearch
 
 
 class SearchExecutor:
-
     """
     Parse the query, search, and return the projects used in the search.
 
@@ -23,13 +22,7 @@ class SearchExecutor:
     """
 
     def __init__(
-        self,
-        *,
-        request,
-        query,
-        arguments_required=True,
-        default_all=False,
-        max_projects=100
+        self, *, request, query, arguments_required=True, default_all=False, max_projects=100
     ):
         self.request = request
         self.query = query

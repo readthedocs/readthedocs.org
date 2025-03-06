@@ -2,11 +2,11 @@ import structlog
 from django.conf import settings
 from django.http import HttpResponse
 
+
 log = structlog.get_logger(__name__)
 
 
 class NullCharactersMiddleware:
-
     """
     Block all requests that contains NULL characters (0x00) on their GET attributes.
 

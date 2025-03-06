@@ -1,8 +1,11 @@
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -22,9 +25,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "pub_date",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Publication date"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Publication date"),
                 ),
                 (
                     "modified_date",
@@ -33,9 +34,7 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=255, verbose_name="Name")),
                 (
                     "full_name",
-                    models.CharField(
-                        unique=True, max_length=255, verbose_name="Full Name"
-                    ),
+                    models.CharField(unique=True, max_length=255, verbose_name="Full Name"),
                 ),
                 (
                     "description",
@@ -52,15 +51,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "git_url",
-                    models.CharField(
-                        max_length=200, verbose_name="Git URL", blank=True
-                    ),
+                    models.CharField(max_length=200, verbose_name="Git URL", blank=True),
                 ),
                 (
                     "ssh_url",
-                    models.CharField(
-                        max_length=200, verbose_name="SSH URL", blank=True
-                    ),
+                    models.CharField(max_length=200, verbose_name="SSH URL", blank=True),
                 ),
                 (
                     "html_url",
@@ -84,9 +79,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "pub_date",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Publication date"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Publication date"),
                 ),
                 (
                     "modified_date",
@@ -98,15 +91,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "email",
-                    models.EmailField(
-                        max_length=255, null=True, verbose_name="Email", blank=True
-                    ),
+                    models.EmailField(max_length=255, null=True, verbose_name="Email", blank=True),
                 ),
                 (
                     "name",
-                    models.CharField(
-                        max_length=255, null=True, verbose_name="Name", blank=True
-                    ),
+                    models.CharField(max_length=255, null=True, verbose_name="Name", blank=True),
                 ),
                 (
                     "html_url",
@@ -138,9 +127,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "pub_date",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Publication date"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Publication date"),
                 ),
                 (
                     "modified_date",
@@ -152,15 +139,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "email",
-                    models.EmailField(
-                        max_length=255, null=True, verbose_name="Email", blank=True
-                    ),
+                    models.EmailField(max_length=255, null=True, verbose_name="Email", blank=True),
                 ),
                 (
                     "name",
-                    models.CharField(
-                        max_length=255, null=True, verbose_name="Name", blank=True
-                    ),
+                    models.CharField(max_length=255, null=True, verbose_name="Name", blank=True),
                 ),
                 (
                     "html_url",
@@ -192,9 +175,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "pub_date",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Publication date"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Publication date"),
                 ),
                 (
                     "modified_date",
@@ -216,15 +197,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "git_url",
-                    models.CharField(
-                        max_length=200, verbose_name="Git URL", blank=True
-                    ),
+                    models.CharField(max_length=200, verbose_name="Git URL", blank=True),
                 ),
                 (
                     "ssh_url",
-                    models.CharField(
-                        max_length=200, verbose_name="SSH URL", blank=True
-                    ),
+                    models.CharField(max_length=200, verbose_name="SSH URL", blank=True),
                 ),
                 (
                     "html_url",

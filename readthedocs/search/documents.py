@@ -1,9 +1,13 @@
 import structlog
 from django.conf import settings
-from django_elasticsearch_dsl import Document, Index, fields
+from django_elasticsearch_dsl import Document
+from django_elasticsearch_dsl import Index
+from django_elasticsearch_dsl import fields
 from elasticsearch import Elasticsearch
 
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
+
 
 project_conf = settings.ES_INDEXES["project"]
 project_index = Index(project_conf["name"])
@@ -28,7 +32,6 @@ class RTDDocTypeMixin:
 
 @project_index.document
 class ProjectDocument(RTDDocTypeMixin, Document):
-
     """Document representation of a Project."""
 
     # Metadata
@@ -66,7 +69,6 @@ class ProjectDocument(RTDDocTypeMixin, Document):
 
 @page_index.document
 class PageDocument(RTDDocTypeMixin, Document):
-
     """
     Document representation of a Page.
 

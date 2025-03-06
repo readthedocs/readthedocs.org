@@ -1,18 +1,22 @@
 """Filters used in project dashboard."""
 
 import structlog
-from django.db.models import Count, F, Max
+from django.db.models import Count
+from django.db.models import F
+from django.db.models import Max
 from django.utils.translation import gettext_lazy as _
-from django_filters import ChoiceFilter, OrderingFilter
+from django_filters import ChoiceFilter
+from django_filters import OrderingFilter
 
-from readthedocs.core.filters import FilteredModelChoiceFilter, ModelFilterSet
+from readthedocs.core.filters import FilteredModelChoiceFilter
+from readthedocs.core.filters import ModelFilterSet
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
 
 class VersionSortOrderingFilter(OrderingFilter):
-
     """
     Version list sort ordering django_filters filter.
 
@@ -80,7 +84,6 @@ class VersionSortOrderingFilter(OrderingFilter):
 
 
 class ProjectSortOrderingFilter(OrderingFilter):
-
     """
     Project list sort ordering django_filters filter.
 
@@ -139,7 +142,6 @@ class ProjectSortOrderingFilter(OrderingFilter):
 
 
 class ProjectListFilterSet(ModelFilterSet):
-
     """
     Project list filter set for project list view.
 
@@ -169,7 +171,6 @@ class ProjectListFilterSet(ModelFilterSet):
 
 
 class ProjectVersionListFilterSet(ModelFilterSet):
-
     """
     Filter and sorting for project version listing page.
 

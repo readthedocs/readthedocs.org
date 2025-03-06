@@ -16,6 +16,7 @@ from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.core.utils import send_email_from_object
 from readthedocs.invitations.models import Invitation
 
+
 log = structlog.get_logger(__name__)
 
 

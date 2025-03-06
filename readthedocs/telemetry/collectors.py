@@ -9,11 +9,11 @@ import structlog
 from readthedocs.config.models import PythonInstallRequirements
 from readthedocs.core.utils.filesystem import safe_open
 
+
 log = structlog.get_logger(__name__)
 
 
 class BuildDataCollector:
-
     """
     Build data collector.
 
@@ -75,9 +75,7 @@ class BuildDataCollector:
         data["python"] = self._get_python_version()
 
         user_apt_packages, all_apt_packages = self._get_apt_packages()
-        conda_packages = (
-            self._get_all_conda_packages() if self.config.is_using_conda else {}
-        )
+        conda_packages = self._get_all_conda_packages() if self.config.is_using_conda else {}
         data["packages"] = {
             "pip": {
                 "user": self._get_user_pip_packages(),
@@ -159,9 +157,7 @@ class BuildDataCollector:
                 }
             ]
         """
-        code, stdout, _ = self.run(
-            "conda", "list", "--json", "--name", self.version.slug
-        )
+        code, stdout, _ = self.run("conda", "list", "--json", "--name", self.version.slug)
         if code == 0 and stdout:
             packages = self._safe_json_loads(stdout, [])
             packages = [
@@ -354,8 +350,7 @@ class BuildDataCollector:
 
     def _get_user_apt_packages(self):
         return [
-            {"name": package.lower(), "version": ""}
-            for package in self.config.build.apt_packages
+            {"name": package.lower(), "version": ""} for package in self.config.build.apt_packages
         ]
 
     def _get_python_version(self):

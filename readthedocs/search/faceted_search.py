@@ -3,25 +3,25 @@ import re
 import structlog
 from django.conf import settings
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import FacetedSearch, TermsFacet
-from elasticsearch_dsl.query import (
-    Bool,
-    FunctionScore,
-    MultiMatch,
-    Nested,
-    SimpleQueryString,
-    Term,
-    Terms,
-    Wildcard,
-)
+from elasticsearch_dsl import FacetedSearch
+from elasticsearch_dsl import TermsFacet
+from elasticsearch_dsl.query import Bool
+from elasticsearch_dsl.query import FunctionScore
+from elasticsearch_dsl.query import MultiMatch
+from elasticsearch_dsl.query import Nested
+from elasticsearch_dsl.query import SimpleQueryString
+from elasticsearch_dsl.query import Term
+from elasticsearch_dsl.query import Terms
+from elasticsearch_dsl.query import Wildcard
 
-from readthedocs.search.documents import PageDocument, ProjectDocument
+from readthedocs.search.documents import PageDocument
+from readthedocs.search.documents import ProjectDocument
+
 
 log = structlog.get_logger(__name__)
 
 
 class RTDFacetedSearch(FacetedSearch):
-
     """Custom wrapper around FacetedSearch."""
 
     # Search for both 'and' and 'or' operators.
@@ -87,9 +87,7 @@ class RTDFacetedSearch(FacetedSearch):
         otherwise we use the SimpleQueryString query.
         """
         get_queries_function = (
-            self._get_single_term_queries
-            if self._is_single_term(query)
-            else self._get_text_queries
+            self._get_single_term_queries if self._is_single_term(query) else self._get_text_queries
         )
 
         return get_queries_function(

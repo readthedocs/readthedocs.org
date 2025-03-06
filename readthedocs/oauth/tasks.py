@@ -9,13 +9,12 @@ from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.core.utils.tasks import PublicTask, user_id_matches_or_superuser
+from readthedocs.core.utils.tasks import PublicTask
+from readthedocs.core.utils.tasks import user_id_matches_or_superuser
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.notifications import (
-    MESSAGE_OAUTH_WEBHOOK_INVALID,
-    MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
-    MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS,
-)
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
 from readthedocs.organizations.models import Organization
@@ -24,6 +23,7 @@ from readthedocs.sso.models import SSOIntegration
 from readthedocs.worker import app
 
 from .services import registry
+
 
 log = structlog.get_logger(__name__)
 

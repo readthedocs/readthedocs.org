@@ -7,7 +7,8 @@ import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -16,13 +17,17 @@ from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from vanilla import DetailView, FormView, GenericView
+from vanilla import DetailView
+from vanilla import FormView
+from vanilla import GenericView
 
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.projects.models import Project
 
-from .forms import GoldProjectForm, GoldSubscriptionForm
+from .forms import GoldProjectForm
+from .forms import GoldSubscriptionForm
 from .models import GoldUser
+
 
 log = structlog.get_logger(__name__)
 
@@ -32,7 +37,6 @@ class GoldSubscription(
     DetailView,
     FormView,
 ):
-
     """Gold subscription view."""
 
     model = GoldUser
@@ -78,7 +82,6 @@ class GoldProjectsMixin(PrivateViewMixin):
 
 
 class GoldProjectsListCreate(GoldProjectsMixin, FormView):
-
     """Gold Project list view and form view."""
 
     form_class = GoldProjectForm
@@ -109,9 +112,7 @@ class GoldProjectRemove(GoldProjectsMixin, GenericView):
     def post(self, request, *args, **kwargs):
         gold_user = self.get_gold_user()
 
-        project = get_object_or_404(
-            Project.objects.all(), slug=self.kwargs.get("project_slug")
-        )
+        project = get_object_or_404(Project.objects.all(), slug=self.kwargs.get("project_slug"))
         gold_user.projects.remove(project)
 
         return HttpResponseRedirect(self.get_success_url())
@@ -134,8 +135,7 @@ class GoldCreateCheckoutSession(GenericView):
             )
             checkout_session = stripe.checkout.Session.create(
                 client_reference_id=user.username,
-                customer_email=user.emailaddress_set.filter(verified=True).first()
-                or user.email,
+                customer_email=user.emailaddress_set.filter(verified=True).first() or user.email,
                 payment_method_types=["card"],
                 line_items=[
                     {
@@ -168,9 +168,7 @@ class GoldSubscriptionPortal(GenericView):
         stripe_customer = user.gold.first().stripe_id
 
         scheme = "https" if settings.PUBLIC_DOMAIN_USES_HTTPS else "http"
-        return_url = f"{scheme}://{settings.PRODUCTION_DOMAIN}" + str(
-            self.get_success_url()
-        )
+        return_url = f"{scheme}://{settings.PRODUCTION_DOMAIN}" + str(self.get_success_url())
         try:
             billing_portal = stripe.billing_portal.Session.create(
                 customer=stripe_customer,
@@ -185,9 +183,7 @@ class GoldSubscriptionPortal(GenericView):
             )
             messages.error(
                 request,
-                _(
-                    "There was an error connecting to Stripe, please try again in a few minutes"
-                ),
+                _("There was an error connecting to Stripe, please try again in a few minutes"),
             )
             return HttpResponseRedirect(self.get_success_url())
 
@@ -198,7 +194,6 @@ class GoldSubscriptionPortal(GenericView):
 # TODO: where this code should live? (readthedocs-ext?)
 # Should we move all GoldUser code to readthedocs-ext?
 class StripeEventView(APIView):
-
     """Endpoint for Stripe events."""
 
     permission_classes = (permissions.AllowAny,)
@@ -222,9 +217,7 @@ class StripeEventView(APIView):
             log.bind(event=event.type)
             if event.type not in self.EVENTS:
                 log.warning("Unhandled Stripe event.", event_type=event.type)
-                return Response(
-                    {"OK": False, "msg": f"Unhandled event. event={event.type}"}
-                )
+                return Response({"OK": False, "msg": f"Unhandled event. event={event.type}"})
 
             stripe_customer = event.data.object.customer
             log.bind(stripe_customer=stripe_customer)
@@ -236,9 +229,7 @@ class StripeEventView(APIView):
                 if mode == "subscription":
                     # Gold Membership
                     user = User.objects.get(username=username)
-                    subscription = stripe.Subscription.retrieve(
-                        event.data.object.subscription
-                    )
+                    subscription = stripe.Subscription.retrieve(event.data.object.subscription)
                     stripe_price = self._get_stripe_price(subscription)
                     log.bind(stripe_price=stripe_price.id)
                     log.info("Gold Membership subscription.")

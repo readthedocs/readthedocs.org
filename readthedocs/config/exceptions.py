@@ -7,15 +7,11 @@ class ConfigError(BuildUserError):
     CONFIG_PATH_NOT_FOUND = "config:path:not-found"
     KEY_NOT_SUPPORTED_IN_VERSION = "config:key:not-supported-in-version"
     PYTHON_SYSTEM_PACKAGES_REMOVED = "config:python:system-packages-removed"
-    PYTHON_USE_SYSTEM_SITE_PACKAGES_REMOVED = (
-        "config:python:use-system-site-packages-removed"
-    )
+    PYTHON_USE_SYSTEM_SITE_PACKAGES_REMOVED = "config:python:use-system-site-packages-removed"
     INVALID_VERSION = "config:base:invalid-version"
     NOT_BUILD_TOOLS_OR_COMMANDS = "config:build:missing-build-tools-commands"
     BUILD_JOBS_AND_COMMANDS = "config:build:jobs-and-commands"
-    BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS = (
-        "config:build:jobs:build:missing-in-formats"
-    )
+    BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS = "config:build:jobs:build:missing-in-formats"
     APT_INVALID_PACKAGE_NAME_PREFIX = "config:apt:invalid-package-name-prefix"
     APT_INVALID_PACKAGE_NAME = "config:apt:invalid-package-name"
     USE_PIP_FOR_EXTRA_REQUIREMENTS = "config:python:pip-required"

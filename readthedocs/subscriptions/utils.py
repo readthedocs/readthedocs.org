@@ -1,8 +1,10 @@
 """Utilities to interact with subscriptions and stripe."""
+
 import stripe
 import structlog
 from django.conf import settings
 from djstripe import models as djstripe
+
 
 log = structlog.get_logger(__name__)
 

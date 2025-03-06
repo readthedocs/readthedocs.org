@@ -12,6 +12,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SKIP_BUILDS
 from readthedocs.subscriptions.notifications import MESSAGE_ORGANIZATION_DISABLED
 
+
 log = structlog.get_logger(__name__)
 
 

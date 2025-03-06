@@ -1,7 +1,12 @@
 """Project model QuerySet classes."""
+
 from django.conf import settings
 from django.db import models
-from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
+from django.db.models import Count
+from django.db.models import OuterRef
+from django.db.models import Prefetch
+from django.db.models import Q
+from django.db.models import Subquery
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
@@ -11,7 +16,6 @@ from readthedocs.subscriptions.products import get_feature
 
 
 class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
-
     """Projects take into account their own privacy_level setting."""
 
     use_for_related_fields = True
@@ -34,12 +38,8 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         - Projects where both are member
         - Public projects from `user`
         """
-        viewer_projects = self._add_user_projects(
-            self.none(), viewer, admin=True, member=True
-        )
-        owner_projects = self._add_user_projects(
-            self.none(), user, admin=True, member=True
-        )
+        viewer_projects = self._add_user_projects(self.none(), viewer, admin=True, member=True)
+        owner_projects = self._add_user_projects(self.none(), user, admin=True, member=True)
         owner_public_projects = owner_projects.filter(privacy_level=constants.PUBLIC)
         queryset = (viewer_projects & owner_projects) | owner_public_projects
         return queryset.distinct()
@@ -130,11 +130,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
         feature = get_feature(project, feature_type=TYPE_CONCURRENT_BUILDS)
         feature_value = feature.value if feature else 1
-        return (
-            project.max_concurrent_builds
-            or max_concurrent_organization
-            or feature_value
-        )
+        return project.max_concurrent_builds or max_concurrent_organization or feature_value
 
     def prefetch_latest_build(self):
         """
@@ -194,7 +190,6 @@ class ProjectQuerySet(SettingsOverrideObject):
 
 
 class RelatedProjectQuerySet(NoReprQuerySet, models.QuerySet):
-
     """
     Useful for objects that relate to Project and its permissions.
 

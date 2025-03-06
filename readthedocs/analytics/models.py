@@ -1,4 +1,5 @@
 """Analytics modeling to help understand the projects on Read the Docs."""
+
 import datetime
 from collections import namedtuple
 from urllib.parse import urlparse
@@ -10,7 +11,8 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
 
 
 def _last_30_days_iter():
@@ -22,7 +24,6 @@ def _last_30_days_iter():
 
 
 class PageViewManager(models.Manager):
-
     """Manager for PageView model."""
 
     def register_page_view(self, project, version, filename, path, status):
@@ -53,7 +54,6 @@ class PageViewManager(models.Manager):
 
 
 class PageView(models.Model):
-
     """PageView counts per day for a project, version, and path."""
 
     project = models.ForeignKey(
@@ -103,9 +103,7 @@ class PageView(models.Model):
         ]
 
     @classmethod
-    def top_viewed_pages(
-        cls, project, since=None, limit=10, status=200, per_version=False
-    ):
+    def top_viewed_pages(cls, project, since=None, limit=10, status=200, per_version=False):
         """
         Returns top pages according to view counts.
 

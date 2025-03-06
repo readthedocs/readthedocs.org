@@ -5,7 +5,6 @@ from readthedocs.subscriptions.products import get_feature
 
 
 class HasEmbedAPIAccess(BasePermission):
-
     """
     Check if the project being accessed has access to the Embed API.
 
@@ -29,7 +28,6 @@ class HasEmbedAPIAccess(BasePermission):
 
 
 class IsCurrentUser(BasePermission):
-
     """Grant permission if user is the same as the one being accessed."""
 
     def has_permission(self, request, view):
@@ -39,7 +37,6 @@ class IsCurrentUser(BasePermission):
 
 
 class IsProjectAdmin(BasePermission):
-
     """Grant permission if user has admin rights on the Project."""
 
     def has_permission(self, request, view):

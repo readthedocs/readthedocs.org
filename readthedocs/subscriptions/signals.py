@@ -7,6 +7,7 @@ from django.dispatch import receiver
 
 from readthedocs.organizations.models import Organization
 
+
 log = structlog.get_logger(__name__)
 
 

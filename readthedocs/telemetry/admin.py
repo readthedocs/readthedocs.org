@@ -8,7 +8,6 @@ from readthedocs.telemetry.models import BuildData
 
 @admin.register(BuildData)
 class BuildDataAdmin(admin.ModelAdmin):
-
     """Admin class for BuildData model."""
 
     fields = ("created", "modified", "pretty_data")

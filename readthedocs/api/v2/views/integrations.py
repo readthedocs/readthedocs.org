@@ -10,24 +10,28 @@ from textwrap import dedent
 import structlog
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import constant_time_compare
-from rest_framework import permissions, status
-from rest_framework.exceptions import NotFound, ParseError
+from rest_framework import permissions
+from rest_framework import status
+from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
-from readthedocs.core.views.hooks import (
-    build_branches,
-    build_external_version,
-    close_external_version,
-    get_or_create_external_version,
-    trigger_sync_versions,
-)
-from readthedocs.integrations.models import HttpExchange, Integration
+from readthedocs.core.signals import webhook_bitbucket
+from readthedocs.core.signals import webhook_github
+from readthedocs.core.signals import webhook_gitlab
+from readthedocs.core.views.hooks import build_branches
+from readthedocs.core.views.hooks import build_external_version
+from readthedocs.core.views.hooks import close_external_version
+from readthedocs.core.views.hooks import get_or_create_external_version
+from readthedocs.core.views.hooks import trigger_sync_versions
+from readthedocs.integrations.models import HttpExchange
+from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
@@ -64,7 +68,6 @@ ExternalVersionData = namedtuple(
 
 
 class WebhookMixin:
-
     """Base class for Webhook mixins."""
 
     permission_classes = (permissions.AllowAny,)
@@ -336,7 +339,6 @@ class WebhookMixin:
 
 
 class GitHubWebhookView(WebhookMixin, APIView):
-
     """
     Webhook consumer for GitHub.
 
@@ -496,9 +498,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             ]
         ):
             events = (
-                integration.provider_data.get("events", [])
-                if integration.provider_data
-                else []
+                integration.provider_data.get("events", []) if integration.provider_data else []
             )  # noqa
             if any(
                 [
@@ -534,7 +534,6 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
 
 class GitLabWebhookView(WebhookMixin, APIView):
-
     """
     Webhook consumer for GitLab.
 
@@ -666,7 +665,6 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
 
 class BitbucketWebhookView(WebhookMixin, APIView):
-
     """
     Webhook consumer for Bitbucket.
 
@@ -768,7 +766,6 @@ class BitbucketWebhookView(WebhookMixin, APIView):
 
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
-
     """
     Allow authenticated users and requests with token auth through.
 
@@ -782,7 +779,6 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
 
 
 class APIWebhookView(WebhookMixin, APIView):
-
     """
     API webhook consumer.
 
@@ -852,7 +848,6 @@ class APIWebhookView(WebhookMixin, APIView):
 
 
 class WebhookView(APIView):
-
     """
     Main webhook view for webhooks with an ID.
 

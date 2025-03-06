@@ -4,12 +4,14 @@ Tasks related to projects.
 This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
+
 import os
 import shutil
 import signal
 import socket
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
 
 import structlog
@@ -21,61 +23,54 @@ from slumber.exceptions import HttpClientError
 
 from readthedocs.api.v2.client import setup_api
 from readthedocs.builds import tasks as build_tasks
-from readthedocs.builds.constants import (
-    ARTIFACT_TYPES,
-    ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT,
-    BUILD_FINAL_STATES,
-    BUILD_STATE_BUILDING,
-    BUILD_STATE_CANCELLED,
-    BUILD_STATE_CLONING,
-    BUILD_STATE_FINISHED,
-    BUILD_STATE_INSTALLING,
-    BUILD_STATE_TRIGGERED,
-    BUILD_STATE_UPLOADING,
-    BUILD_STATUS_FAILURE,
-    BUILD_STATUS_SUCCESS,
-    EXTERNAL,
-    UNDELETABLE_ARTIFACT_TYPES,
-)
-from readthedocs.builds.models import APIVersion, Build
+from readthedocs.builds.constants import ARTIFACT_TYPES
+from readthedocs.builds.constants import ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT
+from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.constants import BUILD_STATE_BUILDING
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import BUILD_STATE_CLONING
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_STATE_INSTALLING
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATE_UPLOADING
+from readthedocs.builds.constants import BUILD_STATUS_FAILURE
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
+from readthedocs.builds.models import APIVersion
+from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
 from readthedocs.core.utils.filesystem import assert_path_is_inside_docroot
 from readthedocs.doc_builder.director import BuildDirector
-from readthedocs.doc_builder.environments import (
-    DockerBuildEnvironment,
-    LocalBuildEnvironment,
-)
-from readthedocs.doc_builder.exceptions import (
-    BuildAppError,
-    BuildCancelled,
-    BuildMaxConcurrencyError,
-    BuildUserError,
-    MkDocsYAMLParseError,
-)
+from readthedocs.doc_builder.environments import DockerBuildEnvironment
+from readthedocs.doc_builder.environments import LocalBuildEnvironment
+from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildCancelled
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
 
-from ..exceptions import (
-    ProjectConfigurationError,
-    RepositoryError,
-    SyncRepositoryLocked,
-)
-from ..models import APIProject, WebHookEvent
+from ..exceptions import ProjectConfigurationError
+from ..exceptions import RepositoryError
+from ..exceptions import SyncRepositoryLocked
+from ..models import APIProject
+from ..models import WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import index_build
-from .utils import (
-    BuildRequest,
-    clean_build,
-    send_external_build_status,
-    set_builder_scale_in_protection,
-)
+from .utils import BuildRequest
+from .utils import clean_build
+from .utils import send_external_build_status
+from .utils import set_builder_scale_in_protection
+
 
 log = structlog.get_logger(__name__)
 
@@ -84,7 +79,6 @@ log = structlog.get_logger(__name__)
 # than the ones declared in the dataclass.
 @dataclass(slots=True)
 class TaskData:
-
     """
     Object to store all data related to a Celery task excecution.
 
@@ -128,7 +122,6 @@ class TaskData:
 
 
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
-
     """
     Entry point to synchronize the VCS documentation.
 
@@ -186,16 +179,12 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 "There was an error with the repository.",
             )
         elif isinstance(exc, SyncRepositoryLocked):
-            log.warning(
-                "Skipping syncing repository because there is another task running."
-            )
+            log.warning("Skipping syncing repository because there is another task running.")
         else:
             # Catch unhandled errors when syncing
             # Note we are using `log.error(exc_info=...)` instead of `log.exception`
             # because this is not executed inside a try/except block.
-            log.error(
-                "An unhandled exception was raised during VCS syncing.", exc_info=exc
-            )
+            log.error("An unhandled exception was raised during VCS syncing.", exc_info=exc)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         """
@@ -264,7 +253,6 @@ def sync_repository_task(self, version_id, *, build_api_key, **kwargs):
 
 
 class UpdateDocsTask(SyncRepositoryMixin, Task):
-
     """
     The main entry point for updating documentation.
 
@@ -317,9 +305,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _setup_sigterm(self):
         def sigterm_received(*args, **kwargs):
-            log.warning(
-                "SIGTERM received. Waiting for build to stop gracefully after it finishes."
-            )
+            log.warning("SIGTERM received. Waiting for build to stop gracefully after it finishes.")
 
         def sigint_received(*args, **kwargs):
             log.warning("SIGINT received. Canceling the build running.")
@@ -511,8 +497,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # required data to initialize it on ``before_start``.
         if self.data.build_director:
             log.warning(
-                "We couldn't attach a notification to the build since "
-                "it failed on an early stage."
+                "We couldn't attach a notification to the build since it failed on an early stage."
             )
             self.data.build_director.attach_notification(message_id, format_values)
 
@@ -635,9 +620,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 filename = list_dir[0]
                 _, extension = filename.rsplit(".")
                 path = Path(artifact_directory) / filename
-                destination = (
-                    Path(artifact_directory) / f"{self.data.project.slug}.{extension}"
-                )
+                destination = Path(artifact_directory) / f"{self.data.project.slug}.{extension}"
                 assert_path_is_inside_docroot(path)
                 assert_path_is_inside_docroot(destination)
                 shutil.move(path, destination)
@@ -856,9 +839,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         so this must be called before killing the container.
         """
         try:
-            return BuildDataCollector(
-                self.data.build_director.build_environment
-            ).collect()
+            return BuildDataCollector(self.data.build_director.build_environment).collect()
         except Exception:
             log.exception("Error while collecting build data")
 
@@ -900,9 +881,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     # build has finished to reduce API calls.
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        self.data.api_client.project(self.data.project.pk).patch(
-            {"has_valid_clone": True}
-        )
+        self.data.api_client.project(self.data.project.pk).patch({"has_valid_clone": True})
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
 
@@ -1000,9 +979,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _log_directory_size(self, directory, media_type):
         try:
-            output = subprocess.check_output(
-                ["du", "--summarize", "-m", "--", directory]
-            )
+            output = subprocess.check_output(["du", "--summarize", "-m", "--", directory])
             # The output is something like: "5\t/path/to/directory".
             directory_size = int(output.decode().split()[0])
             log.info(
@@ -1034,9 +1011,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
     ignore_result=True,
 )
-def update_docs_task(
-    self, version_id, build_id, *, build_api_key, build_commit=None, **kwargs
-):
+def update_docs_task(self, version_id, build_id, *, build_api_key, build_commit=None, **kwargs):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:

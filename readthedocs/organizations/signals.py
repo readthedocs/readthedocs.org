@@ -10,13 +10,14 @@ from djstripe.enums import SubscriptionStatus
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
-from readthedocs.organizations.models import Organization, Team, TeamMember
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
+from readthedocs.organizations.models import TeamMember
 from readthedocs.payments.utils import cancel_subscription
 from readthedocs.projects.models import Project
 
-from .tasks import (
-    mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task,
-)
+from .tasks import mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task
+
 
 log = structlog.get_logger(__name__)
 
@@ -67,9 +68,9 @@ def remove_organization_completely(sender, instance, using, **kwargs):
     # ``Project`` has a ManyToMany relationship with ``Organization``. We need
     # to be sure that the projects we are deleting here belongs only to the
     # organization deleted
-    projects = Project.objects.annotate(
-        count_organizations=Count("organizations")
-    ).filter(organizations__in=[organization], count_organizations=1)
+    projects = Project.objects.annotate(count_organizations=Count("organizations")).filter(
+        organizations__in=[organization], count_organizations=1
+    )
 
     # Granular delete that trigger other complex tasks.
     for project in projects:

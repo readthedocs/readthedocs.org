@@ -9,11 +9,9 @@ from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 
-from readthedocs.builds.constants import (
-    BUILD_FINAL_STATES,
-    BUILD_STATE_CANCELLED,
-    EXTERNAL,
-)
+from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
@@ -21,6 +19,7 @@ from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.notifications.models import Notification
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 

@@ -1,20 +1,24 @@
 import re
 from dataclasses import dataclass
-from enum import Enum, auto
-from urllib.parse import ParseResult, urlparse
+from enum import Enum
+from enum import auto
+from urllib.parse import ParseResult
+from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
 
-from readthedocs.builds.constants import EXTERNAL, INTERNAL
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
-from readthedocs.projects.constants import (
-    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
-    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
-    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
-)
-from readthedocs.projects.models import Domain, Feature, Project
+from readthedocs.projects.constants import MULTIPLE_VERSIONS_WITH_TRANSLATIONS
+from readthedocs.projects.constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
+from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
@@ -90,7 +94,6 @@ class InvalidExternalVersionError(UnresolverError):
 
 @dataclass(slots=True)
 class UnresolvedURL:
-
     """Dataclass with the parts of an unresolved URL."""
 
     # This is the project that owns the domain,
@@ -109,7 +112,6 @@ class UnresolvedURL:
 
 
 class DomainSourceType(Enum):
-
     """Where the custom domain was resolved from."""
 
     custom_domain = auto()
@@ -233,9 +235,7 @@ class Unresolver:
         path = self._normalize_filename(path)
         # We don't call unparse() on the path,
         # since it could be parsed as a full URL if it starts with a protocol.
-        parsed_url = ParseResult(
-            scheme="", netloc="", path=path, params="", query="", fragment=""
-        )
+        parsed_url = ParseResult(scheme="", netloc="", path=path, params="", query="", fragment="")
         return self._unresolve(
             unresolved_domain=unresolved_domain,
             parsed_url=parsed_url,
@@ -453,9 +453,7 @@ class Unresolver:
             version_slug = parent_project.default_version
             manager = INTERNAL
 
-        version = (
-            parent_project.versions(manager=manager).filter(slug=version_slug).first()
-        )
+        version = parent_project.versions(manager=manager).filter(slug=version_slug).first()
         if not version:
             raise VersionNotFoundError(
                 project=parent_project, version_slug=version_slug, filename=filename
@@ -564,9 +562,7 @@ class Unresolver:
             raise InvalidSubdomainError(domain)
 
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
-        external_domain = self.get_domain_from_host(
-            settings.RTD_EXTERNAL_VERSION_DOMAIN
-        )
+        external_domain = self.get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
 
         subdomain, *root_domain = domain.split(".", maxsplit=1)
         root_domain = root_domain[0] if root_domain else ""
@@ -604,9 +600,7 @@ class Unresolver:
             raise SuspiciousHostnameError(domain=domain)
 
         # Custom domain.
-        domain_object = (
-            Domain.objects.filter(domain=domain).select_related("project").first()
-        )
+        domain_object = Domain.objects.filter(domain=domain).select_related("project").first()
         if not domain_object:
             log.info("Invalid domain.", domain=domain)
             raise InvalidCustomDomainError(domain=domain)

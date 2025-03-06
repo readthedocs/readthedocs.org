@@ -1,54 +1,57 @@
 """Views for doc serving."""
+
 import itertools
 from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 from django.views import View
 
 from readthedocs.analytics.models import PageView
 from readthedocs.api.mixins import CDNCacheTagsMixin
-from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import Resolver
-from readthedocs.core.unresolver import (
-    InvalidExternalVersionError,
-    InvalidPathForVersionedProjectError,
-    TranslationNotFoundError,
-    TranslationWithoutVersionError,
-    VersionNotFoundError,
-    unresolver,
-)
+from readthedocs.core.unresolver import InvalidExternalVersionError
+from readthedocs.core.unresolver import InvalidPathForVersionedProjectError
+from readthedocs.core.unresolver import TranslationNotFoundError
+from readthedocs.core.unresolver import TranslationWithoutVersionError
+from readthedocs.core.unresolver import VersionNotFoundError
+from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.requests import is_suspicious_request
-from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PRIVATE
-from readthedocs.projects.models import Domain, Feature, HTMLFile
+from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
+from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
-from readthedocs.proxito.exceptions import (
-    ContextualizedHttp404,
-    ProjectFilenameHttp404,
-    ProjectTranslationHttp404,
-    ProjectVersionHttp404,
-)
+from readthedocs.proxito.exceptions import ContextualizedHttp404
+from readthedocs.proxito.exceptions import ProjectFilenameHttp404
+from readthedocs.proxito.exceptions import ProjectTranslationHttp404
+from readthedocs.proxito.exceptions import ProjectVersionHttp404
 from readthedocs.proxito.redirects import canonical_redirect
-from readthedocs.proxito.views.mixins import (
-    InvalidPathError,
-    ServeDocsMixin,
-    ServeRedirectMixin,
-    StorageFileNotFound,
-)
+from readthedocs.proxito.views.mixins import InvalidPathError
+from readthedocs.proxito.views.mixins import ServeDocsMixin
+from readthedocs.proxito.views.mixins import ServeRedirectMixin
+from readthedocs.proxito.views.mixins import StorageFileNotFound
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
+
 
 log = structlog.get_logger(__name__)  # noqa
 
 
 class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
-
     """
     Page redirect view.
 
@@ -67,9 +70,7 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         # Use the project from the domain, or use the subproject slug.
         if subproject_slug:
-            project = get_object_or_404(
-                project.subprojects, alias=subproject_slug
-            ).child
+            project = get_object_or_404(project.subprojects, alias=subproject_slug).child
 
         # Get the default version from the current project,
         # or the version from the external domain.
@@ -91,7 +92,6 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
 
 class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
-
     """
     Serve docs view.
 
@@ -165,9 +165,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
         if unresolved_domain.is_from_public_domain:
             canonical_domain = (
-                Domain.objects.filter(project=project)
-                .filter(canonical=True, https=True)
-                .exists()
+                Domain.objects.filter(project=project).filter(canonical=True, https=True).exists()
             )
             # For .com we need to check if the project supports custom domains.
             if canonical_domain and Resolver()._use_cname(project):
@@ -374,7 +372,6 @@ class ServeDocs(SettingsOverrideObject):
 
 
 class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
-
     """
     Proxito handler for 404 pages.
 
@@ -582,9 +579,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         """
         versions_404 = [version] if version and version.built else []
         if not version or version.slug != project.default_version:
-            default_version = project.versions.filter(
-                slug=project.default_version
-            ).first()
+            default_version = project.versions.filter(slug=project.default_version).first()
             if default_version and default_version.built:
                 versions_404.append(default_version)
 
@@ -593,9 +588,9 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         tryfiles = ["404.html", "404/index.html"]
         available_404_files = list(
-            HTMLFile.objects.filter(
-                version__in=versions_404, path__in=tryfiles
-            ).values_list("version__slug", "path")
+            HTMLFile.objects.filter(version__in=versions_404, path__in=tryfiles).values_list(
+                "version__slug", "path"
+            )
         )
         if not available_404_files:
             return None
@@ -614,9 +609,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                     include_file=False,
                     version_type=self.version_type,
                 )
-                storage_filename_path = build_media_storage.join(
-                    storage_root_path, tryfile
-                )
+                storage_filename_path = build_media_storage.join(storage_root_path, tryfile)
                 log.debug(
                     "Serving custom 404.html page.",
                     version_slug_404=version_404.slug,
@@ -672,7 +665,6 @@ class ServeError404(SettingsOverrideObject):
 
 
 class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
-
     """Serve robots.txt from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
@@ -767,8 +759,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
         hidden_versions = Version.internal.public(project=project).filter(hidden=True)
         resolver = Resolver()
         hidden_paths = [
-            resolver.resolve_path(project, version_slug=version.slug)
-            for version in hidden_versions
+            resolver.resolve_path(project, version_slug=version.slug) for version in hidden_versions
         ]
         return hidden_paths
 
@@ -789,7 +780,6 @@ class ServeRobotsTXT(SettingsOverrideObject):
 
 
 class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
-
     """Serve sitemap.xml from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
@@ -956,7 +946,6 @@ class ServeSitemapXML(SettingsOverrideObject):
 
 
 class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
-
     """
     Serve static files from the same domain the docs are being served from.
 

@@ -1,4 +1,5 @@
 """Build and Version QuerySet classes."""
+
 import datetime
 
 import structlog
@@ -6,17 +7,16 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from readthedocs.builds.constants import (
-    BUILD_STATE_CANCELLED,
-    BUILD_STATE_FINISHED,
-    BUILD_STATE_TRIGGERED,
-    EXTERNAL,
-)
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
@@ -25,7 +25,6 @@ __all__ = ["VersionQuerySet", "BuildQuerySet", "RelatedBuildQuerySet"]
 
 
 class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
-
     """Versions take into account their own privacy_level setting."""
 
     use_for_related_fields = True
@@ -73,9 +72,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
                 project__external_builds_privacy_level=constants.PUBLIC,
             )
         else:
-            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(
-                type=EXTERNAL
-            )
+            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
             queryset |= self.filter(
                 type=EXTERNAL,
                 project__external_builds_privacy_level=constants.PUBLIC,
@@ -103,9 +100,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
             if user.is_superuser:
                 queryset = self.all()
             else:
-                queryset = self._add_from_user_projects(
-                    queryset, user, admin=True, member=True
-                )
+                queryset = self._add_from_user_projects(queryset, user, admin=True, member=True)
         if project:
             queryset = queryset.filter(project=project)
         if only_active:
@@ -152,7 +147,6 @@ class VersionQuerySet(SettingsOverrideObject):
 
 
 class BuildQuerySet(NoReprQuerySet, models.QuerySet):
-
     """
     Build objects that are privacy aware.
 
@@ -281,7 +275,6 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
 
 class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):
-
     """
     For models with association to a project through :py:class:`Build`.
 

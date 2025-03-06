@@ -7,6 +7,7 @@ from django.utils import timezone
 import readthedocs
 from readthedocs.worker import app
 
+
 DEFAULT_PARAMETERS = {
     "v": "1",  # analytics version (always 1)
     "aip": "1",  # anonymize IP

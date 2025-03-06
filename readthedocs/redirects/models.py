@@ -10,17 +10,16 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
-from readthedocs.redirects.constants import (
-    CLEAN_URL_TO_HTML_REDIRECT,
-    EXACT_REDIRECT,
-    HTML_TO_CLEAN_URL_REDIRECT,
-    HTTP_STATUS_CHOICES,
-    PAGE_REDIRECT,
-    TYPE_CHOICES,
-)
+from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
+from readthedocs.redirects.constants import EXACT_REDIRECT
+from readthedocs.redirects.constants import HTML_TO_CLEAN_URL_REDIRECT
+from readthedocs.redirects.constants import HTTP_STATUS_CHOICES
+from readthedocs.redirects.constants import PAGE_REDIRECT
+from readthedocs.redirects.constants import TYPE_CHOICES
 from readthedocs.redirects.validators import validate_redirect
 
 from .querysets import RedirectQuerySet
+
 
 log = structlog.get_logger(__name__)
 
@@ -30,8 +29,7 @@ log = structlog.get_logger(__name__)
 # ``/$lang/$version/`` part. Also, there is a feature for the "Exact Redirects"
 # that should be mentioned here: the usage of ``*``.
 from_url_helptext = _(
-    "Absolute path, excluding the domain. "
-    "Example: <b>/docs/</b>  or <b>/install.html</b>",
+    "Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install.html</b>",
 )
 to_url_helptext = _(
     "Absolute or relative URL. Example: <b>/tutorial/install.html</b>",
@@ -40,7 +38,6 @@ redirect_type_helptext = _("The type of redirect you wish to use.")
 
 
 class Redirect(models.Model):
-
     """A HTTP redirect associated with a Project."""
 
     project = models.ForeignKey(
@@ -215,9 +212,7 @@ class Redirect(models.Model):
             )
         return ""
 
-    def get_full_path(
-        self, filename, language=None, version_slug=None, allow_crossdomain=False
-    ):
+    def get_full_path(self, filename, language=None, version_slug=None, allow_crossdomain=False):
         """
         Return a full path for a given filename.
 
@@ -256,9 +251,7 @@ class Redirect(models.Model):
                 type=self.redirect_type,
             ),
         )
-        return method(
-            filename=filename, path=path, language=language, version_slug=version_slug
-        )
+        return method(filename=filename, path=path, language=language, version_slug=version_slug)
 
     def _redirect_with_wildcard(self, current_path):
         if self.from_url.endswith("*"):
@@ -292,9 +285,7 @@ class Redirect(models.Model):
         if self.from_url.endswith("*") and ":splat" in self.to_url:
             to_url_without_splat = self.to_url.split(":splat", maxsplit=1)[0]
 
-            redirects_to_subpath = to_url_without_splat.startswith(
-                self.from_url_without_rest
-            )
+            redirects_to_subpath = to_url_without_splat.startswith(self.from_url_without_rest)
             if redirects_to_subpath and current_path.startswith(to_url_without_splat):
                 return True
 
@@ -316,9 +307,7 @@ class Redirect(models.Model):
         log.debug("Redirecting...", redirect=self)
         return self._redirect_with_wildcard(current_path=path)
 
-    def redirect_clean_url_to_html(
-        self, filename, path, language=None, version_slug=None
-    ):
+    def redirect_clean_url_to_html(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
         suffixes = ["/", "/index.html"]
         for suffix in suffixes:
@@ -335,9 +324,7 @@ class Redirect(models.Model):
                     allow_crossdomain=False,
                 )
 
-    def redirect_html_to_clean_url(
-        self, filename, path, language=None, version_slug=None
-    ):
+    def redirect_html_to_clean_url(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
         to = filename.removesuffix(".html") + "/"
         return self.get_full_path(

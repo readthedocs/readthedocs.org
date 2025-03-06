@@ -6,11 +6,13 @@ Serializers used to save the corresponding data from a model in a log entry.
    These aren't used in an API, but to extract data from objects to
    save it in log entries (AuditLog.data).
 """
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from readthedocs.invitations.models import Invitation
-from readthedocs.organizations.models import Organization, Team
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
 from readthedocs.projects.models import Project
 
 
@@ -43,7 +45,6 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class InvitationSerializer(serializers.ModelSerializer):
-
     """Invitation serializer."""
 
     to_user = UserSerializer()

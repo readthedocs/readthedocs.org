@@ -1,24 +1,26 @@
 """Queryset for the redirects app."""
+
 from urllib.parse import urlparse
 
 import structlog
 from django.db import models
-from django.db.models import CharField, F, Q, Value
+from django.db.models import CharField
+from django.db.models import F
+from django.db.models import Q
+from django.db.models import Value
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
-from readthedocs.redirects.constants import (
-    CLEAN_URL_TO_HTML_REDIRECT,
-    EXACT_REDIRECT,
-    HTML_TO_CLEAN_URL_REDIRECT,
-    PAGE_REDIRECT,
-)
+from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
+from readthedocs.redirects.constants import EXACT_REDIRECT
+from readthedocs.redirects.constants import HTML_TO_CLEAN_URL_REDIRECT
+from readthedocs.redirects.constants import PAGE_REDIRECT
+
 
 log = structlog.get_logger(__name__)
 
 
 class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
-
     """Redirects take into account their own privacy_level setting."""
 
     use_for_related_fields = True
@@ -66,9 +68,7 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
 
         # Useful to allow redirects to match paths with or without trailling slash.
         # For example, ``/docs`` will match ``/docs/`` and ``/docs``.
-        filename_without_trailling_slash = self._strip_trailling_slash(
-            normalized_filename
-        )
+        filename_without_trailling_slash = self._strip_trailling_slash(normalized_filename)
         path_without_trailling_slash = self._strip_trailling_slash(normalized_path)
 
         # Add extra fields with the ``filename`` and ``path`` to perform a

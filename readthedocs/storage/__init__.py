@@ -5,6 +5,7 @@ For static files storage, use django.contrib.staticfiles.storage.staticfiles_sto
 Some storage backends (notably S3) have a slow instantiation time
 so doing those upfront improves performance.
 """
+
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.utils.functional import LazyObject

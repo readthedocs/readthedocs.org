@@ -12,7 +12,6 @@ from readthedocs.core.history import ExtraHistoricalRecords
 
 
 class UserProfile(TimeStampedModel):
-
     """Additional information about a User."""
 
     user = AutoOneToOneField(
@@ -33,9 +32,7 @@ class UserProfile(TimeStampedModel):
 
     mailing_list = models.BooleanField(
         default=False,
-        help_text=_(
-            "Subscribe to our mailing list, and get helpful onboarding suggestions."
-        ),
+        help_text=_("Subscribe to our mailing list, and get helpful onboarding suggestions."),
     )
 
     # Internal tracking

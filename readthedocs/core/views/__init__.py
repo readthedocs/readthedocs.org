@@ -7,13 +7,17 @@ and server errors.
 
 import structlog
 from django.conf import settings
-from django.http import Http404, JsonResponse
+from django.http import Http404
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView
+from django.views.generic import View
 
 from readthedocs.core.forms import SupportForm
-from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
+from readthedocs.core.mixins import CDNCacheControlMixin
+from readthedocs.core.mixins import PrivateViewMixin
+
 
 log = structlog.get_logger(__name__)
 
@@ -33,7 +37,6 @@ class HealthCheckView(CDNCacheControlMixin, View):
 
 
 class HomepageView(TemplateView):
-
     """
     Conditionally show the home page or redirect to the login page.
 
@@ -61,9 +64,7 @@ class HomepageView(TemplateView):
                 query_string += "&" + request.META["QUERY_STRING"]
 
             # Do a 302 here so that it varies on logged in status
-            return redirect(
-                f"https://about.readthedocs.com{query_string}", permanent=False
-            )
+            return redirect(f"https://about.readthedocs.com{query_string}", permanent=False)
 
         # Show the homepage for local dev
         return super().get(request, *args, **kwargs)
@@ -85,7 +86,6 @@ class SupportView(PrivateViewMixin, TemplateView):
 
 
 class ErrorView(TemplateView):
-
     """
     Render templated error pages.
 
@@ -140,7 +140,6 @@ class ErrorView(TemplateView):
 
 
 class PageNotFoundView(View):
-
     """Just a 404 view that ignores all URL parameters."""
 
     def get(self, request, *args, **kwargs):

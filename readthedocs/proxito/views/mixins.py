@@ -1,14 +1,14 @@
 import mimetypes
-from urllib.parse import parse_qsl, urlencode, urlparse
+from urllib.parse import parse_qsl
+from urllib.parse import urlencode
+from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
 from django.core.exceptions import BadRequest
-from django.http import (
-    HttpResponse,
-    HttpResponsePermanentRedirect,
-    HttpResponseRedirect,
-)
+from django.http import HttpResponse
+from django.http import HttpResponsePermanentRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
@@ -20,25 +20,24 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
-from readthedocs.storage import build_media_storage, staticfiles_storage
+from readthedocs.storage import build_media_storage
+from readthedocs.storage import staticfiles_storage
 from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS
 from readthedocs.subscriptions.products import get_feature
+
 
 log = structlog.get_logger(__name__)
 
 
 class InvalidPathError(Exception):
-
     """An invalid path was passed to storage."""
 
 
 class StorageFileNotFound(Exception):
-
     """The file wasn't found in the storage backend."""
 
 
 class ServeDocsMixin:
-
     """Class implementing all the logic to serve a document."""
 
     # We force all storage calls to use internal versions
@@ -71,9 +70,7 @@ class ServeDocsMixin:
         # If the filename starts with `/`, the join will fail,
         # so we strip it before joining it.
         try:
-            storage_path = build_media_storage.join(
-                base_storage_path, filename.lstrip("/")
-            )
+            storage_path = build_media_storage.join(base_storage_path, filename.lstrip("/"))
         except ValueError:
             # We expect this exception from the django storages safe_join
             # function, when the filename resolves to a higher relative path.
@@ -272,9 +269,7 @@ class ServeDocsMixin:
             from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
 
             if is_serve_docs_denied(project):
-                return render(
-                    request, template_name="errors/proxito/spam.html", status=410
-                )
+                return render(request, template_name="errors/proxito/spam.html", status=410)
 
 
 class ServeRedirectMixin:
@@ -300,9 +295,7 @@ class ServeRedirectMixin:
             query_params=urlparse_result.query,
             external=is_external_version,
         )
-        log.debug(
-            "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
-        )
+        log.debug("System Redirect.", host=request.get_host(), from_url=filename, to_url=to)
 
         new_path_parsed = urlparse(to)
         old_path_parsed = urlparse(request.build_absolute_uri())

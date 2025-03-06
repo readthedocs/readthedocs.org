@@ -1,4 +1,5 @@
 """JSON/HTML parsers for search indexing."""
+
 import hashlib
 import itertools
 import re
@@ -7,6 +8,7 @@ import structlog
 from selectolax.parser import HTMLParser
 
 from readthedocs.storage import build_media_storage
+
 
 log = structlog.get_logger(__name__)
 

@@ -12,6 +12,7 @@ from readthedocs.core.history import set_change_reason
 
 from .models import UserProfile
 
+
 log = structlog.get_logger(__name__)
 
 
@@ -77,7 +78,6 @@ class UserAdvertisingForm(forms.ModelForm):
 
 
 class PrevalidatedForm(forms.Form):
-
     """
     Form class that allows raising form errors before form submission.
 
@@ -144,7 +144,6 @@ class PrevalidatedForm(forms.Form):
 
 
 class RichValidationError(forms.ValidationError):
-
     """
     Show non-field form errors as titled messages.
 
@@ -158,16 +157,13 @@ class RichValidationError(forms.ValidationError):
         etc. Default: "error".
     """
 
-    def __init__(
-        self, message, code=None, params=None, header=None, message_class=None
-    ):
+    def __init__(self, message, code=None, params=None, header=None, message_class=None):
         super().__init__(message, code, params)
         self.header = header
         self.message_class = message_class
 
 
 class FacetField(forms.MultipleChoiceField):
-
     """
     For filtering searches on a facet.
 

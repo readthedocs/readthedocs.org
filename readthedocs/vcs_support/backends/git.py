@@ -6,26 +6,23 @@ from typing import Iterable
 import structlog
 from django.conf import settings
 
-from readthedocs.builds.constants import (
-    BRANCH,
-    EXTERNAL,
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-    TAG,
-)
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.builds.constants import TAG
 from readthedocs.config import ALL
-from readthedocs.projects.constants import (
-    GITHUB_PR_PULL_PATTERN,
-    GITLAB_MR_PULL_PATTERN,
-)
+from readthedocs.projects.constants import GITHUB_PR_PULL_PATTERN
+from readthedocs.projects.constants import GITLAB_MR_PULL_PATTERN
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from readthedocs.vcs_support.base import BaseVCS
+from readthedocs.vcs_support.base import VCSVersion
+
 
 log = structlog.get_logger(__name__)
 
 
 class Backend(BaseVCS):
-
     """Git VCS backend."""
 
     fallback_branch = "master"  # default branch
@@ -101,8 +98,7 @@ class Backend(BaseVCS):
 
         if not self.version_type:
             log.warning(
-                "Trying to resolve a remote reference without setting version_type is not "
-                "possible",
+                "Trying to resolve a remote reference without setting version_type is not possible",
                 project_slug=self.project.slug,
             )
             return None
@@ -222,9 +218,7 @@ class Backend(BaseVCS):
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
-        submodules_in_config = (
-            config.submodules.exclude != ALL or config.submodules.include
-        )
+        submodules_in_config = config.submodules.exclude != ALL or config.submodules.include
         if not submodules_in_config:
             return False
 

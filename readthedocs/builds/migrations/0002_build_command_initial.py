@@ -1,9 +1,12 @@
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 import readthedocs.builds.models
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy
     dependencies = [
         ("builds", "0001_initial"),
     ]

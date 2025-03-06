@@ -5,6 +5,7 @@ import re
 import structlog
 from django.conf import settings
 
+
 log = structlog.get_logger(__name__)
 
 PDF_RE = re.compile("Output written on (.*?)")

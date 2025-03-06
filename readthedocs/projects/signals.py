@@ -1,12 +1,13 @@
 """Project signals."""
 
-
 import django.dispatch
 import structlog
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.models import AddonsConfig
+from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
