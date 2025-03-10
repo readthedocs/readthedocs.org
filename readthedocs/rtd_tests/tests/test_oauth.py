@@ -55,6 +55,7 @@ class GitHubAppTests(TestCase):
             full_name="user/repo",
             vcs_provider=GITHUB_APP,
             github_app_installation=self.installation,
+            description="Some description",
         )
         get(
             RemoteRepositoryRelation,
@@ -300,11 +301,103 @@ class GitHubAppTests(TestCase):
         assert relation.account == self.account
         assert relation.admin
 
-    def test_update_repository(self):
-        pass
+    @requests_mock.Mocker(kw="request")
+    def test_update_repository(self, request):
+        assert self.remote_repository.description == "Some description"
+        api_url = "https://api.github.com:443"
+        request.post(
+            f"{api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{api_url}/repositories/{self.remote_repository.remote_id}",
+            json=self._get_repository_json(
+                full_name="user/repo",
+                id=int(self.remote_repository.remote_id),
+                owner={"id": int(self.account.uid)},
+                description="New description",
+            ),
+        )
+        request.get(
+            f"{api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
 
-    def test_sync(self):
-        pass
+        service = self.installation.service
+        service.update_or_create_repositories([int(self.remote_repository.remote_id)])
+
+        self.remote_repository.refresh_from_db()
+        assert self.remote_repository.description == "New description"
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync(self, request):
+        assert self.installation.repositories.count() == 1
+        api_url = "https://api.github.com:443"
+        request.get(
+            f"{api_url}/app/installations/1111",
+            json=self._get_installation_json(id=1111),
+        )
+        request.post(
+            f"{api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{api_url}/installation/repositories",
+            json={
+                "repositories": [
+                    self._get_repository_json(
+                        full_name="user/repo", id=int(self.remote_repository.remote_id)
+                    ),
+                    self._get_repository_json(full_name="user/repo2", id=2222),
+                    self._get_repository_json(full_name="user/repo3", id=3333),
+                ]
+            },
+        )
+
+        request.get(
+            f"{api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+        request.get(
+            f"{api_url}/repos/user/repo2/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+        request.get(
+            f"{api_url}/repos/user/repo3/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.sync()
+
+        assert self.installation.repositories.count() == 3
+
+        repo = self.installation.repositories.get(full_name="user/repo")
+        assert repo.name == "repo"
+        assert repo.remote_id == self.remote_repository.remote_id
+        assert repo.remote_repository_relations.count() == 1
+        relation = repo.remote_repository_relations.first()
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+
+        repo = self.installation.repositories.get(full_name="user/repo2")
+        assert repo.name == "repo2"
+        assert repo.remote_id == "2222"
+        assert repo.remote_repository_relations.count() == 1
+        relation = repo.remote_repository_relations.first()
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+
+        repo = self.installation.repositories.get(full_name="user/repo3")
+        assert repo.name == "repo3"
+        assert repo.remote_id == "3333"
+        assert repo.remote_repository_relations.count() == 1
+        relation = repo.remote_repository_relations.first()
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
 
     def test_send_build_status(self):
         pass
