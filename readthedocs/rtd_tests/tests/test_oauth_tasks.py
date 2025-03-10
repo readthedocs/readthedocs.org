@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.models import Version
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.tasks import (
@@ -21,7 +22,6 @@ from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
 
 
-# TODO: add tests here for the githubapp
 class SyncRemoteRepositoriesTests(TestCase):
     def setUp(self):
         self.user = get(User)
@@ -31,6 +31,11 @@ class SyncRemoteRepositoriesTests(TestCase):
             SocialAccount,
             user=self.user,
             provider=GitHubOAuth2Adapter.provider_id,
+        )
+        self.socialaccount_ghapp = get(
+            SocialAccount,
+            user=self.user,
+            provider=GitHubAppProvider.id,
         )
         self.socialaccount_gl = get(
             SocialAccount,
@@ -43,20 +48,23 @@ class SyncRemoteRepositoriesTests(TestCase):
             provider=BitbucketOAuth2Adapter.provider_id,
         )
 
+    @patch("readthedocs.oauth.services.githubapp.GitHubAppService.sync_user_access")
     @patch("readthedocs.oauth.services.github.GitHubService.sync")
     @patch("readthedocs.oauth.services.gitlab.GitLabService.sync")
     @patch("readthedocs.oauth.services.bitbucket.BitbucketService.sync")
-    def test_sync_repository(self, sync_bb, sync_gl, sync_gh):
+    def test_sync_repository(self, sync_bb, sync_gl, sync_gh, sync_ghapp):
         r = sync_remote_repositories(self.user.pk)
         self.assertNotIn("error", r)
         sync_bb.assert_called_once()
         sync_gl.assert_called_once()
         sync_gh.assert_called_once()
+        sync_ghapp.assert_called_once()
 
+    @patch("readthedocs.oauth.services.githubapp.GitHubAppService.sync_user_access")
     @patch("readthedocs.oauth.services.github.GitHubService.sync")
     @patch("readthedocs.oauth.services.gitlab.GitLabService.sync")
     @patch("readthedocs.oauth.services.bitbucket.BitbucketService.sync")
-    def test_sync_repository_failsync(self, sync_bb, sync_gl, sync_gh):
+    def test_sync_repository_failsync(self, sync_bb, sync_gl, sync_gh, sync_ghapp):
         sync_gh.side_effect = SyncServiceError
         r = sync_remote_repositories(self.user.pk)
         self.assertIn("GitHub", r["error"])
@@ -65,11 +73,15 @@ class SyncRemoteRepositoriesTests(TestCase):
         sync_bb.assert_called_once()
         sync_gl.assert_called_once()
         sync_gh.assert_called_once()
+        sync_ghapp.assert_called_once()
 
+    @patch("readthedocs.oauth.services.githubapp.GitHubAppService.sync_user_access")
     @patch("readthedocs.oauth.services.github.GitHubService.sync")
     @patch("readthedocs.oauth.services.gitlab.GitLabService.sync")
     @patch("readthedocs.oauth.services.bitbucket.BitbucketService.sync")
-    def test_sync_repository_failsync_more_than_one(self, sync_bb, sync_gl, sync_gh):
+    def test_sync_repository_failsync_more_than_one(
+        self, sync_bb, sync_gl, sync_gh, sync_ghapp
+    ):
         sync_gh.side_effect = SyncServiceError
         sync_bb.side_effect = SyncServiceError
         r = sync_remote_repositories(self.user.pk)
@@ -79,6 +91,7 @@ class SyncRemoteRepositoriesTests(TestCase):
         sync_bb.assert_called_once()
         sync_gl.assert_called_once()
         sync_gh.assert_called_once()
+        sync_ghapp.assert_called_once()
 
     @patch("readthedocs.oauth.tasks.sync_remote_repositories")
     def test_sync_remote_repository_organizations_slugs(
