@@ -11,7 +11,13 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
-from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
+from readthedocs.builds.constants import (
+    BUILD_STATUS_FAILURE,
+    BUILD_STATUS_PENDING,
+    BUILD_STATUS_SUCCESS,
+    EXTERNAL,
+    LATEST,
+)
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GitHubWebhook, GitLabWebhook
 from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITHUB_APP, GITLAB
@@ -29,7 +35,10 @@ from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
 
-@override_settings()
+@override_settings(
+    PRODUCTION_DOMAIN="readthedocs.org",
+    PUBLIC_DOMAIN="readthedocs.io",
+)
 class GitHubAppTests(TestCase):
     def setUp(self):
         self.user = get(User)
@@ -105,6 +114,7 @@ class GitHubAppTests(TestCase):
             users=[self.user],
             remote_repository=self.remote_repository_with_org,
         )
+        self.api_url = "https://api.github.com:443"
 
     def _merge_dicts(self, a, b):
         for k, v in b.items():
@@ -175,6 +185,63 @@ class GitHubAppTests(TestCase):
             "id": 1111,
             "login": "user",
             "permissions": {"admin": True},
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_commit_json(self, commit, **kwargs):
+        default = {
+            "url": f"https://api.github.com/repos/user/repo/commits/{commit}",
+            "sha": commit,
+            "html_url": f"https://github.com/user/repo/commit/{commit}",
+            # "comments_url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e/comments",
+            "commit": {
+                "url": f"https://api.github.com/repos/octocat/Hello-World/git/commits/{commit}",
+                "author": {
+                    "name": "Monalisa Octocat",
+                    "email": "mona@github.com",
+                    "date": "2011-04-14T16:00:49Z",
+                },
+                "committer": {
+                    "name": "Monalisa Octocat",
+                    "email": "mona@github.com",
+                    "date": "2011-04-14T16:00:49Z",
+                },
+                "message": "Fix all the bugs",
+                "tree": {
+                    "url": f"https://api.github.com/repos/user/repo/tree/{commit}",
+                    "sha": commit,
+                },
+                "comment_count": 0,
+            },
+            "author": {
+                "login": "octocat",
+                "id": 1,
+                "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/octocat",
+                "html_url": "https://github.com/octocat",
+                "type": "User",
+                "site_admin": False,
+            },
+            "committer": {
+                "login": "octocat",
+                "id": 1,
+                "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/octocat",
+                "html_url": "https://github.com/octocat",
+                "type": "User",
+                "site_admin": False,
+            },
+            "parents": [
+                {
+                    "url": "https://api.github.com/repos/user/repo/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                    "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                }
+            ],
+            "stats": {"additions": 104, "deletions": 4, "total": 108},
+            "files": [],
         }
         self._merge_dicts(default, kwargs)
         return default
@@ -260,19 +327,18 @@ class GitHubAppTests(TestCase):
             remote_id=new_repo_id, vcs_provider=GitHubAppProvider.id
         ).exists()
 
-        api_url = "https://api.github.com:443"
         request.post(
-            f"{api_url}/app/installations/1111/access_tokens",
+            f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
         request.get(
-            f"{api_url}/repositories/4444",
+            f"{self.api_url}/repositories/4444",
             json=self._get_repository_json(
                 full_name="user/repo", id=4444, owner={"id": int(self.account.uid)}
             ),
         )
         request.get(
-            f"{api_url}/repos/user/repo/collaborators",
+            f"{self.api_url}/repos/user/repo/collaborators",
             json=[self._get_collaborator_json()],
         )
 
@@ -304,13 +370,12 @@ class GitHubAppTests(TestCase):
     @requests_mock.Mocker(kw="request")
     def test_update_repository(self, request):
         assert self.remote_repository.description == "Some description"
-        api_url = "https://api.github.com:443"
         request.post(
-            f"{api_url}/app/installations/1111/access_tokens",
+            f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
         request.get(
-            f"{api_url}/repositories/{self.remote_repository.remote_id}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}",
             json=self._get_repository_json(
                 full_name="user/repo",
                 id=int(self.remote_repository.remote_id),
@@ -319,7 +384,7 @@ class GitHubAppTests(TestCase):
             ),
         )
         request.get(
-            f"{api_url}/repos/user/repo/collaborators",
+            f"{self.api_url}/repos/user/repo/collaborators",
             json=[self._get_collaborator_json()],
         )
 
@@ -332,17 +397,16 @@ class GitHubAppTests(TestCase):
     @requests_mock.Mocker(kw="request")
     def test_sync(self, request):
         assert self.installation.repositories.count() == 1
-        api_url = "https://api.github.com:443"
         request.get(
-            f"{api_url}/app/installations/1111",
+            f"{self.api_url}/app/installations/1111",
             json=self._get_installation_json(id=1111),
         )
         request.post(
-            f"{api_url}/app/installations/1111/access_tokens",
+            f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
         request.get(
-            f"{api_url}/installation/repositories",
+            f"{self.api_url}/installation/repositories",
             json={
                 "repositories": [
                     self._get_repository_json(
@@ -355,15 +419,15 @@ class GitHubAppTests(TestCase):
         )
 
         request.get(
-            f"{api_url}/repos/user/repo/collaborators",
+            f"{self.api_url}/repos/user/repo/collaborators",
             json=[self._get_collaborator_json()],
         )
         request.get(
-            f"{api_url}/repos/user/repo2/collaborators",
+            f"{self.api_url}/repos/user/repo2/collaborators",
             json=[self._get_collaborator_json()],
         )
         request.get(
-            f"{api_url}/repos/user/repo3/collaborators",
+            f"{self.api_url}/repos/user/repo3/collaborators",
             json=[self._get_collaborator_json()],
         )
 
@@ -399,11 +463,120 @@ class GitHubAppTests(TestCase):
         assert relation.account == self.account
         assert relation.admin
 
-    def test_send_build_status(self):
-        pass
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_pending(self, request):
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
 
-    def test_get_clone_token(self):
-        pass
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_PENDING
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build is in progress!",
+            "state": "pending",
+            "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_success(self, request):
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        version.built = True
+        version.save()
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build succeeded!",
+            "state": "success",
+            "target_url": f"http://{self.project.slug}.readthedocs.io/en/latest/",
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_failure(self, request):
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_FAILURE
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build failed!",
+            "state": "failure",
+            "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_get_clone_token(self, request):
+        token = "ghs_16C7e42F292c6912E7710c838347Ae178B4a"
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(toke=token),
+        )
+        service = self.installation.service
+        clone_token = service.get_clone_token(self.project)
+        assert clone_token == f"x-access-token:{token}"
 
 
 class GitHubOAuthTests(TestCase):
