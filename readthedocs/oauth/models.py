@@ -14,8 +14,11 @@ from django_extensions.db.models import TimeStampedModel
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
-from .constants import GITHUB_APP, VCS_PROVIDER_CHOICES
-from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
+from .constants import GITHUB_APP
+from .constants import VCS_PROVIDER_CHOICES
+from .querysets import RemoteOrganizationQuerySet
+from .querysets import RemoteRepositoryQuerySet
+
 
 log = structlog.get_logger(__name__)
 
@@ -40,10 +43,7 @@ class GitHubAppInstallationManager(models.Manager):
         )
         # NOTE: An installation can't change its target_id or target_type.
         # This should never happen, unless this assumption is wrong.
-        if (
-            installation.target_id != target_id
-            or installation.target_type != target_type
-        ):
+        if installation.target_id != target_id or installation.target_type != target_type:
             log.exception(
                 "Installation target_id or target_type changed",
                 installation_id=installation.installation_id,
@@ -73,16 +73,12 @@ class GitHubAppInstallation(TimeStampedModel):
         help_text=_("A GitHub account ID, it can be from a user or an organization"),
     )
     target_type = models.CharField(
-        help_text=_(
-            "Account type that the target_id belongs to (user or organization)"
-        ),
+        help_text=_("Account type that the target_id belongs to (user or organization)"),
         choices=GitHubAccountType.choices,
         max_length=255,
     )
     extra_data = models.JSONField(
-        help_text=_(
-            "Extra data returned by the webhook when the installation is created"
-        ),
+        help_text=_("Extra data returned by the webhook when the installation is created"),
         default=dict,
     )
 
@@ -128,14 +124,10 @@ class GitHubAppInstallation(TimeStampedModel):
             remote_organizations = remote_organizations.filter(
                 repositories__remote_id__in=repository_ids
             )
-            remote_repositories = remote_repositories.filter(
-                remote_id__in=repository_ids
-            )
+            remote_repositories = remote_repositories.filter(remote_id__in=repository_ids)
 
         # Fetch all IDs before deleting the repositories, so we can filter the organizations later.
-        remote_organizations_ids = list(
-            remote_organizations.values_list("id", flat=True)
-        )
+        remote_organizations_ids = list(remote_organizations.values_list("id", flat=True))
 
         count, deleted = remote_repositories.delete()
         log.info(
@@ -201,9 +193,7 @@ class RemoteOrganization(TimeStampedModel):
     )
     # VCS provider organization id
     remote_id = models.CharField(db_index=True, max_length=128)
-    vcs_provider = models.CharField(
-        _("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32
-    )
+    vcs_provider = models.CharField(_("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32)
 
     objects = RemoteOrganizationQuerySet.as_manager()
 
@@ -324,9 +314,7 @@ class RemoteRepository(TimeStampedModel):
     )
     # VCS provider repository id
     remote_id = models.CharField(max_length=128)
-    vcs_provider = models.CharField(
-        _("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32
-    )
+    vcs_provider = models.CharField(_("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32)
 
     github_app_installation = models.ForeignKey(
         GitHubAppInstallation,
@@ -397,9 +385,7 @@ class RemoteRepository(TimeStampedModel):
                 return service_cls
 
         # NOTE: this should never happen, but we log it just in case
-        log.exception(
-            "Service not found for the VCS provider", vcs_provider=self.vcs_provider
-        )
+        log.exception("Service not found for the VCS provider", vcs_provider=self.vcs_provider)
         return None
 
 

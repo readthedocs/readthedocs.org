@@ -1,8 +1,11 @@
 """Conditional classes for OAuth services."""
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.oauth.services import bitbucket, github, gitlab
+from readthedocs.oauth.services import bitbucket
+from readthedocs.oauth.services import github
+from readthedocs.oauth.services import gitlab
 from readthedocs.oauth.services.githubapp import GitHubAppService
+
 
 __all__ = [
     "GitHubService",

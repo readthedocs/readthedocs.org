@@ -9,37 +9,36 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
-from vanilla import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    FormView,
-    ListView,
-    TemplateView,
-    UpdateView,
-)
+from vanilla import CreateView
+from vanilla import DeleteView
+from vanilla import DetailView
+from vanilla import FormView
+from vanilla import ListView
+from vanilla import TemplateView
+from vanilla import UpdateView
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.audit.filters import UserSecurityLogFilter
 from readthedocs.audit.models import AuditLog
-from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm, UserProfileForm
+from readthedocs.core.forms import UserAdvertisingForm
+from readthedocs.core.forms import UserDeleteForm
+from readthedocs.core.forms import UserProfileForm
 from readthedocs.core.history import set_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.oauth.migrate import (
-    get_installation_target_groups_for_user,
-    get_migration_targets,
-    get_old_app_link,
-    get_projects_missing_migration,
-    migrate_project_to_github_app,
-)
+from readthedocs.oauth.migrate import get_installation_target_groups_for_user
+from readthedocs.oauth.migrate import get_migration_targets
+from readthedocs.oauth.migrate import get_old_app_link
+from readthedocs.oauth.migrate import get_projects_missing_migration
+from readthedocs.oauth.migrate import migrate_project_to_github_app
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
@@ -250,8 +249,7 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             end=timezone.datetime.strftime(end_date, "%Y-%m-%d"),
         )
         csv_data = [
-            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest]
-            for date, *rest in data
+            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest] for date, *rest in data
         ]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
@@ -315,9 +313,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         context["has_gh_app_social_account"] = user.socialaccount_set.filter(
             provider=GitHubAppProvider.id
         ).exists()
-        context["installation_target_groups"] = get_installation_target_groups_for_user(
-            user
-        )
+        context["installation_target_groups"] = get_installation_target_groups_for_user(user)
         context["migration_targets"] = get_migration_targets(user)
         context["old_application_link"] = get_old_app_link()
         return context
@@ -325,18 +321,14 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         project_slug = request.POST.get("project")
         if project_slug:
-            projects = AdminPermission.projects(request.user, admin=True).filter(
-                slug=project_slug
-            )
+            projects = AdminPermission.projects(request.user, admin=True).filter(slug=project_slug)
         else:
             projects = get_projects_missing_migration(request.user)
 
         has_errors = False
         for project in projects:
             try:
-                result = migrate_project_to_github_app(
-                    project=project, user=request.user
-                )
+                result = migrate_project_to_github_app(project=project, user=request.user)
                 if not result.webhook_removed:
                     messages.warning(
                         request,
