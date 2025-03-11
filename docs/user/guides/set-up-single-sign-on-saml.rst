@@ -27,13 +27,13 @@ In order to enable SSO with Okta, you need to create a new SAML application in y
 2. Click on :guilabel:`Applications`.
 3. Click on :guilabel:`Create App Integration`.
 4. Choose :guilabel:`SAML 2.0`, and click :guilabel:`Next`.
-5. Fill in the following fields with the information from `your SAML integration <https://readthedocs.com/organizations/choose/organization_saml/>`__:
+5. Fill in the following fields with the information from `your SAML integration <https://app.readthedocs.com/organizations/choose/organization_saml/>`__:
 
    * :guilabel:`App name`: Read the Docs
    * :guilabel:`App logo`: Optionally you can use the `Read the Docs logo <https://brand-guidelines.readthedocs.org/_images/logo-wordmark-vertical-compact-dark.png>`__.
    * :guilabel:`App visibility`: (optional)
-   * :guilabel:`Single Sign On URL`: ``https://readthedocs.com/accounts/saml/<organization-slug>/acs/`` (replace ``<organization-slug>`` with your organization slug)
-   * :guilabel:`Audience URI (SP Entity ID)`: ``https://readthedocs.com/accounts/saml/<organization-slug>/metadata/`` (replace ``<organization-slug>`` with your organization slug)
+   * :guilabel:`Single Sign On URL`: ``https://app.readthedocs.com/accounts/saml/<organization-slug>/acs/`` (replace ``<organization-slug>`` with your organization slug)
+   * :guilabel:`Audience URI (SP Entity ID)`: ``https://app.readthedocs.com/accounts/saml/<organization-slug>/metadata/`` (replace ``<organization-slug>`` with your organization slug)
    * :guilabel:`Name ID format`: ``EmailAddress``
    * :guilabel:`Application username`: ``Email``
    * Leave the rest of the fields as default.
@@ -63,7 +63,7 @@ Once you have created the SAML application in Okta, you need to enable SAML on R
    * Click on the :guilabel:`Sign On` tab.
    * Copy the :guilabel:`Metadata URL`.
 
-2. Go you your `organization's SAML settings page <https://readthedocs.com/organizations/choose/organization_saml/>`__.
+2. Go you your `organization's SAML settings page <https://app.readthedocs.com/organizations/choose/organization_saml/>`__.
 3. Paste the Metadata URL in the :guilabel:`Metadata URL` field.
 4. Leave the domain field empty.
 5. Click :guilabel:`Save`.
@@ -81,7 +81,7 @@ You can delete this team, or configure a different team or teams for users to jo
 
 To configure a team for users to join automatically:
 
-1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
+1. Navigate to the `teams management page <https://app.readthedocs.com/organizations/choose/organization_team_list/>`__.
 2. Click the :guilabel:`<team name>`.
 3. Click :guilabel:`Edit team`
 4. Enable *Auto join users with an organization's email address to this team*.
@@ -107,8 +107,8 @@ If you want to enforce SAML for existing users, you have the following options:
 
 - Users can delete their accounts, and sign up again using SAML.
 - Users can link their existing accounts to their SAML identity by following this link while logged in their Read the Docs account:
-  ``https://readthedocs.com/accounts/saml/<organization-slug>/login/?process=connect`` (replace ``<organization-slug>`` with your organization slug).
-  You can find this link in your `organization's SAML settings page <https://readthedocs.com/organizations/choose/organization_saml/>`__.
+  ``https://app.readthedocs.com/accounts/saml/<organization-slug>/login/?process=connect`` (replace ``<organization-slug>`` with your organization slug).
+  You can find this link in your `organization's SAML settings page <https://app.readthedocs.com/organizations/choose/organization_saml/>`__.
 
 Outside collaborators
 ~~~~~~~~~~~~~~~~~~~~~

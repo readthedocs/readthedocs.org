@@ -6,11 +6,11 @@ from django import forms
 
 from readthedocs.core.models import UserProfile
 
+
 log = structlog.get_logger(__name__)  # noqa
 
 
 class SignupFormWithNewsletter(SignupForm):
-
     """Custom signup form that includes a checkbox to subscribe to a newsletter."""
 
     receive_newsletter = forms.BooleanField(

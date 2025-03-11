@@ -3,7 +3,8 @@
 import structlog
 from django.conf import settings
 from django.db import models
-from django.template import Context, Template
+from django.template import Context
+from django.template import Template
 from django.template.loader import render_to_string
 
 from readthedocs.core.context_processors import readthedocs_processor
@@ -11,11 +12,11 @@ from readthedocs.core.utils import send_email
 
 from . import constants
 
+
 log = structlog.get_logger(__name__)
 
 
 class EmailNotification:
-
     """
     An unsent notification linked to an object.
 

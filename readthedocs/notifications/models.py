@@ -6,9 +6,13 @@ from django.urls import reverse
 from django.utils.translation import gettext_noop as _
 from django_extensions.db.models import TimeStampedModel
 
-from .constants import CANCELLED, DISMISSED, READ, UNREAD
+from .constants import CANCELLED
+from .constants import DISMISSED
+from .constants import READ
+from .constants import UNREAD
 from .messages import registry
 from .querysets import NotificationQuerySet
+
 
 log = structlog.get_logger(__name__)
 

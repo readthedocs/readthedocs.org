@@ -4,15 +4,16 @@ import structlog
 from django.http import Http404
 from django.utils.functional import cached_property
 
-from readthedocs.core.unresolver import UnresolverError, unresolve
+from readthedocs.core.unresolver import UnresolverError
+from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.proxito.cache import add_cache_tags
+
 
 log = structlog.get_logger(__name__)
 
 
 class CDNCacheTagsMixin:
-
     """
     Add cache tags for project and version to the response of this view.
 
@@ -64,7 +65,6 @@ class CDNCacheTagsMixin:
 
 
 class EmbedAPIMixin:
-
     """
     Helper for EmbedAPI v2 and v3.
 

@@ -1,5 +1,7 @@
 """WSGI application helper."""
+
 import os
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.docker_compose")
 

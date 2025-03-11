@@ -6,13 +6,13 @@ import os
 import requests
 from django.contrib.auth.models import User
 from django.core.management import call_command
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
 
 from ...models import Project
 
 
 class Command(BaseCommand):
-
     """
     Import project from production API.
 
@@ -34,17 +34,12 @@ class Command(BaseCommand):
         auth = None
         user1 = User.objects.filter(pk__gt=0).order_by("pk").first()
 
-        if (
-            "READTHEDOCS_USERNAME" in os.environ
-            and "READTHEDOCS_PASSWORD" in os.environ
-        ):
+        if "READTHEDOCS_USERNAME" in os.environ and "READTHEDOCS_PASSWORD" in os.environ:
             # Authenticating allows returning additional useful fields in the API
             # See: `ProjectAdminSerializer`
             username = os.environ["READTHEDOCS_USERNAME"]
             auth = (username, os.environ["READTHEDOCS_PASSWORD"])
-            self.stdout.write(
-                "Using basic auth for user {username}".format(username=username)
-            )
+            self.stdout.write("Using basic auth for user {username}".format(username=username))
 
         for slug in options["project_slug"]:
             self.stdout.write("Importing {slug} ...".format(slug=slug))
@@ -70,9 +65,7 @@ class Command(BaseCommand):
 
             try:
                 project = Project.objects.get(slug=slug)
-                self.stdout.write(
-                    "Project {slug} already exists. Updating...".format(slug=slug)
-                )
+                self.stdout.write("Project {slug} already exists. Updating...".format(slug=slug))
             except Project.DoesNotExist:
                 project = Project(slug=slug)
 

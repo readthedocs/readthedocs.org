@@ -1,11 +1,14 @@
 """Integration models for external services."""
+
 import json
 import re
 import uuid
 
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, transaction
+from django.db import models
+from django.db import transaction
 from django.utils.crypto import get_random_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -22,7 +25,6 @@ from .utils import normalize_request_payload
 
 
 class HttpExchangeManager(models.Manager):
-
     """HTTP exchange manager methods."""
 
     # Filter rules for request headers to remove from the output
@@ -133,7 +135,6 @@ class HttpExchangeManager(models.Manager):
 
 
 class HttpExchange(models.Model):
-
     """HTTP request/response exchange."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -202,7 +203,6 @@ class HttpExchange(models.Model):
 
 
 class IntegrationQuerySet(models.QuerySet):
-
     """
     Return a subclass of Integration, based on the integration type.
 
@@ -261,7 +261,6 @@ class IntegrationQuerySet(models.QuerySet):
 
 
 class Integration(TimeStampedModel):
-
     """Inbound webhook integration for projects."""
 
     GITHUB_WEBHOOK = "github_webhook"

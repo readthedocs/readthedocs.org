@@ -1,4 +1,5 @@
 """OAuth utility functions."""
+
 import re
 from functools import cached_property
 
@@ -14,11 +15,11 @@ from requests.exceptions import RequestException
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.oauth.clients import get_oauth2_client
 
+
 log = structlog.get_logger(__name__)
 
 
 class SyncServiceError(Exception):
-
     """Error raised when a service failed to sync."""
 
     INVALID_OR_REVOKED_ACCESS_TOKEN = _(
@@ -28,7 +29,6 @@ class SyncServiceError(Exception):
 
 
 class Service:
-
     """Base class for service that interacts with a VCS provider and a project."""
 
     vcs_provider_slug: str
@@ -40,13 +40,18 @@ class Service:
     supports_build_status = False
 
     @classmethod
-    def for_project(self, project):
+    def for_project(cls, project):
         """Return an iterator of services that can be used for the project."""
         raise NotImplementedError
 
     @classmethod
-    def for_user(self, user):
+    def for_user(cls, user):
         """Return an iterator of services that belong to the user."""
+        raise NotImplementedError
+
+    @classmethod
+    def sync_user_access(cls, user):
+        """Sync the user's access to the provider's repositories and organizations."""
         raise NotImplementedError
 
     def sync(self):
@@ -112,14 +117,10 @@ class Service:
             :py:class:`RemoteRepository` to the project instance. This is a
             slight improvement on the legacy check for webhooks
         """
-        return (
-            cls.url_pattern is not None
-            and cls.url_pattern.search(project.repo) is not None
-        )
+        return cls.url_pattern is not None and cls.url_pattern.search(project.repo) is not None
 
 
 class UserService(Service):
-
     """
     Subclass of Service that interacts with a VCS provider using the user's OAuth token.
 
@@ -150,6 +151,20 @@ class UserService(Service):
         )
         for account in accounts:
             yield cls(user=user, account=account)
+
+    @classmethod
+    def sync_user_access(cls, user):
+        """
+        Sync the user's access to the provider repositories and organizations.
+
+        Since UserService makes use of the user's OAuth token,
+        we can just sync the user's repositories in order to
+        update the user access to repositories and organizations.
+
+        :raises SyncServiceError: if the access token is invalid or revoked
+        """
+        for service in cls.for_user(user):
+            service.sync()
 
     @cached_property
     def session(self):
@@ -228,12 +243,8 @@ class UserService(Service):
 
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
-        all_remote_repositories = (
-            remote_repositories + remote_repositories_organizations
-        )
-        repository_remote_ids = [
-            r.remote_id for r in all_remote_repositories if r is not None
-        ]
+        all_remote_repositories = remote_repositories + remote_repositories_organizations
+        repository_remote_ids = [r.remote_id for r in all_remote_repositories if r is not None]
         (
             self.user.remote_repository_relations.exclude(
                 remote_repository__remote_id__in=repository_remote_ids,
@@ -244,9 +255,7 @@ class UserService(Service):
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_remote_ids = [
-            o.remote_id for o in remote_organizations if o is not None
-        ]
+        organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
         (
             self.user.remote_organization_relations.exclude(
                 remote_organization__remote_id__in=organization_remote_ids,

@@ -1,7 +1,9 @@
 """Celery tasks with publicly viewable status."""
 
-from celery import Task, states
+from celery import Task
+from celery import states
 from django.conf import settings
+
 
 __all__ = (
     "PublicTask",
@@ -15,7 +17,6 @@ STATUS_UPDATES_ENABLED = not settings.CELERY_ALWAYS_EAGER
 # pylint: disable=broad-except
 # pylint: disable=invalid-name
 class PublicTask(Task):
-
     """
     Encapsulates common behaviour to expose a task publicly.
 

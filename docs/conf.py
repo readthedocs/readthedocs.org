@@ -17,6 +17,7 @@ import sys
 from multiproject.utils import get_project
 
 sys.path.append(os.path.abspath("_ext"))
+
 extensions = [
     "multiproject",
     "myst_parser",
@@ -80,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "11.21.1"
+version = "12.0.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"

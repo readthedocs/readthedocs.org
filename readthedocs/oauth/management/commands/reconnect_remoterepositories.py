@@ -1,13 +1,14 @@
 import json
 
-from django.db.models import Q, Subquery
 from django.core.management.base import BaseCommand
+from django.db.models import Q
+from django.db.models import Subquery
 
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
-from readthedocs.projects.models import Project
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import Project
 
 
 class Command(BaseCommand):
@@ -41,19 +42,20 @@ class Command(BaseCommand):
     def _force_owners_social_resync(self, organization):
         for owner in organization.owners.all():
             for service_cls in registry:
-                for service in service_cls.for_user(owner):
-                    try:
-                        service.sync()
-                    except SyncServiceError:
-                        print(f"Service {service} failed while syncing. Skipping...")
+                try:
+                    service_cls.sync_user_access(owner)
+                except SyncServiceError:
+                    print(
+                        f"Service {service_cls.allauth_provider.name} failed while syncing. Skipping..."
+                    )
 
     def _connect_repositories(self, organization, no_dry_run, only_owners):
         connected_projects = []
         # TODO: consider using same login than RemoteRepository.matches method
         # https://github.com/readthedocs/readthedocs.org/blob/49b03f298b6105d755554f7dc7e97a3398f7066f/readthedocs/oauth/models.py#L185-L194
-        remote_query = Q(
-            ssh_url__in=Subquery(organization.projects.values("repo"))
-        ) | Q(clone_url__in=Subquery(organization.projects.values("repo")))
+        remote_query = Q(ssh_url__in=Subquery(organization.projects.values("repo"))) | Q(
+            clone_url__in=Subquery(organization.projects.values("repo"))
+        )
         for remote in RemoteRepository.objects.filter(remote_query).order_by("created"):
             admin = json.loads(remote.json).get("permissions", {}).get("admin")
 
@@ -65,9 +67,7 @@ class Command(BaseCommand):
                 # Do not connect a RemoteRepository where the User is not admin of the repository
                 continue
 
-            if not organization.users.filter(
-                username=remote.users.first().username
-            ).exists():
+            if not organization.users.filter(username=remote.users.first().username).exists():
                 # Do not connect a RemoteRepository if the use does not belong to the organization
                 continue
 

@@ -1,12 +1,16 @@
 """Notifications related to Read the Docs YAML config file."""
+
 import textwrap
 
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.notifications.constants import ERROR
-from readthedocs.notifications.messages import Message, registry
+from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
 
-from .exceptions import ConfigError, ConfigValidationError
+from .exceptions import ConfigError
+from .exceptions import ConfigValidationError
+
 
 # General errors
 messages = [

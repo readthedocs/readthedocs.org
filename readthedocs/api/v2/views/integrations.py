@@ -35,6 +35,7 @@ from readthedocs.projects.models import Project
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
 
 
+
 log = structlog.get_logger(__name__)
 
 GITHUB_EVENT_HEADER = "X-GitHub-Event"

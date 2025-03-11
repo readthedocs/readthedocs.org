@@ -1,22 +1,28 @@
 """Invitation views."""
+
 import structlog
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import DeleteView, DetailView
+from django.views.generic import DeleteView
+from django.views.generic import DetailView
 
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.invitations.models import Invitation
-from readthedocs.organizations.models import Organization, Team, TeamInvite
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
+from readthedocs.organizations.models import TeamInvite
+
 
 log = structlog.get_logger(__name__)
 
 
 class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
-
     """
     Revoke invitation view.
 
@@ -46,7 +52,6 @@ class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
 
 
 class RedeemInvitation(DetailView):
-
     """
     Allow the user to accept or decline an invitation.
 
@@ -63,9 +68,7 @@ class RedeemInvitation(DetailView):
         invitation = self.get_object()
         from_user = invitation.from_user
         context["requestor_name"] = from_user.get_full_name() or from_user.username
-        context["requestor_url"] = reverse(
-            "profiles_profile_detail", args=[from_user.username]
-        )
+        context["requestor_url"] = reverse("profiles_profile_detail", args=[from_user.username])
         context["target_name"] = invitation.object_name
         context["target_type"] = invitation.object._meta.verbose_name
         return context
