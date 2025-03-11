@@ -3,7 +3,8 @@
 from django.db import models
 
 from readthedocs.core.querysets import NoReprQuerySet
-from readthedocs.oauth.constants import GITHUB, GITHUB_APP
+from readthedocs.oauth.constants import GITHUB
+from readthedocs.oauth.constants import GITHUB_APP
 
 
 class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):

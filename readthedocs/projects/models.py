@@ -1034,7 +1034,8 @@ class Project(models.Model):
 
     @property
     def is_github_project(self):
-        from readthedocs.oauth.services import GitHubAppService, GitHubService
+        from readthedocs.oauth.services import GitHubAppService
+        from readthedocs.oauth.services import GitHubService
 
         return self.get_git_service_class(fallback_to_clone_url=True) in [
             GitHubService,

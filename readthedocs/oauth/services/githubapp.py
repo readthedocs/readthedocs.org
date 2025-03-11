@@ -1,26 +1,30 @@
-from functools import cached_property, lru_cache
+from functools import cached_property
+from functools import lru_cache
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
-from github import Github, GithubException
+from github import Github
+from github import GithubException
 from github.Installation import Installation as GHInstallation
 from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
-from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
-from readthedocs.oauth.clients import get_gh_app_client, get_oauth2_client
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
+from readthedocs.builds.constants import SELECT_BUILD_STATUS
+from readthedocs.oauth.clients import get_gh_app_client
+from readthedocs.oauth.clients import get_oauth2_client
 from readthedocs.oauth.constants import GITHUB_APP
-from readthedocs.oauth.models import (
-    GitHubAccountType,
-    GitHubAppInstallation,
-    RemoteOrganization,
-    RemoteOrganizationRelation,
-    RemoteRepository,
-    RemoteRepositoryRelation,
-)
-from readthedocs.oauth.services.base import Service, SyncServiceError
+from readthedocs.oauth.models import GitHubAccountType
+from readthedocs.oauth.models import GitHubAppInstallation
+from readthedocs.oauth.models import RemoteOrganization
+from readthedocs.oauth.models import RemoteOrganizationRelation
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepositoryRelation
+from readthedocs.oauth.services.base import Service
+from readthedocs.oauth.services.base import SyncServiceError
+
 
 log = structlog.get_logger(__name__)
 
@@ -52,9 +56,7 @@ class GitHubAppService(Service):
     @cached_property
     def installation_client(self) -> Github:
         """Return a client authenticated as the GitHub installation to interact with the GH API."""
-        return self.gha_client.get_github_for_installation(
-            self.installation.installation_id
-        )
+        return self.gha_client.get_github_for_installation(self.installation.installation_id)
 
     @classmethod
     def for_project(cls, project):
@@ -65,10 +67,7 @@ class GitHubAppService(Service):
         and are linked to a GitHub App installation,
         this returns only one service or None.
         """
-        if (
-            not project.remote_repository
-            or not project.remote_repository.github_app_installation
-        ):
+        if not project.remote_repository or not project.remote_repository.github_app_installation:
             return None
 
         yield cls(project.remote_repository.github_app_installation)
@@ -242,18 +241,14 @@ class GitHubAppService(Service):
         remote_repo.name = gh_repo.name
         remote_repo.full_name = gh_repo.full_name
         remote_repo.description = gh_repo.description
-        remote_repo.avatar_url = (
-            gh_repo.owner.avatar_url or self.default_user_avatar_url
-        )
+        remote_repo.avatar_url = gh_repo.owner.avatar_url or self.default_user_avatar_url
         remote_repo.ssh_url = gh_repo.ssh_url
         remote_repo.html_url = gh_repo.html_url
         remote_repo.private = gh_repo.private
         remote_repo.default_branch = gh_repo.default_branch
 
         # TODO: Do we need the SSH URL for private repositories now that we can clone using a token?
-        remote_repo.clone_url = (
-            gh_repo.ssh_url if gh_repo.private else gh_repo.clone_url
-        )
+        remote_repo.clone_url = gh_repo.ssh_url if gh_repo.private else gh_repo.clone_url
 
         # NOTE: Only one installation of our APP should give access to a repository.
         # This should only happen if our data is out of sync.
@@ -274,9 +269,7 @@ class GitHubAppService(Service):
             # NOTE: The owner object doesn't have all attributes of an organization,
             # so we need to fetch the organization object.
             gh_organization = self._get_gh_organization(gh_repo.owner.login)
-            remote_repo.organization = self._create_or_update_organization_from_gh(
-                gh_organization
-            )
+            remote_repo.organization = self._create_or_update_organization_from_gh(gh_organization)
 
         remote_repo.save()
         self._resync_collaborators(gh_repo, remote_repo)
@@ -290,9 +283,7 @@ class GitHubAppService(Service):
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...
     @lru_cache(maxsize=50)
-    def _create_or_update_organization_from_gh(
-        self, gh_org: GHOrganization
-    ) -> RemoteOrganization:
+    def _create_or_update_organization_from_gh(self, gh_org: GHOrganization) -> RemoteOrganization:
         """
         Create or update a remote organization from a GitHub organization object.
 
@@ -314,17 +305,14 @@ class GitHubAppService(Service):
         self._resync_organization_members(gh_org, remote_org)
         return remote_org
 
-    def _resync_collaborators(
-        self, gh_repo: GHRepository, remote_repo: RemoteRepository
-    ):
+    def _resync_collaborators(self, gh_repo: GHRepository, remote_repo: RemoteRepository):
         """
         Sync collaborators of a repository with the database.
 
         This method will remove collaborators that are no longer in the list.
         """
         collaborators = {
-            collaborator.id: collaborator
-            for collaborator in gh_repo.get_collaborators()
+            collaborator.id: collaborator for collaborator in gh_repo.get_collaborators()
         }
         remote_repo_relations_ids = []
         for account in self._get_social_accounts(collaborators.keys()):
@@ -333,9 +321,7 @@ class GitHubAppService(Service):
                 user=account.user,
                 account=account,
             )
-            remote_repo_relation.admin = collaborators[
-                int(account.uid)
-            ].permissions.admin
+            remote_repo_relation.admin = collaborators[int(account.uid)].permissions.admin
             remote_repo_relation.save()
             remote_repo_relations_ids.append(remote_repo_relation.pk)
 
@@ -353,9 +339,7 @@ class GitHubAppService(Service):
             provider=self.allauth_provider.id,
         ).select_related("user")
 
-    def _resync_organization_members(
-        self, gh_org: GHOrganization, remote_org: RemoteOrganization
-    ):
+    def _resync_organization_members(self, gh_org: GHOrganization, remote_org: RemoteOrganization):
         """
         Sync members of an organization with the database.
 
@@ -399,9 +383,7 @@ class GitHubAppService(Service):
         try:
             # NOTE: we use the lazy option to avoid fetching the repository object,
             # since we only need the object to interact with the commit status API.
-            gh_repo = self.installation_client.get_repo(
-                int(remote_repo.remote_id), lazy=True
-            )
+            gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
             gh_repo.get_commit(commit).create_status(
                 state=state,
                 target_url=target_url,
@@ -434,9 +416,7 @@ class GitHubAppService(Service):
         # We can also pass a specific permissions object to get a token with specific permissions
         # if we want to scope this token even more.
         try:
-            access_token = self.gha_client.get_access_token(
-                self.installation.installation_id
-            )
+            access_token = self.gha_client.get_access_token(self.installation.installation_id)
             return f"x-access-token:{access_token.token}"
         except GithubException:
             log.info(

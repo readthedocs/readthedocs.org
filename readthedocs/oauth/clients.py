@@ -3,7 +3,8 @@ from datetime import datetime
 import structlog
 from django.conf import settings
 from django.utils import timezone
-from github import Auth, GithubIntegration
+from github import Auth
+from github import GithubIntegration
 from requests_oauthlib import OAuth2Session
 
 

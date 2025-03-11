@@ -5,9 +5,11 @@ from django.conf import settings
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import Integration
-from readthedocs.oauth.constants import GITHUB, GITHUB_APP
+from readthedocs.oauth.constants import GITHUB
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.oauth.services import GitHubAppService, GitHubService
+from readthedocs.oauth.services import GitHubAppService
+from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
 
 
@@ -28,7 +30,9 @@ class InstallationTargetGroup:
             repository_ids.append(f"&repository_ids[]={repository_id}")
         repository_ids = "".join(repository_ids)
 
-        base_url = f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/new/permissions"
+        base_url = (
+            f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/new/permissions"
+        )
         return f"{base_url}?suggested_target_id={self.target_id}{repository_ids}"
 
     @property
@@ -73,9 +77,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
             target_id=account.uid,
             target_name=account.extra_data.get("login"),
             target_type="user",
-            repository_ids={
-                remote_repository.remote_id for remote_repository in user_repositories
-            },
+            repository_ids={remote_repository.remote_id for remote_repository in user_repositories},
         )
 
     return list(targets.values())
@@ -124,7 +126,9 @@ class MigrationTarget:
         """
         See https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/migrating-oauth-apps-to-github-apps
         """
-        base_url = f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/new/permissions"
+        base_url = (
+            f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/new/permissions"
+        )
         return f"{base_url}?suggested_target_id={self.target_id}&repository_ids[]={self.project.remote_repository.remote_id}"
 
     @property
@@ -204,9 +208,7 @@ def migrate_project_to_github_app(project, user) -> MigrationResult:
         .first()
     )
     if not new_remote_repository:
-        raise MigrationError(
-            "You must have admin permissions on the repository to migrate it"
-        )
+        raise MigrationError("You must have admin permissions on the repository to migrate it")
 
     webhook_removed = False
     ssh_key_removed = False

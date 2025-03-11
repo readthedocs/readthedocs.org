@@ -7,23 +7,21 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from readthedocs.api.v2.views.integrations import (
-    GITHUB_EVENT_HEADER,
-    GITHUB_SIGNATURE_HEADER,
-    ExternalVersionData,
-    WebhookMixin,
-)
-from readthedocs.builds.constants import BRANCH, TAG
-from readthedocs.core.views.hooks import (
-    build_external_version,
-    build_versions_from_names,
-    close_external_version,
-    get_or_create_external_version,
-    trigger_sync_versions,
-)
+from readthedocs.api.v2.views.integrations import GITHUB_EVENT_HEADER
+from readthedocs.api.v2.views.integrations import GITHUB_SIGNATURE_HEADER
+from readthedocs.api.v2.views.integrations import ExternalVersionData
+from readthedocs.api.v2.views.integrations import WebhookMixin
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import TAG
+from readthedocs.core.views.hooks import build_external_version
+from readthedocs.core.views.hooks import build_versions_from_names
+from readthedocs.core.views.hooks import close_external_version
+from readthedocs.core.views.hooks import get_or_create_external_version
+from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.services.githubapp import get_gh_app_client
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
@@ -254,9 +252,7 @@ class GitHubAppWebhookView(APIView):
             return
 
         if action == "removed":
-            installation.delete_repositories(
-                [repo["id"] for repo in data["repositories_removed"]]
-            )
+            installation.delete_repositories([repo["id"] for repo in data["repositories_removed"]])
             return
 
         # NOTE: this should never happen.
@@ -305,9 +301,7 @@ class GitHubAppWebhookView(APIView):
             return
 
         if action in ("edited", "privatized", "publicized", "renamed", "transferred"):
-            installation.service.update_or_create_repositories(
-                [data["repository"]["id"]]
-            )
+            installation.service.update_or_create_repositories([data["repository"]["id"]])
             return
 
         # Ignore other actions:
@@ -466,9 +460,7 @@ class GitHubAppWebhookView(APIView):
 
         if action in ("added", "edited", "removed"):
             # Sync collaborators
-            installation.service.update_or_create_repositories(
-                [data["repository"]["id"]]
-            )
+            installation.service.update_or_create_repositories([data["repository"]["id"]])
             return
 
         # NOTE: this should never happen.

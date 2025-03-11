@@ -1,6 +1,7 @@
 """OAuth service models."""
 
 from functools import cached_property
+
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
