@@ -1,4 +1,5 @@
 """Project models."""
+
 import fnmatch
 import hashlib
 import hmac
@@ -10,29 +11,30 @@ import structlog
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
+from django_extensions.db.fields import CreationDateTimeField
+from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import (
-    BRANCH,
-    EXTERNAL,
-    INTERNAL,
-    LATEST,
-    LATEST_VERBOSE_NAME,
-    STABLE,
-    STABLE_VERBOSE_NAME,
-)
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
-from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
+from readthedocs.core.utils import extract_valid_attributes_for_model
+from readthedocs.core.utils import slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
@@ -40,36 +42,31 @@ from readthedocs.notifications.models import Notification as NewNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
-from readthedocs.projects.querysets import (
-    ChildRelatedProjectQuerySet,
-    FeatureQuerySet,
-    ProjectQuerySet,
-    RelatedProjectQuerySet,
-)
-from readthedocs.projects.validators import (
-    validate_build_config_file,
-    validate_custom_prefix,
-    validate_custom_subproject_prefix,
-    validate_domain_name,
-    validate_environment_variable_size,
-    validate_no_ip,
-    validate_repository_url,
-)
+from readthedocs.projects.querysets import ChildRelatedProjectQuerySet
+from readthedocs.projects.querysets import FeatureQuerySet
+from readthedocs.projects.querysets import ProjectQuerySet
+from readthedocs.projects.querysets import RelatedProjectQuerySet
+from readthedocs.projects.validators import validate_build_config_file
+from readthedocs.projects.validators import validate_custom_prefix
+from readthedocs.projects.validators import validate_custom_subproject_prefix
+from readthedocs.projects.validators import validate_domain_name
+from readthedocs.projects.validators import validate_environment_variable_size
+from readthedocs.projects.validators import validate_no_ip
+from readthedocs.projects.validators import validate_repository_url
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import (
-    ADDONS_FLYOUT_POSITION_CHOICES,
-    ADDONS_FLYOUT_SORTING_CHOICES,
-    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
-    DOWNLOADABLE_MEDIA_TYPES,
-    MEDIA_TYPES,
-    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
-    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
-    PUBLIC,
-)
+from .constants import ADDONS_FLYOUT_POSITION_CHOICES
+from .constants import ADDONS_FLYOUT_SORTING_CHOICES
+from .constants import ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
+from .constants import DOWNLOADABLE_MEDIA_TYPES
+from .constants import MEDIA_TYPES
+from .constants import MULTIPLE_VERSIONS_WITH_TRANSLATIONS
+from .constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+from .constants import PUBLIC
+
 
 log = structlog.get_logger(__name__)
 
@@ -80,7 +77,6 @@ def default_privacy_level():
 
 
 class ProjectRelationship(models.Model):
-
     """
     Project to project relationship.
 
@@ -135,7 +131,6 @@ class ProjectRelationship(models.Model):
 
 
 class AddonsConfig(TimeStampedModel):
-
     """
     Addons project configuration.
 
@@ -221,9 +216,7 @@ class AddonsConfig(TimeStampedModel):
         '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
     )
     flyout_sorting_latest_stable_at_beginning = models.BooleanField(
-        verbose_name=_(
-            "Show <code>latest</code> and <code>stable</code> at the beginning"
-        ),
+        verbose_name=_("Show <code>latest</code> and <code>stable</code> at the beginning"),
         default=True,
     )
 
@@ -266,7 +259,6 @@ class AddonsConfig(TimeStampedModel):
 
 
 class AddonSearchFilter(TimeStampedModel):
-
     """
     Addon search user defined filter.
 
@@ -279,16 +271,11 @@ class AddonSearchFilter(TimeStampedModel):
 
 
 class Project(models.Model):
-
     """Project model."""
 
     # Auto fields
-    pub_date = models.DateTimeField(
-        _("Publication date"), auto_now_add=True, db_index=True
-    )
-    modified_date = models.DateTimeField(
-        _("Modified date"), auto_now=True, db_index=True
-    )
+    pub_date = models.DateTimeField(_("Publication date"), auto_now_add=True, db_index=True)
+    modified_date = models.DateTimeField(_("Modified date"), auto_now=True, db_index=True)
 
     # Generally from conf.py
     users = models.ManyToManyField(
@@ -369,8 +356,7 @@ class Project(models.Model):
         null=True,
         blank=True,
         help_text=_(
-            'What branch "latest" points to. Leave empty '
-            "to use the default value for your VCS.",
+            'What branch "latest" points to. Leave empty to use the default value for your VCS.',
         ),
     )
     custom_prefix = models.CharField(
@@ -450,8 +436,7 @@ class Project(models.Model):
         null=True,
         blank=True,
         help_text=_(
-            "Memory limit in Docker format "
-            "-- example: <code>512m</code> or <code>1g</code>",
+            "Memory limit in Docker format -- example: <code>512m</code> or <code>1g</code>",
         ),
     )
     container_time_limit = models.IntegerField(
@@ -668,12 +653,8 @@ class Project(models.Model):
         # even if it's `None` (meaning to match the `default_branch` of the repository)
         # NOTE: this code is required to be *after* ``create_latest()``.
         # It has to be updated after creating LATEST originally.
-        log.debug(
-            "Updating default branch.", slug=LATEST, identifier=self.default_branch
-        )
-        self.versions.filter(slug=LATEST, machine=True).update(
-            identifier=self.default_branch
-        )
+        log.debug("Updating default branch.", slug=LATEST, identifier=self.default_branch)
+        self.versions.filter(slug=LATEST, machine=True).update(identifier=self.default_branch)
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -734,9 +715,7 @@ class Project(models.Model):
         storage_paths = [f"{type_}/{self.slug}" for type_ in MEDIA_TYPES]
         return storage_paths
 
-    def get_storage_path(
-        self, type_, version_slug=LATEST, include_file=True, version_type=None
-    ):
+    def get_storage_path(self, type_, version_slug=LATEST, include_file=True, version_type=None):
         """
         Get a path to a build artifact for use with Django's storage system.
 
@@ -832,9 +811,7 @@ class Project(models.Model):
         # paths as is, this is, without the prefix, while those projects
         # migrate to the new implementation, we will prefix special paths
         # when generating links, these paths will be manually un-prefixed in nginx.
-        if self.custom_prefix and self.has_feature(
-            Feature.USE_PROXIED_APIS_WITH_PREFIX
-        ):
+        if self.custom_prefix and self.has_feature(Feature.USE_PROXIED_APIS_WITH_PREFIX):
             return self.custom_prefix
         return None
 
@@ -1048,9 +1025,7 @@ class Project(models.Model):
         service_cls = None
         if self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
             return self._guess_service_class()
-        service_cls = (
-            self.remote_repository and self.remote_repository.get_service_class()
-        )
+        service_cls = self.remote_repository and self.remote_repository.get_service_class()
         if not service_cls and fallback_to_clone_url:
             return self._guess_service_class()
         return service_cls
@@ -1071,9 +1046,7 @@ class Project(models.Model):
     def is_bitbucket_project(self):
         from readthedocs.oauth.services import BitbucketService
 
-        return (
-            self.get_git_service_class(fallback_to_clone_url=True) == BitbucketService
-        )
+        return self.get_git_service_class(fallback_to_clone_url=True) == BitbucketService
 
     def find(self, filename, version):
         """
@@ -1433,7 +1406,6 @@ class Project(models.Model):
 
 
 class APIProject(Project):
-
     """
     Project proxy model for API data deserialization.
 
@@ -1507,7 +1479,6 @@ class APIProject(Project):
 
 
 class ImportedFile(models.Model):
-
     """
     Imported files model.
 
@@ -1559,7 +1530,6 @@ class ImportedFile(models.Model):
 
 
 class HTMLFile(ImportedFile):
-
     """
     Imported HTML file Proxy model.
 
@@ -1581,7 +1551,6 @@ class HTMLFile(ImportedFile):
 
 
 class Notification(TimeStampedModel):
-
     """WebHook / Email notification attached to a Project."""
 
     # TODO: Overridden from TimeStampedModel just to allow null values,
@@ -1694,12 +1663,8 @@ class WebHook(Notification):
         # Commit can be None, display an empty string instead.
         commit = build.commit or ""
         protocol = "http" if settings.DEBUG else "https"
-        project_url = (
-            f"{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}"
-        )
-        build_url = (
-            f"{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}"
-        )
+        project_url = f"{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}"
+        build_url = f"{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}"
         build_docsurl = Resolver().resolve_version(project, version=version)
 
         # Remove timezone and microseconds from the date,
@@ -1726,13 +1691,9 @@ class WebHook(Notification):
         max_substitutions = 99
         for substitution, value in substitutions.items():
             # Replace {{ foo }}.
-            payload = payload.replace(
-                f"{{{{ {substitution} }}}}", str(value), max_substitutions
-            )
+            payload = payload.replace(f"{{{{ {substitution} }}}}", str(value), max_substitutions)
             # Replace {{foo}}.
-            payload = payload.replace(
-                f"{{{{{substitution}}}}}", str(value), max_substitutions
-            )
+            payload = payload.replace(f"{{{{{substitution}}}}}", str(value), max_substitutions)
         return payload
 
     def sign_payload(self, payload):
@@ -1746,7 +1707,6 @@ class WebHook(Notification):
 
 
 class Domain(TimeStampedModel):
-
     """A custom domain name for a project."""
 
     # TODO: Overridden from TimeStampedModel just to allow null values,
@@ -1820,9 +1780,7 @@ class Domain(TimeStampedModel):
     )
     hsts_include_subdomains = models.BooleanField(
         default=False,
-        help_text=_(
-            "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
-        ),
+        help_text=_("If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"),
     )
     hsts_preload = models.BooleanField(
         default=False,
@@ -1870,7 +1828,6 @@ class Domain(TimeStampedModel):
 
 
 class HTTPHeader(TimeStampedModel, models.Model):
-
     """
     Define a HTTP header for a user Domain.
 
@@ -1913,7 +1870,6 @@ class HTTPHeader(TimeStampedModel, models.Model):
 
 
 class Feature(models.Model):
-
     """
     Project feature flags.
 
@@ -2019,9 +1975,7 @@ class Feature(models.Model):
         ),
         (
             INSTALL_LATEST_CORE_REQUIREMENTS,
-            _(
-                "Build: Install all the latest versions of Read the Docs core requirements"
-            ),
+            _("Build: Install all the latest versions of Read the Docs core requirements"),
         ),
         # Search related features.
         (
@@ -2039,7 +1993,7 @@ class Feature(models.Model):
         ),
     )
 
-    FEATURES = sorted(FEATURES, key=lambda l: l[1])
+    FEATURES = sorted(FEATURES, key=lambda x: x[1])
 
     projects = models.ManyToManyField(
         Project,
@@ -2113,7 +2067,5 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         return super().save(*args, **kwargs)
 
     def clean(self):
-        validate_environment_variable_size(
-            project=self.project, new_env_value=self.value
-        )
+        validate_environment_variable_size(project=self.project, new_env_value=self.value)
         return super().clean()

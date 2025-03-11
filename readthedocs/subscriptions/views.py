@@ -5,27 +5,27 @@ from functools import lru_cache
 import stripe
 import structlog
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from djstripe import models as djstripe
 from djstripe.enums import SubscriptionStatus
-from vanilla import DetailView, GenericView
+from vanilla import DetailView
+from vanilla import GenericView
 
 from readthedocs.organizations.views.base import OrganizationMixin
 from readthedocs.subscriptions.forms import PlanForm
 from readthedocs.subscriptions.products import get_product
-from readthedocs.subscriptions.utils import (
-    get_or_create_stripe_customer,
-    get_or_create_stripe_subscription,
-)
+from readthedocs.subscriptions.utils import get_or_create_stripe_customer
+from readthedocs.subscriptions.utils import get_or_create_stripe_subscription
+
 
 log = structlog.get_logger(__name__)
 
 
 class DetailSubscription(OrganizationMixin, DetailView):
-
     """Detail for the subscription of a organization."""
 
     model = djstripe.Subscription
@@ -59,10 +59,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         has been deleted after they canceled it.
         """
         stripe_subscription = self.get_object()
-        if (
-            not stripe_subscription
-            or stripe_subscription.status != SubscriptionStatus.canceled
-        ):
+        if not stripe_subscription or stripe_subscription.status != SubscriptionStatus.canceled:
             raise Http404()
 
         stripe_price = get_object_or_404(djstripe.Price, id=form.cleaned_data["plan"])
@@ -94,9 +91,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
             )
             messages.error(
                 self.request,
-                _(
-                    "There was an error connecting to Stripe, please try again in a few minutes."
-                ),
+                _("There was an error connecting to Stripe, please try again in a few minutes."),
             )
             return HttpResponseRedirect(self.get_success_url())
 
@@ -119,9 +114,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
             main_product = None
             extra_products = []
             features = {}
-            for item in stripe_subscription.items.all().select_related(
-                "price__product"
-            ):
+            for item in stripe_subscription.items.all().select_related("price__product"):
                 rtd_product = get_product(item.price.product.id)
                 product = {
                     "stripe_price": item.price,
@@ -147,9 +140,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
             # Show the end date as the last period the customer paid.
             context["subscription_end_date"] = stripe_subscription.current_period_end
             if stripe_subscription.status == SubscriptionStatus.past_due:
-                latest_paid_invoice = stripe_subscription.invoices.filter(
-                    paid=True
-                ).first()
+                latest_paid_invoice = stripe_subscription.invoices.filter(paid=True).first()
                 context["subscription_end_date"] = latest_paid_invoice.period_end
 
         return context
@@ -162,7 +153,6 @@ class DetailSubscription(OrganizationMixin, DetailView):
 
 
 class StripeCustomerPortal(OrganizationMixin, GenericView):
-
     """Create a stripe billing portal session for the user to manage their subscription."""
 
     http_method_names = ["post"]
@@ -192,8 +182,6 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
             )
             messages.error(
                 request,
-                _(
-                    "There was an error connecting to Stripe, please try again in a few minutes"
-                ),
+                _("There was an error connecting to Stripe, please try again in a few minutes"),
             )
             return HttpResponseRedirect(self.get_success_url())

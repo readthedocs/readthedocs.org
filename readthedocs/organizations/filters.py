@@ -3,17 +3,20 @@
 import structlog
 from django.db.models import F
 from django.utils.translation import gettext_lazy as _
-from django_filters import ChoiceFilter, OrderingFilter
+from django_filters import ChoiceFilter
+from django_filters import OrderingFilter
 
-from readthedocs.core.filters import FilteredModelChoiceFilter, ModelFilterSet
+from readthedocs.core.filters import FilteredModelChoiceFilter
+from readthedocs.core.filters import ModelFilterSet
 from readthedocs.organizations.constants import ACCESS_LEVELS
-from readthedocs.organizations.models import Organization, Team
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
+
 
 log = structlog.get_logger(__name__)
 
 
 class OrganizationFilterSet(ModelFilterSet):
-
     """
     Organization base filter set.
 
@@ -42,7 +45,6 @@ class OrganizationFilterSet(ModelFilterSet):
 
 
 class OrganizationSortOrderingFilter(OrderingFilter):
-
     """Organization list sort ordering django_filters filter."""
 
     SORT_NAME = "name"
@@ -86,7 +88,6 @@ class OrganizationSortOrderingFilter(OrderingFilter):
 
 
 class OrganizationListFilterSet(OrganizationFilterSet):
-
     """Filter and sorting for organization listing page."""
 
     slug = FilteredModelChoiceFilter(
@@ -111,7 +112,6 @@ class OrganizationListFilterSet(OrganizationFilterSet):
 
 
 class OrganizationProjectListFilterSet(OrganizationFilterSet):
-
     """
     Filter and sorting set for organization project listing page.
 
@@ -155,7 +155,6 @@ class OrganizationProjectListFilterSet(OrganizationFilterSet):
 
 
 class OrganizationTeamListFilterSet(OrganizationFilterSet):
-
     """
     Filter and sorting for organization team listing page.
 
@@ -187,7 +186,6 @@ class OrganizationTeamListFilterSet(OrganizationFilterSet):
 
 
 class OrganizationTeamMemberListFilterSet(OrganizationFilterSet):
-
     """
     Filter and sorting set for organization member listing page.
 

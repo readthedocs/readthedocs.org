@@ -1,6 +1,5 @@
 """Defines serializers for each of our models."""
 
-
 from allauth.socialaccount.models import SocialAccount
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
@@ -8,11 +7,15 @@ from generic_relations.relations import GenericRelatedField
 from rest_framework import serializers
 
 from readthedocs.api.v2.utils import normalize_build_command
-from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildCommandResult
+from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Domain, Project
+from readthedocs.oauth.models import RemoteOrganization
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Project
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -39,7 +42,6 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectAdminSerializer(ProjectSerializer):
-
     """
     Project serializer for admin only access.
 
@@ -95,7 +97,6 @@ class ProjectAdminSerializer(ProjectSerializer):
 
 
 class VersionSerializer(serializers.ModelSerializer):
-
     """
     Version serializer.
 
@@ -154,9 +155,7 @@ class VersionSerializer(serializers.ModelSerializer):
         if project_serialized:
             return project_serialized
 
-        self._serialized_projects_cache[project.id] = self.project_serializer_class(
-            project
-        )
+        self._serialized_projects_cache[project.id] = self.project_serializer_class(project)
         return self._serialized_projects_cache[project.id]
 
     def get_project(self, obj):
@@ -165,7 +164,6 @@ class VersionSerializer(serializers.ModelSerializer):
 
 
 class VersionAdminSerializer(VersionSerializer):
-
     """Version serializer that returns admin project data."""
 
     project_serializer_class = ProjectAdminSerializer
@@ -200,7 +198,6 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
 
 class BuildCommandReadOnlySerializer(BuildCommandSerializer):
-
     """
     Serializer used on GETs to trim the commands' path.
 
@@ -220,13 +217,10 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     command = serializers.SerializerMethodField()
 
     def get_command(self, obj):
-        return normalize_build_command(
-            obj.command, obj.build.project.slug, obj.build.version.slug
-        )
+        return normalize_build_command(obj.command, obj.build.project.slug, obj.build.version.slug)
 
 
 class BuildSerializer(serializers.ModelSerializer):
-
     """
     Build serializer for user display.
 
@@ -264,7 +258,6 @@ class BuildSerializer(serializers.ModelSerializer):
 
 
 class BuildAdminSerializer(BuildSerializer):
-
     """
     Build serializer to update Build objects from build instances.
 
@@ -280,7 +273,6 @@ class BuildAdminSerializer(BuildSerializer):
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):
-
     """
     Build serializer to retrieve Build objects from the dashboard.
 
@@ -323,7 +315,6 @@ class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
 
 class RemoteRepositorySerializer(serializers.ModelSerializer):
-
     """Remote service repository serializer."""
 
     organization = RemoteOrganizationSerializer()
@@ -349,9 +340,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
             return obj.admin
 
         if request.user and request.user.is_authenticated:
-            return obj.remote_repository_relations.filter(
-                user=request.user, admin=True
-            ).exists()
+            return obj.remote_repository_relations.filter(user=request.user, admin=True).exists()
         return False
 
 
@@ -371,14 +360,12 @@ class SocialAccountSerializer(serializers.ModelSerializer):
 
     def get_username(self, obj):
         return (
-            obj.extra_data.get("username")
-            or obj.extra_data.get("login")
+            obj.extra_data.get("username") or obj.extra_data.get("login")
             # FIXME: which one is GitLab?
         )
 
 
 class NotificationAttachedToRelatedField(serializers.RelatedField):
-
     """
     Attached to related field for Notifications.
 
@@ -390,9 +377,7 @@ class NotificationAttachedToRelatedField(serializers.RelatedField):
     default_error_messages = {
         "required": _("This field is required."),
         "does_not_exist": _("Object does not exist."),
-        "incorrect_type": _(
-            "Incorrect type. Expected URL string, received {data_type}."
-        ),
+        "incorrect_type": _("Incorrect type. Expected URL string, received {data_type}."),
     }
 
     def to_representation(self, value):

@@ -1,23 +1,26 @@
 """Define routes between URL paths and views/endpoints."""
 
-from django.urls import include, path, re_path
+from django.urls import include
+from django.urls import path
+from django.urls import re_path
 from rest_framework import routers
 
-from readthedocs.api.v2.views import core_views, integrations, task_views
+from readthedocs.api.v2.views import core_views
+from readthedocs.api.v2.views import integrations
+from readthedocs.api.v2.views import task_views
 from readthedocs.constants import pattern_opts
 from readthedocs.gold.views import StripeEventView
 
-from .views.model_views import (
-    BuildCommandViewSet,
-    BuildViewSet,
-    DomainViewSet,
-    NotificationViewSet,
-    ProjectViewSet,
-    RemoteOrganizationViewSet,
-    RemoteRepositoryViewSet,
-    SocialAccountViewSet,
-    VersionViewSet,
-)
+from .views.model_views import BuildCommandViewSet
+from .views.model_views import BuildViewSet
+from .views.model_views import DomainViewSet
+from .views.model_views import NotificationViewSet
+from .views.model_views import ProjectViewSet
+from .views.model_views import RemoteOrganizationViewSet
+from .views.model_views import RemoteRepositoryViewSet
+from .views.model_views import SocialAccountViewSet
+from .views.model_views import VersionViewSet
+
 
 router = routers.DefaultRouter()
 router.register(r"build", BuildViewSet, basename="build")

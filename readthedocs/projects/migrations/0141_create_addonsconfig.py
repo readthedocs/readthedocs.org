@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy
 
     dependencies = [
-        ('projects', '0140_addons_options_base_version'),
+        ("projects", "0140_addons_options_base_version"),
     ]
 
     operations = [

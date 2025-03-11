@@ -1,4 +1,5 @@
 from django.db import migrations
+from django_safemigrate import Safe
 
 
 def update_build_queue(apps, schema):
@@ -13,6 +14,7 @@ def update_build_queue(apps, schema):
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy
     dependencies = [
         ("projects", "0015_add_project_allow_promos"),
     ]

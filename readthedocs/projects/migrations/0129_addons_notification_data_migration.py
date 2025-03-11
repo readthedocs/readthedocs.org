@@ -8,18 +8,19 @@ from django_safemigrate import Safe
 def forward_add_fields(apps, schema_editor):
     AddonsConfig = apps.get_model("projects", "AddonsConfig")
     AddonsConfig.objects.filter(project__isnull=False).update(
-      notifications_show_on_latest=F("stable_latest_version_warning_enabled"),
-      notifications_show_on_non_stable=F("stable_latest_version_warning_enabled"),
-      notifications_show_on_external=F("external_version_warning_enabled"),
+        notifications_show_on_latest=F("stable_latest_version_warning_enabled"),
+        notifications_show_on_non_stable=F("stable_latest_version_warning_enabled"),
+        notifications_show_on_external=F("external_version_warning_enabled"),
     )
 
 
 def reverse_remove_fields(apps, schema_editor):
     AddonsConfig = apps.get_model("projects", "AddonsConfig")
     AddonsConfig.objects.filter(project__isnull=False).update(
-      stable_latest_version_warning_enabled=F("notifications_show_on_latest"),
-      external_version_warning_enabled=F("notifications_show_on_external"),
+        stable_latest_version_warning_enabled=F("notifications_show_on_latest"),
+        external_version_warning_enabled=F("notifications_show_on_external"),
     )
+
 
 class Migration(migrations.Migration):
     safe = Safe.before_deploy

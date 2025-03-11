@@ -34,9 +34,8 @@ class ProjectItemPositionManager:
             setattr(item, self.position_field_name, position)
 
             items = (
-                model.objects.filter(project=item.project).filter(
-                    **{self.position_field_name + "__gte": position}
-                )
+                model.objects.filter(project=item.project)
+                .filter(**{self.position_field_name + "__gte": position})
                 # We sort the queryset in desc order
                 # to be updated in that order
                 # to avoid hitting the unique constraint (project, position).
@@ -64,7 +63,8 @@ class ProjectItemPositionManager:
             if position > current_position:
                 # It was moved down, so we need to move the other items up.
                 items = (
-                    model.objects.filter(project=item.project).filter(
+                    model.objects.filter(project=item.project)
+                    .filter(
                         **{
                             self.position_field_name + "__gt": current_position,
                             self.position_field_name + "__lte": position,
@@ -79,7 +79,8 @@ class ProjectItemPositionManager:
             else:
                 # It was moved up, so we need to move the other items down.
                 items = (
-                    model.objects.filter(project=item.project).filter(
+                    model.objects.filter(project=item.project)
+                    .filter(
                         **{
                             self.position_field_name + "__lt": current_position,
                             self.position_field_name + "__gte": position,
@@ -96,9 +97,7 @@ class ProjectItemPositionManager:
         # the unique constraint (project, position) while updating.
         # We use update() instead of save() to avoid calling the save() method again.
         if item.pk:
-            model.objects.filter(pk=item.pk).update(
-                **{self.position_field_name: total + 99}
-            )
+            model.objects.filter(pk=item.pk).update(**{self.position_field_name: total + 99})
 
         # NOTE: we can't use items.update(position=expression), because SQLite is used
         # in tests and hits a UNIQUE constraint error. PostgreSQL doesn't have this issue.
@@ -119,9 +118,8 @@ class ProjectItemPositionManager:
         model = item._meta.model
         previous_position = getattr(item, self.position_field_name)
         items = (
-            model.objects.filter(project=item.project).filter(
-                **{self.position_field_name + "__gte": previous_position}
-            )
+            model.objects.filter(project=item.project)
+            .filter(**{self.position_field_name + "__gte": previous_position})
             # We sort the queryset in asc order
             # to be updated in that order
             # to avoid hitting the unique constraint (project, position).
