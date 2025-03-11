@@ -7,7 +7,6 @@ from readthedocs.core.querysets import NoReprQuerySet
 
 
 class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
-
     """For models with relations through :py:class:`User`."""
 
     def api(self, user=None):

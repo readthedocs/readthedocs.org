@@ -7,8 +7,9 @@
   {% comment %}
     - OpenID is not implemented.
     - SAML is handled in another view, we don't want to list all SAML integrations here.
+    - GitHub App is not exposed to users yet.
   {% endcomment %}
-  {% if provider.id != 'saml' %}
+  {% if provider.id != 'saml' and provider.id != 'githubapp' %}
   {% if allowed_providers and provider.id in allowed_providers or not allowed_providers %}
     <li>
       {# Bitbucket doesn't allow more than one callback URL for their OAuth app, so we are redirecting users to the new dashboard for now. #}

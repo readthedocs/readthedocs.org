@@ -1,4 +1,5 @@
 """OAuth service models."""
+
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
@@ -12,13 +13,14 @@ from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
 from .constants import VCS_PROVIDER_CHOICES
-from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
+from .querysets import RemoteOrganizationQuerySet
+from .querysets import RemoteRepositoryQuerySet
+
 
 log = structlog.get_logger(__name__)
 
 
 class RemoteOrganization(TimeStampedModel):
-
     """
     Organization from remote service.
 
@@ -48,9 +50,7 @@ class RemoteOrganization(TimeStampedModel):
     )
     # VCS provider organization id
     remote_id = models.CharField(db_index=True, max_length=128)
-    vcs_provider = models.CharField(
-        _("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32
-    )
+    vcs_provider = models.CharField(_("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32)
 
     objects = RemoteOrganizationQuerySet.as_manager()
 
@@ -100,7 +100,6 @@ class RemoteOrganizationRelation(TimeStampedModel):
 
 
 class RemoteRepository(TimeStampedModel):
-
     """
     Remote importable repositories.
 
@@ -171,10 +170,8 @@ class RemoteRepository(TimeStampedModel):
         blank=True,
     )
     # VCS provider repository id
-    remote_id = models.CharField(db_index=True, max_length=128)
-    vcs_provider = models.CharField(
-        _("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32
-    )
+    remote_id = models.CharField(max_length=128)
+    vcs_provider = models.CharField(_("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32)
 
     objects = RemoteRepositoryQuerySet.as_manager()
 
@@ -234,9 +231,7 @@ class RemoteRepository(TimeStampedModel):
                 return service_cls
 
         # NOTE: this should never happen, but we log it just in case
-        log.exception(
-            "Service not found for the VCS provider", vcs_provider=self.vcs_provider
-        )
+        log.exception("Service not found for the VCS provider", vcs_provider=self.vcs_provider)
         return None
 
 

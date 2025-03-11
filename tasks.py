@@ -2,10 +2,12 @@
 
 import os
 
-from invoke import Collection, task
+from invoke import Collection
+from invoke import task
 
 import common.dockerfiles.tasks
 import common.tasks
+
 
 ROOT_PATH = os.path.dirname(__file__)
 
@@ -40,9 +42,7 @@ def docs(ctx, regenerate_config=False, push=False):
         if regenerate_config:
             os.remove(os.path.join(ROOT_PATH, "docs", ".tx", "config"))
             ctx.run("sphinx-intl create-txconfig")
-        ctx.run(
-            "sphinx-intl update-txconfig-resources --transifex-project-name readthedocs-docs"
-        )
+        ctx.run("sphinx-intl update-txconfig-resources --transifex-project-name readthedocs-docs")
         # Rebuild
         ctx.run("sphinx-intl build")
         ctx.run("make gettext")

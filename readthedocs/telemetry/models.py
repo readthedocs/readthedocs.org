@@ -5,7 +5,6 @@ from django_extensions.db.models import TimeStampedModel
 
 
 class BuildDataManager(models.Manager):
-
     """Manager for the BuildData model."""
 
     def collect(self, build, data):

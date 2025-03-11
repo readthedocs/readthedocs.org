@@ -1,9 +1,9 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
+from dataclasses import dataclass
 
 
 @dataclass(slots=True)
 class FileTreeDiffBuild:
-
     """The build associated with a file tree manifest."""
 
     id: int
@@ -11,7 +11,6 @@ class FileTreeDiffBuild:
 
 @dataclass(slots=True)
 class FileTreeDiffFile:
-
     """A file in a file tree manifest."""
 
     path: str
@@ -20,7 +19,6 @@ class FileTreeDiffFile:
 
 @dataclass(slots=True)
 class FileTreeDiffManifest:
-
     """A list of files and the build associated with them."""
 
     files: dict[str, FileTreeDiffFile]
@@ -52,7 +50,6 @@ class FileTreeDiffManifest:
 
 @dataclass
 class FileTreeDiff:
-
     """Difference between two file tree manifests."""
 
     added: list[str]

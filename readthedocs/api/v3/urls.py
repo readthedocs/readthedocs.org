@@ -1,24 +1,23 @@
 from .routers import DefaultRouterWithNesting
-from .views import (
-    BuildsCreateViewSet,
-    BuildsViewSet,
-    EnvironmentVariablesViewSet,
-    NotificationsBuildViewSet,
-    NotificationsForUserViewSet,
-    NotificationsOrganizationViewSet,
-    NotificationsProjectViewSet,
-    NotificationsUserViewSet,
-    OrganizationsTeamsViewSet,
-    OrganizationsViewSet,
-    ProjectsViewSet,
-    RedirectsViewSet,
-    RemoteOrganizationViewSet,
-    RemoteRepositoryViewSet,
-    SubprojectRelationshipViewSet,
-    TranslationRelationshipViewSet,
-    UsersViewSet,
-    VersionsViewSet,
-)
+from .views import BuildsCreateViewSet
+from .views import BuildsViewSet
+from .views import EnvironmentVariablesViewSet
+from .views import NotificationsBuildViewSet
+from .views import NotificationsForUserViewSet
+from .views import NotificationsOrganizationViewSet
+from .views import NotificationsProjectViewSet
+from .views import NotificationsUserViewSet
+from .views import OrganizationsTeamsViewSet
+from .views import OrganizationsViewSet
+from .views import ProjectsViewSet
+from .views import RedirectsViewSet
+from .views import RemoteOrganizationViewSet
+from .views import RemoteRepositoryViewSet
+from .views import SubprojectRelationshipViewSet
+from .views import TranslationRelationshipViewSet
+from .views import UsersViewSet
+from .views import VersionsViewSet
+
 
 router = DefaultRouterWithNesting()
 

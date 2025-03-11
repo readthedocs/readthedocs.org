@@ -3,22 +3,28 @@ from fnmatch import fnmatch
 import structlog
 from django.conf import settings
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL, LATEST
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.filetreediff import write_manifest
-from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.filetreediff.dataclasses import FileTreeDiffFile
+from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
-from readthedocs.search.utils import index_objects, remove_indexed_files
+from readthedocs.search.utils import index_objects
+from readthedocs.search.utils import remove_indexed_files
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 
 
 class Indexer:
-
     """
     Base class for doing operations over each file from a build.
 
@@ -37,7 +43,6 @@ class Indexer:
 
 
 class SearchIndexer(Indexer):
-
     """
     Index HTML files in ElasticSearch.
 
@@ -97,7 +102,6 @@ class SearchIndexer(Indexer):
 
 
 class IndexFileIndexer(Indexer):
-
     """
     Create imported files of interest in the DB.
 
@@ -173,9 +177,7 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
         else LATEST
     )
     create_manifest = version.project.addons.filetreediff_enabled and (
-        version.is_external
-        or version.slug == base_version
-        or settings.RTD_FILETREEDIFF_ALL
+        version.is_external or version.slug == base_version or settings.RTD_FILETREEDIFF_ALL
     )
     if create_manifest:
         file_manifest_indexer = FileManifestIndexer(
@@ -203,9 +205,7 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
     # it's used to differentiate the files from the current sync from the previous one.
     # This is useful to easily delete the previous files from the DB and ES.
     # See https://github.com/readthedocs/readthedocs.org/issues/10734.
-    imported_file_build_id = version.imported_files.values_list(
-        "build", flat=True
-    ).first()
+    imported_file_build_id = version.imported_files.values_list("build", flat=True).first()
     sync_id = imported_file_build_id + 1 if imported_file_build_id else 1
 
     log.debug(
@@ -252,15 +252,9 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
 @app.task(queue="reindex")
 def index_build(build_id):
     """Create imported files and search index for the build."""
-    build = (
-        Build.objects.filter(pk=build_id)
-        .select_related("version", "version__project")
-        .first()
-    )
+    build = Build.objects.filter(pk=build_id).select_related("version", "version__project").first()
     if not build:
-        log.debug(
-            "Skipping search indexing. Build object doesn't exists.", build_id=build_id
-        )
+        log.debug("Skipping search indexing. Build object doesn't exists.", build_id=build_id)
         return
 
     # The version may have been deleted.
@@ -304,9 +298,7 @@ def reindex_version(version_id, search_index_name=None):
         return
 
     latest_successful_build = (
-        version.builds.filter(state=BUILD_STATE_FINISHED, success=True)
-        .order_by("-date")
-        .first()
+        version.builds.filter(state=BUILD_STATE_FINISHED, success=True).order_by("-date").first()
     )
     # If the version doesn't have a successful
     # build, we don't have files to index.

@@ -2,17 +2,14 @@
 
 from django.contrib import admin
 
-from .models import (
-    RemoteOrganization,
-    RemoteOrganizationRelation,
-    RemoteRepository,
-    RemoteRepositoryRelation,
-)
+from .models import RemoteOrganization
+from .models import RemoteOrganizationRelation
+from .models import RemoteRepository
+from .models import RemoteRepositoryRelation
 
 
 @admin.register(RemoteRepository)
 class RemoteRepositoryAdmin(admin.ModelAdmin):
-
     """Admin configuration for the RemoteRepository model."""
 
     readonly_fields = (
@@ -44,7 +41,6 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
 
 @admin.register(RemoteOrganization)
 class RemoteOrganizationAdmin(admin.ModelAdmin):
-
     """Admin configuration for the RemoteOrganization model."""
 
     readonly_fields = (
@@ -70,7 +66,6 @@ class RemoteOrganizationAdmin(admin.ModelAdmin):
 
 @admin.register(RemoteRepositoryRelation)
 class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
-
     """Admin configuration for the RemoteRepositoryRelation model."""
 
     raw_id_fields = (
@@ -86,7 +81,6 @@ class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
 
 @admin.register(RemoteOrganizationRelation)
 class RemoteOrganizationRelationAdmin(admin.ModelAdmin):
-
     """Admin configuration for the RemoteOrganizationRelation model."""
 
     raw_id_fields = (

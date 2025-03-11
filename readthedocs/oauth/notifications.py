@@ -5,7 +5,9 @@ import textwrap
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.notifications.constants import ERROR
-from readthedocs.notifications.messages import Message, registry
+from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
+
 
 MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS = "oauth:webhook:no-permissions"
 MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT = "oauth:webhook:no-account"

@@ -1,55 +1,66 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
+
 import json
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.db.models import BooleanField, Case, Value, When
+from django.db.models import BooleanField
+from django.db.models import Case
+from django.db.models import Value
+from django.db.models import When
 from django.http import Http404
 from django.template.loader import render_to_string
-from rest_framework import decorators, status, viewsets
-from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
-from rest_framework.parsers import JSONParser, MultiPartParser
-from rest_framework.renderers import BaseRenderer, JSONRenderer
+from rest_framework import decorators
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import UpdateModelMixin
+from rest_framework.parsers import JSONParser
+from rest_framework.parsers import MultiPartParser
+from rest_framework.renderers import BaseRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.api.v2.permissions import HasBuildAPIKey, IsOwner, ReadOnlyPermission
+from readthedocs.api.v2.permissions import HasBuildAPIKey
+from readthedocs.api.v2.permissions import IsOwner
+from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildCommandResult
+from readthedocs.builds.models import Version
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.oauth.models import RemoteOrganization
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Project
 from readthedocs.storage import build_commands_storage
 
-from ..serializers import (
-    BuildAdminReadOnlySerializer,
-    BuildAdminSerializer,
-    BuildCommandSerializer,
-    BuildSerializer,
-    DomainSerializer,
-    NotificationSerializer,
-    ProjectAdminSerializer,
-    ProjectSerializer,
-    RemoteOrganizationSerializer,
-    RemoteRepositorySerializer,
-    SocialAccountSerializer,
-    VersionAdminSerializer,
-    VersionSerializer,
-)
-from ..utils import (
-    ProjectPagination,
-    RemoteOrganizationPagination,
-    RemoteProjectPagination,
-)
+from ..serializers import BuildAdminReadOnlySerializer
+from ..serializers import BuildAdminSerializer
+from ..serializers import BuildCommandSerializer
+from ..serializers import BuildSerializer
+from ..serializers import DomainSerializer
+from ..serializers import NotificationSerializer
+from ..serializers import ProjectAdminSerializer
+from ..serializers import ProjectSerializer
+from ..serializers import RemoteOrganizationSerializer
+from ..serializers import RemoteRepositorySerializer
+from ..serializers import SocialAccountSerializer
+from ..serializers import VersionAdminSerializer
+from ..serializers import VersionSerializer
+from ..utils import ProjectPagination
+from ..utils import RemoteOrganizationPagination
+from ..utils import RemoteProjectPagination
+
 
 log = structlog.get_logger(__name__)
 
 
 class PlainTextBuildRenderer(BaseRenderer):
-
     """
     Custom renderer for text/plain format.
 
@@ -72,7 +83,6 @@ class PlainTextBuildRenderer(BaseRenderer):
 
 
 class DisableListEndpoint:
-
     """
     Helper to disable APIv2 listing endpoint.
 
@@ -127,7 +137,6 @@ class DisableListEndpoint:
 
 
 class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
-
     """
     View set that varies serializer class based on request user credentials.
 
@@ -167,7 +176,6 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-
     """List, filter, etc, Projects."""
 
     permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
@@ -366,7 +374,6 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
 
 class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
-
     """
     Create a notification attached to an object (User, Project, Build, Organization).
 
@@ -471,9 +478,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         ).distinct()
 
         # optimizes for the RemoteOrganizationSerializer
-        query = query.select_related("organization").order_by(
-            "organization__name", "full_name"
-        )
+        query = query.select_related("organization").order_by("organization__name", "full_name")
 
         return query
 

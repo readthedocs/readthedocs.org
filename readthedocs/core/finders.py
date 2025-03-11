@@ -5,7 +5,6 @@ from django.contrib.staticfiles.finders import AppDirectoriesFinder
 
 
 class DebugToolbarFinder(AppDirectoriesFinder):
-
     """
     Finder to copy the static files for `debug_toolbar` even if it's not installed.
 

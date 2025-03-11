@@ -159,7 +159,7 @@ sphinxemoji==0.3.1
     # via -r requirements/docs.in
 sphinxext-opengraph==0.9.1
     # via -r requirements/docs.in
-starlette==0.45.3
+starlette==0.46.0
     # via sphinx-autobuild
 tomli==2.2.1
     # via sphinx

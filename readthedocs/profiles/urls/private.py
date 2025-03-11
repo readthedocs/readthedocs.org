@@ -4,6 +4,7 @@ from django.urls import path
 
 from readthedocs.profiles import views
 
+
 # Split URLs into different lists to be able to selectively import them from a
 # another application (like Read the Docs Corporate), where we may don't need to
 # define Token URLs, for example.
