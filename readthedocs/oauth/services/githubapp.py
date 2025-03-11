@@ -174,9 +174,10 @@ class GitHubAppService(Service):
                 exc_info=True,
             )
 
-            if e.status == 404:
-                # The installation is no longer accessible,
-                # we remove it from the database.
+            # 404: installation was deleted/uninstalled
+            # 403: installation was suspended
+            if e.status in [404, 403]:
+                # The installation is no longer accessible, we remove it from the database.
                 self.installation.delete()
             raise SyncServiceError()
 
