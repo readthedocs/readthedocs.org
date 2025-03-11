@@ -1,4 +1,5 @@
 """Notifications related to projects."""
+
 import textwrap
 
 from django.contrib.auth.models import User
@@ -7,20 +8,20 @@ from django.utils import timezone
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.notifications.constants import ERROR, INFO, WARNING
+from readthedocs.notifications.constants import ERROR
+from readthedocs.notifications.constants import INFO
+from readthedocs.notifications.constants import WARNING
 from readthedocs.notifications.email import EmailNotification
-from readthedocs.notifications.messages import Message, registry
-from readthedocs.projects.exceptions import (
-    ProjectConfigurationError,
-    RepositoryError,
-    SyncRepositoryLocked,
-    UserFileNotFound,
-)
+from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
+from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.exceptions import SyncRepositoryLocked
+from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Project
 
 
 class NewDashboardNotification(EmailNotification):
-
     """
     Notification about new dashboard rollout and changes for Business users.
 
@@ -223,9 +224,7 @@ messages = [
     # Temporary notification until October 7th.
     Message(
         id=MESSAGE_PROJECT_ADDONS_BY_DEFAULT,
-        header=_(
-            """Read the Docs Addons were enabled by default on October 7th, 2024"""
-        ),
+        header=_("""Read the Docs Addons were enabled by default on October 7th, 2024"""),
         body=_(
             textwrap.dedent(
                 """

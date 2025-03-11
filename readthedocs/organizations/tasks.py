@@ -20,8 +20,6 @@ def mark_organization_assets_not_cleaned(build_pk):
 
     organization = build.project.organizations.first()
     if organization and organization.artifacts_cleaned:
-        log.info(
-            "Marking organization as not cleaned.", origanization_slug=organization.slug
-        )
+        log.info("Marking organization as not cleaned.", origanization_slug=organization.slug)
         organization.artifacts_cleaned = False
         organization.save()

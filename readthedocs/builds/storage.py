@@ -3,9 +3,7 @@ from pathlib import Path
 
 import structlog
 from django.conf import settings
-from django.contrib.staticfiles.storage import (
-    StaticFilesStorage as BaseStaticFilesStorage,
-)
+from django.contrib.staticfiles.storage import StaticFilesStorage as BaseStaticFilesStorage
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 from storages.utils import get_available_overwrite_name
@@ -14,11 +12,11 @@ from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.storage.rclone import RCloneLocal
 from readthedocs.storage.utils import safe_join
 
+
 log = structlog.get_logger(__name__)
 
 
 class BuildMediaStorageMixin:
-
     """
     A mixin for Storage classes needed to write build artifacts.
 
@@ -159,7 +157,6 @@ class BuildMediaStorageMixin:
 
 
 class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
-
     """Storage subclass that writes build artifacts in PRODUCTION_MEDIA_ARTIFACTS or MEDIA_ROOT."""
 
     def __init__(self, **kwargs):

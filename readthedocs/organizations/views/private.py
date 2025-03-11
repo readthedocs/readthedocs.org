@@ -5,31 +5,32 @@ from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
-from vanilla import CreateView, FormView, ListView, UpdateView
+from vanilla import CreateView
+from vanilla import FormView
+from vanilla import ListView
+from vanilla import UpdateView
 
 from readthedocs.audit.filters import OrganizationSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
-from readthedocs.core.mixins import DeleteViewWithMessage, PrivateViewMixin
+from readthedocs.core.mixins import DeleteViewWithMessage
+from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.filters import OrganizationListFilterSet
-from readthedocs.organizations.forms import (
-    OrganizationSignupForm,
-    OrganizationTeamProjectForm,
-)
+from readthedocs.organizations.forms import OrganizationSignupForm
+from readthedocs.organizations.forms import OrganizationTeamProjectForm
 from readthedocs.organizations.models import Organization
-from readthedocs.organizations.views.base import (
-    OrganizationMixin,
-    OrganizationOwnerView,
-    OrganizationTeamMemberView,
-    OrganizationTeamView,
-    OrganizationView,
-)
+from readthedocs.organizations.views.base import OrganizationMixin
+from readthedocs.organizations.views.base import OrganizationOwnerView
+from readthedocs.organizations.views.base import OrganizationTeamMemberView
+from readthedocs.organizations.views.base import OrganizationTeamView
+from readthedocs.organizations.views.base import OrganizationView
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
 from readthedocs.subscriptions.products import get_feature
@@ -37,7 +38,6 @@ from readthedocs.subscriptions.products import get_feature
 
 # Organization views
 class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
-
     """View to create an organization after the user has signed up."""
 
     template_name = "organizations/organization_create.html"
@@ -65,9 +65,7 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
         )
 
 
-class ListOrganization(
-    FilterContextMixin, PrivateViewMixin, OrganizationView, ListView
-):
+class ListOrganization(FilterContextMixin, PrivateViewMixin, OrganizationView, ListView):
     template_name = "organizations/organization_list.html"
     admin_only = False
 
@@ -94,9 +92,7 @@ class ChooseOrganization(ListOrganization):
         # Check if user has exactly 1 organization and automatically redirect in this case
         organizations = self.get_queryset()
         if organizations.count() == 1:
-            redirect_url = reverse(
-                self.next_name, kwargs={"slug": organizations[0].slug}
-            )
+            redirect_url = reverse(self.next_name, kwargs={"slug": organizations[0].slug})
             if self.next_querystring:
                 redirect_url += "?" + urlencode(self.next_querystring)
             return redirect(redirect_url)
@@ -153,9 +149,7 @@ class AddOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, FormView):
         return super().form_valid(form)
 
 
-class DeleteOrganizationOwner(
-    PrivateViewMixin, OrganizationOwnerView, DeleteViewWithMessage
-):
+class DeleteOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, DeleteViewWithMessage):
     success_message = _("Owner removed")
     http_method_names = ["post"]
 
@@ -220,7 +214,6 @@ class DeleteOrganizationTeamMember(
 
 
 class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
-
     """Display security logs related to this organization."""
 
     model = AuditLog
@@ -262,8 +255,7 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
             end=timezone.datetime.strftime(end_date, "%Y-%m-%d"),
         )
         csv_data = [
-            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest]
-            for date, *rest in data
+            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest] for date, *rest in data
         ]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
@@ -297,9 +289,7 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             log_organization_id=organization.id,
-            action__in=[
-                action for action, _ in OrganizationSecurityLogFilter.allowed_actions
-            ],
+            action__in=[action for action, _ in OrganizationSecurityLogFilter.allowed_actions],
             created__gte=start_date,
         )
         return queryset

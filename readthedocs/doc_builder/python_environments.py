@@ -6,20 +6,23 @@ import os
 import structlog
 import yaml
 
-from readthedocs.config import PIP, SETUPTOOLS, ParseError
+from readthedocs.config import PIP
+from readthedocs.config import SETUPTOOLS
+from readthedocs.config import ParseError
 from readthedocs.config import parse as parse_yaml
-from readthedocs.config.models import PythonInstall, PythonInstallRequirements
+from readthedocs.config.models import PythonInstall
+from readthedocs.config.models import PythonInstallRequirements
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
+
 log = structlog.get_logger(__name__)
 
 
 class PythonEnvironment:
-
     """An isolated environment into which Python packages can be installed."""
 
     def __init__(self, version, build_env, config=None):
@@ -60,9 +63,7 @@ class PythonEnvironment:
 
         if install.method == PIP:
             # Prefix ./ so pip installs from a local path rather than pypi
-            local_path = (
-                os.path.join(".", install.path) if install.path != "." else install.path
-            )
+            local_path = os.path.join(".", install.path) if install.path != "." else install.path
             extra_req_param = ""
             if install.extra_requirements:
                 extra_req_param = "[{}]".format(",".join(install.extra_requirements))
@@ -106,7 +107,6 @@ class PythonEnvironment:
 
 
 class Virtualenv(PythonEnvironment):
-
     """
     A virtualenv_ environment.
 
@@ -220,7 +220,6 @@ class Virtualenv(PythonEnvironment):
 
 
 class Conda(PythonEnvironment):
-
     """
     A Conda_ environment.
 
@@ -342,8 +341,7 @@ class Conda(PythonEnvironment):
                 yaml.safe_dump(environment, outputfile)
             except IOError:
                 log.warning(
-                    "There was an error while writing the new Conda "
-                    "environment file.",
+                    "There was an error while writing the new Conda environment file.",
                 )
 
     def _get_core_requirements(self):

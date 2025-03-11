@@ -19,9 +19,11 @@ The process is as follows:
 import json
 
 from readthedocs.builds.models import Version
-from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeDiffManifest
+from readthedocs.filetreediff.dataclasses import FileTreeDiff
+from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
 from readthedocs.storage import build_media_storage
+
 
 MANIFEST_FILE_NAME = "manifest.json"
 

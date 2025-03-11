@@ -1,4 +1,5 @@
 """Organization tasks."""
+
 import datetime
 
 import structlog
@@ -10,12 +11,12 @@ from djstripe import models as djstripe
 from readthedocs.builds.models import Build
 from readthedocs.core.utils import send_email
 from readthedocs.organizations.models import Organization
-from readthedocs.projects.models import Domain, Project
-from readthedocs.subscriptions.notifications import (
-    OrganizationDisabledNotification,
-    TrialEndingNotification,
-)
+from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Project
+from readthedocs.subscriptions.notifications import OrganizationDisabledNotification
+from readthedocs.subscriptions.notifications import TrialEndingNotification
 from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 

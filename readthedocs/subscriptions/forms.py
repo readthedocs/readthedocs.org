@@ -8,7 +8,6 @@ from readthedocs.subscriptions.products import get_listed_products
 
 
 class PlanForm(forms.Form):
-
     """Form to create a subscription after the previous one has ended."""
 
     plan = forms.ChoiceField()

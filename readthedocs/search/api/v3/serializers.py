@@ -1,12 +1,9 @@
 from rest_framework import serializers
 
-from readthedocs.search.api.v2.serializers import (
-    PageSearchSerializer as PageSearchSerializerBase,
-)
+from readthedocs.search.api.v2.serializers import PageSearchSerializer as PageSearchSerializerBase
 
 
 class PageSearchSerializer(PageSearchSerializerBase):
-
     """
     Serializer for API V3.
 

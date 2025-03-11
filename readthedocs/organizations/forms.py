@@ -1,7 +1,9 @@
 """Organization forms."""
+
 from django import forms
 from django.contrib.auth.models import User
-from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
@@ -11,17 +13,15 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.invitations.models import Invitation
-from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
-from readthedocs.organizations.models import (
-    Organization,
-    OrganizationOwner,
-    Team,
-    TeamMember,
-)
+from readthedocs.organizations.constants import ADMIN_ACCESS
+from readthedocs.organizations.constants import READ_ONLY_ACCESS
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import OrganizationOwner
+from readthedocs.organizations.models import Team
+from readthedocs.organizations.models import TeamMember
 
 
 class OrganizationForm(SimpleHistoryModelForm):
-
     """
     Base organization form.
 
@@ -70,9 +70,7 @@ class OrganizationForm(SimpleHistoryModelForm):
 
         potential_slug = slugify(name)
         if not potential_slug:
-            raise forms.ValidationError(
-                _("Invalid organization name: no slug generated")
-            )
+            raise forms.ValidationError(_("Invalid organization name: no slug generated"))
         if Organization.objects.filter(slug=potential_slug).exists():
             raise forms.ValidationError(
                 _("Organization %(name)s already exists"),
@@ -82,7 +80,6 @@ class OrganizationForm(SimpleHistoryModelForm):
 
 
 class OrganizationSignupFormBase(OrganizationForm):
-
     """
     Simple organization creation form.
 
@@ -129,7 +126,6 @@ class OrganizationSignupForm(SettingsOverrideObject):
 
 
 class OrganizationOwnerForm(forms.Form):
-
     """Form to manage owners of the organization."""
 
     username_or_email = forms.CharField(label=_("Email address or username"))
@@ -143,8 +139,7 @@ class OrganizationOwnerForm(forms.Form):
         """Lookup owner by username or email, detect collisions with existing owners."""
         username = self.cleaned_data["username_or_email"]
         user = User.objects.filter(
-            Q(username=username)
-            | Q(emailaddress__verified=True, emailaddress__email=username)
+            Q(username=username) | Q(emailaddress__verified=True, emailaddress__email=username)
         ).first()
         if user is None:
             raise forms.ValidationError(
@@ -169,7 +164,6 @@ class OrganizationOwnerForm(forms.Form):
 
 
 class OrganizationTeamBasicFormBase(SimpleHistoryModelForm):
-
     """Form to manage teams."""
 
     class Meta:
@@ -197,7 +191,6 @@ class OrganizationTeamBasicForm(SettingsOverrideObject):
 
 
 class OrganizationTeamProjectForm(forms.ModelForm):
-
     """Form to manage access of teams to projects."""
 
     class Meta:
@@ -215,7 +208,6 @@ class OrganizationTeamProjectForm(forms.ModelForm):
 
 
 class OrganizationTeamMemberForm(forms.Form):
-
     """Form to manage all members of the organization."""
 
     username_or_email = forms.CharField(label=_("Email address or username"))
@@ -235,8 +227,7 @@ class OrganizationTeamMemberForm(forms.Form):
         """
         username = self.cleaned_data["username_or_email"]
         user = User.objects.filter(
-            Q(username=username)
-            | Q(emailaddress__verified=True, emailaddress__email=username)
+            Q(username=username) | Q(emailaddress__verified=True, emailaddress__email=username)
         ).first()
 
         if user:
@@ -270,11 +261,7 @@ class OrganizationTeamMemberForm(forms.Form):
         if isinstance(user, User):
             # If the user is already a member or the organization
             # don't create an invitation.
-            if (
-                AdminPermission.members(self.team.organization)
-                .filter(pk=user.pk)
-                .exists()
-            ):
+            if AdminPermission.members(self.team.organization).filter(pk=user.pk).exists():
                 member = self.team.organization.add_member(user, self.team)
                 if user != self.request.user:
                     member.send_add_notification(self.request)

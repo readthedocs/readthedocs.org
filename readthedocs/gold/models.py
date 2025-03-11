@@ -1,4 +1,5 @@
 """Django models for recurring donations aka Gold membership."""
+
 import math
 
 from django.contrib.auth.models import User
@@ -6,6 +7,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.projects.models import Project
+
 
 #: The membership options that are currently available
 LEVEL_CHOICES = (
@@ -22,7 +24,6 @@ DOLLARS_PER_PROJECT = 5
 
 
 class GoldUser(models.Model):
-
     """A user subscription for Gold membership."""
 
     pub_date = models.DateTimeField(_("Publication date"), auto_now_add=True)

@@ -4,6 +4,7 @@ from django import template
 
 from readthedocs.invitations.models import Invitation
 
+
 register = template.Library()
 
 

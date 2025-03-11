@@ -4,7 +4,6 @@ from django.apps import AppConfig
 
 
 class AnalyticsAppConfig(AppConfig):
-
     """Analytics app init code."""
 
     default_auto_field = "django.db.models.BigAutoField"

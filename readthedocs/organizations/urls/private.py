@@ -1,8 +1,11 @@
 """URLs that require login."""
-from django.urls import path, re_path
+
+from django.urls import path
+from django.urls import re_path
 
 from readthedocs.core.views import PageNotFoundView
 from readthedocs.organizations.views import private as views
+
 
 urlpatterns = [
     path(

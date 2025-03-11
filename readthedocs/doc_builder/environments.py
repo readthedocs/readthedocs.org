@@ -14,30 +14,31 @@ from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
-from requests.exceptions import ConnectionError, ReadTimeout
+from requests.exceptions import ConnectionError
+from requests.exceptions import ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.models import Feature
 
-from .constants import (
-    DOCKER_HOSTNAME_MAX_LEN,
-    DOCKER_IMAGE,
-    DOCKER_LIMITS,
-    DOCKER_OOM_EXIT_CODE,
-    DOCKER_SOCKET,
-    DOCKER_TIMEOUT_EXIT_CODE,
-    DOCKER_VERSION,
-    RTD_SKIP_BUILD_EXIT_CODE,
-)
-from .exceptions import BuildAppError, BuildCancelled, BuildUserError
+from .constants import DOCKER_HOSTNAME_MAX_LEN
+from .constants import DOCKER_IMAGE
+from .constants import DOCKER_LIMITS
+from .constants import DOCKER_OOM_EXIT_CODE
+from .constants import DOCKER_SOCKET
+from .constants import DOCKER_TIMEOUT_EXIT_CODE
+from .constants import DOCKER_VERSION
+from .constants import RTD_SKIP_BUILD_EXIT_CODE
+from .exceptions import BuildAppError
+from .exceptions import BuildCancelled
+from .exceptions import BuildUserError
+
 
 log = structlog.get_logger(__name__)
 
 
 class BuildCommand(BuildCommandResultMixin):
-
     """
     Wrap command execution for execution in build environments.
 
@@ -274,7 +275,6 @@ class BuildCommand(BuildCommandResultMixin):
 
 
 class DockerBuildCommand(BuildCommand):
-
     """
     Create a docker container and run a command inside the container.
 
@@ -319,9 +319,7 @@ class DockerBuildCommand(BuildCommand):
                 stderr=True,
             )
 
-            out = client.exec_start(
-                exec_id=exec_cmd["Id"], stream=False, demux=self.demux
-            )
+            out = client.exec_start(exec_id=exec_cmd["Id"], stream=False, demux=self.demux)
             cmd_stdout = ""
             cmd_stderr = ""
             if self.demux:
@@ -344,9 +342,7 @@ class DockerBuildCommand(BuildCommand):
             killed_in_output = "Killed" in "\n".join(
                 self.output.splitlines()[-15:],
             )
-            if self.exit_code == DOCKER_OOM_EXIT_CODE or (
-                self.exit_code == 1 and killed_in_output
-            ):
+            if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and killed_in_output):
                 self.output += str(
                     _(
                         "\n\nCommand killed due to timeout or excessive memory consumption\n",
@@ -377,8 +373,7 @@ class DockerBuildCommand(BuildCommand):
             prefix += f"PATH={bin_path}:$PATH "
 
         command = " ".join(
-            self._escape_command(part) if self.escape_command else part
-            for part in self.command
+            self._escape_command(part) if self.escape_command else part for part in self.command
         )
         if prefix:
             # Using `;` or `\n` to separate the `prefix` where we define the
@@ -405,7 +400,6 @@ class DockerBuildCommand(BuildCommand):
 
 
 class BaseBuildEnvironment:
-
     """
     Base build environment.
 
@@ -545,14 +539,12 @@ class BaseBuildEnvironment:
 
 
 class LocalBuildEnvironment(BaseBuildEnvironment):
-
     """Local execution build environment."""
 
     command_class = BuildCommand
 
 
 class DockerBuildEnvironment(BaseBuildEnvironment):
-
     """
     Docker build environment, uses docker to contain builds.
 
@@ -624,8 +616,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                     raise BuildAppError(
                         BuildAppError.GENERIC_WITH_BUILD_ID,
                         exception_message=_(
-                            "A build environment is currently "
-                            "running for this version",
+                            "A build environment is currently running for this version",
                         ),
                     )
 
