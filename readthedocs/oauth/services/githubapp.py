@@ -168,12 +168,17 @@ class GitHubAppService(Service):
         """
         try:
             app_installation = self.app_installation
-        except GithubException:
+        except GithubException as e:
             log.info(
                 "Failed to get installation",
                 installation_id=self.installation.installation_id,
                 exc_info=True,
             )
+
+            if e.status == 404:
+                # The installation is no longer accessible,
+                # we remove it from the database.
+                self.installation.delete()
             raise SyncServiceError()
 
         remote_repositories = []
