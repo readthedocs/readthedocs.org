@@ -129,6 +129,48 @@ class TestGitHubAppWebhook(TestCase):
         assert self.installation.target_type == GitHubAccountType.USER
         assert GitHubAppInstallation.objects.count() == 1
 
+    @mock.patch.object(GitHubAppService, "sync")
+    def test_installation_unsuspended(self, sync):
+        new_installation_id = 2222
+        assert not GitHubAppInstallation.objects.filter(
+            installation_id=new_installation_id
+        ).exists()
+        payload = {
+            "action": "unsuspended",
+            "installation": {
+                "id": new_installation_id,
+                "target_id": 2222,
+                "target_type": GitHubAccountType.USER,
+            },
+        }
+        r = self.post_webhook("installation", payload)
+        assert r.status_code == 200
+
+        installation = GitHubAppInstallation.objects.get(
+            installation_id=new_installation_id
+        )
+        assert installation.target_id == 2222
+        assert installation.target_type == GitHubAccountType.USER
+        sync.assert_called_once()
+
+    @mock.patch.object(GitHubAppService, "sync")
+    def test_installation_unsuspended_with_existing_installation(self, sync):
+        paylod = {
+            "action": "unsuspended",
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+        }
+        r = self.post_webhook("installation", paylod)
+        assert r.status_code == 200
+        sync.assert_called_once()
+        self.installation.refresh_from_db()
+        assert self.installation.target_id == 1111
+        assert self.installation.target_type == GitHubAccountType.USER
+        assert GitHubAppInstallation.objects.count() == 1
+
     def test_installation_deleted(self):
         payload = {
             "action": "deleted",
@@ -151,6 +193,38 @@ class TestGitHubAppWebhook(TestCase):
         ).exists()
         payload = {
             "action": "deleted",
+            "installation": {
+                "id": install_id,
+                "target_id": 2222,
+                "target_type": GitHubAccountType.USER,
+            },
+        }
+        r = self.post_webhook("installation", payload)
+        assert r.status_code == 200
+        assert not GitHubAppInstallation.objects.filter(installation_id=2222).exists()
+
+    def test_installation_suspended(self):
+        payload = {
+            "action": "suspended",
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+        }
+        r = self.post_webhook("installation", payload)
+        assert r.status_code == 200
+        assert not GitHubAppInstallation.objects.filter(
+            installation_id=self.installation.installation_id
+        ).exists()
+
+    def test_installation_suspended_with_non_existing_installation(self):
+        install_id = 2222
+        assert not GitHubAppInstallation.objects.filter(
+            installation_id=install_id
+        ).exists()
+        payload = {
+            "action": "suspended",
             "installation": {
                 "id": install_id,
                 "target_id": 2222,

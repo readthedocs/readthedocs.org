@@ -143,15 +143,15 @@ class GitHubAppWebhookView(APIView):
         gh_installation = data["installation"]
         installation_id = gh_installation["id"]
 
-        if action == "created":
+        if action in ["created", "unsuspended"]:
             installation, created = self._get_or_create_installation()
             # If the installation was just created, we already synced the repositories.
             if created:
                 return
             installation.service.sync()
 
-        if action == "deleted":
-            # NOTE: When an installation is deleted, this doesn't trigger an installation_repositories event.
+        if action in ["deleted", "suspended"]:
+            # NOTE: When an installation is deleted/suspended, it doesn't trigger an installation_repositories event.
             # So we need to call the delete method explicitly here, so we delete its repositories.
             installation = GitHubAppInstallation.objects.filter(
                 installation_id=installation_id
@@ -165,7 +165,6 @@ class GitHubAppWebhookView(APIView):
 
         # Ignore other actions:
         # - new_permissions_accepted: We don't need to do anything here for now.
-        # - suspended/unsuspended: We don't do anything with suspended installations.
         return
 
     def _handle_installation_repositories_event(self):
