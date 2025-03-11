@@ -467,13 +467,19 @@ class GitHubAppWebhookView(APIView):
 
     def _handle_github_app_authorization_event(self):
         """
-        Revoking the authorization of a GitHub App does not uninstall the GitHub App.
-        You should program your GitHub App so that when it receives this webhook,
-        it stops calling the API on behalf of the person who revoked the token.
+        Handle the github_app_authorization event.
+
+        Triggered when a user revokes the authorization of a GitHub App ("log in with GitHub" will no longer work).
+
+        .. note::
+
+           Revoking the authorization of a GitHub App does not uninstall the GitHub App,
+           it only revokes the OAuth2 token.
 
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#github_app_authorization.
         """
-        # TODO: what to do here?
+        # A GitHub App receives this webhook by default and cannot unsubscribe from this event.
+        # We don't need to do anything here for now.
 
     def _get_projects(self):
         """
