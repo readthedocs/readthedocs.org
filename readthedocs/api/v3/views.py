@@ -1,97 +1,89 @@
 import django_filters.rest_framework as filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists
+from django.db.models import OuterRef
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
-from rest_framework.mixins import (
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-    RetrieveModelMixin,
-    UpdateModelMixin,
-)
+from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import DestroyModelMixin
+from rest_framework.mixins import ListModelMixin
+from rest_framework.mixins import RetrieveModelMixin
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
-from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.throttling import AnonRateThrottle
+from rest_framework.throttling import UserRateThrottle
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.models import (
-    RemoteOrganization,
-    RemoteRepository,
-    RemoteRepositoryRelation,
-)
-from readthedocs.organizations.models import Organization, Team
-from readthedocs.projects.models import (
-    EnvironmentVariable,
-    Project,
-    ProjectRelationship,
-)
+from readthedocs.oauth.models import RemoteOrganization
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepositoryRelation
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
+from readthedocs.projects.models import EnvironmentVariable
+from readthedocs.projects.models import Project
+from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
-from .filters import (
-    BuildFilter,
-    NotificationFilter,
-    ProjectFilter,
-    RemoteOrganizationFilter,
-    RemoteRepositoryFilter,
-    VersionFilter,
-)
-from .mixins import (
-    OrganizationQuerySetMixin,
-    ProjectQuerySetMixin,
-    RemoteQuerySetMixin,
-    UpdateChangeReasonMixin,
-    UpdateMixin,
-    UserQuerySetMixin,
-)
-from .permissions import (
-    IsCurrentUser,
-    IsOrganizationAdmin,
-    IsOrganizationAdminMember,
-    IsProjectAdmin,
-)
+from .filters import BuildFilter
+from .filters import NotificationFilter
+from .filters import ProjectFilter
+from .filters import RemoteOrganizationFilter
+from .filters import RemoteRepositoryFilter
+from .filters import VersionFilter
+from .mixins import OrganizationQuerySetMixin
+from .mixins import ProjectQuerySetMixin
+from .mixins import RemoteQuerySetMixin
+from .mixins import UpdateChangeReasonMixin
+from .mixins import UpdateMixin
+from .mixins import UserQuerySetMixin
+from .permissions import IsCurrentUser
+from .permissions import IsOrganizationAdmin
+from .permissions import IsOrganizationAdminMember
+from .permissions import IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
-from .serializers import (
-    BuildCreateSerializer,
-    BuildSerializer,
-    EnvironmentVariableSerializer,
-    NotificationSerializer,
-    OrganizationSerializer,
-    ProjectCreateSerializer,
-    ProjectSerializer,
-    ProjectUpdateSerializer,
-    RedirectCreateSerializer,
-    RedirectDetailSerializer,
-    RemoteOrganizationSerializer,
-    RemoteRepositorySerializer,
-    SubprojectCreateSerializer,
-    SubprojectDestroySerializer,
-    SubprojectSerializer,
-    TeamSerializer,
-    UserSerializer,
-    VersionSerializer,
-    VersionUpdateSerializer,
-)
+from .serializers import BuildCreateSerializer
+from .serializers import BuildSerializer
+from .serializers import EnvironmentVariableSerializer
+from .serializers import NotificationSerializer
+from .serializers import OrganizationSerializer
+from .serializers import ProjectCreateSerializer
+from .serializers import ProjectSerializer
+from .serializers import ProjectUpdateSerializer
+from .serializers import RedirectCreateSerializer
+from .serializers import RedirectDetailSerializer
+from .serializers import RemoteOrganizationSerializer
+from .serializers import RemoteRepositorySerializer
+from .serializers import SubprojectCreateSerializer
+from .serializers import SubprojectDestroySerializer
+from .serializers import SubprojectSerializer
+from .serializers import TeamSerializer
+from .serializers import UserSerializer
+from .serializers import VersionSerializer
+from .serializers import VersionUpdateSerializer
 
 
 class APIv3Settings:
-
     """
     Django REST Framework settings for APIv3.
 
@@ -208,9 +200,7 @@ class ProjectsViewSetBase(
         # instead of the one used for the request.
         serializer = ProjectSerializer(instance=serializer.instance)
 
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         """
@@ -310,9 +300,7 @@ class SubprojectRelationshipViewSet(
         # Use serializer that fully render a the subproject
         serializer = SubprojectSerializer(instance=serializer.instance)
 
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class TranslationRelationshipViewSet(
@@ -452,7 +440,6 @@ class NotificationsForUserViewSet(
     UpdateModelMixin,
     GenericViewSet,
 ):
-
     """
     Endpoint to return all the notifications related to the logged in user.
 
@@ -618,9 +605,7 @@ class RemoteRepositoryViewSet(
         return queryset.order_by("organization__name", "full_name").distinct()
 
 
-class RemoteOrganizationViewSet(
-    APIv3Settings, RemoteQuerySetMixin, ListModelMixin, GenericViewSet
-):
+class RemoteOrganizationViewSet(APIv3Settings, RemoteQuerySetMixin, ListModelMixin, GenericViewSet):
     model = RemoteOrganization
     serializer_class = RemoteOrganizationSerializer
     filterset_class = RemoteOrganizationFilter

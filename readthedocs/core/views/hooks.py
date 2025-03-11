@@ -3,14 +3,14 @@
 import structlog
 
 from readthedocs.api.v2.models import BuildAPIKey
-from readthedocs.builds.constants import (
-    EXTERNAL,
-    EXTERNAL_VERSION_STATE_CLOSED,
-    EXTERNAL_VERSION_STATE_OPEN,
-)
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.builds import sync_repository_task
+
 
 log = structlog.get_logger(__name__)
 
@@ -125,9 +125,7 @@ def trigger_sync_versions(project):
             identifier=version_identifier,
         ).first()
         if not version:
-            log.info(
-                "Unable to sync from version.", version_identifier=version_identifier
-            )
+            log.info("Unable to sync from version.", version_identifier=version_identifier)
             return None
 
         if project.has_feature(Feature.SKIP_SYNC_VERSIONS):

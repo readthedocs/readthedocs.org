@@ -6,22 +6,26 @@ import re
 import structlog
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
+from readthedocs.builds.constants import SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
-from ..models import RemoteOrganization, RemoteRepository
-from .base import SyncServiceError, UserService
+from ..models import RemoteOrganization
+from ..models import RemoteRepository
+from .base import SyncServiceError
+from .base import UserService
+
 
 log = structlog.get_logger(__name__)
 
 
 class GitHubService(UserService):
-
     """Provider service for GitHub."""
 
     vcs_provider_slug = GITHUB
@@ -162,9 +166,7 @@ class GitHubService(UserService):
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
             )
-            remote_repository_relation.admin = fields.get("permissions", {}).get(
-                "admin", False
-            )
+            remote_repository_relation.admin = fields.get("permissions", {}).get("admin", False)
             remote_repository_relation.save()
 
             return repo
@@ -320,9 +322,7 @@ class GitHubService(UserService):
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
-                log.warning(
-                    "GitHub project does not exist or user does not have permissions."
-                )
+                log.warning("GitHub project does not exist or user does not have permissions.")
             else:
                 # Unknown response from GitHub
                 try:
@@ -500,15 +500,10 @@ class GitHubService(UserService):
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    "GitHub project does not exist or user does not have permissions."
-                )
+                log.info("GitHub project does not exist or user does not have permissions.")
                 return False
 
-            if (
-                resp.status_code == 422
-                and "No commit found for SHA" in resp.json()["message"]
-            ):
+            if resp.status_code == 422 and "No commit found for SHA" in resp.json()["message"]:
                 # This happens when the user force-push a branch or similar
                 # that changes the Git history and SHA does not exist anymore.
                 #

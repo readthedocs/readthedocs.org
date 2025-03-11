@@ -4,7 +4,8 @@ import django.db.models.deletion
 import django_extensions.db.fields
 import simple_history.models
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
 from django_safemigrate import Safe
 
 
@@ -40,9 +41,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "extra_history_user_id",
-                    models.IntegerField(
-                        blank=True, db_index=True, null=True, verbose_name="ID"
-                    ),
+                    models.IntegerField(blank=True, db_index=True, null=True, verbose_name="ID"),
                 ),
                 (
                     "extra_history_user_username",

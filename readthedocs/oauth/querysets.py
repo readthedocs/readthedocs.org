@@ -7,7 +7,6 @@ from readthedocs.oauth.constants import GITHUB, GITHUB_APP
 
 
 class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
-
     """For models with relations through :py:class:`User`."""
 
     def api(self, user=None):

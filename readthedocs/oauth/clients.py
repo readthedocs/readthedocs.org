@@ -6,6 +6,7 @@ from django.utils import timezone
 from github import Auth, GithubIntegration
 from requests_oauthlib import OAuth2Session
 
+
 log = structlog.get_logger(__name__)
 
 

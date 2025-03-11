@@ -7,42 +7,42 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from readthedocs import __version__
 from readthedocs.api.v2.serializers import BuildCommandSerializer
-from readthedocs.api.v2.utils import (
-    delete_versions_from_db,
-    get_deleted_active_versions,
-    run_automation_rules,
-    sync_versions_to_db,
-)
-from readthedocs.builds.constants import (
-    BRANCH,
-    BUILD_STATUS_FAILURE,
-    BUILD_STATUS_PENDING,
-    BUILD_STATUS_SUCCESS,
-    EXTERNAL,
-    EXTERNAL_VERSION_STATE_CLOSED,
-    LOCK_EXPIRE,
-    MAX_BUILD_COMMAND_SIZE,
-    TAG,
-)
-from readthedocs.builds.models import Build, Version
+from readthedocs.api.v2.utils import delete_versions_from_db
+from readthedocs.api.v2.utils import get_deleted_active_versions
+from readthedocs.api.v2.utils import run_automation_rules
+from readthedocs.api.v2.utils import sync_versions_to_db
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_STATUS_FAILURE
+from readthedocs.builds.constants import BUILD_STATUS_PENDING
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
+from readthedocs.builds.constants import LOCK_EXPIRE
+from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
+from readthedocs.builds.constants import TAG
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.builds.utils import memcache_lock
-from readthedocs.core.utils import send_email, trigger_build
+from readthedocs.core.utils import send_email
+from readthedocs.core.utils import trigger_build
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
-from readthedocs.projects.models import Project, WebHookEvent
+from readthedocs.projects.models import Project
+from readthedocs.projects.models import WebHookEvent
 from readthedocs.storage import build_commands_storage
 from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 
 
 class TaskRouter:
-
     """
     Celery tasks router.
 
@@ -142,9 +142,7 @@ class TaskRouter:
                 )
                 return self.BUILD_LARGE_QUEUE
 
-        successful_builds_count = (
-            version.builds.filter(success=True).order_by("-date").count()
-        )
+        successful_builds_count = version.builds.filter(success=True).order_by("-date").count()
         # We do not have enough builds for this version yet
         if successful_builds_count < self.MIN_SUCCESSFUL_BUILDS:
             log.info(
@@ -219,13 +217,9 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
                             "Command output too long. Truncated to last 1MB."
                             "\n\n" + cmd["output"]
                         )  # noqa
-                        log.debug(
-                            "Truncating build command for build.", build_id=build.id
-                        )
+                        log.debug("Truncating build command for build.", build_id=build.id)
                 output = BytesIO(json.dumps(commands).encode("utf8"))
-                filename = "{date}/{id}.json".format(
-                    date=str(build.date.date()), id=build.id
-                )
+                filename = "{date}/{id}.json".format(date=str(build.date.date()), id=build.id)
                 try:
                     build_commands_storage.save(name=filename, content=output)
                     if delete:
@@ -256,11 +250,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
             if last_build:
                 status = BUILD_STATUS_PENDING
                 if last_build.finished:
-                    status = (
-                        BUILD_STATUS_SUCCESS
-                        if last_build.success
-                        else BUILD_STATUS_FAILURE
-                    )
+                    status = BUILD_STATUS_SUCCESS if last_build.success else BUILD_STATUS_FAILURE
                 send_build_status(
                     build_pk=last_build.pk,
                     commit=last_build.commit,
@@ -434,9 +424,7 @@ def send_build_status(build_pk, commit, status):
         dismissable=True,
     )
 
-    log.info(
-        "No social account or repository permission available, no build status sent."
-    )
+    log.info("No social account or repository permission available, no build status sent.")
     return False
 
 
@@ -541,9 +529,7 @@ class BuildNotificationSender:
                 **context,
             )
         else:
-            title = _("Failed: {project[name]} ({version[verbose_name]})").format(
-                **context
-            )
+            title = _("Failed: {project[name]} ({version[verbose_name]})").format(**context)
 
         log.info(
             "Sending email notification.",

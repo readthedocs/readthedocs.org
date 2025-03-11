@@ -32,7 +32,6 @@ def get_override_class(proxy_class, default_class=None):
 
 
 class SettingsOverrideMeta(type):
-
     """
     Meta class to manage our Setting configurations.
 
@@ -45,7 +44,6 @@ class SettingsOverrideMeta(type):
 
 
 class SettingsOverrideObject(metaclass=SettingsOverrideMeta):
-
     """
     Base class for creating class that can be overridden.
 

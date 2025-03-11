@@ -9,6 +9,7 @@ from readthedocs.proxito.cache import cache_response
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 
+
 log = structlog.get_logger(__name__)
 
 
@@ -56,9 +57,7 @@ def canonical_redirect(request, project, redirect_type, external_version_slug=No
         # We need to change the domain and protocol.
         canonical_domain = project.get_canonical_custom_domain()
         protocol = "https" if canonical_domain.https else "http"
-        to = parsed_from._replace(
-            scheme=protocol, netloc=canonical_domain.domain
-        ).geturl()
+        to = parsed_from._replace(scheme=protocol, netloc=canonical_domain.domain).geturl()
     elif redirect_type == RedirectType.subproject_to_main_domain:
         # We need to get the subproject root in the domain of the main
         # project, and append the current path.
@@ -82,9 +81,7 @@ def canonical_redirect(request, project, redirect_type, external_version_slug=No
         )
         raise InfiniteRedirectException()
 
-    log.debug(
-        "Canonical Redirect.", host=request.get_host(), from_url=from_url, to_url=to
-    )
+    log.debug("Canonical Redirect.", host=request.get_host(), from_url=from_url, to_url=to)
     resp = HttpResponseRedirect(to)
     resp["X-RTD-Redirect"] = redirect_type.name
     cache_response(resp, cache_tags=[project.slug])

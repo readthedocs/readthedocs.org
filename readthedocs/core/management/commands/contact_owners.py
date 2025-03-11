@@ -11,13 +11,13 @@ from readthedocs.core.utils.contact import contact_users
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
+
 User = get_user_model()  # noqa
 
 log = structlog.get_logger(__name__)
 
 
 class Command(BaseCommand):
-
     """
     Send an email or sticky notification from a file (markdown) to all owners.
 
@@ -104,10 +104,7 @@ class Command(BaseCommand):
             action="store_true",
             dest="sticky",
             default=False,
-            help=(
-                "Make the notification sticky "
-                "(the notification stays until the user closes it)"
-            ),
+            help=("Make the notification sticky (the notification stays until the user closes it)"),
         )
         parser.add_argument(
             "--organization",
@@ -130,10 +127,7 @@ class Command(BaseCommand):
         project = options["project"]
         organization = options["organization"]
         usernames = options["usernames"]
-        if (
-            len([item for item in [project, organization, usernames] if bool(item)])
-            >= 2
-        ):
+        if len([item for item in [project, organization, usernames] if bool(item)]) >= 2:
             print("--project, --organization and --usernames can't be used together.")
             sys.exit(1)
 
@@ -153,9 +147,7 @@ class Command(BaseCommand):
 
             users = User.objects.filter(username__in=usernames)
         elif settings.RTD_ALLOW_ORGANIZATIONS:
-            users = User.objects.filter(
-                organizationowner__organization__disabled=False
-            ).distinct()
+            users = User.objects.filter(organizationowner__organization__disabled=False).distinct()
         else:
             users = User.objects.filter(projects__skip=False).distinct()
 

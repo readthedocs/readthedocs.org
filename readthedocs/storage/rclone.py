@@ -12,11 +12,11 @@ from django.utils._os import safe_join as safe_join_fs
 
 from readthedocs.storage.utils import safe_join
 
+
 log = structlog.get_logger(__name__)
 
 
 class BaseRClone:
-
     """
     RClone base class.
 
@@ -125,7 +125,6 @@ class BaseRClone:
 
 
 class RCloneLocal(BaseRClone):
-
     """
     RClone remote implementation for the local file system.
 
@@ -146,7 +145,6 @@ class RCloneLocal(BaseRClone):
 
 
 class RCloneS3Remote(BaseRClone):
-
     """
     RClone remote implementation for S3.
 
