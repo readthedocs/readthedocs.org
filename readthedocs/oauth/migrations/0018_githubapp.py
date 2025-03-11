@@ -70,6 +70,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "get_latest_by": "modified",
+                "verbose_name": "GitHub app installation",
                 "abstract": False,
             },
         ),
@@ -83,6 +84,34 @@ class Migration(migrations.Migration):
                 related_name="repositories",
                 to="oauth.githubappinstallation",
                 verbose_name="GitHub App Installation",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="remoteorganization",
+            name="vcs_provider",
+            field=models.CharField(
+                choices=[
+                    ("github", "GitHub"),
+                    ("githubapp", "GitHub"),
+                    ("gitlab", "GitLab"),
+                    ("bitbucket", "Bitbucket"),
+                ],
+                max_length=32,
+                verbose_name="VCS provider",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="remoterepository",
+            name="vcs_provider",
+            field=models.CharField(
+                choices=[
+                    ("github", "GitHub"),
+                    ("githubapp", "GitHub"),
+                    ("gitlab", "GitLab"),
+                    ("bitbucket", "Bitbucket"),
+                ],
+                max_length=32,
+                verbose_name="VCS provider",
             ),
         ),
     ]
