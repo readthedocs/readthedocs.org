@@ -2,6 +2,8 @@
 
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
+from allauth.socialaccount.adapter import get_adapter as get_social_account_adapter
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -18,8 +20,10 @@ from vanilla import DeleteView
 from vanilla import DetailView
 from vanilla import FormView
 from vanilla import ListView
+from vanilla import TemplateView
 from vanilla import UpdateView
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.audit.filters import UserSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.forms import UserAdvertisingForm
@@ -30,6 +34,11 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.oauth.migrate import get_installation_target_groups_for_user
+from readthedocs.oauth.migrate import get_migration_targets
+from readthedocs.oauth.migrate import get_old_app_link
+from readthedocs.oauth.migrate import get_projects_missing_migration
+from readthedocs.oauth.migrate import migrate_project_to_github_app
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
@@ -278,3 +287,74 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             queryset=queryset,
         )
         return self.filter.qs
+
+
+class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
+    template_name = "profiles/private/migrate-to-gh-app.html"
+
+    def get(self, request, *args, **kwargs):
+        # TODO: check if the user already migrated all their projects,
+        # or if the user doesn't have projects to migrate.
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # NOTE: I tried passing the GitHubAppProvider class directly to the template,
+        # but it doesn't work for some reason.
+        context["gh_app_provider"] = get_social_account_adapter().get_provider(
+            request=self.request, provider=GitHubAppProvider.id
+        )
+        context["gh_provider"] = get_social_account_adapter().get_provider(
+            request=self.request, provider=GitHubProvider.id
+        )
+
+        context["has_gh_app_social_account"] = user.socialaccount_set.filter(
+            provider=GitHubAppProvider.id
+        ).exists()
+        context["installation_target_groups"] = get_installation_target_groups_for_user(user)
+        context["migration_targets"] = get_migration_targets(user)
+        context["old_application_link"] = get_old_app_link()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        project_slug = request.POST.get("project")
+        if project_slug:
+            projects = AdminPermission.projects(request.user, admin=True).filter(slug=project_slug)
+        else:
+            projects = get_projects_missing_migration(request.user)
+
+        has_errors = False
+        for project in projects:
+            try:
+                result = migrate_project_to_github_app(project=project, user=request.user)
+                if not result.webhook_removed:
+                    messages.warning(
+                        request,
+                        _(
+                            "The webhook from the old GitHub integration "
+                            "was not removed for project {project}. "
+                            "Please remove it manually."
+                        ).format(project=project.slug),
+                    )
+
+                if not result.ssh_key_removed:
+                    messages.warning(
+                        request,
+                        _(
+                            "The SSH key from the old GitHub integration "
+                            "was not removed for project {project}. "
+                            "Please remove it manually."
+                        ).format(project=project.slug),
+                    )
+            except Exception as e:
+                has_errors = True
+                messages.error(request, f"Error migrating project {project.slug}: {e}")
+
+        if not has_errors:
+            messages.success(request, _("Projects migrated successfully"))
+
+        # if has_errors:
+        #     return HttpResponseRedirect(reverse("migrate_to_gh_app"))
+        return HttpResponseRedirect(reverse("migrate_to_github_app"))
