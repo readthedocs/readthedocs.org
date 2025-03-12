@@ -163,8 +163,16 @@ class UserService(Service):
 
         :raises SyncServiceError: if the access token is invalid or revoked
         """
+        has_error = False
         for service in cls.for_user(user):
-            service.sync()
+            try:
+                service.sync()
+            except SyncServiceError:
+                # Don't stop the sync if one service account fails,
+                # as we should try to sync all accounts.
+                has_error = True
+        if has_error:
+            raise SyncServiceError()
 
     @cached_property
     def session(self):
