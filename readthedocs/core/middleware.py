@@ -1,6 +1,8 @@
 import structlog
 from django.conf import settings
 from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.utils.deprecation import MiddlewareMixin
 
 
 log = structlog.get_logger(__name__)
@@ -77,3 +79,48 @@ class UpdateCSPMiddleware:
             response._csp_update = update_csp_headers[url_name]
 
         return response
+
+
+class DashboardRedirectMiddleware(MiddlewareMixin):
+    """
+    Redirect users from readthedocs.org to app.readthedocs.org.
+
+    This middleware is part of the migration process to move
+    the dashboard to app.readthedocs.org.
+    """
+
+    def process_request(self, request):
+        if not settings.RTD_EXT_THEME_ENABLED:
+            return None
+
+        # Only redirect logged out users
+        if request.user.is_authenticated:
+            return None
+
+        # Only redirect GET requests
+        if request.method != "GET":
+            return None
+
+        # Don't redirect API requests
+        if request.path.startswith(("/api/")):
+            return None
+
+        # Only redirect from production domain
+        if request.get_host() not in (settings.PRODUCTION_DOMAIN):
+            return None
+
+        # If we are already on app.readthedocs.org, don't redirect
+        if request.get_host().startswith("app."):
+            return None
+
+        new_domain = settings.SWITCH_PRODUCTION_DOMAIN
+        new_url = f"https://{new_domain}/{request.path}"
+        if request.GET:
+            new_url = f"{new_url}?{request.GET.urlencode()}"
+
+        log.debug(
+            "Redirecting user to new dashboard.",
+            from_url=request.build_absolute_uri(),
+            to_url=new_url,
+        )
+        return redirect(new_url)

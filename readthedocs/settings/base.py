@@ -349,6 +349,7 @@ class CommunityBaseSettings(Settings):
             "django.contrib.auth.middleware.AuthenticationMiddleware",
             "django.contrib.messages.middleware.MessageMiddleware",
             "allauth.account.middleware.AccountMiddleware",
+            "readthedocs.core.middleware.DashboardRedirectMiddleware",
             "dj_pagination.middleware.PaginationMiddleware",
             "csp.middleware.CSPMiddleware",
             "readthedocs.core.middleware.UpdateCSPMiddleware",
