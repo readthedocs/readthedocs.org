@@ -846,4 +846,11 @@ class TestGitHubAppWebhook(TestCase):
         )
 
     def test_github_app_authorization(self):
-        pass
+        payload = {
+            "action": "revoked",
+            "sender": {
+                "login": "user",
+            },
+        }
+        r = self.post_webhook("github_app_authorization", payload)
+        assert r.status_code == 200

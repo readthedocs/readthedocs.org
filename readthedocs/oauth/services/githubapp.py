@@ -139,6 +139,7 @@ class GitHubAppService(Service):
         we first sync the repositories from all installations accessible to the user (refresh access to new repositories),
         and then we sync each repository the user has access to (check if the user lost access to a repository, or his access level changed).
         """
+        # TODO: don't stop at the first exception.
         # Refresh access to all installations accessible to the user.
         for service in cls.for_user(user):
             service.sync()
@@ -173,12 +174,20 @@ class GitHubAppService(Service):
                 installation_id=self.installation.installation_id,
                 exc_info=True,
             )
-
-            # 404: installation was deleted/uninstalled
-            # 403: installation was suspended
-            if e.status in [404, 403]:
-                # The installation is no longer accessible, we remove it from the database.
+            if e.status == 404:
+                # The app was uninstalled, we remove the installation from the database.
                 self.installation.delete()
+            raise SyncServiceError()
+
+        if app_installation.suspended_at is not None:
+            log.info(
+                "Installation is suspended",
+                installation_id=self.installation.installation_id,
+                suspended_at=app_installation.suspended_at,
+            )
+            # The installation is suspended, we don't have access to it anymore,
+            # so we just delete it from the database.
+            self.installation.delete()
             raise SyncServiceError()
 
         remote_repositories = []
@@ -206,7 +215,7 @@ class GitHubAppService(Service):
                 # if we lost access to the repository,
                 # we remove the repository from the database,
                 # and clean up the collaborators and relations.
-                if e.status == 404:
+                if e.status in [404, 403]:
                     self.installation.delete_repositories([repository_id])
                 continue
             self._create_or_update_repository_from_gh(repo)
