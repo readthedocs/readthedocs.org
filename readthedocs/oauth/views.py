@@ -27,6 +27,15 @@ log = structlog.get_logger(__name__)
 
 
 class GitHubAppWebhookView(APIView):
+    """
+    Handle GitHub App webhooks.
+
+    All event handlers try to create the installation object if it doesn't exist in our database,
+    except for events related to the installation being deleted or suspended.
+    This guarantees that our application can easily recover if we missed an event
+    in case our application or GitHub were down.
+    """
+
     authentication_classes = []
 
     @cached_property

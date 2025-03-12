@@ -139,10 +139,15 @@ class GitHubAppService(Service):
         we first sync the repositories from all installations accessible to the user (refresh access to new repositories),
         and then we sync each repository the user has access to (check if the user lost access to a repository, or his access level changed).
         """
-        # TODO: don't stop at the first exception.
+        has_error = False
         # Refresh access to all installations accessible to the user.
         for service in cls.for_user(user):
-            service.sync()
+            try:
+                service.sync()
+            except SyncServiceError:
+                # Don't stop the sync if one installation fails,
+                # as we should try to sync all installations.
+                has_error = True
 
         # Update the access to each repository the user has access to.
         queryset = RemoteRepository.objects.filter(
@@ -155,6 +160,9 @@ class GitHubAppService(Service):
 
         # TODO: maybe also refresh the organizations the user has access to?
         # But doesn't look like we are using that relation for anything?
+
+        if has_error:
+            raise SyncServiceError()
 
     def sync(self):
         """
