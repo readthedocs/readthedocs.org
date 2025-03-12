@@ -27,7 +27,8 @@ class RemoteRepositoryQuerySet(RelatedUserQuerySet):
         """
         Return repositories that can be linked to a project by the given user.
 
-        Repositories can be imported if the user has admin access to the repository on the VCS service.
+        Repositories can be linked to a project only if the user has admin access
+        to the repository on the VCS service.
         """
         queryset = self.filter(
             remote_repository_relations__user=user,
