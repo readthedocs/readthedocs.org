@@ -143,13 +143,16 @@ class Organization(models.Model):
         return self.name
 
     def get_stripe_subscription(self):
-        # Active subscriptions take precedence over non-active subscriptions,
-        # otherwise we return the most recently created subscription.
         status_priority = [
+            # Past due and unpaid should be taken into consideration first,
+            # as the user needs to pay before they can access the service.
+            # See https://docs.stripe.com/billing/subscriptions/overview#subscription-statuses.
+            SubscriptionStatus.unpaid,
+            SubscriptionStatus.past_due,
+            SubscriptionStatus.incomplete_expired,
+            SubscriptionStatus.incomplete,
             SubscriptionStatus.active,
             SubscriptionStatus.trialing,
-            SubscriptionStatus.past_due,
-            SubscriptionStatus.unpaid,
         ]
         for status in status_priority:
             subscriptions = self.stripe_customer.subscriptions.filter(status=status)
