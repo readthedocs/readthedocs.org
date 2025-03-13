@@ -30,11 +30,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.26
+boto3==1.37.9
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.26
+botocore==1.37.9
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -88,7 +88,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==44.0.1
+cryptography==44.0.2
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -109,7 +109,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.19
+django==4.2.20
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -214,7 +214,7 @@ elastic-transport==8.17.0
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.17.1
+elasticsearch==8.17.2
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -250,7 +250,7 @@ isodate==0.7.2
     # via
     #   -r requirements/pip.txt
     #   python3-saml
-jinja2==3.1.5
+jinja2==3.1.6
     # via sphinx
 jmespath==1.0.1
     # via
@@ -309,7 +309,7 @@ psycopg-binary==3.2.5
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.2.5
+psycopg-pool==3.2.6
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -333,7 +333,7 @@ pyjwt[crypto]==2.10.1
     #   django-allauth
 pyquery==2.0.1
     # via -r requirements/pip.txt
-pytest==8.3.4
+pytest==8.3.5
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -399,7 +399,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-s3transfer==0.11.2
+s3transfer==0.11.4
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -499,7 +499,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.29.2
+virtualenv==20.29.3
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via
