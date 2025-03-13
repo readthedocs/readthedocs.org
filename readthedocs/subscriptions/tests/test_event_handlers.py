@@ -351,6 +351,86 @@ class TestStripeEventHandlers(TestCase):
         event_handlers.subscription_updated_event(event)
         notification_send.assert_not_called()
 
+    @mock.patch(
+        "readthedocs.subscriptions.event_handlers.SubscriptionEndedNotification.send"
+    )
+    def test_subscription_canceled_on_never_disable_organization(self, notification_send):
+        customer = get(djstripe.Customer)
+        self.organization.stripe_customer = customer
+        self.organization.never_disable = True
+        self.organization.save()
+
+        start_date = timezone.now()
+        end_date = timezone.now() + timezone.timedelta(days=30)
+        stripe_subscription = get(
+            djstripe.Subscription,
+            id="sub_9LtsU02uvjO6Ed",
+            status=SubscriptionStatus.canceled,
+            current_period_start=start_date,
+            current_period_end=end_date,
+            trial_end=end_date,
+            customer=customer,
+        )
+        event = get(
+            djstripe.Event,
+            data={
+                "object": {
+                    "id": stripe_subscription.id,
+                    "object": "subscription",
+                }
+            },
+        )
+        event_handlers.subscription_canceled(event)
+        event_handlers.subscription_updated_event(event)
+
+        self.organization.refresh_from_db()
+        assert not self.organization.disabled
+        notification_send.assert_not_called()
+
+    def test_subscription_precedence(self):
+        customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
+        self.organization.stripe_customer = customer
+        self.organization.save()
+
+        assert self.organization.stripe_subscription is None
+
+        start_date = timezone.now()
+        end_date = timezone.now() + timezone.timedelta(days=30)
+
+        statuses = [
+            SubscriptionStatus.canceled,
+            SubscriptionStatus.trialing,
+            SubscriptionStatus.active,
+            SubscriptionStatus.incomplete,
+            SubscriptionStatus.incomplete_expired,
+            SubscriptionStatus.past_due,
+            SubscriptionStatus.unpaid,
+        ]
+        for i, status in enumerate(statuses):
+            stripe_subscription = get(
+                djstripe.Subscription,
+                id=f"sub_{i}",
+                status=status,
+                current_period_start=start_date,
+                current_period_end=end_date,
+                trial_end=end_date,
+                customer=customer,
+            )
+            event = get(
+                djstripe.Event,
+                data={
+                    "object": {
+                        "id": stripe_subscription.id,
+                        "object": "subscription",
+                    }
+                },
+            )
+
+            event_handlers.subscription_updated_event(event)
+
+            self.organization.refresh_from_db()
+            assert self.organization.stripe_subscription == stripe_subscription
+
     def test_register_events(self):
         def test_func():
             pass
