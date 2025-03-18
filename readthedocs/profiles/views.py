@@ -1,8 +1,10 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
+from enum import StrEnum
+from enum import auto
+
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
-from allauth.socialaccount.adapter import get_adapter as get_social_account_adapter
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from django.contrib import messages
@@ -34,6 +36,8 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.oauth.clients import get_oauth2_client
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.migrate import get_installation_target_groups_for_user
 from readthedocs.oauth.migrate import get_migration_targets
 from readthedocs.oauth.migrate import get_old_app_link
@@ -289,34 +293,79 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         return self.filter.qs
 
 
+class MigrationSteps(StrEnum):
+    overview = auto()
+    connect = auto()
+    install = auto()
+    migrate = auto()
+    revoke = auto()
+    disconnect = auto()
+
+
 class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
-    template_name = "profiles/private/migrate-to-gh-app.html"
+    template_name = "profiles/private/migrate_to_gh_app.html"
 
     def get(self, request, *args, **kwargs):
-        # TODO: check if the user already migrated all their projects,
-        # or if the user doesn't have projects to migrate.
+        if self._get_old_github_account() is None:
+            if self._get_new_github_account():
+                msg = _("You have already migrated your account to the new GitHub App.")
+            else:
+                msg = _("You don't have any GitHub account connected.")
+            messages.info(request, msg)
+            return HttpResponseRedirect(reverse("homepage"))
+
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        step = self.request.GET.get("step", MigrationSteps.overview)
+        if step not in MigrationSteps:
+            step = MigrationSteps.overview
+        context["step"] = step
+
         user = self.request.user
 
-        # NOTE: I tried passing the GitHubAppProvider class directly to the template,
-        # but it doesn't work for some reason.
-        context["gh_app_provider"] = get_social_account_adapter().get_provider(
-            request=self.request, provider=GitHubAppProvider.id
-        )
-        context["gh_provider"] = get_social_account_adapter().get_provider(
-            request=self.request, provider=GitHubProvider.id
-        )
-
-        context["has_gh_app_social_account"] = user.socialaccount_set.filter(
-            provider=GitHubAppProvider.id
-        ).exists()
+        context["step_connect_completed"] = self._has_new_account_for_old_account()
         context["installation_target_groups"] = get_installation_target_groups_for_user(user)
+        context["gh_app_name"] = settings.GITHUB_APP_NAME
         context["migration_targets"] = get_migration_targets(user)
+        context["migrated_projects"] = (
+            AdminPermission.projects(user, admin=True)
+            .filter(remote_repository__vcs_provider=GITHUB_APP)
+            .select_related(
+                "remote_repository",
+            )
+        )
         context["old_application_link"] = get_old_app_link()
+        context["step_revoke_completed"] = self._is_access_to_old_github_account_revoked()
+        context["old_github_account"] = self._get_old_github_account()
         return context
+
+    def _is_access_to_old_github_account_revoked(self):
+        old_account = self._get_old_github_account()
+        client = get_oauth2_client(old_account)
+        if client is None:
+            return True
+
+        resp = client.get("https://api.github.com/user")
+        if resp.status_code == 401:
+            return True
+
+        return False
+
+    def _has_new_account_for_old_account(self):
+        old_account = self._get_old_github_account()
+        return self.request.user.socialaccount_set.filter(
+            provider=GitHubAppProvider.id,
+            uid=old_account.uid,
+        ).exists()
+
+    def _get_new_github_account(self):
+        return self.request.user.socialaccount_set.filter(provider=GitHubAppProvider.id).first()
+
+    def _get_old_github_account(self):
+        return self.request.user.socialaccount_set.filter(provider=GitHubProvider.id).first()
 
     def post(self, request, *args, **kwargs):
         project_slug = request.POST.get("project")

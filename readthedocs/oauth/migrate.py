@@ -1,3 +1,5 @@
+"""This module contains the logic to help users migrate from the GitHub OAuth App to the GitHub App."""
+
 from dataclasses import dataclass
 
 from allauth.socialaccount.providers.github.provider import GitHubProvider
@@ -141,6 +143,9 @@ def get_migration_targets(user):
     # NOTE: there are some users that have more than one GH account connected.
     # so this isn't 100% accurate.
     gh_account = user.socialaccount_set.filter(provider=GITHUB).first()
+    if not gh_account:
+        return targets
+
     for project, has_installation, is_admin in _get_projects_for_user(user):
         remote_repository = project.remote_repository
 

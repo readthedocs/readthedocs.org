@@ -156,7 +156,7 @@ class GitHubAppService(Service):
         )
         for repository in queryset:
             service = cls(repository.github_app_installation)
-            service.update_or_create_repositories([repository.remote_id])
+            service.update_or_create_repositories([int(repository.remote_id)])
 
         # TODO: maybe also refresh the organizations the user has access to?
         # But doesn't look like we are using that relation for anything?
@@ -213,7 +213,10 @@ class GitHubAppService(Service):
         """Update or create repositories from the given list of repository IDs."""
         for repository_id in repository_ids:
             try:
-                repo = self.installation_client.get_repo(repository_id)
+                # NOTE: we save the repository ID as a string in our database,
+                # in order for PyGithub to use the API to fetch the repository by ID (not by name).
+                # it needs to be an integer, so just in case we cast it to an integer.
+                repo = self.installation_client.get_repo(int(repository_id))
             except GithubException as e:
                 log.info(
                     "Failed to fetch repository from GitHub",
