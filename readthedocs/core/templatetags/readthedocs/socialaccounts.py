@@ -1,5 +1,7 @@
 from allauth.socialaccount.adapter import get_adapter
-from django import forms, template
+from django import forms
+from django import template
+
 
 register = template.Library()
 

@@ -1,5 +1,6 @@
 import structlog
 
+
 log = structlog.get_logger(__name__)
 
 CACHE_TAG_HEADER = "Cache-Tag"

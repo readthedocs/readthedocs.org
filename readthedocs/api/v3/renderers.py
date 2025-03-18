@@ -2,12 +2,13 @@
 
 import json
 
-from rest_framework.compat import INDENT_SEPARATORS, LONG_SEPARATORS, SHORT_SEPARATORS
+from rest_framework.compat import INDENT_SEPARATORS
+from rest_framework.compat import LONG_SEPARATORS
+from rest_framework.compat import SHORT_SEPARATORS
 from rest_framework.renderers import JSONRenderer
 
 
 class AlphabeticalSortedJSONRenderer(JSONRenderer):
-
     """
     Renderer that sort they keys from the JSON alphabetically.
 

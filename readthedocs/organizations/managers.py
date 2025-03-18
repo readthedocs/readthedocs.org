@@ -4,11 +4,11 @@ from django.db import models
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
-from .constants import ADMIN_ACCESS, READ_ONLY_ACCESS
+from .constants import ADMIN_ACCESS
+from .constants import READ_ONLY_ACCESS
 
 
 class TeamManagerBase(models.Manager):
-
     """Manager to control team's access."""
 
     def teams_for_user(self, user, organization, admin, member):
@@ -52,7 +52,6 @@ class TeamManager(SettingsOverrideObject):
 
 
 class TeamMemberManager(models.Manager):
-
     """Manager for queries on team members."""
 
     def sorted(self):

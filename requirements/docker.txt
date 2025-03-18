@@ -24,17 +24,17 @@ async-timeout==5.0.1
     # via
     #   -r requirements/pip.txt
     #   redis
-attrs==25.1.0
+attrs==25.3.0
     # via wmctrl
 billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.36.26
+boto3==1.37.13
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.36.26
+botocore==1.37.13
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -91,18 +91,18 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==44.0.1
+cryptography==44.0.2
     # via
     #   -r requirements/pip.txt
     #   fido2
     #   pyjwt
-cssselect==1.2.0
+cssselect==1.3.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
 datadiff==2.2.0
     # via -r requirements/docker.in
-decorator==5.2.0
+decorator==5.2.1
     # via
     #   ipdb
     #   ipython
@@ -114,7 +114,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.19
+django==4.2.20
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -137,7 +137,7 @@ django==4.2.19
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.4.1
+django-allauth[mfa,saml,socialaccount]==65.5.0
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
@@ -210,12 +210,12 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.17.0
+elastic-transport==8.17.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.17.1
+elasticsearch==8.17.2
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -233,7 +233,7 @@ fido2==1.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.17.0
+filelock==3.18.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -250,7 +250,7 @@ idna==3.10
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.32.0
+ipython==8.34.0
     # via ipdb
 isodate==0.7.2
     # via
@@ -267,7 +267,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.4.2
+kombu==5.5.0
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -321,13 +321,13 @@ prompt-toolkit==3.0.50
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.2.5
+psycopg[binary,pool]==3.2.6
     # via -r requirements/pip.txt
-psycopg-binary==3.2.5
+psycopg-binary==3.2.6
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.2.5
+psycopg-pool==3.2.6
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -409,7 +409,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
 rich==13.9.4
     # via -r requirements/docker.in
-s3transfer==0.11.2
+s3transfer==0.11.4
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -450,7 +450,7 @@ tomli==2.2.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.24.1
+tox==4.24.2
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -503,7 +503,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.29.2
+virtualenv==20.29.3
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -513,7 +513,7 @@ wcwidth==0.2.13
     #   prompt-toolkit
 wmctrl==0.5
     # via pdbpp
-xmlsec==1.3.14
+xmlsec==1.3.15
     # via
     #   -r requirements/pip.txt
     #   python3-saml

@@ -5,6 +5,7 @@ from functools import wraps
 
 import structlog
 
+
 log = structlog.get_logger(__name__)
 
 
@@ -22,7 +23,6 @@ def restoring_chdir(fn):
 
 
 class BaseBuilder:
-
     """The Base for all Builders. Defines the API for subclasses."""
 
     ignore_patterns = []

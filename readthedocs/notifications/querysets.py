@@ -6,7 +6,9 @@ from django.utils import timezone
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
 
-from .constants import CANCELLED, READ, UNREAD
+from .constants import CANCELLED
+from .constants import READ
+from .constants import UNREAD
 
 
 class NotificationQuerySet(NoReprQuerySet, models.QuerySet):
@@ -110,9 +112,7 @@ class NotificationQuerySet(NoReprQuerySet, models.QuerySet):
             )
 
             organization_notifications = self.filter(
-                attached_to_content_type=ContentType.objects.get_for_model(
-                    Organization
-                ),
+                attached_to_content_type=ContentType.objects.get_for_model(Organization),
                 attached_to_id__in=AdminPermission.organizations(
                     user,
                     owner=True,
@@ -122,16 +122,14 @@ class NotificationQuerySet(NoReprQuerySet, models.QuerySet):
 
             # Return all the notifications related to this user attached to:
             # User, Project and Organization models where the user is admin.
-            return (
-                user_notifications | project_notifications | organization_notifications
-            ).filter(state__in=(UNREAD, READ))
+            return (user_notifications | project_notifications | organization_notifications).filter(
+                state__in=(UNREAD, READ)
+            )
 
         if isinstance(resource, User):
             if user == resource:
                 return self.filter(
-                    attached_to_content_type=ContentType.objects.get_for_model(
-                        resource
-                    ),
+                    attached_to_content_type=ContentType.objects.get_for_model(resource),
                     attached_to_id=resource.pk,
                     state__in=(UNREAD, READ),
                 )
@@ -139,9 +137,7 @@ class NotificationQuerySet(NoReprQuerySet, models.QuerySet):
         if isinstance(resource, Project):
             if resource in AdminPermission.projects(user, admin=True, member=False):
                 return self.filter(
-                    attached_to_content_type=ContentType.objects.get_for_model(
-                        resource
-                    ),
+                    attached_to_content_type=ContentType.objects.get_for_model(resource),
                     attached_to_id=resource.pk,
                     state__in=(UNREAD, READ),
                 )
@@ -153,9 +149,7 @@ class NotificationQuerySet(NoReprQuerySet, models.QuerySet):
                 member=False,
             ):
                 return self.filter(
-                    attached_to_content_type=ContentType.objects.get_for_model(
-                        resource
-                    ),
+                    attached_to_content_type=ContentType.objects.get_for_model(resource),
                     attached_to_id=resource.pk,
                     state__in=(UNREAD, READ),
                 )
