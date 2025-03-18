@@ -42,7 +42,7 @@ from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.migrate import get_installation_target_groups_for_user
 from readthedocs.oauth.migrate import get_migration_targets
 from readthedocs.oauth.migrate import get_old_app_link
-from readthedocs.oauth.migrate import get_projects_missing_migration
+from readthedocs.oauth.migrate import get_valid_projects_missing_migration
 from readthedocs.oauth.migrate import migrate_project_to_github_app
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED
@@ -375,7 +375,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         if project_slug:
             projects = AdminPermission.projects(request.user, admin=True).filter(slug=project_slug)
         else:
-            projects = get_projects_missing_migration(request.user)
+            projects = get_valid_projects_missing_migration(request.user)
 
         for project in projects:
             result = migrate_project_to_github_app(project=project, user=request.user)
@@ -389,15 +389,15 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
                         "project_slug": project.slug,
                     },
                 )
-                if not result.ssh_key_removed:
-                    Notification.objects.add(
-                        message_id=MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED,
-                        attached_to=request.user,
-                        dismissable=True,
-                        format_values={
-                            "repo_full_name": project.remote_repository.full_name,
-                            "project_slug": project.slug,
-                        },
-                    )
+            if not result.ssh_key_removed:
+                Notification.objects.add(
+                    message_id=MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED,
+                    attached_to=request.user,
+                    dismissable=True,
+                    format_values={
+                        "repo_full_name": project.remote_repository.full_name,
+                        "project_slug": project.slug,
+                    },
+                )
 
-        return HttpResponseRedirect(request.get_full_path())
+        return HttpResponseRedirect(reverse("migrate_to_github_app") + "?step=migrate")

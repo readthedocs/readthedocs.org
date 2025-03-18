@@ -9,7 +9,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.constants import GITHUB_APP
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import GitHubAccountType, RemoteRepository
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
@@ -55,7 +55,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
                 targets[organization_id] = InstallationTargetGroup(
                     target_id=organization_id,
                     target_name=remote_repository.organization.slug,
-                    target_type="organization",
+                    target_type=GitHubAccountType.ORGANIZATION,
                     repository_ids=set(),
                 )
             if not has_intallation:
@@ -78,7 +78,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
         targets[account.uid] = InstallationTargetGroup(
             target_id=account.uid,
             target_name=account.extra_data.get("login"),
-            target_type="user",
+            target_type=GitHubAccountType.USER,
             repository_ids={remote_repository.remote_id for remote_repository in user_repositories},
         )
 
@@ -86,7 +86,15 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
 
 
 def _get_projects_for_user(user):
-    for project in get_projects_missing_migration(user):
+    projects = (
+        AdminPermission.projects(user, admin=True)
+        .filter(remote_repository__vcs_provider=GITHUB)
+        .select_related(
+            "remote_repository",
+            "remote_repository__organization",
+        )
+    )
+    for project in projects:
         remote_repository = project.remote_repository
         has_installation = RemoteRepository.objects.filter(
             remote_id=remote_repository.remote_id,
@@ -105,15 +113,10 @@ def _get_projects_for_user(user):
         yield project, has_installation, is_admin
 
 
-def get_projects_missing_migration(user):
-    return (
-        AdminPermission.projects(user, admin=True)
-        .filter(remote_repository__vcs_provider=GITHUB)
-        .select_related(
-            "remote_repository",
-            "remote_repository__organization",
-        )
-    )
+def get_valid_projects_missing_migration(user):
+    for project, has_installation, is_admin in _get_projects_for_user(user):
+        if has_installation and is_admin:
+            yield project
 
 
 @dataclass
