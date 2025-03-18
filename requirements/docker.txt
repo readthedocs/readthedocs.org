@@ -513,7 +513,7 @@ wcwidth==0.2.13
     #   prompt-toolkit
 wmctrl==0.5
     # via pdbpp
-xmlsec==1.3.15
+xmlsec==1.3.14
     # via
     #   -r requirements/pip.txt
     #   python3-saml
