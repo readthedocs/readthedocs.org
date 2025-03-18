@@ -36,6 +36,7 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.clients import get_oauth2_client
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.migrate import get_installation_target_groups_for_user
@@ -43,6 +44,8 @@ from readthedocs.oauth.migrate import get_migration_targets
 from readthedocs.oauth.migrate import get_old_app_link
 from readthedocs.oauth.migrate import get_projects_missing_migration
 from readthedocs.oauth.migrate import migrate_project_to_github_app
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
@@ -374,36 +377,27 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         else:
             projects = get_projects_missing_migration(request.user)
 
-        has_errors = False
         for project in projects:
-            try:
-                result = migrate_project_to_github_app(project=project, user=request.user)
-                if not result.webhook_removed:
-                    messages.warning(
-                        request,
-                        _(
-                            "The webhook from the old GitHub integration "
-                            "was not removed for project {project}. "
-                            "Please remove it manually."
-                        ).format(project=project.slug),
-                    )
-
+            result = migrate_project_to_github_app(project=project, user=request.user)
+            if not result.webhook_removed:
+                Notification.objects.add(
+                    message_id=MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED,
+                    attached_to=request.user,
+                    dismissable=True,
+                    format_values={
+                        "repo_full_name": project.remote_repository.full_name,
+                        "project_slug": project.slug,
+                    },
+                )
                 if not result.ssh_key_removed:
-                    messages.warning(
-                        request,
-                        _(
-                            "The SSH key from the old GitHub integration "
-                            "was not removed for project {project}. "
-                            "Please remove it manually."
-                        ).format(project=project.slug),
+                    Notification.objects.add(
+                        message_id=MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED,
+                        attached_to=request.user,
+                        dismissable=True,
+                        format_values={
+                            "repo_full_name": project.remote_repository.full_name,
+                            "project_slug": project.slug,
+                        },
                     )
-            except Exception as e:
-                has_errors = True
-                messages.error(request, f"Error migrating project {project.slug}: {e}")
 
-        if not has_errors:
-            messages.success(request, _("Projects migrated successfully"))
-
-        # if has_errors:
-        #     return HttpResponseRedirect(reverse("migrate_to_gh_app"))
-        return HttpResponseRedirect(reverse("migrate_to_github_app"))
+        return HttpResponseRedirect(request.get_full_path())
