@@ -1,3 +1,22 @@
+Version 12.0.1
+--------------
+
+:Date: March 18, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12048 <https://github.com/readthedocs/readthedocs.org/pull/12048>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repository: don't stop at first error while syncing (`#12045 <https://github.com/readthedocs/readthedocs.org/pull/12045>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ignore revs for the major linting commits (`#12043 <https://github.com/readthedocs/readthedocs.org/pull/12043>`__)
+* `@stsewd <https://github.com/stsewd>`__: Explicitly define virtual environment used in Docker (`#12040 <https://github.com/readthedocs/readthedocs.org/pull/12040>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use Ruff for linting (`#12037 <https://github.com/readthedocs/readthedocs.org/pull/12037>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12034 <https://github.com/readthedocs/readthedocs.org/pull/12034>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update URLs for SAML to point to new dashboard (`#12031 <https://github.com/readthedocs/readthedocs.org/pull/12031>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: update pr links (`#12028 <https://github.com/readthedocs/readthedocs.org/pull/12028>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.0 (`#12023 <https://github.com/readthedocs/readthedocs.org/pull/12023>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add GitHub App OAuth provider (`#12020 <https://github.com/readthedocs/readthedocs.org/pull/12020>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix mkdocs link (`#12019 <https://github.com/readthedocs/readthedocs.org/pull/12019>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: add flag to allow SAML with old dashboard (`#12013 <https://github.com/readthedocs/readthedocs.org/pull/12013>`__)
+* `@stsewd <https://github.com/stsewd>`__: Projects: require users to have admin permissions to link repositories to projects (`#12005 <https://github.com/readthedocs/readthedocs.org/pull/12005>`__)
+
 Version 12.0.0
 --------------
 

@@ -5,11 +5,11 @@ import csv
 import structlog
 from django.http import StreamingHttpResponse
 
+
 log = structlog.get_logger(__name__)
 
 
 class Echo:
-
     """
     A class that implements just the write method of the file-like interface.
 

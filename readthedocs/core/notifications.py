@@ -4,8 +4,11 @@ import textwrap
 
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.notifications.constants import TIP, WARNING
-from readthedocs.notifications.messages import Message, registry
+from readthedocs.notifications.constants import TIP
+from readthedocs.notifications.constants import WARNING
+from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
+
 
 MESSAGE_EMAIL_VALIDATION_PENDING = "core:email:validation-pending"
 MESSAGE_NEW_DASHBOARD = "core:dashboard:new"

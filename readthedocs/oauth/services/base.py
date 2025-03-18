@@ -1,4 +1,5 @@
 """OAuth utility functions."""
+
 import re
 from functools import cached_property
 
@@ -14,11 +15,11 @@ from requests.exceptions import RequestException
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.oauth.clients import get_oauth2_client
 
+
 log = structlog.get_logger(__name__)
 
 
 class SyncServiceError(Exception):
-
     """Error raised when a service failed to sync."""
 
     INVALID_OR_REVOKED_ACCESS_TOKEN = _(
@@ -28,7 +29,6 @@ class SyncServiceError(Exception):
 
 
 class Service:
-
     """Base class for service that interacts with a VCS provider and a project."""
 
     vcs_provider_slug: str
@@ -117,14 +117,10 @@ class Service:
             :py:class:`RemoteRepository` to the project instance. This is a
             slight improvement on the legacy check for webhooks
         """
-        return (
-            cls.url_pattern is not None
-            and cls.url_pattern.search(project.repo) is not None
-        )
+        return cls.url_pattern is not None and cls.url_pattern.search(project.repo) is not None
 
 
 class UserService(Service):
-
     """
     Subclass of Service that interacts with a VCS provider using the user's OAuth token.
 
@@ -167,8 +163,16 @@ class UserService(Service):
 
         :raises SyncServiceError: if the access token is invalid or revoked
         """
+        has_error = False
         for service in cls.for_user(user):
-            service.sync()
+            try:
+                service.sync()
+            except SyncServiceError:
+                # Don't stop the sync if one service account fails,
+                # as we should try to sync all accounts.
+                has_error = True
+        if has_error:
+            raise SyncServiceError()
 
     @cached_property
     def session(self):
@@ -247,12 +251,8 @@ class UserService(Service):
 
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
-        all_remote_repositories = (
-            remote_repositories + remote_repositories_organizations
-        )
-        repository_remote_ids = [
-            r.remote_id for r in all_remote_repositories if r is not None
-        ]
+        all_remote_repositories = remote_repositories + remote_repositories_organizations
+        repository_remote_ids = [r.remote_id for r in all_remote_repositories if r is not None]
         (
             self.user.remote_repository_relations.exclude(
                 remote_repository__remote_id__in=repository_remote_ids,
@@ -263,9 +263,7 @@ class UserService(Service):
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_remote_ids = [
-            o.remote_id for o in remote_organizations if o is not None
-        ]
+        organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
         (
             self.user.remote_organization_relations.exclude(
                 remote_organization__remote_id__in=organization_remote_ids,

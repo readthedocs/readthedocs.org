@@ -8,6 +8,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from simple_history.models import HistoricalRecords
 from simple_history.utils import update_change_reason
 
+
 log = structlog.get_logger(__name__)
 
 
@@ -52,7 +53,6 @@ def safe_update_change_reason(instance, reason):
 
 
 class ExtraFieldsHistoricalModel(models.Model):
-
     """
     Abstract model to allow history models track extra data.
 
@@ -94,7 +94,6 @@ ExtraHistoricalRecords = partial(HistoricalRecords, bases=[ExtraFieldsHistorical
 
 
 class ExtraSimpleHistoryAdmin(SimpleHistoryAdmin):
-
     """Set the change_reason on the model changed through this admin view."""
 
     change_reason = None
@@ -117,7 +116,6 @@ class ExtraSimpleHistoryAdmin(SimpleHistoryAdmin):
 
 
 class SimpleHistoryModelForm(forms.ModelForm):
-
     """Set the change_reason on the model changed through this form."""
 
     change_reason = None
@@ -135,7 +133,6 @@ class SimpleHistoryModelForm(forms.ModelForm):
 
 
 class UpdateChangeReasonPostView:
-
     """
     Set the change_reason on the model changed through the POST method of this view.
 

@@ -11,7 +11,9 @@ Each function will receive the following args:
 import structlog
 
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.constants import PUBLIC
+
 
 log = structlog.get_logger(__name__)
 

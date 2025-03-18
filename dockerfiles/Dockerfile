@@ -59,7 +59,10 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 # Install ``uv`` package manager
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin/:$PATH"
-RUN uv venv
+# Explicitly set the name of the virtual environment directory,
+# so it doesn't collide with a virtual environment created outside of the container.
+ENV VIRTUAL_ENV="/.venv"
+RUN uv venv $VIRTUAL_ENV
 
 # Ensure that ``python`` is in the PATH so that ``./manage.py`` works
 RUN ln -s /usr/bin/python3 /usr/bin/python

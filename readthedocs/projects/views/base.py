@@ -1,18 +1,20 @@
 """Mix-in classes for project views."""
+
 from functools import lru_cache
 
 import structlog
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
 
 class ProjectOnboardMixin:
-
     """Add project onboard context data to project object views."""
 
     def get_context_data(self, **kwargs):
@@ -42,7 +44,6 @@ class ProjectOnboardMixin:
 
 # Mixins
 class ProjectAdminMixin(SuccessMessageMixin):
-
     """
     Mixin class that provides project sublevel objects.
 
@@ -92,7 +93,6 @@ class ProjectAdminMixin(SuccessMessageMixin):
 
 
 class ProjectSpamMixin:
-
     """
     Protects views for spammy projects.
 

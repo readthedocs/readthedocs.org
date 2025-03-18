@@ -11,7 +11,6 @@ class ArgumentToken:
 
 
 class SearchQueryParser:
-
     """Simplified and minimal parser for ``name:value`` expressions."""
 
     allowed_arguments = {
@@ -47,9 +46,9 @@ class SearchQueryParser:
             if isinstance(token, TextToken):
                 query.append(token.text)
             elif isinstance(token, ArgumentToken):
-                if token.type == str:
+                if token.type is str:
                     self.arguments[token.name] = token.value
-                elif token.type == list:
+                elif token.type is list:
                     self.arguments[token.name].append(token.value)
                 else:
                     raise ValueError(f"Invalid argument type {token.type}")

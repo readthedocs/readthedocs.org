@@ -1,10 +1,12 @@
 """Objects for User permission checks."""
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
+from readthedocs.organizations.constants import ADMIN_ACCESS
+from readthedocs.organizations.constants import READ_ONLY_ACCESS
 
 
 class AdminPermissionBase:
@@ -47,9 +49,7 @@ class AdminPermissionBase:
             # Project Team Admin
             admin_teams = user.teams.filter(access=ADMIN_ACCESS)
             for team in admin_teams:
-                if not cls.has_sso_enabled(
-                    team.organization, SSOIntegration.PROVIDER_ALLAUTH
-                ):
+                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
                     projects |= team.projects.all()
 
             # Org Admin
@@ -65,9 +65,7 @@ class AdminPermissionBase:
             # Project Team Member
             member_teams = user.teams.filter(access=READ_ONLY_ACCESS)
             for team in member_teams:
-                if not cls.has_sso_enabled(
-                    team.organization, SSOIntegration.PROVIDER_ALLAUTH
-                ):
+                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
                     projects |= team.projects.all()
 
             projects |= cls._get_projects_for_sso_user(user, admin=False)
@@ -141,7 +139,8 @@ class AdminPermissionBase:
         and for an organization, this means the users that are on the same teams as `user`,
         including the organization owners.
         """
-        from readthedocs.organizations.models import Organization, Team
+        from readthedocs.organizations.models import Organization
+        from readthedocs.organizations.models import Team
         from readthedocs.projects.models import Project
 
         if isinstance(obj, Project):

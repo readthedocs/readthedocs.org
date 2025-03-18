@@ -1,7 +1,8 @@
 import itertools
 import sys
 import textwrap
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 
 import structlog
 from django.apps import apps
@@ -10,23 +11,22 @@ from django.core.management import BaseCommand
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.search import reindex_version
-from readthedocs.search.documents import PageDocument, ProjectDocument
-from readthedocs.search.tasks import (
-    create_new_es_index,
-    index_objects_to_es,
-    switch_es_index,
-)
+from readthedocs.search.documents import PageDocument
+from readthedocs.search.documents import ProjectDocument
+from readthedocs.search.tasks import create_new_es_index
+from readthedocs.search.tasks import index_objects_to_es
+from readthedocs.search.tasks import switch_es_index
+
 
 log = structlog.get_logger(__name__)
 
 
 class Command(BaseCommand):
     @staticmethod
-    def _get_indexing_tasks(
-        app_label, model_name, index_name, queryset, document_class
-    ):
+    def _get_indexing_tasks(app_label, model_name, index_name, queryset, document_class):
         chunk_size = settings.ES_TASK_CHUNK_SIZE
         qs_iterator = queryset.values_list("pk", flat=True).iterator()
 
@@ -56,9 +56,7 @@ class Command(BaseCommand):
             elif model == Project:
                 self._reindex_projects(queue=queue, timestamp=timestamp)
             else:
-                log.warning(
-                    "Re-index not available for model.", model_name=model.__name__
-                )
+                log.warning("Re-index not available for model.", model_name=model.__name__)
                 continue
 
         return timestamp
@@ -91,9 +89,7 @@ class Command(BaseCommand):
         }
         for model in models:
             if model not in functions:
-                log.warning(
-                    "Re-index from not available for model.", model_name=model.__name__
-                )
+                log.warning("Re-index from not available for model.", model_name=model.__name__)
                 continue
             functions[model](days_ago=days_ago, queue=queue)
 
@@ -228,10 +224,7 @@ class Command(BaseCommand):
             dest="update_from",
             type=int,
             action="store",
-            help=(
-                "Re-index the models from the given days. "
-                "This should be run after a re-index."
-            ),
+            help=("Re-index the models from the given days. This should be run after a re-index."),
         )
         parser.add_argument(
             "--models",

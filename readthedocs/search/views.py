@@ -1,4 +1,5 @@
 """Search views."""
+
 import collections
 from urllib.parse import urlencode
 
@@ -16,6 +17,7 @@ from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
 from readthedocs.search.faceted_search import ProjectSearch
 
+
 log = structlog.get_logger(__name__)
 
 UserInput = collections.namedtuple(
@@ -29,7 +31,6 @@ UserInput = collections.namedtuple(
 
 
 class ProjectSearchView(View):
-
     """
     Search view of the ``search`` tab.
 
@@ -44,16 +45,11 @@ class ProjectSearchView(View):
 
     def get(self, request, project_slug):
         query = request.GET.get("q", "")
-        url = (
-            reverse("search")
-            + "?"
-            + urlencode({"q": f"project:{project_slug} {query}"})
-        )
+        url = reverse("search") + "?" + urlencode({"q": f"project:{project_slug} {query}"})
         return HttpResponseRedirect(url)
 
 
 class GlobalSearchView(TemplateView):
-
     """
     Global search enabled for logged out users and anyone using the dashboard.
 
@@ -122,9 +118,7 @@ class GlobalSearchView(TemplateView):
         # If we allow private projects,
         # we only search on projects the user belongs or have access to.
         if settings.ALLOW_PRIVATE_REPOS:
-            projects = list(
-                Project.objects.for_user(request.user).values_list("slug", flat=True)
-            )
+            projects = list(Project.objects.for_user(request.user).values_list("slug", flat=True))
 
         # Make sure we always have projects to filter by if we allow private projects.
         if settings.ALLOW_PRIVATE_REPOS and not projects:
