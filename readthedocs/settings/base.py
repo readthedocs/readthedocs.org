@@ -523,6 +523,9 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
+    # Disable pidbox creation, we never use remote control.
+    CELERY_WORKER_ENABLE_REMOTE_CONTROL = False
+
     CELERY_DEFAULT_QUEUE = "celery"
     CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
     CELERYBEAT_SCHEDULE = {
