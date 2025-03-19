@@ -137,7 +137,7 @@ class MigrationTarget:
         return f"{base_url}?suggested_target_id={self.target_id}&repository_ids[]={self.project.remote_repository.remote_id}"
 
     @property
-    def can_migrate(self):
+    def can_be_migrated(self):
         return self.is_admin and self.has_installation
 
 

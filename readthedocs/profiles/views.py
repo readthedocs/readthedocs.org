@@ -329,6 +329,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
 
         user = self.request.user
 
+        context["has_multiple_github_accounts"] = user.socialaccount_set.filter(provider=GitHubProvider.id).count() > 1
         context["step_connect_completed"] = self._has_new_account_for_old_account()
         context["installation_target_groups"] = get_installation_target_groups_for_user(user)
         context["gh_app_name"] = settings.GITHUB_APP_NAME
