@@ -46,41 +46,34 @@ class InstallationTargetGroup:
 
 def get_installation_target_groups_for_user(user) -> list[InstallationTargetGroup]:
     targets = {}
-    user_repositories = set()
+    account = user.socialaccount_set.filter(provider=GitHubProvider.id).first()
+
+    # Since we don't save the ID of the owner of each repository, we group all repositories
+    # that don't have an organization under the user account,
+    # GitHub will ignore the repositories that the user doesn't own.
+    targets[account.uid] = InstallationTargetGroup(
+        target_id=account.uid,
+        target_name=account.extra_data.get("login", "unknown"),
+        target_type=GitHubAccountType.USER,
+        repository_ids=set(),
+    )
+
     for project, has_intallation, _ in _get_projects_for_user(user):
         remote_repository = project.remote_repository
         if remote_repository.organization:
-            organization_id = remote_repository.organization.remote_id
-            if organization_id not in targets:
-                targets[organization_id] = InstallationTargetGroup(
-                    target_id=organization_id,
+            target_id = remote_repository.organization.remote_id
+            if target_id not in targets:
+                targets[target_id] = InstallationTargetGroup(
+                    target_id=target_id,
                     target_name=remote_repository.organization.slug,
                     target_type=GitHubAccountType.ORGANIZATION,
                     repository_ids=set(),
                 )
-            if not has_intallation:
-                targets[organization_id].repository_ids.add(remote_repository.remote_id)
-        elif not has_intallation:
-            user_repositories.add(remote_repository)
+        else:
+            target_id = account.uid
 
-    # TODO: check how many users have more than one GH account connected.
-    # from allauth.socialaccount.providers.github.provider import GitHubProvider
-    # from django.contrib.auth.models import User
-    # from django.db.models import Count, Q
-    # # Find all users that have more than one GitHub account connected.
-    # users = User.objects.annotate(
-    #     num_github_accounts=Count("socialaccount", filter=Q(socialaccount__provider=GitHubProvider.id))
-    # ).filter(num_github_accounts__gt=1)
-    # 166 on .org, 17 on .com
-    # Since we don't know the ID of the owner, we create a link for each connected account.
-    # GH will select only the corresponding repositories for each account.
-    for account in user.socialaccount_set.filter(provider=GitHubProvider.id):
-        targets[account.uid] = InstallationTargetGroup(
-            target_id=account.uid,
-            target_name=account.extra_data.get("login"),
-            target_type=GitHubAccountType.USER,
-            repository_ids={remote_repository.remote_id for remote_repository in user_repositories},
-        )
+        if not has_intallation:
+            targets[target_id].repository_ids.add(remote_repository.remote_id)
 
     return list(targets.values())
 
