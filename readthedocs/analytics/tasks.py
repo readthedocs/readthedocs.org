@@ -4,21 +4,7 @@ from django.conf import settings
 from django.db import connection
 from django.utils import timezone
 
-import readthedocs
 from readthedocs.worker import app
-
-
-DEFAULT_PARAMETERS = {
-    "v": "1",  # analytics version (always 1)
-    "aip": "1",  # anonymize IP
-    "tid": settings.GLOBAL_ANALYTICS_CODE,
-    # User data
-    "uip": "",  # User IP address
-    "ua": "",  # User agent
-    # Application info
-    "an": "Read the Docs",
-    "av": readthedocs.__version__,  # App version
-}
 
 
 @app.task(queue="web")
