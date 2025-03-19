@@ -1,5 +1,8 @@
 """Views pertaining to builds."""
 
+from dataclasses import dataclass
+from typing import Literal
+
 import structlog
 
 from readthedocs.api.v2.models import BuildAPIKey
@@ -10,6 +13,18 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.builds import sync_repository_task
+
+
+@dataclass
+class VersionInfo:
+    """
+    Version information.
+
+    If type is None, it means that the version can be either a branch or a tag.
+    """
+
+    name: str
+    type: Literal["branch", "tag", None]
 
 
 log = structlog.get_logger(__name__)
@@ -40,7 +55,7 @@ def _build_version(project, version):
     return False
 
 
-def build_versions_from_names(project, version_names: list[tuple[str, str | None]]):
+def build_versions_from_names(project, versions_info: list[VersionInfo]):
     """
     Build the branches or tags from the project.
 
@@ -50,8 +65,8 @@ def build_versions_from_names(project, version_names: list[tuple[str, str | None
     """
     to_build = set()
     not_building = set()
-    for version_name, version_type in version_names:
-        for version in project.versions_from_name(version_name, version_type):
+    for version_info in versions_info:
+        for version in project.versions_from_name(version_info.name, version_info.type):
             log.debug(
                 "Processing.",
                 project_slug=project.slug,

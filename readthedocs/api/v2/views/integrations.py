@@ -24,6 +24,7 @@ from readthedocs.builds.constants import TAG
 from readthedocs.core.signals import webhook_bitbucket
 from readthedocs.core.signals import webhook_github
 from readthedocs.core.signals import webhook_gitlab
+from readthedocs.core.views.hooks import VersionInfo
 from readthedocs.core.views.hooks import build_external_version
 from readthedocs.core.views.hooks import build_versions_from_names
 from readthedocs.core.views.hooks import close_external_version
@@ -207,7 +208,7 @@ class WebhookMixin:
         )
         return self.integration
 
-    def get_response_push(self, project, version_names: list[tuple[str, str | None]]):
+    def get_response_push(self, project, versions_info: list[VersionInfo]):
         """
         Build branches on push events and return API response.
 
@@ -221,10 +222,8 @@ class WebhookMixin:
 
         :param project: Project instance
         :type project: Project
-        :param branches: List of branch/tag names to build
-        :type branches: list(str)
         """
-        to_build, not_building = build_versions_from_names(project, version_names)
+        to_build, not_building = build_versions_from_names(project, versions_info)
         if not_building:
             log.info(
                 "Skipping project versions.",
@@ -522,8 +521,10 @@ class GitHubWebhookView(WebhookMixin, APIView):
         # Trigger a build for all branches in the push
         if event == GITHUB_PUSH:
             try:
-                version_name = parse_version_from_ref(self.data["ref"])
-                return self.get_response_push(self.project, [version_name])
+                version_name, version_type = parse_version_from_ref(self.data["ref"])
+                return self.get_response_push(
+                    self.project, [VersionInfo(name=version_name, type=version_type)]
+                )
             except KeyError as exc:
                 raise ParseError('Parameter "ref" is required') from exc
 
@@ -637,8 +638,10 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 return self.sync_versions_response(self.project)
             # Normal push to master
             try:
-                version_name = parse_version_from_ref(self.data["ref"])
-                return self.get_response_push(self.project, [version_name])
+                version_name, version_type = parse_version_from_ref(self.data["ref"])
+                return self.get_response_push(
+                    self.project, [VersionInfo(name=version_name, type=version_type)]
+                )
             except KeyError as exc:
                 raise ParseError('Parameter "ref" is required') from exc
 
@@ -828,8 +831,8 @@ class APIWebhookView(WebhookMixin, APIView):
                 self.update_default_branch(default_branch)
 
             # branches can be a branch or a tag, so we set it to None, so both types are considered.
-            version_names = [(branch, None) for branch in branches]
-            return self.get_response_push(self.project, version_names)
+            versions_info = [VersionInfo(name=branch, type=None) for branch in branches]
+            return self.get_response_push(self.project, versions_info)
         except TypeError as exc:
             raise ParseError("Invalid request") from exc
 

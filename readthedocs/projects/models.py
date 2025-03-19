@@ -1237,6 +1237,8 @@ class Project(models.Model):
 
         Normally, only one version should be returned, but since LATEST and STABLE
         are aliases for the branch/tag, they may be returned as well.
+
+        If type is None, both, tags and branches will be taken into consideration.
         """
         queryset = self.versions(manager=INTERNAL)
         queryset = queryset.filter(
