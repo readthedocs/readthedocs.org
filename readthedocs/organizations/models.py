@@ -162,7 +162,7 @@ class Organization(models.Model):
                     # created another subscription for the user or if there
                     # is a bug in our code.
                     log.exception(
-                        "Organization has more than one active subscription",
+                        "Organization has more than one subscription with the same status",
                         organization_slug=self.slug,
                         subscription_status=status,
                     )
