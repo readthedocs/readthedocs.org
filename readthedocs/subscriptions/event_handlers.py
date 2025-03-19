@@ -127,15 +127,18 @@ def subscription_updated_event(event):
         log.info("Re-enabling organization.", organization_slug=organization.slug)
         organization.disabled = False
 
-    if stripe_subscription.status not in (
-        SubscriptionStatus.active,
-        SubscriptionStatus.trialing,
-    ):
-        log.info(
-            "Organization disabled due its subscription is not active anymore.",
-            organization_slug=organization.slug,
-        )
-        organization.disabled = True
+    if stripe_subscription.status not in (SubscriptionStatus.active, SubscriptionStatus.trialing):
+        if organization.never_disable:
+            log.info(
+                "Organization can't be disabled, skipping deactivation.",
+                organization_slug=organization.slug,
+            )
+        else:
+            log.info(
+                "Organization disabled due its subscription is not active anymore.",
+                organization_slug=organization.slug,
+            )
+            organization.disabled = True
 
     new_stripe_subscription = organization.get_stripe_subscription()
     if organization.stripe_subscription != new_stripe_subscription:
@@ -147,7 +150,7 @@ def subscription_updated_event(event):
             organization_slug=organization.slug,
             old_stripe_subscription_id=old_subscription_id,
         )
-        organization.stripe_subscription = stripe_subscription
+        organization.stripe_subscription = new_stripe_subscription
 
     organization.save()
 
@@ -181,6 +184,13 @@ def subscription_canceled(event):
     organization = getattr(stripe_subscription.customer, "rtd_organization", None)
     if not organization:
         log.error("Subscription isn't attached to an organization")
+        return
+
+    if organization.never_disable:
+        log.info(
+            "Organization can't be disabled, skipping notification.",
+            organization_slug=organization.slug,
+        )
         return
 
     log.bind(organization_slug=organization.slug)
