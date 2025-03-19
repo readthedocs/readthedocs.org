@@ -173,11 +173,7 @@ def close_external_version(project, version_data):
     :rtype: str
     """
     external_version = (
-        project.versions(manager=EXTERNAL)
-        .filter(
-            verbose_name=version_data.id,
-        )
-        .first()
+        project.versions(manager=EXTERNAL).filter(verbose_name=version_data.id).first()
     )
 
     if external_version:
