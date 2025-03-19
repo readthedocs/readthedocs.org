@@ -74,7 +74,8 @@ def build_versions_from_names(project, versions_info: list[VersionInfo]):
             )
             if version.slug in to_build:
                 continue
-            if _build_version(project, version):
+            version_built = _build_version(project, version)
+            if version_built:
                 to_build.add(version.slug)
             else:
                 not_building.add(version.slug)
