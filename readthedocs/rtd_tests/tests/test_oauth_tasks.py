@@ -130,3 +130,23 @@ class SyncRemoteRepositoriesTests(TestCase):
             args=[self.user.pk],
             countdown=0,
         )
+
+    @patch("readthedocs.oauth.services.github.GitHubService.sync")
+    @patch("readthedocs.oauth.services.gitlab.GitLabService.sync")
+    @patch("readthedocs.oauth.services.bitbucket.BitbucketService.sync")
+    def test_sync_dont_stop_if_one_service_account_of_same_type_fails(
+        self, sync_bb, sync_gl, sync_gh
+    ):
+        get(
+            SocialAccount,
+            user=self.user,
+            provider=GitHubOAuth2Adapter.provider_id,
+        )
+        sync_gh.side_effect = SyncServiceError
+        r = sync_remote_repositories(self.user.pk)
+        assert "GitHub" in r["error"]
+        assert "Bitbucket" not in r["error"]
+        assert "GitLab" not in r["error"]
+        sync_bb.assert_called_once()
+        sync_gl.assert_called_once()
+        assert sync_gh.call_count == 2

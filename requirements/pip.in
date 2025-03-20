@@ -150,3 +150,10 @@ django-cacheops
 
 # Used by Addons for sorting patterns
 bumpver
+
+
+# xmlsec is a dependecy from python3-saml which is required by django-allauth.
+# We have to pin it because the underlying `libxml2-dev` package installed at
+# system level is incompatible with the Python version
+# https://github.com/xmlsec/python-xmlsec/issues/324
+xmlsec==1.3.14

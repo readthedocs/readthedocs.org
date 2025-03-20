@@ -20,6 +20,10 @@ asgiref==3.8.1
     #   django-cors-headers
 asttokens==3.0.0
     # via stack-data
+async-timeout==5.0.1
+    # via
+    #   -r requirements/pip.txt
+    #   redis
 attrs==25.3.0
     # via wmctrl
 billiard==4.2.1
@@ -450,6 +454,13 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
+tomli==2.2.1
+    # via
+    #   -r requirements/pip.txt
+    #   dparse
+    #   ipdb
+    #   pyproject-api
+    #   tox
 tox==4.24.2
     # via -r requirements/docker.in
 traitlets==5.14.3
