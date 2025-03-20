@@ -718,22 +718,22 @@ class BitbucketWebhookView(WebhookMixin, APIView):
             try:
                 data = self.request.data
                 changes = data["push"]["changes"]
-                version_names = []
+                versions_info = []
                 for change in changes:
                     old = change["old"]
                     new = change["new"]
                     # Normal push to master
                     if old is not None and new is not None:
                         version_type = BRANCH if new["type"] == "branch" else TAG
-                        version_names.append((new["name"], version_type))
+                        versions_info.append(VersionInfo(name=new["name"], type=version_type))
                 # BitBuck returns an array of changes rather than
                 # one webhook per change. If we have at least one normal push
                 # we don't trigger the sync versions, because that
                 # will be triggered with the normal push.
-                if version_names:
+                if versions_info:
                     return self.get_response_push(
                         self.project,
-                        version_names,
+                        versions_info,
                     )
                 log.debug("Triggered sync_versions.")
                 return self.sync_versions_response(self.project)
