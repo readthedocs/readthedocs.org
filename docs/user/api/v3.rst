@@ -47,6 +47,19 @@ Session
 
 Session authentication is allowed, so the API can be used by our dashboard and other internal services.
 
+Rate limiting
+~~~~~~~~~~~~~
+
+The API limits unauthenticated requests to 5 per minute and authenticated requests to 60 per minute.
+
+Pagination
+~~~~~~~~~~
+
+All endpoints that return a list of objects are paginated.
+By default, 10 objects are returned per page,
+but you can change this using the ``limit`` query parameter.
+The response includes a ``count``, ``next``, and ``previous`` attributes to navigate between pages.
+
 Resources
 ---------
 

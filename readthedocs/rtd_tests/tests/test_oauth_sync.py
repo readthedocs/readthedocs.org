@@ -1,7 +1,7 @@
 import django_dynamic_fixture as fixture
 import requests_mock
 from allauth.socialaccount.models import SocialAccount, SocialToken
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -12,6 +12,8 @@ from readthedocs.oauth.models import (
     RemoteRepository,
     RemoteRepositoryRelation,
 )
+from django_dynamic_fixture import get
+from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
 
@@ -64,7 +66,7 @@ class GitHubOAuthSyncTests(TestCase):
         self.socialaccount = fixture.get(
             SocialAccount,
             user=self.user,
-            provider=GitHubOAuth2Adapter.provider_id,
+            provider=GitHubProvider.id,
         )
         self.token = fixture.get(
             SocialToken,
@@ -122,6 +124,25 @@ class GitHubOAuthSyncTests(TestCase):
             account=self.socialaccount,
         )
 
+        # Project from another provider (GitLab) that has the same ID should not be removed.
+        gitlab_socialaccount = fixture.get(
+            SocialAccount,
+            user=self.user,
+            provider=GitLabProvider.id,
+        )
+        gitlab_repo = fixture.get(
+            RemoteRepository,
+            full_name="user/repo",
+            remote_id=repo_3.remote_id,
+            vcs_provider=GitLabProvider.id,
+        )
+        fixture.get(
+            RemoteRepositoryRelation,
+            remote_repository=gitlab_repo,
+            user=self.user,
+            account=gitlab_socialaccount,
+        )
+
         org = fixture.get(
             RemoteOrganization,
             name="organization",
@@ -133,18 +154,21 @@ class GitHubOAuthSyncTests(TestCase):
             account=self.socialaccount,
         )
 
-        self.assertEqual(RemoteRepository.objects.count(), 3)
-        self.assertEqual(RemoteRepositoryRelation.objects.count(), 3)
+        self.assertEqual(RemoteRepository.objects.count(), 4)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 4)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
         self.assertEqual(RemoteOrganizationRelation.objects.count(), 1)
+
+        assert self.socialaccount.remote_repository_relations.count() == 3
+        assert self.socialaccount.remote_organization_relations.count() == 1
 
         self.service.sync()
 
         # After calling .sync, old-repository remote relation should be deleted,
         # project-linked-repository remote relation should be conserved,
         # and only the one's returned by the API should be present (organization/repository)
-        self.assertEqual(RemoteRepository.objects.count(), 3)
-        self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
+        self.assertEqual(RemoteRepository.objects.count(), 4)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 2)
         self.assertTrue(
             RemoteRepository.objects.filter(
                 full_name="organization/repository"
@@ -157,6 +181,9 @@ class GitHubOAuthSyncTests(TestCase):
         )
         self.assertEqual(RemoteOrganization.objects.count(), 1)
         self.assertEqual(RemoteOrganizationRelation.objects.count(), 0)
+
+        assert self.socialaccount.remote_repository_relations.count() == 1
+        assert self.socialaccount.remote_organization_relations.count() == 0
 
     @requests_mock.Mocker(kw="mock_request")
     def test_sync_repositories(self, mock_request):
@@ -284,7 +311,7 @@ class GitHubOAuthSyncTests(TestCase):
         user_2_socialaccount = fixture.get(
             SocialAccount,
             user=user_2,
-            provider=GitHubOAuth2Adapter.provider_id,
+            provider=GitHubProvider.id,
         )
         fixture.get(
             SocialToken,
