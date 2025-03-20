@@ -2,10 +2,20 @@
 
 from django.contrib import admin
 
+from .models import GitHubAppInstallation
 from .models import RemoteOrganization
 from .models import RemoteOrganizationRelation
 from .models import RemoteRepository
 from .models import RemoteRepositoryRelation
+
+
+@admin.register(GitHubAppInstallation)
+class GitHubAppInstallationAdmin(admin.ModelAdmin):
+    list_display = (
+        "installation_id",
+        "target_type",
+        "target_id",
+    )
 
 
 @admin.register(RemoteRepository)

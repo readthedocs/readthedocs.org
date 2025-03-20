@@ -93,6 +93,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             "environment_variables",
             "max_concurrent_builds",
             "readthedocs_yaml_path",
+            "clone_token",
         )
 
 
