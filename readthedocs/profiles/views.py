@@ -306,6 +306,21 @@ class MigrationSteps(StrEnum):
 
 
 class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
+    """
+    View to help users migrate their account to the new GitHub App.
+
+    This view will guide the user through the process of migrating their account
+    and projects to the new GitHub App.
+
+    A get request will show the overview of the migration process,
+    and each step to follow. A post request will migrate a single project
+    if the project slug is provided in the request, otherwise, it will migrate
+    all projects that can be migrated.
+
+    In case we weren't able to remove the webhook or SSH key from the old GitHub App,
+    we create a notification for the user, so they can manually remove it.
+    """
+
     template_name = "profiles/private/migrate_to_gh_app.html"
 
     def get(self, request, *args, **kwargs):
@@ -329,7 +344,9 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
 
         user = self.request.user
 
-        context["has_multiple_github_accounts"] = user.socialaccount_set.filter(provider=GitHubProvider.id).count() > 1
+        context["has_multiple_github_accounts"] = (
+            user.socialaccount_set.filter(provider=GitHubProvider.id).count() > 1
+        )
         context["step_connect_completed"] = self._has_new_account_for_old_account()
         context["installation_target_groups"] = get_installation_target_groups_for_user(user)
         context["gh_app_name"] = settings.GITHUB_APP_NAME
@@ -359,6 +376,11 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         return False
 
     def _has_new_account_for_old_account(self):
+        """
+        Check if the user has connected his account to the new GitHub App.
+
+        The new connected account must the same as the old one.
+        """
         old_account = self._get_old_github_account()
         return self.request.user.socialaccount_set.filter(
             provider=GitHubAppProvider.id,
