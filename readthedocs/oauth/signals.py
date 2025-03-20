@@ -33,6 +33,10 @@ def sync_remote_repositories_on_login(sender, request, user, *args, **kwargs):
 @receiver(social_account_added, sender=SocialLogin)
 def sync_remote_repositories_on_social_account_added(sender, request, sociallogin, *args, **kwargs):
     """Sync remote repositories when a new social account is added."""
+    log.info(
+        "Triggering remote repositories sync in background on social account added.",
+        user_username=sociallogin.user.username,
+    )
     sync_remote_repositories.delay(sociallogin.user.pk)
 
 
