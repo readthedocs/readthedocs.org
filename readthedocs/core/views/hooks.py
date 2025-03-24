@@ -150,6 +150,7 @@ def get_or_create_external_version(project, version_data):
         external_version.identifier = version_data.commit
         # If the PR was previously closed it was marked as closed
         external_version.state = EXTERNAL_VERSION_STATE_OPEN
+        external_version.active = True
         external_version.save()
         log.info(
             "External version updated.",
@@ -172,12 +173,7 @@ def close_external_version(project, version_data):
     :rtype: str
     """
     external_version = (
-        project.versions(manager=EXTERNAL)
-        .filter(
-            verbose_name=version_data.id,
-            identifier=version_data.commit,
-        )
-        .first()
+        project.versions(manager=EXTERNAL).filter(verbose_name=version_data.id).first()
     )
 
     if external_version:
