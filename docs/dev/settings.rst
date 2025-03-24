@@ -167,6 +167,16 @@ providers using the following environment variables:
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_SECRET
 
+GitHub App
+~~~~~~~~~~
+
+You can use the following environment variables to set the settings used by the GitHub App:
+
+.. envvar:: RTD_GITHUB_APP_ID
+.. envvar:: RTD_GITHUB_APP_NAME
+.. envvar:: RTD_GITHUB_PRIVATE_KEY
+.. envvar:: RTD_GITHUB_APP_WEBHOOK_SECRET
+
 Stripe secrets
 ~~~~~~~~~~~~~~
 
