@@ -81,33 +81,6 @@ def build_versions_from_names(project, versions_info: list[VersionInfo]):
     return to_build, not_building
 
 
-def build_versions_from_names(project, version_names: list[tuple[str, str]]):
-    """
-    Build the branches or tags from the project.
-
-    :param project: Project instance
-    :param version_names: A list of tuples with the version name and type.
-    :returns: A tuple with the versions that were built and the versions that were not built.
-    """
-    to_build = set()
-    not_building = set()
-    for version_name, version_type in version_names:
-        for version in project.versions_from_name(version_name, version_type):
-            log.debug(
-                "Processing.",
-                project_slug=project.slug,
-                version_slug=version.slug,
-            )
-            if version.slug in to_build:
-                continue
-            triggered = _build_version(project, version)
-            if triggered:
-                to_build.add(triggered)
-            else:
-                not_building.add(version.slug)
-    return to_build, not_building
-
-
 def trigger_sync_versions(project):
     """
     Sync the versions of a repo using its latest version.
