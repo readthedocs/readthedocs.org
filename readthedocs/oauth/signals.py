@@ -1,5 +1,7 @@
 import structlog
 from allauth.account.signals import user_logged_in
+from allauth.socialaccount.models import SocialLogin
+from allauth.socialaccount.signals import social_account_added
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -26,6 +28,16 @@ def sync_remote_repositories_on_login(sender, request, user, *args, **kwargs):
         user_username=user.username,
     )
     sync_remote_repositories.delay(user.pk)
+
+
+@receiver(social_account_added, sender=SocialLogin)
+def sync_remote_repositories_on_social_account_added(sender, request, sociallogin, *args, **kwargs):
+    """Sync remote repositories when a new social account is added."""
+    log.info(
+        "Triggering remote repositories sync in background on social account added.",
+        user_username=sociallogin.user.username,
+    )
+    sync_remote_repositories.delay(sociallogin.user.pk)
 
 
 @receiver(post_save, sender=RemoteRepository)

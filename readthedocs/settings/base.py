@@ -685,7 +685,7 @@ class CommunityBaseSettings(Settings):
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
     SOCIALACCOUNT_ADAPTER = 'readthedocs.core.adapters.SocialAccountAdapter'
-    ACCOUNT_EMAIL_REQUIRED = True
+    ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
     # By preventing enumeration, we will always send an email,
     # even if the email is not registered, that's hurting
     # our email reputation. We are okay with people knowing
@@ -697,7 +697,7 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_EMAIL_VERIFICATION = "mandatory"
     ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
-    ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+    ACCOUNT_LOGIN_METHODS = ["username", "email"]
     ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_STORE_TOKENS = True
