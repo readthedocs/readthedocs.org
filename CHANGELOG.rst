@@ -1,3 +1,18 @@
+Version 12.0.2
+--------------
+
+:Date: March 25, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: API v3: document rate limit and pagination (`#12063 <https://github.com/readthedocs/readthedocs.org/pull/12063>`__)
+* `@stsewd <https://github.com/stsewd>`__: Social accounts: sync remote repositories when a new connection is added (`#12062 <https://github.com/readthedocs/readthedocs.org/pull/12062>`__)
+* `@stsewd <https://github.com/stsewd>`__: Small improvements on PR previews handling (`#12061 <https://github.com/readthedocs/readthedocs.org/pull/12061>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: update deprecated settings (`#12058 <https://github.com/readthedocs/readthedocs.org/pull/12058>`__)
+* `@humitos <https://github.com/humitos>`__: pip tools: use Python 3.12 (`#12055 <https://github.com/readthedocs/readthedocs.org/pull/12055>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: pin and downgrade `xmlsec` (`#12054 <https://github.com/readthedocs/readthedocs.org/pull/12054>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.1 (`#12053 <https://github.com/readthedocs/readthedocs.org/pull/12053>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: improve subscription detection and respect never_disable (`#12046 <https://github.com/readthedocs/readthedocs.org/pull/12046>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repositories: filter by vcs provider when deleting (`#12015 <https://github.com/readthedocs/readthedocs.org/pull/12015>`__)
+
 Version 12.0.1
 --------------
 
