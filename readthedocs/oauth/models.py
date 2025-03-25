@@ -1,5 +1,7 @@
 """OAuth service models."""
 
+from functools import cached_property
+
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
@@ -12,12 +14,153 @@ from django_extensions.db.models import TimeStampedModel
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
+from .constants import GITHUB_APP
 from .constants import VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet
 from .querysets import RemoteRepositoryQuerySet
 
 
 log = structlog.get_logger(__name__)
+
+
+class GitHubAppInstallationManager(models.Manager):
+    def get_or_create_installation(
+        self, *, installation_id, target_id, target_type, extra_data=None
+    ):
+        """
+        Get or create a GitHub app installation.
+
+        Only the installation_id is unique, the target_id and target_type could change,
+        but this should never happen.
+        """
+        installation, created = self.get_or_create(
+            installation_id=installation_id,
+            defaults={
+                "target_id": target_id,
+                "target_type": target_type,
+                "extra_data": extra_data or {},
+            },
+        )
+        # NOTE: An installation can't change its target_id or target_type.
+        # This should never happen, unless this assumption is wrong.
+        if installation.target_id != target_id or installation.target_type != target_type:
+            log.exception(
+                "Installation target_id or target_type changed",
+                installation_id=installation.installation_id,
+                target_id=installation.target_id,
+                target_type=installation.target_type,
+                new_target_id=target_id,
+                new_target_type=target_type,
+            )
+            installation.target_id = target_id
+            installation.target_type = target_type
+            installation.save()
+        return installation, created
+
+
+class GitHubAccountType(models.TextChoices):
+    USER = "User", _("User")
+    ORGANIZATION = "Organization", _("Organization")
+
+
+class GitHubAppInstallation(TimeStampedModel):
+    installation_id = models.PositiveBigIntegerField(
+        help_text=_("The application installation ID"),
+        unique=True,
+        db_index=True,
+    )
+    target_id = models.PositiveBigIntegerField(
+        help_text=_("A GitHub account ID, it can be from a user or an organization"),
+    )
+    target_type = models.CharField(
+        help_text=_("Account type that the target_id belongs to (user or organization)"),
+        choices=GitHubAccountType.choices,
+        max_length=255,
+    )
+    extra_data = models.JSONField(
+        help_text=_("Extra data returned by the webhook when the installation is created"),
+        default=dict,
+    )
+
+    objects = GitHubAppInstallationManager()
+
+    class Meta(TimeStampedModel.Meta):
+        verbose_name = _("GitHub app installation")
+
+    @cached_property
+    def service(self):
+        """Return the service for this installation."""
+        from readthedocs.oauth.services import GitHubAppService
+
+        return GitHubAppService(self)
+
+    def delete(self, *args, **kwargs):
+        """Override delete method to remove orphaned organizations."""
+        self.delete_repositories()
+        return super().delete(*args, **kwargs)
+
+    def delete_repositories(self, repository_ids: list[int] | None = None):
+        """
+        Delete repositories linked to this installation.
+
+        When an installation is deleted, we delete all its remote repositories
+        and relations, users will need to manually link the projects to each repository again.
+
+        We also remove organizations that don't have any repositories after removing the repositories.
+
+        :param repository_ids: List of repository ids (remote ID) to delete.
+         If None, all repositories will be considered for deletion.
+        """
+        if repository_ids is not None and not repository_ids:
+            log.info("No repositories to delete")
+            return
+
+        remote_organizations = RemoteOrganization.objects.filter(
+            repositories__github_app_installation=self,
+            vcs_provider=GITHUB_APP,
+        )
+        remote_repositories = self.repositories.filter(vcs_provider=GITHUB_APP)
+        if repository_ids:
+            remote_organizations = remote_organizations.filter(
+                repositories__remote_id__in=repository_ids
+            )
+            remote_repositories = remote_repositories.filter(remote_id__in=repository_ids)
+
+        # Fetch all IDs before deleting the repositories, so we can filter the organizations later.
+        remote_organizations_ids = list(remote_organizations.values_list("id", flat=True))
+
+        count, deleted = remote_repositories.delete()
+        log.info(
+            "Deleted repositories projects",
+            count=count,
+            deleted=deleted,
+            installation_id=self.installation_id,
+        )
+
+        count, deleted = RemoteOrganization.objects.filter(
+            id__in=remote_organizations_ids,
+            repositories=None,
+        ).delete()
+        log.info(
+            "Deleted orphaned organizations",
+            count=count,
+            deleted=deleted,
+            installation_id=self.installation_id,
+        )
+
+    def delete_organization(self, organization_id: int):
+        """Delete an organization and all its repositories and relations from the database."""
+        count, deleted = RemoteOrganization.objects.filter(
+            remote_id=str(organization_id),
+            vcs_provider=GITHUB_APP,
+        ).delete()
+        log.info(
+            "Deleted organization",
+            count=count,
+            deleted=deleted,
+            organization_id=organization_id,
+            installation_id=self.installation_id,
+        )
 
 
 class RemoteOrganization(TimeStampedModel):
@@ -172,6 +315,17 @@ class RemoteRepository(TimeStampedModel):
     # VCS provider repository id
     remote_id = models.CharField(max_length=128)
     vcs_provider = models.CharField(_("VCS provider"), choices=VCS_PROVIDER_CHOICES, max_length=32)
+
+    github_app_installation = models.ForeignKey(
+        GitHubAppInstallation,
+        verbose_name=_("GitHub App Installation"),
+        related_name="repositories",
+        null=True,
+        blank=True,
+        # When an installation is deleted, we delete all its remote repositories
+        # and relations, users will need to manually link the projects to each repository again.
+        on_delete=models.CASCADE,
+    )
 
     objects = RemoteRepositoryQuerySet.as_manager()
 
