@@ -11,8 +11,7 @@ from readthedocs.api.v2.views.integrations import GITHUB_EVENT_HEADER
 from readthedocs.api.v2.views.integrations import GITHUB_SIGNATURE_HEADER
 from readthedocs.api.v2.views.integrations import ExternalVersionData
 from readthedocs.api.v2.views.integrations import WebhookMixin
-from readthedocs.builds.constants import BRANCH
-from readthedocs.builds.constants import TAG
+from readthedocs.core.views.hooks import VersionInfo
 from readthedocs.core.views.hooks import build_external_version
 from readthedocs.core.views.hooks import build_versions_from_names
 from readthedocs.core.views.hooks import close_external_version
@@ -21,6 +20,7 @@ from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.services.githubapp import get_gh_app_client
 from readthedocs.projects.models import Project
+from readthedocs.vcs_support.backends.git import parse_version_from_ref
 
 
 log = structlog.get_logger(__name__)
@@ -341,28 +341,9 @@ class GitHubAppWebhookView(APIView):
 
         # If this is a push to an existing branch or tag,
         # we need to build the version if active.
-        version_name, version_type = self._parse_version_from_ref(data["ref"])
+        version_name, version_type = parse_version_from_ref(data["ref"])
         for project in self._get_projects():
-            build_versions_from_names(project, [(version_name, version_type)])
-
-    def _parse_version_from_ref(self, ref: str):
-        """
-        Parse the version name and type from a GitHub ref.
-
-        The ref can be a branch or a tag.
-
-        :param ref: The ref to parse (e.g. refs/heads/main, refs/tags/v1.0.0).
-        :returns: A tuple with the version name and type.
-        """
-        heads_prefix = "refs/heads/"
-        tags_prefix = "refs/tags/"
-        if ref.startswith(heads_prefix):
-            return ref.removeprefix(heads_prefix), BRANCH
-        if ref.startswith(tags_prefix):
-            return ref.removeprefix(tags_prefix), TAG
-
-        # NOTE: this should never happen.
-        raise ValidationError(f"Invalid ref: {ref}")
+            build_versions_from_names(project, [VersionInfo(name=version_name, type=version_type)])
 
     def _handle_pull_request_event(self):
         """
