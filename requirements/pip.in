@@ -154,4 +154,4 @@ bumpver
 # system level. Otherwise, it fails saying there is a version mismatch
 # https://github.com/xmlsec/python-xmlsec/issues/324
 # https://github.com/lxml/lxml/blob/0eb4f0029497957e58a9f15280b3529bdb18d117/doc/FAQ.txt#L623
-xmlsec --no-binary=xmlsec
+--no-binary=xmlsec
