@@ -143,21 +143,33 @@ class Organization(models.Model):
         return self.name
 
     def get_stripe_subscription(self):
-        # Active subscriptions take precedence over non-active subscriptions,
-        # otherwise we return the most recently created subscription.
-        active_subscriptions = self.stripe_customer.subscriptions.filter(
-            status=SubscriptionStatus.active
-        )
-        if active_subscriptions:
-            if active_subscriptions.count() > 1:
-                # NOTE: this should never happen, unless we manually
-                # created another subscription for the user or if there
-                # is a bug in our code.
-                log.exception(
-                    "Organization has more than one active subscription",
-                    organization_slug=self.slug,
-                )
-            return active_subscriptions.order_by("created").last()
+        status_priority = [
+            # Past due and unpaid should be taken into consideration first,
+            # as the user needs to pay before they can access the service.
+            # See https://docs.stripe.com/billing/subscriptions/overview#subscription-statuses.
+            SubscriptionStatus.unpaid,
+            SubscriptionStatus.past_due,
+            SubscriptionStatus.incomplete_expired,
+            SubscriptionStatus.incomplete,
+            SubscriptionStatus.active,
+            SubscriptionStatus.trialing,
+        ]
+        for status in status_priority:
+            subscriptions = self.stripe_customer.subscriptions.filter(status=status)
+            if subscriptions.exists():
+                if subscriptions.count() > 1:
+                    # NOTE: this should never happen, unless we manually
+                    # created another subscription for the user or if there
+                    # is a bug in our code.
+                    log.exception(
+                        "Organization has more than one subscription with the same status",
+                        organization_slug=self.slug,
+                        subscription_status=status,
+                    )
+
+                return subscriptions.order_by("created").last()
+
+        # Fall back to the most recently created subscription.
         return self.stripe_customer.subscriptions.order_by("created").last()
 
     def get_absolute_url(self):
