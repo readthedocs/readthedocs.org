@@ -27,7 +27,7 @@ class HttpExchangeTests(TestCase):
             integration_type=Integration.GITHUB_WEBHOOK,
             provider_data="",
         )
-        payload = {"ref": "exchange_json"}
+        payload = {"ref": "refs/heads/exchange_json"}
         signature = get_signature(integration, payload)
         resp = client.post(
             "/api/v2/webhook/github/{}/".format(project.slug),
@@ -40,7 +40,7 @@ class HttpExchangeTests(TestCase):
         exchange = HttpExchange.objects.get(integrations=integration)
         self.assertEqual(
             exchange.request_body,
-            '{"ref": "exchange_json"}',
+            '{"ref": "refs/heads/exchange_json"}',
         )
         self.assertEqual(
             exchange.request_headers,
@@ -77,7 +77,7 @@ class HttpExchangeTests(TestCase):
             provider_data="",
             secret=None,
         )
-        payload = "payload=%7B%22ref%22%3A+%22exchange_form%22%7D"
+        payload = "payload=%7B%22ref%22:%20%22refs/heads/exchange_form%22%7D"
         signature = get_signature(integration, payload)
         resp = client.post(
             "/api/v2/webhook/github/{}/".format(project.slug),
@@ -90,7 +90,7 @@ class HttpExchangeTests(TestCase):
         exchange = HttpExchange.objects.get(integrations=integration)
         self.assertEqual(
             exchange.request_body,
-            '{"ref": "exchange_form"}',
+            '{"ref": "refs/heads/exchange_form"}',
         )
         self.assertEqual(
             exchange.request_headers,

@@ -1242,6 +1242,8 @@ class Project(models.Model):
 
         Normally, only one version should be returned, but since LATEST and STABLE
         are aliases for the branch/tag, they may be returned as well.
+
+        If type is None, both, tags and branches will be taken into consideration.
         """
         queryset = self.versions(manager=INTERNAL)
         queryset = queryset.filter(
@@ -1259,21 +1261,6 @@ class Project(models.Model):
             queryset = queryset.filter(type=type)
 
         return queryset.distinct()
-
-    def versions_from_branch_name(self, branch):
-        """
-        Get all versions attached to the branch or tag name.
-
-        .. warning::
-
-           Deprecated, use ``versions_from_name`` instead.
-        """
-        return (
-            self.versions.filter(identifier=branch)
-            | self.versions.filter(identifier="remotes/origin/%s" % branch)
-            | self.versions.filter(identifier="origin/%s" % branch)
-            | self.versions.filter(verbose_name=branch)
-        ).distinct()
 
     def get_default_version(self):
         """
