@@ -21,9 +21,9 @@ class InstallationTargetGroup:
     """Group of repositories that should be installed in the same target (user or organization)."""
 
     target_id: int
-    target_type: str
+    target_type: GitHubAccountType
     target_name: str
-    repository_ids: set[str]
+    repository_ids: set[int]
 
     @property
     def link(self):
@@ -61,7 +61,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
     # Since we don't save the ID of the owner of each repository, we group all repositories
     # that don't have an organization under the user account,
     # GitHub will ignore the repositories that the user doesn't own.
-    targets[account.uid] = InstallationTargetGroup(
+    targets[int(account.uid)] = InstallationTargetGroup(
         target_id=int(account.uid),
         target_name=account.extra_data.get("login", "unknown"),
         target_type=GitHubAccountType.USER,
@@ -83,7 +83,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
             target_id = int(account.uid)
 
         if not has_intallation:
-            targets[target_id].repository_ids.add(remote_repository.remote_id)
+            targets[target_id].repository_ids.add(int(remote_repository.remote_id))
 
     return list(targets.values())
 

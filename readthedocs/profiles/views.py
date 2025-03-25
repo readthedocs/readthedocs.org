@@ -349,7 +349,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         )
         context["step_connect_completed"] = self._has_new_account_for_old_account()
         context["installation_target_groups"] = get_installation_target_groups_for_user(user)
-        context["gh_app_name"] = settings.GITHUB_APP_NAME
+        context["github_app_name"] = settings.GITHUB_APP_NAME
         context["migration_targets"] = get_migration_targets(user)
         context["migrated_projects"] = (
             AdminPermission.projects(user, admin=True)
