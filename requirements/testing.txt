@@ -166,7 +166,7 @@ django-ipware==5.0.2
     #   django-structlog
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
-django-safemigrate==5.0
+django-safemigrate==4.3
     # via -r requirements/pip.txt
 django-simple-history==3.8.0
     # via -r requirements/pip.txt
