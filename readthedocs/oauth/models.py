@@ -42,7 +42,7 @@ class GitHubAppInstallationManager(models.Manager):
         # This should never happen, unless this assumption is wrong.
         if installation.target_id != target_id or installation.target_type != target_type:
             log.exception(
-                "Installation target_id or target_type changed",
+                "Installation target_id or target_type changed. This shouldn't happen -- look into it",
                 installation_id=installation.installation_id,
                 target_id=installation.target_id,
                 target_type=installation.target_type,
