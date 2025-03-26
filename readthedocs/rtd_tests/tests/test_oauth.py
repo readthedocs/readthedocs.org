@@ -330,8 +330,9 @@ class GitHubAppTests(TestCase):
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubAppService, "sync")
+    @mock.patch.object(GitHubAppService, "update_or_create_organization")
     @mock.patch.object(GitHubAppService, "update_or_create_repositories")
-    def test_sync_user_access(self, update_or_create_repositories, sync, request):
+    def test_sync_user_access(self, update_or_create_repositories, update_or_create_organization, sync, request):
         request.get(
             "https://api.github.com/user/installations",
             json={
@@ -353,6 +354,7 @@ class GitHubAppTests(TestCase):
             ],
             any_order=True,
         )
+        update_or_create_organization.assert_called_once_with(self.remote_organization.slug)
 
     @requests_mock.Mocker(kw="request")
     def test_create_repository(self, request):

@@ -158,8 +158,26 @@ class GitHubAppService(Service):
             service = cls(repository.github_app_installation)
             service.update_or_create_repositories([int(repository.remote_id)])
 
-        # TODO: maybe also refresh the organizations the user has access to?
-        # But doesn't look like we are using that relation for anything?
+        # Update access to each organization the user has access to.
+        queryset = RemoteOrganization.objects.filter(
+            remote_organization_relations__user=user,
+            vcs_provider=cls.vcs_provider_slug,
+        )
+        for remote_organization in queryset:
+            remote_repo = remote_organization.repositories.first()
+            # NOTE: this should never happen, unless our data is out of sync
+            # (we delete orphaned organizations when deleting projects).
+            if not remote_repo:
+                log.info(
+                    "Remote organization without repositories detected, deleting.",
+                    organization_login=remote_organization.slug,
+                    remote_id=remote_organization.remote_id,
+                )
+                remote_organization.delete()
+                continue
+
+            service = cls(remote_repo.github_app_installation)
+            service.update_or_create_organization(remote_organization.slug)
 
         if has_error:
             raise SyncServiceError()
@@ -267,9 +285,7 @@ class GitHubAppService(Service):
         remote_repo.html_url = gh_repo.html_url
         remote_repo.private = gh_repo.private
         remote_repo.default_branch = gh_repo.default_branch
-
-        # TODO: Do we need the SSH URL for private repositories now that we can clone using a token?
-        remote_repo.clone_url = gh_repo.ssh_url if gh_repo.private else gh_repo.clone_url
+        remote_repo.clone_url = gh_repo.clone_url
 
         # NOTE: Only one installation of our APP should give access to a repository.
         # This should only happen if our data is out of sync.
@@ -289,8 +305,7 @@ class GitHubAppService(Service):
         if gh_repo.owner.type == GitHubAccountType.ORGANIZATION:
             # NOTE: The owner object doesn't have all attributes of an organization,
             # so we need to fetch the organization object.
-            gh_organization = self._get_gh_organization(gh_repo.owner.login)
-            remote_repo.organization = self._create_or_update_organization_from_gh(gh_organization)
+            remote_repo.organization = self.update_or_create_organization(gh_repo.owner.login)
 
         remote_repo.save()
         self._resync_collaborators(gh_repo, remote_repo)
@@ -304,14 +319,17 @@ class GitHubAppService(Service):
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...
     @lru_cache(maxsize=50)
-    def _create_or_update_organization_from_gh(self, gh_org: GHOrganization) -> RemoteOrganization:
+    def update_or_create_organization(self, login: str) -> RemoteOrganization:
         """
-        Create or update a remote organization from a GitHub organization object.
+        Create or update a remote organization from its login identifier.
 
         We also sync the members of the organization with the database.
+        This doesn't sync the repositories of the organization,
+        since the installation is the one that lists the repositories it has access to.
 
-        This method is cached, since we want to update the organization only once per sync of an installation.
+        This method is cached, since we need to update the organization only once per sync of an installation.
         """
+        gh_org = self._get_gh_organization(login)
         remote_org, _ = RemoteOrganization.objects.get_or_create(
             remote_id=str(gh_org.id),
             vcs_provider=self.vcs_provider_slug,
@@ -430,7 +448,7 @@ class GitHubAppService(Service):
         - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
         - https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
         """
-        # TODO: we can pass the repository_ids to get a token with access to specific repositories.
+        # NOTE: we can pass the repository_ids to get a token with access to specific repositories.
         # We should upstream this feature to PyGithub.
         # We can also pass a specific permissions object to get a token with specific permissions
         # if we want to scope this token even more.
