@@ -4,8 +4,6 @@
 #
 #    pip-compile --output-file=requirements/testing.txt requirements/testing.in
 #
---no-binary xmlsec
-
 alabaster==1.0.0
     # via sphinx
 amqp==5.3.1
