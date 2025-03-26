@@ -4,8 +4,6 @@
 #
 #    pip-compile --output-file=requirements/deploy.txt requirements/deploy.in
 #
---no-binary xmlsec
-
 amqp==5.3.1
     # via
     #   -r requirements/pip.txt
