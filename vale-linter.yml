@@ -1,0 +1,26 @@
+# Configuration of the Vale Linter ProBot tool
+
+Vale:
+
+  # If this feature is enabled or disabled
+  Enabled: true
+ #Remove comment if needed to enable the bot.
+ #Enabled: false
+
+  Paths:
+    # Path to the vale configuration file
+    Configuration: ".vale.ini"
+
+    # Path to the folder of Vale docstyles to use/copy
+    # NOTE: If you update the styles path in _vale.ini remember to update this path too
+    Styles: "vale/styles/"
+
+  Success: 
+    Header: "PASSED"
+    Message: "The Vale Docs linter did not find any issues."
+
+
+  Error: 
+    Header: "FAILED"
+    Message: "Try again"
+    
