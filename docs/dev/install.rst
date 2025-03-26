@@ -270,7 +270,7 @@ Configuring GitHub App
 ~~~~~~~~~~~~~~~~~~~~~~
 
 - Create a new GitHub app from https://github.com/settings/apps/new.
-- Callback URL should be http://dev.readthedocs.org/accounts/githubapp/login/callback/.
+- Callback URL should be ``http://dev.readthedocs.org/accounts/githubapp/login/callback/``.
 - Keep marked "Expire user authorization tokens"
 - Activate the webhook, and set the URL to one provided by a service like `Webhook.site <https://docs.webhook.site/cli.html>`__ to forward all incoming webhooks to your local development instance.
   You should forward all events to ``http://dev.readthedocs.org/webhook/githubapp/``.
