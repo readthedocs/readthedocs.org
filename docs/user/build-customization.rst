@@ -477,7 +477,7 @@ If a ``uv.lock`` file exists it is respected.
       tools:
          python: "3.13"
       jobs:
-         post_system_dependencies:
+         pre_create_environment:
             - asdf plugin add uv
             - asdf install uv latest
             - asdf global uv latest
