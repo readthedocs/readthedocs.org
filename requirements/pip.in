@@ -150,8 +150,7 @@ bumpver
 
 
 # xmlsec is a dependecy from python3-saml which is required by django-allauth.
-# We have to use --no-binary to build it using `libxml2-dev` package installed at
-# system level. Otherwise, it fails saying there is a version mismatch
+# We have to pin it because the underlying `libxml2-dev` package installed at
+# system level is incompatible with the Python version
 # https://github.com/xmlsec/python-xmlsec/issues/324
-# https://github.com/lxml/lxml/blob/0eb4f0029497957e58a9f15280b3529bdb18d117/doc/FAQ.txt#L623
---no-binary=xmlsec
+xmlsec==1.3.14
