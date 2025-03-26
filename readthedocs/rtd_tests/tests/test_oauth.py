@@ -1,7 +1,8 @@
 import copy
 from unittest import mock
 
-from allauth.socialaccount.models import SocialAccount
+import requests_mock
+from allauth.socialaccount.models import SocialAccount, SocialToken
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -9,14 +10,861 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
+from readthedocs.builds.constants import (
+    BUILD_STATUS_FAILURE,
+    BUILD_STATUS_PENDING,
+    BUILD_STATUS_SUCCESS,
+    EXTERNAL,
+    LATEST,
+)
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GitHubWebhook, GitLabWebhook
-from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITLAB
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITHUB_APP, GITLAB
+from readthedocs.oauth.models import (
+    GitHubAccountType,
+    GitHubAppInstallation,
+    RemoteOrganization,
+    RemoteOrganizationRelation,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.oauth.services import BitbucketService, GitHubService, GitLabService
+from readthedocs.oauth.services.base import SyncServiceError
+from readthedocs.oauth.services.githubapp import GitHubAppService
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
+
+
+@override_settings(
+    PRODUCTION_DOMAIN="readthedocs.org",
+    PUBLIC_DOMAIN="readthedocs.io",
+)
+class GitHubAppTests(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.account = get(
+            SocialAccount,
+            uid="1111",
+            user=self.user,
+            provider=GitHubAppProvider.id,
+        )
+        get(
+            SocialToken,
+            account=self.account,
+        )
+        self.installation = get(
+            GitHubAppInstallation,
+            installation_id=1111,
+            target_id=int(self.account.uid),
+            target_type=GitHubAccountType.USER,
+        )
+        self.remote_repository = get(
+            RemoteRepository,
+            name="repo",
+            full_name="user/repo",
+            vcs_provider=GITHUB_APP,
+            github_app_installation=self.installation,
+            description="Some description",
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=self.remote_repository,
+            user=self.user,
+            account=self.account,
+            admin=True,
+        )
+        self.project = get(
+            Project, users=[self.user], remote_repository=self.remote_repository
+        )
+
+        self.remote_organization = get(
+            RemoteOrganization,
+            slug="org",
+            remote_id="2222",
+            vcs_provider=GITHUB_APP,
+        )
+        get(
+            RemoteOrganizationRelation,
+            remote_organization=self.remote_organization,
+            user=self.user,
+            account=self.account,
+        )
+        self.organization_installation = get(
+            GitHubAppInstallation,
+            installation_id=2222,
+            target_id=int(self.remote_organization.remote_id),
+            target_type=GitHubAccountType.ORGANIZATION,
+        )
+        self.remote_repository_with_org = get(
+            RemoteRepository,
+            name="repo",
+            full_name="org/repo",
+            vcs_provider=GITHUB_APP,
+            github_app_installation=self.organization_installation,
+            organization=self.remote_organization,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=self.remote_repository_with_org,
+            user=self.user,
+            account=self.account,
+            admin=True,
+        )
+        self.project_with_org = get(
+            Project,
+            users=[self.user],
+            remote_repository=self.remote_repository_with_org,
+        )
+        self.api_url = "https://api.github.com:443"
+
+    def _merge_dicts(self, a, b):
+        for k, v in b.items():
+            if k in a and isinstance(a[k], dict):
+                self._merge_dicts(a[k], v)
+            else:
+                a[k] = v
+
+    def _get_access_token_json(self, **kwargs):
+        default = {
+            "token": "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+            "expires_at": "2016-07-11T22:14:10Z",
+            "permissions": {"issues": "write", "contents": "read"},
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_installation_json(self, id, **kwargs):
+        default = {
+            "id": id,
+            "account": {
+                "login": "user",
+                "id": 1111,
+                "type": "User",
+            },
+            "html_url": f"https://github.com/organizations/github/settings/installations/{id}",
+            "app_id": 1,
+            "target_id": 1111,
+            "target_type": "User",
+            "permissions": {"checks": "write", "metadata": "read", "contents": "read"},
+            "events": ["push", "pull_request"],
+            "repository_selection": "all",
+            "created_at": "2017-07-08T16:18:44-04:00",
+            "updated_at": "2017-07-08T16:18:44-04:00",
+            "app_slug": "github-actions",
+            "suspended_at": None,
+            "suspended_by": None,
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_repository_json(self, full_name, **kwargs):
+        user, repo = full_name.split("/")
+        default = {
+            "id": 1111,
+            "name": repo,
+            "full_name": full_name,
+            "ssh_url": f"git@github.com:{full_name}.git",
+            "clone_url": f"https://github.com/{full_name}.git",
+            "html_url": f"https://github.com/{full_name}",
+            "private": False,
+            "default_branch": "main",
+            "url": f"https://api.github.com/repos/{full_name}",
+            "description": "Some description",
+            "owner": {
+                "login": user,
+                "id": 1111,
+                "type": "User",
+                "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+                "url": f"https://api.github.com/users/{user}",
+            },
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_collaborator_json(self, **kwargs):
+        default = {
+            "id": 1111,
+            "login": "user",
+            "permissions": {"admin": True},
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_organization_json(self, **kwargs):
+        default = {
+            "login": "org",
+            "id": 2222,
+            "url": "https://api.github.com/orgs/org",
+            "repos_url": "https://api.github.com/orgs/org/repos",
+            "events_url": "https://api.github.com/orgs/org/events",
+            "hooks_url": "https://api.github.com/orgs/org/hooks",
+            "issues_url": "https://api.github.com/orgs/org/issues",
+            "members_url": "https://api.github.com/orgs/org/members{/member}",
+            "public_members_url": "https://api.github.com/orgs/org/public_members{/member}",
+            "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+            "description": "Some organization",
+            "name": "Organization",
+            "email": "org@example.com",
+            "html_url": "https://github.com/org",
+            "created_at": "2008-01-14T04:33:35Z",
+            "type": "Organization",
+            "billing_email": "mona@github.com",
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_user_json(self, **kwargs):
+        default = {
+            "login": "user",
+            "id": 1111,
+            "type": "User",
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_commit_json(self, commit, **kwargs):
+        default = {
+            "url": f"https://api.github.com/repos/user/repo/commits/{commit}",
+            "sha": commit,
+            "html_url": f"https://github.com/user/repo/commit/{commit}",
+            # "comments_url": "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e/comments",
+            "commit": {
+                "url": f"https://api.github.com/repos/octocat/Hello-World/git/commits/{commit}",
+                "author": {
+                    "name": "Monalisa Octocat",
+                    "email": "mona@github.com",
+                    "date": "2011-04-14T16:00:49Z",
+                },
+                "committer": {
+                    "name": "Monalisa Octocat",
+                    "email": "mona@github.com",
+                    "date": "2011-04-14T16:00:49Z",
+                },
+                "message": "Fix all the bugs",
+                "tree": {
+                    "url": f"https://api.github.com/repos/user/repo/tree/{commit}",
+                    "sha": commit,
+                },
+                "comment_count": 0,
+            },
+            "author": {
+                "login": "octocat",
+                "id": 1,
+                "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/octocat",
+                "html_url": "https://github.com/octocat",
+                "type": "User",
+                "site_admin": False,
+            },
+            "committer": {
+                "login": "octocat",
+                "id": 1,
+                "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/octocat",
+                "html_url": "https://github.com/octocat",
+                "type": "User",
+                "site_admin": False,
+            },
+            "parents": [
+                {
+                    "url": "https://api.github.com/repos/user/repo/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                    "sha": "6dcb09b5b57875f334f61aebed695e2e4193db5e",
+                }
+            ],
+            "stats": {"additions": 104, "deletions": 4, "total": 108},
+            "files": [],
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def test_for_project(self):
+        services = list(GitHubAppService.for_project(self.project))
+        assert len(services) == 1
+        service = services[0]
+        assert service.installation == self.installation
+
+        services = list(GitHubAppService.for_project(self.project_with_org))
+        assert len(services) == 1
+        service = services[0]
+        assert service.installation == self.organization_installation
+
+    @requests_mock.Mocker(kw="request")
+    def test_for_user(self, request):
+        new_installation_id = 3333
+        assert not GitHubAppInstallation.objects.filter(
+            installation_id=new_installation_id
+        ).exists()
+        request.get(
+            "https://api.github.com/user/installations",
+            json={
+                "installations": [
+                    self._get_installation_json(
+                        id=self.installation.installation_id,
+                        account={"id": self.account.uid},
+                    ),
+                    self._get_installation_json(
+                        id=new_installation_id,
+                        target_id=2,
+                        target_type="Organization",
+                        account={"login": "octocat", "id": 2, "type": "Organization"},
+                    ),
+                ]
+            },
+        )
+        services = list(GitHubAppService.for_user(self.user))
+        assert len(services) == 2
+
+        self.installation.refresh_from_db()
+        assert self.installation.installation_id == 1111
+        assert self.installation.target_id == int(self.account.uid)
+        assert self.installation.target_type == GitHubAccountType.USER
+
+        new_installation = GitHubAppInstallation.objects.get(
+            installation_id=new_installation_id
+        )
+        assert new_installation.target_id == 2
+        assert new_installation.target_type == GitHubAccountType.ORGANIZATION
+
+    @requests_mock.Mocker(kw="request")
+    @mock.patch.object(GitHubAppService, "sync")
+    @mock.patch.object(GitHubAppService, "update_or_create_repositories")
+    def test_sync_user_access(self, update_or_create_repositories, sync, request):
+        request.get(
+            "https://api.github.com/user/installations",
+            json={
+                "installations": [
+                    self._get_installation_json(
+                        id=self.installation.installation_id,
+                        account={"id": self.account.uid},
+                    ),
+                ],
+            },
+        )
+
+        GitHubAppService.sync_user_access(self.user)
+        sync.assert_called_once()
+        update_or_create_repositories.assert_has_calls(
+            [
+                mock.call([int(self.remote_repository.remote_id)]),
+                mock.call([int(self.remote_repository_with_org.remote_id)]),
+            ],
+            any_order=True,
+        )
+
+    @requests_mock.Mocker(kw="request")
+    def test_create_repository(self, request):
+        new_repo_id = 4444
+        assert not RemoteRepository.objects.filter(
+            remote_id=new_repo_id, vcs_provider=GitHubAppProvider.id
+        ).exists()
+
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/4444",
+            json=self._get_repository_json(
+                full_name="user/repo", id=4444, owner={"id": int(self.account.uid)}
+            ),
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.update_or_create_repositories([new_repo_id])
+
+        repo = RemoteRepository.objects.get(
+            remote_id=new_repo_id, vcs_provider=GitHubAppProvider.id
+        )
+        assert repo.name == "repo"
+        assert repo.full_name == "user/repo"
+        assert repo.organization is None
+        assert repo.description == "Some description"
+        assert repo.avatar_url == "https://github.com/images/error/octocat_happy.gif"
+        assert repo.ssh_url == "git@github.com:user/repo.git"
+        assert repo.html_url == "https://github.com/user/repo"
+        assert repo.clone_url == "https://github.com/user/repo.git"
+        assert not repo.private
+        assert repo.default_branch == "main"
+        assert repo.github_app_installation == self.installation
+
+        relations = repo.remote_repository_relations.all()
+        assert relations.count() == 1
+        relation = relations[0]
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_repository(self, request):
+        assert self.remote_repository.description == "Some description"
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}",
+            json=self._get_repository_json(
+                full_name="user/repo",
+                id=int(self.remote_repository.remote_id),
+                owner={"id": int(self.account.uid)},
+                description="New description",
+            ),
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.update_or_create_repositories([int(self.remote_repository.remote_id)])
+
+        self.remote_repository.refresh_from_db()
+        assert self.remote_repository.description == "New description"
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_invalid_repository(self, request):
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}",
+            status_code=404,
+        )
+
+        service = self.installation.service
+        service.update_or_create_repositories([int(self.remote_repository.remote_id)])
+        assert not RemoteRepository.objects.filter(
+            id=self.remote_repository.id
+        ).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync(self, request):
+        assert self.installation.repositories.count() == 1
+        request.get(
+            f"{self.api_url}/app/installations/1111",
+            json=self._get_installation_json(id=1111),
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/installation/repositories",
+            json={
+                "repositories": [
+                    self._get_repository_json(
+                        full_name="user/repo", id=int(self.remote_repository.remote_id)
+                    ),
+                    self._get_repository_json(full_name="user/repo2", id=2222),
+                    self._get_repository_json(full_name="user/repo3", id=3333),
+                ]
+            },
+        )
+
+        request.get(
+            f"{self.api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo2/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo3/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.sync()
+
+        assert self.installation.repositories.count() == 3
+
+        repo = self.installation.repositories.get(full_name="user/repo")
+        assert repo.name == "repo"
+        assert repo.remote_id == self.remote_repository.remote_id
+        assert repo.default_branch == "main"
+        assert repo.vcs_provider == GITHUB_APP
+        assert repo.private is False
+        assert repo.remote_repository_relations.count() == 1
+        relation = repo.remote_repository_relations.first()
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+
+        repo = self.installation.repositories.get(full_name="user/repo2")
+        assert repo.name == "repo2"
+        assert repo.remote_id == "2222"
+        assert repo.remote_repository_relations.count() == 1
+        assert repo.default_branch == "main"
+        assert repo.vcs_provider == GITHUB_APP
+        assert repo.private is False
+        relation = repo.remote_repository_relations.first()
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+
+        repo = self.installation.repositories.get(full_name="user/repo3")
+        assert repo.name == "repo3"
+        assert repo.remote_id == "3333"
+        assert repo.remote_repository_relations.count() == 1
+        assert repo.default_branch == "main"
+        assert repo.vcs_provider == GITHUB_APP
+        assert repo.private is False
+        relation = repo.remote_repository_relations.first()
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_delete_remote_repositories(self, request):
+        assert self.installation.repositories.count() == 1
+        request.get(
+            f"{self.api_url}/app/installations/1111",
+            json=self._get_installation_json(id=1111),
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/installation/repositories",
+            json={
+                "repositories": [
+                    self._get_repository_json(full_name="user/repo2", id=2222),
+                ]
+            },
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo2/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.sync()
+
+        assert self.installation.repositories.count() == 1
+        repo = self.installation.repositories.get(full_name="user/repo2")
+        assert repo.name == "repo2"
+        assert repo.remote_id == "2222"
+        assert repo.remote_repository_relations.count() == 1
+        assert repo.default_branch == "main"
+        assert repo.vcs_provider == GITHUB_APP
+        assert repo.private is False
+        relation = repo.remote_repository_relations.first()
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_with_organization(self, request):
+        assert self.organization_installation.repositories.count() == 1
+        request.get(
+            f"{self.api_url}/app/installations/{self.organization_installation.installation_id}",
+            json=self._get_installation_json(
+                id=self.organization_installation.installation_id,
+                account={"id": 2222, "login": "org", "type": "Organization"},
+                target_type="Organization",
+                target_id=2222,
+            ),
+        )
+        request.post(
+            f"{self.api_url}/app/installations/{self.organization_installation.installation_id}/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/installation/repositories",
+            json={
+                "repositories": [
+                    self._get_repository_json(
+                        full_name="org/repo2",
+                        id=2222,
+                        owner={"id": 2222, "login": "org", "type": "Organization"},
+                    ),
+                ]
+            },
+        )
+        request.get(
+            f"{self.api_url}/repos/org/repo2/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+        request.get(
+            f"{self.api_url}/orgs/org",
+            json=self._get_organization_json(login="org", id=2222),
+        )
+        request.get(
+            f"{self.api_url}/orgs/org/members",
+            json=[self._get_user_json(id=1111, login="user")],
+        )
+
+        service = self.organization_installation.service
+        service.sync()
+
+        assert self.organization_installation.repositories.count() == 1
+        repo = self.organization_installation.repositories.get(full_name="org/repo2")
+        assert repo.name == "repo2"
+        assert repo.remote_id == "2222"
+        assert repo.remote_repository_relations.count() == 1
+        assert repo.default_branch == "main"
+        assert repo.vcs_provider == GITHUB_APP
+        assert repo.private is False
+        relation = repo.remote_repository_relations.first()
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+        remote_organization = repo.organization
+        assert remote_organization.slug == "org"
+        assert remote_organization.remote_id == "2222"
+        assert remote_organization.name == "Organization"
+        assert remote_organization.email == "org@example.com"
+        assert remote_organization.url == "https://github.com/org"
+        assert (
+            remote_organization.avatar_url
+            == "https://github.com/images/error/octocat_happy.gif"
+        )
+        assert remote_organization.vcs_provider == GITHUB_APP
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repo_moved_from_org_to_user(self, request):
+        assert self.installation.repositories.count() == 1
+        assert self.organization_installation.repositories.count() == 1
+        assert self.remote_repository_with_org.organization == self.remote_organization
+        assert (
+            self.remote_repository_with_org.github_app_installation
+            == self.organization_installation
+        )
+
+        request.get(
+            f"{self.api_url}/app/installations/1111",
+            json=self._get_installation_json(id=1111),
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+
+        request.get(
+            f"{self.api_url}/installation/repositories",
+            json={
+                "repositories": [
+                    self._get_repository_json(
+                        full_name="user/repo", id=int(self.remote_repository.remote_id)
+                    ),
+                    self._get_repository_json(
+                        full_name="user/repo2",
+                        id=int(self.remote_repository_with_org.remote_id),
+                    ),
+                ]
+            },
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo2/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.sync()
+        assert self.installation.repositories.count() == 2
+        assert self.organization_installation.repositories.count() == 0
+
+        self.remote_repository_with_org.refresh_from_db()
+        assert self.remote_repository_with_org.organization is None
+        assert (
+            self.remote_repository_with_org.github_app_installation == self.installation
+        )
+        assert self.remote_repository_with_org.name == "repo2"
+        assert self.remote_repository_with_org.full_name == "user/repo2"
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_orphan_organization_is_deleted(self, request):
+        assert self.organization_installation.repositories.count() == 1
+        request.get(
+            f"{self.api_url}/app/installations/{self.organization_installation.installation_id}",
+            json=self._get_installation_json(
+                id=self.organization_installation.installation_id,
+                account={"id": 2222, "login": "org", "type": "Organization"},
+                target_type="Organization",
+                target_id=2222,
+            ),
+        )
+        request.post(
+            f"{self.api_url}/app/installations/{self.organization_installation.installation_id}/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/installation/repositories",
+            json={"repositories": []},
+        )
+
+        service = self.organization_installation.service
+        service.sync()
+
+        assert self.organization_installation.repositories.count() == 0
+        assert not RemoteOrganization.objects.filter(
+            id=self.remote_organization.id
+        ).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_with_uninstalled_installation(self, request):
+        assert self.installation.repositories.count() == 1
+        request.get(
+            f"{self.api_url}/app/installations/1111",
+            status_code=404,
+        )
+        service = self.installation.service
+        with self.assertRaises(SyncServiceError):
+            service.sync()
+
+        assert not GitHubAppInstallation.objects.filter(
+            id=self.installation.id
+        ).exists()
+        assert not RemoteRepository.objects.filter(
+            id=self.remote_repository.id
+        ).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_with_suspended_installation(self, request):
+        assert self.installation.repositories.count() == 1
+        request.get(
+            f"{self.api_url}/app/installations/1111",
+            json=self._get_installation_json(id=1111, suspended_at="2021-01-01T00:00:00Z"),
+        )
+        service = self.installation.service
+        with self.assertRaises(SyncServiceError):
+            service.sync()
+
+        assert not GitHubAppInstallation.objects.filter(
+            id=self.installation.id
+        ).exists()
+        assert not RemoteRepository.objects.filter(
+            id=self.remote_repository.id
+        ).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_pending(self, request):
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_PENDING
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build is in progress!",
+            "state": "pending",
+            "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_success(self, request):
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        version.built = True
+        version.save()
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build succeeded!",
+            "state": "success",
+            "target_url": f"http://{self.project.slug}.readthedocs.io/en/latest/",
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_failure(self, request):
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_FAILURE
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build failed!",
+            "state": "failure",
+            "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_get_clone_token(self, request):
+        token = "ghs_16C7e42F292c6912E7710c838347Ae178B4a"
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(toke=token),
+        )
+        service = self.installation.service
+        clone_token = service.get_clone_token(self.project)
+        assert clone_token == f"x-access-token:{token}"
 
 
 class GitHubOAuthTests(TestCase):

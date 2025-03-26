@@ -753,6 +753,15 @@ class CommunityBaseSettings(Settings):
         "signup": "readthedocs.forms.SignupFormWithNewsletter",
     }
 
+    GITHUB_APP_ID = 1234
+    GITHUB_APP_NAME = "readthedocs"
+    GITHUB_APP_PRIVATE_KEY = ""
+    GITHUB_APP_WEBHOOK_SECRET = ""
+
+    @property
+    def GITHUB_APP_CLIENT_ID(self):
+        return self.SOCIALACCOUNT_PROVIDERS["githubapp"]["APPS"][0]["client_id"]
+
     # CORS
     # Don't allow sending cookies in cross-domain requests, this is so we can
     # relax our CORS headers for more views, but at the same time not opening
