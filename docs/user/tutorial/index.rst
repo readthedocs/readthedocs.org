@@ -70,14 +70,6 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 
    GitHub authorization page
 
-.. note::
-
-   Read the Docs needs elevated permissions to perform certain operations
-   that ensure that the workflow is as smooth as possible,
-   like installing :term:`webhooks <webhook>`.
-   If you want to learn more,
-   check out :ref:`reference/git-integration:permissions for connected accounts`.
-
 After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
 open your :term:`dashboard`.
 
@@ -95,16 +87,11 @@ Importing the project to Read the Docs
 
 To import your GitHub project to Read the Docs:
 
-#. Click the :guilabel:`Import a Project` button on your `dashboard <https://readthedocs.org/dashboard/>`_.
+#. Click the :guilabel:`Add project` button on your `dashboard <https://readthedocs.org/dashboard/>`_.
 
-#. Click the |:heavy_plus_sign:| button to the right of your ``rtd-tutorial`` project. If the list of repositories is empty, click the |:arrows_counterclockwise:| button.
+#. Click on :guilabel:`Install GitHub App on repository`, and choose your account and select the repository you created in the previous step.
 
-   .. figure:: /_static/images/tutorial/rtd-import-projects.gif
-      :width: 80%
-      :align: center
-      :alt: Import projects workflow
-
-      Import projects workflow
+#. Type the repository name in the search box, and select the repository from the list, and click on :guilabel:`Continue`.
 
 #. Enter some details about your Read the Docs project:
 
@@ -112,9 +99,6 @@ To import your GitHub project to Read the Docs:
       The name of the project, used to create a unique subdomain for each project.
       so it is better if you prepend your username,
       for example ``{username}-rtd-tutorial``.
-
-   Repository URL
-      The URL that contains the documentation source. Leave the automatically filled value.
 
    Default branch
       Name of the default branch of the project, leave it as ``main``.
@@ -175,7 +159,7 @@ Configuring the project
 
 To update the project description and configure the notification settings:
 
-#. Navigate back to the :term:`project page` and click the :guilabel:`⚙ Admin` button,to open the Settings page.
+#. Navigate back to the :term:`project page` and click the :guilabel:`⚙ Settings` button, to open the settings page.
 
 #. Update the project description by adding the following text:
 
@@ -194,7 +178,7 @@ and show you a preview of the documentation with those changes.
 
 To trigger builds from pull requests:
 
-#. Click the :guilabel:`Settings` link on the left under the :guilabel:`⚙ Admin` menu, check the "Build pull requests for this project" checkbox, and click the :guilabel:`Save` button at the bottom of the page.
+#. Click the :guilabel:`Pull request builds` link on the left under the :guilabel:`⚙ Settings` menu, check the "Build pull requests for this project" checkbox, and click the :guilabel:`Update` button at the bottom of the page.
 
 #. Make some changes to your documentation:
 
