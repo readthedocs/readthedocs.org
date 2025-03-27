@@ -2,9 +2,11 @@
 
 from dataclasses import dataclass
 
+from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.constants import GITHUB
@@ -14,6 +16,13 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
+
+
+@dataclass
+class GitHubAccountTarget:
+    login: str
+    id: int
+    type: GitHubAccountType
 
 
 @dataclass
@@ -53,39 +62,115 @@ class InstallationTargetGroup:
         return not bool(self.repository_ids)
 
 
+@dataclass
+class MigrationTarget:
+    """Information about an individual project that needs to be migrated."""
+
+    project: Project
+    has_installation: bool
+    is_admin: bool
+    target_id: int
+
+    @property
+    def installation_link(self):
+        """
+        Create a link to install the GitHub App on the target repository.
+
+        See https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/migrating-oauth-apps-to-github-apps
+        """
+        base_url = (
+            f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/new/permissions"
+        )
+        return f"{base_url}?suggested_target_id={self.target_id}&repository_ids[]={self.project.remote_repository.remote_id}"
+
+    @property
+    def can_be_migrated(self):
+        """
+        Check if the project can be migrated.
+
+        The project can be migrated if the user is an admin on the repository and the GitHub App is installed.
+        """
+        return self.is_admin and self.has_installation
+
+
+@dataclass
+class MigrationResult:
+    """Result of a migration operation."""
+
+    webhook_removed: bool
+    ssh_key_removed: bool
+
+
+class MigrationError(Exception):
+    """Error raised when a migration operation fails."""
+
+    pass
+
+
 def get_installation_target_groups_for_user(user) -> list[InstallationTargetGroup]:
     """Get all targets (accounts and organizations) that the user needs to install the GitHub App on."""
-    targets = {}
-    account = user.socialaccount_set.filter(provider=GitHubProvider.id).first()
-
     # Since we don't save the ID of the owner of each repository, we group all repositories
-    # that don't have an organization under the user account,
+    # that we aren't able to identify the owner into the user's account.
     # GitHub will ignore the repositories that the user doesn't own.
-    targets[int(account.uid)] = InstallationTargetGroup(
-        target_id=int(account.uid),
-        target_name=account.extra_data.get("login", "unknown"),
-        target_type=GitHubAccountType.USER,
-        repository_ids=set(),
-    )
+    default_target_account = _get_default_github_account_target(user)
 
+    targets = {}
     for project, has_intallation, _ in _get_projects_missing_migration(user):
         remote_repository = project.remote_repository
-        if remote_repository.organization:
-            target_id = int(remote_repository.organization.remote_id)
-            if target_id not in targets:
-                targets[target_id] = InstallationTargetGroup(
-                    target_id=target_id,
-                    target_name=remote_repository.organization.slug,
-                    target_type=GitHubAccountType.ORGANIZATION,
-                    repository_ids=set(),
-                )
-        else:
-            target_id = int(account.uid)
-
+        target_account = _get_github_account_target(remote_repository) or default_target_account
+        if target_account.id not in targets:
+            targets[target_account.id] = InstallationTargetGroup(
+                target_id=target_account.id,
+                target_name=target_account.login,
+                target_type=target_account.type,
+                repository_ids=set(),
+            )
         if not has_intallation:
-            targets[target_id].repository_ids.add(int(remote_repository.remote_id))
+            targets[target_account.id].repository_ids.add(int(remote_repository.remote_id))
 
     return list(targets.values())
+
+
+def _get_default_github_account_target(user):
+    # NOTE: there are some users that have more than one GH account connected.
+    # They will need to migrate each account at a time.
+    account = user.socialaccount_set.filter(provider=GitHubProvider.id).first()
+    if not account:
+        account = user.socialaccount_set.filter(provider=GitHubAppProvider.id).first()
+
+    return GitHubAccountTarget(
+        login=account.extra_data.get("login", "ghost"),
+        id=int(account.uid),
+        type=GitHubAccountType.USER,
+    )
+
+
+def _get_github_account_target(remote_repository):
+    """
+    Get the GitHub account target for a repository.
+
+    This will return the account that owns the repository, if we can identify it.
+    For repositories owned by organizations, we return the organization account,
+    for repositories owned by users, we try to guess the account based on the repository owner
+    (as we don't save the owner ID in the repository).
+    """
+    if remote_repository.organization:
+        return GitHubAccountTarget(
+            login=remote_repository.organization.slug,
+            id=int(remote_repository.organization.remote_id),
+            type=GitHubAccountType.ORGANIZATION,
+        )
+    login = remote_repository.full_name.split("/", 1)[0]
+    account = SocialAccount.objects.filter(
+        provider__in=[GitHubProvider.id, GitHubAppProvider.id], extra_data__login=login
+    ).first()
+    if account:
+        return GitHubAccountTarget(
+            login=login,
+            id=int(account.uid),
+            type=GitHubAccountType.USER,
+        )
+    return None
 
 
 def _get_projects_missing_migration(user):
@@ -128,58 +213,19 @@ def get_valid_projects_missing_migration(user):
             yield project
 
 
-@dataclass
-class MigrationTarget:
-    """Information about an individual project that needs to be migrated."""
-
-    project: Project
-    has_installation: bool
-    is_admin: bool
-    target_id: int
-
-    @property
-    def installation_link(self):
-        """
-        Create a link to install the GitHub App on the target repository.
-
-        See https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/migrating-oauth-apps-to-github-apps
-        """
-        base_url = (
-            f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/new/permissions"
-        )
-        return f"{base_url}?suggested_target_id={self.target_id}&repository_ids[]={self.project.remote_repository.remote_id}"
-
-    @property
-    def can_be_migrated(self):
-        """
-        Check if the project can be migrated.
-
-        The project can be migrated if the user is an admin on the repository and the GitHub App is installed.
-        """
-        return self.is_admin and self.has_installation
-
-
 def get_migration_targets(user):
     """Get all projects that the user needs to migrate to the GitHub App."""
     targets = []
-    # NOTE: there are some users that have more than one GH account connected.
-    # They will need to migrate each account at a time.
-    gh_account = user.socialaccount_set.filter(provider=GITHUB).first()
-    if not gh_account:
-        return targets
-
+    default_target_account = _get_default_github_account_target(user)
     for project, has_installation, is_admin in _get_projects_missing_migration(user):
         remote_repository = project.remote_repository
-        if remote_repository.organization:
-            target_id = int(remote_repository.organization.remote_id)
-        else:
-            target_id = int(gh_account.uid)
+        target_account = _get_github_account_target(remote_repository) or default_target_account
         targets.append(
             MigrationTarget(
                 project=project,
                 has_installation=has_installation,
                 is_admin=is_admin,
-                target_id=target_id,
+                target_id=target_account.id,
             )
         )
     return targets
@@ -193,18 +239,6 @@ def get_old_app_link():
     """
     client_id = settings.SOCIALACCOUNT_PROVIDERS["github"]["APPS"][0]["client_id"]
     return f"https://github.com/settings/connections/applications/{client_id}"
-
-
-@dataclass
-class MigrationResult:
-    """Result of a migration operation."""
-
-    webhook_removed: bool
-    ssh_key_removed: bool
-
-
-class MigrationError(Exception):
-    pass
 
 
 def migrate_project_to_github_app(project, user) -> MigrationResult:
