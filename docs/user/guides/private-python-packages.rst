@@ -34,22 +34,15 @@ See :doc:`using environment variables in Read the Docs </environment-variables>`
 GitHub
 ~~~~~~
 
-You need to create a personal access token with the ``repo`` scope.
-Follow the `GitHub documentation <https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line#creating-a-token>`__
-on how to create a personal token.
+You need to create a fine-grained personal access token with the ``Contents`` repository permission set to ``Read-only``.
+Follow the `GitHub documentation <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token>`__
+on how to create a fine-grained personal access token.
 
 URI example:
 
 .. code::
 
    git+https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/user/project.git@{version}
-
-.. warning::
-
-   GitHub doesn't support tokens per repository.
-   A personal token will grant read and write access to all repositories the user has access to.
-   You can create a `machine user <https://developer.github.com/v3/guides/managing-deploy-keys/#machine-users>`__
-   to give read access only to the repositories you need.
 
 GitLab
 ~~~~~~
