@@ -38,8 +38,8 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.clients import get_oauth2_client
-from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.migrate import get_installation_target_groups_for_user
+from readthedocs.oauth.migrate import get_migrated_projects
 from readthedocs.oauth.migrate import get_migration_targets
 from readthedocs.oauth.migrate import get_old_app_link
 from readthedocs.oauth.migrate import get_valid_projects_missing_migration
@@ -351,13 +351,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         context["installation_target_groups"] = get_installation_target_groups_for_user(user)
         context["github_app_name"] = settings.GITHUB_APP_NAME
         context["migration_targets"] = get_migration_targets(user)
-        context["migrated_projects"] = (
-            AdminPermission.projects(user, admin=True)
-            .filter(remote_repository__vcs_provider=GITHUB_APP)
-            .select_related(
-                "remote_repository",
-            )
-        )
+        context["migrated_projects"] = get_migrated_projects(user)
         context["old_application_link"] = get_old_app_link()
         context["step_revoke_completed"] = self._is_access_to_old_github_account_revoked()
         context["old_github_account"] = self._get_old_github_account()
@@ -365,6 +359,8 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
 
     def _is_access_to_old_github_account_revoked(self):
         old_account = self._get_old_github_account()
+        if not old_account:
+            return True
         client = get_oauth2_client(old_account)
         if client is None:
             return True
@@ -381,11 +377,13 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
 
         The new connected account must the same as the old one.
         """
-        old_account = self._get_old_github_account()
-        return self.request.user.socialaccount_set.filter(
+        query = self.request.user.socialaccount_set.filter(
             provider=GitHubAppProvider.id,
-            uid=old_account.uid,
-        ).exists()
+        )
+        old_account = self._get_old_github_account()
+        if old_account:
+            query.filter(uid=old_account.uid)
+        return query.exists()
 
     def _get_new_github_account(self):
         return self.request.user.socialaccount_set.filter(provider=GitHubAppProvider.id).first()

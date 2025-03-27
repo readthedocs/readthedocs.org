@@ -128,6 +128,19 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
         if not has_intallation:
             targets[target_account.id].repository_ids.add(int(remote_repository.remote_id))
 
+    # Include accounts that have already migrated projects,
+    # so they are shown as "Installed" in the UI.
+    for project in get_migrated_projects(user):
+        remote_repository = project.remote_repository
+        target_account = _get_github_account_target(remote_repository) or default_target_account
+        if target_account.id not in targets:
+            targets[target_account.id] = InstallationTargetGroup(
+                target_id=target_account.id,
+                target_name=target_account.login,
+                target_type=GitHubAccountType.USER,
+                repository_ids=set(),
+            )
+
     return list(targets.values())
 
 
@@ -205,6 +218,16 @@ def _get_projects_missing_migration(user):
             .exists()
         )
         yield project, has_installation, is_admin
+
+
+def get_migrated_projects(user):
+    return (
+        AdminPermission.projects(user, admin=True)
+        .filter(remote_repository__vcs_provider=GITHUB_APP)
+        .select_related(
+            "remote_repository",
+        )
+    )
 
 
 def get_valid_projects_missing_migration(user):
