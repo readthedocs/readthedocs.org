@@ -85,7 +85,7 @@ pygments==2.19.1
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==3.2.1
+pyparsing==3.2.3
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
@@ -161,7 +161,7 @@ sphinxext-opengraph==0.9.1
     # via -r requirements/docs.in
 starlette==0.46.1
     # via sphinx-autobuild
-typing-extensions==4.12.2
+typing-extensions==4.13.0
     # via anyio
 urllib3==2.3.0
     # via
