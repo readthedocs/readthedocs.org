@@ -205,13 +205,7 @@ Webhook activation failed. Make sure you have the necessary permissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you find this error,
-make sure your user has permissions over the repository.
-In case of GitHub,
-check that you have granted access to the Read the Docs `OAuth App`_ to your organization.
-A similar workflow is required for other supported providers.
-
-.. _OAuth App: https://github.com/settings/applications
-
+make sure your user has admin permissions over the repository.
 
 My project isn't automatically building
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

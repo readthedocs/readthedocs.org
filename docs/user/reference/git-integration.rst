@@ -12,8 +12,9 @@ Connecting your account provides the following features:
   See: :doc:`/intro/add-project`.
 
 ⚙️ Automatic configuration
-  Have your Git repository automatically configured with your Read the Docs :term:`webhook`,
-  which allows Read the Docs to build your docs on every change to your repository.
+  Have Read the Docs subscribe to your repository's events,
+  allowing us to build your docs on every change to your repository,
+  and keep in sync with your tags and branches.
 
 🚥️ Commit status
   See your documentation build status as a commit status indicator on :doc:`pull request builds </pull-requests>`.
@@ -50,7 +51,7 @@ When you Read the Docs account is connected to GitHub, and you :doc:`add a new R
 
 * Read the Docs automatically connects your project with the GitHub repository,
   and subscribes to the repository's events.
-* Read the Docs makes use of its GitHub App to interact with your repository.
+* Read the Docs makes use of its :ref:`GitHub App <reference/git-integration:GitHub App>` to interact with your repository.
 
 When your Read the Docs account is connected to GitLab or Bitbucket, and you :doc:`add a new Read the Docs project </intro/add-project>`:
 
@@ -73,8 +74,8 @@ Read the Docs incoming webhook
 
 .. note::
 
-   When using GitHub, Read the Docs uses a GitHub App that subscribes to all required events,
-   so you don't need to create a webhook manually.
+   When using GitHub, Read the Docs uses a GitHub App that subscribes to all required events.
+   You don't need to create a webhook on your repository.
 
 Accounts with GitLab and Bitbucket integrations automatically have Read the Docs' incoming :term:`webhook` configured on all repositories that are imported.
 Other setups can set up the webhook through :doc:`manual configuration </guides/setup/git-repo-manual>`.
@@ -109,26 +110,20 @@ Read the Docs uses `OAuth`_ to connect to your account at |git_providers_or|.
 You are asked to grant permissions for Read the Docs to perform a number of actions on your behalf.
 
 At the same time, we use this process for authentication (login)
-since we trust that the user who connects the account is the owner of the account.
+since we trust that the user who connects the account is the owner of Git provider account.
 
 By granting Read the Docs the requested permissions,
 we are issued a secret OAuth token from your Git provider.
 In the case of GitLab and Bitbucket, we can use the secret token
-to automatically configure repositories during :doc:`project creation </intro/add-project>`.
-We also use the token to send back build statuses and preview URLs for :doc:`pull requests </pull-requests>`.
+to automatically configure repositories during :doc:`project creation </intro/add-project>`,
+for GitHub, you need to install our :ref:`GitHub App <reference/git-integration:GitHub App>` in the repository you want to import.
 
 .. _OAuth: https://en.wikipedia.org/wiki/OAuth
 
 .. note::
 
-   For GitHub we use a GitHub App to interact with your repositories.
-   This means, that you need to install the Read the Docs GitHub App in your repository
-   to enable the automatic configuration.
-
-.. note::
-
-  Access granted to Read the Docs can always be revoked.
-  This is a function offered by all Git providers.
+   Access granted to Read the Docs can always be revoked.
+   This is a function offered by all Git providers.
 
 Git provider integrations
 -------------------------
@@ -167,21 +162,19 @@ so that you can log in to Read the Docs with your connected account credentials.
       
       When installing the Read the Docs GitHub App in a repository, you will be asked to grant the following permissions:
 
-      - Repository permissions:
-
+      Repository permissions
         Commit statuses (read and write)
           This allows Read the Docs to report the status of the build to GitHub.
         Contents (read only)
           This allows Read the Docs to clone the repository and build the documentation.
         Metadata (read only)
           This allows Read the Docs to read the repository collaborators and the permissions they have on the repository.
-          This is used to determine if the user can connect the repository to a Read the Docs project.
+          This is used to determine if the user can connect a repository to a Read the Docs project.
         Pull requests (read and write)
           This allows Read the Docs to subscribe to pull request events,
           and to create a comment on the pull request with information about the build.
         
-      - Organization permissions
-
+      Organization permissions
         Members (read only)
           This allows Read the Docs to read the organization members.
         
@@ -260,13 +253,19 @@ so that you can log in to Read the Docs with your connected account credentials.
 GitHub App
 ----------
 
-.. note::
+Read the Docs used to use a GitHub OAuth application for integration,
+which has been replaced by a `GitHub App <https://docs.github.com/en/apps/overview>`__.
+If you haven't migrated your projects to the new GitHub App,
+we will still use the OAuth application similar to the other Git providers to interact with your repositories,
+we recommend migrating to the GitHub App for a better experience and more granular permissions.
 
-   Read the Docs used to use a GitHub OAuth application for integration,
-   which has been replaced by a `GitHub App <https://docs.github.com/en/apps/overview>`__.
-   If you haven't migrated your projects to the new GitHub App,
-   we will still use the OAuth application similar to the other Git providers to interact with your repositories,
-   we recommend migrating to the GitHub App for a better experience and more granular permissions.
+We have two GitHub Apps, one for each of our platforms:
+
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community>`__.
+- `Read the Docs for Business <https://github.com/apps/read-the-docs-business>`__.
+
+Features
+~~~~~~~~
 
 When using GitHub, Read the Docs uses a GitHub App to interact with your repositories.
 This has the following benefits over using an OAuth application (like the other Git providers):
@@ -283,35 +282,58 @@ This has the following benefits over using an OAuth application (like the other 
 - Never out of sync with changes on your repository.
   The GitHub App subscribes to all required events and will always keep your project up to date with your repository.
 
+Revoking access
+~~~~~~~~~~~~~~~
+
+You can revoke access to the Read the Docs GitHub App at any time from your GitHub settings.
+
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__.
+- `Read the Docs for Business <https://github.com/apps/read-the-docs-business/installations/new/>`__.
+
+There are three ways to revoke access to the Read the Docs GitHub App:
+
+Revoke access to one or more repositories:
+  Remove the repositories from the list of repositories that the GitHub App has access to.
+Suspend the GitHub App:
+  This will suspend the GitHub App and revoke access to all repositories.
+  The installation and configuration will still be available,
+  and you can re-enable the GitHub App at any time.
+Uninstall the GitHub App:
+  This will uninstall the GitHub App and revoke access to all repositories.
+  The installation and configuration will be removed,
+  and you will need to re-install the GitHub App and reconfigure it to use it again.
+
+.. warning::
+
+   If you revoke access to the GitHub App with any of the above methods,
+   all projects linked to that repository will stop working,
+   but the projects and its documentation will still be available.
+   If you grant access to the repository again,
+   you will need to manually connect your project to the repository.
+
 .. _github-permission-troubleshooting:
 
-GitHub permission troubleshooting
----------------------------------
+Troubleshooting
+~~~~~~~~~~~~~~~
 
-**Repositories not in your list to import**.
+**Repository not in the list to import**
 
-Many organizations require approval for each OAuth application that is used,
-or you might have disabled it in the past for your personal account.
-This can happen at the personal or organization level,
-depending on where the project you are trying to access has permissions from.
+Make sure you have installed the corresponding GitHub App in your GitHub account or organization,
+and have granted access to the repository you want to import.
 
-.. tabs::
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__.
+- `Read the Docs for Business <https://github.com/apps/read-the-docs-business/installations/new/>`__.
 
-   .. tab:: Personal Account
+If you still can't see the repository in the list,
+you may need to wait a couple of minutes and refresh the page,
+or click on the "Refresh your repositories" button in the import page.
 
-      You need to make sure that you have granted access to the Read the Docs `OAuth App`_ to your **personal GitHub account**.
-      If you do not see Read the Docs in the `OAuth App`_ settings, you might need to disconnect and reconnect the GitHub service.
+**Repository is in the list, but can't be imported**
 
-      .. seealso:: GitHub docs on `requesting access to your personal OAuth`_ for step-by-step instructions.
+Make sure you have admin access to the repository you are trying to import.
+If you are using |org_brand|, make sure your project is public,
+or use |com_brand| to import private repositories.
 
-      .. _OAuth App: https://github.com/settings/applications
-      .. _requesting access to your personal OAuth: https://docs.github.com/en/organizations/restricting-access-to-your-organizations-data/approving-oauth-apps-for-your-organization
-
-   .. tab:: Organization Account
-
-      You need to make sure that you have granted access to the Read the Docs OAuth App to your **organization GitHub account**.
-      If you don't see "Read the Docs" listed, then you might need to connect GitHub to your social accounts as noted above.
-
-      .. seealso:: GitHub doc on `requesting access to your organization OAuth`_ for step-by-step instructions.
-
-      .. _requesting access to your organization OAuth: https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps
+If you still can't import the repository,
+you may need to wait a couple of minutes and refresh the page,
+or click on the "Refresh your repositories" button in the import page.
