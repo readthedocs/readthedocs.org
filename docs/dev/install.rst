@@ -275,12 +275,14 @@ Configuring GitHub App
 - Activate the webhook, and set the URL to one provided by a service like `Webhook.site <https://docs.webhook.site/cli.html>`__ to forward all incoming webhooks to your local development instance.
   You should forward all events to ``http://devthedocs.org/webhook/githubapp/``.
 - In permissions, select the following:
+
   - Repository permissions: Commit statuses (read and write, so we can create commit statuses),
     Contents (read only, so we can clone repos with a token),
     Metadata (read only, so we read the repo collaborators),
     Pull requests (read and write, so we can post a comment on PRs in the future).
   - Organization permissions: Members (read only so we can read the organization members).
   - Account permissions: Email addresses (read only, so allauth can fetch all verified emails).
+
 - Subscribe to the following events: Installation target, Member, Organization, Membership, Pull request, Push, and Repository.
 - Copy the "Client ID" and "Client Secret" and set them as :ref:`environment variables <settings:Allauth secrets>`.
 - Generate a webhook secret and a private key from the GitHub App settings,
