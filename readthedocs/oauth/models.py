@@ -108,8 +108,10 @@ class GitHubAppInstallation(TimeStampedModel):
         :param repository_ids: List of repository ids (remote ID) to delete.
          If None, all repositories will be considered for deletion.
         """
+        # repository_ids is optionaal (None, which means all repositories),
+        # but if it's an empty list, we don't want to delete anything.
         if repository_ids is not None and not repository_ids:
-            log.info("No repositories to delete")
+            log.info("No remote repositories to delete")
             return
 
         remote_organizations = RemoteOrganization.objects.filter(
@@ -128,7 +130,7 @@ class GitHubAppInstallation(TimeStampedModel):
 
         count, deleted = remote_repositories.delete()
         log.info(
-            "Deleted repositories projects",
+            "Deleted remote repositories",
             count=count,
             deleted=deleted,
             installation_id=self.installation_id,
@@ -139,7 +141,7 @@ class GitHubAppInstallation(TimeStampedModel):
             repositories=None,
         ).delete()
         log.info(
-            "Deleted orphaned organizations",
+            "Deleted orphaned remote organizations",
             count=count,
             deleted=deleted,
             installation_id=self.installation_id,
@@ -152,7 +154,7 @@ class GitHubAppInstallation(TimeStampedModel):
             vcs_provider=GITHUB_APP,
         ).delete()
         log.info(
-            "Deleted organization",
+            "Deleted remote organization",
             count=count,
             deleted=deleted,
             organization_id=organization_id,

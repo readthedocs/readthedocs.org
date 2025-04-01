@@ -39,7 +39,7 @@ class GitHubAppWebhookView(APIView):
     authentication_classes = []
 
     @cached_property
-    def gha_client(self):
+    def gh_app_client(self):
         return get_gh_app_client()
 
     def post(self, request):
@@ -318,6 +318,7 @@ class GitHubAppWebhookView(APIView):
         # - deleted: If the repository was linked to an installation,
         #   GH will be trigger an installation_repositories event.
         # - archived/unarchived: We don't do anything with archived repositories.
+        return
 
     def _handle_push_event(self):
         """
@@ -429,6 +430,7 @@ class GitHubAppWebhookView(APIView):
 
         # Ignore other actions:
         # - member_invited: We don't do anything with invited members.
+        return
 
     def _handle_member_event(self):
         """
@@ -518,7 +520,7 @@ class GitHubAppWebhookView(APIView):
         # so we can create the installation object if needed.
         if not target_id or not target_type:
             log.debug("Incomplete installation object, fetching from the API")
-            gh_installation = self.gha_client.get_app_installation(installation_id)
+            gh_installation = self.gh_app_client.get_app_installation(installation_id)
             target_id = gh_installation.target_id
             target_type = gh_installation.target_type
             data = data.copy()

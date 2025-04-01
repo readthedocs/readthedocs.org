@@ -37,7 +37,7 @@ class GitHubAppService(Service):
         self.installation = installation
 
     @cached_property
-    def gha_client(self):
+    def gh_app_client(self):
         return get_gh_app_client()
 
     @cached_property
@@ -45,18 +45,18 @@ class GitHubAppService(Service):
         """
         Return the installation object from the GitHub API.
 
-        Usefull to interact with installation related endpoints.
+        Useful to interact with installation related endpoints.
 
         If the installation is no longer accessible, this will raise a GithubException.
         """
-        return self.gha_client.get_app_installation(
+        return self.gh_app_client.get_app_installation(
             self.installation.installation_id,
         )
 
     @cached_property
     def installation_client(self) -> Github:
         """Return a client authenticated as the GitHub installation to interact with the GH API."""
-        return self.gha_client.get_github_for_installation(self.installation.installation_id)
+        return self.gh_app_client.get_github_for_installation(self.installation.installation_id)
 
     @classmethod
     def for_project(cls, project):
@@ -96,7 +96,7 @@ class GitHubAppService(Service):
 
            User access tokens expire after 8 hours, but our OAuth2 client should handle refreshing the token.
            But, the refresh token expires after 6 months, in order to refresh that token,
-           the user needs to sign in using GitHub again (just a normal sing-in, not a re-authorization or sign-up).
+           the user needs to sign in using GitHub again (just a normal sign in, not a re-authorization or sign-up).
         """
         social_accounts = SocialAccount.objects.filter(
             user=user,
@@ -229,6 +229,7 @@ class GitHubAppService(Service):
 
     def update_or_create_repositories(self, repository_ids: list[int]):
         """Update or create repositories from the given list of repository IDs."""
+        repositories_to_delete = []
         for repository_id in repository_ids:
             try:
                 # NOTE: we save the repository ID as a string in our database,
@@ -245,9 +246,12 @@ class GitHubAppService(Service):
                 # we remove the repository from the database,
                 # and clean up the collaborators and relations.
                 if e.status in [404, 403]:
-                    self.installation.delete_repositories([repository_id])
+                    repositories_to_delete.append(repository_id)
                 continue
             self._create_or_update_repository_from_gh(repo)
+
+        if repositories_to_delete:
+            self.installation.delete_repositories(repositories_to_delete)
 
     def _create_or_update_repository_from_gh(
         self, gh_repo: GHRepository
@@ -349,6 +353,8 @@ class GitHubAppService(Service):
         Sync collaborators of a repository with the database.
 
         This method will remove collaborators that are no longer in the list.
+
+        See https://docs.github.com/en/rest/collaborators/collaborators?apiVersion=2022-11-28#list-repository-collaborators.
         """
         collaborators = {
             collaborator.id: collaborator for collaborator in gh_repo.get_collaborators()
@@ -453,7 +459,7 @@ class GitHubAppService(Service):
         # We can also pass a specific permissions object to get a token with specific permissions
         # if we want to scope this token even more.
         try:
-            access_token = self.gha_client.get_access_token(self.installation.installation_id)
+            access_token = self.gh_app_client.get_access_token(self.installation.installation_id)
             return f"x-access-token:{access_token.token}"
         except GithubException:
             log.info(
