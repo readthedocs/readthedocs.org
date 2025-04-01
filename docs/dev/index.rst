@@ -29,5 +29,6 @@ or taking the open source Read the Docs codebase for your own custom installatio
    server-side-search
    search-integration
    subscriptions
+   github-app
    settings
    tests

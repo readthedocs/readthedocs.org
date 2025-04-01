@@ -34,7 +34,7 @@ class Service:
     vcs_provider_slug: str
     allauth_provider = type[OAuth2Provider]
 
-    url_pattern: re.Pattern | None
+    url_pattern: re.Pattern | None = None
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
     supports_build_status = False
@@ -104,6 +104,10 @@ class Service:
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
+        raise NotImplementedError
+
+    def get_clone_token(self, project):
+        """Get a token used for cloning the repository."""
         raise NotImplementedError
 
     @classmethod
@@ -326,3 +330,7 @@ class UserService(Service):
 
     def sync_organizations(self):
         raise NotImplementedError
+
+    def get_clone_token(self, project):
+        """User services make use of SSH keys only for cloning."""
+        return None
