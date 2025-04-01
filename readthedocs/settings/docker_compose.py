@@ -177,10 +177,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
     RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage"
-    # Storage backend for build cached environments
-    RTD_BUILD_ENVIRONMENT_STORAGE = (
-        "readthedocs.storage.s3_storage.S3BuildEnvironmentStorage"
-    )
     # Storage backend for build languages
     RTD_BUILD_TOOLS_STORAGE = "readthedocs.storage.s3_storage.S3BuildToolsStorage"
     # Storage for static files (those collected with `collectstatic`)
@@ -191,7 +187,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     AWS_SECRET_ACCESS_KEY = "password"
     S3_MEDIA_STORAGE_BUCKET = "media"
     S3_BUILD_COMMANDS_STORAGE_BUCKET = "builds"
-    S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = "envs"
     S3_BUILD_TOOLS_STORAGE_BUCKET = "build-tools"
     S3_STATIC_STORAGE_BUCKET = "static"
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
