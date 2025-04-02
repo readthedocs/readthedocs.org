@@ -45,6 +45,7 @@ class S3BuildMediaStorage(OverrideHostnameMixin, S3BuildMediaStorageMixin):
 
     bucket_name = getattr(settings, "S3_MEDIA_STORAGE_BUCKET", None)
     override_hostname = getattr(settings, "S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME", None)
+    supports_credentials = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

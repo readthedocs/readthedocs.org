@@ -886,29 +886,28 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.version.project.has_valid_clone = True
 
     def _get_sync_media_storage(self):
+        """
+        Get a storage class instance to use for syncing build artifacts.
+
+        .. note::
+
+           We no longer use readthedocs.storage.build_media_storage directly,
+           as we are now using per-build credentials for S3 storage,
+           so we need to dynamically create the storage class instance
+        """
         storage_class = import_string(settings.RTD_BUILD_MEDIA_STORAGE)
-        extra_kwargs = self._get_extra_kwargs_for_storage()
-        log.info("Credentials for storage", extra_kwargs=extra_kwargs)
+        extra_kwargs = {}
+        if storage_class.supports_credentials:
+            extra_kwargs = self._get_s3_scoped_credentials()
         return storage_class(**extra_kwargs)
 
-    def _get_extra_kwargs_for_storage(self):
-        extra_kwargs = {}
-        if self.data.project.has_feature(Feature.USE_SCOPED_CREDENTIALS_FOR_BUILD_MEDIA_UPLOAD):
-            credentials = self._get_scoped_credentials()
-            s3_credentials = credentials["s3"]
-            extra_kwargs.update(
-                {
-                    "access_key": s3_credentials["access_key_id"],
-                    "secret_key": s3_credentials["secret_access_key"],
-                    "security_token": s3_credentials["session_token"],
-                }
-            )
-        return extra_kwargs
+    def _get_s3_scoped_credentials(self):
+        if not self.data.project.has_feature(Feature.USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS):
+            return {}
 
-    def _get_scoped_credentials(self):
         build_id = self.data.build["id"]
         try:
-            return self.data.api_client.build(f"{build_id}/temporary-credentials").post()
+            credentials = self.data.api_client.build(f"{build_id}/temporary-credentials").post()
         except Exception:
             log.exception(
                 "Error getting scoped credentials.",
@@ -918,6 +917,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 BuildAppError.GENERIC_WITH_BUILD_ID,
                 exception_message="Error getting scoped credentials.",
             )
+
+        s3_credentials = credentials["s3"]
+        return {
+            "access_key": s3_credentials["access_key_id"],
+            "secret_key": s3_credentials["secret_access_key"],
+            "security_token": s3_credentials["session_token"],
+        }
 
     def store_build_artifacts(self):
         """

@@ -1932,9 +1932,7 @@ class Feature(models.Model):
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
-    USE_SCOPED_CREDENTIALS_FOR_BUILD_MEDIA_UPLOAD = (
-        "use_s3_scoped_credentials_for_build_media_upload"
-    )
+    USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
 
     FEATURES = (
         (
@@ -2014,7 +2012,7 @@ class Feature(models.Model):
             _("Build: Set scale-in protection before/after building."),
         ),
         (
-            USE_SCOPED_CREDENTIALS_FOR_BUILD_MEDIA_UPLOAD,
+            USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS,
             _("Build: Use S3 scoped credentials for uploading build artifacts."),
         ),
     )

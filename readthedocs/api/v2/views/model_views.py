@@ -355,6 +355,11 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         url_path="temporary-credentials",
     )
     def temporary_credentials(self, request, **kwargs):
+        """
+        Generate temporary credentials for the build.
+
+        This can generate temporary credentials for interacting with S3 only for now.
+        """
         build = self.get_object()
         project = build.project
         version = build.version
@@ -363,6 +368,8 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
                 project=project,
                 version=version,
                 session_id=build.pk,
+                # 30 minutes should be enough to upload all build artifacts.
+                duration=30 * 60,
             )
         except AWSTemporaryCredentialsError:
             return Response(
