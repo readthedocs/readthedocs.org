@@ -32,10 +32,6 @@ class BuildMediaStorageMixin:
     # that will serve files from this storage.
     internal_redirect_root_path = "proxito"
 
-    # If the storage backend supports passing credentials in their init method.
-    # Mainly used for S3.
-    supports_credentials = False
-
     @staticmethod
     def _dirpath(path):
         """

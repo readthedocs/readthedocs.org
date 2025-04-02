@@ -419,8 +419,6 @@ class CommunityBaseSettings(Settings):
     ]
     PYTHON_MEDIA = False
 
-    RTD_USE_SCOPED_CREDENTIALS_ON_BUILDS = False
-
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = "readthedocs.builds.storage.BuildMediaFileSystemStorage"
@@ -1090,3 +1088,7 @@ class CommunityBaseSettings(Settings):
     }
 
     S3_PROVIDER = "AWS"
+
+    def USING_AWS(self):
+        """Return True if we are using AWS as our storage/cloud provider."""
+        return self.S3_PROVIDER == "AWS"

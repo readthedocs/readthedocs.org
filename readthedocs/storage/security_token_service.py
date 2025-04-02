@@ -70,10 +70,11 @@ def get_s3_scoped_credentials(
 
     .. note::
 
-       If RTD_USE_SCOPED_CREDENTIALS_ON_BUILDS is set to False, this function will return
+       If USING_AWS is set to False, this function will return
        the values of the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY settings.
+       Useful for local development where we use minio.
     """
-    if not settings.RTD_USE_SCOPED_CREDENTIALS_ON_BUILDS:
+    if not settings.USING_AWS:
         return AWSTemporaryCredentials(
             access_key_id=settings.AWS_ACCESS_KEY_ID,
             secret_access_key=settings.AWS_SECRET_ACCESS_KEY,

@@ -897,12 +897,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         """
         storage_class = import_string(settings.RTD_BUILD_MEDIA_STORAGE)
         extra_kwargs = {}
-        if storage_class.supports_credentials:
+        if settings.USING_AWS:
             extra_kwargs = self._get_s3_scoped_credentials()
         return storage_class(**extra_kwargs)
 
     def _get_s3_scoped_credentials(self):
         if not self.data.project.has_feature(Feature.USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS):
+            # Use the default credentials defined in the settings.
             return {}
 
         build_id = self.data.build["id"]
