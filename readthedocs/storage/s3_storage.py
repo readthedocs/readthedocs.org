@@ -32,6 +32,7 @@ class S3BuildMediaStorageMixin(BuildMediaStorageMixin, S3Boto3Storage):
             bucket_name=self.bucket_name,
             access_key_id=self.access_key,
             secret_acces_key=self.secret_key,
+            session_token=self.security_token,
             region=self.region_name or "",
             acl=self.default_acl,
             endpoint=self.endpoint_url,

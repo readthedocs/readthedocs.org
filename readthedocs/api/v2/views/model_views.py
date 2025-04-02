@@ -1,6 +1,7 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
 import json
+from dataclasses import asdict
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
@@ -38,6 +39,8 @@ from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_commands_storage
+from readthedocs.storage.security_token_service import AWSTemporaryCredentialsError
+from readthedocs.storage.security_token_service import get_s3_scoped_credentials
 
 from ..serializers import BuildAdminReadOnlySerializer
 from ..serializers import BuildAdminSerializer
@@ -344,6 +347,29 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     def get_queryset_for_api_key(self, api_key):
         return self.model.objects.filter(project=api_key.project)
+
+    @decorators.action(
+        detail=True,
+        permission_classes=[HasBuildAPIKey],
+        methods=["post"],
+        url_path="temporary-credentials",
+    )
+    def temporary_credentials(self, request, **kwargs):
+        build = self.get_object()
+        project = build.project
+        version = build.version
+        try:
+            credentials = get_s3_scoped_credentials(
+                project=project,
+                version=version,
+                session_id=build.pk,
+            )
+        except AWSTemporaryCredentialsError:
+            return Response(
+                {"error": "Failed to generate temporary credentials"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        return Response({"s3": asdict(credentials)})
 
 
 class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):

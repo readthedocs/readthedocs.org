@@ -18,6 +18,7 @@ import structlog
 from celery import Task
 from django.conf import settings
 from django.utils import timezone
+from django.utils.module_loading import import_string
 from slumber import API
 from slumber.exceptions import HttpClientError
 
@@ -53,7 +54,6 @@ from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
-from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
@@ -885,6 +885,40 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
 
+    def _get_sync_media_storage(self):
+        storage_class = import_string(settings.RTD_BUILD_MEDIA_STORAGE)
+        extra_kwargs = self._get_extra_kwargs_for_storage()
+        log.info("Credentials for storage", extra_kwargs=extra_kwargs)
+        return storage_class(**extra_kwargs)
+
+    def _get_extra_kwargs_for_storage(self):
+        extra_kwargs = {}
+        if self.data.project.has_feature(Feature.USE_SCOPED_CREDENTIALS_FOR_BUILD_MEDIA_UPLOAD):
+            credentials = self._get_scoped_credentials()
+            s3_credentials = credentials["s3"]
+            extra_kwargs.update(
+                {
+                    "access_key": s3_credentials["access_key_id"],
+                    "secret_key": s3_credentials["secret_access_key"],
+                    "security_token": s3_credentials["session_token"],
+                }
+            )
+        return extra_kwargs
+
+    def _get_scoped_credentials(self):
+        build_id = self.data.build["id"]
+        try:
+            return self.data.api_client.build(f"{build_id}/temporary-credentials").post()
+        except Exception:
+            log.exception(
+                "Error getting scoped credentials.",
+                build_id=build_id,
+            )
+            raise BuildAppError(
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message="Error getting scoped credentials.",
+            )
+
     def store_build_artifacts(self):
         """
         Save build artifacts to "storage" using Django's storage API.
@@ -903,6 +937,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         types_to_copy = []
         types_to_delete = []
+
+        build_media_storage = self._get_sync_media_storage()
 
         for artifact_type in ARTIFACT_TYPES:
             if artifact_type in valid_artifacts:
