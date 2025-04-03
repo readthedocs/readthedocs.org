@@ -660,7 +660,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         assert BuildData.objects.all().exists()
 
-        self.mocker.mocks["build_media_storage"].rclone_sync_directory.assert_has_calls(
+        self.mocker.mocks["get_sync_media_storage"]().rclone_sync_directory.assert_has_calls(
             [
                 mock.call(mock.ANY, "html/project/latest"),
                 mock.call(mock.ANY, "json/project/latest"),
