@@ -167,6 +167,21 @@ providers using the following environment variables:
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_SECRET
 
+AWS configuration
+~~~~~~~~~~~~~~~~~
+
+The following variables can be used to use AWS in your local environment.
+
+.. envvar:: RTD_S3_PROVIDER
+.. envvar:: RTD_AWS_ACCESS_KEY_ID
+.. envvar:: RTD_AWS_SECRET_ACCESS_KEY
+.. envvar:: RTD_AWS_STS_ASSUME_ROLE_ARN
+.. envvar:: RTD_S3_MEDIA_STORAGE_BUCKET
+.. envvar:: RTD_S3_BUILD_COMMANDS_STORAGE_BUCKET
+.. envvar:: RTD_S3_BUILD_TOOLS_STORAGE_BUCKET
+.. envvar:: RTD_S3_STATIC_STORAGE_BUCKET
+.. envvar:: RTD_AWS_S3_REGION_NAME
+
 Stripe secrets
 ~~~~~~~~~~~~~~
 
