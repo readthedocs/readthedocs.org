@@ -677,7 +677,6 @@ class TestBuildTask(BuildEnvironmentBase):
         DOCROOT="/tmp/readthedocs-tests/git-repository/",
         RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage",
         S3_MEDIA_STORAGE_BUCKET="readthedocs-test",
-        # S3_PROVIDER="AWS",
     )
     @mock.patch("readthedocs.projects.tasks.builds.shutil")
     @mock.patch("readthedocs.projects.tasks.builds.index_build")
@@ -950,8 +949,6 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call(mock.ANY, "epub/project/latest"),
             ]
         )
-        # TODO: find a directory to remove here :)
-        # build_media_storage.delete_directory
 
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
