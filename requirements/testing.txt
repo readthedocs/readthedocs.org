@@ -26,11 +26,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.37.18
+boto3==1.37.23
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.37.18
+botocore==1.37.23
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -128,7 +128,7 @@ django==4.2.20
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.5.0
+django-allauth[mfa,saml,socialaccount]==65.6.0
     # via -r requirements/pip.txt
 django-annoying==0.10.7
     # via -r requirements/pip.txt
@@ -182,7 +182,7 @@ django-timezone-field==7.1
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.15.2
+djangorestframework==3.16.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -257,7 +257,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.5.0
+kombu==5.5.1
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -279,7 +279,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.15
+orjson==3.10.16
     # via -r requirements/pip.txt
 packaging==24.2
     # via
@@ -315,9 +315,9 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.6
+pydantic==2.11.1
     # via -r requirements/pip.txt
-pydantic-core==2.27.2
+pydantic-core==2.33.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -365,7 +365,7 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2025.1
+pytz==2025.2
     # via -r requirements/pip.txt
 pyyaml==6.0.2
     # via -r requirements/pip.txt
@@ -450,7 +450,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-typing-extensions==4.12.2
+typing-extensions==4.13.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -459,6 +459,11 @@ typing-extensions==4.12.2
     #   pydantic
     #   pydantic-core
     #   sphinx
+    #   typing-inspection
+typing-inspection==0.4.0
+    # via
+    #   -r requirements/pip.txt
+    #   pydantic
 tzdata==2025.1
     # via
     #   -r requirements/pip.txt
