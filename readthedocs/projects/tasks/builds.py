@@ -895,11 +895,25 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
            as we are now using per-build credentials for S3 storage,
            so we need to dynamically create the storage class instance
         """
-        storage_class = import_string(settings.RTD_BUILD_MEDIA_STORAGE)
+        storage_class = self._get_sync_media_storage_class()
         extra_kwargs = {}
         if settings.USING_AWS:
             extra_kwargs = self._get_s3_scoped_credentials()
         return storage_class(**extra_kwargs)
+
+    def _get_sync_media_storage_class(self):
+        """
+        Get a storage class to use for syncing build artifacts.
+
+        This is done in a separate method to make it easier to mock in tests.
+
+        .. note::
+
+           We no longer use readthedocs.storage.build_media_storage directly,
+           as we are now using per-build credentials for S3 storage,
+           so we need to dynamically create the storage class instance
+        """
+        return import_string(settings.RTD_BUILD_MEDIA_STORAGE)
 
     def _get_s3_scoped_credentials(self):
         if not self.data.project.has_feature(Feature.USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS):
