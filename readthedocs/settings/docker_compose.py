@@ -177,10 +177,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
     RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage"
-    # Storage backend for build cached environments
-    RTD_BUILD_ENVIRONMENT_STORAGE = (
-        "readthedocs.storage.s3_storage.S3BuildEnvironmentStorage"
-    )
     # Storage backend for build languages
     RTD_BUILD_TOOLS_STORAGE = "readthedocs.storage.s3_storage.S3BuildToolsStorage"
     # Storage for static files (those collected with `collectstatic`)
