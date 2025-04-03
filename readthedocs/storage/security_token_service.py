@@ -25,8 +25,6 @@ import boto3
 import structlog
 from django.conf import settings
 
-from readthedocs.storage import build_media_storage
-
 
 log = structlog.get_logger(__name__)
 
@@ -82,9 +80,7 @@ def get_s3_scoped_credentials(
             session_token=None,
         )
 
-    bucket_name = build_media_storage.bucket_name
-    bucket_arn = f"arn:aws:s3:::{bucket_name}"
-
+    bucket_arn = f"arn:aws:s3:::{settings.S3_MEDIA_STORAGE_BUCKET}"
     storage_paths = version.get_storage_paths()
     # Generate the list of allowed prefix resources
     # The resulting prefix looks like:
