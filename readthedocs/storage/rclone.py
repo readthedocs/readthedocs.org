@@ -170,9 +170,10 @@ class RCloneS3Remote(BaseRClone):
         self,
         bucket_name,
         access_key_id,
-        secret_acces_key,
+        secret_access_key,
         region,
         provider="AWS",
+        session_token=None,
         acl=None,
         endpoint=None,
     ):
@@ -181,10 +182,12 @@ class RCloneS3Remote(BaseRClone):
         self.env_vars = {
             "RCLONE_S3_PROVIDER": provider,
             "RCLONE_S3_ACCESS_KEY_ID": access_key_id,
-            "RCLONE_S3_SECRET_ACCESS_KEY": secret_acces_key,
+            "RCLONE_S3_SECRET_ACCESS_KEY": secret_access_key,
             "RCLONE_S3_REGION": region,
             "RCLONE_S3_LOCATION_CONSTRAINT": region,
         }
+        if session_token:
+            self.env_vars["RCLONE_S3_SESSION_TOKEN"] = session_token
         if acl:
             self.env_vars["RCLONE_S3_ACL"] = acl
         if endpoint:
