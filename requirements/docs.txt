@@ -37,7 +37,7 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.56.0
+fonttools==4.57.0
     # via matplotlib
 h11==0.14.0
     # via uvicorn
@@ -85,7 +85,7 @@ pygments==2.19.1
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==3.2.1
+pyparsing==3.2.3
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
@@ -157,11 +157,11 @@ sphinxcontrib-video @ git+https://github.com/readthedocs/sphinxcontrib-video/
     # via -r requirements/docs.in
 sphinxemoji==0.3.1
     # via -r requirements/docs.in
-sphinxext-opengraph==0.9.1
+sphinxext-opengraph==0.10.0
     # via -r requirements/docs.in
 starlette==0.46.1
     # via sphinx-autobuild
-typing-extensions==4.12.2
+typing-extensions==4.13.1
     # via anyio
 urllib3==2.3.0
     # via

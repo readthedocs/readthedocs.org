@@ -129,7 +129,9 @@ django-storages[boto3]==1.14.3
 django-debug-toolbar
 
 # For enabling content-security-policy
-django-csp
+# Pinned to 3.8 because we need to take some manual actions before upgrading to 4.x
+# https://django-csp.readthedocs.io/en/latest/configuration.html#migrating-from-django-csp-3-8
+django-csp==3.8
 
 # Upgrading to 3.x requires some extra work
 # https://django-structlog.readthedocs.io/en/latest/upgrade_guide.html#upgrading-to-3-0

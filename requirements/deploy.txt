@@ -24,18 +24,18 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.37.18
+boto3==1.37.28
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.37.18
+botocore==1.37.28
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2024.1130
     # via -r requirements/pip.txt
-celery==5.4.0
+celery==5.5.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -128,9 +128,9 @@ django==4.2.20
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.5.0
+django-allauth[mfa,saml,socialaccount]==65.7.0
     # via -r requirements/pip.txt
-django-annoying==0.10.7
+django-annoying==0.10.8
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
@@ -156,7 +156,7 @@ django-formtools==2.5.1
     # via -r requirements/pip.txt
 django-gravatar2==1.4.5
     # via -r requirements/pip.txt
-django-impersonate==1.9.4
+django-impersonate==1.9.5
     # via -r requirements/pip.txt
 django-ipware==5.0.2
     # via
@@ -180,12 +180,12 @@ django-timezone-field==7.1
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.15.2
+djangorestframework==3.16.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
     #   rest-framework-generic-relations
-djangorestframework-api-key==3.0.0
+djangorestframework-api-key==3.1.0
     # via -r requirements/pip.txt
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
@@ -253,7 +253,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.5.0
+kombu==5.5.2
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -261,7 +261,7 @@ lexid==2021.1006
     # via
     #   -r requirements/pip.txt
     #   bumpver
-lxml==5.3.1
+lxml==5.3.2
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -271,13 +271,13 @@ markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==10.7.0
+newrelic==10.8.1
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.15
+orjson==3.10.16
     # via -r requirements/pip.txt
 packaging==24.2
     # via
@@ -316,9 +316,9 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.6
+pydantic==2.11.2
     # via -r requirements/pip.txt
-pydantic-core==2.27.2
+pydantic-core==2.33.1
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -355,11 +355,11 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2025.1
+pytz==2025.2
     # via -r requirements/pip.txt
 pyyaml==6.0.2
     # via -r requirements/pip.txt
-qrcode==8.0
+qrcode==8.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -393,7 +393,7 @@ s3transfer==0.11.4
     #   boto3
 selectolax==0.3.28
     # via -r requirements/pip.txt
-sentry-sdk==2.24.0
+sentry-sdk==2.25.1
     # via structlog-sentry
 six==1.17.0
     # via
@@ -430,7 +430,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.12.2
+typing-extensions==4.13.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -438,11 +438,14 @@ typing-extensions==4.12.2
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
-    #   pygithub
-tzdata==2025.1
+    #   typing-inspection
+typing-inspection==0.4.0
     # via
     #   -r requirements/pip.txt
-    #   celery
+    #   pydantic
+tzdata==2025.2
+    # via
+    #   -r requirements/pip.txt
     #   django-celery-beat
     #   kombu
 ua-parser==1.0.1
@@ -476,7 +479,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.29.3
+virtualenv==20.30.0
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via
