@@ -169,7 +169,6 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
-    CACHEOPS_REDIS = f"redis://:redispassword@cache:6379/1"
     BROKER_URL = f"redis://:redispassword@cache:6379/0"
 
     CELERY_ALWAYS_EAGER = False

@@ -145,8 +145,6 @@ dparse
 
 gunicorn
 
-django-cacheops
-
 # Used by Addons for sorting patterns
 bumpver
 
