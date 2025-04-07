@@ -142,7 +142,7 @@ django-cors-headers==4.7.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
-django-csp==4.0
+django-csp==3.8
     # via -r requirements/pip.txt
 django-debug-toolbar==5.1.0
     # via -r requirements/pip.txt
@@ -284,7 +284,6 @@ orjson==3.10.16
 packaging==24.2
     # via
     #   -r requirements/pip.txt
-    #   django-csp
     #   djangorestframework-api-key
     #   dparse
     #   gunicorn
