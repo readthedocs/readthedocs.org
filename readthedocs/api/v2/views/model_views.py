@@ -28,6 +28,8 @@ from readthedocs.api.v2.permissions import HasBuildAPIKey
 from readthedocs.api.v2.permissions import IsOwner
 from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
+from readthedocs.aws.security_token_service import get_s3_scoped_credentials
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
@@ -39,8 +41,6 @@ from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_commands_storage
-from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
-from readthedocs.aws.security_token_service import get_s3_scoped_credentials
 
 from ..serializers import BuildAdminReadOnlySerializer
 from ..serializers import BuildAdminSerializer
