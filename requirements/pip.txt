@@ -93,8 +93,6 @@ django-annoying==0.10.8
     # via -r requirements/pip.in
 django-autoslug==1.9.9
     # via -r requirements/pip.in
-django-cacheops==7.1
-    # via -r requirements/pip.in
 django-celery-beat==2.7.0
     # via -r requirements/pip.in
 django-cors-headers==4.7.0
