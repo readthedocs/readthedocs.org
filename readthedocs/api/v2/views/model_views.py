@@ -39,8 +39,8 @@ from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_commands_storage
-from readthedocs.storage.security_token_service import AWSTemporaryCredentialsError
-from readthedocs.storage.security_token_service import get_s3_scoped_credentials
+from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
+from readthedocs.aws.security_token_service import get_s3_scoped_credentials
 
 from ..serializers import BuildAdminReadOnlySerializer
 from ..serializers import BuildAdminSerializer

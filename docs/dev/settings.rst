@@ -171,6 +171,7 @@ AWS configuration
 ~~~~~~~~~~~~~~~~~
 
 The following variables can be used to use AWS in your local environment.
+Useful for testing :doc:`temporary credentials </aws-temporary-credentials>`.
 
 .. envvar:: RTD_S3_PROVIDER
 .. envvar:: RTD_AWS_ACCESS_KEY_ID

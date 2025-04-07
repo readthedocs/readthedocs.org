@@ -7,7 +7,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.projects.models import Project
-from readthedocs.storage.security_token_service import (
+from readthedocs.aws.security_token_service import (
     AWSTemporaryCredentials,
     get_s3_scoped_credentials,
 )
@@ -30,7 +30,7 @@ class TestSecurityTokenService(TestCase):
         )
         self.version = self.project.versions.first()
 
-    @override_settings(S3_PROVIDER="minio")
+    @override_settings(USING_AWS=False)
     def test_get_s3_global_credentials(self):
         credentials = get_s3_scoped_credentials(
             project=self.project,
@@ -42,7 +42,7 @@ class TestSecurityTokenService(TestCase):
             session_token=None,
         )
 
-    @mock.patch("readthedocs.storage.security_token_service.boto3.client")
+    @mock.patch("readthedocs.aws.security_token_service.boto3.client")
     def test_get_s3_scoped_credentials(self, boto3_client):
         boto3_client().assume_role.return_value = {
             "Credentials": {
@@ -110,7 +110,7 @@ class TestSecurityTokenService(TestCase):
             DurationSeconds=900,
         )
 
-    @mock.patch("readthedocs.storage.security_token_service.boto3.client")
+    @mock.patch("readthedocs.aws.security_token_service.boto3.client")
     def test_get_s3_scoped_credentials_external_version(self, boto3_client):
         self.version.type = EXTERNAL
         self.version.save()

@@ -16,6 +16,7 @@ See:
 - https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html
 - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_sts-comparison.html
 - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_control-access_assumerole.html
+- https://docs.readthedocs.com/dev/latest/aws-temporary-credentials.html
 """
 
 import json

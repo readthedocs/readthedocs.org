@@ -154,7 +154,10 @@ class RCloneS3Remote(BaseRClone):
 
     :params bucket_name: Name of the S3 bucket.
     :params access_key_id: AWS access key id.
-    :params secret_acces_key: AWS secret access key.
+    :params secret_access_key: AWS secret access key.
+    :params session_token: AWS session token,
+     useful for temporary credentials from AWS STS.
+     See https://docs.readthedocs.com/dev/latest/aws-temporary-credentials.html.
     :params region: AWS region.
     :params provider: S3 provider, defaults to ``AWS``.
      Useful to use Minio during development.

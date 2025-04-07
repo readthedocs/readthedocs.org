@@ -70,7 +70,7 @@ from readthedocs.projects.models import (
     Feature,
     Project,
 )
-from readthedocs.storage.security_token_service import AWSTemporaryCredentials
+from readthedocs.aws.security_token_service import AWSTemporaryCredentials
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
