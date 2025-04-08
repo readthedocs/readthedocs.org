@@ -145,8 +145,9 @@ class APIBuildTests(TestCase):
         self.assertEqual(build.commands.count(), 0)
         self.assertEqual(build.notifications.count(), 0)
 
+    @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_tools_scoped_credentials")
     @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_media_scoped_credentials")
-    def test_get_temporary_credentials_for_build(self, get_s3_build_media_scoped_credentials):
+    def test_get_temporary_credentials_for_build(self, get_s3_build_media_scoped_credentials, get_s3_build_tools_scoped_credentials):
         build = get(
             Build,
             project=self.project,
@@ -183,6 +184,30 @@ class APIBuildTests(TestCase):
         }
 
         get_s3_build_media_scoped_credentials.assert_called_once_with(
+            build=build,
+            duration=60 * 30,
+        )
+
+        get_s3_build_tools_scoped_credentials.return_value = AWSS3TemporaryCredentials(
+            access_key_id="access_key_id",
+            secret_access_key="secret_access_key",
+            session_token="session_token",
+            region_name="us-east-1",
+            bucket_name="readthedocs-build-tools",
+        )
+        r = client.post(reverse("build-temporary-credentials-for-storage", args=(build.pk,)), {"type": "build_tools"})
+        assert r.status_code == 200
+        assert r.data == {
+            "s3": {
+                "access_key_id": "access_key_id",
+                "secret_access_key": "secret_access_key",
+                "session_token": "session_token",
+                "region_name": "us-east-1",
+                "bucket_name": "readthedocs-build-tools",
+            }
+        }
+
+        get_s3_build_tools_scoped_credentials.assert_called_once_with(
             build=build,
             duration=60 * 30,
         )

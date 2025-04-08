@@ -115,7 +115,10 @@ def get_s3_build_media_scoped_credentials(
     duration=60 * 15,
 ) -> AWSS3TemporaryCredentials:
     """
-    :param build: The build to get the credentials for.
+    Get temporary credentials with read/write access to the build media bucket.
+
+    The credentials are scoped to the paths that the build needs to access.
+
     :duration: The duration of the credentials in seconds. Default is 15 minutes.
      Note that the minimum duration time is 15 minutes and the maximum is given by the role (defaults to 1 hour).
     """
@@ -186,6 +189,8 @@ def get_s3_build_tools_scoped_credentials(
     duration=60 * 15,
 ) -> AWSS3TemporaryCredentials:
     """
+    Get temporary credentials with read-only access to the build-tools bucket.
+
     :param build: The build to get the credentials for.
     :duration: The duration of the credentials in seconds. Default is 15 minutes.
      Note that the minimum duration time is 15 minutes and the maximum is given by the role (defaults to 1 hour).
