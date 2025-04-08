@@ -31,7 +31,8 @@ from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.signals import after_build
 from readthedocs.projects.signals import before_build
 from readthedocs.projects.signals import before_vcs
-from readthedocs.storage import build_tools_storage
+from readthedocs.projects.tasks.storage import StorageType
+from readthedocs.projects.tasks.storage import get_storage
 
 
 log = structlog.get_logger(__name__)
@@ -521,6 +522,8 @@ class BuildDirector:
                 *cmd,
                 record=False,
             )
+
+        build_tools_storage = get_storage(self.data, StorageType.build_tools)
 
         for tool, version in self.data.config.build.tools.items():
             full_version = version.full_version  # e.g. 3.9 -> 3.9.7

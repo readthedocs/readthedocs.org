@@ -661,7 +661,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         assert BuildData.objects.all().exists()
 
-        self.mocker.mocks["get_sync_media_storage_class"]()().rclone_sync_directory.assert_has_calls(
+        self.mocker.mocks["get_build_media_storage_class"]()().rclone_sync_directory.assert_has_calls(
             [
                 mock.call(mock.ANY, "html/project/latest"),
                 mock.call(mock.ANY, "json/project/latest"),
@@ -881,8 +881,16 @@ class TestBuildTask(BuildEnvironmentBase):
                 },
             },
         }
-        # Update build state: building
+
+        # Get temporary credentials
+        assert self.requests_mock.request_history[6]._request.method == "POST"
+        assert self.requests_mock.request_history[6].path == "/api/v2/build/1/temporary-credentials/storage/"
         assert self.requests_mock.request_history[6].json() == {
+            "type": "build_tools",
+        }
+
+        # Update build state: building
+        assert self.requests_mock.request_history[7].json() == {
             "id": 1,
             "state": "building",
             "commit": "a1b2c3",
@@ -892,7 +900,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "error": "",
         }
         # Update build state: uploading
-        assert self.requests_mock.request_history[7].json() == {
+        assert self.requests_mock.request_history[8].json() == {
             "id": 1,
             "state": "uploading",
             "commit": "a1b2c3",
@@ -903,13 +911,16 @@ class TestBuildTask(BuildEnvironmentBase):
         }
 
         # Get temporary credentials
-        assert self.requests_mock.request_history[8]._request.method == "POST"
-        assert self.requests_mock.request_history[8].path == "/api/v2/build/1/temporary-credentials/"
+        assert self.requests_mock.request_history[9]._request.method == "POST"
+        assert self.requests_mock.request_history[9].path == "/api/v2/build/1/temporary-credentials/storage/"
+        assert self.requests_mock.request_history[9].json() == {
+            "type": "build_media",
+        }
 
         # Update version state
-        assert self.requests_mock.request_history[9]._request.method == "PATCH"
-        assert self.requests_mock.request_history[9].path == "/api/v2/version/1/"
-        assert self.requests_mock.request_history[9].json() == {
+        assert self.requests_mock.request_history[10]._request.method == "PATCH"
+        assert self.requests_mock.request_history[10].path == "/api/v2/version/1/"
+        assert self.requests_mock.request_history[10].json() == {
             "addons": False,
             "build_data": None,
             "built": True,
@@ -919,11 +930,11 @@ class TestBuildTask(BuildEnvironmentBase):
             "has_htmlzip": True,
         }
         # Set project has valid clone
-        assert self.requests_mock.request_history[10]._request.method == "PATCH"
-        assert self.requests_mock.request_history[10].path == "/api/v2/project/1/"
-        assert self.requests_mock.request_history[10].json() == {"has_valid_clone": True}
+        assert self.requests_mock.request_history[11]._request.method == "PATCH"
+        assert self.requests_mock.request_history[11].path == "/api/v2/project/1/"
+        assert self.requests_mock.request_history[11].json() == {"has_valid_clone": True}
         # Update build state: finished, success and builder
-        assert self.requests_mock.request_history[11].json() == {
+        assert self.requests_mock.request_history[12].json() == {
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
@@ -935,12 +946,12 @@ class TestBuildTask(BuildEnvironmentBase):
             "error": "",
         }
 
-        assert self.requests_mock.request_history[12]._request.method == "POST"
-        assert self.requests_mock.request_history[12].path == "/api/v2/revoke/"
+        assert self.requests_mock.request_history[13]._request.method == "POST"
+        assert self.requests_mock.request_history[13].path == "/api/v2/revoke/"
 
         assert BuildData.objects.all().exists()
 
-        self.mocker.mocks["get_sync_media_storage_class"]()().rclone_sync_directory.assert_has_calls(
+        self.mocker.mocks["get_build_media_storage_class"]()().rclone_sync_directory.assert_has_calls(
             [
                 mock.call(mock.ANY, "html/project/latest"),
                 mock.call(mock.ANY, "json/project/latest"),
@@ -1828,9 +1839,9 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.tarfile")
-    @mock.patch("readthedocs.doc_builder.director.build_tools_storage")
+    @mock.patch("readthedocs.projects.tasks.storage._get_build_tools_storage_class")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_build_tools_cached(self, load_yaml_config, build_tools_storage, tarfile):
+    def test_build_tools_cached(self, load_yaml_config, get_build_tools_storage_class, tarfile):
         config = BuildConfigV2(
             {
                 "version": 2,
@@ -1849,8 +1860,8 @@ class TestBuildTask(BuildEnvironmentBase):
         config.validate()
         load_yaml_config.return_value = config
 
-        build_tools_storage.open.return_value = b""
-        build_tools_storage.exists.return_value = True
+        get_build_tools_storage_class()().open.return_value = b""
+        get_build_tools_storage_class()().exists.return_value = True
         tarfile.open.return_value.__enter__.return_value.extract_all.return_value = None
 
         self._trigger_update_docs_task()

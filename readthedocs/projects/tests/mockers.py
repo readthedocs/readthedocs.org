@@ -160,7 +160,7 @@ class BuildEnvironmentMocker:
         # )
 
     def _mock_storage(self):
-        self.patches["get_sync_media_storage_class"] = mock.patch.object(UpdateDocsTask, "_get_sync_media_storage_class")
+        self.patches["get_build_media_storage_class"] = mock.patch("readthedocs.projects.tasks.storage._get_build_media_storage_class")
 
     def _mock_api(self):
         headers = {"Content-Type": "application/json"}
@@ -225,13 +225,15 @@ class BuildEnvironmentMocker:
         )
 
         self.requestsmock.post(
-            f"{settings.SLUMBER_API_HOST}/api/v2/build/{self.build.pk}/temporary-credentials/",
+            f"{settings.SLUMBER_API_HOST}/api/v2/build/{self.build.pk}/temporary-credentials/storage/",
             status_code=201,
             json={
                 "s3": {
                     "access_key_id": "some-access-key",
                     "secret_access_key": "some-secret-key",
                     "session_token": "some-session-token",
+                    "bucket_name": "some-bucket-name",
+                    "region_name": "us-east-1",
                 }
             },
             headers=headers,

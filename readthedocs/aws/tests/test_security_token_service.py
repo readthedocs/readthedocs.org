@@ -6,10 +6,12 @@ from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Build
 from readthedocs.projects.models import Project
 from readthedocs.aws.security_token_service import (
-    AWSTemporaryCredentials,
-    get_s3_scoped_credentials,
+    AWSS3TemporaryCredentials,
+    get_s3_build_media_scoped_credentials,
+    get_s3_build_tools_scoped_credentials,
 )
 
 
@@ -29,21 +31,25 @@ class TestSecurityTokenService(TestCase):
             users=[self.user],
         )
         self.version = self.project.versions.first()
+        self.build = get(
+            Build,
+            version=self.version,
+            project=self.project,
+        )
 
     @override_settings(USING_AWS=False)
-    def test_get_s3_global_credentials(self):
-        credentials = get_s3_scoped_credentials(
-            project=self.project,
-            version=self.version,
-        )
-        assert credentials == AWSTemporaryCredentials(
+    def test_get_s3_build_media_global_credentials(self):
+        credentials = get_s3_build_media_scoped_credentials(build=self.build)
+        assert credentials == AWSS3TemporaryCredentials(
             access_key_id="global_access_key_id",
             secret_access_key="global_secret_access_key",
             session_token=None,
+            region_name="us-east-1",
+            bucket_name="readthedocs-media",
         )
 
     @mock.patch("readthedocs.aws.security_token_service.boto3.client")
-    def test_get_s3_scoped_credentials(self, boto3_client):
+    def test_get_s3_build_media_scoped_credentials(self, boto3_client):
         boto3_client().assume_role.return_value = {
             "Credentials": {
                 "AccessKeyId": "access_key_id",
@@ -51,15 +57,13 @@ class TestSecurityTokenService(TestCase):
                 "SessionToken": "session_token",
             }
         }
-        credentials = get_s3_scoped_credentials(
-            project=self.project,
-            version=self.version,
-            session_id="1234",
-        )
-        assert credentials == AWSTemporaryCredentials(
+        credentials = get_s3_build_media_scoped_credentials(build=self.build)
+        assert credentials == AWSS3TemporaryCredentials(
             access_key_id="access_key_id",
             secret_access_key="secret_access_key",
             session_token="session_token",
+            region_name="us-east-1",
+            bucket_name="readthedocs-media",
         )
 
         policy = {
@@ -105,13 +109,13 @@ class TestSecurityTokenService(TestCase):
 
         boto3_client().assume_role.assert_called_once_with(
             RoleArn="arn:aws:iam::1234:role/RoleName",
-            RoleSessionName="rtd-1234-project-latest",
+            RoleSessionName=f"rtd-{self.build.id}-project-latest",
             Policy=json.dumps(policy),
             DurationSeconds=900,
         )
 
     @mock.patch("readthedocs.aws.security_token_service.boto3.client")
-    def test_get_s3_scoped_credentials_external_version(self, boto3_client):
+    def test_get_s3_build_media_scoped_credentials_external_version(self, boto3_client):
         self.version.type = EXTERNAL
         self.version.save()
 
@@ -122,15 +126,13 @@ class TestSecurityTokenService(TestCase):
                 "SessionToken": "session_token",
             }
         }
-        credentials = get_s3_scoped_credentials(
-            project=self.project,
-            version=self.version,
-            session_id="1234",
-        )
-        assert credentials == AWSTemporaryCredentials(
+        credentials = get_s3_build_media_scoped_credentials(build=self.build)
+        assert credentials == AWSS3TemporaryCredentials(
             access_key_id="access_key_id",
             secret_access_key="secret_access_key",
             session_token="session_token",
+            region_name="us-east-1",
+            bucket_name="readthedocs-media",
         )
 
         policy = {
@@ -176,7 +178,7 @@ class TestSecurityTokenService(TestCase):
 
         boto3_client().assume_role.assert_called_once_with(
             RoleArn="arn:aws:iam::1234:role/RoleName",
-            RoleSessionName="rtd-1234-project-latest",
+            RoleSessionName=f"rtd-{self.build.id}-project-latest",
             Policy=json.dumps(policy),
             DurationSeconds=900,
         )

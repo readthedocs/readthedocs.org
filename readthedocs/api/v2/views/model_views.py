@@ -29,7 +29,8 @@ from readthedocs.api.v2.permissions import IsOwner
 from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
-from readthedocs.aws.security_token_service import get_s3_scoped_credentials
+from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
+from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
@@ -352,25 +353,33 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         detail=True,
         permission_classes=[HasBuildAPIKey],
         methods=["post"],
-        url_path="temporary-credentials",
+        url_path="temporary-credentials/storage",
     )
-    def temporary_credentials(self, request, **kwargs):
+    def temporary_credentials_for_storage(self, request, **kwargs):
         """
-        Generate temporary credentials for the build.
+        Generate temporary credentials for interacting with storage.
 
         This can generate temporary credentials for interacting with S3 only for now.
         """
         build = self.get_object()
-        project = build.project
-        version = build.version
-        try:
-            credentials = get_s3_scoped_credentials(
-                project=project,
-                version=version,
-                session_id=build.pk,
-                # 30 minutes should be enough to upload all build artifacts.
-                duration=30 * 60,
+        credentials_type = request.data.get("type")
+
+        if credentials_type == "build_media":
+            method = get_s3_build_media_scoped_credentials
+            # 30 minutes should be enough for uploading build artifacts.
+            duration = 30 * 60
+        elif credentials_type == "build_tools":
+            method = get_s3_build_tools_scoped_credentials
+            # 30 minutes should be enough for downloading build tools.
+            duration = 30 * 60
+        else:
+            return Response(
+                {"error": "Invalid storage type"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+
+        try:
+            credentials = method(build=build, duration=duration)
         except AWSTemporaryCredentialsError:
             return Response(
                 {"error": "Failed to generate temporary credentials"},

@@ -18,7 +18,6 @@ import structlog
 from celery import Task
 from django.conf import settings
 from django.utils import timezone
-from django.utils.module_loading import import_string
 from slumber import API
 from slumber.exceptions import HttpClientError
 
@@ -54,6 +53,8 @@ from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
+from readthedocs.projects.tasks.storage import StorageType
+from readthedocs.projects.tasks.storage import get_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
@@ -885,61 +886,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
 
-    def _get_sync_media_storage(self):
-        """
-        Get a storage class instance to use for syncing build artifacts.
-
-        .. note::
-
-           We no longer use readthedocs.storage.build_media_storage directly,
-           as we are now using per-build credentials for S3 storage,
-           so we need to dynamically create the storage class instance
-        """
-        storage_class = self._get_sync_media_storage_class()
-        extra_kwargs = {}
-        if settings.USING_AWS:
-            extra_kwargs = self._get_s3_scoped_credentials()
-        return storage_class(**extra_kwargs)
-
-    def _get_sync_media_storage_class(self):
-        """
-        Get a storage class to use for syncing build artifacts.
-
-        This is done in a separate method to make it easier to mock in tests.
-
-        .. note::
-
-           We no longer use readthedocs.storage.build_media_storage directly,
-           as we are now using per-build credentials for S3 storage,
-           so we need to dynamically create the storage class instance
-        """
-        return import_string(settings.RTD_BUILD_MEDIA_STORAGE)
-
-    def _get_s3_scoped_credentials(self):
-        if not self.data.project.has_feature(Feature.USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS):
-            # Use the default credentials defined in the settings.
-            return {}
-
-        build_id = self.data.build["id"]
-        try:
-            credentials = self.data.api_client.build(f"{build_id}/temporary-credentials").post()
-        except Exception:
-            log.exception(
-                "Error getting scoped credentials.",
-                build_id=build_id,
-            )
-            raise BuildAppError(
-                BuildAppError.GENERIC_WITH_BUILD_ID,
-                exception_message="Error getting scoped credentials.",
-            )
-
-        s3_credentials = credentials["s3"]
-        return {
-            "access_key": s3_credentials["access_key_id"],
-            "secret_key": s3_credentials["secret_access_key"],
-            "security_token": s3_credentials["session_token"],
-        }
-
     def store_build_artifacts(self):
         """
         Save build artifacts to "storage" using Django's storage API.
@@ -959,7 +905,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_copy = []
         types_to_delete = []
 
-        build_media_storage = self._get_sync_media_storage()
+        build_media_storage = get_storage(self.data, StorageType.build_media)
 
         for artifact_type in ARTIFACT_TYPES:
             if artifact_type in valid_artifacts:
