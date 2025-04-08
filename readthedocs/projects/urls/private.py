@@ -244,7 +244,7 @@ urlpatterns += domain_urls
 
 addons_urls = [
     re_path(
-        r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
+        r"^(?P<project_slug>[-\w]+)/addons/edit/$",
         AddonsConfigUpdate.as_view(),
         name="projects_addons",
     ),
