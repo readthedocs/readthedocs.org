@@ -479,9 +479,8 @@ class UpdateProjectForm(
                 self.fields.pop(field)
 
         # Remove analytics from new dashboard
-        if settings.RTD_EXT_THEME_ENABLED:
-            for field in ["analytics_code", "analytics_disabled"]:
-                self.fields.pop(field)
+        for field in ["analytics_code", "analytics_disabled"]:
+            self.fields.pop(field)
 
         default_choice = (None, "-" * 9)
         versions_choices = (

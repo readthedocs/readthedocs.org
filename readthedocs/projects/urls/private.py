@@ -1,6 +1,5 @@
 """Project URLs for authenticated users."""
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls import re_path
@@ -211,19 +210,12 @@ urlpatterns = [
         PageNotFoundView.as_view(),
         name="projects_keys",
     ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/version/create/$",
+        ProjectVersionCreate.as_view(),
+        name="project_version_create",
+    ),
 ]
-
-# TODO move this up to the list above when it's not a conditional URL.
-# Currently, this is only used by the new theme, we don't allow for "create" in
-# our current templates.
-if settings.RTD_EXT_THEME_ENABLED:
-    urlpatterns.append(
-        re_path(
-            r"^(?P<project_slug>[-\w]+)/version/create/$",
-            ProjectVersionCreate.as_view(),
-            name="project_version_create",
-        ),
-    )
 
 domain_urls = [
     re_path(
@@ -250,17 +242,15 @@ domain_urls = [
 
 urlpatterns += domain_urls
 
-# We are allowing users to enable the new addons only from the new dashboard
-if settings.RTD_EXT_THEME_ENABLED:
-    addons_urls = [
-        re_path(
-            r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
-            AddonsConfigUpdate.as_view(),
-            name="projects_addons",
-        ),
-    ]
+addons_urls = [
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
+        AddonsConfigUpdate.as_view(),
+        name="projects_addons",
+    ),
+]
 
-    urlpatterns += addons_urls
+urlpatterns += addons_urls
 
 integration_urls = [
     re_path(

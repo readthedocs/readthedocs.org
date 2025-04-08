@@ -121,12 +121,11 @@ class ProjectDetailViewBase(
 
         # Get filtered and sorted versions
         versions = self._get_versions(project)
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset(
-                queryset=versions,
-                project=project,
-            )
-            versions = self.get_filtered_queryset()
+        context["filter"] = self.get_filterset(
+            queryset=versions,
+            project=project,
+        )
+        versions = self.get_filtered_queryset()
         context["versions"] = versions
 
         protocol = "http"
