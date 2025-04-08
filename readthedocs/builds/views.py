@@ -17,6 +17,7 @@ from requests.utils import quote
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
@@ -53,6 +54,12 @@ class BuildList(
 ):
     filterset_class = BuildListFilter
 
+    def _get_versions(self, project):
+        return Version.internal.public(
+            user=self.request.user,
+            project=project,
+        )
+
     def get_project(self):
         # Call ``.get_queryset()`` to get the current project from ``kwargs``
         self.get_queryset()
@@ -73,11 +80,12 @@ class BuildList(
         context["active_builds"] = active_builds
         context["versions"] = self._get_versions(self.project)
 
-        builds = self.get_filtered_queryset()
+        builds = self.get_queryset()
         context["filter"] = self.get_filterset(
             queryset=builds,
             project=self.project,
         )
+        builds = self.get_filtered_queryset()
         context["build_qs"] = builds
 
         return context
