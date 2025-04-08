@@ -280,7 +280,6 @@ class CommunityBaseSettings(Settings):
             "readthedocs.telemetry",
             "readthedocs.domains",
             "readthedocs.invitations",
-            "readthedocsext.theme",
             # allauth
             "allauth",
             "allauth.account",
@@ -302,6 +301,9 @@ class CommunityBaseSettings(Settings):
             apps.append("readthedocsext.spamfighting")
         if self.SHOW_DEBUG_TOOLBAR:
             apps.append("debug_toolbar")
+
+        if ext_theme:
+            apps.append("readthedocsext.theme")
 
         return apps
 
@@ -412,13 +414,15 @@ class CommunityBaseSettings(Settings):
     @property
     def TEMPLATES(self):
         dirs = [self.TEMPLATE_ROOT]
-        dirs.insert(
-            0,
-            os.path.join(
-                os.path.dirname(readthedocsext.theme.__file__),
-                "templates",
-            ),
-        )
+
+        if ext_theme:
+            dirs.insert(
+                0,
+                os.path.join(
+                    os.path.dirname(readthedocsext.theme.__file__),
+                    "templates",
+                ),
+            )
 
         # Disable ``cached.Loader`` on development
         # https://docs.djangoproject.com/en/4.2/ref/templates/api/#django.template.loaders.cached.Loader
