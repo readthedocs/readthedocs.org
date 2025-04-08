@@ -1,3 +1,21 @@
+Version 12.0.3
+--------------
+
+:Date: April 08, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: Remove cacheops (`#12087 <https://github.com/readthedocs/readthedocs.org/pull/12087>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12083 <https://github.com/readthedocs/readthedocs.org/pull/12083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Storage: remove build environment storage (`#12077 <https://github.com/readthedocs/readthedocs.org/pull/12077>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12075 <https://github.com/readthedocs/readthedocs.org/pull/12075>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: mention fine-grained personal access token for GitHub (`#12074 <https://github.com/readthedocs/readthedocs.org/pull/12074>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Requirements: use xmlsec with `--no-binary` option" (`#12071 <https://github.com/readthedocs/readthedocs.org/pull/12071>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add models for GitHub App (`#12070 <https://github.com/readthedocs/readthedocs.org/pull/12070>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 12.0.2 (`#12068 <https://github.com/readthedocs/readthedocs.org/pull/12068>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12065 <https://github.com/readthedocs/readthedocs.org/pull/12065>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code (`#12060 <https://github.com/readthedocs/readthedocs.org/pull/12060>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: use xmlsec with `--no-binary` option (`#12056 <https://github.com/readthedocs/readthedocs.org/pull/12056>`__)
+* `@stsewd <https://github.com/stsewd>`__: Webhooks: refactor branch/tag building (`#12014 <https://github.com/readthedocs/readthedocs.org/pull/12014>`__)
+
 Version 12.0.2
 --------------
 
