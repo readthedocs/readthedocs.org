@@ -264,7 +264,7 @@ markdown==3.7
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
-newrelic==10.8.1
+newrelic==10.7.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
