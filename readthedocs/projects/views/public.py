@@ -29,7 +29,6 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
@@ -97,7 +96,6 @@ class ProjectDetailViewBase(
     FilterContextMixin,
     ProjectSpamMixin,
     ProjectRelationListMixin,
-    BuildTriggerMixin,
     ProjectOnboardMixin,
     DetailView,
 ):
@@ -107,6 +105,12 @@ class ProjectDetailViewBase(
     slug_url_kwarg = "project_slug"
 
     filterset_class = ProjectVersionListFilterSet
+
+    def _get_versions(self, project):
+        return Version.internal.public(
+            user=self.request.user,
+            project=project,
+        )
 
     def get_queryset(self):
         return Project.objects.public(self.request.user)
