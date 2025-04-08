@@ -16,11 +16,6 @@ class ConfiguredBuildMediaStorage(LazyObject):
         self._wrapped = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
 
-class ConfiguredBuildEnvironmentStorage(LazyObject):
-    def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
-
-
 class ConfiguredBuildCommandsStorage(LazyObject):
     def _setup(self):
         self._wrapped = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
@@ -37,7 +32,6 @@ class ConfiguredStaticStorage(LazyObject):
 
 
 build_media_storage = ConfiguredBuildMediaStorage()
-build_environment_storage = ConfiguredBuildEnvironmentStorage()
 build_commands_storage = ConfiguredBuildCommandsStorage()
 build_tools_storage = ConfiguredBuildToolsStorage()
 staticfiles_storage = ConfiguredStaticStorage()
