@@ -217,8 +217,8 @@ class GitHubAppService(Service):
             raise SyncServiceError()
 
         remote_repositories = []
-        for repo in app_installation.get_repos():
-            remote_repo = self._create_or_update_repository_from_gh(repo)
+        for gh_repo in app_installation.get_repos():
+            remote_repo = self._create_or_update_repository_from_gh(gh_repo)
             if remote_repo:
                 remote_repositories.append(remote_repo)
 
@@ -265,7 +265,7 @@ class GitHubAppService(Service):
         target_id = self.installation.target_id
         target_type = self.installation.target_type
         # NOTE: All the repositories should be owned by the installation account.
-        # This should never happen, unless this assumption is wrong.
+        # he following condition should never happen, unless the previous assumption is wrong.
         if gh_repo.owner.id != target_id or gh_repo.owner.type != target_type:
             log.exception(
                 "Repository owner does not match the installation account",
@@ -292,13 +292,13 @@ class GitHubAppService(Service):
         remote_repo.clone_url = gh_repo.clone_url
 
         # NOTE: Only one installation of our APP should give access to a repository.
-        # This should only happen if our data is out of sync.
+        # The following condition should only happen if our data is out of sync.
         if (
             remote_repo.github_app_installation
             and remote_repo.github_app_installation != self.installation
         ):
             log.info(
-                "Repository linked to another installation",
+                "Repository linked to another installation. Our data may be out of sync.",
                 repository_id=remote_repo.remote_id,
                 old_installation_id=remote_repo.github_app_installation.installation_id,
                 new_installation_id=self.installation.installation_id,

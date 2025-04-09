@@ -95,7 +95,7 @@ class GitHubAppInstallation(TimeStampedModel):
         return GitHubAppService(self)
 
     def delete(self, *args, **kwargs):
-        """Override delete method to remove orphaned organizations."""
+        """Override delete method to remove orphaned remote organizations."""
         self.delete_repositories()
         return super().delete(*args, **kwargs)
 
@@ -108,7 +108,7 @@ class GitHubAppInstallation(TimeStampedModel):
         :param repository_ids: List of repository ids (remote ID) to delete.
          If None, all repositories will be considered for deletion.
         """
-        # repository_ids is optionaal (None, which means all repositories),
+        # repository_ids is optional (None, which means all repositories),
         # but if it's an empty list, we don't want to delete anything.
         if repository_ids is not None and not repository_ids:
             log.info("No remote repositories to delete")
@@ -134,6 +134,8 @@ class GitHubAppInstallation(TimeStampedModel):
             count=count,
             deleted=deleted,
             installation_id=self.installation_id,
+            target_id=self.target_id,
+            target_type=self.target_type,
         )
 
         count, deleted = RemoteOrganization.objects.filter(
@@ -145,10 +147,12 @@ class GitHubAppInstallation(TimeStampedModel):
             count=count,
             deleted=deleted,
             installation_id=self.installation_id,
+            target_id=self.target_id,
+            target_type=self.target_type,
         )
 
     def delete_organization(self, organization_id: int):
-        """Delete an organization and all its repositories and relations from the database."""
+        """Delete a remote organization and all its remote repositories and relations from the database."""
         count, deleted = RemoteOrganization.objects.filter(
             remote_id=str(organization_id),
             vcs_provider=GITHUB_APP,
@@ -159,6 +163,8 @@ class GitHubAppInstallation(TimeStampedModel):
             deleted=deleted,
             organization_id=organization_id,
             installation_id=self.installation_id,
+            target_id=self.target_id,
+            target_type=self.target_type,
         )
 
 
