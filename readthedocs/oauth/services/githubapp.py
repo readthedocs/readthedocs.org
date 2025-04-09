@@ -1,5 +1,6 @@
 from functools import cached_property
 from functools import lru_cache
+from itertools import groupby
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
@@ -154,9 +155,16 @@ class GitHubAppService(Service):
             remote_repository_relations__user=user,
             vcs_provider=cls.vcs_provider_slug,
         )
-        for repository in queryset:
-            service = cls(repository.github_app_installation)
-            service.update_or_create_repositories([int(repository.remote_id)])
+        # Group by github_app_installation, so we don't create multiple clients.
+        grouped_installations = groupby(
+            queryset,
+            key=lambda x: x.github_app_installation,
+        )
+        for installation, remote_repos in grouped_installations:
+            service = cls(installation)
+            service.update_or_create_repositories(
+                [int(remote_repo.remote_id) for remote_repo in remote_repos]
+            )
 
         # Update access to each organization the user has access to.
         queryset = RemoteOrganization.objects.filter(
