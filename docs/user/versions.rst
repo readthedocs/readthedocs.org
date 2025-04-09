@@ -98,7 +98,7 @@ A version slug is automatically generated from the name of the branch or tag in 
 some characters like spaces and ``/`` are replaced with a dash (``-``), and the name is lowercased.
 If the resulting slug collides with another one, a suffix is added (``_a``, ``_b``, etc.).
 
-You can change the slug of a version in :ref:`the versions tab of your project <versions:Managing your version>`,
+You can change the slug of a version in :ref:`the versions tab of your project <versions:Managing your versions>`,
 but you should take the following into account:
 
 - Changing the slug of an active version will result on its previous documentation being deleted, and a new build being triggered.
