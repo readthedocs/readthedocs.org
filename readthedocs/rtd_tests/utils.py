@@ -197,7 +197,7 @@ def get_git_latest_commit_hash(directory, branch):
     chdir(directory)
 
     command = ["git", "rev-parse", branch]
-    return check_output(command, env=env).strip()
+    return check_output(command, env=env).decode().strip()
 
 
 @restoring_chdir

@@ -49,18 +49,13 @@ class BaseVCS:
 
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
-    def __init__(
-        self, project, version_slug, environment, verbose_name=None, version_type=None, **kwargs
-    ):
+    def __init__(self, project, version, environment, **kwargs):
         self.default_branch = project.default_branch
         self.project = project
+        self.version = version
         self.name = project.name
         self.repo_url = project.clean_repo
-        self.working_dir = project.checkout_path(version_slug)
-        # required for External versions
-        self.verbose_name = verbose_name
-        self.version_type = version_type
-
+        self.working_dir = project.checkout_path(self.version.slug)
         self.environment = environment
 
     def check_working_dir(self):
