@@ -219,6 +219,11 @@ class DockerBaseSettings(CommunityBaseSettings):
                 pass
         return providers
 
+    GITHUB_APP_ID = os.environ.get("RTD_GITHUB_APP_ID")
+    GITHUB_APP_NAME = os.environ.get("RTD_GITHUB_APP_NAME")
+    GITHUB_APP_WEBHOOK_SECRET = os.environ.get("RTD_GITHUB_APP_WEBHOOK_SECRET")
+    GITHUB_APP_PRIVATE_KEY = os.environ.get("RTD_GITHUB_APP_PRIVATE_KEY")
+
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"
     BUILD_COLD_STORAGE_URL = "http://storage:9000/builds"
