@@ -79,7 +79,9 @@ colorama==0.4.6
     #   -r requirements/pip.txt
     #   bumpver
 coverage[toml]==7.8.0
-    # via pytest-cov
+    # via
+    #   django-coverage-plugin
+    #   pytest-cov
 cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
@@ -138,6 +140,8 @@ django-celery-beat==2.7.0
     # via -r requirements/pip.txt
 django-cors-headers==4.7.0
     # via -r requirements/pip.txt
+django-coverage-plugin==3.1.0
+    # via -r requirements/testing.in
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
