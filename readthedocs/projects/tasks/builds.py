@@ -53,7 +53,8 @@ from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
-from readthedocs.storage import build_media_storage
+from readthedocs.projects.tasks.storage import StorageType
+from readthedocs.projects.tasks.storage import get_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
@@ -903,6 +904,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         types_to_copy = []
         types_to_delete = []
+
+        build_media_storage = get_storage(self.data, StorageType.build_media)
 
         for artifact_type in ARTIFACT_TYPES:
             if artifact_type in valid_artifacts:
