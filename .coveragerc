@@ -10,6 +10,7 @@ omit =
   rtd_tests/*
   */**/tests/**
   wsgi.py
+plugins = django_coverage_plugin
 
 [report]
 exclude_lines =

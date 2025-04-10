@@ -12,3 +12,5 @@ pytest-cov
 pytest-mock
 
 requests-mock
+
+django_coverage_plugin

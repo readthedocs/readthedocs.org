@@ -38,6 +38,15 @@ class CommunityTestSettings(CommunityBaseSettings):
     }
 
     @property
+    def TEMPLATES(self):
+        templates = super().TEMPLATES
+
+        # Set DEBUG on templates to allow running Django coverage plugin
+        templates[0]["OPTIONS"]["debug"] = True
+
+        return templates
+
+    @property
     def PASSWORD_HASHERS(self):
         # Speed up tests by using a fast password hasher as the default.
         # https://docs.djangoproject.com/en/5.0/topics/testing/overview/#speeding-up-the-tests.
