@@ -91,11 +91,11 @@ You can change the state for each version of your documentation in the :guilabel
 Version URL identifier (slug)
 -----------------------------
 
-Each version of your project has a unique URL identifier (slug),
-this identifier is used to reference the version in your documentation, :term:`dashboard`, and :doc:`API </api/index>`.
+Each version of your project has a unique URL identifier (slug).
+This identifier is used to reference the version in your documentation, :term:`dashboard`, and :doc:`API </api/index>`.
 
 A version slug is automatically generated from the name of the branch or tag in your repository,
-some characters like spaces and ``/`` are replaced with a dash (``-``), and the name is lowercased.
+some special characters like spaces and ``/`` are replaced with a dash (``-``), and the name is lowercased.
 If the resulting slug collides with another one, a suffix is added (``_a``, ``_b``, etc.).
 
 You can change the slug of a version in :ref:`the versions tab of your project <versions:Managing your versions>`,
@@ -107,6 +107,7 @@ but you should take the following into account:
   You can use :ref:`an exact redirect <user-defined-redirects:Redirecting an old version to a new one>` to redirect users to the new URL,
 - You may still see the original name of the version in some places,
   as changing the slug only affects the URL used in your documentation and how the APIs identify that version.
+  `We are considering adding another field to be used for display in the future <https://github.com/readthedocs/readthedocs.org/issues/11979>`__.
 - Sorting of versions in the version selector is done based on the slug,
   changing the slug of a version may change the order in which they are shown to your users.
   `We are considering adding another field to be used for sorting in the future <https://github.com/readthedocs/readthedocs.org/issues/11979>`__.
