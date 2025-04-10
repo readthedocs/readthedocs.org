@@ -97,14 +97,6 @@ class CommunityBaseSettings(Settings):
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
 
-    @property
-    def SWITCH_PRODUCTION_DOMAIN(self):
-        if self.RTD_EXT_THEME_ENABLED:
-            return self.PRODUCTION_DOMAIN.removeprefix("app.")
-        if not self.PRODUCTION_DOMAIN.startswith("app."):
-            return f"app.{self.PRODUCTION_DOMAIN}"
-        return self.PRODUCTION_DOMAIN
-
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
     SPHINX_BACKEND = "readthedocs.doc_builder.backends.sphinx"
@@ -228,10 +220,6 @@ class CommunityBaseSettings(Settings):
 
     DOC_PATH_PREFIX = "_/"
 
-    @property
-    def RTD_EXT_THEME_ENABLED(self):
-        return ext_theme and "RTD_EXT_THEME_ENABLED" in os.environ
-
     RTD_EXT_THEME_DEV_SERVER = None
 
     # Application classes
@@ -311,24 +299,21 @@ class CommunityBaseSettings(Settings):
             apps.append("readthedocsext.cdn")
             apps.append("readthedocsext.donate")
             apps.append("readthedocsext.spamfighting")
-        if self.RTD_EXT_THEME_ENABLED:
-            apps.append("readthedocsext.theme")
         if self.SHOW_DEBUG_TOOLBAR:
             apps.append("debug_toolbar")
+
+        if ext_theme:
+            apps.append("readthedocsext.theme")
 
         return apps
 
     @property
     def CRISPY_TEMPLATE_PACK(self):
-        if self.RTD_EXT_THEME_ENABLED:
-            return "semantic-ui"
-        return "bootstrap"
+        return "semantic-ui"
 
     @property
     def CRISPY_ALLOWED_TEMPLATE_PACKS(self):
-        if self.RTD_EXT_THEME_ENABLED:
-            return ("semantic-ui",)
-        return ("bootstrap", "uni_form", "bootstrap3", "bootstrap4")
+        return ("semantic-ui",)
 
     @property
     def USE_PROMOS(self):  # noqa
@@ -408,7 +393,6 @@ class CommunityBaseSettings(Settings):
     ADMIN_MEDIA_PREFIX = "/media/admin/"
     ADMIN_URL = "/admin"
     STATICFILES_DIRS = [
-        os.path.join(SITE_ROOT, "readthedocs", "static"),
         os.path.join(SITE_ROOT, "media"),
     ]
     STATICFILES_FINDERS = [
@@ -430,7 +414,8 @@ class CommunityBaseSettings(Settings):
     @property
     def TEMPLATES(self):
         dirs = [self.TEMPLATE_ROOT]
-        if self.RTD_EXT_THEME_ENABLED:
+
+        if ext_theme:
             dirs.insert(
                 0,
                 os.path.join(

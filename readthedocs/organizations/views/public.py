@@ -2,7 +2,6 @@
 
 # pylint: disable=too-many-ancestors
 import structlog
-from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.urls import reverse_lazy
@@ -17,7 +16,6 @@ from readthedocs.notifications.models import Notification
 from readthedocs.organizations.filters import OrganizationProjectListFilterSet
 from readthedocs.organizations.filters import OrganizationTeamListFilterSet
 from readthedocs.organizations.filters import OrganizationTeamMemberListFilterSet
-from readthedocs.organizations.models import Team
 from readthedocs.organizations.views.base import CheckOrganizationsEnabled
 from readthedocs.organizations.views.base import OrganizationMixin
 from readthedocs.organizations.views.base import OrganizationTeamMemberView
@@ -49,20 +47,11 @@ class DetailOrganization(FilterContextMixin, OrganizationView, DetailView):
         context = super().get_context_data(**kwargs)
         org = self.get_object()
         projects = Project.objects.for_user(self.request.user).filter(organizations=org).all()
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset(
-                queryset=projects,
-                organization=org,
-            )
-            projects = self.get_filtered_queryset()
-        else:
-            teams = (
-                Team.objects.member(self.request.user, organization=org)
-                .prefetch_related("organization")
-                .all()
-            )
-            context["teams"] = teams
-            context["owners"] = org.owners.all()
+        context["filter"] = self.get_filterset(
+            queryset=projects,
+            organization=org,
+        )
+        projects = self.get_filtered_queryset()
 
         context["projects"] = projects
         context["notifications"] = Notification.objects.for_user(
@@ -83,11 +72,10 @@ class ListOrganizationMembers(FilterContextMixin, OrganizationMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset(
-                organization=self.get_organization(),
-            )
-            context[self.get_context_object_name()] = self.get_filtered_queryset()
+        context["filter"] = self.get_filterset(
+            organization=self.get_organization(),
+        )
+        context[self.get_context_object_name()] = self.get_filtered_queryset()
         return context
 
     def get_queryset(self):
@@ -113,16 +101,13 @@ class ListOrganizationTeams(FilterContextMixin, OrganizationTeamView, ListView):
         context = super().get_context_data(**kwargs)
         org = self.get_organization()
 
-        if settings.RTD_EXT_THEME_ENABLED:
-            # TODO the team queryset, used through ``get_queryset()`` defines
-            # sorting. Sorting should only happen in the filterset, so it can be
-            # controlled in the UI.
-            context["filter"] = self.get_filterset(
-                organization=org,
-            )
-            context[self.get_context_object_name()] = self.get_filtered_queryset()
-        else:
-            context["owners"] = org.owners.all()
+        # TODO the team queryset, used through ``get_queryset()`` defines
+        # sorting. Sorting should only happen in the filterset, so it can be
+        # controlled in the UI.
+        context["filter"] = self.get_filterset(
+            organization=org,
+        )
+        context[self.get_context_object_name()] = self.get_filtered_queryset()
         return context
 
 

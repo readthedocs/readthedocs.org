@@ -367,16 +367,6 @@ class TestPublicViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.external_version, response.context["versions"])
 
-    @pytest.mark.skipif(
-        settings.RTD_EXT_THEME_ENABLED, reason="Not applicable for new theme"
-    )
-    def test_project_versions_only_shows_internal_versons(self):
-        url = reverse("project_version_list", args=[self.pip.slug])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn(self.external_version, response.context["active_versions"])
-        self.assertNotIn(self.external_version, response.context["inactive_versions"])
-
     @mock.patch(
         "readthedocs.projects.views.base.ProjectSpamMixin.is_show_dashboard_denied_wrapper",
         mock.MagicMock(return_value=True),

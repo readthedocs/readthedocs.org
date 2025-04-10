@@ -76,9 +76,8 @@ class ListOrganization(FilterContextMixin, PrivateViewMixin, OrganizationView, L
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset()
-            context["organization_list"] = self.get_filtered_queryset()
+        context["filter"] = self.get_filterset()
+        context["organization_list"] = self.get_filtered_queryset()
         return context
 
 

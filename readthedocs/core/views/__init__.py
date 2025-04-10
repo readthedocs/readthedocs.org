@@ -48,9 +48,8 @@ class HomepageView(TemplateView):
     template_name = "homepage.html"
 
     def get(self, request, *args, **kwargs):
-        # Redirect to login page for new dashboard
-        if settings.RTD_EXT_THEME_ENABLED:
-            return redirect(reverse("account_login"))
+        # Redirect to login page
+        return redirect(reverse("account_login"))
 
         # Redirect to user dashboard for logged in users
         if request.user.is_authenticated:
@@ -78,10 +77,7 @@ class SupportView(PrivateViewMixin, TemplateView):
         """Pass along endpoint for support form."""
         context = super().get_context_data(**kwargs)
         context["SUPPORT_FORM_ENDPOINT"] = settings.SUPPORT_FORM_ENDPOINT
-
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["form"] = self.form_class(self.request.user)
-
+        context["form"] = self.form_class(self.request.user)
         return context
 
 
