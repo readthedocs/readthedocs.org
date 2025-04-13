@@ -78,7 +78,7 @@ packaging==24.2
     #   sphinx
 pbr==6.1.1
     # via sphinxcontrib-video
-pillow==11.1.0
+pillow==11.2.1
     # via matplotlib
 pygments==2.19.1
     # via
@@ -161,15 +161,15 @@ sphinxext-opengraph==0.10.0
     # via -r requirements/docs.in
 starlette==0.46.1
     # via sphinx-autobuild
-typing-extensions==4.13.1
+typing-extensions==4.13.2
     # via anyio
-urllib3==2.3.0
+urllib3==2.4.0
     # via
     #   requests
     #   sphinx-prompt
 uvicorn==0.34.0
     # via sphinx-autobuild
-watchfiles==1.0.4
+watchfiles==1.0.5
     # via sphinx-autobuild
 websockets==15.0.1
     # via sphinx-autobuild
