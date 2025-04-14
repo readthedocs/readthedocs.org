@@ -101,6 +101,8 @@ class Backend(BaseVCS):
             # For latest and stable, the identifier is the name of the branch.
             if self.version.machine:
                 branch = self.version.identifier
+                # If there is't an identifier, it can be the case for an initial build that started BEFORE
+                # a webhook or sync versions task has concluded what the default branch is.
                 if not branch:
                     log.error(
                         "Machine created version without a branch name.",
