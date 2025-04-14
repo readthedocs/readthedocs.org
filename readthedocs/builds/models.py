@@ -740,7 +740,9 @@ class Build(models.Model):
         indexes = [
             models.Index(fields=["project", "date"]),
             models.Index(fields=["version", "date"]),
-        models.Index(fields=["version", "state", "date", "success"]), models.Index(fields=["version", "state", "type"])]
+            models.Index(fields=["version", "state", "date", "success"]),
+            models.Index(fields=["version", "state", "type"]),
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
