@@ -236,7 +236,7 @@ def get_valid_projects_missing_migration(user):
             yield project
 
 
-def get_migration_targets(user):
+def get_migration_targets(user) -> list[MigrationTarget]:
     """Get all projects that the user needs to migrate to the GitHub App."""
     targets = []
     default_target_account = _get_default_github_account_target(user)
