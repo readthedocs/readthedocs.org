@@ -31,13 +31,13 @@ Get in touch
 ------------
 
 You can find information about getting in touch with Read the Docs at our
-`Contribution page <https://docs.readthedocs.io/en/latest/contribute.html#get-in-touch>`_.
+`Contribution page <https://docs.readthedocs.com/dev/latest/contribute.html#get-in-touch>`_.
 
 Contributing
 ------------
 
 You can find information about contributing to Read the Docs at our
-`Contribution page <https://docs.readthedocs.io/en/latest/contribute.html>`_.
+`Contribution page <https://docs.readthedocs.com/dev/latest/contribute.html>`_.
 
 Quickstart for GitHub hosted projects
 -------------------------------------
