@@ -355,6 +355,8 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         context["old_application_link"] = get_old_app_link()
         context["step_revoke_completed"] = self._is_access_to_old_github_account_revoked()
         context["old_github_account"] = self._get_old_github_account()
+        # NOTE: this is a done, so the template can display this single element in a list.
+        context["old_github_accounts"] = [context["old_github_account"]]
         return context
 
     def _is_access_to_old_github_account_revoked(self):
