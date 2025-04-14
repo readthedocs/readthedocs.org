@@ -2,7 +2,7 @@
 pip
 virtualenv
 
-django~=4.2.0
+django~=5.2.0
 django-extensions
 django-polymorphic
 django-autoslug
@@ -116,10 +116,7 @@ django-cors-headers
 # User agent parsing - used for analytics purposes
 user-agents
 
-# Pinned because we need to remove the usage of
-# `get_available_overwrite_name` first
-# See https://github.com/readthedocs/readthedocs.org/pull/11505
-django-storages[boto3]==1.14.3
+django-storages[boto3]
 
 
 # Required only in development and linting

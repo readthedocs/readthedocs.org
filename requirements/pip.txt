@@ -64,7 +64,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==4.2.20
+django==5.2
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -105,7 +105,7 @@ django-debug-toolbar==5.1.0
     # via -r requirements/pip.in
 django-elasticsearch-dsl==8.0
     # via -r requirements/pip.in
-django-extensions==3.2.3
+django-extensions==4.0
     # via -r requirements/pip.in
 django-filter==25.1
     # via -r requirements/pip.in
@@ -125,7 +125,7 @@ django-safemigrate==4.3
     # via -r requirements/pip.in
 django-simple-history==3.8.0
     # via -r requirements/pip.in
-django-storages[boto3]==1.14.3
+django-storages[boto3]==1.14.6
     # via -r requirements/pip.in
 django-structlog==2.2.0
     # via -r requirements/pip.in
@@ -152,7 +152,7 @@ docutils==0.21.2
     # via -r requirements/pip.in
 dparse==0.6.4
     # via -r requirements/pip.in
-drf-extensions==0.7.1
+drf-extensions==0.8.0
     # via -r requirements/pip.in
 drf-flex-fields==1.0.2
     # via -r requirements/pip.in

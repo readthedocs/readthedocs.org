@@ -71,7 +71,7 @@ class GitHubAppInstallation(TimeStampedModel):
     )
     target_type = models.CharField(
         help_text=_("Account type that the target_id belongs to (user or organization)"),
-        choices=GitHubAccountType.choices,
+        choices=GitHubAccountType,
         max_length=255,
     )
     extra_data = models.JSONField(

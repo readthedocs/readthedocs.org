@@ -737,16 +737,10 @@ class Build(models.Model):
     class Meta:
         ordering = ["-date"]
         get_latest_by = "date"
-        index_together = [
-            # Useful for `/_/addons/` API endpoint.
-            # Query: ``version.builds.filter(success=True, state=BUILD_STATE_FINISHED)``
-            ["version", "state", "date", "success"],
-            ["version", "state", "type"],
-        ]
         indexes = [
             models.Index(fields=["project", "date"]),
             models.Index(fields=["version", "date"]),
-        ]
+        models.Index(fields=["version", "state", "date", "success"]), models.Index(fields=["version", "state", "type"])]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
