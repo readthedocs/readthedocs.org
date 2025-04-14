@@ -964,39 +964,22 @@ class Project(models.Model):
             return self._good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
-    def vcs_repo(
-        self,
-        environment,
-        version=LATEST,
-        verbose_name=None,
-        version_type=None,
-        version_identifier=None,
-        version_machine=None,
-    ):
+    def vcs_repo(self, environment, version):
         """
         Return a Backend object for this project able to handle VCS commands.
 
         :param environment: environment to run the commands
         :type environment: doc_builder.environments.BuildEnvironment
-        :param version: version slug for the backend (``LATEST`` by default)
-        :type version: str
+        :param version: Version for the backend.
         """
-        # TODO: this seems to be the only method that receives a
-        # ``version.slug`` instead of a ``Version`` instance (I prefer an
-        # instance here)
-
         backend = self.vcs_class()
         if not backend:
             repo = None
         else:
             repo = backend(
                 self,
-                version,
+                version=version,
                 environment=environment,
-                verbose_name=verbose_name,
-                version_type=version_type,
-                version_identifier=version_identifier,
-                version_machine=version_machine,
             )
         return repo
 
