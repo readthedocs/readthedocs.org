@@ -159,7 +159,7 @@ so that you can log in to Read the Docs with your connected account credentials.
 
       Account email addresses (read only)
           We ask for this so we can verify your email address and create a Read the Docs account.
-      
+
       When installing the Read the Docs GitHub App in a repository, you will be asked to grant the following permissions:
 
       Repository permissions
@@ -173,11 +173,11 @@ so that you can log in to Read the Docs with your connected account credentials.
         Pull requests (read and write)
           This allows Read the Docs to subscribe to pull request events,
           and to create a comment on the pull request with information about the build.
-        
+
       Organization permissions
         Members (read only)
           This allows Read the Docs to read the organization members.
-        
+
 
    .. tab:: GitHub (old OAuth app integration)
 
