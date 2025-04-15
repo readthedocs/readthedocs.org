@@ -161,23 +161,9 @@ sphinxext-opengraph==0.10.0
     # via -r requirements/docs.in
 starlette==0.46.1
     # via sphinx-autobuild
-<<<<<<< HEAD
-typing-extensions==4.12.2
-    # via anyio
-urllib3==2.3.0
-||||||| 551e5e872
-tomli==2.2.1
-    # via sphinx
-typing-extensions==4.12.2
-    # via
-    #   anyio
-    #   uvicorn
-urllib3==2.3.0
-=======
 typing-extensions==4.13.2
     # via anyio
 urllib3==2.4.0
->>>>>>> main
     # via
     #   requests
     #   sphinx-prompt

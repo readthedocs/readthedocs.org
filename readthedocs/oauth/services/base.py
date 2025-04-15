@@ -33,6 +33,7 @@ class Service:
 
     vcs_provider_slug: str
     allauth_provider = type[OAuth2Provider]
+
     url_pattern: re.Pattern | None = None
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
@@ -269,7 +270,6 @@ class UserService(Service):
 
         # Delete RemoteOrganization where the user doesn't have access anymore
         organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
-
         (
             self.user.remote_organization_relations.filter(
                 account=self.account,

@@ -460,9 +460,6 @@ typing-extensions==4.13.2
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
-    #   rich
-    #   tox
-tzdata==2025.1
     #   typing-inspection
 typing-inspection==0.4.0
     # via

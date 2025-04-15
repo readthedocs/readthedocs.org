@@ -456,17 +456,6 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tomli==2.2.1
-    # via
-    #   -r requirements/pip.txt
-    #   coverage
-    #   dparse
-    #   pytest
-    #   sphinx
-typing-extensions==4.12.2
-    # via
-    #   -r requirements/pip.txt
-    #   asgiref
 typing-extensions==4.13.2
     # via
     #   -r requirements/pip.txt
