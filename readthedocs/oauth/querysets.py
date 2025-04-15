@@ -3,6 +3,7 @@
 from django.db import models
 
 from readthedocs.core.querysets import NoReprQuerySet
+from readthedocs.oauth.constants import GITHUB_APP
 
 
 class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
@@ -12,7 +13,11 @@ class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
         """Return objects for user."""
         if not user.is_authenticated:
             return self.none()
-        return self.filter(users=user)
+        queryset = self.filter(users=user)
+        # TODO: Once we are migrated into GitHub App we should include these repositories/organizations.
+        # Exclude repositories/organizations from the GitHub App for now to avoid duplicated entries.
+        queryset = queryset.exclude(vcs_provider=GITHUB_APP)
+        return queryset
 
     def api_v2(self, *args, **kwargs):
         # API v2 is the same as API v3 for .org, but it's
@@ -28,10 +33,14 @@ class RemoteRepositoryQuerySet(RelatedUserQuerySet):
         Repositories can be linked to a project only if the user has admin access
         to the repository on the VCS service.
         """
-        return self.filter(
+        queryset = self.filter(
             remote_repository_relations__user=user,
             remote_repository_relations__admin=True,
-        ).distinct()
+        )
+        # TODO: Once we are migrated into GitHub App we should include these repositories/organizations.
+        # Exclude repositories/organizations from the GitHub App for now to avoid duplicated entries.
+        queryset = queryset.exclude(vcs_provider=GITHUB_APP)
+        return queryset.distinct()
 
 
 class RemoteOrganizationQuerySet(RelatedUserQuerySet):
