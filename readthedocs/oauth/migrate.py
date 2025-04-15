@@ -1,6 +1,7 @@
 """This module contains the logic to help users migrate from the GitHub OAuth App to the GitHub App."""
 
 from dataclasses import dataclass
+from typing import Iterator
 
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
@@ -20,6 +21,8 @@ from readthedocs.projects.models import Project
 
 @dataclass
 class GitHubAccountTarget:
+    """Information about a GitHub account that is used as a target where to install the GitHub App."""
+
     login: str
     id: int
     type: GitHubAccountType
@@ -54,10 +57,10 @@ class InstallationTargetGroup:
     @property
     def installed(self):
         """
-        Check if the app was already installed on the target.
+        Check if the app has been in all required repositories.
 
-        If we don't have any repositories left to install, the app was already installed,
-        or we don't have any repositories to install the app on.
+        The the list of repository_ids is not empty, it means that the app still needs to be installed in some repositories,
+        or that the app hasn't been installed at all in the target account.
         """
         return not bool(self.repository_ids)
 
@@ -137,35 +140,45 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
             targets[target_account.id] = InstallationTargetGroup(
                 target_id=target_account.id,
                 target_name=target_account.login,
-                target_type=GitHubAccountType.USER,
+                target_type=target_account.type,
                 repository_ids=set(),
             )
 
     return list(targets.values())
 
 
-def _get_default_github_account_target(user):
-    # NOTE: there are some users that have more than one GH account connected.
-    # They will need to migrate each account at a time.
+def _get_default_github_account_target(user) -> GitHubAccountTarget:
+    """
+    Get the GitHub account from the user.
+
+    We first try to get the account from our old GitHub OAuth App,
+    and fallback to the new GitHub App if we can't find it.
+
+    .. note::
+
+       There are some users that have more than one GH account connected.
+       They will need to migrate each account at a time.
+    """
     account = user.socialaccount_set.filter(provider=GitHubProvider.id).first()
     if not account:
         account = user.socialaccount_set.filter(provider=GitHubAppProvider.id).first()
 
     return GitHubAccountTarget(
+        # We shouldn't have users without a login, but just in case.
         login=account.extra_data.get("login", "ghost"),
         id=int(account.uid),
         type=GitHubAccountType.USER,
     )
 
 
-def _get_github_account_target(remote_repository):
+def _get_github_account_target(remote_repository) -> GitHubAccountTarget | None:
     """
     Get the GitHub account target for a repository.
 
     This will return the account that owns the repository, if we can identify it.
     For repositories owned by organizations, we return the organization account,
     for repositories owned by users, we try to guess the account based on the repository owner
-    (as we don't save the owner ID in the repository).
+    (as we don't save the owner ID in the remote repository object).
     """
     if remote_repository.organization:
         return GitHubAccountTarget(
@@ -186,11 +199,11 @@ def _get_github_account_target(remote_repository):
     return None
 
 
-def _get_projects_missing_migration(user):
+def _get_projects_missing_migration(user) -> Iterator[tuple[Project, bool, bool]]:
     """
     Get all projects where the user has admin permissions that are still connected to the old GitHub OAuth App.
 
-    Returns a generator with the project, a boolean indicating if the GitHub App is installed on the repository,
+    Returns an iterator with the project, a boolean indicating if the GitHub App is installed on the repository,
     and a boolean indicating if the user has admin permissions on the repository.
     """
     projects = (
@@ -221,6 +234,11 @@ def _get_projects_missing_migration(user):
 
 
 def get_migrated_projects(user):
+    """
+    Get all projects from the user that are already migrated to the GitHub App.
+
+    This is basically all projects that are connected to a remote repository from the GitHub App.
+    """
     return (
         AdminPermission.projects(user, admin=True)
         .filter(remote_repository__vcs_provider=GITHUB_APP)
@@ -231,13 +249,24 @@ def get_migrated_projects(user):
 
 
 def get_valid_projects_missing_migration(user):
+    """
+    Get all projects that the user can migrate to the GitHub App.
+
+    This includes all projects that are connected to the old GitHub OAuth App,
+    where the user has admin permissions and the GitHub App is installed.
+    """
     for project, has_installation, is_admin in _get_projects_missing_migration(user):
         if has_installation and is_admin:
             yield project
 
 
 def get_migration_targets(user) -> list[MigrationTarget]:
-    """Get all projects that the user needs to migrate to the GitHub App."""
+    """
+    Get all projects that the user needs to migrate to the GitHub App.
+
+    This includes all projects that are connected to the old GitHub OAuth App,
+    doesn't matter if the user has admin permissions or the GitHub App is installed.
+    """
     targets = []
     default_target_account = _get_default_github_account_target(user)
     for project, has_installation, is_admin in _get_projects_missing_migration(user):
@@ -254,7 +283,7 @@ def get_migration_targets(user) -> list[MigrationTarget]:
     return targets
 
 
-def get_old_app_link():
+def get_old_app_link() -> str:
     """
     Get the link to the old GitHub OAuth App settings page.
 

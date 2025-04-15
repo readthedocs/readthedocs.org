@@ -326,6 +326,8 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if self._get_old_github_account() is None:
             if self._get_new_github_account():
+                # NOTE: TBD what to do when the user has already migrated his account,
+                # but still has projects connected to the old integration.
                 msg = _("You have already migrated your account to the new GitHub App.")
             else:
                 msg = _("You don't have any GitHub account connected.")

@@ -407,6 +407,22 @@ class GitHubService(UserService):
         return (False, resp)
 
     def remove_webhook(self, project):
+        """
+        Remove GitHub webhook for the repository associated with the project.
+
+        We delete all webhooks that match the URL of the webhook we set up.
+        The URLs can be in several formats, so we check for all of them:
+
+        - https://app.readthedocs.org/api/v2/webhook/github/<project_slug>/<id>
+        - https://app.readthedocs.org/api/v2/webhook/<project_slug>/<id>
+        - https://readthedocs.org/api/v2/webhook/github/<project_slug>/<id>
+        - https://readthedocs.org/api/v2/webhook/<project_slug>/<id>
+
+        If a webhook fails to be removed, we log the error and cancel the operation,
+        as if we weren't able to delete one webhook, we won't be able to delete the others either.
+
+        If we didn't find any webhook to delete, we return True.
+        """
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
         try:
@@ -439,7 +455,11 @@ class GitHubService(UserService):
         return True
 
     def remove_ssh_key(self, project):
-        # Overridden in corporate
+        """
+        Remove the SSH key from the GitHub repository associated with the project.
+
+        This is overridden in .com, as we don't make use of the SSH keys in .org.
+        """
         return True
 
     def send_build_status(self, *, build, commit, status):
