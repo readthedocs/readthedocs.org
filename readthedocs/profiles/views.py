@@ -1,7 +1,11 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
+from enum import StrEnum
+from enum import auto
+
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -18,8 +22,10 @@ from vanilla import DeleteView
 from vanilla import DetailView
 from vanilla import FormView
 from vanilla import ListView
+from vanilla import TemplateView
 from vanilla import UpdateView
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.audit.filters import UserSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.forms import UserAdvertisingForm
@@ -30,6 +36,16 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.models import Notification
+from readthedocs.oauth.clients import get_oauth2_client
+from readthedocs.oauth.migrate import get_installation_target_groups_for_user
+from readthedocs.oauth.migrate import get_migrated_projects
+from readthedocs.oauth.migrate import get_migration_targets
+from readthedocs.oauth.migrate import get_old_app_link
+from readthedocs.oauth.migrate import get_valid_projects_missing_migration
+from readthedocs.oauth.migrate import migrate_project_to_github_app
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
@@ -278,3 +294,133 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             queryset=queryset,
         )
         return self.filter.qs
+
+
+class MigrationSteps(StrEnum):
+    overview = auto()
+    connect = auto()
+    install = auto()
+    migrate = auto()
+    revoke = auto()
+    disconnect = auto()
+
+
+class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
+    """
+    View to help users migrate their account to the new GitHub App.
+
+    This view will guide the user through the process of migrating their account
+    and projects to the new GitHub App.
+
+    A get request will show the overview of the migration process,
+    and each step to follow. A post request will migrate a single project
+    if the project slug is provided in the request, otherwise, it will migrate
+    all projects that can be migrated.
+
+    In case we weren't able to remove the webhook or SSH key from the old GitHub App,
+    we create a notification for the user, so they can manually remove it.
+    """
+
+    template_name = "profiles/private/migrate_to_gh_app.html"
+
+    def get(self, request, *args, **kwargs):
+        if self._get_old_github_account() is None:
+            if self._get_new_github_account():
+                msg = _("You have already migrated your account to the new GitHub App.")
+            else:
+                msg = _("You don't have any GitHub account connected.")
+            messages.info(request, msg)
+            return HttpResponseRedirect(reverse("homepage"))
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        step = self.request.GET.get("step", MigrationSteps.overview)
+        if step not in MigrationSteps:
+            step = MigrationSteps.overview
+        context["step"] = step
+
+        user = self.request.user
+
+        context["has_multiple_github_accounts"] = (
+            user.socialaccount_set.filter(provider=GitHubProvider.id).count() > 1
+        )
+        context["step_connect_completed"] = self._has_new_account_for_old_account()
+        context["installation_target_groups"] = get_installation_target_groups_for_user(user)
+        context["github_app_name"] = settings.GITHUB_APP_NAME
+        context["migration_targets"] = get_migration_targets(user)
+        context["migrated_projects"] = get_migrated_projects(user)
+        context["old_application_link"] = get_old_app_link()
+        context["step_revoke_completed"] = self._is_access_to_old_github_account_revoked()
+        context["old_github_account"] = self._get_old_github_account()
+        # NOTE: this is a done, so the template can display this single element in a list.
+        context["old_github_accounts"] = [context["old_github_account"]]
+        return context
+
+    def _is_access_to_old_github_account_revoked(self):
+        old_account = self._get_old_github_account()
+        if not old_account:
+            return True
+        client = get_oauth2_client(old_account)
+        if client is None:
+            return True
+
+        resp = client.get("https://api.github.com/user")
+        if resp.status_code == 401:
+            return True
+
+        return False
+
+    def _has_new_account_for_old_account(self):
+        """
+        Check if the user has connected his account to the new GitHub App.
+
+        The new connected account must the same as the old one.
+        """
+        query = self.request.user.socialaccount_set.filter(
+            provider=GitHubAppProvider.id,
+        )
+        old_account = self._get_old_github_account()
+        if old_account:
+            query.filter(uid=old_account.uid)
+        return query.exists()
+
+    def _get_new_github_account(self):
+        return self.request.user.socialaccount_set.filter(provider=GitHubAppProvider.id).first()
+
+    def _get_old_github_account(self):
+        return self.request.user.socialaccount_set.filter(provider=GitHubProvider.id).first()
+
+    def post(self, request, *args, **kwargs):
+        project_slug = request.POST.get("project")
+        if project_slug:
+            projects = AdminPermission.projects(request.user, admin=True).filter(slug=project_slug)
+        else:
+            projects = get_valid_projects_missing_migration(request.user)
+
+        for project in projects:
+            result = migrate_project_to_github_app(project=project, user=request.user)
+            if not result.webhook_removed:
+                Notification.objects.add(
+                    message_id=MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED,
+                    attached_to=request.user,
+                    dismissable=True,
+                    format_values={
+                        "repo_full_name": project.remote_repository.full_name,
+                        "project_slug": project.slug,
+                    },
+                )
+            if not result.ssh_key_removed:
+                Notification.objects.add(
+                    message_id=MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED,
+                    attached_to=request.user,
+                    dismissable=True,
+                    format_values={
+                        "repo_full_name": project.remote_repository.full_name,
+                        "project_slug": project.slug,
+                    },
+                )
+
+        return HttpResponseRedirect(reverse("migrate_to_github_app") + "?step=migrate")

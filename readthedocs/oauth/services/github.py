@@ -406,6 +406,42 @@ class GitHubService(UserService):
 
         return (False, resp)
 
+    def remove_webhook(self, project):
+        owner, repo = build_utils.get_github_username_repo(url=project.repo)
+
+        try:
+            resp = self.session.get(f"{self.base_api_url}/repos/{owner}/{repo}/hooks")
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception:
+            log.info("Failed to get GitHub webhooks for project.")
+            return False
+
+        hook_targets = [
+            f"{settings.PUBLIC_API_URL}/api/v2/webhook/{project.slug}/",
+            f"{settings.PUBLIC_API_URL}/api/v2/webhook/github/{project.slug}/",
+        ]
+        if "app." in settings.PUBLIC_API_URL:
+            hook_targets.append(hook_targets[0].replace("app.", "", 1))
+            hook_targets.append(hook_targets[1].replace("app.", "", 1))
+
+        for hook in data:
+            hook_url = hook["config"]["url"]
+            for hook_target in hook_targets:
+                if hook_url.startswith(hook_target):
+                    try:
+                        self.session.delete(
+                            f"{self.base_api_url}/repos/{owner}/{repo}/hooks/{hook['id']}"
+                        ).raise_for_status()
+                    except Exception:
+                        log.info("Failed to remove GitHub webhook for project.")
+                        return False
+        return True
+
+    def remove_ssh_key(self, project):
+        # Overridden in corporate
+        return True
+
     def send_build_status(self, *, build, commit, status):
         """
         Create GitHub commit status for project.
