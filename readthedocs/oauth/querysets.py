@@ -9,6 +9,8 @@ from readthedocs.oauth.constants import GITHUB_APP
 
 
 def _has_account_connected_to_github_app(user):
+    if not user:
+        return False
     return user.socialaccount_set.filter(
         provider=GitHubAppProvider.id,
     )
