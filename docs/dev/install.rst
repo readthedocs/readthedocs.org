@@ -286,7 +286,7 @@ Configuring GitHub App
 - Subscribe to the following events: Installation target, Member, Organization, Membership, Pull request, Push, and Repository.
 - Copy the "Client ID" and "Client Secret" and set them as :ref:`environment variables <settings:Allauth secrets>`.
 - Generate a webhook secret and a private key from the GitHub App settings,
-  and set them as :ref:`environment variables <settings:GitHub App secrets>`.
+  and set them as :ref:`environment variables <settings:GitHub App>`.
 
 Troubleshooting
 ---------------
