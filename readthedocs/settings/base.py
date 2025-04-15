@@ -306,7 +306,6 @@ class CommunityBaseSettings(Settings):
             # but we still need to include it even when not enabled, since it has objects
             # related to the user model that Django needs to know about when deleting users.
             "impersonate",
-            "cacheops",
         ]
         if ext:
             apps.append("readthedocsext.cdn")
@@ -422,9 +421,6 @@ class CommunityBaseSettings(Settings):
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = "readthedocs.builds.storage.BuildMediaFileSystemStorage"
-    RTD_BUILD_ENVIRONMENT_STORAGE = (
-        "readthedocs.builds.storage.BuildMediaFileSystemStorage"
-    )
     RTD_BUILD_TOOLS_STORAGE = "readthedocs.builds.storage.BuildMediaFileSystemStorage"
     RTD_BUILD_COMMANDS_STORAGE = (
         "readthedocs.builds.storage.BuildMediaFileSystemStorage"
@@ -1056,44 +1052,5 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_REMOVE_FROM_SEARCH_INDEX = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
-
-    CACHEOPS_ENABLED = False
-    CACHEOPS_TIMEOUT = 60 * 60  # seconds
-    CACHEOPS_OPS = {"get", "fetch"}
-    CACHEOPS_DEGRADE_ON_FAILURE = True
-    CACHEOPS = {
-        # readthedocs.projects.*
-        "projects.project": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        "projects.feature": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        "projects.projectrelationship": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        "projects.domain": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        # readthedocs.builds.*
-        "builds.version": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        # readthedocs.organizations.*
-        "organizations.organization": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        # readthedocs.subscriptions.*
-        "subscriptions.planfeature": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-    }
 
     S3_PROVIDER = "AWS"

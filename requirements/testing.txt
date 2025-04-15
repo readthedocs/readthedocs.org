@@ -4,8 +4,6 @@
 #
 #    pip-compile --output-file=requirements/testing.txt requirements/testing.in
 #
---no-binary xmlsec
-
 alabaster==1.0.0
     # via sphinx
 amqp==5.3.1
@@ -28,18 +26,18 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.37.13
+boto3==1.37.33
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.37.13
+botocore==1.37.33
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2024.1130
     # via -r requirements/pip.txt
-celery==5.4.0
+celery==5.5.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -81,7 +79,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.6.12
+coverage[toml]==7.8.0
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
@@ -118,7 +116,6 @@ django==4.2.20
     #   dj-stripe
     #   django-allauth
     #   django-annoying
-    #   django-cacheops
     #   django-celery-beat
     #   django-cors-headers
     #   django-csp
@@ -134,14 +131,13 @@ django==4.2.20
     #   django-taggit
     #   django-timezone-field
     #   djangorestframework
+    #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.5.0
+django-allauth[mfa,saml,socialaccount]==65.7.0
     # via -r requirements/pip.txt
-django-annoying==0.10.7
+django-annoying==0.10.8
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
-    # via -r requirements/pip.txt
-django-cacheops==7.1
     # via -r requirements/pip.txt
 django-celery-beat==2.7.0
     # via -r requirements/pip.txt
@@ -151,13 +147,13 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==5.0.1
+django-debug-toolbar==5.1.0
     # via -r requirements/pip.txt
 django-dynamic-fixture==4.0.1
     # via -r requirements/testing.in
 django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
-django-extensions==3.2.3
+django-extensions==4.1
     # via -r requirements/pip.txt
 django-filter==25.1
     # via -r requirements/pip.txt
@@ -165,7 +161,7 @@ django-formtools==2.5.1
     # via -r requirements/pip.txt
 django-gravatar2==1.4.5
     # via -r requirements/pip.txt
-django-impersonate==1.9.4
+django-impersonate==1.9.5
     # via -r requirements/pip.txt
 django-ipware==5.0.2
     # via
@@ -189,12 +185,12 @@ django-timezone-field==7.1
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.15.2
+djangorestframework==3.16.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
     #   rest-framework-generic-relations
-djangorestframework-api-key==3.0.0
+djangorestframework-api-key==3.1.0
     # via -r requirements/pip.txt
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
@@ -208,7 +204,7 @@ docutils==0.21.2
     #   sphinx
 dparse==0.6.4
     # via -r requirements/pip.txt
-drf-extensions==0.7.1
+drf-extensions==0.8.0
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
@@ -225,6 +221,8 @@ elasticsearch-dsl==8.17.1
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
+execnet==2.1.1
+    # via pytest-xdist
 fido2==1.2.0
     # via
     #   -r requirements/pip.txt
@@ -233,10 +231,6 @@ filelock==3.18.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-funcy==2.0
-    # via
-    #   -r requirements/pip.txt
-    #   django-cacheops
 gunicorn==23.0.0
     # via -r requirements/pip.txt
 idna==3.10
@@ -245,7 +239,7 @@ idna==3.10
     #   requests
 imagesize==1.4.1
     # via sphinx
-iniconfig==2.0.0
+iniconfig==2.1.0
     # via pytest
 isodate==0.7.2
     # via
@@ -262,7 +256,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.5.0
+kombu==5.5.2
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -270,13 +264,13 @@ lexid==2021.1006
     # via
     #   -r requirements/pip.txt
     #   bumpver
-lxml==5.3.1
+lxml==5.3.2
     # via
     #   -r requirements/pip.txt
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.7
+markdown==3.8
     # via -r requirements/pip.txt
 markupsafe==3.0.2
     # via jinja2
@@ -284,17 +278,18 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.10.15
+orjson==3.10.16
     # via -r requirements/pip.txt
 packaging==24.2
     # via
     #   -r requirements/pip.txt
     #   djangorestframework-api-key
     #   dparse
+    #   drf-extensions
     #   gunicorn
     #   pytest
     #   sphinx
-platformdirs==4.3.6
+platformdirs==4.3.7
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -304,6 +299,8 @@ prompt-toolkit==3.0.50
     # via
     #   -r requirements/pip.txt
     #   click-repl
+psutil==7.0.0
+    # via pytest-xdist
 psycopg[binary,pool]==3.2.6
     # via -r requirements/pip.txt
 psycopg-binary==3.2.6
@@ -318,9 +315,9 @@ pycparser==2.22
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.10.6
+pydantic==2.11.3
     # via -r requirements/pip.txt
-pydantic-core==2.27.2
+pydantic-core==2.33.1
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -348,15 +345,18 @@ pytest==8.3.5
     #   pytest-custom-exit-code
     #   pytest-django
     #   pytest-mock
+    #   pytest-xdist
     #   sphinx
-pytest-cov==6.0.0
+pytest-cov==6.1.1
     # via -r requirements/testing.in
 pytest-custom-exit-code==0.3.0
     # via -r requirements/testing.in
-pytest-django==4.10.0
+pytest-django==4.11.1
     # via -r requirements/testing.in
 pytest-mock==3.14.0
     # via -r requirements/testing.in
+pytest-xdist[psutil]==3.6.1
+    # via sphinx
 python-crontab==3.2.0
     # via
     #   -r requirements/pip.txt
@@ -372,18 +372,16 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2025.1
+pytz==2025.2
     # via -r requirements/pip.txt
 pyyaml==6.0.2
     # via -r requirements/pip.txt
-qrcode==8.0
+qrcode==8.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
 redis==5.2.1
-    # via
-    #   -r requirements/pip.txt
-    #   django-cacheops
+    # via -r requirements/pip.txt
 regex==2024.11.6
     # via -r requirements/pip.txt
 requests==2.32.3
@@ -408,6 +406,8 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
+roman-numerals-py==3.1.0
+    # via sphinx
 s3transfer==0.11.4
     # via
     #   -r requirements/pip.txt
@@ -425,7 +425,7 @@ slumber==0.7.1
     # via -r requirements/pip.txt
 snowballstemmer==2.2.0
     # via sphinx
-sphinx[test]==8.1.3
+sphinx[test]==8.2.3
     # via -r requirements/testing.in
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
@@ -456,7 +456,18 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
+tomli==2.2.1
+    # via
+    #   -r requirements/pip.txt
+    #   coverage
+    #   dparse
+    #   pytest
+    #   sphinx
 typing-extensions==4.12.2
+    # via
+    #   -r requirements/pip.txt
+    #   asgiref
+typing-extensions==4.13.2
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -466,10 +477,14 @@ typing-extensions==4.12.2
     #   pydantic-core
     #   pygithub
     #   sphinx
-tzdata==2025.1
+    #   typing-inspection
+typing-inspection==0.4.0
     # via
     #   -r requirements/pip.txt
-    #   celery
+    #   pydantic
+tzdata==2025.2
+    # via
+    #   -r requirements/pip.txt
     #   django-celery-beat
     #   kombu
 ua-parser==1.0.1
@@ -486,7 +501,7 @@ unidecode==1.3.8
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.3.0
+urllib3==2.4.0
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -502,7 +517,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.29.3
+virtualenv==20.30.0
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via

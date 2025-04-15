@@ -14,7 +14,14 @@ class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
         """Return objects for user."""
         if not user.is_authenticated:
             return self.none()
-        return self.filter(users=user)
+        queryset = self.filter(users=user)
+
+        # If the user has already started using the GitHub App,
+        # we shouldn't show repositories from the old GitHub integration.
+        if queryset.filter(vcs_provider=GITHUB_APP).exists():
+            queryset = queryset.exclude(vcs_provider=GITHUB)
+
+        return queryset
 
     def api_v2(self, *args, **kwargs):
         # API v2 is the same as API v3 for .org, but it's

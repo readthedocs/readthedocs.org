@@ -8,18 +8,13 @@ from django_dynamic_fixture import get
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import Feature, HTMLFile, Project
+from readthedocs.projects.models import HTMLFile, Project
 
 
 class TestVersionForm(TestCase):
     def setUp(self):
         self.user = get(User)
         self.project = get(Project, users=(self.user,), slug="project")
-        get(
-            Feature,
-            feature_id=Feature.ALLOW_CHANGING_VERSION_SLUG,
-            projects=[self.project],
-        )
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_default_version_is_active(self):

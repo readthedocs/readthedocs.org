@@ -1,5 +1,6 @@
 from functools import cached_property
 from functools import lru_cache
+from itertools import groupby
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
@@ -37,26 +38,26 @@ class GitHubAppService(Service):
         self.installation = installation
 
     @cached_property
-    def gha_client(self):
+    def gh_app_client(self):
         return get_gh_app_client()
 
-    @cached_property
-    def app_installation(self) -> GHInstallation:
+    @lru_cache
+    def get_app_installation(self) -> GHInstallation:
         """
         Return the installation object from the GitHub API.
 
-        Usefull to interact with installation related endpoints.
+        Useful to interact with installation related endpoints.
 
         If the installation is no longer accessible, this will raise a GithubException.
         """
-        return self.gha_client.get_app_installation(
+        return self.gh_app_client.get_app_installation(
             self.installation.installation_id,
         )
 
     @cached_property
     def installation_client(self) -> Github:
         """Return a client authenticated as the GitHub installation to interact with the GH API."""
-        return self.gha_client.get_github_for_installation(self.installation.installation_id)
+        return self.gh_app_client.get_github_for_installation(self.installation.installation_id)
 
     @classmethod
     def for_project(cls, project):
@@ -96,7 +97,7 @@ class GitHubAppService(Service):
 
            User access tokens expire after 8 hours, but our OAuth2 client should handle refreshing the token.
            But, the refresh token expires after 6 months, in order to refresh that token,
-           the user needs to sign in using GitHub again (just a normal sing-in, not a re-authorization or sign-up).
+           the user needs to sign in using GitHub again (just a normal sign in, not a re-authorization or sign-up).
         """
         social_accounts = SocialAccount.objects.filter(
             user=user,
@@ -138,6 +139,8 @@ class GitHubAppService(Service):
         Our webhooks should keep permissions in sync, but just in case,
         we first sync the repositories from all installations accessible to the user (refresh access to new repositories),
         and then we sync each repository the user has access to (check if the user lost access to a repository, or his access level changed).
+
+        This method is called when the user logs in or when the user manually clicks on "Sync repositories".
         """
         has_error = False
         # Refresh access to all installations accessible to the user.
@@ -154,12 +157,37 @@ class GitHubAppService(Service):
             remote_repository_relations__user=user,
             vcs_provider=cls.vcs_provider_slug,
         )
-        for repository in queryset:
-            service = cls(repository.github_app_installation)
-            service.update_or_create_repositories([int(repository.remote_id)])
+        # Group by github_app_installation, so we don't create multiple clients.
+        grouped_installations = groupby(
+            queryset,
+            key=lambda x: x.github_app_installation,
+        )
+        for installation, remote_repos in grouped_installations:
+            service = cls(installation)
+            service.update_or_create_repositories(
+                [int(remote_repo.remote_id) for remote_repo in remote_repos]
+            )
 
-        # TODO: maybe also refresh the organizations the user has access to?
-        # But doesn't look like we are using that relation for anything?
+        # Update access to each organization the user has access to.
+        queryset = RemoteOrganization.objects.filter(
+            remote_organization_relations__user=user,
+            vcs_provider=cls.vcs_provider_slug,
+        )
+        for remote_organization in queryset:
+            remote_repo = remote_organization.repositories.first()
+            # NOTE: this should never happen, unless our data is out of sync
+            # (we delete orphaned organizations when deleting projects).
+            if not remote_repo:
+                log.info(
+                    "Remote organization without repositories detected, deleting.",
+                    organization_login=remote_organization.slug,
+                    remote_id=remote_organization.remote_id,
+                )
+                remote_organization.delete()
+                continue
+
+            service = cls(remote_repo.github_app_installation)
+            service.update_or_create_organization(remote_organization.slug)
 
         if has_error:
             raise SyncServiceError()
@@ -175,7 +203,7 @@ class GitHubAppService(Service):
         we remove the organization from the database.
         """
         try:
-            app_installation = self.app_installation
+            app_installation = self.get_app_installation()
         except GithubException as e:
             log.info(
                 "Failed to get installation",
@@ -199,8 +227,8 @@ class GitHubAppService(Service):
             raise SyncServiceError()
 
         remote_repositories = []
-        for repo in app_installation.get_repos():
-            remote_repo = self._create_or_update_repository_from_gh(repo)
+        for gh_repo in app_installation.get_repos():
+            remote_repo = self._create_or_update_repository_from_gh(gh_repo)
             if remote_repo:
                 remote_repositories.append(remote_repo)
 
@@ -211,6 +239,7 @@ class GitHubAppService(Service):
 
     def update_or_create_repositories(self, repository_ids: list[int]):
         """Update or create repositories from the given list of repository IDs."""
+        repositories_to_delete = []
         for repository_id in repository_ids:
             try:
                 # NOTE: we save the repository ID as a string in our database,
@@ -227,9 +256,12 @@ class GitHubAppService(Service):
                 # we remove the repository from the database,
                 # and clean up the collaborators and relations.
                 if e.status in [404, 403]:
-                    self.installation.delete_repositories([repository_id])
+                    repositories_to_delete.append(repository_id)
                 continue
             self._create_or_update_repository_from_gh(repo)
+
+        if repositories_to_delete:
+            self.installation.delete_repositories(repositories_to_delete)
 
     def _create_or_update_repository_from_gh(
         self, gh_repo: GHRepository
@@ -243,7 +275,7 @@ class GitHubAppService(Service):
         target_id = self.installation.target_id
         target_type = self.installation.target_type
         # NOTE: All the repositories should be owned by the installation account.
-        # This should never happen, unless this assumption is wrong.
+        # he following condition should never happen, unless the previous assumption is wrong.
         if gh_repo.owner.id != target_id or gh_repo.owner.type != target_type:
             log.exception(
                 "Repository owner does not match the installation account",
@@ -267,18 +299,16 @@ class GitHubAppService(Service):
         remote_repo.html_url = gh_repo.html_url
         remote_repo.private = gh_repo.private
         remote_repo.default_branch = gh_repo.default_branch
-
-        # TODO: Do we need the SSH URL for private repositories now that we can clone using a token?
-        remote_repo.clone_url = gh_repo.ssh_url if gh_repo.private else gh_repo.clone_url
+        remote_repo.clone_url = gh_repo.clone_url
 
         # NOTE: Only one installation of our APP should give access to a repository.
-        # This should only happen if our data is out of sync.
+        # The following condition should only happen if our data is out of sync.
         if (
             remote_repo.github_app_installation
             and remote_repo.github_app_installation != self.installation
         ):
             log.info(
-                "Repository linked to another installation",
+                "Repository linked to another installation. Our data may be out of sync.",
                 repository_id=remote_repo.remote_id,
                 old_installation_id=remote_repo.github_app_installation.installation_id,
                 new_installation_id=self.installation.installation_id,
@@ -289,8 +319,7 @@ class GitHubAppService(Service):
         if gh_repo.owner.type == GitHubAccountType.ORGANIZATION:
             # NOTE: The owner object doesn't have all attributes of an organization,
             # so we need to fetch the organization object.
-            gh_organization = self._get_gh_organization(gh_repo.owner.login)
-            remote_repo.organization = self._create_or_update_organization_from_gh(gh_organization)
+            remote_repo.organization = self.update_or_create_organization(gh_repo.owner.login)
 
         remote_repo.save()
         self._resync_collaborators(gh_repo, remote_repo)
@@ -304,14 +333,17 @@ class GitHubAppService(Service):
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...
     @lru_cache(maxsize=50)
-    def _create_or_update_organization_from_gh(self, gh_org: GHOrganization) -> RemoteOrganization:
+    def update_or_create_organization(self, login: str) -> RemoteOrganization:
         """
-        Create or update a remote organization from a GitHub organization object.
+        Create or update a remote organization from its login identifier.
 
         We also sync the members of the organization with the database.
+        This doesn't sync the repositories of the organization,
+        since the installation is the one that lists the repositories it has access to.
 
-        This method is cached, since we want to update the organization only once per sync of an installation.
+        This method is cached, since we need to update the organization only once per sync of an installation.
         """
+        gh_org = self._get_gh_organization(login)
         remote_org, _ = RemoteOrganization.objects.get_or_create(
             remote_id=str(gh_org.id),
             vcs_provider=self.vcs_provider_slug,
@@ -331,6 +363,8 @@ class GitHubAppService(Service):
         Sync collaborators of a repository with the database.
 
         This method will remove collaborators that are no longer in the list.
+
+        See https://docs.github.com/en/rest/collaborators/collaborators?apiVersion=2022-11-28#list-repository-collaborators.
         """
         collaborators = {
             collaborator.id: collaborator for collaborator in gh_repo.get_collaborators()
@@ -425,19 +459,18 @@ class GitHubAppService(Service):
 
     def get_clone_token(self, project):
         """
-        Return a token for HTTP Git clone access to the repository.
+        Return a token for HTTP-based Git access to the repository.
 
         See:
-
         - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
         - https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
         """
-        # TODO: we can pass the repository_ids to get a token with access to specific repositories.
+        # NOTE: we can pass the repository_ids to get a token with access to specific repositories.
         # We should upstream this feature to PyGithub.
         # We can also pass a specific permissions object to get a token with specific permissions
         # if we want to scope this token even more.
         try:
-            access_token = self.gha_client.get_access_token(self.installation.installation_id)
+            access_token = self.gh_app_client.get_access_token(self.installation.installation_id)
             return f"x-access-token:{access_token.token}"
         except GithubException:
             log.info(

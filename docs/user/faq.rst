@@ -88,10 +88,8 @@ We have documented how to set this up in :doc:`/reference/robots`.
 How do I change the version slug of my project?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We don't support allowing folks to change the slug for their versions.
-But you can rename the branch/tag to achieve this.
-If that isn't enough,
-you can request the change sending an email to support@readthedocs.org.
+You can change the slug of your versions from the versions tab of your project,
+see :ref:`versions:Version URL identifier (slug)` for more information.
 
 
 What commit of Read the Docs is in production?

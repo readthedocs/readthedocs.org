@@ -174,7 +174,7 @@ You can use the following environment variables to set the settings used by the 
 
 .. envvar:: RTD_GITHUB_APP_ID
 .. envvar:: RTD_GITHUB_APP_NAME
-.. envvar:: RTD_GITHUB_PRIVATE_KEY
+.. envvar:: RTD_GITHUB_APP_PRIVATE_KEY
 .. envvar:: RTD_GITHUB_APP_WEBHOOK_SECRET
 
 Stripe secrets

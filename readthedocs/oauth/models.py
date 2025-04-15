@@ -45,7 +45,7 @@ class GitHubAppInstallationManager(models.Manager):
         # This should never happen, unless this assumption is wrong.
         if installation.target_id != target_id or installation.target_type != target_type:
             log.exception(
-                "Installation target_id or target_type changed",
+                "Installation target_id or target_type changed. This shouldn't happen -- look into it",
                 installation_id=installation.installation_id,
                 target_id=installation.target_id,
                 target_type=installation.target_type,
@@ -95,24 +95,23 @@ class GitHubAppInstallation(TimeStampedModel):
         return GitHubAppService(self)
 
     def delete(self, *args, **kwargs):
-        """Override delete method to remove orphaned organizations."""
+        """Override delete method to remove orphaned remote organizations."""
         self.delete_repositories()
         return super().delete(*args, **kwargs)
 
     def delete_repositories(self, repository_ids: list[int] | None = None):
         """
         Delete repositories linked to this installation.
-
         When an installation is deleted, we delete all its remote repositories
         and relations, users will need to manually link the projects to each repository again.
-
         We also remove organizations that don't have any repositories after removing the repositories.
-
         :param repository_ids: List of repository ids (remote ID) to delete.
          If None, all repositories will be considered for deletion.
         """
+        # repository_ids is optional (None, which means all repositories),
+        # but if it's an empty list, we don't want to delete anything.
         if repository_ids is not None and not repository_ids:
-            log.info("No repositories to delete")
+            log.info("No remote repositories to delete")
             return
 
         remote_organizations = RemoteOrganization.objects.filter(
@@ -131,10 +130,12 @@ class GitHubAppInstallation(TimeStampedModel):
 
         count, deleted = remote_repositories.delete()
         log.info(
-            "Deleted repositories projects",
+            "Deleted remote repositories",
             count=count,
             deleted=deleted,
             installation_id=self.installation_id,
+            target_id=self.target_id,
+            target_type=self.target_type,
         )
 
         count, deleted = RemoteOrganization.objects.filter(
@@ -142,24 +143,28 @@ class GitHubAppInstallation(TimeStampedModel):
             repositories=None,
         ).delete()
         log.info(
-            "Deleted orphaned organizations",
+            "Deleted orphaned remote organizations",
             count=count,
             deleted=deleted,
             installation_id=self.installation_id,
+            target_id=self.target_id,
+            target_type=self.target_type,
         )
 
     def delete_organization(self, organization_id: int):
-        """Delete an organization and all its repositories and relations from the database."""
+        """Delete a remote organization and all its remote repositories and relations from the database."""
         count, deleted = RemoteOrganization.objects.filter(
             remote_id=str(organization_id),
             vcs_provider=GITHUB_APP,
         ).delete()
         log.info(
-            "Deleted organization",
+            "Deleted remote organization",
             count=count,
             deleted=deleted,
             organization_id=organization_id,
             installation_id=self.installation_id,
+            target_id=self.target_id,
+            target_type=self.target_type,
         )
 
 

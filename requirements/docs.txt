@@ -6,7 +6,7 @@
 #
 alabaster==1.0.0
     # via sphinx
-anyio==4.8.0
+anyio==4.9.0
     # via
     #   starlette
     #   watchfiles
@@ -37,7 +37,7 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.56.0
+fonttools==4.57.0
     # via matplotlib
 h11==0.14.0
     # via uvicorn
@@ -68,7 +68,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==4.0.1
     # via -r requirements/docs.in
-numpy==2.2.3
+numpy==2.2.4
     # via
     #   contourpy
     #   matplotlib
@@ -78,20 +78,22 @@ packaging==24.2
     #   sphinx
 pbr==6.1.1
     # via sphinxcontrib-video
-pillow==11.1.0
+pillow==11.2.1
     # via matplotlib
 pygments==2.19.1
     # via
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==3.2.1
+pyparsing==3.2.3
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
 pyyaml==6.0.2
     # via myst-parser
 requests==2.32.3
+    # via sphinx
+roman-numerals-py==3.1.0
     # via sphinx
 six==1.17.0
     # via
@@ -101,7 +103,7 @@ sniffio==1.3.1
     # via anyio
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==8.1.3
+sphinx==8.2.3
     # via
     #   -r requirements/docs.in
     #   myst-parser
@@ -155,19 +157,33 @@ sphinxcontrib-video @ git+https://github.com/readthedocs/sphinxcontrib-video/
     # via -r requirements/docs.in
 sphinxemoji==0.3.1
     # via -r requirements/docs.in
-sphinxext-opengraph==0.9.1
+sphinxext-opengraph==0.10.0
     # via -r requirements/docs.in
 starlette==0.46.1
     # via sphinx-autobuild
+<<<<<<< HEAD
 typing-extensions==4.12.2
     # via anyio
 urllib3==2.3.0
+||||||| 551e5e872
+tomli==2.2.1
+    # via sphinx
+typing-extensions==4.12.2
+    # via
+    #   anyio
+    #   uvicorn
+urllib3==2.3.0
+=======
+typing-extensions==4.13.2
+    # via anyio
+urllib3==2.4.0
+>>>>>>> main
     # via
     #   requests
     #   sphinx-prompt
 uvicorn==0.34.0
     # via sphinx-autobuild
-watchfiles==1.0.4
+watchfiles==1.0.5
     # via sphinx-autobuild
 websockets==15.0.1
     # via sphinx-autobuild

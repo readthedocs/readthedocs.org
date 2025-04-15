@@ -132,6 +132,7 @@ class TestGitHubAppWebhook(TestCase):
     @mock.patch.object(GitHubAppService, "sync")
     def test_installation_unsuspended(self, sync):
         new_installation_id = 2222
+        assert GitHubAppInstallation.objects.count() == 1
         assert not GitHubAppInstallation.objects.filter(
             installation_id=new_installation_id
         ).exists()
@@ -152,6 +153,7 @@ class TestGitHubAppWebhook(TestCase):
         assert installation.target_id == 2222
         assert installation.target_type == GitHubAccountType.USER
         sync.assert_called_once()
+        assert GitHubAppInstallation.objects.count() == 2
 
     @mock.patch.object(GitHubAppService, "sync")
     def test_installation_unsuspended_with_existing_installation(self, sync):
@@ -204,6 +206,9 @@ class TestGitHubAppWebhook(TestCase):
         assert not GitHubAppInstallation.objects.filter(installation_id=2222).exists()
 
     def test_installation_suspended(self):
+        assert GitHubAppInstallation.objects.filter(
+            installation_id=self.installation.installation_id
+        ).exists()
         payload = {
             "action": "suspended",
             "installation": {
