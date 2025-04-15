@@ -14,7 +14,8 @@ class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
         if not user.is_authenticated:
             return self.none()
         queryset = self.filter(users=user)
-        # Exclude repositories/organizations from the GitHub App for now to avoid confusions.
+        # TODO: Once we are migrated into GitHub App we should include these repositories/organizations.
+        # Exclude repositories/organizations from the GitHub App for now to avoid duplicated entries.
         queryset = queryset.exclude(vcs_provider=GITHUB_APP)
         return queryset
 
@@ -36,7 +37,8 @@ class RemoteRepositoryQuerySet(RelatedUserQuerySet):
             remote_repository_relations__user=user,
             remote_repository_relations__admin=True,
         )
-        # Exclude repositories from the GitHub App for now to avoid confusions.
+        # TODO: Once we are migrated into GitHub App we should include these repositories/organizations.
+        # Exclude repositories/organizations from the GitHub App for now to avoid duplicated entries.
         queryset = queryset.exclude(vcs_provider=GITHUB_APP)
         return queryset.distinct()
 

@@ -11,6 +11,11 @@ and subscribe to events like push and pull request events.
 Unlike our other Git integrations, this doesn't rely on user's OAuth2 tokens to interact with the repositories, instead it makes use of the installation.
 As long as the installation is active and has access to the repositories, Read the Docs can perform actions on them.
 
+Installations can be `suspended <https://docs.github.com/en/apps/maintaining-github-apps/suspending-a-github-app-installation>`__,
+which means that the GitHub App is still installed but cannot access any resources, this action is reversible.
+Installations can also be uninstalled, which means that the GitHub App is removed from the account or organization,
+and cannot access any resources, this action is irreversible.
+
 You can read more about GitHub Apps in `GitHub's documentation <https://docs.github.com/en/apps/overview>`__.
 
 Modeling

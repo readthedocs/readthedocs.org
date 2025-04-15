@@ -41,8 +41,8 @@ class GitHubAppService(Service):
     def gh_app_client(self):
         return get_gh_app_client()
 
-    @cached_property
-    def app_installation(self) -> GHInstallation:
+    @lru_cache
+    def get_app_installation(self) -> GHInstallation:
         """
         Return the installation object from the GitHub API.
 
@@ -139,6 +139,8 @@ class GitHubAppService(Service):
         Our webhooks should keep permissions in sync, but just in case,
         we first sync the repositories from all installations accessible to the user (refresh access to new repositories),
         and then we sync each repository the user has access to (check if the user lost access to a repository, or his access level changed).
+
+        This method is called when the user logs in or when the user manually clicks on "Sync repositories".
         """
         has_error = False
         # Refresh access to all installations accessible to the user.
@@ -201,7 +203,7 @@ class GitHubAppService(Service):
         we remove the organization from the database.
         """
         try:
-            app_installation = self.app_installation
+            app_installation = self.get_app_installation()
         except GithubException as e:
             log.info(
                 "Failed to get installation",
@@ -457,7 +459,8 @@ class GitHubAppService(Service):
 
     def get_clone_token(self, project):
         """
-        Return a token for HTTP Git clone access to the repository.
+        Return a token for HTTP-based Git access to the repository.
+
         See:
         - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
         - https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
