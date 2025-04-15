@@ -1,0 +1,25 @@
+{% extends "organizations/base.html" %}
+
+{% load i18n %}
+{% load gravatar %}
+{% load organizations %}
+
+{% block title %}
+  {% with org=team.organization %}
+    {{ org.name }} /
+  {% endwith %}
+  {{ team.name }}
+{% endblock %}
+
+{% block subnav-title %}{% endblock %}
+
+{% block subnav-navbar %}{% endblock %}
+
+{% block subnav-breadcrumb %}
+  <a href="{% url "organization_list" %}">{% trans "Organizations" %}</a>&nbsp;&gt;
+  <a href="{% url "organization_team_list" organization.slug %}">{{ organization.name }}</a>
+  {% if team %}
+    &nbsp;&gt;
+    <a href="{% url "organization_team_detail" organization.slug team.slug %}">{{ team.name }} Team</a>
+  {% endif %}
+{% endblock %}

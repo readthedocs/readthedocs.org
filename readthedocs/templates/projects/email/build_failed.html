@@ -1,0 +1,52 @@
+{% extends "core/email/common.html" %}
+
+{% block top-right %}
+  {{ project.name }}: build #{{ build.pk }}
+{% endblock %}
+
+{% block salutation %}
+Build failed on {{ project.name }}: <em>{{ version.verbose_name }}</em>
+{% endblock %}
+
+{% block content %}
+  <p>
+    <a href="{{ build_url }}">
+      build #{{ build.pk }} -&nbsp; <span style="color: #ff7040;">failed</span>
+    </a>
+  </p>
+  {% if build.error %}
+    <p>
+      <strong>Error:</strong> <em>{{ build.error }}</em>
+    </p>
+  {% else %}
+    <p>
+      <strong>Error:</strong> <em>Unknown error</em>
+    </p>
+  {% endif %}
+
+  <p>
+    You can find out more about this failure in the build log:
+
+    <ul>
+      <li>
+        <a href="{{ build_url }}">
+          Build log page
+        </a>
+      </li>
+      <li>
+        <a href="{{ build_raw }}">
+          Raw build log
+        </a>
+      </li>
+    </ul>
+  </p>
+
+  <p>
+    A good place to start debugging this error is our <a href="https://docs.readthedocs.io/page/guides/build-troubleshooting.html">build troubleshooting guide</a>.
+    We also suggest reading our <a href="https://docs.readthedocs.io/page/builds.html">build process overview</a> to get a better sense for how the builds are executed.
+  </p>
+
+  <p>
+    You can manage your email preferences in the project's <a href="{{ unsubscribe_url }}">notification settings</a>.
+  </p>
+{% endblock %}
