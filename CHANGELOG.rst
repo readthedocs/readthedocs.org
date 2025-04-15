@@ -1,3 +1,16 @@
+Version 12.0.4
+--------------
+
+:Date: April 15, 2025
+
+* `@TheMathix <https://github.com/TheMathix>`__: Update README.rst (`#12107 <https://github.com/readthedocs/readthedocs.org/pull/12107>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12103 <https://github.com/readthedocs/readthedocs.org/pull/12103>`__)
+* `@stsewd <https://github.com/stsewd>`__: VCS: pass a version object to git provider (`#12101 <https://github.com/readthedocs/readthedocs.org/pull/12101>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version: document how to change the version slug and expose it to everyone (`#12096 <https://github.com/readthedocs/readthedocs.org/pull/12096>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't set secret key on builders (`#12095 <https://github.com/readthedocs/readthedocs.org/pull/12095>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: pin newrelic (`#12092 <https://github.com/readthedocs/readthedocs.org/pull/12092>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.3 (`#12089 <https://github.com/readthedocs/readthedocs.org/pull/12089>`__)
+
 Version 12.0.3
 --------------
 
