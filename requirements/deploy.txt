@@ -105,7 +105,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.20
+django==5.2
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -134,7 +134,7 @@ django-annoying==0.10.8
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
-django-celery-beat==2.7.0
+django-celery-beat==2.8.0
     # via -r requirements/pip.txt
 django-cors-headers==4.7.0
     # via -r requirements/pip.txt
@@ -162,11 +162,11 @@ django-ipware==5.0.2
     #   django-structlog
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
-django-safemigrate==4.3
+django-safemigrate==5.3
     # via -r requirements/pip.txt
 django-simple-history==3.8.0
     # via -r requirements/pip.txt
-django-storages[boto3]==1.14.3
+django-storages[boto3]==1.14.6
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
@@ -431,6 +431,7 @@ typing-extensions==4.13.2
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
+    #   pygithub
     #   typing-inspection
 typing-inspection==0.4.0
     # via
