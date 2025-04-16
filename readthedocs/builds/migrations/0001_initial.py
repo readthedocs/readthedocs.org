@@ -7,7 +7,7 @@ import readthedocs.builds.version_slug
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
     dependencies = [
         ("projects", "0001_initial"),
         ("taggit", "0001_initial"),

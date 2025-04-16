@@ -18,7 +18,7 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
 
     dependencies = [
         ("projects", "0140_addons_options_base_version"),

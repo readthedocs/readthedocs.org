@@ -21,7 +21,7 @@ def migrate(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
 
     dependencies = [
         ("builds", "0056_alter_versionautomationrule_priority"),

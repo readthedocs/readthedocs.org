@@ -7,7 +7,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
 
     dependencies = [
         ("builds", "0059_add_version_date_index"),

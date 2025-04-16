@@ -7,7 +7,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
     dependencies = [
         ("socialaccount", "0005_socialtoken_nullable_app"),
         ("sso", "0001_squashed"),
