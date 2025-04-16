@@ -871,7 +871,7 @@ class GitHubAppTests(TestCase):
 
 
 @override_settings(
-    PUBLIC_API_URL="https://readthedocs.org",
+    PUBLIC_API_URL="https://app.readthedocs.org",
 )
 class GitHubOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
@@ -1332,8 +1332,8 @@ class GitHubOAuthTests(TestCase):
         self.integration.save()
 
         webhook_data = self.provider_data
-        rtd_webhook_url = "https://{domain}{path}".format(
-            domain=settings.PRODUCTION_DOMAIN,
+        rtd_webhook_url = "{domain}{path}".format(
+            domain=settings.PUBLIC_API_URL,
             path=reverse(
                 "api_webhook",
                 kwargs={
@@ -1446,19 +1446,23 @@ class GitHubOAuthTests(TestCase):
                 },
             ]
         )
-        request.delete(
-            f"{self.api_url}/repos/pypa/pip/hooks/1",
-        )
-        request.delete(
-            f"{self.api_url}/repos/pypa/pip/hooks/2",
-        )
-        request.delete(
-            f"{self.api_url}/repos/pypa/pip/hooks/3",
-        )
-        request.delete(
-            f"{self.api_url}/repos/pypa/pip/hooks/4",
-        )
+        mock_request_deletions = [
+            request.delete(
+                f"{self.api_url}/repos/pypa/pip/hooks/1",
+            ),
+            request.delete(
+                f"{self.api_url}/repos/pypa/pip/hooks/2",
+            ),
+            request.delete(
+                f"{self.api_url}/repos/pypa/pip/hooks/3",
+            ),
+            request.delete(
+                f"{self.api_url}/repos/pypa/pip/hooks/4",
+            ),
+        ]
         assert self.service.remove_webhook(self.project) is True
+        for mock_request_deletion in mock_request_deletions:
+            assert mock_request_deletion.called_once
 
     @requests_mock.Mocker(kw="request")
     def test_remove_webhook_match_found_error_to_delete(self, request):
@@ -1505,11 +1509,12 @@ class GitHubOAuthTests(TestCase):
                 },
             ]
         )
-        request.delete(
+        mock_request_deletion = request.delete(
             f"{self.api_url}/repos/pypa/pip/hooks/1",
             status_code=401,
         )
         assert self.service.remove_webhook(self.project) is False
+        assert mock_request_deletion.called_once
 
     @requests_mock.Mocker(kw="request")
     def test_remove_webhook_match_not_found(self, request):

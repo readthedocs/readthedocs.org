@@ -438,9 +438,8 @@ class GitHubService(UserService):
             f"{settings.PUBLIC_API_URL}/api/v2/webhook/{project.slug}/",
             f"{settings.PUBLIC_API_URL}/api/v2/webhook/github/{project.slug}/",
         ]
-        if "app." in settings.PUBLIC_API_URL:
-            hook_targets.append(hook_targets[0].replace("app.", "", 1))
-            hook_targets.append(hook_targets[1].replace("app.", "", 1))
+        hook_targets.append(hook_targets[0].replace("app.", "", 1))
+        hook_targets.append(hook_targets[1].replace("app.", "", 1))
 
         for hook in data:
             hook_url = hook["config"]["url"]
