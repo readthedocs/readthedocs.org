@@ -13,7 +13,7 @@ def _has_account_connected_to_github_app(user):
         return False
     return user.socialaccount_set.filter(
         provider=GitHubAppProvider.id,
-    )
+    ).exists()
 
 
 class RelatedUserQuerySet(NoReprQuerySet, models.QuerySet):
