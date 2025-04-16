@@ -8,6 +8,7 @@ from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
+from requests.exceptions import HTTPError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
@@ -429,7 +430,7 @@ class GitHubService(UserService):
             resp = self.session.get(f"{self.base_api_url}/repos/{owner}/{repo}/hooks")
             resp.raise_for_status()
             data = resp.json()
-        except Exception:
+        except HTTPError:
             log.info("Failed to get GitHub webhooks for project.")
             return False
 
@@ -449,7 +450,7 @@ class GitHubService(UserService):
                         self.session.delete(
                             f"{self.base_api_url}/repos/{owner}/{repo}/hooks/{hook['id']}"
                         ).raise_for_status()
-                    except Exception:
+                    except HTTPError:
                         log.info("Failed to remove GitHub webhook for project.")
                         return False
         return True
