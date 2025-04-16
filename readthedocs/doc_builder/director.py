@@ -671,6 +671,7 @@ class BuildDirector:
         env = self.get_rtd_env_vars()
         # Don't prompt for username, this requires Git 2.3+
         env["GIT_TERMINAL_PROMPT"] = "0"
+        env["READTHEDOCS_GIT_CLONE_TOKEN"] = self.data.project.clone_token
         return env
 
     def get_rtd_env_vars(self):

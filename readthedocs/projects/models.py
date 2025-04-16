@@ -980,7 +980,7 @@ class Project(models.Model):
                 self,
                 version=version,
                 environment=environment,
-                token=self.clone_token,
+                use_token=bool(self.clone_token),
             )
         return repo
 
@@ -1412,16 +1412,17 @@ class Project(models.Model):
         return self.organizations.first()
 
     @property
-    def clone_token(self):
+    def clone_token(self) -> str | None:
         """
-        Return a token for HTTP Git clone access to the repository.
+        Return a HTTP-based Git access token to the repository.
 
         .. note::
 
-           Only repositories granted acces by a GitHub app installation will return a token.
+           - A token is only returned for projects linked to a private repository.
+           - Only repositories granted acces by a GitHub app installation will return a token.
         """
         service_class = self.get_git_service_class()
-        if not service_class:
+        if not service_class or not self.remote_repository.private:
             return None
         for service in service_class.for_project(self):
             token = service.get_clone_token(self)
