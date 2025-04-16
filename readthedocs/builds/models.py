@@ -740,6 +740,8 @@ class Build(models.Model):
         indexes = [
             models.Index(fields=["project", "date"]),
             models.Index(fields=["version", "date"]),
+            # Useful for `/_/addons/` API endpoint.
+            # Query: ``version.builds.filter(success=True, state=BUILD_STATE_FINISHED)``
             models.Index(fields=["version", "state", "date", "success"]),
             models.Index(fields=["version", "state", "type"]),
         ]
