@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from typing import Iterator
+from urllib.parse import urlencode
 
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
@@ -44,22 +45,24 @@ class InstallationTargetGroup:
 
         See https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/migrating-oauth-apps-to-github-apps#prompt-users-to-install-your-github-app.
         """
-        repository_ids = []
-        for repository_id in self.repository_ids:
-            repository_ids.append(f"&repository_ids[]={repository_id}")
-        repository_ids = "".join(repository_ids)
-
         base_url = (
             f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/new/permissions"
         )
-        return f"{base_url}?suggested_target_id={self.target_id}{repository_ids}"
+        query_params = urlencode(
+            {
+                "suggested_target_id": self.target_id,
+                "repository_ids[]": self.repository_ids,
+            },
+            doseq=True,
+        )
+        return f"{base_url}?{query_params}"
 
     @property
     def installed(self):
         """
-        Check if the app has been in all required repositories.
+        Check if the app has been installed in all required repositories.
 
-        The the list of repository_ids is not empty, it means that the app still needs to be installed in some repositories,
+        If the the list of `repository_ids` is not empty, it means that the app still needs to be installed in some repositories,
         or that the app hasn't been installed at all in the target account.
         """
         return not bool(self.repository_ids)
@@ -84,7 +87,13 @@ class MigrationTarget:
         base_url = (
             f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/new/permissions"
         )
-        return f"{base_url}?suggested_target_id={self.target_id}&repository_ids[]={self.project.remote_repository.remote_id}"
+        query_params = urlencode(
+            {
+                "suggested_target_id": self.target_id,
+                "repository_ids[]": self.project.remote_repository.remote_id,
+            }
+        )
+        return f"{base_url}?{query_params}"
 
     @property
     def can_be_migrated(self):
