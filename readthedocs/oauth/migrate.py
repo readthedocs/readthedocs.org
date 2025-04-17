@@ -27,6 +27,7 @@ class GitHubAccountTarget:
     login: str
     id: int
     type: GitHubAccountType
+    avatar_url: str
 
 
 @dataclass
@@ -36,6 +37,7 @@ class InstallationTargetGroup:
     target_id: int
     target_type: GitHubAccountType
     target_name: str
+    target_avatar_url: str
     repository_ids: set[int]
 
     @property
@@ -66,6 +68,10 @@ class InstallationTargetGroup:
         or that the app hasn't been installed at all in the target account.
         """
         return not bool(self.repository_ids)
+
+    @property
+    def target_html_url(self):
+        return f"https://github.com/{self.target_name}"
 
 
 @dataclass
@@ -135,6 +141,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
                 target_id=target_account.id,
                 target_name=target_account.login,
                 target_type=target_account.type,
+                target_avatar_url=target_account.avatar_url,
                 repository_ids=set(),
             )
         if not has_intallation:
@@ -150,6 +157,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
                 target_id=target_account.id,
                 target_name=target_account.login,
                 target_type=target_account.type,
+                target_avatar_url=target_account.avatar_url,
                 repository_ids=set(),
             )
 
@@ -177,6 +185,7 @@ def _get_default_github_account_target(user) -> GitHubAccountTarget:
         login=account.extra_data.get("login", "ghost"),
         id=int(account.uid),
         type=GitHubAccountType.USER,
+        avatar_url=account.get_avatar_url(),
     )
 
 
@@ -189,11 +198,13 @@ def _get_github_account_target(remote_repository) -> GitHubAccountTarget | None:
     for repositories owned by users, we try to guess the account based on the repository owner
     (as we don't save the owner ID in the remote repository object).
     """
-    if remote_repository.organization:
+    remote_organization = remote_repository.organization
+    if remote_organization:
         return GitHubAccountTarget(
-            login=remote_repository.organization.slug,
-            id=int(remote_repository.organization.remote_id),
+            login=remote_organization.slug,
+            id=int(remote_organization.remote_id),
             type=GitHubAccountType.ORGANIZATION,
+            avatar_url=remote_organization.avatar_url,
         )
     login = remote_repository.full_name.split("/", 1)[0]
     account = SocialAccount.objects.filter(
@@ -204,6 +215,7 @@ def _get_github_account_target(remote_repository) -> GitHubAccountTarget | None:
             login=login,
             id=int(account.uid),
             type=GitHubAccountType.USER,
+            avatar_url=account.get_avatar_url(),
         )
     return None
 
