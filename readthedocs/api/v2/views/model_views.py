@@ -1,6 +1,7 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
 import json
+from dataclasses import asdict
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
@@ -27,6 +28,9 @@ from readthedocs.api.v2.permissions import HasBuildAPIKey
 from readthedocs.api.v2.permissions import IsOwner
 from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
+from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
+from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
@@ -344,6 +348,44 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     def get_queryset_for_api_key(self, api_key):
         return self.model.objects.filter(project=api_key.project)
+
+    @decorators.action(
+        detail=True,
+        permission_classes=[HasBuildAPIKey],
+        methods=["post"],
+        url_path="credentials/storage",
+    )
+    def credentials_for_storage(self, request, **kwargs):
+        """
+        Generate temporary credentials for interacting with storage.
+
+        This can generate temporary credentials for interacting with S3 only for now.
+        """
+        build = self.get_object()
+        credentials_type = request.data.get("type")
+
+        if credentials_type == "build_media":
+            method = get_s3_build_media_scoped_credentials
+            # 30 minutes should be enough for uploading build artifacts.
+            duration = 30 * 60
+        elif credentials_type == "build_tools":
+            method = get_s3_build_tools_scoped_credentials
+            # 30 minutes should be enough for downloading build tools.
+            duration = 30 * 60
+        else:
+            return Response(
+                {"error": "Invalid storage type"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            credentials = method(build=build, duration=duration)
+        except AWSTemporaryCredentialsError:
+            return Response(
+                {"error": "Failed to generate temporary credentials"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        return Response({"s3": asdict(credentials)})
 
 
 class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
