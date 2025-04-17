@@ -225,7 +225,7 @@ class BuildEnvironmentMocker:
         )
 
         self.requestsmock.post(
-            f"{settings.SLUMBER_API_HOST}/api/v2/build/{self.build.pk}/temporary-credentials/storage/",
+            f"{settings.SLUMBER_API_HOST}/api/v2/build/{self.build.pk}/credentials/storage/",
             status_code=201,
             json={
                 "s3": {

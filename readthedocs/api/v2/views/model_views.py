@@ -353,9 +353,9 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         detail=True,
         permission_classes=[HasBuildAPIKey],
         methods=["post"],
-        url_path="temporary-credentials/storage",
+        url_path="credentials/storage",
     )
-    def temporary_credentials_for_storage(self, request, **kwargs):
+    def credentials_for_storage(self, request, **kwargs):
         """
         Generate temporary credentials for interacting with storage.
 

@@ -65,8 +65,9 @@ def _get_scoped_credentials(*, session_name, policy, duration) -> AWSTemporaryCr
     """
     :param session_name: An identifier to attach to the generated credentials, useful to identify who requested them.
      AWS limits the session name to 64 characters, so if the session_name is too long, it will be truncated.
-    :duration: The duration of the credentials in seconds. Default is 15 minutes.
+    :param duration: The duration of the credentials in seconds. Default is 15 minutes.
      Note that the minimum duration time is 15 minutes and the maximum is given by the role (defaults to 1 hour).
+    :param policy: The inline policy to attach to the generated credentials.
 
     .. note::
 
@@ -192,7 +193,7 @@ def get_s3_build_tools_scoped_credentials(
     Get temporary credentials with read-only access to the build-tools bucket.
 
     :param build: The build to get the credentials for.
-    :duration: The duration of the credentials in seconds. Default is 15 minutes.
+    :param duration: The duration of the credentials in seconds. Default is 15 minutes.
      Note that the minimum duration time is 15 minutes and the maximum is given by the role (defaults to 1 hour).
     """
     project = build.project

@@ -523,7 +523,12 @@ class BuildDirector:
                 record=False,
             )
 
-        build_tools_storage = get_storage(self.data, StorageType.build_tools)
+        build_tools_storage = get_storage(
+            project=self.data.project,
+            build_id=self.data.build["id"],
+            api_client=self.data.api_client,
+            storage_type=StorageType.build_tools,
+        )
 
         for tool, version in self.data.config.build.tools.items():
             full_version = version.full_version  # e.g. 3.9 -> 3.9.7

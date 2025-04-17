@@ -150,7 +150,7 @@ class RCloneS3Remote(BaseRClone):
 
     All secrets will be passed as environ variables to the rclone command.
 
-    See https://rclone.org/s3/.
+    See https://rclone.org/s3/ and https://rclone.org/s3/#configuration.
 
     :params bucket_name: Name of the S3 bucket.
     :params access_key_id: AWS access key id.

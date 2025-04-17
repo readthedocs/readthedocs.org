@@ -17,7 +17,7 @@ class StorageType(StrEnum):
     build_tools = auto()
 
 
-def get_storage(task_data, storage_type: StorageType):
+def get_storage(*, project, build_id, api_client, storage_type: StorageType):
     """
     Get a storage class instance to interact with storage from the build.
 
@@ -30,7 +30,9 @@ def get_storage(task_data, storage_type: StorageType):
     storage_class = _get_storage_class(storage_type)
     extra_kwargs = {}
     if settings.USING_AWS:
-        extra_kwargs = _get_s3_scoped_credentials(task_data, storage_type)
+        extra_kwargs = _get_s3_scoped_credentials(
+            project=project, build_id=build_id, api_client=api_client, storage_type=storage_type
+        )
     return storage_class(**extra_kwargs)
 
 
@@ -69,23 +71,17 @@ def _get_build_tools_storage_class():
     return import_string(settings.RTD_BUILD_TOOLS_STORAGE)
 
 
-def _get_s3_scoped_credentials(task_data, storage_type: StorageType):
+def _get_s3_scoped_credentials(*, project, build_id, api_client, storage_type: StorageType):
     """Get the scoped credentials for the build using our internal API."""
-    if not task_data.project.has_feature(Feature.USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS):
+    if not project.has_feature(Feature.USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS):
         # Use the default credentials defined in the settings.
         return {}
 
-    build_id = task_data.build["id"]
-
     try:
-        credentials = task_data.api_client.build(f"{build_id}/temporary-credentials/storage").post(
+        credentials = api_client.build(f"{build_id}/credentials/storage").post(
             {"type": storage_type.value}
         )
     except Exception:
-        log.exception(
-            "Error getting scoped credentials.",
-            build_id=build_id,
-        )
         raise BuildAppError(
             BuildAppError.GENERIC_WITH_BUILD_ID,
             exception_message="Error getting scoped credentials.",

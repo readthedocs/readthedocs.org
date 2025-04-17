@@ -884,7 +884,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         # Get temporary credentials
         assert self.requests_mock.request_history[6]._request.method == "POST"
-        assert self.requests_mock.request_history[6].path == "/api/v2/build/1/temporary-credentials/storage/"
+        assert self.requests_mock.request_history[6].path == "/api/v2/build/1/credentials/storage/"
         assert self.requests_mock.request_history[6].json() == {
             "type": "build_tools",
         }
@@ -912,7 +912,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         # Get temporary credentials
         assert self.requests_mock.request_history[9]._request.method == "POST"
-        assert self.requests_mock.request_history[9].path == "/api/v2/build/1/temporary-credentials/storage/"
+        assert self.requests_mock.request_history[9].path == "/api/v2/build/1/credentials/storage/"
         assert self.requests_mock.request_history[9].json() == {
             "type": "build_media",
         }

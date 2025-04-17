@@ -171,7 +171,7 @@ class APIBuildTests(TestCase):
             region_name="us-east-1",
             bucket_name="readthedocs-media",
         )
-        r = client.post(reverse("build-temporary-credentials-for-storage", args=(build.pk,)), {"type": "build_media"})
+        r = client.post(reverse("build-credentials-for-storage", args=(build.pk,)), {"type": "build_media"})
         assert r.status_code == 200
         assert r.data == {
             "s3": {
@@ -195,7 +195,7 @@ class APIBuildTests(TestCase):
             region_name="us-east-1",
             bucket_name="readthedocs-build-tools",
         )
-        r = client.post(reverse("build-temporary-credentials-for-storage", args=(build.pk,)), {"type": "build_tools"})
+        r = client.post(reverse("build-credentials-for-storage", args=(build.pk,)), {"type": "build_tools"})
         assert r.status_code == 200
         assert r.data == {
             "s3": {
