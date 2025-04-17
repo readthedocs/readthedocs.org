@@ -38,7 +38,7 @@ class TestSecurityTokenService(TestCase):
             project=self.project,
         )
 
-    @override_settings(USING_AWS=False)
+    @override_settings(USING_AWS=False, DEBUG=True)
     def test_get_s3_build_media_global_credentials(self):
         credentials = get_s3_build_media_scoped_credentials(build=self.build)
         assert credentials == AWSS3TemporaryCredentials(
@@ -184,7 +184,7 @@ class TestSecurityTokenService(TestCase):
             DurationSeconds=15 * 60,
         )
 
-    @override_settings(USING_AWS=False)
+    @override_settings(USING_AWS=False, DEBUG=True)
     def test_get_s3_build_tools_global_credentials(self):
         credentials = get_s3_build_tools_scoped_credentials(build=self.build)
         assert credentials == AWSS3TemporaryCredentials(
