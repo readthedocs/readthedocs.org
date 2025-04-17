@@ -56,7 +56,6 @@ def get_sts_client():
         "sts",
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        # TODO: should this be its own setting?
         region_name=settings.AWS_S3_REGION_NAME,
     )
 
@@ -76,6 +75,10 @@ def _get_scoped_credentials(*, session_name, policy, duration) -> AWSTemporaryCr
        Useful for local development where we don't have a service like AWS STS.
     """
     if not settings.USING_AWS:
+        if not settings.DEBUG:
+            raise ValueError(
+                "Not returning global credentials, AWS STS should always be used in production."
+            )
         return AWSTemporaryCredentials(
             access_key_id=settings.AWS_ACCESS_KEY_ID,
             secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
