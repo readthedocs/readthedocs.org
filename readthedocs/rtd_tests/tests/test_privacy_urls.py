@@ -546,6 +546,8 @@ class PrivateUserProfileAdminAccessTest(PrivateUserProfileMixin, TestCase):
         self.response_data.update(
             {
                 "/accounts/login/": {"status_code": 302},
+                # The test user doesn't have a GitHub account, so it's redirected to the home page.
+                "/accounts/migrate-to-github-app/": {"status_code": 302},
             }
         )
 
@@ -562,6 +564,8 @@ class PrivateUserProfileUserAccessTest(PrivateUserProfileMixin, TestCase):
         self.response_data.update(
             {
                 "/accounts/login/": {"status_code": 302},
+                # The test user doesn't have a GitHub account, so it's redirected to the home page.
+                "/accounts/migrate-to-github-app/": {"status_code": 302},
             }
         )
 

@@ -41,6 +41,11 @@ account_urls = [
         views.AccountAdvertisingEdit.as_view(),
         name="account_advertising",
     ),
+    path(
+        "migrate-to-github-app/",
+        views.MigrateToGitHubAppView.as_view(),
+        name="migrate_to_github_app",
+    ),
 ]
 
 urlpatterns += account_urls
