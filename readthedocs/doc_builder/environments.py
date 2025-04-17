@@ -391,6 +391,7 @@ class DockerBuildCommand(BuildCommand):
         not_escape_variables = (
             "READTHEDOCS_OUTPUT",
             "READTHEDOCS_VIRTUALENV_PATH",
+            "READTHEDOCS_GIT_CLONE_TOKEN",
             "CONDA_ENVS_PATH",
             "CONDA_DEFAULT_ENV",
         )

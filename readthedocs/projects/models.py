@@ -980,6 +980,7 @@ class Project(models.Model):
                 self,
                 version=version,
                 environment=environment,
+                use_token=bool(self.clone_token),
             )
         return repo
 
@@ -1410,6 +1411,25 @@ class Project(models.Model):
     def organization(self):
         return self.organizations.first()
 
+    @property
+    def clone_token(self) -> str | None:
+        """
+        Return a HTTP-based Git access token to the repository.
+
+        .. note::
+
+           - A token is only returned for projects linked to a private repository.
+           - Only repositories granted acces by a GitHub app installation will return a token.
+        """
+        service_class = self.get_git_service_class()
+        if not service_class or not self.remote_repository.private:
+            return None
+        for service in service_class.for_project(self):
+            token = service.get_clone_token(self)
+            if token:
+                return token
+        return None
+
 
 class APIProject(Project):
     """
@@ -1426,12 +1446,17 @@ class APIProject(Project):
     """
 
     features = []
+    # This is a property in the original model, in order to
+    # be able to assign it a value in the constructor, we need to re-declare it
+    # as an attribute here.
+    clone_token = None
 
     class Meta:
         proxy = True
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop("features", [])
+        self.clone_token = kwargs.pop("clone_token", None)
         environment_variables = kwargs.pop("environment_variables", {})
         ad_free = not kwargs.pop("show_advertising", True)
         # These fields only exist on the API return, not on the model, so we'll

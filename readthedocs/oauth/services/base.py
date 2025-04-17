@@ -106,6 +106,10 @@ class Service:
         """
         raise NotImplementedError
 
+    def attach_project(self, project):
+        # TODO: Rename this and move it to the base class
+        raise NotImplementedError
+
     def get_clone_token(self, project):
         """Get a token used for cloning the repository."""
         raise NotImplementedError

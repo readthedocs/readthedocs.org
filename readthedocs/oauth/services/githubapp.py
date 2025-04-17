@@ -483,8 +483,8 @@ class GitHubAppService(Service):
 
     def setup_webhook(self, project, integration=None):
         """When using a GitHub App, we don't need to set up a webhook."""
-        return True
+        return True, None
 
     def update_webhook(self, project, integration=None):
         """When using a GitHub App, we don't need to set up a webhook."""
-        return True
+        return True, None
