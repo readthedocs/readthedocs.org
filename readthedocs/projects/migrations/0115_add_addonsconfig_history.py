@@ -10,7 +10,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

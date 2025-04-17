@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         ("builds", "0051_add_addons_field"),

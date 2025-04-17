@@ -5,7 +5,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
     dependencies = [
         ("projects", "0126_alter_remote_repository_description"),
     ]

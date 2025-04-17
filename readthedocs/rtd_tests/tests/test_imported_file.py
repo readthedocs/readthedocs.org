@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 from django.conf import settings
-from django.core.files.storage import get_storage_class
+from readthedocs.storage import get_storage_class
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get

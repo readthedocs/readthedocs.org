@@ -7,7 +7,7 @@ import readthedocs.builds.version_slug
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
     dependencies = [
         ("builds", "0004_add-apiversion-proxy-model"),
     ]

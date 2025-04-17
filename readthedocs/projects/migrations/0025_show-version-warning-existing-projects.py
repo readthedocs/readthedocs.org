@@ -9,7 +9,7 @@ def show_version_warning_to_existing_projects(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0024_add-show-version-warning"),
     ]

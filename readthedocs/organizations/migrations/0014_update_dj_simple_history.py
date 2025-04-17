@@ -5,7 +5,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
     dependencies = [
         ("organizations", "0013_update_naming"),
     ]

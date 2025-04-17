@@ -20,7 +20,7 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("builds", "0021_make_hidden_field_not_null"),
     ]

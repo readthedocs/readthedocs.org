@@ -23,7 +23,7 @@ def reverse_remove_fields(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
 
     dependencies = [
         ("projects", "0128_addons_notifications"),

@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
 
     def migrate_data(apps, schema_editor):
         # Keep things that slugify wouldn't normally accept,

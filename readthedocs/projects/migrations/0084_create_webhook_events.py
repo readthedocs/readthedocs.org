@@ -11,7 +11,7 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0083_init_generic_webhooks"),
     ]

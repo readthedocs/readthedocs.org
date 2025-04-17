@@ -7,7 +7,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0042_increase_env_variable_value_max_length"),
         ("contenttypes", "0002_remove_content_type_name"),

@@ -7,7 +7,7 @@ import readthedocs.projects.validators
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("builds", "0049_automation_rule_copy"),
     ]

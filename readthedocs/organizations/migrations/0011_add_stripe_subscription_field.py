@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("djstripe", "0010_alter_customer_balance"),
         ("organizations", "0010_add_stripe_customer"),

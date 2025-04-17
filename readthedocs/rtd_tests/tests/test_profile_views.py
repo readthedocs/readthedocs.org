@@ -61,20 +61,17 @@ class ProfileViewsTest(TestCase):
         FORM_ERROR_FORMAT = "Ensure this value has at most {} characters (it has {})."
 
         self.assertFormError(
-            resp,
-            form="form",
+            resp.context.get('form'),
             field="first_name",
             errors=FORM_ERROR_FORMAT.format(30, 31),
         )
         self.assertFormError(
-            resp,
-            form="form",
+            resp.context.get('form'),
             field="last_name",
             errors=FORM_ERROR_FORMAT.format(30, 31),
         )
         self.assertFormError(
-            resp,
-            form="form",
+            resp.context.get('form'),
             field="homepage",
             errors=FORM_ERROR_FORMAT.format(100, 101),
         )

@@ -22,7 +22,7 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("core", "0004_ad-opt-out"),
         ("auth", "0008_alter_user_username_max_length"),

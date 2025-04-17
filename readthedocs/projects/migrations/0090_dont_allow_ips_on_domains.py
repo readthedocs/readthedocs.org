@@ -7,7 +7,7 @@ import readthedocs.projects.validators
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0089_update_help_text"),
     ]

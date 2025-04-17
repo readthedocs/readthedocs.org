@@ -4,7 +4,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("builds", "0053_alter_version_build_data"),
     ]
@@ -13,7 +13,12 @@ class Migration(migrations.Migration):
         migrations.AlterIndexTogether(
             name="build",
             index_together={
-                ("date", "id"),
+                # TODO: something changed in Django 5.2 that I need to comment this index together here.
+                # We need to research a little more.
+                #
+                # ValueError: Found wrong number (0) of constraints for builds_build(date, id)
+                #
+                # ("date", "id"),
                 ("version", "state", "type"),
                 ("version", "state", "date", "success"),
             },

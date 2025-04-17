@@ -7,7 +7,7 @@ import readthedocs.projects.models
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0111_add_multiple_versions_without_translations"),
     ]

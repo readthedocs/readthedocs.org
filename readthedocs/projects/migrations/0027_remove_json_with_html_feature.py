@@ -20,7 +20,7 @@ def reverse_add_feature(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0026_ad-free-option"),
     ]

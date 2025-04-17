@@ -11,7 +11,7 @@ def migrate(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
 
     dependencies = [
         ("projects", "0146_addons_filetreediff_ignored_files"),

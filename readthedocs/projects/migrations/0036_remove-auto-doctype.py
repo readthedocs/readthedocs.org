@@ -12,7 +12,7 @@ def migrate_auto_doctype(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0035_container_time_limit_as_integer"),
     ]

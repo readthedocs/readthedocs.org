@@ -8,7 +8,7 @@ import readthedocs.projects.validators
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
 
     dependencies = [
         ("projects", "0147_addons_filetreediff_enabled_by_default"),

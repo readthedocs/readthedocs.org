@@ -8,7 +8,7 @@ import readthedocs.projects.validators
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
     dependencies = [
         ("projects", "0124_remove_zh_locale"),
     ]

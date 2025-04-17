@@ -4,7 +4,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("core", "0002_make_userprofile_user_a_onetoonefield"),
     ]

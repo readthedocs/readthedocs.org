@@ -9,7 +9,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("socialaccount", "0003_extra_data_default_dict"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

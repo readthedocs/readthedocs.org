@@ -29,7 +29,7 @@ def migrate_canonical(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0006_add_domain_models"),
     ]
