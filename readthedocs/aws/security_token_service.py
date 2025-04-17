@@ -6,10 +6,12 @@ This is mainly used to generate temporary credentials to interact with S3 bucket
 In order to make use of STS, we need:
 
 - Create a role in IAM with a trusted entity type set to the AWS account that is going to be used to generate the temporary credentials.
-- A policy that allows access to all S3 buckets and paths that are going to be used.
-  Which should be attached to the role.
-- The permissions of the temporary credentials are the result of the intersection of the role policy and the inline policy that is passed to the AssumeRole API.
-  This means that the inline policy can be used to limit the permissions of the temporary credentials, but not to expand them.
+- Create an inline policy for the role, the policy should allow access to all S3 buckets and paths that are going to be used.
+- Create an inline policy to the user that is going to be used to generate the temporary credentials,
+  the policy should allow the ``sts:AssumeRole`` action for the role created in the previous step.
+
+The permissions of the temporary credentials are the result of the intersection of the role policy and the inline policy that is passed to the AssumeRole API.
+This means that the inline policy can be used to limit the permissions of the temporary credentials, but not to expand them.
 
 See:
 

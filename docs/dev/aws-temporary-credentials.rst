@@ -15,6 +15,8 @@ In order to make use of STS, you need:
 
 - Create a role in IAM with a trusted entity type set to the AWS account that is going to be used to generate the temporary credentials.
 - Create an inline policy for the role, the policy should allow access to all S3 buckets and paths that are going to be used.
+- Create an inline policy to the user that is going to be used to generate the temporary credentials,
+  the policy should allow the ``sts:AssumeRole`` action for the role created in the previous step.
 
 You can use :ref:`environment variables <settings:AWS configuration>` to set the credentials for AWS, make sure to set the value of ``RTD_S3_PROVIDER`` to ``AWS``.
 
