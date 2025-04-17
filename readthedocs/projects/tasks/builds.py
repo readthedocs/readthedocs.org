@@ -221,10 +221,8 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             )
 
             vcs_repository = self.data.project.vcs_repo(
-                version=self.data.version.slug,
+                version=self.data.version,
                 environment=environment,
-                verbose_name=self.data.version.verbose_name,
-                version_type=self.data.version.type,
             )
             log.info("Syncing repository via remote listing.")
             self.sync_versions(vcs_repository)

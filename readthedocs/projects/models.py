@@ -964,39 +964,22 @@ class Project(models.Model):
             return self._good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
-    def vcs_repo(
-        self,
-        environment,
-        version=LATEST,
-        verbose_name=None,
-        version_type=None,
-        version_identifier=None,
-        version_machine=None,
-    ):
+    def vcs_repo(self, environment, version):
         """
         Return a Backend object for this project able to handle VCS commands.
 
         :param environment: environment to run the commands
         :type environment: doc_builder.environments.BuildEnvironment
-        :param version: version slug for the backend (``LATEST`` by default)
-        :type version: str
+        :param version: Version for the backend.
         """
-        # TODO: this seems to be the only method that receives a
-        # ``version.slug`` instead of a ``Version`` instance (I prefer an
-        # instance here)
-
         backend = self.vcs_class()
         if not backend:
             repo = None
         else:
             repo = backend(
                 self,
-                version,
+                version=version,
                 environment=environment,
-                verbose_name=verbose_name,
-                version_type=version_type,
-                version_identifier=version_identifier,
-                version_machine=version_machine,
             )
         return repo
 
@@ -1033,9 +1016,13 @@ class Project(models.Model):
 
     @property
     def is_github_project(self):
+        from readthedocs.oauth.services import GitHubAppService
         from readthedocs.oauth.services import GitHubService
 
-        return self.get_git_service_class(fallback_to_clone_url=True) == GitHubService
+        return self.get_git_service_class(fallback_to_clone_url=True) in [
+            GitHubService,
+            GitHubAppService,
+        ]
 
     @property
     def is_gitlab_project(self):
@@ -1912,7 +1899,6 @@ class Feature(models.Model):
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
     DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
-    ALLOW_CHANGING_VERSION_SLUG = "allow_changing_version_slug"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1964,10 +1950,6 @@ class Feature(models.Model):
         (
             DONT_SYNC_WITH_REMOTE_REPO,
             _("Remote repository: Don't keep project in sync with remote repository."),
-        ),
-        (
-            ALLOW_CHANGING_VERSION_SLUG,
-            _("Dashboard: Allow changing the version slug."),
         ),
         # Versions sync related features
         (

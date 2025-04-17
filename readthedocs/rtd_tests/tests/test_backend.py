@@ -1,14 +1,16 @@
 import os
 import textwrap
+from readthedocs.core.utils.filesystem import safe_rmtree
 from os.path import exists
 from unittest import mock
 from unittest.mock import Mock, patch
 
 import django_dynamic_fixture as fixture
+from django_dynamic_fixture import get
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
+from readthedocs.builds.constants import BRANCH, EXTERNAL, STABLE, TAG
 from readthedocs.builds.models import Version
 from readthedocs.config import ALL
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
@@ -46,8 +48,8 @@ class TestGitBackend(TestCase):
         self.build_environment = LocalBuildEnvironment(api_client=mock.MagicMock())
 
     def tearDown(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.make_clean_working_dir()
+        # Remove all the files created by the test for this project.
+        safe_rmtree(self.project.doc_path)
         super().tearDown()
 
     def test_git_lsremote(self):
@@ -72,7 +74,8 @@ class TestGitBackend(TestCase):
         create_git_tag(repo_path, "v02", annotated=True)
         create_git_tag(repo_path, "release-ünîø∂é")
 
-        repo = self.project.vcs_repo(environment=self.build_environment)
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
         # create the working dir if it not exists. It's required to ``cwd`` to
         # execute the command
         repo.check_working_dir()
@@ -95,7 +98,8 @@ class TestGitBackend(TestCase):
         create_git_tag(repo_path, "v02", annotated=True)
         create_git_tag(repo_path, "release-ünîø∂é")
 
-        repo = self.project.vcs_repo(environment=self.build_environment)
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
         # create the working dir if it not exists. It's required to ``cwd`` to
         # execute the command
         repo.check_working_dir()
@@ -127,7 +131,8 @@ class TestGitBackend(TestCase):
         for branch in branches:
             create_git_branch(repo_path, branch)
 
-        repo = self.project.vcs_repo(environment=self.build_environment)
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
         # create the working dir if it not exists. It's required to ``cwd`` to
         # execute the command
         repo.check_working_dir()
@@ -142,7 +147,8 @@ class TestGitBackend(TestCase):
         )
 
     def test_git_update_and_checkout(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
         code, _, _ = repo.update()
         self.assertEqual(code, 0)
 
@@ -153,11 +159,12 @@ class TestGitBackend(TestCase):
         self.assertTrue(exists(repo.working_dir))
 
     def test_git_checkout_invalid_revision(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
         repo.update()
-        version = "invalid-revision"
+        branch = "invalid-revision"
         with self.assertRaises(RepositoryError) as e:
-            repo.checkout(version)
+            repo.checkout(branch)
         self.assertEqual(
             e.exception.message_id,
             RepositoryError.FAILED_TO_CHECKOUT,
@@ -167,10 +174,17 @@ class TestGitBackend(TestCase):
         """
         Test that we can get a branch called 'submodule' containing a valid submodule.
         """
+        version = get(
+            Version,
+            project=self.project,
+            type=BRANCH,
+            identifier="submodule",
+            verbose_name="submodule",
+        )
+
         repo = self.project.vcs_repo(
             environment=self.build_environment,
-            version_type=BRANCH,
-            version_identifier="submodule",
+            version=version,
         )
 
         repo.update()
@@ -182,10 +196,16 @@ class TestGitBackend(TestCase):
 
     def test_check_submodule_urls(self):
         """Test that a valid submodule is found in the 'submodule' branch."""
+        version = get(
+            Version,
+            project=self.project,
+            type=BRANCH,
+            identifier="submodule",
+            verbose_name="submodule",
+        )
         repo = self.project.vcs_repo(
             environment=self.build_environment,
-            version_type=BRANCH,
-            version_identifier="submodule",
+            version=version,
         )
         repo.update()
         repo.checkout("submodule")
@@ -204,9 +224,7 @@ class TestGitBackend(TestCase):
             verbose_name="1234",  # pr number
         )
         repo = self.project.vcs_repo(
-            verbose_name=version.verbose_name,
-            version_type=version.type,
-            version_identifier=version.identifier,
+            version=version,
             environment=self.build_environment,
         )
         repo.update()
@@ -214,10 +232,16 @@ class TestGitBackend(TestCase):
 
     def test_submodule_without_url_is_included(self):
         """Test that an invalid submodule isn't listed."""
+        version = get(
+            Version,
+            project=self.project,
+            type=BRANCH,
+            identifier="submodule",
+            verbose_name="submodule",
+        )
         repo = self.project.vcs_repo(
             environment=self.build_environment,
-            version_type=BRANCH,
-            version_identifier="submodule",
+            version=version,
         )
         repo.update()
         repo.checkout("submodule")
@@ -237,10 +261,16 @@ class TestGitBackend(TestCase):
         self.assertEqual(submodules, ["foobar", "not-valid-path"])
 
     def test_parse_submodules(self):
+        version = get(
+            Version,
+            project=self.project,
+            type=BRANCH,
+            identifier="submodule",
+            verbose_name="submodule",
+        )
         repo = self.project.vcs_repo(
             environment=self.build_environment,
-            version_type=BRANCH,
-            version_identifier="submodule",
+            version=version,
         )
         repo.update()
         repo.checkout("submodule")
@@ -290,10 +320,16 @@ class TestGitBackend(TestCase):
 
     def test_skip_submodule_checkout(self):
         """Test that a submodule is listed as available."""
+        version = get(
+            Version,
+            project=self.project,
+            type=BRANCH,
+            identifier="submodule",
+            verbose_name="submodule",
+        )
         repo = self.project.vcs_repo(
             environment=self.build_environment,
-            version_type=BRANCH,
-            version_identifier="submodule",
+            version=version,
         )
         repo.update()
         repo.checkout("submodule")
@@ -303,8 +339,7 @@ class TestGitBackend(TestCase):
         """Test that fetching an external build (PR branch) correctly executes."""
         version = fixture.get(Version, project=self.project, type=EXTERNAL, active=True)
         repo = self.project.vcs_repo(
-            verbose_name=version.verbose_name,
-            version_type=version.type,
+            version=version,
             environment=self.build_environment,
         )
         repo.update()
@@ -323,9 +358,17 @@ class TestGitBackend(TestCase):
         repo_path = self.project.repo
         create_git_branch(repo_path, "develop")
 
+        version = get(
+            Version,
+            project=self.project,
+            type=BRANCH,
+            identifier="develop",
+            verbose_name="develop",
+        )
+
         repo = self.project.vcs_repo(
             environment=self.build_environment,
-            version_type=BRANCH,
+            version=version,
         )
         repo.update()
 
@@ -345,11 +388,19 @@ class TestGitBackend(TestCase):
         repo_path = self.project.repo
         latest_actual_commit_hash = get_git_latest_commit_hash(repo_path, "master")
 
+        version = get(
+            Version,
+            project=self.project,
+            type=TAG,
+            identifier=latest_actual_commit_hash,
+            verbose_name="stable",
+            slug=STABLE,
+            machine=True,
+        )
+
         repo = self.project.vcs_repo(
             environment=self.build_environment,
-            version_type=TAG,
-            version_machine=True,
-            version_identifier=latest_actual_commit_hash,
+            version=version,
         )
         repo.update()
 

@@ -169,7 +169,6 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
-    CACHEOPS_REDIS = f"redis://:redispassword@cache:6379/1"
     BROKER_URL = f"redis://:redispassword@cache:6379/0"
 
     CELERY_ALWAYS_EAGER = False
@@ -227,6 +226,11 @@ class DockerBaseSettings(CommunityBaseSettings):
             except KeyError:
                 pass
         return providers
+
+    GITHUB_APP_ID = os.environ.get("RTD_GITHUB_APP_ID")
+    GITHUB_APP_NAME = os.environ.get("RTD_GITHUB_APP_NAME")
+    GITHUB_APP_WEBHOOK_SECRET = os.environ.get("RTD_GITHUB_APP_WEBHOOK_SECRET")
+    GITHUB_APP_PRIVATE_KEY = os.environ.get("RTD_GITHUB_APP_PRIVATE_KEY")
 
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"

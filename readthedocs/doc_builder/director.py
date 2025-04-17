@@ -90,12 +90,8 @@ class BuildDirector:
         # Create the VCS repository where all the commands are going to be
         # executed for a particular VCS type
         self.vcs_repository = self.data.project.vcs_repo(
-            version=self.data.version.slug,
+            version=self.data.version,
             environment=self.vcs_environment,
-            verbose_name=self.data.version.verbose_name,
-            version_type=self.data.version.type,
-            version_identifier=self.data.version.identifier,
-            version_machine=self.data.version.machine,
         )
 
         # We can't do too much on ``pre_checkout`` because we haven't

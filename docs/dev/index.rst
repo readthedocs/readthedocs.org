@@ -30,5 +30,6 @@ or taking the open source Read the Docs codebase for your own custom installatio
    search-integration
    aws-temporary-credentials
    subscriptions
+   github-app
    settings
    tests

@@ -183,6 +183,16 @@ Useful for testing :doc:`temporary credentials </aws-temporary-credentials>`.
 .. envvar:: RTD_S3_STATIC_STORAGE_BUCKET
 .. envvar:: RTD_AWS_S3_REGION_NAME
 
+GitHub App
+~~~~~~~~~~
+
+You can use the following environment variables to set the settings used by the GitHub App:
+
+.. envvar:: RTD_GITHUB_APP_ID
+.. envvar:: RTD_GITHUB_APP_NAME
+.. envvar:: RTD_GITHUB_APP_PRIVATE_KEY
+.. envvar:: RTD_GITHUB_APP_WEBHOOK_SECRET
+
 Stripe secrets
 ~~~~~~~~~~~~~~
 
