@@ -102,40 +102,35 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
         # Set the default search to search files instead of projects
         context["type"] = "file"
 
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset()
-            context["project_list"] = self.get_filtered_queryset()
-            # Alternatively, dynamically override super()-derived `project_list` context_data
-            # context[self.get_context_object_name(filter.qs)] = filter.qs
+        context["filter"] = self.get_filterset()
+        context["project_list"] = self.get_filtered_queryset()
+        # Alternatively, dynamically override super()-derived `project_list` context_data
+        # context[self.get_context_object_name(filter.qs)] = filter.qs
 
-            template_name = None
-            projects = AdminPermission.projects(user=self.request.user, admin=True)
-            n_projects = projects.count()
+        template_name = None
+        projects = AdminPermission.projects(user=self.request.user, admin=True)
+        n_projects = projects.count()
 
-            # TODO remove this with RTD_EXT_THEME_ENABLED
-            # This is going to try hard to show the new dashboard announcement.
-            # We can't yet back down to another announcement as we don't have
-            # the ability to evaluate local storage. Until we add the ability to
-            # dynamically change the announcement, this is going to be the only
-            # announcement shown.
-            if True:  # pylint: disable=using-constant-test
-                template_name = "new-dashboard.html"
-            elif n_projects == 0 or (
-                n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
-            ):
-                template_name = "example-projects.html"
-            elif n_projects and not projects.filter(external_builds_enabled=True).exists():
-                template_name = "pull-request-previews.html"
-            elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
-                template_name = "traffic-analytics.html"
-            elif AdminPermission.organizations(
-                user=self.request.user,
-                owner=True,
-            ).exists():
-                template_name = "security-logs.html"
+        # We can't yet back down to another announcement as we don't have
+        # the ability to evaluate local storage. Until we add the ability to
+        # dynamically change the announcement, this is going to be the only
+        # announcement shown.
+        if n_projects == 0 or (
+            n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
+        ):
+            template_name = "example-projects.html"
+        elif n_projects and not projects.filter(external_builds_enabled=True).exists():
+            template_name = "pull-request-previews.html"
+        elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
+            template_name = "traffic-analytics.html"
+        elif AdminPermission.organizations(
+            user=self.request.user,
+            owner=True,
+        ).exists():
+            template_name = "security-logs.html"
 
-            if template_name:
-                context["announcement"] = f"projects/partials/announcements/{template_name}"
+        if template_name:
+            context["announcement"] = f"projects/partials/announcements/{template_name}"
 
         return context
 
@@ -157,15 +152,7 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
             )
 
     def get_queryset(self):
-        queryset = Project.objects.dashboard(self.request.user)
-        if settings.RTD_EXT_THEME_ENABLED:
-            return queryset
-        # The new dashboard uses django-filters, this is a manual filter for the
-        # old dashboard and it can be removed with the old dashboard.
-        sort = self.request.GET.get("sort")
-        if sort not in ["modified_date", "-modified_date", "slug", "-slug"]:
-            sort = "slug"
-        return queryset.order_by(sort)
+        return Project.objects.dashboard(self.request.user)
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
@@ -229,19 +216,14 @@ class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
     lookup_field = "slug"
 
     def get_success_url(self):
-        if settings.RTD_EXT_THEME_ENABLED:
-            # Redirect to the main version listing view instead of the version
-            # admin listing. The version admin view, ``project_version_list``,
-            # is an old view without filtering and splits up active/inactive
-            # versions into two separate querysets.
-            #
-            # See: https://github.com/readthedocs/ext-theme/issues/288
-            return reverse(
-                "projects_detail",
-                kwargs={"project_slug": self.get_project().slug},
-            )
+        # Redirect to the main version listing view instead of the version
+        # admin listing. The version admin view, ``project_version_list``,
+        # is an old view without filtering and splits up active/inactive
+        # versions into two separate querysets.
+        #
+        # See: https://github.com/readthedocs/ext-theme/issues/288
         return reverse(
-            "project_version_list",
+            "projects_detail",
             kwargs={"project_slug": self.get_project().slug},
         )
 
@@ -494,10 +476,9 @@ class ImportView(PrivateViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["view_csrf_token"] = get_token(self.request)
 
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
-            context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
-            context["form_manual"] = ProjectManualForm(user=self.request.user)
+        context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
+        context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
+        context["form_manual"] = ProjectManualForm(user=self.request.user)
 
         return context
 

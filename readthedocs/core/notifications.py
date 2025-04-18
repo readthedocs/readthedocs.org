@@ -37,21 +37,12 @@ messages = [
         id=MESSAGE_NEW_DASHBOARD,
         header=textwrap.dedent(
             """
-            {% if RTD_EXT_THEME_ENABLED %}
-              Welcome to our new dashboard!
-            {% else %}
-              Our new dashboard is ready!
-            {% endif %}
+            Welcome to our new dashboard!
             """
         ).strip(),
         body=textwrap.dedent(
             """
-            {% if RTD_EXT_THEME_ENABLED %}
-              We are beginning to direct users to our new dashboard as we work to retire our legacy dashboard.
-            {% else %}
-              You are currently using our legacy dashboard, which will be retired on <time datetime="2025-03-11">March 11th, 2025</time>.
-              You should <a href="//{{ SWITCH_PRODUCTION_DOMAIN }}{% url "account_login" %}">switch to our new dashboard</a> before then.
-            {% endif %}
+            We are beginning to direct users to our new dashboard as we work to retire our legacy dashboard.
             For more information on this change and what to expect,
             <a href="https://about.readthedocs.com/blog/2024/11/rollout-of-our-new-dashboard/">read our blog post</a>.
             """

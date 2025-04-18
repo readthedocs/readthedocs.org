@@ -229,7 +229,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     BUILD_COLD_STORAGE_URL = "http://storage:9000/builds"
 
     STATICFILES_DIRS = [
-        os.path.join(CommunityBaseSettings.SITE_ROOT, "readthedocs", "static"),
         os.path.join(CommunityBaseSettings.SITE_ROOT, "media"),
     ]
 
