@@ -15,9 +15,9 @@ asgiref==3.8.1
     #   django-cors-headers
 billiard==4.2.1
     # via celery
-boto3==1.37.33
+boto3==1.37.37
     # via django-storages
-botocore==1.37.33
+botocore==1.37.37
     # via
     #   boto3
     #   s3transfer
@@ -97,7 +97,7 @@ django-annoying==0.10.8
     # via -r requirements/pip.in
 django-autoslug==1.9.9
     # via -r requirements/pip.in
-django-celery-beat==2.7.0
+django-celery-beat==2.8.0
     # via -r requirements/pip.in
 django-cors-headers==4.7.0
     # via -r requirements/pip.in
@@ -164,11 +164,11 @@ elastic-transport==8.17.1
     # via
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.17.2
+elasticsearch==8.18.0
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
-elasticsearch-dsl==8.17.1
+elasticsearch-dsl==8.18.0
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -190,7 +190,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-kombu==5.5.2
+kombu==5.5.3
     # via celery
 lexid==2021.1006
     # via bumpver
@@ -205,7 +205,7 @@ oauthlib==3.2.2
     # via requests-oauthlib
 orjson==3.10.16
     # via -r requirements/pip.in
-packaging==24.2
+packaging==25.0
     # via
     #   -r requirements/pip.in
     #   djangorestframework-api-key
@@ -214,7 +214,7 @@ packaging==24.2
     #   gunicorn
 platformdirs==4.3.7
     # via virtualenv
-prompt-toolkit==3.0.50
+prompt-toolkit==3.0.51
     # via click-repl
 psycopg[binary,pool]==3.2.6
     # via -r requirements/pip.in
@@ -247,6 +247,7 @@ python-dateutil==2.9.0.post0
     #   -r requirements/pip.in
     #   botocore
     #   celery
+    #   elasticsearch
     #   elasticsearch-dsl
     #   python-crontab
 python3-saml==1.16.0
@@ -279,7 +280,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
-s3transfer==0.11.4
+s3transfer==0.11.5
     # via boto3
 selectolax==0.3.28
     # via -r requirements/pip.in
@@ -307,11 +308,13 @@ toml==0.10.2
     # via bumpver
 typing-extensions==4.13.2
     # via
+    #   elasticsearch
     #   elasticsearch-dsl
     #   psycopg
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
+    #   pygithub
     #   typing-inspection
 typing-inspection==0.4.0
     # via pydantic
