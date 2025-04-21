@@ -13,7 +13,7 @@ from django_dynamic_fixture import get
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB, GITHUB_APP
-from readthedocs.oauth.migrate import InstallationTargetGroup, MigrationTarget
+from readthedocs.oauth.migrate import InstallationTargetGroup, MigrationTarget, GitHubAccountTarget
 from readthedocs.oauth.models import (
     GitHubAccountType,
     GitHubAppInstallation,
@@ -244,19 +244,26 @@ class TestMigrateToGitHubAppView(TestCase):
         context = response.context
 
         assert context["step"] == "overview"
-        assert context["has_multiple_github_accounts"] is False
         assert context["step_connect_completed"] is False
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
-                target_id=int(self.social_account_github.uid),
-                target_type=GitHubAccountType.USER,
-                target_name="user",
+                target=GitHubAccountTarget(
+                    id=int(self.social_account_github.uid),
+                    login="user",
+                    type=GitHubAccountType.USER,
+                    avatar_url=self.social_account_github.get_avatar_url(),
+                    profile_url=self.social_account_github.get_profile_url(),
+                ),
                 repository_ids={1111, 2222, 3333},
             ),
             InstallationTargetGroup(
-                target_id=int(self.remote_organization.remote_id),
-                target_type=GitHubAccountType.ORGANIZATION,
-                target_name="org",
+                target=GitHubAccountTarget(
+                    id=int(self.remote_organization.remote_id),
+                    login="org",
+                    type=GitHubAccountType.ORGANIZATION,
+                    avatar_url=self.remote_organization.avatar_url,
+                    profile_url=self.remote_organization.url,
+                ),
                 repository_ids={4444},
             ),
         ]
@@ -293,7 +300,7 @@ class TestMigrateToGitHubAppView(TestCase):
             == "https://github.com/settings/connections/applications/123"
         )
         assert context["step_revoke_completed"] is False
-        assert context["old_github_account"] == self.social_account_github
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
 
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_connect_done(self, request):
@@ -303,19 +310,26 @@ class TestMigrateToGitHubAppView(TestCase):
         context = response.context
 
         assert context["step"] == "overview"
-        assert context["has_multiple_github_accounts"] is False
         assert context["step_connect_completed"] is True
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
-                target_id=int(self.social_account_github.uid),
-                target_type=GitHubAccountType.USER,
-                target_name="user",
+                target=GitHubAccountTarget(
+                    id=int(self.social_account_github.uid),
+                    login="user",
+                    type=GitHubAccountType.USER,
+                    avatar_url=self.social_account_github.get_avatar_url(),
+                    profile_url=self.social_account_github.get_profile_url(),
+                ),
                 repository_ids={1111, 2222, 3333},
             ),
             InstallationTargetGroup(
-                target_id=int(self.remote_organization.remote_id),
-                target_type=GitHubAccountType.ORGANIZATION,
-                target_name="org",
+                target=GitHubAccountTarget(
+                    id=int(self.remote_organization.remote_id),
+                    login="org",
+                    type=GitHubAccountType.ORGANIZATION,
+                    avatar_url=self.remote_organization.avatar_url,
+                    profile_url=self.remote_organization.url,
+                ),
                 repository_ids={4444},
             ),
         ]
@@ -352,7 +366,7 @@ class TestMigrateToGitHubAppView(TestCase):
             == "https://github.com/settings/connections/applications/123"
         )
         assert context["step_revoke_completed"] is False
-        assert context["old_github_account"] == self.social_account_github
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
 
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_install_done(self, request):
@@ -367,19 +381,26 @@ class TestMigrateToGitHubAppView(TestCase):
         context = response.context
 
         assert context["step"] == "overview"
-        assert context["has_multiple_github_accounts"] is False
         assert context["step_connect_completed"] is True
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
-                target_id=int(self.social_account_github.uid),
-                target_type=GitHubAccountType.USER,
-                target_name="user",
+                target=GitHubAccountTarget(
+                    id=int(self.social_account_github.uid),
+                    login="user",
+                    type=GitHubAccountType.USER,
+                    avatar_url=self.social_account_github.get_avatar_url(),
+                    profile_url=self.social_account_github.get_profile_url(),
+                ),
                 repository_ids={3333},
             ),
             InstallationTargetGroup(
-                target_id=int(self.remote_organization.remote_id),
-                target_type=GitHubAccountType.ORGANIZATION,
-                target_name="org",
+                target=GitHubAccountTarget(
+                    id=int(self.remote_organization.remote_id),
+                    login="org",
+                    type=GitHubAccountType.ORGANIZATION,
+                    avatar_url=self.remote_organization.avatar_url,
+                    profile_url=self.remote_organization.url,
+                ),
                 repository_ids=set(),
             ),
         ]
@@ -416,7 +437,7 @@ class TestMigrateToGitHubAppView(TestCase):
             == "https://github.com/settings/connections/applications/123"
         )
         assert context["step_revoke_completed"] is False
-        assert context["old_github_account"] == self.social_account_github
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubService, "remove_webhook")
@@ -441,19 +462,26 @@ class TestMigrateToGitHubAppView(TestCase):
         context = response.context
 
         assert context["step"] == "overview"
-        assert context["has_multiple_github_accounts"] is False
         assert context["step_connect_completed"] is True
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
-                target_id=int(self.social_account_github.uid),
-                target_type=GitHubAccountType.USER,
-                target_name="user",
+                target=GitHubAccountTarget(
+                    id=int(self.social_account_github.uid),
+                    login="user",
+                    type=GitHubAccountType.USER,
+                    avatar_url=self.social_account_github.get_avatar_url(),
+                    profile_url=self.social_account_github.get_profile_url(),
+                ),
                 repository_ids={3333},
             ),
             InstallationTargetGroup(
-                target_id=int(self.remote_organization.remote_id),
-                target_type=GitHubAccountType.ORGANIZATION,
-                target_name="org",
+                target=GitHubAccountTarget(
+                    id=int(self.remote_organization.remote_id),
+                    login="org",
+                    type=GitHubAccountType.ORGANIZATION,
+                    avatar_url=self.remote_organization.avatar_url,
+                    profile_url=self.remote_organization.url,
+                ),
                 repository_ids=set(),
             ),
         ]
@@ -486,7 +514,7 @@ class TestMigrateToGitHubAppView(TestCase):
             == "https://github.com/settings/connections/applications/123"
         )
         assert context["step_revoke_completed"] is False
-        assert context["old_github_account"] == self.social_account_github
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubService, "remove_webhook")
@@ -509,14 +537,27 @@ class TestMigrateToGitHubAppView(TestCase):
         context = response.context
 
         assert context["step"] == "overview"
-        assert context["has_multiple_github_accounts"] is False
         assert context["step_connect_completed"] is True
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
-                target_id=int(self.social_account_github.uid),
-                target_type=GitHubAccountType.USER,
-                target_name="user",
+                target=GitHubAccountTarget(
+                    id=int(self.social_account_github.uid),
+                    login="user",
+                    type=GitHubAccountType.USER,
+                    avatar_url=self.social_account_github.get_avatar_url(),
+                    profile_url=self.social_account_github.get_profile_url(),
+                ),
                 repository_ids={3333},
+            ),
+            InstallationTargetGroup(
+                target=GitHubAccountTarget(
+                    id=int(self.remote_organization.remote_id),
+                    login="org",
+                    type=GitHubAccountType.ORGANIZATION,
+                    avatar_url=self.remote_organization.avatar_url,
+                    profile_url=self.remote_organization.url,
+                ),
+                repository_ids=set(),
             ),
         ]
         assert context["github_app_name"] == "readthedocs"
@@ -543,7 +584,7 @@ class TestMigrateToGitHubAppView(TestCase):
             == "https://github.com/settings/connections/applications/123"
         )
         assert context["step_revoke_completed"] is False
-        assert context["old_github_account"] == self.social_account_github
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubService, "remove_webhook")
@@ -568,19 +609,26 @@ class TestMigrateToGitHubAppView(TestCase):
         context = response.context
 
         assert context["step"] == "overview"
-        assert context["has_multiple_github_accounts"] is False
         assert context["step_connect_completed"] is True
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
-                target_id=int(self.social_account_github.uid),
-                target_type=GitHubAccountType.USER,
-                target_name="user",
+                target=GitHubAccountTarget(
+                    id=int(self.social_account_github.uid),
+                    login="user",
+                    type=GitHubAccountType.USER,
+                    avatar_url=self.social_account_github.get_avatar_url(),
+                    profile_url=self.social_account_github.get_profile_url(),
+                ),
                 repository_ids={3333},
             ),
             InstallationTargetGroup(
-                target_id=int(self.remote_organization.remote_id),
-                target_type=GitHubAccountType.ORGANIZATION,
-                target_name="org",
+                target=GitHubAccountTarget(
+                    id=int(self.remote_organization.remote_id),
+                    login="org",
+                    type=GitHubAccountType.ORGANIZATION,
+                    avatar_url=self.remote_organization.avatar_url,
+                    profile_url=self.remote_organization.url,
+                ),
                 repository_ids=set(),
             ),
         ]
@@ -613,7 +661,7 @@ class TestMigrateToGitHubAppView(TestCase):
             == "https://github.com/settings/connections/applications/123"
         )
         assert context["step_revoke_completed"] is False
-        assert context["old_github_account"] == self.social_account_github
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
 
         notifications = Notification.objects.for_user(self.user, self.user)
         assert notifications.count() == 2
@@ -632,19 +680,26 @@ class TestMigrateToGitHubAppView(TestCase):
         context = response.context
 
         assert context["step"] == "overview"
-        assert context["has_multiple_github_accounts"] is False
         assert context["step_connect_completed"] is True
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
-                target_id=int(self.social_account_github.uid),
-                target_type=GitHubAccountType.USER,
-                target_name="user",
+                target=GitHubAccountTarget(
+                    id=int(self.social_account_github.uid),
+                    login="user",
+                    type=GitHubAccountType.USER,
+                    avatar_url=self.social_account_github.get_avatar_url(),
+                    profile_url=self.social_account_github.get_profile_url(),
+                ),
                 repository_ids={1111, 2222, 3333},
             ),
             InstallationTargetGroup(
-                target_id=int(self.remote_organization.remote_id),
-                target_type=GitHubAccountType.ORGANIZATION,
-                target_name="org",
+                target=GitHubAccountTarget(
+                    id=int(self.remote_organization.remote_id),
+                    login="org",
+                    type=GitHubAccountType.ORGANIZATION,
+                    avatar_url=self.remote_organization.avatar_url,
+                    profile_url=self.remote_organization.url,
+                ),
                 repository_ids={4444},
             ),
         ]
@@ -681,4 +736,4 @@ class TestMigrateToGitHubAppView(TestCase):
             == "https://github.com/settings/connections/applications/123"
         )
         assert context["step_revoke_completed"] is True
-        assert context["old_github_account"] == self.social_account_github
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
