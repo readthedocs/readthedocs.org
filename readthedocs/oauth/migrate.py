@@ -24,20 +24,18 @@ from readthedocs.projects.models import Project
 class GitHubAccountTarget:
     """Information about a GitHub account that is used as a target where to install the GitHub App."""
 
-    login: str
     id: int
+    login: str
     type: GitHubAccountType
     avatar_url: str
+    profile_url: str
 
 
 @dataclass
 class InstallationTargetGroup:
     """Group of repositories that should be installed in the same target (user or organization)."""
 
-    target_id: int
-    target_type: GitHubAccountType
-    target_name: str
-    target_avatar_url: str
+    target: GitHubAccountTarget
     repository_ids: set[int]
 
     @property
@@ -52,7 +50,7 @@ class InstallationTargetGroup:
         )
         query_params = urlencode(
             {
-                "suggested_target_id": self.target_id,
+                "suggested_target_id": self.target.id,
                 "repository_ids[]": self.repository_ids,
             },
             doseq=True,
@@ -68,10 +66,6 @@ class InstallationTargetGroup:
         or that the app hasn't been installed at all in the target account.
         """
         return not bool(self.repository_ids)
-
-    @property
-    def target_html_url(self):
-        return f"https://github.com/{self.target_name}"
 
 
 @dataclass
@@ -138,10 +132,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
         target_account = _get_github_account_target(remote_repository) or default_target_account
         if target_account.id not in targets:
             targets[target_account.id] = InstallationTargetGroup(
-                target_id=target_account.id,
-                target_name=target_account.login,
-                target_type=target_account.type,
-                target_avatar_url=target_account.avatar_url,
+                target=target_account,
                 repository_ids=set(),
             )
         if not has_intallation:
@@ -154,10 +145,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
         target_account = _get_github_account_target(remote_repository) or default_target_account
         if target_account.id not in targets:
             targets[target_account.id] = InstallationTargetGroup(
-                target_id=target_account.id,
-                target_name=target_account.login,
-                target_type=target_account.type,
-                target_avatar_url=target_account.avatar_url,
+                target=target_account,
                 repository_ids=set(),
             )
 
@@ -176,6 +164,7 @@ def _get_default_github_account_target(user) -> GitHubAccountTarget:
        There are some users that have more than one GH account connected.
        They will need to migrate each account at a time.
     """
+    # This needs to support multiple accounts....
     account = user.socialaccount_set.filter(provider=GitHubProvider.id).first()
     if not account:
         account = user.socialaccount_set.filter(provider=GitHubAppProvider.id).first()
@@ -186,6 +175,7 @@ def _get_default_github_account_target(user) -> GitHubAccountTarget:
         id=int(account.uid),
         type=GitHubAccountType.USER,
         avatar_url=account.get_avatar_url(),
+        profile_url=account.get_profile_url(),
     )
 
 
@@ -205,6 +195,7 @@ def _get_github_account_target(remote_repository) -> GitHubAccountTarget | None:
             id=int(remote_organization.remote_id),
             type=GitHubAccountType.ORGANIZATION,
             avatar_url=remote_organization.avatar_url,
+            profile_url=remote_organization.url,
         )
     login = remote_repository.full_name.split("/", 1)[0]
     account = SocialAccount.objects.filter(
@@ -216,6 +207,7 @@ def _get_github_account_target(remote_repository) -> GitHubAccountTarget | None:
             id=int(account.uid),
             type=GitHubAccountType.USER,
             avatar_url=account.get_avatar_url(),
+            profile_url=account.get_profile_url(),
         )
     return None
 
