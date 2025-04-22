@@ -20,17 +20,15 @@ asgiref==3.8.1
     #   django-cors-headers
 asttokens==3.0.0
     # via stack-data
-attrs==25.3.0
-    # via wmctrl
 billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.37.33
+boto3==1.37.37
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.37.33
+botocore==1.37.37
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -214,17 +212,17 @@ elastic-transport==8.17.1
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.17.2
+elasticsearch==8.18.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.17.1
+elasticsearch-dsl==8.18.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
 executing==2.2.0
     # via stack-data
-fancycompleter==0.9.1
+fancycompleter==0.11.0
     # via pdbpp
 fido2==1.2.0
     # via
@@ -262,7 +260,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.5.2
+kombu==5.5.3
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -290,7 +288,7 @@ oauthlib==3.2.2
     #   requests-oauthlib
 orjson==3.10.16
     # via -r requirements/pip.txt
-packaging==24.2
+packaging==25.0
     # via
     #   -r requirements/pip.txt
     #   djangorestframework-api-key
@@ -301,7 +299,7 @@ packaging==24.2
     #   tox
 parso==0.8.4
     # via jedi
-pdbpp==0.10.3
+pdbpp==0.11.6
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
@@ -312,7 +310,7 @@ platformdirs==4.3.7
     #   virtualenv
 pluggy==1.5.0
     # via tox
-prompt-toolkit==3.0.50
+prompt-toolkit==3.0.51
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -363,7 +361,7 @@ pyproject-api==1.9.0
     # via tox
 pyquery==2.0.1
     # via -r requirements/pip.txt
-pyrepl==0.9.0
+pyrepl==0.11.3.post1
     # via fancycompleter
 python-crontab==3.2.0
     # via
@@ -374,6 +372,7 @@ python-dateutil==2.9.0.post0
     #   -r requirements/pip.txt
     #   botocore
     #   celery
+    #   elasticsearch
     #   elasticsearch-dsl
     #   python-crontab
 python3-saml==1.16.0
@@ -412,7 +411,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
 rich==14.0.0
     # via -r requirements/docker.in
-s3transfer==0.11.4
+s3transfer==0.11.5
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -455,6 +454,7 @@ traitlets==5.14.3
 typing-extensions==4.13.2
     # via
     #   -r requirements/pip.txt
+    #   elasticsearch
     #   elasticsearch-dsl
     #   psycopg
     #   psycopg-pool
@@ -509,8 +509,6 @@ wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-wmctrl==0.5
-    # via pdbpp
 wrapt==1.17.2
     # via
     #   -r requirements/pip.txt

@@ -130,7 +130,7 @@ class GitHubAppInstallation(TimeStampedModel):
 
         count, deleted = remote_repositories.delete()
         log.info(
-            "Deleted remote repositories",
+            "Deleted remote repositories that our app no longer has access to",
             count=count,
             deleted=deleted,
             installation_id=self.installation_id,
