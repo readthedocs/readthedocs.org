@@ -1231,7 +1231,7 @@ class GitHubOAuthTests(TestCase):
     def test_setup_webhook_successful(self, session, mock_logger):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
@@ -1246,7 +1246,7 @@ class GitHubOAuthTests(TestCase):
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
     def test_setup_webhook_404_error(self, session, mock_logger):
         session.post.return_value.status_code = 404
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
         self.integration.refresh_from_db()
 
         self.assertFalse(success)
@@ -1279,7 +1279,7 @@ class GitHubOAuthTests(TestCase):
     def test_update_webhook_successful(self, session, mock_logger):
         session.patch.return_value.status_code = 201
         session.patch.return_value.json.return_value = {}
-        success, _ = self.service.update_webhook(self.project, self.integration)
+        success = self.service.update_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
@@ -1787,7 +1787,7 @@ class BitbucketOAuthTests(TestCase):
     def test_setup_webhook_successful(self, session, mock_logger):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.assertTrue(success)
         mock_logger.bind.assert_called_with(
@@ -1803,7 +1803,7 @@ class BitbucketOAuthTests(TestCase):
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
     def test_setup_webhook_404_error(self, session, mock_logger):
         session.post.return_value.status_code = 404
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.assertFalse(success)
         mock_logger.bind.assert_called_with(
@@ -1835,7 +1835,7 @@ class BitbucketOAuthTests(TestCase):
     def test_update_webhook_successful(self, session, mock_logger):
         session.put.return_value.status_code = 200
         session.put.return_value.json.return_value = {}
-        success, _ = self.service.update_webhook(self.project, self.integration)
+        success = self.service.update_webhook(self.project, self.integration)
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
@@ -2230,7 +2230,7 @@ class GitLabOAuthTests(TestCase):
     def test_setup_webhook_successful(self, session, mock_logger):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
@@ -2283,7 +2283,7 @@ class GitLabOAuthTests(TestCase):
         repo_id.return_value = "9999"
         session.put.return_value.status_code = 200
         session.put.return_value.json.return_value = {}
-        success, _ = self.service.update_webhook(self.project, self.integration)
+        success = self.service.update_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 

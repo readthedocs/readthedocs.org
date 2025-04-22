@@ -481,6 +481,8 @@ class TestGitHubAppWebhook(TestCase):
 
     @mock.patch("readthedocs.core.views.hooks.trigger_build")
     def test_pull_request_opened(self, trigger_build):
+        self.project.external_builds_enabled = True
+        self.project.save()
         payload = {
             "installation": {
                 "id": self.installation.installation_id,
@@ -516,7 +518,40 @@ class TestGitHubAppWebhook(TestCase):
         )
 
     @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    def test_pull_request_opened_pr_previews_disabled(self, trigger_build):
+        self.project.external_builds_enabled = False
+        self.project.save()
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "opened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+        assert not self.project.versions.filter(verbose_name="1", type=EXTERNAL).exists()
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.core.views.hooks.trigger_build")
     def test_pull_request_reopened(self, trigger_build):
+        self.project.external_builds_enabled = True
+        self.project.save()
         external_version = get(
             Version,
             project=self.project,
@@ -524,6 +559,7 @@ class TestGitHubAppWebhook(TestCase):
             type=EXTERNAL,
             active=True,
             identifier="1234changeme",
+            state=EXTERNAL_VERSION_STATE_CLOSED,
         )
         payload = {
             "installation": {
@@ -561,7 +597,53 @@ class TestGitHubAppWebhook(TestCase):
         )
 
     @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    def test_pull_request_reopened_pr_previews_disabled(self, trigger_build):
+        self.project.external_builds_enabled = False
+        self.project.save()
+        external_version = get(
+            Version,
+            project=self.project,
+            verbose_name="1",
+            type=EXTERNAL,
+            active=True,
+            identifier="1234changeme",
+            state=EXTERNAL_VERSION_STATE_CLOSED,
+        )
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "reopened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+
+        external_version.refresh_from_db()
+        assert external_version.identifier == "1234changeme"
+        assert external_version.state == EXTERNAL_VERSION_STATE_CLOSED
+        assert external_version.active
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.core.views.hooks.trigger_build")
     def test_pull_request_synchronize(self, trigger_build):
+        self.project.external_builds_enabled = True
+        self.project.save()
         external_version = get(
             Version,
             project=self.project,
@@ -605,7 +687,94 @@ class TestGitHubAppWebhook(TestCase):
             commit=external_version.identifier,
         )
 
+    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    def test_pull_request_synchronize_pr_previews_disabled(self, trigger_build):
+        self.project.external_builds_enabled = False
+        self.project.save()
+        external_version = get(
+            Version,
+            project=self.project,
+            verbose_name="1",
+            type=EXTERNAL,
+            active=True,
+            identifier="1234changeme",
+            state=EXTERNAL_VERSION_STATE_OPEN,
+        )
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "synchronize",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+
+        external_version.refresh_from_db()
+        assert external_version.identifier == "1234changeme"
+        assert external_version.state == EXTERNAL_VERSION_STATE_OPEN
+        assert external_version.active
+        trigger_build.assert_not_called()
+
     def test_pull_request_closed(self):
+        self.project.external_builds_enabled = True
+        self.project.save()
+        external_version = get(
+            Version,
+            project=self.project,
+            verbose_name="1",
+            type=EXTERNAL,
+            active=True,
+            identifier="1234abcd",
+        )
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "closed",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+
+        external_version.refresh_from_db()
+        assert external_version.identifier == "1234abcd"
+        assert external_version.state == EXTERNAL_VERSION_STATE_CLOSED
+        assert external_version.active
+
+    def test_pull_request_closed_pr_previews_disabled(self):
+        self.project.external_builds_enabled = False
+        self.project.save()
         external_version = get(
             Version,
             project=self.project,
