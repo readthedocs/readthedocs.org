@@ -26,11 +26,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.37.37
+boto3==1.37.38
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.37.37
+botocore==1.37.38
     # via
     #   -r requirements/pip.txt
     #   boto3

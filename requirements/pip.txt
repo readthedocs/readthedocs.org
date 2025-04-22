@@ -15,9 +15,9 @@ asgiref==3.8.1
     #   django-cors-headers
 billiard==4.2.1
     # via celery
-boto3==1.37.37
+boto3==1.37.38
     # via django-storages
-botocore==1.37.37
+botocore==1.37.38
     # via
     #   boto3
     #   s3transfer
