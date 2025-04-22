@@ -2247,7 +2247,7 @@ class GitLabOAuthTests(TestCase):
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     def test_setup_webhook_404_error(self, session, mock_logger):
         session.post.return_value.status_code = 404
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
