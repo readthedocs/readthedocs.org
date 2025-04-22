@@ -1,3 +1,18 @@
+Version 12.0.5
+--------------
+
+:Date: April 22, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12123 <https://github.com/readthedocs/readthedocs.org/pull/12123>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: always keep latest in sync with default branch/tag (`#12121 <https://github.com/readthedocs/readthedocs.org/pull/12121>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update log (`#12120 <https://github.com/readthedocs/readthedocs.org/pull/12120>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code (`#12118 <https://github.com/readthedocs/readthedocs.org/pull/12118>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub: show repos from old or new GH integration only (`#12113 <https://github.com/readthedocs/readthedocs.org/pull/12113>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add migration page for GitHub App (`#12112 <https://github.com/readthedocs/readthedocs.org/pull/12112>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#12111 <https://github.com/readthedocs/readthedocs.org/pull/12111>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 12.0.4 (`#12110 <https://github.com/readthedocs/readthedocs.org/pull/12110>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add GitHub App service (`#12072 <https://github.com/readthedocs/readthedocs.org/pull/12072>`__)
+
 Version 12.0.4
 --------------
 
