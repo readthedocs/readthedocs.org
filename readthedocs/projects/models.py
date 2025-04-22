@@ -643,19 +643,7 @@ class Project(models.Model):
             self.repo = self.remote_repository.clone_url
 
         super().save(*args, **kwargs)
-
-        try:
-            if not self.versions.filter(slug=LATEST).exists():
-                self.versions.create_latest()
-        except Exception:
-            log.exception("Error creating default branches")
-
-        # Update `Version.identifier` for `latest` with the default branch the user has selected,
-        # even if it's `None` (meaning to match the `default_branch` of the repository)
-        # NOTE: this code is required to be *after* ``create_latest()``.
-        # It has to be updated after creating LATEST originally.
-        log.debug("Updating default branch.", slug=LATEST, identifier=self.default_branch)
-        self.versions.filter(slug=LATEST, machine=True).update(identifier=self.default_branch)
+        self.update_latest_version()
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -1016,9 +1004,13 @@ class Project(models.Model):
 
     @property
     def is_github_project(self):
+        from readthedocs.oauth.services import GitHubAppService
         from readthedocs.oauth.services import GitHubService
 
-        return self.get_git_service_class(fallback_to_clone_url=True) == GitHubService
+        return self.get_git_service_class(fallback_to_clone_url=True) in [
+            GitHubService,
+            GitHubAppService,
+        ]
 
     @property
     def is_gitlab_project(self):

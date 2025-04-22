@@ -1,5 +1,7 @@
 """OAuth service models."""
 
+from functools import cached_property
+
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
@@ -12,6 +14,7 @@ from django_extensions.db.models import TimeStampedModel
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
+from .constants import GITHUB_APP
 from .constants import VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet
 from .querysets import RemoteRepositoryQuerySet
@@ -83,6 +86,86 @@ class GitHubAppInstallation(TimeStampedModel):
 
     class Meta(TimeStampedModel.Meta):
         verbose_name = _("GitHub app installation")
+
+    @cached_property
+    def service(self):
+        """Return the service for this installation."""
+        from readthedocs.oauth.services import GitHubAppService
+
+        return GitHubAppService(self)
+
+    def delete(self, *args, **kwargs):
+        """Override delete method to remove orphaned remote organizations."""
+        self.delete_repositories()
+        return super().delete(*args, **kwargs)
+
+    def delete_repositories(self, repository_ids: list[int] | None = None):
+        """
+        Delete repositories linked to this installation.
+        When an installation is deleted, we delete all its remote repositories
+        and relations, users will need to manually link the projects to each repository again.
+        We also remove organizations that don't have any repositories after removing the repositories.
+        :param repository_ids: List of repository ids (remote ID) to delete.
+         If None, all repositories will be considered for deletion.
+        """
+        # repository_ids is optional (None, which means all repositories),
+        # but if it's an empty list, we don't want to delete anything.
+        if repository_ids is not None and not repository_ids:
+            log.info("No remote repositories to delete")
+            return
+
+        remote_organizations = RemoteOrganization.objects.filter(
+            repositories__github_app_installation=self,
+            vcs_provider=GITHUB_APP,
+        )
+        remote_repositories = self.repositories.filter(vcs_provider=GITHUB_APP)
+        if repository_ids:
+            remote_organizations = remote_organizations.filter(
+                repositories__remote_id__in=repository_ids
+            )
+            remote_repositories = remote_repositories.filter(remote_id__in=repository_ids)
+
+        # Fetch all IDs before deleting the repositories, so we can filter the organizations later.
+        remote_organizations_ids = list(remote_organizations.values_list("id", flat=True))
+
+        count, deleted = remote_repositories.delete()
+        log.info(
+            "Deleted remote repositories that our app no longer has access to",
+            count=count,
+            deleted=deleted,
+            installation_id=self.installation_id,
+            target_id=self.target_id,
+            target_type=self.target_type,
+        )
+
+        count, deleted = RemoteOrganization.objects.filter(
+            id__in=remote_organizations_ids,
+            repositories=None,
+        ).delete()
+        log.info(
+            "Deleted orphaned remote organizations",
+            count=count,
+            deleted=deleted,
+            installation_id=self.installation_id,
+            target_id=self.target_id,
+            target_type=self.target_type,
+        )
+
+    def delete_organization(self, organization_id: int):
+        """Delete a remote organization and all its remote repositories and relations from the database."""
+        count, deleted = RemoteOrganization.objects.filter(
+            remote_id=str(organization_id),
+            vcs_provider=GITHUB_APP,
+        ).delete()
+        log.info(
+            "Deleted remote organization",
+            count=count,
+            deleted=deleted,
+            organization_id=organization_id,
+            installation_id=self.installation_id,
+            target_id=self.target_id,
+            target_type=self.target_type,
+        )
 
 
 class RemoteOrganization(TimeStampedModel):
