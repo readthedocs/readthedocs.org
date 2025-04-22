@@ -33,6 +33,7 @@ log = structlog.get_logger(__name__)
 class GitHubAppService(Service):
     vcs_provider_slug = GITHUB_APP
     allauth_provider = GitHubAppProvider
+    supports_build_status = True
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
