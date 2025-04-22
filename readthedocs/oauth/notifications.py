@@ -5,13 +5,18 @@ import textwrap
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.notifications.constants import ERROR
-from readthedocs.notifications.messages import Message, registry
+from readthedocs.notifications.constants import WARNING
+from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
+
 
 MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS = "oauth:webhook:no-permissions"
 MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT = "oauth:webhook:no-account"
 MESSAGE_OAUTH_WEBHOOK_INVALID = "oauth:webhook:invalid"
 MESSAGE_OAUTH_BUILD_STATUS_FAILURE = "oauth:status:send-failed"
 MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_FAILED = "oauth:deploy-key:attached-failed"
+MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED = "oauth:migration:webhook-not-removed"
+MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED = "oauth:migration:ssh-key-not-removed"
 
 messages = [
     Message(
@@ -80,6 +85,32 @@ messages = [
             ).strip(),
         ),
         type=ERROR,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED,
+        header=_("Failed to remove webhook"),
+        body=_(
+            textwrap.dedent(
+                """
+                Failed to remove webhook from the <a href="https://github.com/{{ repo_full_name }}">{{ repo_full_name }}</a> repository, please remove it manually
+                from the <a href="https://github.com/{{ repo_full_name }}/settings/hooks">repository settings</a> (search for a webhook containing "{{ project_slug }}" in the URL).
+                """
+            ).strip(),
+        ),
+        type=WARNING,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED,
+        header=_("Failed to remove deploy key"),
+        body=_(
+            textwrap.dedent(
+                """
+                Failed to remove deploy key from the <a href="https://github.com/{{ repo_full_name }}">{{ repo_full_name }}</a> repository, please remove it manually
+                from the <a href="https://github.com/{{ repo_full_name }}/settings/keys">repository settings</a> (search for a deploy key containing "{{ project_slug }}" in the title).
+                """
+            )
+        ),
+        type=WARNING,
     ),
 ]
 registry.add(messages)

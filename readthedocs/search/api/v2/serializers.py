@@ -13,8 +13,11 @@ from urllib.parse import urlparse
 
 from rest_framework import serializers
 
-from readthedocs.projects.constants import GENERIC, MKDOCS, SPHINX_HTMLDIR
+from readthedocs.projects.constants import GENERIC
+from readthedocs.projects.constants import MKDOCS
+from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
+
 
 # Structures used for storing cached data of a version mostly.
 ProjectData = namedtuple("ProjectData", ["version", "alias"])
@@ -53,7 +56,6 @@ class PageHighlightSerializer(serializers.Serializer):
 
 
 class PageSearchSerializer(serializers.Serializer):
-
     """
     Page serializer.
 

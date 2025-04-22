@@ -1,3 +1,104 @@
+Version 12.0.5
+--------------
+
+:Date: April 22, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12123 <https://github.com/readthedocs/readthedocs.org/pull/12123>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: always keep latest in sync with default branch/tag (`#12121 <https://github.com/readthedocs/readthedocs.org/pull/12121>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update log (`#12120 <https://github.com/readthedocs/readthedocs.org/pull/12120>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code (`#12118 <https://github.com/readthedocs/readthedocs.org/pull/12118>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub: show repos from old or new GH integration only (`#12113 <https://github.com/readthedocs/readthedocs.org/pull/12113>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add migration page for GitHub App (`#12112 <https://github.com/readthedocs/readthedocs.org/pull/12112>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#12111 <https://github.com/readthedocs/readthedocs.org/pull/12111>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 12.0.4 (`#12110 <https://github.com/readthedocs/readthedocs.org/pull/12110>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add GitHub App service (`#12072 <https://github.com/readthedocs/readthedocs.org/pull/12072>`__)
+
+Version 12.0.4
+--------------
+
+:Date: April 15, 2025
+
+* `@TheMathix <https://github.com/TheMathix>`__: Update README.rst (`#12107 <https://github.com/readthedocs/readthedocs.org/pull/12107>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12103 <https://github.com/readthedocs/readthedocs.org/pull/12103>`__)
+* `@stsewd <https://github.com/stsewd>`__: VCS: pass a version object to git provider (`#12101 <https://github.com/readthedocs/readthedocs.org/pull/12101>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version: document how to change the version slug and expose it to everyone (`#12096 <https://github.com/readthedocs/readthedocs.org/pull/12096>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't set secret key on builders (`#12095 <https://github.com/readthedocs/readthedocs.org/pull/12095>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: pin newrelic (`#12092 <https://github.com/readthedocs/readthedocs.org/pull/12092>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.3 (`#12089 <https://github.com/readthedocs/readthedocs.org/pull/12089>`__)
+
+Version 12.0.3
+--------------
+
+:Date: April 08, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: Remove cacheops (`#12087 <https://github.com/readthedocs/readthedocs.org/pull/12087>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12083 <https://github.com/readthedocs/readthedocs.org/pull/12083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Storage: remove build environment storage (`#12077 <https://github.com/readthedocs/readthedocs.org/pull/12077>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12075 <https://github.com/readthedocs/readthedocs.org/pull/12075>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: mention fine-grained personal access token for GitHub (`#12074 <https://github.com/readthedocs/readthedocs.org/pull/12074>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Requirements: use xmlsec with `--no-binary` option" (`#12071 <https://github.com/readthedocs/readthedocs.org/pull/12071>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add models for GitHub App (`#12070 <https://github.com/readthedocs/readthedocs.org/pull/12070>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 12.0.2 (`#12068 <https://github.com/readthedocs/readthedocs.org/pull/12068>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12065 <https://github.com/readthedocs/readthedocs.org/pull/12065>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code (`#12060 <https://github.com/readthedocs/readthedocs.org/pull/12060>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: use xmlsec with `--no-binary` option (`#12056 <https://github.com/readthedocs/readthedocs.org/pull/12056>`__)
+* `@stsewd <https://github.com/stsewd>`__: Webhooks: refactor branch/tag building (`#12014 <https://github.com/readthedocs/readthedocs.org/pull/12014>`__)
+
+Version 12.0.2
+--------------
+
+:Date: March 25, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: API v3: document rate limit and pagination (`#12063 <https://github.com/readthedocs/readthedocs.org/pull/12063>`__)
+* `@stsewd <https://github.com/stsewd>`__: Social accounts: sync remote repositories when a new connection is added (`#12062 <https://github.com/readthedocs/readthedocs.org/pull/12062>`__)
+* `@stsewd <https://github.com/stsewd>`__: Small improvements on PR previews handling (`#12061 <https://github.com/readthedocs/readthedocs.org/pull/12061>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: update deprecated settings (`#12058 <https://github.com/readthedocs/readthedocs.org/pull/12058>`__)
+* `@humitos <https://github.com/humitos>`__: pip tools: use Python 3.12 (`#12055 <https://github.com/readthedocs/readthedocs.org/pull/12055>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: pin and downgrade `xmlsec` (`#12054 <https://github.com/readthedocs/readthedocs.org/pull/12054>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.1 (`#12053 <https://github.com/readthedocs/readthedocs.org/pull/12053>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: improve subscription detection and respect never_disable (`#12046 <https://github.com/readthedocs/readthedocs.org/pull/12046>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repositories: filter by vcs provider when deleting (`#12015 <https://github.com/readthedocs/readthedocs.org/pull/12015>`__)
+
+Version 12.0.1
+--------------
+
+:Date: March 18, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12048 <https://github.com/readthedocs/readthedocs.org/pull/12048>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repository: don't stop at first error while syncing (`#12045 <https://github.com/readthedocs/readthedocs.org/pull/12045>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ignore revs for the major linting commits (`#12043 <https://github.com/readthedocs/readthedocs.org/pull/12043>`__)
+* `@stsewd <https://github.com/stsewd>`__: Explicitly define virtual environment used in Docker (`#12040 <https://github.com/readthedocs/readthedocs.org/pull/12040>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use Ruff for linting (`#12037 <https://github.com/readthedocs/readthedocs.org/pull/12037>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12034 <https://github.com/readthedocs/readthedocs.org/pull/12034>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update URLs for SAML to point to new dashboard (`#12031 <https://github.com/readthedocs/readthedocs.org/pull/12031>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: update pr links (`#12028 <https://github.com/readthedocs/readthedocs.org/pull/12028>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.0 (`#12023 <https://github.com/readthedocs/readthedocs.org/pull/12023>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add GitHub App OAuth provider (`#12020 <https://github.com/readthedocs/readthedocs.org/pull/12020>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix mkdocs link (`#12019 <https://github.com/readthedocs/readthedocs.org/pull/12019>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: add flag to allow SAML with old dashboard (`#12013 <https://github.com/readthedocs/readthedocs.org/pull/12013>`__)
+* `@stsewd <https://github.com/stsewd>`__: Projects: require users to have admin permissions to link repositories to projects (`#12005 <https://github.com/readthedocs/readthedocs.org/pull/12005>`__)
+
+Version 12.0.0
+--------------
+
+:Date: February 25, 2025
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix mkdocs link (`#12019 <https://github.com/readthedocs/readthedocs.org/pull/12019>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12017 <https://github.com/readthedocs/readthedocs.org/pull/12017>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git service: add method to sync user access to remote repositories (`#12016 <https://github.com/readthedocs/readthedocs.org/pull/12016>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: add flag to allow SAML with old dashboard (`#12013 <https://github.com/readthedocs/readthedocs.org/pull/12013>`__)
+* `@humitos <https://github.com/humitos>`__: File Tree Diff: small documentation to mention the file selector (`#12011 <https://github.com/readthedocs/readthedocs.org/pull/12011>`__)
+* `@humitos <https://github.com/humitos>`__: File Tree Diff: enabled by default (`#12010 <https://github.com/readthedocs/readthedocs.org/pull/12010>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: don't depend on the brand name (`#12008 <https://github.com/readthedocs/readthedocs.org/pull/12008>`__)
+* `@stsewd <https://github.com/stsewd>`__: Service: kwargs only when sending build statuses (`#12007 <https://github.com/readthedocs/readthedocs.org/pull/12007>`__)
+* `@stsewd <https://github.com/stsewd>`__: CSP: add helper middleware (`#12004 <https://github.com/readthedocs/readthedocs.org/pull/12004>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Increase docker memory limit (`#12003 <https://github.com/readthedocs/readthedocs.org/pull/12003>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade to Ubuntu 24.04 for our application (`#12002 <https://github.com/readthedocs/readthedocs.org/pull/12002>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.21.1 (`#12001 <https://github.com/readthedocs/readthedocs.org/pull/12001>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git service: attach each service to an allauth provider (`#11995 <https://github.com/readthedocs/readthedocs.org/pull/11995>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Hosting: Don't check for superprojects on subprojects (`#11683 <https://github.com/readthedocs/readthedocs.org/pull/11683>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove indexes that aren't used and that are large (`#11623 <https://github.com/readthedocs/readthedocs.org/pull/11623>`__)
+
 Version 11.21.1
 ---------------
 

@@ -6,39 +6,28 @@ from typing import Iterable
 import structlog
 from django.conf import settings
 
-from readthedocs.builds.constants import (
-    BRANCH,
-    EXTERNAL,
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-    TAG,
-)
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import TAG
 from readthedocs.config import ALL
-from readthedocs.projects.constants import (
-    GITHUB_PR_PULL_PATTERN,
-    GITLAB_MR_PULL_PATTERN,
-)
+from readthedocs.projects.constants import GITHUB_PR_PULL_PATTERN
+from readthedocs.projects.constants import GITLAB_MR_PULL_PATTERN
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from readthedocs.vcs_support.base import BaseVCS
+from readthedocs.vcs_support.base import VCSVersion
+
 
 log = structlog.get_logger(__name__)
 
 
 class Backend(BaseVCS):
-
     """Git VCS backend."""
 
     fallback_branch = "master"  # default branch
     repo_depth = 50
 
     def __init__(self, *args, **kwargs):
-        # The version_identifier is a Version.identifier value passed from the build process.
-        # It has a special meaning since it's unfortunately not consistent, you need to be aware of
-        # exactly how and where to use this.
-        # See more in the .get_remote_fetch_refspec() docstring
-        self.version_identifier = kwargs.pop("version_identifier")
-        # We also need to know about Version.machine
-        self.version_machine = kwargs.pop("version_machine")
         super().__init__(*args, **kwargs)
         self.token = kwargs.get("token")
         self.repo_url = self._get_clone_url()
@@ -98,58 +87,54 @@ class Backend(BaseVCS):
 
         :return: A refspec valid for fetch operation
         """
+        # Here we point directly to the remote branch name and update our local remote
+        # refspec to point here.
+        # The original motivation for putting 'refs/remotes/origin/<branch>' as the local refspec
+        # was an assumption in the .branches property that iterates over everything in
+        # refs/remotes/origin. We might still keep this pattern as it seems to be the most solid
+        # convention for storing a remote:local refspec mapping.
+        branch_ref = "refs/heads/{branch}:refs/remotes/origin/{branch}"
+        tag_ref = "refs/tags/{tag}:refs/tags/{tag}"
 
-        if not self.version_type:
-            log.warning(
-                "Trying to resolve a remote reference without setting version_type is not "
-                "possible",
-                project_slug=self.project.slug,
-            )
-            return None
+        if self.version.type == BRANCH:
+            branch = self.version.verbose_name
+            # For latest and stable, the identifier is the name of the branch.
+            if self.version.machine:
+                branch = self.version.identifier
+                # If there is't an identifier, it can be the case for an initial build that started BEFORE
+                # a webhook or sync versions task has concluded what the default branch is.
+                if not branch:
+                    log.error(
+                        "Machine created version without a branch name.",
+                        version_slug=self.version.slug,
+                    )
+                    return None
+            return branch_ref.format(branch=branch)
 
-        # Branches have the branch identifier set by the caller who instantiated the
-        # Git backend.
-        # If version_identifier is empty, then the fetch operation cannot know what to fetch
-        # and will fetch everything, in order to build what might be defined elsewhere
-        # as the "default branch". This can be the case for an initial build started BEFORE
-        # a webhook or sync versions task has concluded what the default branch is.
-        if self.version_type == BRANCH and self.version_identifier:
-            # Here we point directly to the remote branch name and update our local remote
-            # refspec to point here.
-            # The original motivation for putting 'refs/remotes/origin/<branch>' as the local refspec
-            # was an assumption in the .branches property that iterates over everything in
-            # refs/remotes/origin. We might still keep this pattern as it seems to be the most solid
-            # convention for storing a remote:local refspec mapping.
-            return (
-                f"refs/heads/{self.version_identifier}:refs/remotes/origin/"
-                f"{self.version_identifier}"
-            )
-        # Tags
-        if self.version_type == TAG and self.verbose_name:
-            # A "stable" tag is automatically created with Version.machine=True,
-            # denoting that it's not a branch/tag that really exists.
-            # Because we don't know if it originates from the default branch or some
-            # other tagged release, we will fetch the exact commit it points to.
-            if self.version_machine and self.verbose_name == STABLE_VERBOSE_NAME:
-                if self.version_identifier:
-                    return f"{self.version_identifier}"
-                log.error("'stable' version without a commit hash.")
-                return None
+        if self.version.type == TAG:
+            tag = self.version.verbose_name
+            if self.version.machine:
+                # For stable, the identifier is the commit hash.
+                # A "stable" tag is automatically created with Version.machine=True,
+                # denoting that it's not a branch/tag that really exists.
+                # Because we don't know if it originates from the default branch or some
+                # other tagged release, we will fetch the exact commit it points to.
+                if self.version.slug == STABLE:
+                    if not self.version.identifier:
+                        log.error("'stable' version without a commit hash.")
+                    return self.version.identifier
 
-            tag_name = self.verbose_name
-            # For a machine created "latest" tag, the name of the tag is set
-            # in the `Version.identifier` field, note that it isn't a commit
-            # hash, but the name of the tag.
-            if self.version_machine and self.verbose_name == LATEST_VERBOSE_NAME:
-                tag_name = self.version_identifier
-            return f"refs/tags/{tag_name}:refs/tags/{tag_name}"
+                # For latest, the identifier is the tag name.
+                tag = self.version.identifier
 
-        if self.version_type == EXTERNAL:
+            return tag_ref.format(tag=tag)
+
+        if self.version.type == EXTERNAL:
             # Remote reference for Git providers where pull request builds are supported
             if self.project.is_github_project:
-                return GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
+                return GITHUB_PR_PULL_PATTERN.format(id=self.version.verbose_name)
             if self.project.is_gitlab_project:
-                return GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
+                return GITLAB_MR_PULL_PATTERN.format(id=self.version.verbose_name)
 
             log.warning(
                 "Asked to do an external build for a Git provider that does not support "
@@ -204,16 +189,16 @@ class Backend(BaseVCS):
         # Log a warning, except for machine versions since it's a known bug that
         # we haven't stored a remote refspec in Version for those "stable" versions.
         # This could be the case for an unknown default branch.
-        elif not self.version_machine:
+        elif not self.version.machine:
             # We are doing a fetch without knowing the remote reference.
             # This is expensive, so log the event.
             log.warning(
                 "Git fetch: Could not decide a remote reference for version. "
                 "Is it an empty default branch?",
                 project_slug=self.project.slug,
-                verbose_name=self.verbose_name,
-                version_type=self.version_type,
-                version_identifier=self.version_identifier,
+                verbose_name=self.version.verbose_name,
+                version_type=self.version.type,
+                version_identifier=self.version.identifier,
             )
 
         # TODO: Explain or remove the return value
@@ -222,9 +207,7 @@ class Backend(BaseVCS):
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
-        submodules_in_config = (
-            config.submodules.exclude != ALL or config.submodules.include
-        )
+        submodules_in_config = config.submodules.exclude != ALL or config.submodules.include
         if not submodules_in_config:
             return False
 
@@ -469,3 +452,22 @@ class Backend(BaseVCS):
             "git", "show-ref", "--verify", "--quiet", "--", ref, record=False
         )
         return exit_code == 0
+
+
+def parse_version_from_ref(ref: str):
+    """
+    Parse the version name and type from a Git ref.
+
+    The ref can be a branch or a tag.
+
+    :param ref: The ref to parse (e.g. refs/heads/main, refs/tags/v1.0.0).
+    :returns: A tuple with the version name and type.
+    """
+    heads_prefix = "refs/heads/"
+    tags_prefix = "refs/tags/"
+    if ref.startswith(heads_prefix):
+        return ref.removeprefix(heads_prefix), BRANCH
+    if ref.startswith(tags_prefix):
+        return ref.removeprefix(tags_prefix), TAG
+
+    raise ValueError(f"Invalid ref: {ref}")

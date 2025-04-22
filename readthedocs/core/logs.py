@@ -4,12 +4,12 @@ from io import StringIO
 
 import structlog
 from django_structlog.middlewares.request import RequestMiddleware
-from structlog.dev import _pad, plain_traceback
+from structlog.dev import _pad
+from structlog.dev import plain_traceback
 from structlog.processors import _figure_out_exc_info
 
 
 class ReadTheDocsRequestMiddleware(RequestMiddleware):
-
     """
     ``ReadTheDocsRequestMiddleware`` adds request metadata to ``structlog``'s logger context.
 
@@ -29,7 +29,6 @@ class ReadTheDocsRequestMiddleware(RequestMiddleware):
 
 
 class NewRelicProcessor:
-
     """
     New Relic structlog's processor.
 
@@ -102,10 +101,7 @@ class SysLogRenderer(structlog.dev.ConsoleRenderer):
         if ts is not None:
             sio.write(
                 # can be a number if timestamp is UNIXy
-                self._styles.timestamp
-                + str(ts)
-                + self._styles.reset
-                + " "
+                self._styles.timestamp + str(ts) + self._styles.reset + " "
             )
 
         level = event_dict.pop("level", None)

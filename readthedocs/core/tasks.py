@@ -9,15 +9,14 @@ from django.core.mail import EmailMultiAlternatives
 
 from readthedocs.worker import app
 
+
 log = structlog.get_logger(__name__)
 
 EMAIL_TIME_LIMIT = 30
 
 
 @app.task(queue="web", time_limit=EMAIL_TIME_LIMIT)
-def send_email_task(
-    recipient, subject, content, content_html=None, from_email=None, **kwargs
-):
+def send_email_task(recipient, subject, content, content_html=None, from_email=None, **kwargs):
     """
     Send multipart email.
 
@@ -37,11 +36,7 @@ def send_email_task(
         Additional options to the EmailMultiAlternatives option.
     """
     msg = EmailMultiAlternatives(
-        subject,
-        content,
-        from_email or settings.DEFAULT_FROM_EMAIL,
-        [recipient],
-        **kwargs
+        subject, content, from_email or settings.DEFAULT_FROM_EMAIL, [recipient], **kwargs
     )
     if content_html:
         msg.attach_alternative(content_html, "text/html")

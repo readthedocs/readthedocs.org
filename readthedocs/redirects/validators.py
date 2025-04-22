@@ -2,19 +2,15 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.redirects.constants import (
-    CLEAN_URL_TO_HTML_REDIRECT,
-    EXACT_REDIRECT,
-    HTML_TO_CLEAN_URL_REDIRECT,
-    PAGE_REDIRECT,
-)
+from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
+from readthedocs.redirects.constants import EXACT_REDIRECT
+from readthedocs.redirects.constants import HTML_TO_CLEAN_URL_REDIRECT
+from readthedocs.redirects.constants import PAGE_REDIRECT
 from readthedocs.subscriptions.constants import TYPE_REDIRECTS_LIMIT
 from readthedocs.subscriptions.products import get_feature
 
 
-def validate_redirect(
-    *, project, pk, redirect_type, from_url, to_url, error_class=ValidationError
-):
+def validate_redirect(*, project, pk, redirect_type, from_url, to_url, error_class=ValidationError):
     """
     Validations for redirects.
 
@@ -38,9 +34,7 @@ def validate_redirect(
 
     if redirect_type in [CLEAN_URL_TO_HTML_REDIRECT, HTML_TO_CLEAN_URL_REDIRECT]:
         redirect_exists = (
-            project.redirects.filter(redirect_type=redirect_type)
-            .exclude(pk=pk)
-            .exists()
+            project.redirects.filter(redirect_type=redirect_type).exclude(pk=pk).exists()
         )
         if redirect_exists:
             raise error_class(

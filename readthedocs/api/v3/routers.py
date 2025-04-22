@@ -1,4 +1,5 @@
-from rest_framework.routers import APIRootView, DefaultRouter
+from rest_framework.routers import APIRootView
+from rest_framework.routers import DefaultRouter
 from rest_framework_extensions.routers import NestedRouterMixin
 
 

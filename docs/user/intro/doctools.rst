@@ -14,10 +14,10 @@ Below is a list of popular documentation tools that you can use to write your do
 
 .. grid:: 2
 
-    .. grid-item-card::  Material for MkDocs
+    .. grid-item-card::  MkDocs
         :link: mkdocs.html
 
-        Material for MkDocs is a powerful documentation framework on top of MkDocs.
+        MkDocs is a powerful documentation tool for markdown.
 
         Supported formats
              :bdg-success:`md`

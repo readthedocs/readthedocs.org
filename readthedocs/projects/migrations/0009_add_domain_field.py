@@ -1,8 +1,11 @@
 import django.contrib.sites.models
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy
     dependencies = [
         ("projects", "0008_add_subproject_alias_prefix"),
     ]
@@ -41,9 +44,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="domain",
             name="machine",
-            field=models.BooleanField(
-                default=False, help_text="This Domain was auto-created"
-            ),
+            field=models.BooleanField(default=False, help_text="This Domain was auto-created"),
         ),
         migrations.AlterField(
             model_name="domain",

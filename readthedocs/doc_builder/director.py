@@ -7,6 +7,7 @@ It "directs" all of the high-level build jobs:
 * setting up the environment
 * fetching instructions etc.
 """
+
 import os
 import tarfile
 
@@ -22,17 +23,21 @@ from readthedocs.core.utils.objects import get_dotted_attribute
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML, GENERIC
+from readthedocs.doc_builder.python_environments import Conda
+from readthedocs.doc_builder.python_environments import Virtualenv
+from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
+from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.signals import after_build, before_build, before_vcs
+from readthedocs.projects.signals import after_build
+from readthedocs.projects.signals import before_build
+from readthedocs.projects.signals import before_vcs
 from readthedocs.storage import build_tools_storage
+
 
 log = structlog.get_logger(__name__)
 
 
 class BuildDirector:
-
     """
     Encapsulates all the logic to perform a build for user's documentation.
 
@@ -84,12 +89,8 @@ class BuildDirector:
         # Create the VCS repository where all the commands are going to be
         # executed for a particular VCS type
         self.vcs_repository = self.data.project.vcs_repo(
-            version=self.data.version.slug,
+            version=self.data.version,
             environment=self.vcs_environment,
-            verbose_name=self.data.version.verbose_name,
-            version_type=self.data.version.type,
-            version_identifier=self.data.version.identifier,
-            version_machine=self.data.version.machine,
         )
 
         # We can't do too much on ``pre_checkout`` because we haven't
@@ -229,7 +230,7 @@ class BuildDirector:
         # This works as confirmation for us & the user about which file is used,
         # as well as the fact that *any* config file is used.
         if final_config_file:
-            command = self.vcs_environment.run(
+            self.vcs_environment.run(
                 "cat",
                 # Show user the relative path to the config file
                 # TODO: Have our standard path replacement code catch this.
@@ -345,10 +346,7 @@ class BuildDirector:
         return False
 
     def build_htmlzip(self):
-        if (
-            "htmlzip" not in self.data.config.formats
-            or self.data.version.type == EXTERNAL
-        ):
+        if "htmlzip" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
 
         if self.data.config.build.jobs.build.htmlzip is not None:
@@ -437,9 +435,7 @@ class BuildDirector:
             record=False,
         )
         if command.exit_code == 0:
-            log.warning(
-                "Directory '_build/html' exists. This may lead to unexpected behavior."
-            )
+            log.warning("Directory '_build/html' exists. This may lead to unexpected behavior.")
             raise BuildUserError(BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED)
 
     def run_build_commands(self):
@@ -531,9 +527,9 @@ class BuildDirector:
 
             build_os = self.data.config.build.os
             if build_os == "ubuntu-lts-latest":
-                _, build_os = settings.RTD_DOCKER_BUILD_SETTINGS["os"][
-                    "ubuntu-lts-latest"
-                ].split(":")
+                _, build_os = settings.RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-lts-latest"].split(
+                    ":"
+                )
 
             tool_path = f"{build_os}-{tool}-{full_version}.tar.gz"
             tool_version_cached = build_tools_storage.exists(tool_path)
@@ -686,9 +682,7 @@ class BuildDirector:
             "READTHEDOCS_VERSION_NAME": self.data.version.verbose_name,
             "READTHEDOCS_PROJECT": self.data.project.slug,
             "READTHEDOCS_LANGUAGE": self.data.project.language,
-            "READTHEDOCS_REPOSITORY_PATH": self.data.project.checkout_path(
-                self.data.version.slug
-            ),
+            "READTHEDOCS_REPOSITORY_PATH": self.data.project.checkout_path(self.data.version.slug),
             "READTHEDOCS_OUTPUT": os.path.join(
                 self.data.project.checkout_path(self.data.version.slug), "_readthedocs/"
             ),
@@ -713,9 +707,7 @@ class BuildDirector:
             env.update(
                 {
                     # NOTE: should these be prefixed with "READTHEDOCS_"?
-                    "CONDA_ENVS_PATH": os.path.join(
-                        self.data.project.doc_path, "conda"
-                    ),
+                    "CONDA_ENVS_PATH": os.path.join(self.data.project.doc_path, "conda"),
                     "CONDA_DEFAULT_ENV": self.data.version.slug,
                     "BIN_PATH": os.path.join(
                         self.data.project.doc_path,
@@ -750,9 +742,7 @@ class BuildDirector:
         # avoiding to expose private environment variables
         # if the version is external (i.e. a PR build).
         env.update(
-            self.data.project.environment_variables(
-                public_only=self.data.version.is_external
-            )
+            self.data.project.environment_variables(public_only=self.data.version.is_external)
         )
 
         return env
@@ -764,9 +754,7 @@ class BuildDirector:
     def store_readthedocs_build_yaml(self):
         # load YAML from user
         yaml_path = os.path.join(
-            self.data.project.artifact_path(
-                version=self.data.version.slug, type_="html"
-            ),
+            self.data.project.artifact_path(version=self.data.version.slug, type_="html"),
             "readthedocs-build.yaml",
         )
 
@@ -810,7 +798,7 @@ class BuildDirector:
         # which is not currently supported by APIv3.
         self.data.api_client.notifications.post(
             {
-                "attached_to": f'build/{self.data.build["id"]}',
+                "attached_to": f"build/{self.data.build['id']}",
                 "message_id": message_id,
                 "state": state,  # Optional
                 "dismissable": dismissable,

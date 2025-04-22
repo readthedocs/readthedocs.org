@@ -1,4 +1,5 @@
 """Build configuration for rtd."""
+
 import copy
 import datetime
 import os
@@ -14,31 +15,30 @@ from readthedocs.config.utils import list_to_dict
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
 
-from .exceptions import ConfigError, ConfigValidationError
+from .exceptions import ConfigError
+from .exceptions import ConfigValidationError
 from .find import find_one
-from .models import (
-    BuildJobs,
-    BuildJobsBuildTypes,
-    BuildTool,
-    BuildWithOs,
-    Conda,
-    Mkdocs,
-    Python,
-    PythonInstall,
-    Search,
-    Sphinx,
-    Submodules,
-)
-from .parser import ParseError, parse
-from .validation import (
-    validate_bool,
-    validate_choice,
-    validate_dict,
-    validate_list,
-    validate_path,
-    validate_path_pattern,
-    validate_string,
-)
+from .models import BuildJobs
+from .models import BuildJobsBuildTypes
+from .models import BuildTool
+from .models import BuildWithOs
+from .models import Conda
+from .models import Mkdocs
+from .models import Python
+from .models import PythonInstall
+from .models import Search
+from .models import Sphinx
+from .models import Submodules
+from .parser import ParseError
+from .parser import parse
+from .validation import validate_bool
+from .validation import validate_choice
+from .validation import validate_dict
+from .validation import validate_list
+from .validation import validate_path
+from .validation import validate_path_pattern
+from .validation import validate_string
+
 
 __all__ = (
     "ALL",
@@ -58,7 +58,6 @@ LATEST_CONFIGURATION_VERSION = 2
 
 
 class BuildConfigBase:
-
     """
     Config that handles the build of one particular documentation.
 
@@ -383,8 +382,7 @@ class BuildConfigV2(BuildConfigBase):
         for job, job_commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [
-                    validate_string(job_command)
-                    for job_command in validate_list(job_commands)
+                    validate_string(job_command) for job_command in validate_list(job_commands)
                 ]
 
         build["commands"] = []
@@ -433,13 +431,9 @@ class BuildConfigV2(BuildConfigBase):
             raw_packages = self._raw_config.get("build", {}).get("apt_packages", [])
             validate_list(raw_packages)
             # Transform to a dict, so is easy to validate individual entries.
-            self._raw_config.setdefault("build", {})["apt_packages"] = list_to_dict(
-                raw_packages
-            )
+            self._raw_config.setdefault("build", {})["apt_packages"] = list_to_dict(raw_packages)
 
-            apt_packages = [
-                self.validate_apt_package(index) for index in range(len(raw_packages))
-            ]
+            apt_packages = [self.validate_apt_package(index) for index in range(len(raw_packages))]
             if not raw_packages:
                 self.pop_config("build.apt_packages")
 
@@ -516,9 +510,7 @@ class BuildConfigV2(BuildConfigBase):
             validate_list(raw_install)
             if raw_install:
                 # Transform to a dict, so it's easy to validate extra keys.
-                self._raw_config.setdefault("python", {})["install"] = list_to_dict(
-                    raw_install
-                )
+                self._raw_config.setdefault("python", {})["install"] = list_to_dict(raw_install)
             else:
                 self.pop_config("python.install")
 
@@ -678,18 +670,14 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error("submodules.include"):
             include = self.pop_config("submodules.include", [])
             if include != ALL:
-                include = [
-                    validate_string(submodule) for submodule in validate_list(include)
-                ]
+                include = [validate_string(submodule) for submodule in validate_list(include)]
             submodules["include"] = include
 
         with self.catch_validation_error("submodules.exclude"):
             default = [] if submodules["include"] else ALL
             exclude = self.pop_config("submodules.exclude", default)
             if exclude != ALL:
-                exclude = [
-                    validate_string(submodule) for submodule in validate_list(exclude)
-                ]
+                exclude = [validate_string(submodule) for submodule in validate_list(exclude)]
             submodules["exclude"] = exclude
 
         with self.catch_validation_error("submodules"):
@@ -926,9 +914,7 @@ def load(path, readthedocs_yaml_path=None):
             raise ConfigError(ConfigError.DEFAULT_PATH_NOT_FOUND)
 
     # Allow symlinks, but only the ones that resolve inside the base directory.
-    with safe_open(
-        filename, "r", allow_symlinks=True, base_path=path
-    ) as configuration_file:
+    with safe_open(filename, "r", allow_symlinks=True, base_path=path) as configuration_file:
         try:
             config = parse(configuration_file.read())
         except ParseError as error:

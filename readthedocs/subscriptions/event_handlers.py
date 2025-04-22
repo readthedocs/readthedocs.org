@@ -3,6 +3,7 @@ Dj-stripe webhook handlers.
 
 https://docs.dj-stripe.dev/en/master/usage/webhooks/.
 """
+
 import requests
 import structlog
 from django.conf import settings
@@ -11,16 +12,16 @@ from django.db.models import Sum
 from django.utils import timezone
 from djstripe import models as djstripe
 from djstripe import webhooks
-from djstripe.enums import ChargeStatus, SubscriptionStatus
+from djstripe.enums import ChargeStatus
+from djstripe.enums import SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.payments.utils import cancel_subscription as cancel_stripe_subscription
 from readthedocs.projects.models import Domain
 from readthedocs.sso.models import SSOIntegration
-from readthedocs.subscriptions.notifications import (
-    SubscriptionEndedNotification,
-    SubscriptionRequiredNotification,
-)
+from readthedocs.subscriptions.notifications import SubscriptionEndedNotification
+from readthedocs.subscriptions.notifications import SubscriptionRequiredNotification
+
 
 log = structlog.get_logger(__name__)
 
@@ -55,9 +56,7 @@ def subscription_created_event(event):
     stripe_subscription_id = event.data["object"]["id"]
     log.bind(stripe_subscription_id=stripe_subscription_id)
 
-    stripe_subscription = djstripe.Subscription.objects.filter(
-        id=stripe_subscription_id
-    ).first()
+    stripe_subscription = djstripe.Subscription.objects.filter(id=stripe_subscription_id).first()
     if not stripe_subscription:
         log.info("Stripe subscription not found.")
         return
@@ -72,9 +71,7 @@ def subscription_created_event(event):
         organization.disabled = False
 
     old_subscription_id = (
-        organization.stripe_subscription.id
-        if organization.stripe_subscription
-        else None
+        organization.stripe_subscription.id if organization.stripe_subscription else None
     )
     log.info(
         "Attaching new subscription to organization.",
@@ -101,16 +98,12 @@ def subscription_updated_event(event):
     """
     stripe_subscription_id = event.data["object"]["id"]
     log.bind(stripe_subscription_id=stripe_subscription_id)
-    stripe_subscription = djstripe.Subscription.objects.filter(
-        id=stripe_subscription_id
-    ).first()
+    stripe_subscription = djstripe.Subscription.objects.filter(id=stripe_subscription_id).first()
     if not stripe_subscription:
         log.info("Stripe subscription not found.")
         return
 
-    trial_ended = (
-        stripe_subscription.trial_end and stripe_subscription.trial_end < timezone.now()
-    )
+    trial_ended = stripe_subscription.trial_end and stripe_subscription.trial_end < timezone.now()
     is_trial_subscription = stripe_subscription.items.filter(
         price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
     ).exists()
@@ -130,36 +123,34 @@ def subscription_updated_event(event):
         log.error("Subscription isn't attached to an organization")
         return
 
-    if (
-        stripe_subscription.status == SubscriptionStatus.active
-        and organization.disabled
-    ):
+    if stripe_subscription.status == SubscriptionStatus.active and organization.disabled:
         log.info("Re-enabling organization.", organization_slug=organization.slug)
         organization.disabled = False
 
-    if stripe_subscription.status not in (
-        SubscriptionStatus.active,
-        SubscriptionStatus.trialing,
-    ):
-        log.info(
-            "Organization disabled due its subscription is not active anymore.",
-            organization_slug=organization.slug,
-        )
-        organization.disabled = True
+    if stripe_subscription.status not in (SubscriptionStatus.active, SubscriptionStatus.trialing):
+        if organization.never_disable:
+            log.info(
+                "Organization can't be disabled, skipping deactivation.",
+                organization_slug=organization.slug,
+            )
+        else:
+            log.info(
+                "Organization disabled due its subscription is not active anymore.",
+                organization_slug=organization.slug,
+            )
+            organization.disabled = True
 
     new_stripe_subscription = organization.get_stripe_subscription()
     if organization.stripe_subscription != new_stripe_subscription:
         old_subscription_id = (
-            organization.stripe_subscription.id
-            if organization.stripe_subscription
-            else None
+            organization.stripe_subscription.id if organization.stripe_subscription else None
         )
         log.info(
             "Attaching new subscription to organization.",
             organization_slug=organization.slug,
             old_stripe_subscription_id=old_subscription_id,
         )
-        organization.stripe_subscription = stripe_subscription
+        organization.stripe_subscription = new_stripe_subscription
 
     organization.save()
 
@@ -175,9 +166,7 @@ def subscription_canceled(event):
     """
     stripe_subscription_id = event.data["object"]["id"]
     log.bind(stripe_subscription_id=stripe_subscription_id)
-    stripe_subscription = djstripe.Subscription.objects.filter(
-        id=stripe_subscription_id
-    ).first()
+    stripe_subscription = djstripe.Subscription.objects.filter(id=stripe_subscription_id).first()
     if not stripe_subscription:
         log.info("Stripe subscription not found.")
         return
@@ -197,14 +186,19 @@ def subscription_canceled(event):
         log.error("Subscription isn't attached to an organization")
         return
 
+    if organization.never_disable:
+        log.info(
+            "Organization can't be disabled, skipping notification.",
+            organization_slug=organization.slug,
+        )
+        return
+
     log.bind(organization_slug=organization.slug)
     is_trial_subscription = stripe_subscription.items.filter(
         price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
     ).exists()
     notification_class = (
-        SubscriptionRequiredNotification
-        if is_trial_subscription
-        else SubscriptionEndedNotification
+        SubscriptionRequiredNotification if is_trial_subscription else SubscriptionEndedNotification
     )
     for owner in organization.owners.all():
         notification = notification_class(
@@ -221,9 +215,7 @@ def subscription_canceled(event):
     if settings.SLACK_WEBHOOK_SALES_CHANNEL and total_spent > 0:
         start_date = stripe_subscription.start_date.strftime("%b %-d, %Y")
         timesince = humanize.naturaltime(stripe_subscription.start_date).split(",")[0]
-        domains = Domain.objects.filter(
-            project__organizations__in=[organization]
-        ).count()
+        domains = Domain.objects.filter(project__organizations__in=[organization]).count()
         try:
             sso_integration = organization.ssointegration.provider
         except SSOIntegration.DoesNotExist:

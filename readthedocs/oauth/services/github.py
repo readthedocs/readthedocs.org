@@ -6,22 +6,27 @@ import re
 import structlog
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
+from requests.exceptions import HTTPError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
+from readthedocs.builds.constants import SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
-from ..models import RemoteOrganization, RemoteRepository
-from .base import SyncServiceError, UserService
+from ..models import RemoteOrganization
+from ..models import RemoteRepository
+from .base import SyncServiceError
+from .base import UserService
+
 
 log = structlog.get_logger(__name__)
 
 
 class GitHubService(UserService):
-
     """Provider service for GitHub."""
 
     vcs_provider_slug = GITHUB
@@ -162,9 +167,7 @@ class GitHubService(UserService):
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
             )
-            remote_repository_relation.admin = fields.get("permissions", {}).get(
-                "admin", False
-            )
+            remote_repository_relation.admin = fields.get("permissions", {}).get("admin", False)
             remote_repository_relation.save()
 
             return repo
@@ -320,9 +323,7 @@ class GitHubService(UserService):
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
-                log.warning(
-                    "GitHub project does not exist or user does not have permissions."
-                )
+                log.warning("GitHub project does not exist or user does not have permissions.")
             else:
                 # Unknown response from GitHub
                 try:
@@ -406,6 +407,61 @@ class GitHubService(UserService):
 
         return (False, resp)
 
+    def remove_webhook(self, project):
+        """
+        Remove GitHub webhook for the repository associated with the project.
+
+        We delete all webhooks that match the URL of the webhook we set up.
+        The URLs can be in several formats, so we check for all of them:
+
+        - https://app.readthedocs.org/api/v2/webhook/github/<project_slug>/<id>
+        - https://app.readthedocs.org/api/v2/webhook/<project_slug>/<id>
+        - https://readthedocs.org/api/v2/webhook/github/<project_slug>/<id>
+        - https://readthedocs.org/api/v2/webhook/<project_slug>/<id>
+
+        If a webhook fails to be removed, we log the error and cancel the operation,
+        as if we weren't able to delete one webhook, we won't be able to delete the others either.
+
+        If we didn't find any webhook to delete, we return True.
+        """
+        owner, repo = build_utils.get_github_username_repo(url=project.repo)
+
+        try:
+            resp = self.session.get(f"{self.base_api_url}/repos/{owner}/{repo}/hooks")
+            resp.raise_for_status()
+            data = resp.json()
+        except HTTPError:
+            log.info("Failed to get GitHub webhooks for project.")
+            return False
+
+        hook_targets = [
+            f"{settings.PUBLIC_API_URL}/api/v2/webhook/{project.slug}/",
+            f"{settings.PUBLIC_API_URL}/api/v2/webhook/github/{project.slug}/",
+        ]
+        hook_targets.append(hook_targets[0].replace("app.", "", 1))
+        hook_targets.append(hook_targets[1].replace("app.", "", 1))
+
+        for hook in data:
+            hook_url = hook["config"]["url"]
+            for hook_target in hook_targets:
+                if hook_url.startswith(hook_target):
+                    try:
+                        self.session.delete(
+                            f"{self.base_api_url}/repos/{owner}/{repo}/hooks/{hook['id']}"
+                        ).raise_for_status()
+                    except HTTPError:
+                        log.info("Failed to remove GitHub webhook for project.")
+                        return False
+        return True
+
+    def remove_ssh_key(self, project):
+        """
+        Remove the SSH key from the GitHub repository associated with the project.
+
+        This is overridden in .com, as we don't make use of the SSH keys in .org.
+        """
+        return True
+
     def send_build_status(self, *, build, commit, status):
         """
         Create GitHub commit status for project.
@@ -464,15 +520,10 @@ class GitHubService(UserService):
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    "GitHub project does not exist or user does not have permissions."
-                )
+                log.info("GitHub project does not exist or user does not have permissions.")
                 return False
 
-            if (
-                resp.status_code == 422
-                and "No commit found for SHA" in resp.json()["message"]
-            ):
+            if resp.status_code == 422 and "No commit found for SHA" in resp.json()["message"]:
                 # This happens when the user force-push a branch or similar
                 # that changes the Git history and SHA does not exist anymore.
                 #

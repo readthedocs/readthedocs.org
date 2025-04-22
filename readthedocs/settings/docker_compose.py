@@ -169,7 +169,6 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
-    CACHEOPS_REDIS = f"redis://:redispassword@cache:6379/1"
     BROKER_URL = f"redis://:redispassword@cache:6379/0"
 
     CELERY_ALWAYS_EAGER = False
@@ -177,10 +176,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
     RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage"
-    # Storage backend for build cached environments
-    RTD_BUILD_ENVIRONMENT_STORAGE = (
-        "readthedocs.storage.s3_storage.S3BuildEnvironmentStorage"
-    )
     # Storage backend for build languages
     RTD_BUILD_TOOLS_STORAGE = "readthedocs.storage.s3_storage.S3BuildToolsStorage"
     # Storage for static files (those collected with `collectstatic`)
@@ -191,7 +186,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     AWS_SECRET_ACCESS_KEY = "password"
     S3_MEDIA_STORAGE_BUCKET = "media"
     S3_BUILD_COMMANDS_STORAGE_BUCKET = "builds"
-    S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = "envs"
     S3_BUILD_TOOLS_STORAGE_BUCKET = "build-tools"
     S3_STATIC_STORAGE_BUCKET = "static"
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
@@ -224,6 +218,11 @@ class DockerBaseSettings(CommunityBaseSettings):
             except KeyError:
                 pass
         return providers
+
+    GITHUB_APP_ID = os.environ.get("RTD_GITHUB_APP_ID")
+    GITHUB_APP_NAME = os.environ.get("RTD_GITHUB_APP_NAME")
+    GITHUB_APP_WEBHOOK_SECRET = os.environ.get("RTD_GITHUB_APP_WEBHOOK_SECRET")
+    GITHUB_APP_PRIVATE_KEY = os.environ.get("RTD_GITHUB_APP_PRIVATE_KEY")
 
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"

@@ -33,7 +33,7 @@ django-vanilla-views
 # dependency as well.
 jsonfield
 
-django-safemigrate
+django-safemigrate==4.3
 
 # Impersonate users in the Django admin for support.
 django-impersonate
@@ -44,6 +44,9 @@ slumber
 pyyaml
 Pygments
 pydantic
+
+# Used to interact with the GitHub API using the GitHub App
+PyGithub
 
 dnspython
 
@@ -126,7 +129,9 @@ django-storages[boto3]==1.14.3
 django-debug-toolbar
 
 # For enabling content-security-policy
-django-csp
+# Pinned to 3.8 because we need to take some manual actions before upgrading to 4.x
+# https://django-csp.readthedocs.io/en/latest/configuration.html#migrating-from-django-csp-3-8
+django-csp==3.8
 
 # Upgrading to 3.x requires some extra work
 # https://django-structlog.readthedocs.io/en/latest/upgrade_guide.html#upgrading-to-3-0
@@ -143,7 +148,12 @@ dparse
 
 gunicorn
 
-django-cacheops
-
 # Used by Addons for sorting patterns
 bumpver
+
+
+# xmlsec is a dependecy from python3-saml which is required by django-allauth.
+# We have to pin it because the underlying `libxml2-dev` package installed at
+# system level is incompatible with the Python version
+# https://github.com/xmlsec/python-xmlsec/issues/324
+xmlsec==1.3.14

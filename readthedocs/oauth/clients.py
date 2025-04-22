@@ -1,8 +1,12 @@
 from datetime import datetime
 
 import structlog
+from django.conf import settings
 from django.utils import timezone
+from github import Auth
+from github import GithubIntegration
 from requests_oauthlib import OAuth2Session
+
 
 log = structlog.get_logger(__name__)
 
@@ -69,3 +73,15 @@ def get_oauth2_client(account):
         token_updater=_get_token_updater(token),
     )
     return session
+
+
+def get_gh_app_client() -> GithubIntegration:
+    """Return a client authenticated as the GitHub App to interact with the API."""
+    app_auth = Auth.AppAuth(
+        app_id=settings.GITHUB_APP_CLIENT_ID,
+        private_key=settings.GITHUB_APP_PRIVATE_KEY,
+        # 10 minutes is the maximum allowed by GitHub.
+        # PyGithub will handle the token expiration and renew it automatically.
+        jwt_expiry=60 * 10,
+    )
+    return GithubIntegration(auth=app_auth)
