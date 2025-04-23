@@ -3300,6 +3300,7 @@ class APIVersionTests(TestCase):
                 "slug": "pip",
                 "users": [1],
                 "custom_prefix": None,
+                "clone_token": None,
             },
             "privacy_level": "public",
             "downloads": {},

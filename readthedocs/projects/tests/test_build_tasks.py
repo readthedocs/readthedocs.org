@@ -380,7 +380,7 @@ class TestBuildTask(BuildEnvironmentBase):
         self._trigger_update_docs_task()
 
         vcs_env_vars = build_environment.call_args_list[0][1]["environment"]
-        expected_vcs_env_vars = dict(**common_env_vars, GIT_TERMINAL_PROMPT="0")
+        expected_vcs_env_vars = dict(**common_env_vars, GIT_TERMINAL_PROMPT="0", READTHEDOCS_GIT_CLONE_TOKEN=None)
         assert vcs_env_vars == expected_vcs_env_vars
 
         build_env_vars = build_environment.call_args_list[1][1]["environment"]
