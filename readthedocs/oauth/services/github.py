@@ -279,7 +279,7 @@ class GitHubService(UserService):
 
         return integration.provider_data
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """
         Set up GitHub project webhook for project.
 
@@ -288,7 +288,6 @@ class GitHubService(UserService):
         :param integration: Integration for the project
         :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
         """
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
@@ -320,7 +319,7 @@ class GitHubService(UserService):
                 integration.provider_data = recv_data
                 integration.save()
                 log.debug("GitHub webhook creation successful for project.")
-                return (True, resp)
+                return True
 
             if resp.status_code in [401, 403, 404]:
                 log.warning("GitHub project does not exist or user does not have permissions.")
@@ -339,9 +338,9 @@ class GitHubService(UserService):
         except (RequestException, ValueError):
             log.exception("GitHub webhook creation failed for project.")
 
-        return (False, resp)
+        return False
 
-    def update_webhook(self, project, integration):
+    def update_webhook(self, project, integration) -> bool:
         """
         Update webhook integration.
 
@@ -350,7 +349,6 @@ class GitHubService(UserService):
         :param integration: Webhook integration to update
         :type integration: Integration
         :returns: boolean based on webhook update success, and requests Response object
-        :rtype: (Bool, Response)
         """
         data = self.get_webhook_data(project, integration)
         resp = None
@@ -384,7 +382,7 @@ class GitHubService(UserService):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info("GitHub webhook update successful for project.")
-                return (True, resp)
+                return True
 
             # GitHub returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
@@ -405,7 +403,7 @@ class GitHubService(UserService):
         except (AttributeError, RequestException, ValueError):
             log.exception("GitHub webhook update failed for project.")
 
-        return (False, resp)
+        return False
 
     def remove_webhook(self, project):
         """

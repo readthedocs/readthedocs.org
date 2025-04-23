@@ -26,7 +26,7 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
         "created",
         "modified",
     )
-    raw_id_fields = ("organization",)
+    raw_id_fields = ("organization", "github_app_installation")
     list_select_related = ("organization",)
     list_filter = (
         "vcs_provider",
@@ -86,7 +86,24 @@ class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
     list_select_related = (
         "remote_repository",
         "user",
+        "account",
     )
+    list_display = (
+        "id",
+        "remote_repository",
+        "user",
+        "account",
+        "vcs_provider",
+        "admin",
+    )
+    list_filter = (
+        "remote_repository__vcs_provider",
+        "admin",
+    )
+
+    def vcs_provider(self, obj):
+        """Get the display name for the VCS provider."""
+        return obj.remote_repository.vcs_provider
 
 
 @admin.register(RemoteOrganizationRelation)
@@ -101,4 +118,17 @@ class RemoteOrganizationRelationAdmin(admin.ModelAdmin):
     list_select_related = (
         "remote_organization",
         "user",
+        "account",
     )
+    list_display = (
+        "id",
+        "remote_organization",
+        "user",
+        "account",
+        "vcs_provider",
+    )
+    list_filter = ("remote_organization__vcs_provider",)
+
+    def vcs_provider(self, obj):
+        """Get the display name for the VCS provider."""
+        return obj.remote_organization.vcs_provider
