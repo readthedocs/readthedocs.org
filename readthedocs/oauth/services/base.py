@@ -65,7 +65,7 @@ class Service:
         """
         raise NotImplementedError
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """
         Setup webhook for project.
 
@@ -73,12 +73,11 @@ class Service:
         :type project: Project
         :param integration: Integration for the project
         :type integration: Integration
-        :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
+        :returns: boolean based on webhook set up success
         """
         raise NotImplementedError
 
-    def update_webhook(self, project, integration):
+    def update_webhook(self, project, integration) -> bool:
         """
         Update webhook integration.
 
@@ -87,7 +86,6 @@ class Service:
         :param integration: Webhook integration to update
         :type integration: Integration
         :returns: boolean based on webhook update success, and requests Response object
-        :rtype: (Bool, Response)
         """
         raise NotImplementedError
 

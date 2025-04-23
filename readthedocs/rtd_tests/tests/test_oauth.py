@@ -1,6 +1,7 @@
 import copy
 from unittest import mock
 
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 import requests_mock
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from django.conf import settings
@@ -869,6 +870,9 @@ class GitHubAppTests(TestCase):
         assert clone_token == f"x-access-token:{token}"
 
 
+@override_settings(
+    PUBLIC_API_URL="https://app.readthedocs.org",
+)
 class GitHubOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -882,8 +886,17 @@ class GitHubOAuthTests(TestCase):
             vcs_provider=GITHUB,
         )
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
+        self.social_github_account = get(
+            SocialAccount,
+            user=self.user,
+            provider=GitHubProvider.id,
+        )
+        get(
+            SocialToken,
+            account=self.social_github_account,
+        )
         self.service = GitHubService(
-            user=self.user, account=get(SocialAccount, user=self.user)
+            user=self.user, account=self.social_github_account
         )
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
@@ -936,6 +949,7 @@ class GitHubOAuthTests(TestCase):
             "updated_at": "2020-08-12T14:26:39Z",
             "type": "Organization",
         }
+        self.api_url = "https://api.github.com"
 
     def test_create_remote_repository(self):
         repo = self.service.create_repository(
@@ -1217,7 +1231,7 @@ class GitHubOAuthTests(TestCase):
     def test_setup_webhook_successful(self, session, mock_logger):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
@@ -1232,7 +1246,7 @@ class GitHubOAuthTests(TestCase):
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
     def test_setup_webhook_404_error(self, session, mock_logger):
         session.post.return_value.status_code = 404
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
         self.integration.refresh_from_db()
 
         self.assertFalse(success)
@@ -1265,7 +1279,7 @@ class GitHubOAuthTests(TestCase):
     def test_update_webhook_successful(self, session, mock_logger):
         session.patch.return_value.status_code = 201
         session.patch.return_value.json.return_value = {}
-        success, _ = self.service.update_webhook(self.project, self.integration)
+        success = self.service.update_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
@@ -1318,8 +1332,8 @@ class GitHubOAuthTests(TestCase):
         self.integration.save()
 
         webhook_data = self.provider_data
-        rtd_webhook_url = "https://{domain}{path}".format(
-            domain=settings.PRODUCTION_DOMAIN,
+        rtd_webhook_url = "{domain}{path}".format(
+            domain=settings.PUBLIC_API_URL,
             path=reverse(
                 "api_webhook",
                 kwargs={
@@ -1387,6 +1401,143 @@ class GitHubOAuthTests(TestCase):
             "GitHub webhook Listing failed for project.",
         )
 
+    @requests_mock.Mocker(kw="request")
+    def test_remove_webhook_match_found(self, request):
+        assert self.project.repo == "https://github.com/pypa/pip"
+        assert self.project.slug == "pip"
+        request.get(
+            f"{self.api_url}/repos/pypa/pip/hooks",
+            json=[
+                {
+                    "id": 1,
+                    "config": {
+                        "url": "https://readthedocs.org/api/v2/webhook/github/pip/1111/",
+                    },
+                },
+                {
+                    "id": 2,
+                    "config": {
+                        "url": "https://readthedocs.org/api/v2/webhook/pip/1111/",
+                    },
+                },
+                {
+                    "id": 3,
+                    "config": {
+                        "url": "https://app.readthedocs.org/api/v2/webhook/github/pip/1111/",
+                    },
+                },
+                {
+                    "id": 4,
+                    "config": {
+                        "url": "https://app.readthedocs.org/api/v2/webhook/pip/1111/",
+                    },
+                },
+                {
+                    "id": 5,
+                    "config": {
+                        "url": "https://readthedocs.org/api/v2/webhook/github/another-project/1111/",
+                    },
+                },
+                {
+                    "id": 6,
+                    "config": {
+                        "url": "https://example.com/dont-delete-me/",
+                    },
+                },
+            ]
+        )
+        mock_request_deletions = [
+            request.delete(
+                f"{self.api_url}/repos/pypa/pip/hooks/1",
+            ),
+            request.delete(
+                f"{self.api_url}/repos/pypa/pip/hooks/2",
+            ),
+            request.delete(
+                f"{self.api_url}/repos/pypa/pip/hooks/3",
+            ),
+            request.delete(
+                f"{self.api_url}/repos/pypa/pip/hooks/4",
+            ),
+        ]
+        assert self.service.remove_webhook(self.project) is True
+        for mock_request_deletion in mock_request_deletions:
+            assert mock_request_deletion.called_once
+
+    @requests_mock.Mocker(kw="request")
+    def test_remove_webhook_match_found_error_to_delete(self, request):
+        assert self.project.repo == "https://github.com/pypa/pip"
+        assert self.project.slug == "pip"
+        request.get(
+            f"{self.api_url}/repos/pypa/pip/hooks",
+            json=[
+                {
+                    "id": 1,
+                    "config": {
+                        "url": "https://readthedocs.org/api/v2/webhook/github/pip/1111/",
+                    },
+                },
+                {
+                    "id": 2,
+                    "config": {
+                        "url": "https://readthedocs.org/api/v2/webhook/pip/1111/",
+                    },
+                },
+                {
+                    "id": 3,
+                    "config": {
+                        "url": "https://app.readthedocs.org/api/v2/webhook/github/pip/1111/",
+                    },
+                },
+                {
+                    "id": 4,
+                    "config": {
+                        "url": "https://app.readthedocs.org/api/v2/webhook/pip/1111/",
+                    },
+                },
+                {
+                    "id": 5,
+                    "config": {
+                        "url": "https://readthedocs.org/api/v2/webhook/github/another-project/1111/",
+                    },
+                },
+                {
+                    "id": 6,
+                    "config": {
+                        "url": "https://example.com/dont-delete-me/",
+                    },
+                },
+            ]
+        )
+        mock_request_deletion = request.delete(
+            f"{self.api_url}/repos/pypa/pip/hooks/1",
+            status_code=401,
+        )
+        assert self.service.remove_webhook(self.project) is False
+        assert mock_request_deletion.called_once
+
+    @requests_mock.Mocker(kw="request")
+    def test_remove_webhook_match_not_found(self, request):
+        assert self.project.repo == "https://github.com/pypa/pip"
+        assert self.project.slug == "pip"
+        request.get(
+            f"{self.api_url}/repos/pypa/pip/hooks",
+            json=[
+                {
+                    "id": 1,
+                    "config": {
+                        "url": "https://readthedocs.org/api/v2/webhook/github/another-project/1111/",
+                    },
+                },
+                {
+                    "id": 2,
+                    "config": {
+                        "url": "https://example.com/dont-delete-me/",
+                    },
+                },
+            ]
+        )
+        assert self.service.remove_webhook(self.project) is True
 
 class BitbucketOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
@@ -1636,7 +1787,7 @@ class BitbucketOAuthTests(TestCase):
     def test_setup_webhook_successful(self, session, mock_logger):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.assertTrue(success)
         mock_logger.bind.assert_called_with(
@@ -1652,7 +1803,7 @@ class BitbucketOAuthTests(TestCase):
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
     def test_setup_webhook_404_error(self, session, mock_logger):
         session.post.return_value.status_code = 404
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.assertFalse(success)
         mock_logger.bind.assert_called_with(
@@ -1684,7 +1835,7 @@ class BitbucketOAuthTests(TestCase):
     def test_update_webhook_successful(self, session, mock_logger):
         session.put.return_value.status_code = 200
         session.put.return_value.json.return_value = {}
-        success, _ = self.service.update_webhook(self.project, self.integration)
+        success = self.service.update_webhook(self.project, self.integration)
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
@@ -2079,7 +2230,7 @@ class GitLabOAuthTests(TestCase):
     def test_setup_webhook_successful(self, session, mock_logger):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
@@ -2096,7 +2247,7 @@ class GitLabOAuthTests(TestCase):
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     def test_setup_webhook_404_error(self, session, mock_logger):
         session.post.return_value.status_code = 404
-        success, _ = self.service.setup_webhook(self.project, self.integration)
+        success = self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
@@ -2132,7 +2283,7 @@ class GitLabOAuthTests(TestCase):
         repo_id.return_value = "9999"
         session.put.return_value.status_code = 200
         session.put.return_value.json.return_value = {}
-        success, _ = self.service.update_webhook(self.project, self.integration)
+        success = self.service.update_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
