@@ -34,6 +34,7 @@ class GitHubAppService(Service):
     vcs_provider_slug = GITHUB_APP
     allauth_provider = GitHubAppProvider
     supports_build_status = True
+    supports_clone_token = True
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation

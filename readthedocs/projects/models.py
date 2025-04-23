@@ -1412,6 +1412,10 @@ class Project(models.Model):
         service_class = self.get_git_service_class()
         if not service_class or not self.remote_repository.private:
             return None
+
+        if not service_class.supports_clone_token:
+            return None
+
         for service in service_class.for_project(self):
             token = service.get_clone_token(self)
             if token:

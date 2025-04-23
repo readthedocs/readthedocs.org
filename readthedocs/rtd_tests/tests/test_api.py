@@ -12,6 +12,7 @@ from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.api.v2.views.integrations import (
     BITBUCKET_EVENT_HEADER,
@@ -56,11 +57,14 @@ from readthedocs.integrations.models import GenericAPIWebhook, Integration
 from readthedocs.notifications.constants import READ, UNREAD
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
+    GitHubAccountType,
+    GitHubAppInstallation,
     RemoteOrganization,
     RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
+from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import (
     APIProject,
@@ -1418,6 +1422,44 @@ class APITests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn("features", resp.data)
         self.assertEqual(resp.data["features"], [feature.feature_id])
+
+    @mock.patch.object(GitHubAppService, "get_clone_token")
+    def test_project_clone_token(self, get_clone_token):
+        clone_token = "token:1234"
+        get_clone_token.return_value = clone_token
+        project = get(Project)
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        # No remote repository, no token.
+        assert project.remote_repository is None
+
+        resp = client.get(f"/api/v2/project/{project.pk}/")
+        assert resp.status_code == 200
+        assert resp.data["clone_token"] == None
+        get_clone_token.assert_not_called()
+
+        # Project has a GitHubApp remote repository, but it's public.
+        github_app_installation = get(GitHubAppInstallation, installation_id=1234, target_id=1234, target_type=GitHubAccountType.USER)
+        remote_repository = get(RemoteRepository, vcs_provider=GitHubAppProvider.id, github_app_installation=github_app_installation, private=False)
+        project.remote_repository = remote_repository
+        project.save()
+
+        resp = client.get(f"/api/v2/project/{project.pk}/")
+        assert resp.status_code == 200
+        assert resp.data["clone_token"] == None
+        get_clone_token.assert_not_called()
+
+        # Project has a GitHubApp remote repository, and it's private.
+        remote_repository.private = True
+        remote_repository.save()
+
+        resp = client.get(f"/api/v2/project/{project.pk}/")
+        assert resp.status_code == 200
+        assert resp.data["clone_token"] == clone_token
+        get_clone_token.assert_called_once_with(project)
 
     def test_remote_repository_pagination(self):
         account = get(SocialAccount, provider="github")

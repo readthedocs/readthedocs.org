@@ -38,6 +38,7 @@ class Service:
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
     supports_build_status = False
+    supports_clone_token = False
 
     @classmethod
     def for_project(cls, project):
@@ -328,7 +329,3 @@ class UserService(Service):
 
     def sync_organizations(self):
         raise NotImplementedError
-
-    def get_clone_token(self, project):
-        """User services make use of SSH keys only for cloning."""
-        return None
