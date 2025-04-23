@@ -247,8 +247,4 @@ class Migration(migrations.Migration):
             name="version",
             unique_together={("project", "slug")},
         ),
-        migrations.AlterIndexTogether(
-            name="build",
-            index_together={("version", "state", "type")},
-        ),
     ]

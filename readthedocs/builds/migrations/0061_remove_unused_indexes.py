@@ -15,7 +15,9 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterIndexTogether(
             name="build",
-            index_together={("version", "state", "type"), ("version", "state", "date", "success")},
+            index_together={
+                ("version", "state", "date", "success"),
+            },
         ),
         migrations.AlterField(
             model_name="version",
