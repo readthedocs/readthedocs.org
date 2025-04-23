@@ -6,10 +6,12 @@ from pathlib import Path
 from unittest import mock
 
 import django_dynamic_fixture as fixture
+from django_dynamic_fixture import get
 import pytest
 from django.conf import settings
 from django.test.utils import override_settings
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
@@ -21,6 +23,8 @@ from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
 from readthedocs.config.tests.test_config import get_build_config
 from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
+from readthedocs.oauth.models import GitHubAccountType, GitHubAppInstallation, RemoteRepository
+from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
@@ -1057,6 +1061,287 @@ class TestBuildTask(BuildEnvironmentBase):
                 ),
                 # FIXME: I think we are hitting this issue here:
                 # https://github.com/pytest-dev/pytest-mock/issues/234
+                mock.call("lsb_release", "--description", record=False, demux=True),
+                mock.call("python", "--version", record=False, demux=True),
+                mock.call(
+                    "dpkg-query",
+                    "--showformat",
+                    "${package} ${version}\\n",
+                    "--show",
+                    record=False,
+                    demux=True,
+                ),
+                mock.call(
+                    "python",
+                    "-m",
+                    "pip",
+                    "list",
+                    "--pre",
+                    "--local",
+                    "--format",
+                    "json",
+                    record=False,
+                    demux=True,
+                ),
+            ]
+        )
+
+    @mock.patch.object(GitHubAppService, "get_clone_token")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_commands_executed_with_clone_token(
+        self,
+        load_yaml_config,
+        get_clone_token,
+    ):
+        load_yaml_config.return_value = get_build_config(
+            {
+                "version": 2,
+                "formats": "all",
+                "sphinx": {
+                    "configuration": "docs/conf.py",
+                },
+            },
+            validate=True,
+        )
+
+        # Create the artifact paths, so it's detected by the builder
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="json"))
+        os.makedirs(
+            self.project.artifact_path(version=self.version.slug, type_="htmlzip")
+        )
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
+
+        get_clone_token.return_value = "toke:1234"
+        github_app_installation = get(
+            GitHubAppInstallation,
+            installation_id=1234,
+            target_id=1234,
+            target_type=GitHubAccountType.USER,
+        )
+        remote_repository = get(
+            RemoteRepository,
+            github_app_installation=github_app_installation,
+            clone_url="https://github.com/readthedocs/readthedocs.org",
+            vcs_provider=GitHubAppProvider.id,
+            private=True,
+        )
+        self.project.remote_repository = remote_repository
+        self.project.save()
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks["git.Backend.run"].assert_has_calls(
+            [
+                mock.call("git", "clone", "--depth", "1", "https://$READTHEDOCS_GIT_CLONE_TOKEN@github.com/readthedocs/readthedocs.org", "."),
+                mock.call(
+                    "git",
+                    "fetch",
+                    "origin",
+                    "--force",
+                    "--prune",
+                    "--prune-tags",
+                    "--depth",
+                    "50",
+                    "refs/heads/master:refs/remotes/origin/master",
+                ),
+                mock.call(
+                    "git",
+                    "show-ref",
+                    "--verify",
+                    "--quiet",
+                    "--",
+                    "refs/remotes/origin/a1b2c3",
+                    record=False,
+                ),
+                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
+                mock.call(
+                    "git",
+                    "ls-remote",
+                    "--tags",
+                    "--heads",
+                    mock.ANY,
+                    demux=True,
+                    record=False,
+                ),
+            ]
+        )
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "python",
+                    "-mvirtualenv",
+                    "$READTHEDOCS_VIRTUALENV_PATH",
+                    bin_path=None,
+                    cwd=None,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "pip",
+                    "setuptools",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "sphinx",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-b",
+                    "html",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/html",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-b",
+                    "singlehtml",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/htmlzip",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "mktemp",
+                    "--directory",
+                    record=False,
+                ),
+                mock.call(
+                    "mv",
+                    mock.ANY,
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mkdir",
+                    "--parents",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "zip",
+                    "--recurse-paths",
+                    "--symlinks",
+                    mock.ANY,
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-b",
+                    "latex",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/pdf",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call("cat", "latexmkrc", cwd=mock.ANY),
+                # NOTE: pdf `mv` commands and others are not here because the
+                # PDF resulting file is not found in the process (`_post_build`)
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-b",
+                    "epub",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "mv",
+                    mock.ANY,
+                    "/tmp/project-latest.epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "rm",
+                    "--recursive",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mkdir",
+                    "--parents",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mv",
+                    "/tmp/project-latest.epub",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "test",
+                    "-x",
+                    "_build/html",
+                    record=False,
+                    cwd=mock.ANY,
+                ),
                 mock.call("lsb_release", "--description", record=False, demux=True),
                 mock.call("python", "--version", record=False, demux=True),
                 mock.call(
