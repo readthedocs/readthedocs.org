@@ -472,7 +472,9 @@ class GitHubAppService(Service):
         # NOTE: we can pass the repository_ids to get a token with access to specific repositories.
         # We should upstream this feature to PyGithub.
         try:
-            access_token = self.gh_app_client.get_access_token(self.installation.installation_id, permissions={"contents": "read"})
+            access_token = self.gh_app_client.get_access_token(
+                self.installation.installation_id, permissions={"contents": "read"}
+            )
             return f"x-access-token:{access_token.token}"
         except GithubException:
             log.info(
