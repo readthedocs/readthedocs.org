@@ -462,16 +462,17 @@ class GitHubAppService(Service):
         """
         Return a token for HTTP-based Git access to the repository.
 
+        The token is scoped to have read-only access to the content of the repository attached to the project.
+        The token expires after one hour (this is given by GitHub and can't be changed).
+
         See:
         - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
         - https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
         """
         # NOTE: we can pass the repository_ids to get a token with access to specific repositories.
         # We should upstream this feature to PyGithub.
-        # We can also pass a specific permissions object to get a token with specific permissions
-        # if we want to scope this token even more.
         try:
-            access_token = self.gh_app_client.get_access_token(self.installation.installation_id)
+            access_token = self.gh_app_client.get_access_token(self.installation.installation_id, permissions={"contents": "read"})
             return f"x-access-token:{access_token.token}"
         except GithubException:
             log.info(
