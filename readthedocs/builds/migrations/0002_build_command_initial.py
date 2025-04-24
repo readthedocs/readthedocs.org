@@ -6,7 +6,7 @@ import readthedocs.builds.models
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("builds", "0001_initial"),
     ]

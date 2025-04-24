@@ -7,7 +7,7 @@ import readthedocs.projects.models
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0077_remote_repository_data_migration"),
     ]

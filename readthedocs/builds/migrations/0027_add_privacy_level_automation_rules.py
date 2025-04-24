@@ -5,7 +5,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("builds", "0026_add_hide_version_automation_rule"),
     ]

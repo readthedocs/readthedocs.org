@@ -17,7 +17,7 @@ def forwards_remove_content_types(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("oauth", "0003_move_github"),
     ]
