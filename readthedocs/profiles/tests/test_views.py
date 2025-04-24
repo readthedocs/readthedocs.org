@@ -26,7 +26,7 @@ from readthedocs.oauth.notifications import (
     MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED,
     MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED,
 )
-from readthedocs.oauth.services import GitHubService
+from readthedocs.oauth.services.github import GitHubService
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
