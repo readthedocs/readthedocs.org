@@ -30,9 +30,6 @@ from readthedocs.oauth.services.github import GitHubService
 from readthedocs.projects.models import Project
 
 
-@pytest.mark.skipif(
-    not settings.RTD_EXT_THEME_ENABLED, reason="Not applicable for the old theme"
-)
 @override_settings(GITHUB_APP_NAME="readthedocs")
 class TestMigrateToGitHubAppView(TestCase):
     def setUp(self):
