@@ -679,7 +679,6 @@ class TestMigrateToGitHubAppView(TestCase):
         assert list(context["old_github_accounts"]) == [self.social_account_github]
 
         notifications = Notification.objects.for_user(self.user, self.user)
-        breakpoint()
         assert notifications.count() == 2
         assert notifications.filter(
             message_id=MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED
