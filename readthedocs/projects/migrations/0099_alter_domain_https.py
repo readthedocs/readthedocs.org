@@ -5,7 +5,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0098_pdf_epub_opt_in"),
     ]

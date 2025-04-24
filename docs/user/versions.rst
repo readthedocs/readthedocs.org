@@ -88,6 +88,39 @@ all of the artifacts of your version will be deleted and a ``404 Not Found`` pag
 
 You can change the state for each version of your documentation in the :guilabel:`Versions` tab of your project.
 
+Version URL identifier (slug)
+-----------------------------
+
+Each version of your project has a unique URL identifier (slug).
+This identifier is used to reference the version in your documentation, :term:`dashboard`, and :doc:`API </api/index>`.
+
+A version slug is automatically generated from the name of the branch or tag in your repository,
+some special characters like spaces and ``/`` are replaced with a dash (``-``), and the name is lowercased.
+If the resulting slug collides with another one, a suffix is added (``_a``, ``_b``, etc.).
+
+You can change the slug of a version in :ref:`the versions tab of your project <versions:Managing your versions>`,
+but you should take the following into account:
+
+- Changing the slug of an active version will result on its previous documentation being deleted, and a new build being triggered.
+  Be careful when renaming active versions, specially old ones that might not build anymore.
+- Any URL referencing your version with the old slug will return a ``404 Not Found`` page.
+  You can use :ref:`an exact redirect <user-defined-redirects:Redirecting an old version to a new one>` to redirect users to the new URL,
+- You may still see the original name of the version in some places,
+  as changing the slug only affects the URL used in your documentation and how the APIs identify that version.
+  `We are considering adding another field to be used for display in the future <https://github.com/readthedocs/readthedocs.org/issues/11979>`__.
+- Sorting of versions in the version selector is done based on the slug,
+  changing the slug of a version may change the order in which they are shown to your users.
+  `We are considering adding another field to be used for sorting in the future <https://github.com/readthedocs/readthedocs.org/issues/11979>`__.
+- You can't change the slug of versions that are managed by Read the Docs, like ``latest`` and ``stable``.
+- Slugs must be unique for each version of your project.
+- The slug can contain lowercase letters, numbers, dashes (``-``), underscores (``_``) and dots (``.``).
+  If you try to use a slug that contains any other character, you'll get an error message with a suggestion of a valid slug.
+
+.. warning::
+
+   Changing the slug of an active version will result on its previous documentation being deleted, and a new build being triggered.
+   Be careful when renaming active versions, specially old ones that might not build anymore.
+
 Disabling versioning completely
 -------------------------------
 

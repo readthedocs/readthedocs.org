@@ -9,7 +9,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("organizations", "0004_organization_max_concurrent_builds"),

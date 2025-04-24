@@ -1,3 +1,31 @@
+Version 12.0.5
+--------------
+
+:Date: April 22, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12123 <https://github.com/readthedocs/readthedocs.org/pull/12123>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: always keep latest in sync with default branch/tag (`#12121 <https://github.com/readthedocs/readthedocs.org/pull/12121>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update log (`#12120 <https://github.com/readthedocs/readthedocs.org/pull/12120>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code (`#12118 <https://github.com/readthedocs/readthedocs.org/pull/12118>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub: show repos from old or new GH integration only (`#12113 <https://github.com/readthedocs/readthedocs.org/pull/12113>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add migration page for GitHub App (`#12112 <https://github.com/readthedocs/readthedocs.org/pull/12112>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#12111 <https://github.com/readthedocs/readthedocs.org/pull/12111>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 12.0.4 (`#12110 <https://github.com/readthedocs/readthedocs.org/pull/12110>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add GitHub App service (`#12072 <https://github.com/readthedocs/readthedocs.org/pull/12072>`__)
+
+Version 12.0.4
+--------------
+
+:Date: April 15, 2025
+
+* `@TheMathix <https://github.com/TheMathix>`__: Update README.rst (`#12107 <https://github.com/readthedocs/readthedocs.org/pull/12107>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12103 <https://github.com/readthedocs/readthedocs.org/pull/12103>`__)
+* `@stsewd <https://github.com/stsewd>`__: VCS: pass a version object to git provider (`#12101 <https://github.com/readthedocs/readthedocs.org/pull/12101>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version: document how to change the version slug and expose it to everyone (`#12096 <https://github.com/readthedocs/readthedocs.org/pull/12096>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't set secret key on builders (`#12095 <https://github.com/readthedocs/readthedocs.org/pull/12095>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: pin newrelic (`#12092 <https://github.com/readthedocs/readthedocs.org/pull/12092>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.3 (`#12089 <https://github.com/readthedocs/readthedocs.org/pull/12089>`__)
+
 Version 12.0.3
 --------------
 

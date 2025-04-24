@@ -210,7 +210,7 @@ def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
         return False
 
     for service in services:
-        success, _ = service.setup_webhook(project, integration=integration)
+        success = service.setup_webhook(project, integration=integration)
         if success:
             project.has_valid_webhook = True
             project.save()

@@ -25,6 +25,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
@@ -228,6 +229,12 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
 
     def clean_prevalidation(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
+        # If the project is attached to a GitHub app integration,
+        # it will always be able to build external versions.
+        remote_repository = self.instance.remote_repository
+        if remote_repository and remote_repository.vcs_provider == GITHUB_APP:
+            return
+
         integrations = list(self.instance.integrations.all())
         has_supported_integration = self.has_supported_integration(integrations)
         can_build_external_versions = self.can_build_external_versions(integrations)

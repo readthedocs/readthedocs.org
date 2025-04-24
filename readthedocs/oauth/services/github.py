@@ -8,6 +8,7 @@ from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
+from requests.exceptions import HTTPError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
@@ -278,7 +279,7 @@ class GitHubService(UserService):
 
         return integration.provider_data
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """
         Set up GitHub project webhook for project.
 
@@ -287,7 +288,6 @@ class GitHubService(UserService):
         :param integration: Integration for the project
         :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
         """
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
@@ -319,7 +319,7 @@ class GitHubService(UserService):
                 integration.provider_data = recv_data
                 integration.save()
                 log.debug("GitHub webhook creation successful for project.")
-                return (True, resp)
+                return True
 
             if resp.status_code in [401, 403, 404]:
                 log.warning("GitHub project does not exist or user does not have permissions.")
@@ -338,9 +338,9 @@ class GitHubService(UserService):
         except (RequestException, ValueError):
             log.exception("GitHub webhook creation failed for project.")
 
-        return (False, resp)
+        return False
 
-    def update_webhook(self, project, integration):
+    def update_webhook(self, project, integration) -> bool:
         """
         Update webhook integration.
 
@@ -349,7 +349,6 @@ class GitHubService(UserService):
         :param integration: Webhook integration to update
         :type integration: Integration
         :returns: boolean based on webhook update success, and requests Response object
-        :rtype: (Bool, Response)
         """
         data = self.get_webhook_data(project, integration)
         resp = None
@@ -383,7 +382,7 @@ class GitHubService(UserService):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info("GitHub webhook update successful for project.")
-                return (True, resp)
+                return True
 
             # GitHub returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
@@ -404,7 +403,62 @@ class GitHubService(UserService):
         except (AttributeError, RequestException, ValueError):
             log.exception("GitHub webhook update failed for project.")
 
-        return (False, resp)
+        return False
+
+    def remove_webhook(self, project):
+        """
+        Remove GitHub webhook for the repository associated with the project.
+
+        We delete all webhooks that match the URL of the webhook we set up.
+        The URLs can be in several formats, so we check for all of them:
+
+        - https://app.readthedocs.org/api/v2/webhook/github/<project_slug>/<id>
+        - https://app.readthedocs.org/api/v2/webhook/<project_slug>/<id>
+        - https://readthedocs.org/api/v2/webhook/github/<project_slug>/<id>
+        - https://readthedocs.org/api/v2/webhook/<project_slug>/<id>
+
+        If a webhook fails to be removed, we log the error and cancel the operation,
+        as if we weren't able to delete one webhook, we won't be able to delete the others either.
+
+        If we didn't find any webhook to delete, we return True.
+        """
+        owner, repo = build_utils.get_github_username_repo(url=project.repo)
+
+        try:
+            resp = self.session.get(f"{self.base_api_url}/repos/{owner}/{repo}/hooks")
+            resp.raise_for_status()
+            data = resp.json()
+        except HTTPError:
+            log.info("Failed to get GitHub webhooks for project.")
+            return False
+
+        hook_targets = [
+            f"{settings.PUBLIC_API_URL}/api/v2/webhook/{project.slug}/",
+            f"{settings.PUBLIC_API_URL}/api/v2/webhook/github/{project.slug}/",
+        ]
+        hook_targets.append(hook_targets[0].replace("app.", "", 1))
+        hook_targets.append(hook_targets[1].replace("app.", "", 1))
+
+        for hook in data:
+            hook_url = hook["config"]["url"]
+            for hook_target in hook_targets:
+                if hook_url.startswith(hook_target):
+                    try:
+                        self.session.delete(
+                            f"{self.base_api_url}/repos/{owner}/{repo}/hooks/{hook['id']}"
+                        ).raise_for_status()
+                    except HTTPError:
+                        log.info("Failed to remove GitHub webhook for project.")
+                        return False
+        return True
+
+    def remove_ssh_key(self, project):
+        """
+        Remove the SSH key from the GitHub repository associated with the project.
+
+        This is overridden in .com, as we don't make use of the SSH keys in .org.
+        """
+        return True
 
     def send_build_status(self, *, build, commit, status):
         """

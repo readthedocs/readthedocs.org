@@ -361,7 +361,7 @@ class GitLabService(UserService):
 
         return integration.provider_data
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """
         Set up GitLab project webhook for project.
 
@@ -384,7 +384,7 @@ class GitLabService(UserService):
         url = f"{self.base_api_url}/api/v4/projects/{repo_id}/hooks"
 
         if repo_id is None:
-            return (False, resp)
+            return False
 
         log.bind(
             project_slug=project.slug,
@@ -404,7 +404,7 @@ class GitLabService(UserService):
                 integration.provider_data = resp.json()
                 integration.save()
                 log.debug("GitLab webhook creation successful for project.")
-                return (True, resp)
+                return True
 
             if resp.status_code in [401, 403, 404]:
                 log.info("Gitlab project does not exist or user does not have permissions.")
@@ -414,9 +414,9 @@ class GitLabService(UserService):
         except Exception:
             log.exception("GitLab webhook creation failed.")
 
-        return (False, resp)
+        return False
 
-    def update_webhook(self, project, integration):
+    def update_webhook(self, project, integration) -> bool:
         """
         Update webhook integration.
 
@@ -428,8 +428,6 @@ class GitLabService(UserService):
 
         :returns: boolean based on webhook update success, and requests Response
                   object
-
-        :rtype: (Bool, Response)
         """
         provider_data = self.get_provider_data(project, integration)
 
@@ -442,7 +440,7 @@ class GitLabService(UserService):
         repo_id = self._get_repo_id(project)
 
         if repo_id is None:
-            return (False, resp)
+            return False
 
         data = self.get_webhook_data(repo_id, project, integration)
 
@@ -467,7 +465,7 @@ class GitLabService(UserService):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info("GitLab webhook update successful for project.")
-                return (True, resp)
+                return True
 
             # GitLab returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
@@ -486,7 +484,7 @@ class GitLabService(UserService):
                 debug_data=debug_data,
             )
 
-        return (False, resp)
+        return False
 
     def send_build_status(self, *, build, commit, status):
         """

@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
 
     dependencies = [
         ("organizations", "0012_add_organization_never_disable"),
