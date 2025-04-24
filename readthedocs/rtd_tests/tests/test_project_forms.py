@@ -562,6 +562,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             "default_branch": branch.verbose_name,
         }
         form = UpdateProjectForm(data, instance=self.project)
+        breakpoint()
         assert form.is_valid()
         form.save()
 
