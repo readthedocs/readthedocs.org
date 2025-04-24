@@ -27,6 +27,7 @@ from readthedocs.oauth.notifications import (
     MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED,
 )
 from readthedocs.oauth.services.github import GitHubService
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
 
@@ -174,6 +175,20 @@ class TestMigrateToGitHubAppView(TestCase):
             users=[self.user],
             repo="https://github.com/user/repo-e",
         )
+
+        # Make tests work on .com.
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            self.organization = get(
+                Organization,
+                owners=[self.user],
+                projects=[
+                    self.project_with_remote_repository,
+                    self.project_with_remote_repository_no_admin,
+                    self.project_with_remote_repository_no_member,
+                    self.project_with_remote_organization,
+                    self.project_without_remote_repository,
+                ],
+            )
 
         self.url = reverse("migrate_to_github_app")
         self.client.force_login(self.user)
