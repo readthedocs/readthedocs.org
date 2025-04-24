@@ -452,7 +452,7 @@ class GitHubService(UserService):
                         return False
         return True
 
-    def remove_ssh_key(self, project):
+    def remove_ssh_key(self, project) -> bool:
         """
         Remove the SSH key from the GitHub repository associated with the project.
 

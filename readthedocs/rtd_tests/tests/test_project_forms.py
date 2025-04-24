@@ -560,6 +560,8 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             "versioning_scheme": self.project.versioning_scheme,
             "language": self.project.language,
             "default_branch": branch.verbose_name,
+            "privacy_level": self.project.privacy_level,
+            "external_builds_privacy_level": self.project.external_builds_privacy_level,
         }
         form = UpdateProjectForm(data, instance=self.project)
         assert form.is_valid()
