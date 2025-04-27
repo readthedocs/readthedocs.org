@@ -4,6 +4,7 @@
 
 # run tests
 tox
+tox-uv
 
 # Used together with structlog to have nicer logs locally
 rich
