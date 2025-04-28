@@ -69,7 +69,7 @@ class UpdateCSPMiddleware:
 
         url_name = resolver_match.url_name
         update_csp_headers = settings.RTD_CSP_UPDATE_HEADERS
-        if settings.RTD_EXT_THEME_ENABLED and url_name in update_csp_headers:
+        if url_name in update_csp_headers:
             if hasattr(response, "_csp_update"):
                 raise ValueError(
                     "Can't update CSP headers at the view and middleware at the same time, use one or the other."
