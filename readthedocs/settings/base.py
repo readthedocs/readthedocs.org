@@ -379,7 +379,6 @@ class CommunityBaseSettings(Settings):
     SITE_ROOT = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     )
-    TEMPLATE_ROOT = os.path.join(SITE_ROOT, "readthedocs", "templates")
     DOCROOT = os.path.join(SITE_ROOT, "user_builds")
     LOGS_ROOT = os.path.join(SITE_ROOT, "logs")
     PRODUCTION_ROOT = os.path.join(SITE_ROOT, "prod_artifacts")
@@ -413,16 +412,12 @@ class CommunityBaseSettings(Settings):
 
     @property
     def TEMPLATES(self):
-        dirs = [self.TEMPLATE_ROOT]
-
-        if ext_theme:
-            dirs.insert(
-                0,
-                os.path.join(
-                    os.path.dirname(readthedocsext.theme.__file__),
-                    "templates",
-                ),
-            )
+        dirs = [
+            os.path.join(
+                os.path.dirname(readthedocsext.theme.__file__),
+                "templates",
+            ),
+        ]
 
         # Disable ``cached.Loader`` on development
         # https://docs.djangoproject.com/en/4.2/ref/templates/api/#django.template.loaders.cached.Loader

@@ -59,7 +59,6 @@ class NotificationTests(TestCase):
                 "PUBLIC_API_URL": mock.ANY,
                 "SITE_ROOT": mock.ANY,
                 "SUPPORT_EMAIL": "support@readthedocs.org",
-                "TEMPLATE_ROOT": mock.ANY,
                 "USE_PROMOS": mock.ANY,
                 "USE_ORGANIZATIONS": mock.ANY,
             },
