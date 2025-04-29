@@ -9,7 +9,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("socialaccount", "0003_extra_data_default_dict"),
         ("projects", "0067_change_max_length_feature_id"),

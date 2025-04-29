@@ -273,7 +273,7 @@ class BitbucketService(UserService):
 
         return integration.provider_data
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """
         Set up Bitbucket project webhook for project.
 
@@ -282,7 +282,6 @@ class BitbucketService(UserService):
         :param integration: Integration for the project
         :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
         """
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
         url = f"{self.base_api_url}/2.0/repositories/{owner}/{repo}/hooks"
@@ -313,7 +312,7 @@ class BitbucketService(UserService):
                 log.debug(
                     "Bitbucket webhook creation successful for project.",
                 )
-                return (True, resp)
+                return True
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
@@ -333,9 +332,9 @@ class BitbucketService(UserService):
         except (RequestException, ValueError):
             log.exception("Bitbucket webhook creation failed for project.")
 
-        return (False, resp)
+        return False
 
-    def update_webhook(self, project, integration):
+    def update_webhook(self, project, integration) -> bool:
         """
         Update webhook integration.
 
@@ -344,7 +343,6 @@ class BitbucketService(UserService):
         :param integration: Webhook integration to update
         :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
         """
         log.bind(project_slug=project.slug)
         provider_data = self.get_provider_data(project, integration)
@@ -370,7 +368,7 @@ class BitbucketService(UserService):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info("Bitbucket webhook update successful for project.")
-                return (True, resp)
+                return True
 
             # Bitbucket returns 404 when the webhook doesn't exist. In this
             # case, we call ``setup_webhook`` to re-configure it from scratch
@@ -391,4 +389,4 @@ class BitbucketService(UserService):
         except (KeyError, RequestException, TypeError, ValueError):
             log.exception("Bitbucket webhook update failed for project.")
 
-        return (False, resp)
+        return False

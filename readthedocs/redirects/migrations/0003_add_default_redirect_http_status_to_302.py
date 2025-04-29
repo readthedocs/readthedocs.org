@@ -10,7 +10,7 @@ def change_http_status(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("redirects", "0002_add_missing_model_change_migrations"),
     ]

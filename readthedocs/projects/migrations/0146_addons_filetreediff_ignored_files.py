@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
 
     dependencies = [
         ("projects", "0145_alter_importedfile_id"),

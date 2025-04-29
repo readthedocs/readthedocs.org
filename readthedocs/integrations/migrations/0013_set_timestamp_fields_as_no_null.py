@@ -7,7 +7,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
 
     dependencies = [
         ("integrations", "0012_migrate_timestamp_fields"),

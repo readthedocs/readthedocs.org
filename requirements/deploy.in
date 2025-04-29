@@ -4,6 +4,8 @@
 
 structlog-sentry
 
-newrelic
+# Pinned due to a bug in 10.8.1
+# See https://github.com/newrelic/newrelic-python-agent/issues/1347
+newrelic==10.7.0
 
 ipython

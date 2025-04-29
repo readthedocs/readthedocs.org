@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
     dependencies = [
         ("search", "0005_alter_searchquery_id"),
     ]

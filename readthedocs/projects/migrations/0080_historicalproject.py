@@ -12,7 +12,7 @@ import readthedocs.projects.validators
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("oauth", "0014_remove_remoterepository_project"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
