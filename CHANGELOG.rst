@@ -1,3 +1,19 @@
+Version 13.0.0
+--------------
+
+:Date: April 29, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: Revert "Dependencies: all packages updated via pip-tools" (`#12136 <https://github.com/readthedocs/readthedocs.org/pull/12136>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12135 <https://github.com/readthedocs/readthedocs.org/pull/12135>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests on .com (`#12131 <https://github.com/readthedocs/readthedocs.org/pull/12131>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: fix PR builds and import (`#12126 <https://github.com/readthedocs/readthedocs.org/pull/12126>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.5 (`#12125 <https://github.com/readthedocs/readthedocs.org/pull/12125>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12123 <https://github.com/readthedocs/readthedocs.org/pull/12123>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: always keep latest in sync with default branch/tag (`#12121 <https://github.com/readthedocs/readthedocs.org/pull/12121>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add migration page for GitHub App (`#12112 <https://github.com/readthedocs/readthedocs.org/pull/12112>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade to Django 5.x (`#12104 <https://github.com/readthedocs/readthedocs.org/pull/12104>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: remove legacy dashboard (`#12091 <https://github.com/readthedocs/readthedocs.org/pull/12091>`__)
+
 Version 12.0.5
 --------------
 
