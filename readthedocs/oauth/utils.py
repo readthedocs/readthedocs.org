@@ -46,7 +46,7 @@ def update_webhook(project, integration, request=None):
         return False
 
     for service in service_class.for_project(project):
-        updated, __ = service.update_webhook(project, integration)
+        updated = service.update_webhook(project, integration)
         if updated:
             messages.success(request, _("Webhook activated"))
             project.has_valid_webhook = True

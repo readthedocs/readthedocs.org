@@ -33,6 +33,7 @@ log = structlog.get_logger(__name__)
 class GitHubAppService(Service):
     vcs_provider_slug = GITHUB_APP
     allauth_provider = GitHubAppProvider
+    supports_build_status = True
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
@@ -481,10 +482,10 @@ class GitHubAppService(Service):
             )
             return None
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """When using a GitHub App, we don't need to set up a webhook."""
         return True
 
-    def update_webhook(self, project, integration=None):
+    def update_webhook(self, project, integration=None) -> bool:
         """When using a GitHub App, we don't need to set up a webhook."""
         return True

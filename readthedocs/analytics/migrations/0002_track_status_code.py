@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("builds", "0041_track_task_id"),
         ("projects", "0087_use_booleanfield_null"),
