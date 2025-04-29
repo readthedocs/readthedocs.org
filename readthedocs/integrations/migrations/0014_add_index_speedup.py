@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
     dependencies = [
         ("integrations", "0013_set_timestamp_fields_as_no_null"),
     ]

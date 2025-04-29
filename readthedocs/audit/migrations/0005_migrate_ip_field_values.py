@@ -20,7 +20,7 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("audit", "0004_change_ip_field_type"),
     ]

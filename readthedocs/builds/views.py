@@ -4,8 +4,6 @@ import textwrap
 from urllib.parse import urlparse
 
 import structlog
-from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
@@ -23,7 +21,6 @@ from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
-from readthedocs.core.utils import trigger_build
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import Project
 from readthedocs.projects.views.base import ProjectSpamMixin
@@ -49,95 +46,19 @@ class BuildBase:
         return queryset
 
 
-# TODO this class and views that extend this class can be removed when the old
-# dashboard goes away and RTD_EXT_THEME_ENABLED is removed. Instead of using a
-# hidden form on views, the new dashboard uses APIv3 to trigger new builds.
-class BuildTriggerMixin:
-    @method_decorator(login_required)
-    def post(self, request, project_slug):
-        commit_to_retrigger = None
-        project = get_object_or_404(Project, slug=project_slug)
-
-        if not AdminPermission.is_admin(request.user, project):
-            return HttpResponseForbidden()
-
-        version_slug = request.POST.get("version_slug")
-        build_pk = request.POST.get("build_pk")
-
-        if build_pk:
-            # Filter over external versions only when re-triggering a specific build
-            version = get_object_or_404(
-                Version.external.public(self.request.user),
-                slug=version_slug,
-                project=project,
-            )
-
-            build_to_retrigger = get_object_or_404(
-                Build.objects.all(),
-                pk=build_pk,
-                version=version,
-            )
-            if build_to_retrigger != Build.objects.filter(version=version).first():
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    "This build can't be re-triggered because it's "
-                    "not the latest build for this version.",
-                )
-                return HttpResponseRedirect(request.path)
-
-            # Set either the build to re-trigger it or None
-            if build_to_retrigger:
-                commit_to_retrigger = build_to_retrigger.commit
-                log.info(
-                    "Re-triggering build.",
-                    project_slug=project.slug,
-                    version_slug=version.slug,
-                    build_commit=build_to_retrigger.commit,
-                    build_id=build_to_retrigger.pk,
-                )
-        else:
-            # Use generic query when triggering a normal build
-            version = get_object_or_404(
-                self._get_versions(project),
-                slug=version_slug,
-            )
-
-        update_docs_task, build = trigger_build(
-            project=project,
-            version=version,
-            commit=commit_to_retrigger,
-        )
-        if (update_docs_task, build) == (None, None):
-            # Build was skipped
-            messages.add_message(
-                request,
-                messages.WARNING,
-                "This project is currently disabled and can't trigger new builds.",
-            )
-            return HttpResponseRedirect(
-                reverse("builds_project_list", args=[project.slug]),
-            )
-
-        return HttpResponseRedirect(
-            reverse("builds_detail", args=[project.slug, build.pk]),
-        )
+class BuildList(
+    FilterContextMixin,
+    ProjectSpamMixin,
+    BuildBase,
+    ListView,
+):
+    filterset_class = BuildListFilter
 
     def _get_versions(self, project):
         return Version.internal.public(
             user=self.request.user,
             project=project,
         )
-
-
-class BuildList(
-    FilterContextMixin,
-    ProjectSpamMixin,
-    BuildBase,
-    BuildTriggerMixin,
-    ListView,
-):
-    filterset_class = BuildListFilter
 
     def get_project(self):
         # Call ``.get_queryset()`` to get the current project from ``kwargs``
@@ -160,12 +81,11 @@ class BuildList(
         context["versions"] = self._get_versions(self.project)
 
         builds = self.get_queryset()
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset(
-                queryset=builds,
-                project=self.project,
-            )
-            builds = self.get_filtered_queryset()
+        context["filter"] = self.get_filterset(
+            queryset=builds,
+            project=self.project,
+        )
+        builds = self.get_filtered_queryset()
         context["build_qs"] = builds
 
         return context
@@ -196,10 +116,7 @@ class BuildDetail(BuildBase, ProjectSpamMixin, DetailView):
         context["project"] = self.project
 
         build = self.get_object()
-
-        # We consume these notifications through the API in the new dashboard
-        if not settings.RTD_EXT_THEME_ENABLED:
-            context["notifications"] = build.notifications.all()
+        context["notifications"] = build.notifications.all()
         if not build.notifications.filter(message_id=BuildAppError.GENERIC_WITH_BUILD_ID).exists():
             # Do not suggest to open an issue if the error is not generic
             return context
