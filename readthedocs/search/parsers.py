@@ -16,6 +16,12 @@ log = structlog.get_logger(__name__)
 class GenericParser:
     # Limit that matches the ``index.mapping.nested_objects.limit`` ES setting.
     max_inner_documents = 10000
+    # Limit the size of the contents to be indexed,
+    # to avoid filling the index with too much data.
+    # The limit may be exceeded if the content is too large,
+    # or if the content is malformed.
+    # A raw approximation of bytes based on the number of characters (~1.5 MB).
+    max_content_length = int(1.5 * 1024 * 1024)
 
     # Block level elements have an implicit line break before and after them.
     # List taken from: https://www.w3schools.com/htmL/html_blocks.asp.
@@ -148,6 +154,16 @@ class GenericParser:
         content = content.strip().split()
         content = (text.strip() for text in content)
         content = " ".join(text for text in content if text)
+        if len(content) > self.max_content_length:
+            log.info(
+                "Content too long, truncating.",
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
+                content_length=len(content),
+                limit=self.max_content_length,
+            )
+            content = content[: self.max_content_length]
+
         return content
 
     def _parse_sections(self, title, body):
