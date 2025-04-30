@@ -366,7 +366,7 @@ class GitHubAppWebhookView(APIView):
         )
 
         if action in ("opened", "reopened", "synchronize"):
-            for project in self._get_projects():
+            for project in self._get_projects().filter(external_builds_enabled=True):
                 external_version = get_or_create_external_version(
                     project=project,
                     version_data=external_version_data,

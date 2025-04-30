@@ -33,7 +33,7 @@ django-vanilla-views
 # dependency as well.
 jsonfield
 
-django-safemigrate==4.3
+django-safemigrate
 
 # Impersonate users in the Django admin for support.
 django-impersonate
@@ -119,10 +119,7 @@ django-cors-headers
 # User agent parsing - used for analytics purposes
 user-agents
 
-# Pinned because we need to remove the usage of
-# `get_available_overwrite_name` first
-# See https://github.com/readthedocs/readthedocs.org/pull/11505
-django-storages[boto3]==1.14.3
+django-storages[boto3]
 
 
 # Required only in development and linting
@@ -138,6 +135,7 @@ django-csp==3.8
 # NOTE: that django-structlog is in version 6.x now,
 # so we should probably consider migrating to avoid incompatibility issues.
 django-structlog==2.2.0
+
 # Pining due to a Sentry error we started getting
 # https://read-the-docs.sentry.io/issues/4678167578/events/2d9d348729874d67b120b153908ca54c/
 django-ipware<6.0.0

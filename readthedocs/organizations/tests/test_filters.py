@@ -13,7 +13,6 @@ class OrganizationFilterTestCase:
     @pytest.fixture(autouse=True)
     def set_up(self, settings, client):
         settings.RTD_ALLOW_ORGANIZATIONS = True
-        settings.RTD_EXT_THEME_ENABLED = True
         self.client = client
 
 

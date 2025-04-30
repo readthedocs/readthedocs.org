@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
 
     dependencies = [
         ("projects", "0142_update_dj_simple_history"),

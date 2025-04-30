@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.integrations.models import Integration
+from readthedocs.oauth.clients import get_oauth2_client
 from readthedocs.oauth.services import BitbucketService
 from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.services import GitLabService
@@ -45,7 +46,7 @@ def update_webhook(project, integration, request=None):
         return False
 
     for service in service_class.for_project(project):
-        updated, __ = service.update_webhook(project, integration)
+        updated = service.update_webhook(project, integration)
         if updated:
             messages.success(request, _("Webhook activated"))
             project.has_valid_webhook = True
@@ -60,4 +61,21 @@ def update_webhook(project, integration, request=None):
     )
     project.has_valid_webhook = False
     project.save()
+    return False
+
+
+def is_access_revoked(account):
+    """Check if the access token for the given account is revoked."""
+    client = get_oauth2_client(account)
+    if client is None:
+        return True
+
+    provider = account.get_provider()
+    oauth2_adapter = provider.get_oauth2_adapter(request=provider.request)
+    test_url = oauth2_adapter.profile_url
+    resp = client.get(test_url)
+    # NOTE: This has only been tested for GitHub,
+    # check if Gitlab and Bitbucket return 401.
+    if resp.status_code == 401:
+        return True
     return False

@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy
+    safe = Safe.before_deploy()
 
     dependencies = [
         ("builds", "0060_alter_version_slug"),
@@ -15,7 +15,9 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterIndexTogether(
             name="build",
-            index_together={("version", "state", "type"), ("version", "state", "date", "success")},
+            index_together={
+                ("version", "state", "date", "success"),
+            },
         ),
         migrations.AlterField(
             model_name="version",

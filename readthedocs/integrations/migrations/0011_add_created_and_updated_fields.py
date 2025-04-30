@@ -6,7 +6,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("integrations", "0010_remove_old_jsonfields"),
     ]

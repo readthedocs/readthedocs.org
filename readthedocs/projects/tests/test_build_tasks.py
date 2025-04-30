@@ -1129,6 +1129,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--prune-tags",
                     "--depth",
                     "50",
+                    "refs/heads/master:refs/remotes/origin/master",
                 ),
                 mock.call(
                     "git",
