@@ -2,7 +2,7 @@
 pip
 virtualenv
 
-django~=4.2.0
+django~=5.2.0
 django-extensions
 django-polymorphic
 django-autoslug
