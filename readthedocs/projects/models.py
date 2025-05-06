@@ -1810,7 +1810,10 @@ class Domain(TimeStampedModel):
             self.save()
 
     def clean(self):
-        check_domains_limit(self.project)
+        # Only check the limit when creating a new domain,
+        # not when updating existing ones.
+        if not self.pk:
+            check_domains_limit(self.project)
 
     def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)
