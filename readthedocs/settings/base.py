@@ -850,11 +850,6 @@ class CommunityBaseSettings(Settings):
     # https://django-taggit.readthedocs.io
     TAGGIT_TAGS_FROM_STRING = "readthedocs.projects.tag_utils.rtd_parse_tags"
 
-    # Stripe
-    # Existing values we use
-    STRIPE_SECRET = None
-    STRIPE_PUBLISHABLE = None
-
     # DJStripe values -- **CHANGE THESE IN PRODUCTION**
     STRIPE_LIVE_MODE = False  # Change to True in production
 

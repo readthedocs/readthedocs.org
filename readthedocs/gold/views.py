@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from djstripe.models import APIKey
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -213,7 +214,7 @@ class StripeEventView(APIView):
 
     def post(self, request, format=None):
         try:
-            event = stripe.Event.construct_from(request.data, settings.STRIPE_SECRET)
+            event = stripe.Event.construct_from(request.data, APIKey.objects.first().secret)
             log.bind(event=event.type)
             if event.type not in self.EVENTS:
                 log.warning("Unhandled Stripe event.", event_type=event.type)

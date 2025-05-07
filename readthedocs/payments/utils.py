@@ -7,10 +7,10 @@ These are mostly one-off functions. Define the bulk of Stripe operations on
 
 import stripe
 import structlog
-from django.conf import settings
+from djstripe.models import APIKey
 
 
-stripe.api_key = settings.STRIPE_SECRET
+stripe.api_key = APIKey.objects.first().secret
 log = structlog.get_logger(__name__)
 
 
