@@ -4,11 +4,13 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
+from readthedocs.rtd_tests.utils import create_stripe_api_keys
 
 
 class TestViews(TestCase):
     def setUp(self):
         self.user = get(User)
+        create_stripe_api_keys()
 
     def test_csp_headers(self):
         """

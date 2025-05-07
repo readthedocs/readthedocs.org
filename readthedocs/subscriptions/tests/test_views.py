@@ -16,6 +16,7 @@ from readthedocs.subscriptions.constants import (
     TYPE_PRIVATE_DOCS,
 )
 from readthedocs.subscriptions.products import RTDProduct, RTDProductFeature
+from readthedocs.rtd_tests.utils import create_stripe_api_keys
 
 
 @override_settings(
@@ -49,6 +50,7 @@ class SubscriptionViewTests(TestCase):
 
     def setUp(self):
         self.user = get(User)
+        create_stripe_api_keys()
         self.organization = get(Organization, stripe_id="123", owners=[self.user])
         self.stripe_product = get(
             djstripe.Product,

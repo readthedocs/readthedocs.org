@@ -11,6 +11,7 @@ from tempfile import mkdtemp
 import structlog
 from django.contrib.auth.models import User
 from django_dynamic_fixture import new
+from djstripe.models import APIKey
 
 from readthedocs.doc_builder.base import restoring_chdir
 
@@ -244,3 +245,8 @@ def create_user(username, password, **kwargs):
     user.set_password(password)
     user.save()
     return user
+
+
+def create_stripe_api_keys():
+    APIKey.objects.create(type="publishable", livemode=False, secret="pk_test_")
+    APIKey.objects.create(type="secret", livemode=False, secret="sk_test_")

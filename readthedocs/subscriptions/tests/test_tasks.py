@@ -11,6 +11,7 @@ from djstripe.enums import InvoiceStatus, SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.tasks import daily_email
+from readthedocs.rtd_tests.utils import create_stripe_api_keys
 
 
 @override_settings(
@@ -19,6 +20,9 @@ from readthedocs.subscriptions.tasks import daily_email
 )
 @mock.patch("readthedocs.notifications.email.send_email")
 class DailyEmailTests(TestCase):
+    def setUp(self):
+        create_stripe_api_keys()
+
     def test_trial_ending(self, mock_send_email):
         """Trial ending daily email."""
         now = timezone.now()

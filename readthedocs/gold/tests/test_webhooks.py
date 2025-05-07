@@ -3,6 +3,7 @@ import requests_mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from readthedocs.rtd_tests.utils import create_stripe_api_keys
 
 from ..models import GoldUser
 
@@ -60,6 +61,7 @@ class GoldStripeWebhookTests(TestCase):
 
     def setUp(self):
         self.user = fixture.get(User, username="golduser")
+        create_stripe_api_keys()
 
     @requests_mock.Mocker(kw="mock_request")
     def test_event_checkout_completed(self, mock_request):

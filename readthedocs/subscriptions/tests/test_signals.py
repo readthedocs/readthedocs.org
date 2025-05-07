@@ -6,11 +6,14 @@ from django_dynamic_fixture import get
 from djstripe import models as djstripe
 
 from readthedocs.organizations.models import Organization
+from readthedocs.rtd_tests.utils import create_stripe_api_keys
 
 
 class TestSignals(TestCase):
     def setUp(self):
         email = "test@example.com"
+        create_stripe_api_keys()
+
         self.user = get(User)
         self.stripe_customer = get(
             djstripe.Customer,

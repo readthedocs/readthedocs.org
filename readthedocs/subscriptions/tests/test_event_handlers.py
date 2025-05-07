@@ -10,6 +10,7 @@ from djstripe.enums import SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions import event_handlers
+from readthedocs.rtd_tests.utils import create_stripe_api_keys
 
 
 @override_settings(
@@ -25,6 +26,7 @@ class TestStripeEventHandlers(TestCase):
         self.organization = get(
             Organization, slug="org", email="test@example.com", owners=[self.user]
         )
+        create_stripe_api_keys()
 
     def test_subscription_created_event(self):
         customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
