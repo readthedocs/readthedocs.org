@@ -177,15 +177,6 @@ You can use the following environment variables to set the settings used by the 
 .. envvar:: RTD_GITHUB_APP_PRIVATE_KEY
 .. envvar:: RTD_GITHUB_APP_WEBHOOK_SECRET
 
-Stripe secrets
-~~~~~~~~~~~~~~
-
-The following secrets are required to use ``djstripe`` and our Stripe integration.
-
-.. envvar:: RTD_STRIPE_SECRET
-.. envvar:: RTD_STRIPE_PUBLISHABLE
-.. envvar:: RTD_DJSTRIPE_WEBHOOK_SECRET
-
 Ethical Ads variables
 ~~~~~~~~~~~~~~~~~~~~~
 
