@@ -1,0 +1,13 @@
+{% load i18n %}
+
+<h2>{% trans "Try searching?" %}</h2>
+
+<section>
+  {% if search_project %}
+    {% with "project:"|add:search_project as search_term %}
+      {% include "core/widesearchbar.html" with form_action="//"|add:PRODUCTION_DOMAIN|add:"/search/" term=search_term %}
+    {% endwith %}
+  {% else %}
+    {% include "core/widesearchbar.html" with form_action="//"|add:PRODUCTION_DOMAIN|add:"/search/" %}
+  {% endif %}
+</section>
