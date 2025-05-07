@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Security' %}{% endblock %}
+
+{% block content %}
+
+<h2>{% trans 'Security at Read the Docs' %}</h2>
+
+{% blocktrans trimmed %}
+  For more details on security at Read the Docs or to report a security issue, please see our <a href="https://docs.readthedocs.io/page/security.html">security policy</a>.
+{% endblocktrans %}
+
+{% endblock %}
