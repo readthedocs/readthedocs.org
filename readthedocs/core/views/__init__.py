@@ -38,35 +38,45 @@ class HealthCheckView(CDNCacheControlMixin, View):
 
 class HomepageView(TemplateView):
     """
-    Conditionally show the home page or redirect to the login page.
+    Conditionally redirect to website home page or to dashboard.
 
-    On the current dashboard, this shows the application homepage. However, we
-    no longer require this page in our application as we have a similar page on
-    our website. Instead, redirect to our login page on the new dashboard.
+
+    User hitting readthedocs.org / readthedocs.com
+      1. when user is logged in, redirect to dashboard
+      2. when user is logged off, redirect to https://about.readthedocs.com/
+
+    User hitting app.readthedocs.org / app.readthedocs.com
+      1. when user is logged in, redirect to dashboard
+      2. when user is logged off, redirect to login page
     """
 
     template_name = "homepage.html"
 
     def get(self, request, *args, **kwargs):
-        # Redirect to login page
-        return redirect(reverse("account_login"))
+        # Request hitting the old domain (readthedocs.org / readthedocs.com)
+        if request.get_host() == settings.PRODUCTION_DOMAIN.replace("app.", ""):
+            # Redirect to user dashboard for logged in users
+            if request.user.is_authenticated:
+                return redirect("projects_dashboard")
 
+            # Redirect to ``about.`` in production
+            if not settings.DEBUG:
+                query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
+                if request.META["QUERY_STRING"]:
+                    # Small hack to not append `&` to URLs without a query_string
+                    query_string += "&" + request.META["QUERY_STRING"]
+
+                # Do a 302 here so that it varies on logged in status
+                return redirect(f"https://about.readthedocs.com/{query_string}", permanent=False)
+
+        # Request hitting app.readthedocs.org / app.readthedocs.com
+        #
         # Redirect to user dashboard for logged in users
         if request.user.is_authenticated:
             return redirect("projects_dashboard")
 
-        # Redirect to ``about.`` in production
-        if not settings.DEBUG:
-            query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
-            if request.META["QUERY_STRING"]:
-                # Small hack to not append `&` to URLs without a query_string
-                query_string += "&" + request.META["QUERY_STRING"]
-
-            # Do a 302 here so that it varies on logged in status
-            return redirect(f"https://about.readthedocs.com{query_string}", permanent=False)
-
-        # Show the homepage for local dev
-        return super().get(request, *args, **kwargs)
+        # Redirect to login page
+        return redirect(reverse("account_login"))
 
 
 class SupportView(PrivateViewMixin, TemplateView):
