@@ -1,6 +1,6 @@
 """Payment view mixin classes."""
 
-from django.conf import settings
+from djstripe.models import APIKey
 
 
 class StripeMixin:
@@ -8,5 +8,5 @@ class StripeMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["stripe_publishable"] = settings.STRIPE_PUBLISHABLE
+        context["stripe_publishable"] = APIKey.objects.filter(type="publishable").first().secret
         return context
