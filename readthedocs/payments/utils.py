@@ -10,7 +10,7 @@ import structlog
 from djstripe.models import APIKey
 
 
-stripe.api_key = APIKey.objects.first().secret
+stripe.api_key = APIKey.objects.filter(type="secret").first().secret
 log = structlog.get_logger(__name__)
 
 

@@ -214,7 +214,10 @@ class StripeEventView(APIView):
 
     def post(self, request, format=None):
         try:
-            event = stripe.Event.construct_from(request.data, APIKey.objects.first().secret)
+            event = stripe.Event.construct_from(
+                request.data,
+                APIKey.objects.filter(type="secret").first().secret,
+            )
             log.bind(event=event.type)
             if event.type not in self.EVENTS:
                 log.warning("Unhandled Stripe event.", event_type=event.type)
