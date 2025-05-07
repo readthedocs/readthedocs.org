@@ -67,7 +67,7 @@ class GoldSubscription(
         context = super().get_context_data(**kwargs)
         context["form"] = self.get_form()
         context["golduser"] = self.get_object()
-        context["stripe_publishable"] = settings.STRIPE_PUBLISHABLE
+        context["stripe_publishable"] = APIKey.objects.filter(type="publishable").first().secret
         return context
 
 
