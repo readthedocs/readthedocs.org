@@ -66,9 +66,9 @@ distlib==0.3.9
     # via virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.in
-dj-stripe==2.6.3
+dj-stripe==2.9.0
     # via -r requirements/pip.in
-django==5.2
+django==4.2.20
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -187,9 +187,7 @@ jmespath==1.0.1
     #   boto3
     #   botocore
 jsonfield==3.1.0
-    # via
-    #   -r requirements/pip.in
-    #   dj-stripe
+    # via -r requirements/pip.in
 kombu==5.5.3
     # via celery
 lexid==2021.1006
@@ -296,7 +294,7 @@ sqlparse==0.5.3
     # via
     #   django
     #   django-debug-toolbar
-stripe==4.2.0
+stripe==11.6.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -315,6 +313,7 @@ typing-extensions==4.13.2
     #   pydantic
     #   pydantic-core
     #   pygithub
+    #   stripe
     #   typing-inspection
 typing-inspection==0.4.0
     # via pydantic

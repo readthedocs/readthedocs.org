@@ -10,8 +10,8 @@ from django.conf import settings
 from django.contrib.humanize.templatetags import humanize
 from django.db.models import Sum
 from django.utils import timezone
+from djstripe import event_handlers
 from djstripe import models as djstripe
-from djstripe import webhooks
 from djstripe.enums import ChargeStatus
 from djstripe.enums import SubscriptionStatus
 
@@ -26,24 +26,24 @@ from readthedocs.subscriptions.notifications import SubscriptionRequiredNotifica
 log = structlog.get_logger(__name__)
 
 
-def handler(*args, **kwargs):
+def djstripe_receiver(signal_names):
     """
     Register handlers only if organizations are enabled.
 
-    Wrapper around the djstripe's webhooks.handler decorator,
+    Wrapper around the djstripe's ``event_handlers.djstripe_receiver`` decorator,
     to register the handler only if organizations are enabled.
     """
 
     def decorator(func):
         if settings.RTD_ALLOW_ORGANIZATIONS:
-            return webhooks.handler(*args, **kwargs)(func)
+            return event_handlers.djstripe_receiver(signal_names)(func)
         return func
 
     return decorator
 
 
-@handler("customer.subscription.created")
-def subscription_created_event(event):
+@djstripe_receiver("customer.subscription.created")
+def subscription_created_event(event, **kwargs):
     """
     Handle the creation of a new subscription.
 
@@ -82,8 +82,8 @@ def subscription_created_event(event):
     organization.save()
 
 
-@handler("customer.subscription.updated", "customer.subscription.deleted")
-def subscription_updated_event(event):
+@djstripe_receiver(["customer.subscription.updated", "customer.subscription.deleted"])
+def subscription_updated_event(event, **kwargs):
     """
     Handle subscription updates.
 
@@ -155,8 +155,8 @@ def subscription_updated_event(event):
     organization.save()
 
 
-@handler("customer.subscription.deleted")
-def subscription_canceled(event):
+@djstripe_receiver("customer.subscription.deleted")
+def subscription_canceled(event, **kwargs):
     """
     Send a notification to all owners if the subscription has ended.
 
@@ -283,8 +283,8 @@ def subscription_canceled(event):
             log.warning("Timeout sending a message to Slack webhook")
 
 
-@handler("customer.updated")
-def customer_updated_event(event):
+@djstripe_receiver("customer.updated")
+def customer_updated_event(event, **kwargs):
     """Update the organization with the new information from the stripe customer."""
     stripe_customer = event.data["object"]
     log.bind(stripe_customer_id=stripe_customer["id"])
