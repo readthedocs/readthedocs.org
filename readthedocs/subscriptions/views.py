@@ -16,6 +16,7 @@ from vanilla import DetailView
 from vanilla import GenericView
 
 from readthedocs.organizations.views.base import OrganizationMixin
+from readthedocs.payments.utils import get_stripe_api_key
 from readthedocs.subscriptions.forms import PlanForm
 from readthedocs.subscriptions.products import get_product
 from readthedocs.subscriptions.utils import get_or_create_stripe_customer
@@ -58,6 +59,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         Users can buy a new subscription if the current one
         has been deleted after they canceled it.
         """
+        stripe.api_key = get_stripe_api_key()
         stripe_subscription = self.get_object()
         if not stripe_subscription or stripe_subscription.status != SubscriptionStatus.canceled:
             raise Http404()
@@ -165,6 +167,7 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
 
     def post(self, request, *args, **kwargs):
         """Redirect the user to the Stripe billing portal."""
+        stripe.api_key = get_stripe_api_key()
         organization = self.get_organization()
         stripe_customer = organization.stripe_customer
         return_url = request.build_absolute_uri(self.get_success_url())

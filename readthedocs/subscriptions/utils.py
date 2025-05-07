@@ -5,12 +5,15 @@ import structlog
 from django.conf import settings
 from djstripe import models as djstripe
 
+from readthedocs.payments.utils import get_stripe_api_key
+
 
 log = structlog.get_logger(__name__)
 
 
 def create_stripe_customer(organization):
     """Create a stripe customer for organization."""
+    stripe.api_key = get_stripe_api_key()
     stripe_data = stripe.Customer.create(
         email=organization.email,
         name=organization.name,

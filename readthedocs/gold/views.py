@@ -23,6 +23,7 @@ from vanilla import FormView
 from vanilla import GenericView
 
 from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.payments.utils import get_stripe_api_key
 from readthedocs.projects.models import Project
 
 from .forms import GoldProjectForm
@@ -134,6 +135,7 @@ class GoldCreateCheckoutSession(GenericView):
                 user_username=user.username,
                 price=price,
             )
+            stripe.api_key = get_stripe_api_key()
             checkout_session = stripe.checkout.Session.create(
                 client_reference_id=user.username,
                 customer_email=user.emailaddress_set.filter(verified=True).first() or user.email,
@@ -171,6 +173,7 @@ class GoldSubscriptionPortal(GenericView):
         scheme = "https" if settings.PUBLIC_DOMAIN_USES_HTTPS else "http"
         return_url = f"{scheme}://{settings.PRODUCTION_DOMAIN}" + str(self.get_success_url())
         try:
+            stripe.api_key = get_stripe_api_key()
             billing_portal = stripe.billing_portal.Session.create(
                 customer=stripe_customer,
                 return_url=return_url,
@@ -214,6 +217,7 @@ class StripeEventView(APIView):
 
     def post(self, request, format=None):
         try:
+            stripe.api_key = get_stripe_api_key()
             event = stripe.Event.construct_from(
                 request.data,
                 APIKey.objects.filter(type="secret").first().secret,

@@ -10,12 +10,17 @@ import structlog
 from djstripe.models import APIKey
 
 
-stripe.api_key = APIKey.objects.filter(type="secret").first().secret
 log = structlog.get_logger(__name__)
+
+
+def get_stripe_api_key():
+    """Return Stripe API key defined in the dj-stripe database."""
+    return APIKey.objects.filter(type="secret").first().secret
 
 
 def delete_customer(customer_id):
     """Delete customer from Stripe, cancelling subscriptions."""
+    stripe.api_key = get_stripe_api_key()
     try:
         log.info(
             "Deleting stripe customer.",
@@ -32,6 +37,7 @@ def delete_customer(customer_id):
 
 def cancel_subscription(subscription_id):
     """Cancel Stripe subscription, if it exists."""
+    stripe.api_key = get_stripe_api_key()
     try:
         log.info(
             "Canceling stripe subscription.",
