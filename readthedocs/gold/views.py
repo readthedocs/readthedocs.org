@@ -138,20 +138,23 @@ class GoldCreateCheckoutSession(GenericView):
                 price=price,
             )
             stripe_client = get_stripe_client()
-            checkout_session = stripe_client.checkout.Session.create(
-                client_reference_id=user.username,
-                customer_email=user.emailaddress_set.filter(verified=True).first() or user.email,
-                payment_method_types=["card"],
-                line_items=[
-                    {
-                        "price": price,
-                        "quantity": 1,
-                    }
-                ],
-                mode="subscription",
-                # We use the same URL to redirect the user. We only show a different notification.
-                success_url=f"{url}?subscribed=true",
-                cancel_url=f"{url}?subscribed=false",
+            checkout_session = stripe_client.checkout.sessions.create(
+                params={
+                    "client_reference_id": user.username,
+                    "customer_email": user.emailaddress_set.filter(verified=True).first()
+                    or user.email,
+                    "payment_method_types": ["card"],
+                    "line_items": [
+                        {
+                            "price": price,
+                            "quantity": 1,
+                        }
+                    ],
+                    "mode": "subscription",
+                    # We use the same URL to redirect the user. We only show a different notification.
+                    "success_url": f"{url}?subscribed=true",
+                    "cancel_url": f"{url}?subscribed=false",
+                }
             )
             return JsonResponse({"session_id": checkout_session.id})
         except:  # noqa
