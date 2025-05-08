@@ -224,12 +224,11 @@ class StripeEventView(APIView):
 
     def post(self, request, format=None):
         try:
-            payload = request.data.decode("utf-8")
             received_sig = request.headers.get("Stripe-Signature", None)
 
             stripe_client = get_stripe_client()
             event = stripe_client.construct_event(
-                payload=payload,
+                payload=request.data,
                 sig_header=received_sig,
                 secret=APIKey.objects.filter(type=APIKeyType.secret).first().secret,
             )
