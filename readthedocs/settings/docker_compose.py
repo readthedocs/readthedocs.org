@@ -182,20 +182,28 @@ class DockerBaseSettings(CommunityBaseSettings):
     STATICFILES_STORAGE = "readthedocs.storage.s3_storage.S3StaticStorage"
     RTD_STATICFILES_STORAGE = "readthedocs.storage.s3_storage.NoManifestS3StaticStorage"
 
-    AWS_ACCESS_KEY_ID = "admin"
-    AWS_SECRET_ACCESS_KEY = "password"
-    S3_MEDIA_STORAGE_BUCKET = "media"
-    S3_BUILD_COMMANDS_STORAGE_BUCKET = "builds"
-    S3_BUILD_TOOLS_STORAGE_BUCKET = "build-tools"
-    S3_STATIC_STORAGE_BUCKET = "static"
+    AWS_ACCESS_KEY_ID = os.environ.get("RTD_AWS_ACCESS_KEY_ID", "admin")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("RTD_AWS_SECRET_ACCESS_KEY", "password")
+    S3_MEDIA_STORAGE_BUCKET = os.environ.get("RTD_S3_MEDIA_STORAGE_BUCKET", "media")
+    S3_BUILD_COMMANDS_STORAGE_BUCKET = os.environ.get("RTD_S3_BUILD_COMMANDS_STORAGE_BUCKET", "builds")
+    S3_BUILD_TOOLS_STORAGE_BUCKET = os.environ.get("RTD_S3_BUILD_TOOLS_STORAGE_BUCKET", "build-tools")
+    S3_STATIC_STORAGE_BUCKET = os.environ.get("RTD_S3_STATIC_STORAGE_BUCKET", "static")
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
     S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
-    S3_PROVIDER = "minio"
+    S3_PROVIDER = os.environ.get("RTD_S3_PROVIDER", "minio")
 
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False
     AWS_S3_USE_SSL = False
-    AWS_S3_ENDPOINT_URL = "http://storage:9000/"
+    AWS_STS_ASSUME_ROLE_ARN = os.environ.get("RTD_AWS_STS_ASSUME_ROLE_ARN", None)
+    AWS_S3_REGION_NAME = os.environ.get("RTD_AWS_S3_REGION_NAME", None)
+
+    @property
+    def AWS_S3_ENDPOINT_URL(self):
+        if self.S3_PROVIDER == "minio":
+            return "http://storage:9000/"
+        return None
+
     AWS_QUERYSTRING_AUTH = False
 
     STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET", "sk_test_x")
