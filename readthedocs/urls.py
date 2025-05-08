@@ -16,6 +16,7 @@ from impersonate.views import stop_impersonate
 from readthedocs.core.views import ErrorView
 from readthedocs.core.views import HomepageView
 from readthedocs.core.views import SupportView
+from readthedocs.core.views import WelcomeView
 from readthedocs.core.views import do_not_track
 from readthedocs.search.views import GlobalSearchView
 
@@ -33,6 +34,7 @@ handler429 = ErrorView.as_view(status_code=429)
 
 basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
+    path("welcome/", WelcomeView.as_view(), name="welcome"),
     path("security/", TemplateView.as_view(template_name="security.html")),
     re_path(
         r"^\.well-known/security.txt$",
