@@ -7,16 +7,21 @@ These are mostly one-off functions. Define the bulk of Stripe operations on
 
 import stripe
 import structlog
-from djstripe.enums import APIKeyType
-from djstripe.models import APIKey
+from django.conf import settings
+from djstripe.models import Account
 
 
 log = structlog.get_logger(__name__)
 
 
+def get_stripe_api_key():
+    """Return Stripe API key defined in the dj-stripe database."""
+    return Account.objects.first().get_default_api_key(livemode=settings.STRIPE_LIVE_MODE)
+
+
 def get_stripe_client():
     """Return Stripe API client using the API key defined in the dj-stripe database."""
-    api_key = APIKey.objects.filter(type=APIKeyType.secret).first().secret
+    api_key = get_stripe_api_key()
     return stripe.StripeClient(api_key)
 
 
