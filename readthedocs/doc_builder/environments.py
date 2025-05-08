@@ -282,7 +282,7 @@ class DockerBuildCommand(BuildCommand):
     """
 
     bash_escape_re = re.compile(
-        r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@\[\\\]\^\`\{\|\}\~])"  # noqa
+        r"([\s\!\"\#\$\&\'\(\)\*\:\;\<\>\?\@\[\\\]\^\`\{\|\}\~])"  # noqa
     )
 
     def __init__(self, *args, escape_command=True, **kwargs):
