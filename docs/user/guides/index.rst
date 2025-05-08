@@ -15,5 +15,4 @@ and how to write successful documentation.
    Content, themes and SEO </guides/content/index>
    Security and access </guides/access/index>
    Account management </guides/management/index>
-   Best practice </guides/best-practice/index>
    Troubleshooting problems </guides/troubleshooting/index>
