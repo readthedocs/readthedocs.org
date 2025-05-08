@@ -1,11 +1,10 @@
 """Utilities to interact with subscriptions and stripe."""
 
-import stripe
 import structlog
 from django.conf import settings
 from djstripe import models as djstripe
 
-from readthedocs.payments.utils import get_stripe_api_key
+from readthedocs.payments.utils import get_stripe_client
 
 
 log = structlog.get_logger(__name__)
@@ -13,12 +12,14 @@ log = structlog.get_logger(__name__)
 
 def create_stripe_customer(organization):
     """Create a stripe customer for organization."""
-    stripe.api_key = get_stripe_api_key()
-    stripe_data = stripe.Customer.create(
-        email=organization.email,
-        name=organization.name,
-        description=organization.name,
-        metadata=organization.get_stripe_metadata(),
+    stripe_client = get_stripe_client()
+    stripe_data = stripe_client.customers.create(
+        params={
+            "email": organization.email,
+            "name": organization.name,
+            "description": organization.name,
+            "metadata": organization.get_stripe_metadata(),
+        },
     )
     stripe_customer = djstripe.Customer.sync_from_stripe_data(stripe_data)
     organization.stripe_customer = stripe_customer

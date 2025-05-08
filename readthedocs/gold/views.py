@@ -2,7 +2,6 @@
 
 import json
 
-import stripe
 import structlog
 from django.conf import settings
 from django.contrib import messages
@@ -13,6 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from djstripe.enums import APIKeyType
 from djstripe.models import APIKey
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
@@ -23,7 +23,7 @@ from vanilla import FormView
 from vanilla import GenericView
 
 from readthedocs.core.mixins import PrivateViewMixin
-from readthedocs.payments.utils import get_stripe_api_key
+from readthedocs.payments.utils import get_stripe_client
 from readthedocs.projects.models import Project
 
 from .forms import GoldProjectForm
@@ -68,7 +68,9 @@ class GoldSubscription(
         context = super().get_context_data(**kwargs)
         context["form"] = self.get_form()
         context["golduser"] = self.get_object()
-        context["stripe_publishable"] = APIKey.objects.filter(type="publishable").first().secret
+        context["stripe_publishable"] = (
+            APIKey.objects.filter(type=APIKeyType.PUBLISHABLE).first().secret
+        )
         return context
 
 
@@ -135,8 +137,8 @@ class GoldCreateCheckoutSession(GenericView):
                 user_username=user.username,
                 price=price,
             )
-            stripe.api_key = get_stripe_api_key()
-            checkout_session = stripe.checkout.Session.create(
+            stripe_client = get_stripe_client()
+            checkout_session = stripe_client.checkout.Session.create(
                 client_reference_id=user.username,
                 customer_email=user.emailaddress_set.filter(verified=True).first() or user.email,
                 payment_method_types=["card"],
@@ -173,8 +175,8 @@ class GoldSubscriptionPortal(GenericView):
         scheme = "https" if settings.PUBLIC_DOMAIN_USES_HTTPS else "http"
         return_url = f"{scheme}://{settings.PRODUCTION_DOMAIN}" + str(self.get_success_url())
         try:
-            stripe.api_key = get_stripe_api_key()
-            billing_portal = stripe.billing_portal.Session.create(
+            stripe_client = get_stripe_client()
+            billing_portal = stripe_client.billing_portal.Session.create(
                 customer=stripe_customer,
                 return_url=return_url,
             )
@@ -217,10 +219,10 @@ class StripeEventView(APIView):
 
     def post(self, request, format=None):
         try:
-            stripe.api_key = get_stripe_api_key()
-            event = stripe.Event.construct_from(
+            stripe_client = get_stripe_client()
+            event = stripe_client.Event.construct_from(
                 request.data,
-                APIKey.objects.filter(type="secret").first().secret,
+                APIKey.objects.filter(type=APIKeyType.SECRET).first().secret,
             )
             log.bind(event=event.type)
             if event.type not in self.EVENTS:
@@ -237,7 +239,9 @@ class StripeEventView(APIView):
                 if mode == "subscription":
                     # Gold Membership
                     user = User.objects.get(username=username)
-                    subscription = stripe.Subscription.retrieve(event.data.object.subscription)
+                    subscription = stripe_client.subscriptions.retrieve(
+                        event.data.object.subscription
+                    )
                     stripe_price = self._get_stripe_price(subscription)
                     log.bind(stripe_price=stripe_price.id)
                     log.info("Gold Membership subscription.")

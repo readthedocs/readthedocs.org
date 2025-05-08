@@ -6,7 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from readthedocs.organizations.models import Organization
-from readthedocs.payments.utils import get_stripe_api_key
+from readthedocs.payments.utils import get_stripe_client
 
 
 log = structlog.get_logger(__name__)
@@ -47,11 +47,11 @@ def update_stripe_customer(sender, instance, created, **kwargs):
 
     if fields_to_update:
         # pylint: disable=broad-except
-        stripe.api_key = get_stripe_api_key()
+        stripe_client = get_stripe_client()
         try:
-            stripe.Customer.modify(
+            stripe_client.customers.update(
                 stripe_customer.id,
-                **fields_to_update,
+                params=fields_to_update,
             )
         except stripe.error.StripeError:
             log.exception("Unable to update stripe customer.")

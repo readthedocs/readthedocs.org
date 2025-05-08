@@ -6,18 +6,16 @@ from django.utils import timezone
 from django_dynamic_fixture import get
 from djstripe import models as djstripe
 from djstripe.enums import InvoiceStatus, SubscriptionStatus
-from readthedocs.rtd_tests.utils import create_stripe_api_keys
 
 from readthedocs.organizations.models import Organization
+from readthedocs.payments.tests.utils import PaymentMixin
 
 
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,
     RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
 )
-class TestOrganizationQuerysets(TestCase):
-    def setUp(self):
-        create_stripe_api_keys()
+class TestOrganizationQuerysets(PaymentMixin, TestCase):
 
     def test_only_owner(self):
         user = get(User)

@@ -4,15 +4,15 @@ from unittest import mock
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
-from readthedocs.rtd_tests.utils import create_stripe_api_keys
 
 from ..models import GoldUser
+from readthedocs.payments.tests.utils import PaymentMixin
 
 
-class GoldSignalTests(TestCase):
+class GoldSignalTests(PaymentMixin, TestCase):
     def setUp(self):
+        super().setUp()
         self.user = fixture.get(User)
-        create_stripe_api_keys()
 
     @requests_mock.Mocker(kw="mock_request")
     def test_delete_subscription(self, mock_request):
