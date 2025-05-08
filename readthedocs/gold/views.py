@@ -69,7 +69,7 @@ class GoldSubscription(
         context["form"] = self.get_form()
         context["golduser"] = self.get_object()
         context["stripe_publishable"] = (
-            APIKey.objects.filter(type=APIKeyType.PUBLISHABLE).first().secret
+            APIKey.objects.filter(type=APIKeyType.publishable).first().secret
         )
         return context
 
@@ -222,7 +222,7 @@ class StripeEventView(APIView):
             stripe_client = get_stripe_client()
             event = stripe_client.Event.construct_from(
                 request.data,
-                APIKey.objects.filter(type=APIKeyType.SECRET).first().secret,
+                APIKey.objects.filter(type=APIKeyType.secret).first().secret,
             )
             log.bind(event=event.type)
             if event.type not in self.EVENTS:

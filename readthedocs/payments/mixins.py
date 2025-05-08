@@ -10,6 +10,6 @@ class StripeMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["stripe_publishable"] = (
-            APIKey.objects.filter(type=APIKeyType.PUBLISHABLE).first().secret
+            APIKey.objects.filter(type=APIKeyType.publishable).first().secret
         )
         return context

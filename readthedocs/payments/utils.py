@@ -16,7 +16,7 @@ log = structlog.get_logger(__name__)
 
 def get_stripe_client():
     """Return Stripe API client using the API key defined in the dj-stripe database."""
-    api_key = APIKey.objects.filter(type=APIKeyType.SECRET).first().secret
+    api_key = APIKey.objects.filter(type=APIKeyType.secret).first().secret
     return stripe.StripeClient(api_key)
 
 
