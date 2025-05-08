@@ -16,6 +16,7 @@ from readthedocs.subscriptions.constants import (
     TYPE_PRIVATE_DOCS,
 )
 from readthedocs.subscriptions.products import RTDProduct, RTDProductFeature
+from readthedocs.payments.tests.utils import PaymentMixin
 
 
 @override_settings(
@@ -43,11 +44,12 @@ from readthedocs.subscriptions.products import RTDProduct, RTDProductFeature
         ]
     ),
 )
-class SubscriptionViewTests(TestCase):
+class SubscriptionViewTests(PaymentMixin, TestCase):
 
     """Subscription view tests."""
 
     def setUp(self):
+        super().setUp()
         self.user = get(User)
         self.organization = get(Organization, stripe_id="123", owners=[self.user])
         self.stripe_product = get(

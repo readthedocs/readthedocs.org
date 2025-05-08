@@ -6,11 +6,14 @@ from django_dynamic_fixture import get
 from djstripe import models as djstripe
 
 from readthedocs.organizations.models import Organization
+from readthedocs.payments.tests.utils import PaymentMixin
 
 
-class TestSignals(TestCase):
+class TestSignals(PaymentMixin, TestCase):
     def setUp(self):
+        super().setUp()
         email = "test@example.com"
+
         self.user = get(User)
         self.stripe_customer = get(
             djstripe.Customer,
@@ -34,7 +37,7 @@ class TestSignals(TestCase):
         new_email = "new@example.com"
         self.organization.email = new_email
         self.organization.save()
-        customer.modify.assert_called_once_with(
+        customer.update.assert_called_once_with(
             self.stripe_customer.id,
             email=new_email,
         )
@@ -44,7 +47,7 @@ class TestSignals(TestCase):
         new_name = "New organization"
         self.organization.name = new_name
         self.organization.save()
-        customer.modify.assert_called_once_with(
+        customer.update.assert_called_once_with(
             self.stripe_customer.id,
             description=new_name,
             name=self.organization.name,
@@ -56,7 +59,7 @@ class TestSignals(TestCase):
         self.organization.slug = new_slug
         self.organization.save()
         new_metadata = self.organization.get_stripe_metadata()
-        customer.modify.assert_called_once_with(
+        customer.update.assert_called_once_with(
             self.stripe_customer.id,
             metadata=new_metadata,
         )
@@ -64,4 +67,4 @@ class TestSignals(TestCase):
     @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
     def test_save_organization_no_changes(self, customer):
         self.organization.save()
-        customer.modify.assert_not_called()
+        customer.update.assert_not_called()

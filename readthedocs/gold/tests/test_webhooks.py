@@ -3,11 +3,13 @@ import requests_mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from readthedocs.payments.tests.utils import PaymentMixin
+
 
 from ..models import GoldUser
 
 
-class GoldStripeWebhookTests(TestCase):
+class GoldStripeWebhookTests(PaymentMixin, TestCase):
     EVENT_CHECKOUT_COMPLETED = """
     {
         "id": "evt_1IQsuoA8fG3kBgfNNG5orMTh",
@@ -59,6 +61,7 @@ class GoldStripeWebhookTests(TestCase):
     """
 
     def setUp(self):
+        super().setUp()
         self.user = fixture.get(User, username="golduser")
 
     @requests_mock.Mocker(kw="mock_request")

@@ -10,17 +10,19 @@ from djstripe.enums import SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions import event_handlers
+from readthedocs.payments.tests.utils import PaymentMixin
 
 
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,
     RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
 )
-class TestStripeEventHandlers(TestCase):
+class TestStripeEventHandlers(PaymentMixin, TestCase):
 
     """Tests for Stripe API endpoint."""
 
     def setUp(self):
+        super().setUp()
         self.user = get(User)
         self.organization = get(
             Organization, slug="org", email="test@example.com", owners=[self.user]
