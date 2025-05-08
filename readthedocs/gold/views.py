@@ -179,9 +179,11 @@ class GoldSubscriptionPortal(GenericView):
         return_url = f"{scheme}://{settings.PRODUCTION_DOMAIN}" + str(self.get_success_url())
         try:
             stripe_client = get_stripe_client()
-            billing_portal = stripe_client.billing_portal.Session.create(
-                customer=stripe_customer,
-                return_url=return_url,
+            billing_portal = stripe_client.billing_portal.sessions.create(
+                params={
+                    "customer": stripe_customer,
+                    "return_url": return_url,
+                }
             )
             return HttpResponseRedirect(billing_portal.url)
         except:  # noqa
