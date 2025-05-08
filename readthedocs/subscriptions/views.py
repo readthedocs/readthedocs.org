@@ -70,18 +70,20 @@ class DetailSubscription(OrganizationMixin, DetailView):
         # pylint: disable=broad-except
         try:
             stripe_customer = get_or_create_stripe_customer(organization)
-            checkout_session = stripe_client.checkout.Session.create(
-                customer=stripe_customer.id,
-                payment_method_types=["card"],
-                line_items=[
-                    {
-                        "price": stripe_price.id,
-                        "quantity": 1,
-                    }
-                ],
-                mode="subscription",
-                success_url=url + "?upgraded=true",
-                cancel_url=url,
+            checkout_session = stripe_client.checkout.sessions.create(
+                params={
+                    "customer": stripe_customer.id,
+                    "payment_method_types": ["card"],
+                    "line_items": [
+                        {
+                            "price": stripe_price.id,
+                            "quantity": 1,
+                        }
+                    ],
+                    "mode": "subscription",
+                    "success_url": url + "?upgraded: true",
+                    "cancel_url": url,
+                }
             )
             return HttpResponseRedirect(checkout_session.url)
         except Exception:
@@ -171,9 +173,11 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
         stripe_customer = organization.stripe_customer
         return_url = request.build_absolute_uri(self.get_success_url())
         try:
-            billing_portal = stripe_client.billing_portal.Session.create(
-                customer=stripe_customer.id,
-                return_url=return_url,
+            billing_portal = stripe_client.billing_portal.sessions.create(
+                params={
+                    "customer": stripe_customer.id,
+                    "return_url": return_url,
+                }
             )
             return HttpResponseRedirect(billing_portal.url)
         except:  # noqa
