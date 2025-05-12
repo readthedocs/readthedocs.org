@@ -7,6 +7,7 @@ https://docs.dj-stripe.dev/en/master/usage/webhooks/.
 import requests
 import structlog
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags import humanize
 from django.db.models import Sum
 from django.utils import timezone
@@ -15,6 +16,7 @@ from djstripe import models as djstripe
 from djstripe.enums import ChargeStatus
 from djstripe.enums import SubscriptionStatus
 
+from readthedocs.gold.models import GoldUser
 from readthedocs.organizations.models import Organization
 from readthedocs.payments.utils import cancel_subscription as cancel_stripe_subscription
 from readthedocs.projects.models import Domain
@@ -301,3 +303,83 @@ def customer_updated_event(event, **kwargs):
             organization_slug=organization.slug,
             email=new_email,
         )
+
+
+@djstripe_receiver(
+    [
+        "checkout.session.async_payment_failed",
+        "checkout.session.async_payment_succeeded",
+        "checkout.session.completed",
+        "customer.subscription.updated",
+    ]
+)
+def gold_membership_events(event, **kwargs):
+    # This event has to be handled only on Read the Docs Community,
+    # where we do support Gold membership.
+    if not settings.USE_PROMOS:
+        return
+
+    if event.type == "checkout.session.completed":
+        stripe_subscription_id = event.data["object"]["subscription"]["id"]
+        stripe_subscription = djstripe.Subscription.objects.filter(
+            id=stripe_subscription_id
+        ).first()
+        if not stripe_subscription:
+            log.info("Stripe subscription not found.")
+            return
+
+        log.bind(stripe_subscription=stripe_subscription)
+        stripe_price = stripe_subscription.items.first().price
+        username = event.data["object"]["client_reference_id"]
+        log.bind(user_username=username)
+        mode = event.data["object"]["mode"]
+        if mode == "subscription":
+            # Gold Membership
+            user = User.objects.get(username=username)
+
+            log.bind(stripe_price=stripe_price.id)
+            log.info("Gold Membership subscription.")
+            gold, _ = GoldUser.objects.get_or_create(
+                user=user,
+                stripe_id=stripe_subscription.customer.id,
+            )
+            gold.level = stripe_price.id
+            gold.subscribed = True
+            gold.save()
+            # TODO: add user notification saying it was successful
+            # Notification.objects.add()
+
+    elif event.type == "customer.subscription.updated":
+        stripe_subscription_id = event.data["object"]["id"]
+        log.bind(stripe_subscription_id=stripe_subscription_id)
+        stripe_subscription = djstripe.Subscription.objects.filter(
+            id=stripe_subscription_id
+        ).first()
+        if not stripe_subscription:
+            log.info("Stripe subscription not found.")
+            return
+
+        log.bind(stripe_subscription=stripe_subscription)
+        stripe_price = stripe_subscription.items.first().price
+        log.info(
+            "Gold User subscription updated.",
+            stripe_price=stripe_price.id,
+        )
+        (
+            GoldUser.objects.filter(stripe_id=stripe_subscription.customer.id).update(
+                level=stripe_price.id,
+                modified_date=timezone.now(),
+            )
+        )
+
+        if stripe_subscription.status != "active":
+            log.warning(
+                "GoldUser is not active anymore.",
+            )
+
+    elif event.type == "checkout.session.async_payment_failed":
+        username = event.data["object"]["client_reference_id"]
+        log.bind(user_username=username)
+        # TODO: add user notification saying it failed
+        # Notification.objects.add()
+        log.exception("Gold User payment failed.")

@@ -5,19 +5,13 @@ import json
 import structlog
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from djstripe.enums import APIKeyType
 from djstripe.models import APIKey
-from rest_framework import permissions
-from rest_framework.renderers import JSONRenderer
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from vanilla import DetailView
 from vanilla import FormView
 from vanilla import GenericView
@@ -200,134 +194,3 @@ class GoldSubscriptionPortal(GenericView):
 
     def get_success_url(self):
         return reverse_lazy("gold_detail")
-
-
-# TODO: where this code should live? (readthedocs-ext?)
-# Should we move all GoldUser code to readthedocs-ext?
-class StripeEventView(APIView):
-    """Endpoint for Stripe events."""
-
-    permission_classes = (permissions.AllowAny,)
-    renderer_classes = (JSONRenderer,)
-
-    EVENT_CHECKOUT_PAYMENT_FAILED = "checkout.session.async_payment_failed"
-    EVENT_CHECKOUT_PAYMENT_SUCCEEDED = "checkout.session.async_payment_succeeded"
-    EVENT_CHECKOUT_COMPLETED = "checkout.session.completed"
-    EVENT_CUSTOMER_SUBSCRIPTION_UPDATED = "customer.subscription.updated"
-
-    EVENTS = [
-        EVENT_CHECKOUT_PAYMENT_FAILED,
-        EVENT_CHECKOUT_PAYMENT_SUCCEEDED,
-        EVENT_CHECKOUT_COMPLETED,
-        EVENT_CUSTOMER_SUBSCRIPTION_UPDATED,
-    ]
-
-    def post(self, request, format=None):
-        try:
-            received_sig = request.headers.get("Stripe-Signature", None)
-
-            stripe_client = get_stripe_client()
-            event = stripe_client.construct_event(
-                payload=request.data,
-                sig_header=received_sig,
-                secret=APIKey.objects.filter(type=APIKeyType.secret).first().secret,
-            )
-            log.bind(event=event.type)
-            if event.type not in self.EVENTS:
-                log.warning("Unhandled Stripe event.", event_type=event.type)
-                return Response({"OK": False, "msg": f"Unhandled event. event={event.type}"})
-
-            stripe_customer = event.data.object.customer
-            log.bind(stripe_customer=stripe_customer)
-
-            if event.type == self.EVENT_CHECKOUT_COMPLETED:
-                username = event.data.object.client_reference_id
-                log.bind(user_username=username)
-                mode = event.data.object.mode
-                if mode == "subscription":
-                    # Gold Membership
-                    user = User.objects.get(username=username)
-                    subscription = stripe_client.subscriptions.retrieve(
-                        event.data.object.subscription
-                    )
-                    stripe_price = self._get_stripe_price(subscription)
-                    log.bind(stripe_price=stripe_price.id)
-                    log.info("Gold Membership subscription.")
-                    gold, _ = GoldUser.objects.get_or_create(
-                        user=user,
-                        stripe_id=stripe_customer,
-                    )
-                    gold.level = stripe_price.id
-                    gold.subscribed = True
-                    gold.save()
-                elif mode == "payment":
-                    # One-time donation
-                    try:
-                        # TODO: find a better way to extend this view for one-time donations.
-                        from readthedocsext.donate.utils import handle_payment_webhook
-
-                        stripe_session = event.data.object.id
-                        price_in_cents = event.data.object.amount_total
-                        log.info(
-                            "Gold Membership one-time donation.",
-                            price_in_cents=price_in_cents,
-                        )
-                        handle_payment_webhook(
-                            username,
-                            stripe_customer,
-                            stripe_session,
-                            price_in_cents,
-                        )
-                    except ImportError:
-                        log.warning(
-                            "Not able to import handle_payment_webhook for one-time donation.",
-                        )
-                # TODO: add user notification saying it was successful
-
-            elif event.type == self.EVENT_CHECKOUT_PAYMENT_FAILED:
-                username = event.data.object.client_reference_id
-                log.bind(user_username=username)
-                # TODO: add user notification saying it failed
-                log.exception("Gold User payment failed.")
-
-            elif event.type == self.EVENT_CUSTOMER_SUBSCRIPTION_UPDATED:
-                subscription = event.data.object
-                stripe_price = self._get_stripe_price(subscription)
-                log.info(
-                    "Gold User subscription updated.",
-                    stripe_price=stripe_price.id,
-                )
-                (
-                    GoldUser.objects.filter(stripe_id=stripe_customer).update(
-                        level=stripe_price.id,
-                        modified_date=timezone.now(),
-                    )
-                )
-
-                if subscription.status != "active":
-                    log.warning(
-                        "GoldUser is not active anymore.",
-                    )
-        except Exception:
-            log.exception("Unexpected data in Stripe Event object")
-            return Response(
-                {
-                    "OK": False,
-                },
-                status=500,
-            )
-
-        return Response(
-            {
-                "OK": True,
-            }
-        )
-
-    def _get_stripe_price(self, stripe_subscription):
-        subscription_items = stripe_subscription["items"].data
-        if len(subscription_items) > 1:
-            log.info(
-                "Subscription with more than one item.",
-                subscription_items=subscription_items,
-            )
-        return subscription_items[0].price
