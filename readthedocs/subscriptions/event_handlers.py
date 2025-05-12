@@ -28,7 +28,23 @@ from readthedocs.subscriptions.notifications import SubscriptionRequiredNotifica
 log = structlog.get_logger(__name__)
 
 
-def djstripe_receiver(signal_names):
+def djstripe_receiver_gold_membership(signal_names):
+    """
+    Register handlers only if USE_PROMOS is enabled.
+
+    Wrapper around the djstripe's ``event_handlers.djstripe_receiver`` decorator,
+    to register the handler only if organizations are enabled.
+    """
+
+    def decorator(func):
+        if settings.USE_PROMOS:
+            return event_handlers.djstripe_receiver(signal_names)(func)
+        return func
+
+    return decorator
+
+
+def djstripe_receiver_organization(signal_names):
     """
     Register handlers only if organizations are enabled.
 
@@ -44,7 +60,7 @@ def djstripe_receiver(signal_names):
     return decorator
 
 
-@djstripe_receiver("customer.subscription.created")
+@djstripe_receiver_organization("customer.subscription.created")
 def subscription_created_event(event, **kwargs):
     """
     Handle the creation of a new subscription.
@@ -84,7 +100,7 @@ def subscription_created_event(event, **kwargs):
     organization.save()
 
 
-@djstripe_receiver(["customer.subscription.updated", "customer.subscription.deleted"])
+@djstripe_receiver_organization(["customer.subscription.updated", "customer.subscription.deleted"])
 def subscription_updated_event(event, **kwargs):
     """
     Handle subscription updates.
@@ -157,7 +173,7 @@ def subscription_updated_event(event, **kwargs):
     organization.save()
 
 
-@djstripe_receiver("customer.subscription.deleted")
+@djstripe_receiver_organization("customer.subscription.deleted")
 def subscription_canceled(event, **kwargs):
     """
     Send a notification to all owners if the subscription has ended.
@@ -285,7 +301,7 @@ def subscription_canceled(event, **kwargs):
             log.warning("Timeout sending a message to Slack webhook")
 
 
-@djstripe_receiver("customer.updated")
+@djstripe_receiver_organization("customer.updated")
 def customer_updated_event(event, **kwargs):
     """Update the organization with the new information from the stripe customer."""
     stripe_customer = event.data["object"]
@@ -305,7 +321,7 @@ def customer_updated_event(event, **kwargs):
         )
 
 
-@djstripe_receiver(
+@djstripe_receiver_gold_membership(
     [
         "checkout.session.async_payment_failed",
         "checkout.session.async_payment_succeeded",
