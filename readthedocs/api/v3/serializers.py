@@ -1116,7 +1116,6 @@ class EnvironmentVariableLinksSerializer(BaseLinksSerializer):
 
 class EnvironmentVariableSerializer(serializers.ModelSerializer):
     project = serializers.SlugRelatedField(slug_field="slug", read_only=True)
-    public = serializers.BooleanField(default=False)
     _links = EnvironmentVariableLinksSerializer(source="*", read_only=True)
 
     class Meta:
