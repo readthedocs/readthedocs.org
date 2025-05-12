@@ -262,7 +262,7 @@ lexid==2021.1006
     # via
     #   -r requirements/pip.txt
     #   bumpver
-lxml==5.4.0
+lxml==5.3.2
     # via
     #   -r requirements/pip.txt
     #   pyquery
