@@ -569,7 +569,6 @@ class EnvironmentVariablesViewSet(
         serializer.validated_data.update(
             {
                 "project": self._get_parent_project(),
-                "public": serializer.validated_data.get("public", False),
             }
         )
         serializer.save()
