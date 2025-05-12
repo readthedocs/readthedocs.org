@@ -80,3 +80,40 @@ Additional variables
 --------------------
 
 * ``'pagename'`` - Sphinx variable representing the name of the page you're on.
+
+
+
+Other Hosting Platforms
+------
+To support custom or lesser-known repository hosting platforms (such as Gitea, Forgejo, or Codeberg), you can configure the `html_context` in your `conf.py` file using the following variables:
+
+```
+html_context = {
+    "display_repo": True,             # Enable generic repo integration
+    "repo_host": "codeberg.org",      # Host (e.g., gitea.example.com, codeberg.org)
+    "repo_user": "MyUserName",        # Username or organization
+    "repo_slug": "MyDoc",             # Repository name
+    "repo_version": "main",           # Branch or tag name
+    "conf_src_path": "/src/branch/",  # Path between repo and version (Gitea uses /src/branch/)
+    "conf_py_path": "/docs/",         # Path to docs root in repository
+    "suffix": ".rst",                 # File suffix, e.g. .rst or .md
+}
+```
+
+You can then use it in your theme template like this:
+
+```
+{% if display_repo %}
+    <a href="https://{{ repo_host }}/{{ repo_user }}/{{ repo_slug }}
+    {{ conf_src_path }}{{ repo_version }}{{ conf_py_path }}{{ pagename }}{{ suffix }}"
+    class="fa fa-git-alt">Edit Source</a>
+{% endif %}
+```
+
+This generic method supports any Git-based repository that has a URL structure similar to:
+
+```
+https://<host>/<user>/<repo>/src/branch/<branch>/<path>
+```
+
+
