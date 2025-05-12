@@ -69,14 +69,13 @@ class WelcomeView(View):
             return redirect(reverse("projects_dashboard"))
 
         # Redirect to ``about.`` in production
-        if not settings.DEBUG:
-            query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
-            if request.META["QUERY_STRING"]:
-                # Small hack to not append `&` to URLs without a query_string
-                query_string += "&" + request.META["QUERY_STRING"]
+        query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
+        if request.META["QUERY_STRING"]:
+            # Small hack to not append `&` to URLs without a query_string
+            query_string += "&" + request.META["QUERY_STRING"]
 
-            # Do a 302 here so that it varies on logged in status
-            return redirect(f"https://about.readthedocs.com/{query_string}", permanent=False)
+        # Do a 302 here so that it varies on logged in status
+        return redirect(f"https://about.readthedocs.com/{query_string}", permanent=False)
 
 
 class SupportView(PrivateViewMixin, TemplateView):

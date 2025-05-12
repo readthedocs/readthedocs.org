@@ -7,9 +7,7 @@ class HomepageTest(TestCase):
 
     def test_homepage_auth(self):
         user = User(username="user")
-        user.set_password("user")
-        user.save()
-        self.client.login(username="user", password="user")
+        self.client.force_login(user)
 
         # Hitting "app.readthedocs.org" at /
         response = self.client.get(
@@ -26,9 +24,7 @@ class HomepageTest(TestCase):
 
     def test_welcome_auth(self):
         user = User(username="user")
-        user.set_password("user")
-        user.save()
-        self.client.login(username="user", password="user")
+        self.client.force_login(user)
 
         # Hitting "app.readthedocs.org" at /welcome
         response = self.client.get(
@@ -36,6 +32,7 @@ class HomepageTest(TestCase):
         )
         assert response.headers.get("Location") == reverse("projects_dashboard")
 
+    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_welcome_unauth(self):
         # Hitting "app.readthedocs.org" at /welcome
         response = self.client.get(
