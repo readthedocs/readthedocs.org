@@ -1,3 +1,4 @@
+import django_dynamic_fixture as fixture
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
@@ -6,7 +7,10 @@ from django.test import TestCase, override_settings
 class HomepageTest(TestCase):
 
     def test_homepage_auth(self):
-        user = User(username="user")
+        user = fixture.get(
+            User,
+            username="user",
+        )
         self.client.force_login(user)
 
         # Hitting "app.readthedocs.org" at /
@@ -23,7 +27,10 @@ class HomepageTest(TestCase):
         assert response.headers.get("Location") == reverse("account_login")
 
     def test_welcome_auth(self):
-        user = User(username="user")
+        user = fixture.get(
+            User,
+            username="user",
+        )
         self.client.force_login(user)
 
         # Hitting "app.readthedocs.org" at /welcome
