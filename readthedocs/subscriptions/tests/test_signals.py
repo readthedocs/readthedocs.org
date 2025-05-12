@@ -32,39 +32,45 @@ class TestSignals(PaymentMixin, TestCase):
         self.stripe_customer.description = self.organization.name
         self.stripe_customer.save()
 
-    @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
-    def test_update_organization_email(self, customer):
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client")
+    def test_update_organization_email(self, stripe_client):
         new_email = "new@example.com"
         self.organization.email = new_email
         self.organization.save()
-        customer.update.assert_called_once_with(
+        stripe_client().customers.update.assert_called_once_with(
             self.stripe_customer.id,
-            email=new_email,
+            params={
+                "email": new_email,
+            },
         )
 
-    @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
-    def test_update_organization_name(self, customer):
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client")
+    def test_update_organization_name(self, stripe_client):
         new_name = "New organization"
         self.organization.name = new_name
         self.organization.save()
-        customer.update.assert_called_once_with(
+        stripe_client().customers.update.assert_called_once_with(
             self.stripe_customer.id,
-            description=new_name,
-            name=self.organization.name,
+            params={
+                "description": new_name,
+                "name": self.organization.name,
+            },
         )
 
-    @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
-    def test_update_organization_slug(self, customer):
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client")
+    def test_update_organization_slug(self, stripe_client):
         new_slug = "new-org"
         self.organization.slug = new_slug
         self.organization.save()
         new_metadata = self.organization.get_stripe_metadata()
-        customer.update.assert_called_once_with(
+        stripe_client().customers.update.assert_called_once_with(
             self.stripe_customer.id,
-            metadata=new_metadata,
+            params={
+                "metadata": new_metadata,
+            },
         )
 
-    @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
-    def test_save_organization_no_changes(self, customer):
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client")
+    def test_save_organization_no_changes(self, stripe_client):
         self.organization.save()
-        customer.update.assert_not_called()
+        stripe_client().customers.update.assert_not_called()
