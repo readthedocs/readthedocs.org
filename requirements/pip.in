@@ -2,7 +2,7 @@
 pip
 virtualenv
 
-django~=4.2.0
+django~=5.2.0
 django-extensions
 django-polymorphic
 django-autoslug
@@ -33,7 +33,7 @@ django-vanilla-views
 # dependency as well.
 jsonfield
 
-django-safemigrate==4.3
+django-safemigrate
 
 # Impersonate users in the Django admin for support.
 django-impersonate
@@ -51,7 +51,9 @@ PyGithub
 dnspython
 
 # Used for Redis cache Django backend (`django.core.cache.backends.redis.RedisCache`)
-redis
+# Note: pinned for now due to issue with 6.0. See:
+# https://github.com/readthedocs/readthedocs.org/issues/12171
+redis==5.2.1
 
 celery
 django-celery-beat
@@ -79,19 +81,14 @@ orjson
 django-gravatar2
 pytz
 
-# We cannot upgrade it until dj-stripe fixes this issue
-# https://github.com/dj-stripe/dj-stripe/issues/1842
-stripe==4.2.0
-
 regex
 
-# NOTE: djstripe overrides the stripe api version
-# globally, when updating make sure our code is compatible
-# with the version used by djstripe.
-# See STRIPE_API_VERSION https://dj-stripe.dev/reference/settings/.
-# dj-stripe==2.7.0 requires some extra actions to be upgrade
-# See https://github.com/readthedocs/readthedocs.org/issues/9706
-dj-stripe==2.6.3
+# Stripe is pinned because 12.0.1 fails with
+#
+# AttributeError: module 'stripe' has no attribute 'UsageRecord'
+stripe<12
+
+dj-stripe==2.9.0
 
 markdown
 
@@ -119,10 +116,7 @@ django-cors-headers
 # User agent parsing - used for analytics purposes
 user-agents
 
-# Pinned because we need to remove the usage of
-# `get_available_overwrite_name` first
-# See https://github.com/readthedocs/readthedocs.org/pull/11505
-django-storages[boto3]==1.14.3
+django-storages[boto3]
 
 
 # Required only in development and linting
@@ -138,6 +132,7 @@ django-csp==3.8
 # NOTE: that django-structlog is in version 6.x now,
 # so we should probably consider migrating to avoid incompatibility issues.
 django-structlog==2.2.0
+
 # Pining due to a Sentry error we started getting
 # https://read-the-docs.sentry.io/issues/4678167578/events/2d9d348729874d67b120b153908ca54c/
 django-ipware<6.0.0
@@ -157,3 +152,4 @@ bumpver
 # system level is incompatible with the Python version
 # https://github.com/xmlsec/python-xmlsec/issues/324
 xmlsec==1.3.14
+lxml==5.3.2

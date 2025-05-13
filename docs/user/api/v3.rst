@@ -1508,7 +1508,8 @@ Environment variable create
 
         {
             "name": "MYVAR",
-            "value": "My secret value"
+            "value": "My secret value",
+            "public": true
         }
 
     **Example response**:
@@ -1517,6 +1518,9 @@ Environment variable create
 
     :statuscode 201: Environment variable created successfully
 
+    .. note::
+
+       - The `public` field is optional. If set to `true`, the environment variable will be exposed in PR builds. Defaults to `false`.
 
 Environment variable delete
 +++++++++++++++++++++++++++
