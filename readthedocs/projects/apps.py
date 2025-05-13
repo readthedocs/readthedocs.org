@@ -20,7 +20,7 @@ class ProjectsConfig(AppConfig):
 
         # HACK: remove djstripe initial checks.
         # It performs checks that require access to the database, which make the builders to fail.
-        # Note this code has to be executed _after_ djstripe has been initialized.
+        # Note this is placed in the `projects` app, since it's listed after `djstripe` in `INSTALLED_APPS`, as this code has to be executed _after_ djstripe has been initialized.
         #
         # https://github.com/dj-stripe/dj-stripe/blob/8e536409b815b2a393ef1ba8eac3d27bd69a5664/djstripe/checks.py#L20
         if settings.DEBUG or socket.gethostname().startswith("build-"):
