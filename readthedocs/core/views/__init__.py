@@ -36,37 +36,46 @@ class HealthCheckView(CDNCacheControlMixin, View):
         return JsonResponse({"status": 200}, status=200)
 
 
-class HomepageView(TemplateView):
-    """
-    Conditionally show the home page or redirect to the login page.
-
-    On the current dashboard, this shows the application homepage. However, we
-    no longer require this page in our application as we have a similar page on
-    our website. Instead, redirect to our login page on the new dashboard.
-    """
-
-    template_name = "homepage.html"
+class HomepageView(View):
+    """Conditionally redirect to dashboard or login page."""
 
     def get(self, request, *args, **kwargs):
-        # Redirect to login page
-        return redirect(reverse("account_login"))
-
         # Redirect to user dashboard for logged in users
         if request.user.is_authenticated:
-            return redirect("projects_dashboard")
+            return redirect(reverse("projects_dashboard"))
+
+        # Redirect to login page if unauthed
+        return redirect(reverse("account_login"))
+
+
+class WelcomeView(View):
+    """
+    Conditionally redirect to website home page or to dashboard.
+
+    User hitting readthedocs.org / readthedocs.com is redirected to this view (at /welcome).
+    This view will redirect the user based on auth/unauthed:
+
+      1. when user is logged in, redirect to dashboard
+      2. when user is logged off, redirect to https://about.readthedocs.com/
+
+    User hitting app.readthedocs.org / app.readthedocs.com
+      1. when user is logged in, redirect to dashboard
+      2. when user is logged off, redirect to login page
+    """
+
+    def get(self, request, *args, **kwargs):
+        # Redirect to user dashboard for logged in users
+        if request.user.is_authenticated:
+            return redirect(reverse("projects_dashboard"))
 
         # Redirect to ``about.`` in production
-        if not settings.DEBUG:
-            query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
-            if request.META["QUERY_STRING"]:
-                # Small hack to not append `&` to URLs without a query_string
-                query_string += "&" + request.META["QUERY_STRING"]
+        query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
+        if request.META["QUERY_STRING"]:
+            # Small hack to not append `&` to URLs without a query_string
+            query_string += "&" + request.META["QUERY_STRING"]
 
-            # Do a 302 here so that it varies on logged in status
-            return redirect(f"https://about.readthedocs.com{query_string}", permanent=False)
-
-        # Show the homepage for local dev
-        return super().get(request, *args, **kwargs)
+        # Do a 302 here so that it varies on logged in status
+        return redirect(f"https://about.readthedocs.com/{query_string}", permanent=False)
 
 
 class SupportView(PrivateViewMixin, TemplateView):

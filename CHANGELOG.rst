@@ -1,3 +1,39 @@
+Version 13.1.1
+--------------
+
+:Date: May 13, 2025
+
+* `@ericholscher <https://github.com/ericholscher>`__: Document ability to set `public` on EnvironmentVariable API v3 (`#12169 <https://github.com/readthedocs/readthedocs.org/pull/12169>`__)
+* `@humitos <https://github.com/humitos>`__: Downgrade `lxml` to avoid mismatch versions (`#12167 <https://github.com/readthedocs/readthedocs.org/pull/12167>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12166 <https://github.com/readthedocs/readthedocs.org/pull/12166>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add comment to Sitemap explaining how to customize it (`#12164 <https://github.com/readthedocs/readthedocs.org/pull/12164>`__)
+* `@humitos <https://github.com/humitos>`__: Redirect for `/` and `/welcome` URLs (`#12163 <https://github.com/readthedocs/readthedocs.org/pull/12163>`__)
+* `@humitos <https://github.com/humitos>`__: Do not run `djstripe` checks on builders (`#12159 <https://github.com/readthedocs/readthedocs.org/pull/12159>`__)
+* `@humitos <https://github.com/humitos>`__: Release 13.1.0 (`#12157 <https://github.com/readthedocs/readthedocs.org/pull/12157>`__)
+* `@humitos <https://github.com/humitos>`__: Update djstripe handlers (`webhook.handler` was deleted) (`#12156 <https://github.com/readthedocs/readthedocs.org/pull/12156>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: don't check for limit on existing domains (`#12154 <https://github.com/readthedocs/readthedocs.org/pull/12154>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: escape all whitespaces (`#12152 <https://github.com/readthedocs/readthedocs.org/pull/12152>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade Django to 5.2 (`#12149 <https://github.com/readthedocs/readthedocs.org/pull/12149>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade `djstripe` (`#12148 <https://github.com/readthedocs/readthedocs.org/pull/12148>`__)
+* `@humitos <https://github.com/humitos>`__: Condiontally homepage redirect based on domain and logged in status (`#12147 <https://github.com/readthedocs/readthedocs.org/pull/12147>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update build tools (`#12143 <https://github.com/readthedocs/readthedocs.org/pull/12143>`__)
+
+Version 13.1.0
+--------------
+
+:Date: May 06, 2025
+
+* `@humitos <https://github.com/humitos>`__: Update djstripe handlers (`webhook.handler` was deleted) (`#12156 <https://github.com/readthedocs/readthedocs.org/pull/12156>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: don't check for limit on existing domains (`#12154 <https://github.com/readthedocs/readthedocs.org/pull/12154>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade `djstripe` (`#12148 <https://github.com/readthedocs/readthedocs.org/pull/12148>`__)
+* `@humitos <https://github.com/humitos>`__: Condiontally homepage redirect based on domain and logged in status (`#12147 <https://github.com/readthedocs/readthedocs.org/pull/12147>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: truncate contents before indexing (`#12146 <https://github.com/readthedocs/readthedocs.org/pull/12146>`__)
+* `@humitos <https://github.com/humitos>`__: Downgrade to Django 4.2.x due to `djstripe` (`#12145 <https://github.com/readthedocs/readthedocs.org/pull/12145>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: handle versions when "instant loading" feature enabled (`#12142 <https://github.com/readthedocs/readthedocs.org/pull/12142>`__)
+* `@humitos <https://github.com/humitos>`__: Release 13.0.0 (`#12141 <https://github.com/readthedocs/readthedocs.org/pull/12141>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add migration page for GitHub App (`#12112 <https://github.com/readthedocs/readthedocs.org/pull/12112>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: remove legacy dashboard (`#12091 <https://github.com/readthedocs/readthedocs.org/pull/12091>`__)
+
 Version 13.0.0
 --------------
 

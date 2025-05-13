@@ -864,7 +864,7 @@ class TestAdditionalDocViews(BaseDocServing):
             Sitemap: https://project.readthedocs.io/sitemap.xml
             """
         ).lstrip()
-        self.assertEqual(response.content.decode(), expected)
+        self.assertContains(response, expected)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_disallow_hidden_versions(self, storage_exists):
@@ -918,7 +918,7 @@ class TestAdditionalDocViews(BaseDocServing):
             Sitemap: https://project.readthedocs.io/sitemap.xml
             """
         ).lstrip()
-        self.assertEqual(response.content.decode(), expected)
+        self.assertContains(response, expected)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_private_version(self, storage_exists):
