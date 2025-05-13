@@ -1407,7 +1407,7 @@ class Project(models.Model):
         .. note::
 
            - A token is only returned for projects linked to a private repository.
-           - Only repositories granted acces by a GitHub app installation will return a token.
+           - Only repositories granted access by a GitHub app installation will return a token.
         """
         service_class = self.get_git_service_class()
         if not service_class or not self.remote_repository.private:
