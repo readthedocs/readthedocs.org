@@ -1,0 +1,17 @@
+{% extends "core/email/common.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <p>
+      {% trans "To verify your email address and finish setting up your account, please go to:" %}
+    </p>
+
+    <p>
+      <a href="{{ activate_url }}">{{ activate_url }}</a>
+    </p>
+
+    <p>
+      {% trans "If you did not sign up for an account with Read the Docs, you can disregard this email." %}
+    </p>
+{% endblock %}
