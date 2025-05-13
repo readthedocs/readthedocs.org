@@ -51,7 +51,9 @@ PyGithub
 dnspython
 
 # Used for Redis cache Django backend (`django.core.cache.backends.redis.RedisCache`)
-redis
+# Note: pinned for now due to issue with 6.0. See:
+# https://github.com/readthedocs/readthedocs.org/issues/12171
+redis==5.2.1
 
 celery
 django-celery-beat
