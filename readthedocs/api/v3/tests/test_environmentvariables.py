@@ -208,3 +208,52 @@ class EnvironmentVariablessEndpointTests(APIEndpointMixin):
         assert resp.json() == [
             "The total size of all environment variables in the project cannot exceed 256 KB."
         ]
+
+    def test_create_environment_variable_with_public_flag(self):
+        self.assertEqual(self.project.environmentvariable_set.count(), 1)
+        data = {
+            "name": "TEST_ENV_VAR",
+            "value": "test_value",
+            "public": True,
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(
+            reverse(
+                "projects-environmentvariables-list",
+                kwargs={
+                    "parent_lookup_project__slug": self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(self.project.environmentvariable_set.count(), 2)
+
+        env_var = self.project.environmentvariable_set.get(name="TEST_ENV_VAR")
+        self.assertEqual(env_var.value, "test_value")
+        self.assertTrue(env_var.public)
+
+    def test_create_environment_variable_without_public_flag(self):
+        self.assertEqual(self.project.environmentvariable_set.count(), 1)
+        data = {
+            "name": "TEST_ENV_VAR",
+            "value": "test_value",
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(
+            reverse(
+                "projects-environmentvariables-list",
+                kwargs={
+                    "parent_lookup_project__slug": self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(self.project.environmentvariable_set.count(), 2)
+
+        env_var = self.project.environmentvariable_set.get(name="TEST_ENV_VAR")
+        self.assertEqual(env_var.value, "test_value")
+        self.assertFalse(env_var.public)
