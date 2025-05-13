@@ -470,13 +470,22 @@ class GitHubAppService(Service):
         - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
         - https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
         """
-        # NOTE: we can pass the repository_ids to get a token with access to specific repositories.
-        # We should upstream this feature to PyGithub.
         try:
-            access_token = self.gh_app_client.get_access_token(
-                self.installation.installation_id, permissions={"contents": "read"}
+            # TODO: Use self.gh_app_client.get_access_token instead,
+            # once https://github.com/PyGithub/PyGithub/pull/3287 is merged.
+            _, response = self.gh_app_client.requester.requestJsonAndCheck(
+                "POST",
+                f"/app/installations/{self.installation.installation_id}/access_tokens",
+                headers=self.gh_app_client._get_headers(),
+                input={
+                    "repository_ids": [int(project.remote_repository.remote_id)],
+                    "permissions": {
+                        "contents": "read",
+                    },
+                },
             )
-            return f"x-access-token:{access_token.token}"
+            token = response["token"]
+            return f"x-access-token:{token}"
         except GithubException:
             log.info(
                 "Failed to get clone token for project",
