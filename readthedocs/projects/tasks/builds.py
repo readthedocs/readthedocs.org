@@ -205,6 +205,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             version=self.data.version,
             environment={
                 "GIT_TERMINAL_PROMPT": "0",
+                "READTHEDOCS_GIT_CLONE_TOKEN": self.data.project.clone_token,
             },
             # Pass the api_client so that all environments have it.
             # This is needed for ``readthedocs-corporate``.

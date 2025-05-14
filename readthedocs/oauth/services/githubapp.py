@@ -34,6 +34,7 @@ class GitHubAppService(Service):
     vcs_provider_slug = GITHUB_APP
     allauth_provider = GitHubAppProvider
     supports_build_status = True
+    supports_clone_token = True
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
@@ -462,17 +463,29 @@ class GitHubAppService(Service):
         """
         Return a token for HTTP-based Git access to the repository.
 
+        The token is scoped to have read-only access to the content of the repository attached to the project.
+        The token expires after one hour (this is given by GitHub and can't be changed).
+
         See:
         - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
         - https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app
         """
-        # NOTE: we can pass the repository_ids to get a token with access to specific repositories.
-        # We should upstream this feature to PyGithub.
-        # We can also pass a specific permissions object to get a token with specific permissions
-        # if we want to scope this token even more.
         try:
-            access_token = self.gh_app_client.get_access_token(self.installation.installation_id)
-            return f"x-access-token:{access_token.token}"
+            # TODO: Use self.gh_app_client.get_access_token instead,
+            # once https://github.com/PyGithub/PyGithub/pull/3287 is merged.
+            _, response = self.gh_app_client.requester.requestJsonAndCheck(
+                "POST",
+                f"/app/installations/{self.installation.installation_id}/access_tokens",
+                headers=self.gh_app_client._get_headers(),
+                input={
+                    "repository_ids": [int(project.remote_repository.remote_id)],
+                    "permissions": {
+                        "contents": "read",
+                    },
+                },
+            )
+            token = response["token"]
+            return f"x-access-token:{token}"
         except GithubException:
             log.info(
                 "Failed to get clone token for project",
