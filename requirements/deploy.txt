@@ -357,7 +357,7 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==6.0.0
+redis==5.2.1
     # via -r requirements/pip.txt
 regex==2024.11.6
     # via -r requirements/pip.txt
