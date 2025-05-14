@@ -2,7 +2,6 @@
 
 from functools import lru_cache
 
-import stripe
 import structlog
 from django.contrib import messages
 from django.http import Http404
@@ -16,6 +15,7 @@ from vanilla import DetailView
 from vanilla import GenericView
 
 from readthedocs.organizations.views.base import OrganizationMixin
+from readthedocs.payments.utils import get_stripe_client
 from readthedocs.subscriptions.forms import PlanForm
 from readthedocs.subscriptions.products import get_product
 from readthedocs.subscriptions.utils import get_or_create_stripe_customer
@@ -58,6 +58,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         Users can buy a new subscription if the current one
         has been deleted after they canceled it.
         """
+        stripe_client = get_stripe_client()
         stripe_subscription = self.get_object()
         if not stripe_subscription or stripe_subscription.status != SubscriptionStatus.canceled:
             raise Http404()
@@ -69,18 +70,20 @@ class DetailSubscription(OrganizationMixin, DetailView):
         # pylint: disable=broad-except
         try:
             stripe_customer = get_or_create_stripe_customer(organization)
-            checkout_session = stripe.checkout.Session.create(
-                customer=stripe_customer.id,
-                payment_method_types=["card"],
-                line_items=[
-                    {
-                        "price": stripe_price.id,
-                        "quantity": 1,
-                    }
-                ],
-                mode="subscription",
-                success_url=url + "?upgraded=true",
-                cancel_url=url,
+            checkout_session = stripe_client.checkout.sessions.create(
+                params={
+                    "customer": stripe_customer.id,
+                    "payment_method_types": ["card"],
+                    "line_items": [
+                        {
+                            "price": stripe_price.id,
+                            "quantity": 1,
+                        }
+                    ],
+                    "mode": "subscription",
+                    "success_url": url + "?upgraded: true",
+                    "cancel_url": url,
+                }
             )
             return HttpResponseRedirect(checkout_session.url)
         except Exception:
@@ -165,13 +168,16 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
 
     def post(self, request, *args, **kwargs):
         """Redirect the user to the Stripe billing portal."""
+        stripe_client = get_stripe_client()
         organization = self.get_organization()
         stripe_customer = organization.stripe_customer
         return_url = request.build_absolute_uri(self.get_success_url())
         try:
-            billing_portal = stripe.billing_portal.Session.create(
-                customer=stripe_customer.id,
-                return_url=return_url,
+            billing_portal = stripe_client.billing_portal.sessions.create(
+                params={
+                    "customer": stripe_customer.id,
+                    "return_url": return_url,
+                }
             )
             return HttpResponseRedirect(billing_portal.url)
         except:  # noqa

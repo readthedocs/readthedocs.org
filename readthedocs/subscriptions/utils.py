@@ -1,9 +1,11 @@
 """Utilities to interact with subscriptions and stripe."""
 
-import stripe
 import structlog
 from django.conf import settings
 from djstripe import models as djstripe
+
+from readthedocs.payments.utils import get_stripe_api_key
+from readthedocs.payments.utils import get_stripe_client
 
 
 log = structlog.get_logger(__name__)
@@ -11,13 +13,23 @@ log = structlog.get_logger(__name__)
 
 def create_stripe_customer(organization):
     """Create a stripe customer for organization."""
-    stripe_data = stripe.Customer.create(
-        email=organization.email,
-        name=organization.name,
-        description=organization.name,
-        metadata=organization.get_stripe_metadata(),
+    stripe_client = get_stripe_client()
+    stripe_data = stripe_client.customers.create(
+        params={
+            "email": organization.email,
+            "name": organization.name,
+            "description": organization.name,
+            "metadata": organization.get_stripe_metadata(),
+        },
     )
-    stripe_customer = djstripe.Customer.sync_from_stripe_data(stripe_data)
+
+    # NOTE: we need to pass the `api_key` here due to a bug in dj-stripe
+    # See the related issues
+    # * https://github.com/dj-stripe/dj-stripe/issues/2055
+    # * https://github.com/dj-stripe/dj-stripe/issues/2037
+    stripe_key = get_stripe_api_key()
+    stripe_customer = djstripe.Customer.sync_from_stripe_data(stripe_data, api_key=stripe_key)
+
     organization.stripe_customer = stripe_customer
     organization.save()
     return stripe_customer
@@ -46,13 +58,12 @@ def get_or_create_stripe_subscription(organization):
     stripe_customer = get_or_create_stripe_customer(organization)
     stripe_subscription = organization.get_stripe_subscription()
     if not stripe_subscription:
-        # TODO: djstripe 2.6.x doesn't return the subscription object
-        # on subscribe(), but 2.7.x (unreleased) does!
-        stripe_customer.subscribe(
+        stripe_key = get_stripe_api_key()
+        stripe_subscription = stripe_customer.subscribe(
             items=[{"price": settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE}],
             trial_period_days=settings.RTD_ORG_TRIAL_PERIOD_DAYS,
+            api_key=stripe_key,
         )
-        stripe_subscription = stripe_customer.subscriptions.latest()
     if organization.stripe_subscription != stripe_subscription:
         organization.stripe_subscription = stripe_subscription
         organization.save()

@@ -11,6 +11,7 @@ from tempfile import mkdtemp
 import structlog
 from django.contrib.auth.models import User
 from django_dynamic_fixture import new
+from djstripe.models import APIKey
 
 from readthedocs.doc_builder.base import restoring_chdir
 
