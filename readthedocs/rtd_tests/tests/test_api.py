@@ -45,6 +45,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
+    BUILD_STATE_UPLOADING,
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
@@ -69,6 +70,7 @@ from readthedocs.projects.models import (
     Feature,
     Project,
 )
+from readthedocs.aws.security_token_service import AWSS3TemporaryCredentials
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
@@ -142,6 +144,73 @@ class APIBuildTests(TestCase):
         self.assertFalse(build.cold_storage)
         self.assertEqual(build.commands.count(), 0)
         self.assertEqual(build.notifications.count(), 0)
+
+    @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_tools_scoped_credentials")
+    @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_media_scoped_credentials")
+    def test_get_temporary_credentials_for_build(self, get_s3_build_media_scoped_credentials, get_s3_build_tools_scoped_credentials):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_UPLOADING,
+            success=False,
+            output="Output",
+            error="Error",
+            exit_code=0,
+            builder="Builder",
+            cold_storage=True,
+        )
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(self.project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+        get_s3_build_media_scoped_credentials.return_value = AWSS3TemporaryCredentials(
+            access_key_id="access_key_id",
+            secret_access_key="secret_access_key",
+            session_token="session_token",
+            region_name="us-east-1",
+            bucket_name="readthedocs-media",
+        )
+        r = client.post(reverse("build-credentials-for-storage", args=(build.pk,)), {"type": "build_media"})
+        assert r.status_code == 200
+        assert r.data == {
+            "s3": {
+                "access_key_id": "access_key_id",
+                "secret_access_key": "secret_access_key",
+                "session_token": "session_token",
+                "region_name": "us-east-1",
+                "bucket_name": "readthedocs-media",
+            }
+        }
+
+        get_s3_build_media_scoped_credentials.assert_called_once_with(
+            build=build,
+            duration=60 * 30,
+        )
+
+        get_s3_build_tools_scoped_credentials.return_value = AWSS3TemporaryCredentials(
+            access_key_id="access_key_id",
+            secret_access_key="secret_access_key",
+            session_token="session_token",
+            region_name="us-east-1",
+            bucket_name="readthedocs-build-tools",
+        )
+        r = client.post(reverse("build-credentials-for-storage", args=(build.pk,)), {"type": "build_tools"})
+        assert r.status_code == 200
+        assert r.data == {
+            "s3": {
+                "access_key_id": "access_key_id",
+                "secret_access_key": "secret_access_key",
+                "session_token": "session_token",
+                "region_name": "us-east-1",
+                "bucket_name": "readthedocs-build-tools",
+            }
+        }
+
+        get_s3_build_tools_scoped_credentials.assert_called_once_with(
+            build=build,
+            duration=60 * 30,
+        )
 
     def test_api_does_not_have_private_config_key_superuser(self):
         client = APIClient()
