@@ -57,7 +57,7 @@ When your Read the Docs account is connected to GitLab or Bitbucket, and you :do
 
 * Read the Docs automatically creates a Read the Docs Integration that matches your Git provider.
 * Read the Docs creates an incoming webhook with your Git provider, which is automatically added to your Git repository's settings using the account connection.
-* Read the Docs creates a deploy key for your Git repository, which is automatically added to your Git repository (when importing private repositories on |com_brand|).
+* Read the Docs creates an SSH key, which is automatically added to your Git repository (when importing private repositories on |com_brand|).
 
 After project creation,
 you can continue to configure the project.

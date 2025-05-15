@@ -4,7 +4,7 @@ How to configure pull request builds
 In this section, you can learn how to configure :doc:`pull request builds </pull-requests>`.
 
 To enable pull request builds for your project,
-your Read the Docs project needs to be connected to a repository in a supported Git provider.
+your Read the Docs project needs to be connected to a repository from a supported Git provider.
 See `Limitations`_ for more information.
 
 If your project is already connected:
@@ -54,7 +54,7 @@ Limitations
 -----------
 
 - Pull requests are only available for **GitHub** and **GitLab** currently. Bitbucket is not yet supported.
-- To enable this feature, your Read the Docs project needs to be connected to a repository in a supported Git provider.
+- To enable this feature, your Read the Docs project needs to be connected to a repository from a supported Git provider.
 - Builds from pull requests have the same memory and time limitations
   :doc:`as regular builds </builds>`.
 - Additional formats like PDF aren't built in order to reduce build time.

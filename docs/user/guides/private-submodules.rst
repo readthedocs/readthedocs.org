@@ -10,7 +10,7 @@ you need to follow a few special steps.
 
 Read the Docs uses SSH keys (with read only permissions) for GitLab and Bitbucket in order to clone private repositories,
 this key is added to your main repository, but not to your submodules.
-For GitHub we make use of a temporal token generated using our :ref:`GitHub App <reference/git-integration:GitHub App>`.
+For GitHub we make use of a temporary token generated using our :ref:`GitHub App <reference/git-integration:GitHub App>`.
 
 When a project is created, a SSH key is automatically generated.
 You can use this SSH key to give Read the Docs access to clone your private submodules.
