@@ -74,7 +74,7 @@ class GitHubAppInstallation(TimeStampedModel):
     )
     target_type = models.CharField(
         help_text=_("Account type that the target_id belongs to (user or organization)"),
-        choices=GitHubAccountType.choices,
+        choices=GitHubAccountType,
         max_length=255,
     )
     extra_data = models.JSONField(
@@ -130,7 +130,7 @@ class GitHubAppInstallation(TimeStampedModel):
 
         count, deleted = remote_repositories.delete()
         log.info(
-            "Deleted remote repositories",
+            "Deleted remote repositories that our app no longer has access to",
             count=count,
             deleted=deleted,
             installation_id=self.installation_id,

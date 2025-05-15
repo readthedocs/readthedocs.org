@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
+from readthedocs.builds.constants import EXTERNAL, LATEST, LATEST_VERBOSE_NAME, STABLE, TAG, BRANCH
 from readthedocs.builds.models import Version
 from readthedocs.core.forms import RichValidationError
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
@@ -419,7 +419,10 @@ class TestProjectAdvancedForm(TestCase):
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
     def setUp(self):
-        self.project = get(Project)
+        self.project = get(
+            Project,
+            repo="https://github.com/readthedocs/readthedocs.org/",
+        )
         user_created_stable_version = get(
             Version,
             project=self.project,
@@ -529,6 +532,59 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
                 for identifier, _ in form.fields["default_branch"].widget.choices
             ],
         )
+
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    def test_change_default_branch_from_tag_to_branch_and_vice_versa(self, trigger_build):
+        branch = get(
+            Version,
+            project=self.project,
+            slug="branch",
+            type=BRANCH,
+            verbose_name="branch",
+            identifier="branch",
+        )
+        tag = get(
+            Version,
+            project=self.project,
+            slug="tag",
+            type=TAG,
+            verbose_name="tag",
+            identifier="1234abcd",
+        )
+
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "repo_type": self.project.repo_type,
+            "default_version": LATEST,
+            "versioning_scheme": self.project.versioning_scheme,
+            "language": self.project.language,
+            "default_branch": branch.verbose_name,
+            "privacy_level": self.project.privacy_level,
+            "external_builds_privacy_level": self.project.external_builds_privacy_level,
+        }
+        form = UpdateProjectForm(data, instance=self.project)
+        assert form.is_valid()
+        form.save()
+
+        self.project.refresh_from_db()
+        latest = self.project.get_latest_version()
+        assert latest.slug == LATEST
+        assert latest.verbose_name == LATEST_VERBOSE_NAME
+        assert latest.identifier == branch.verbose_name
+        assert latest.type == BRANCH
+
+        data["default_branch"] = tag.verbose_name
+        form = UpdateProjectForm(data, instance=self.project)
+        assert form.is_valid()
+        form.save()
+
+        self.project.refresh_from_db()
+        latest = self.project.get_latest_version()
+        assert latest.slug == LATEST
+        assert latest.verbose_name == LATEST_VERBOSE_NAME
+        assert latest.identifier == tag.verbose_name
+        assert latest.type == TAG
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)

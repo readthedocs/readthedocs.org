@@ -38,6 +38,7 @@ class Service:
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
     supports_build_status = False
+    supports_clone_token = False
 
     @classmethod
     def for_project(cls, project):
@@ -65,7 +66,7 @@ class Service:
         """
         raise NotImplementedError
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """
         Setup webhook for project.
 
@@ -73,12 +74,11 @@ class Service:
         :type project: Project
         :param integration: Integration for the project
         :type integration: Integration
-        :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
+        :returns: boolean based on webhook set up success
         """
         raise NotImplementedError
 
-    def update_webhook(self, project, integration):
+    def update_webhook(self, project, integration) -> bool:
         """
         Update webhook integration.
 
@@ -87,7 +87,6 @@ class Service:
         :param integration: Webhook integration to update
         :type integration: Integration
         :returns: boolean based on webhook update success, and requests Response object
-        :rtype: (Bool, Response)
         """
         raise NotImplementedError
 
@@ -330,7 +329,3 @@ class UserService(Service):
 
     def sync_organizations(self):
         raise NotImplementedError
-
-    def get_clone_token(self, project):
-        """User services make use of SSH keys only for cloning."""
-        return None

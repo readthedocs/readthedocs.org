@@ -282,7 +282,7 @@ class DockerBuildCommand(BuildCommand):
     """
 
     bash_escape_re = re.compile(
-        r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@\[\\\]\^\`\{\|\}\~])"  # noqa
+        r"([\s\!\"\#\$\&\'\(\)\*\:\;\<\>\?\@\[\\\]\^\`\{\|\}\~])"  # noqa
     )
 
     def __init__(self, *args, escape_command=True, **kwargs):
@@ -391,6 +391,7 @@ class DockerBuildCommand(BuildCommand):
         not_escape_variables = (
             "READTHEDOCS_OUTPUT",
             "READTHEDOCS_VIRTUALENV_PATH",
+            "READTHEDOCS_GIT_CLONE_TOKEN",
             "CONDA_ENVS_PATH",
             "CONDA_DEFAULT_ENV",
         )

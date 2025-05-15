@@ -161,7 +161,7 @@ def reverse_move_repos(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("oauth", "0002_combine_services"),
     ]

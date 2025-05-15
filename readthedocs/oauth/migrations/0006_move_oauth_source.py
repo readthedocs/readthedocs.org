@@ -38,7 +38,7 @@ def backwards_move_org_source(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("oauth", "0005_add_account_relation"),
     ]

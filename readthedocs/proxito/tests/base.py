@@ -4,7 +4,7 @@ import django_dynamic_fixture as fixture
 import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.files.storage import get_storage_class
+from readthedocs.storage import get_storage_class
 from django.test import TestCase
 
 from readthedocs.builds.constants import LATEST

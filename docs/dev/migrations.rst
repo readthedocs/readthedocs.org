@@ -41,7 +41,7 @@ You can achieve this by following these steps:
               self.fields["new_field"].empty_value = False
 
 #. Create the migration file (let's call this migration ``app 0001``),
-   and mark it as ``Safe.before_deploy``.
+   and mark it as ``Safe.before_deploy()``.
 
    .. code-block:: python
 
@@ -50,10 +50,10 @@ You can achieve this by following these steps:
 
 
       class Migration(migrations.Migration):
-          safe = Safe.before_deploy
+          safe = Safe.before_deploy()
 
 #. Create a data migration to populate all null values of the new field with a proper value (let's call this migration ``app 0002``),
-   and mark it as ``Safe.after_deploy``.
+   and mark it as ``Safe.after_deploy()``.
 
    .. code-block:: python
 
@@ -66,14 +66,14 @@ You can achieve this by following these steps:
 
 
        class Migration(migrations.Migration):
-           safe = Safe.after_deploy
+           safe = Safe.after_deploy()
 
            operations = [
                migrations.RunPython(migrate),
            ]
 
 #. After the deploy has been completed, create a new migration to set the field as non-nullable (let's call this migration ``app 0003``).
-   Run this migration on a new deploy, you can mark it as ``Safe.before_deploy`` or ``Safe.always``.
+   Run this migration on a new deploy, you can mark it as ``Safe.before_deploy()`` or ``Safe.always()``.
 #. Remove any handling of the null case from the code.
 
 At the end, the deploy should look like this:
@@ -102,7 +102,7 @@ You can achieve this by following these steps:
           field_to_delete = models.CharField(max_length=100, null=True, blank=True)
 
 #. Create the migration file (let's call this migration ``app 0001``),
-   and mark it as ``Safe.before_deploy``.
+   and mark it as ``Safe.before_deploy()``.
 
    .. code-block:: python
 
@@ -111,10 +111,10 @@ You can achieve this by following these steps:
 
 
       class Migration(migrations.Migration):
-          safe = Safe.before_deploy
+          safe = Safe.before_deploy()
 
 #. Create a migration to remove the field from the database (let's call this migration ``app 0002``),
-   and mark it as ``Safe.after_deploy``.
+   and mark it as ``Safe.after_deploy()``.
 
    .. code-block:: python
 
@@ -123,7 +123,7 @@ You can achieve this by following these steps:
 
 
       class Migration(migrations.Migration):
-          safe = Safe.after_deploy
+          safe = Safe.after_deploy()
 
 At the end, the deploy should look like this:
 

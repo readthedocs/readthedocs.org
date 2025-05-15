@@ -23,7 +23,7 @@ def backward(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("redirects", "0003_add_default_redirect_http_status_to_302"),
     ]

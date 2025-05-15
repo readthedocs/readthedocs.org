@@ -18,7 +18,7 @@ def migrate_null_values(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("core", "0011_alter_historicaluser_first_name"),
     ]
