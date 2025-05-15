@@ -478,6 +478,35 @@ Take a look at the following example:
 
 MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
 
+Install dependencies with ``pixi``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Projects can use `pixi <https://github.com/prefix-dev/pixi/>`__,
+to install Python dependencies, usually reducing the time taken to install compared to conda or pip.
+Take a look at the following example:
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+      os: ubuntu-24.04
+      jobs:
+         create_environment:
+            - asdf plugin add pixi
+            - asdf install pixi latest
+            - asdf global pixi latest
+         install:
+            # assuming you have an environment called "docs"
+            - pixi install -e docs
+         build:
+            html:
+               - pixi run -e docs sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
+
+MkDocs projects could use ``NO_COLOR=1 pixi run -e docs mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
+
 Update Conda version
 ~~~~~~~~~~~~~~~~~~~~
 
