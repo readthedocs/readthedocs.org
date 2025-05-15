@@ -172,3 +172,32 @@ class SocialAdapterTest(TestCase):
         self.user.save()
         assert self.user.is_staff
         self.adapter.pre_social_login(request, sociallogin)
+
+    def test_dont_allow_using_old_github_app(self):
+        github_app_account = get(
+            SocialAccount,
+            provider=GitHubAppProvider.id,
+            uid="1234",
+            user=self.user,
+        )
+
+        request = mock.MagicMock(user=AnonymousUser())
+        sociallogin = SocialLogin(
+            user=User(email="me@example.com"),
+            account=SocialAccount(
+                provider=GitHubProvider.id, uid=github_app_account.uid
+            ),
+        )
+        with self.assertRaises(ImmediateHttpResponse) as exc:
+            self.adapter.pre_social_login(request, sociallogin)
+
+        assert self.user.socialaccount_set.filter(
+            provider=GitHubAppProvider.id
+        ).exists()
+        assert not self.user.socialaccount_set.filter(
+            provider=GitHubProvider.id
+        ).exists()
+
+        response = exc.exception.response
+        assert response.status_code == 302
+        assert response.url == "/accounts/githubapp/login/"
