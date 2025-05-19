@@ -231,8 +231,7 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
         """Disable the external builds option if the project doesn't meet the requirements."""
         # If the project is attached to a GitHub app integration,
         # it will always be able to build external versions.
-        remote_repository = self.instance.remote_repository
-        if remote_repository and remote_repository.vcs_provider == GITHUB_APP:
+        if self.instance.is_github_app_project:
             return
 
         integrations = list(self.instance.integrations.all())

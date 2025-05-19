@@ -40,6 +40,7 @@ from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -1012,6 +1013,10 @@ class Project(models.Model):
             GitHubService,
             GitHubAppService,
         ]
+
+    @property
+    def is_github_app_project(self):
+        return self.remote_repository and self.remote_repository.vcs_provider == GITHUB_APP
 
     @property
     def is_gitlab_project(self):
