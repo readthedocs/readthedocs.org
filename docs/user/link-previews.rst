@@ -11,7 +11,7 @@ so you can keep your context while reading but learn more from other resources.
    Example of link previews addon
 
 Link previews will only be generated for internal links--links that point to pages within your documentation site.
-No link previews will be generated for links to external sites or links that appear in the :doc:`flyout menu </flyout_menu>`.
+No link previews will be generated for links to external sites or links that appear in the :doc:`flyout menu </flyout-menu>`.
 
 You can see an example of a link preview by hovering over the following link: :doc:`Addons </addons>`.
 
