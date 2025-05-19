@@ -1,4 +1,6 @@
-from django.db import migrations, transaction
+from django.db import migrations
+from django.db import transaction
+from django_safemigrate import Safe
 
 
 def migrate_canonical(apps, schema_editor):
@@ -27,6 +29,7 @@ def migrate_canonical(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0006_add_domain_models"),
     ]

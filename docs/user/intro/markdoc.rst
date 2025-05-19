@@ -34,7 +34,7 @@ Example configuration
 ---------------------
 
 In order to build a Markdoc project on Read the Docs,
-you need to generate static HTML from the Next JS build:
+you need to generate static HTML from the Next.js build:
 
 .. code-block:: js
    :caption: next.config.js

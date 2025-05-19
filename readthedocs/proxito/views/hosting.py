@@ -1,11 +1,14 @@
 """Views for hosting features."""
+
+import fnmatch
 from functools import lru_cache
 
 import packaging
 import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
-from django.http import Http404, JsonResponse
+from django.http import Http404
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
@@ -13,31 +16,29 @@ from rest_framework.views import APIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.api.v3.serializers import (
-    BuildSerializer,
-    ProjectSerializer,
-    RelatedProjectSerializer,
-    VersionSerializer,
-)
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
-from readthedocs.builds.models import Build, Version
+from readthedocs.api.v3.serializers import BuildSerializer
+from readthedocs.api.v3.serializers import ProjectSerializer
+from readthedocs.api.v3.serializers import RelatedProjectSerializer
+from readthedocs.api.v3.serializers import VersionSerializer
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
-from readthedocs.core.unresolver import UnresolverError, unresolver
+from readthedocs.core.unresolver import UnresolverError
+from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.filetreediff import get_diff
-from readthedocs.projects.constants import (
-    ADDONS_FLYOUT_SORTING_CALVER,
-    ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
-    ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
-    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
-)
+from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CALVER
+from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
+from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
+from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
 from readthedocs.projects.models import Project
-from readthedocs.projects.version_handling import (
-    comparable_version,
-    sort_versions_calver,
-    sort_versions_custom_pattern,
-    sort_versions_python_packaging,
-)
+from readthedocs.projects.version_handling import comparable_version
+from readthedocs.projects.version_handling import sort_versions_calver
+from readthedocs.projects.version_handling import sort_versions_custom_pattern
+from readthedocs.projects.version_handling import sort_versions_python_packaging
+
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -54,7 +55,6 @@ class ClientError(Exception):
 
 
 class IsAuthorizedToViewProject(permissions.BasePermission):
-
     """
     Checks if the user from the request has permissions to see the project.
 
@@ -70,14 +70,11 @@ class IsAuthorizedToViewProject(permissions.BasePermission):
         if version:
             return False
 
-        has_access = (
-            Project.objects.public(user=request.user).filter(pk=project.pk).exists()
-        )
+        has_access = Project.objects.public(user=request.user).filter(pk=project.pk).exists()
         return has_access
 
 
 class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
-
     """
     API response consumed by our JavaScript client.
 
@@ -224,7 +221,6 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
 
 class NoLinksMixin:
-
     """Mixin to remove conflicting fields from serializers."""
 
     FIELDS_TO_REMOVE = ("_links",)
@@ -346,24 +342,17 @@ class AddonsResponseBase:
         user = request.user
 
         versions_active_built_not_hidden = (
-            self._get_versions(request, project)
-            .select_related("project")
-            .order_by("-slug")
+            self._get_versions(request, project).select_related("project").order_by("-slug")
         )
         sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
         if not project.supports_multiple_versions:
             # Return only one version when the project doesn't support multiple versions.
             # That version is the only one the project serves.
             sorted_versions_active_built_not_hidden = (
-                sorted_versions_active_built_not_hidden.filter(
-                    slug=project.get_default_version()
-                )
+                sorted_versions_active_built_not_hidden.filter(slug=project.get_default_version())
             )
         else:
-            if (
-                project.addons.flyout_sorting
-                == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
-            ):
+            if project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE:
                 sorted_versions_active_built_not_hidden = sorted(
                     versions_active_built_not_hidden,
                     key=lambda version: comparable_version(
@@ -372,14 +361,10 @@ class AddonsResponseBase:
                     ),
                     reverse=True,
                 )
-            elif (
-                project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
-            ):
-                sorted_versions_active_built_not_hidden = (
-                    sort_versions_python_packaging(
-                        versions_active_built_not_hidden,
-                        project.addons.flyout_sorting_latest_stable_at_beginning,
-                    )
+            elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING:
+                sorted_versions_active_built_not_hidden = sort_versions_python_packaging(
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
             elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
                 sorted_versions_active_built_not_hidden = sort_versions_calver(
@@ -404,9 +389,7 @@ class AddonsResponseBase:
 
         # Include main project as translation if the current project is one of the translations
         if project != main_project:
-            project_translations |= Project.objects.public(user=user).filter(
-                slug=main_project.slug
-            )
+            project_translations |= Project.objects.public(user=user).filter(slug=main_project.slug)
         project_translations = project_translations.order_by("language").select_related(
             "main_language_project"
         )
@@ -451,6 +434,9 @@ class AddonsResponseBase:
             "readthedocs": {
                 "analytics": {
                     "code": settings.GLOBAL_ANALYTICS_CODE,
+                },
+                "resolver": {
+                    "filename": filename,
                 },
             },
             # TODO: the ``features`` is not polished and we expect to change drastically.
@@ -518,9 +504,7 @@ class AddonsResponseBase:
                         #     f"subprojects:{project.slug}/{version.slug}",
                         # ],
                     ],
-                    "default_filter": f"project:{project.slug}/{version.slug}"
-                    if version
-                    else None,
+                    "default_filter": f"project:{project.slug}/{version.slug}" if version else None,
                 },
                 "linkpreviews": {
                     "enabled": project.addons.linkpreviews_enabled,
@@ -537,7 +521,7 @@ class AddonsResponseBase:
                     },
                 },
                 "filetreediff": {
-                    "enabled": False,
+                    "enabled": project.addons.filetreediff_enabled,
                 },
             },
         }
@@ -564,7 +548,7 @@ class AddonsResponseBase:
                         f"subprojects:{project.slug}/{version.slug}",
                     ]
                 )
-            if project.superprojects.exists():
+            elif project.superprojects.exists():
                 superproject = project.superprojects.first().parent
                 data["addons"]["search"]["filters"].append(
                     [
@@ -618,8 +602,7 @@ class AddonsResponseBase:
                         # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
                         #
                         # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here
-                        "ad_free": is_ad_free_user(AnonymousUser())
-                        or is_ad_free_project(project),
+                        "ad_free": is_ad_free_user(AnonymousUser()) or is_ad_free_project(project),
                         "campaign_types": get_campaign_types(AnonymousUser(), project),
                         "keywords": get_project_keywords(project),
                         "publisher": get_publisher(project),
@@ -642,76 +625,52 @@ class AddonsResponseBase:
         if not project.addons.filetreediff_enabled:
             return None
 
-        base_version = (
-            project.addons.options_base_version or project.get_latest_version()
-        )
-        if not base_version or not self._has_permission(
-            request=request, version=base_version
-        ):
+        base_version = project.addons.options_base_version or project.get_latest_version()
+        if not base_version or not self._has_permission(request=request, version=base_version):
             return None
 
         diff = get_diff(version_a=version, version_b=base_version)
         if not diff:
             return None
 
+        def _filter_diff_files(files):
+            # Filter out all the files that match the ignored patterns
+            ignore_patterns = project.addons.filetreediff_ignored_files or []
+            files = [
+                filename
+                for filename in files
+                if not any(
+                    fnmatch.fnmatch(filename, ignore_pattern) for ignore_pattern in ignore_patterns
+                )
+            ]
+
+            result = []
+            for filename in files:
+                result.append(
+                    {
+                        "filename": filename,
+                        "urls": {
+                            "current": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=version,
+                            ),
+                            "base": resolver.resolve_version(
+                                project=project,
+                                filename=filename,
+                                version=base_version,
+                            ),
+                        },
+                    }
+                )
+            return result
+
         return {
-            "enabled": True,
             "outdated": diff.outdated,
             "diff": {
-                "added": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.added
-                ],
-                "deleted": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.deleted
-                ],
-                "modified": [
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                    for filename in diff.modified
-                ],
+                "added": _filter_diff_files(diff.added),
+                "deleted": _filter_diff_files(diff.deleted),
+                "modified": _filter_diff_files(diff.modified),
             },
         }
 

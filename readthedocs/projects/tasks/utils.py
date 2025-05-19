@@ -9,11 +9,9 @@ from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 
-from readthedocs.builds.constants import (
-    BUILD_FINAL_STATES,
-    BUILD_STATE_CANCELLED,
-    EXTERNAL,
-)
+from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
@@ -21,6 +19,7 @@ from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.notifications.models import Notification
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 
@@ -50,7 +49,7 @@ def remove_build_storage_paths(paths):
         build_media_storage.delete_directory(storage_path)
 
 
-def clean_project_resources(project, version=None):
+def clean_project_resources(project, version=None, version_slug=None):
     """
     Delete all extra resources used by `version` of `project`.
 
@@ -61,16 +60,22 @@ def clean_project_resources(project, version=None):
     - Imported files.
 
     :param version: Version instance. If isn't given,
-                    all resources of `project` will be deleted.
+     all resources of `project` will be deleted.
+    :param version_slug: The version slug to use.
+     Version resources are stored using the version's slug,
+     since slugs can change, we need to be able to provide a different slug
+     sometimes to clean old resources.
 
     .. note::
        This function is usually called just before deleting project.
        Make sure to not depend on the project object inside the tasks.
     """
+    version_slug = version_slug or version.slug if version else None
+
     # Remove storage paths
     storage_paths = []
     if version:
-        storage_paths = version.get_storage_paths()
+        storage_paths = version.get_storage_paths(version_slug=version_slug)
     else:
         storage_paths = project.get_storage_paths()
     remove_build_storage_paths.delay(storage_paths)
@@ -80,7 +85,7 @@ def clean_project_resources(project, version=None):
 
     remove_search_indexes.delay(
         project_slug=project.slug,
-        version_slug=version.slug if version else None,
+        version_slug=version_slug,
     )
 
     # Remove imported files

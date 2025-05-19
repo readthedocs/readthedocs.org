@@ -32,20 +32,18 @@ def get_override_class(proxy_class, default_class=None):
 
 
 class SettingsOverrideMeta(type):
-
     """
     Meta class to manage our Setting configurations.
 
     Meta class for passing along classmethod class to the underlying class.
     """
 
-    def __getattr__(cls, attr):  # noqa: pep8 false positive
+    def __getattr__(cls, attr):  # noqa
         proxy_class = get_override_class(cls, getattr(cls, "_default_class"))
         return getattr(proxy_class, attr)
 
 
 class SettingsOverrideObject(metaclass=SettingsOverrideMeta):
-
     """
     Base class for creating class that can be overridden.
 

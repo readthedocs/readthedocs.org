@@ -1,6 +1,10 @@
 from django.db import migrations
-from django.db.models import F, JSONField, Max, Min
+from django.db.models import F
+from django.db.models import JSONField
+from django.db.models import Max
+from django.db.models import Min
 from django.db.models.functions import Cast
+from django_safemigrate import Safe
 
 
 def forwards_func(apps, schema_editor):
@@ -27,12 +31,11 @@ def forwards_func(apps, schema_editor):
             )
             .update(_config_json=F("_config_in_json"))
         )
-        print(
-            f"Migrated builds: first_pk={first_pk} last_pk={last_pk} updated={build_update}"
-        )
+        print(f"Migrated builds: first_pk={first_pk} last_pk={last_pk} updated={build_update}")
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy()
     dependencies = [
         ("builds", "0038_add_new_jsonfields"),
     ]

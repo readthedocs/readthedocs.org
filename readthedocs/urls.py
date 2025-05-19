@@ -5,12 +5,21 @@ from operator import add
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path, re_path
-from django.views.generic.base import RedirectView, TemplateView
-from impersonate.views import impersonate, stop_impersonate
+from django.urls import include
+from django.urls import path
+from django.urls import re_path
+from django.views.generic.base import RedirectView
+from django.views.generic.base import TemplateView
+from impersonate.views import impersonate
+from impersonate.views import stop_impersonate
 
-from readthedocs.core.views import ErrorView, HomepageView, SupportView, do_not_track
+from readthedocs.core.views import ErrorView
+from readthedocs.core.views import HomepageView
+from readthedocs.core.views import SupportView
+from readthedocs.core.views import WelcomeView
+from readthedocs.core.views import do_not_track
 from readthedocs.search.views import GlobalSearchView
+
 
 admin.autodiscover()
 
@@ -25,6 +34,7 @@ handler429 = ErrorView.as_view(status_code=429)
 
 basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
+    path("welcome/", WelcomeView.as_view(), name="welcome"),
     path("security/", TemplateView.as_view(template_name="security.html")),
     re_path(
         r"^\.well-known/security.txt$",
@@ -56,6 +66,7 @@ rtd_urls = [
     path("builds/", include("readthedocs.builds.urls")),
     # Put this as a unique path for the webhook, so we don't clobber existing Stripe URL's
     path("djstripe/", include("djstripe.urls", namespace="djstripe")),
+    path("webhook/", include("readthedocs.oauth.urls")),
 ]
 
 project_urls = [

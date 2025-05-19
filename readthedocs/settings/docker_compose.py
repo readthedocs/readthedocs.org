@@ -14,7 +14,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_COMPOSE = True
     RTD_DOCKER_COMPOSE_VOLUME = "community_build-user-builds"
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
-    DOCKER_LIMITS = {"memory": "1g", "time": 900}
+    DOCKER_LIMITS = {"memory": "2g", "time": 900}
 
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
@@ -61,9 +61,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         return os.path.join(super().DOCROOT, socket.gethostname())
 
     # New templates
-    @property
-    def RTD_EXT_THEME_DEV_SERVER_ENABLED(self):
-        return os.environ.get("RTD_EXT_THEME_DEV_SERVER_ENABLED") is not None
+    RTD_EXT_THEME_DEV_SERVER_ENABLED = True
 
     @property
     def RTD_EXT_THEME_DEV_SERVER(self):
@@ -169,7 +167,6 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
-    CACHEOPS_REDIS = f"redis://:redispassword@cache:6379/1"
     BROKER_URL = f"redis://:redispassword@cache:6379/0"
 
     CELERY_ALWAYS_EAGER = False
@@ -177,31 +174,34 @@ class DockerBaseSettings(CommunityBaseSettings):
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
     RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage"
-    # Storage backend for build cached environments
-    RTD_BUILD_ENVIRONMENT_STORAGE = (
-        "readthedocs.storage.s3_storage.S3BuildEnvironmentStorage"
-    )
     # Storage backend for build languages
     RTD_BUILD_TOOLS_STORAGE = "readthedocs.storage.s3_storage.S3BuildToolsStorage"
     # Storage for static files (those collected with `collectstatic`)
     STATICFILES_STORAGE = "readthedocs.storage.s3_storage.S3StaticStorage"
     RTD_STATICFILES_STORAGE = "readthedocs.storage.s3_storage.NoManifestS3StaticStorage"
 
-    AWS_ACCESS_KEY_ID = "admin"
-    AWS_SECRET_ACCESS_KEY = "password"
-    S3_MEDIA_STORAGE_BUCKET = "media"
-    S3_BUILD_COMMANDS_STORAGE_BUCKET = "builds"
-    S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = "envs"
-    S3_BUILD_TOOLS_STORAGE_BUCKET = "build-tools"
-    S3_STATIC_STORAGE_BUCKET = "static"
+    AWS_ACCESS_KEY_ID = os.environ.get("RTD_AWS_ACCESS_KEY_ID", "admin")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("RTD_AWS_SECRET_ACCESS_KEY", "password")
+    S3_MEDIA_STORAGE_BUCKET = os.environ.get("RTD_S3_MEDIA_STORAGE_BUCKET", "media")
+    S3_BUILD_COMMANDS_STORAGE_BUCKET = os.environ.get("RTD_S3_BUILD_COMMANDS_STORAGE_BUCKET", "builds")
+    S3_BUILD_TOOLS_STORAGE_BUCKET = os.environ.get("RTD_S3_BUILD_TOOLS_STORAGE_BUCKET", "build-tools")
+    S3_STATIC_STORAGE_BUCKET = os.environ.get("RTD_S3_STATIC_STORAGE_BUCKET", "static")
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
     S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
-    S3_PROVIDER = "minio"
+    S3_PROVIDER = os.environ.get("RTD_S3_PROVIDER", "minio")
 
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False
     AWS_S3_USE_SSL = False
-    AWS_S3_ENDPOINT_URL = "http://storage:9000/"
+    AWS_STS_ASSUME_ROLE_ARN = os.environ.get("RTD_AWS_STS_ASSUME_ROLE_ARN", None)
+    AWS_S3_REGION_NAME = os.environ.get("RTD_AWS_S3_REGION_NAME", None)
+
+    @property
+    def AWS_S3_ENDPOINT_URL(self):
+        if self.S3_PROVIDER == "minio":
+            return "http://storage:9000/"
+        return None
+
     AWS_QUERYSTRING_AUTH = False
 
     STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET", "sk_test_x")
@@ -225,12 +225,16 @@ class DockerBaseSettings(CommunityBaseSettings):
                 pass
         return providers
 
+    GITHUB_APP_ID = os.environ.get("RTD_GITHUB_APP_ID")
+    GITHUB_APP_NAME = os.environ.get("RTD_GITHUB_APP_NAME")
+    GITHUB_APP_WEBHOOK_SECRET = os.environ.get("RTD_GITHUB_APP_WEBHOOK_SECRET")
+    GITHUB_APP_PRIVATE_KEY = os.environ.get("RTD_GITHUB_APP_PRIVATE_KEY")
+
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"
     BUILD_COLD_STORAGE_URL = "http://storage:9000/builds"
 
     STATICFILES_DIRS = [
-        os.path.join(CommunityBaseSettings.SITE_ROOT, "readthedocs", "static"),
         os.path.join(CommunityBaseSettings.SITE_ROOT, "media"),
     ]
 

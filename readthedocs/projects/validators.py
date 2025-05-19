@@ -14,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.projects.constants import LANGUAGES
 
+
 MAX_SIZE_ENV_VARS_PER_PROJECT = 256000
 
 
@@ -21,9 +22,7 @@ MAX_SIZE_ENV_VARS_PER_PROJECT = 256000
 class DomainNameValidator(RegexValidator):
     message = _("Enter a valid plain or internationalized domain name value")
     # Based on the domain name pattern from https://api.cloudflare.com/#zone-list-zones.
-    regex = re.compile(
-        r"^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9-]{2,20}$"
-    )
+    regex = re.compile(r"^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9-]{2,20}$")
 
 
 validate_domain_name = DomainNameValidator()
@@ -233,9 +232,7 @@ def _clean_prefix(prefix):
     return f"/{prefix}/"
 
 
-def validate_environment_variable_size(
-    project, new_env_value, error_class=ValidationError
-):
+def validate_environment_variable_size(project, new_env_value, error_class=ValidationError):
     existing_size = (
         project.environmentvariable_set.annotate(size=Length("value")).aggregate(
             total_size=Sum("size")
@@ -244,7 +241,5 @@ def validate_environment_variable_size(
     )
     if existing_size + len(new_env_value) > MAX_SIZE_ENV_VARS_PER_PROJECT:
         raise error_class(
-            _(
-                "The total size of all environment variables in the project cannot exceed 256 KB."
-            )
+            _("The total size of all environment variables in the project cannot exceed 256 KB.")
         )

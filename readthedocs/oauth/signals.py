@@ -1,5 +1,7 @@
 import structlog
 from allauth.account.signals import user_logged_in
+from allauth.socialaccount.models import SocialLogin
+from allauth.socialaccount.signals import social_account_added
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -7,6 +9,7 @@ from django.dispatch import receiver
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.tasks import sync_remote_repositories
 from readthedocs.projects.models import Feature
+
 
 log = structlog.get_logger(__name__)
 
@@ -27,9 +30,19 @@ def sync_remote_repositories_on_login(sender, request, user, *args, **kwargs):
     sync_remote_repositories.delay(user.pk)
 
 
+@receiver(social_account_added, sender=SocialLogin)
+def sync_remote_repositories_on_social_account_added(sender, request, sociallogin, *args, **kwargs):
+    """Sync remote repositories when a new social account is added."""
+    log.info(
+        "Triggering remote repositories sync in background on social account added.",
+        user_username=sociallogin.user.username,
+    )
+    sync_remote_repositories.delay(sociallogin.user.pk)
+
+
 @receiver(post_save, sender=RemoteRepository)
 def update_project_clone_url(sender, instance, created, *args, **kwargs):
     """Update the clone URL for all projects linked to this RemoteRepository."""
-    instance.projects.exclude(
-        feature__feature_id=Feature.DONT_SYNC_WITH_REMOTE_REPO
-    ).update(repo=instance.clone_url)
+    instance.projects.exclude(feature__feature_id=Feature.DONT_SYNC_WITH_REMOTE_REPO).update(
+        repo=instance.clone_url
+    )

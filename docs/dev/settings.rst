@@ -158,12 +158,40 @@ providers using the following environment variables:
 
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUB_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUB_SECRET
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_CLIENT_ID
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_SECRET
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITLAB_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITLAB_SECRET
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_BITBUCKET_OAUTH2_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_BITBUCKET_OAUTH2_SECRET
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_SECRET
+
+AWS configuration
+~~~~~~~~~~~~~~~~~
+
+The following variables can be used to use AWS in your local environment.
+Useful for testing :doc:`temporary credentials </aws-temporary-credentials>`.
+
+.. envvar:: RTD_S3_PROVIDER
+.. envvar:: RTD_AWS_ACCESS_KEY_ID
+.. envvar:: RTD_AWS_SECRET_ACCESS_KEY
+.. envvar:: RTD_AWS_STS_ASSUME_ROLE_ARN
+.. envvar:: RTD_S3_MEDIA_STORAGE_BUCKET
+.. envvar:: RTD_S3_BUILD_COMMANDS_STORAGE_BUCKET
+.. envvar:: RTD_S3_BUILD_TOOLS_STORAGE_BUCKET
+.. envvar:: RTD_S3_STATIC_STORAGE_BUCKET
+.. envvar:: RTD_AWS_S3_REGION_NAME
+
+GitHub App
+~~~~~~~~~~
+
+You can use the following environment variables to set the settings used by the GitHub App:
+
+.. envvar:: RTD_GITHUB_APP_ID
+.. envvar:: RTD_GITHUB_APP_NAME
+.. envvar:: RTD_GITHUB_APP_PRIVATE_KEY
+.. envvar:: RTD_GITHUB_APP_WEBHOOK_SECRET
 
 Stripe secrets
 ~~~~~~~~~~~~~~

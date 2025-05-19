@@ -91,7 +91,7 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.up  --ext-theme --webpack --init
+      inv docker.up  --init
 
    .. warning::
 
@@ -140,8 +140,6 @@ save some work while typing docker compose commands. This section explains these
     * ``--http-domain`` configures an external domain for the environment (useful for Ngrok or other http proxy).
       Note that https proxies aren't supported.
       There will also be issues with "suspicious domain" failures on Proxito.
-    * ``--ext-theme`` to use the new dashboard templates
-    * ``--webpack`` to start the Webpack dev server for the new dashboard templates
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).
@@ -180,7 +178,7 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.test``
     Runs all the test suites inside the container.
 
-    * ``--arguments`` will pass arguments to Tox command (e.g. ``--arguments "-e py310 -- -k test_api"``)
+    * ``--arguments`` will pass arguments to Tox command (e.g. ``--arguments "-e py312 -- -k test_api"``)
 
 ``inv docker.pull``
     Downloads and tags all the Docker images required for builders.
@@ -262,9 +260,31 @@ For others, the webhook will simply fail to connect when there are new commits t
 
 * Configure the applications on GitHub, Bitbucket, and GitLab.
   For each of these, the callback URI is ``http://devthedocs.org/accounts/<provider>/login/callback/``
-  where ``<provider>`` is one of ``github``, ``gitlab``, or ``bitbucket_oauth2``.
+  where ``<provider>`` is one of ``github``, ``githubapp``, ``gitlab``, or ``bitbucket_oauth2``.
   When setup, you will be given a "Client ID" (also called an "Application ID" or just "Key") and a "Secret".
 * Take the "Client ID" and "Secret" for each service and set them as :ref:`environment variables <settings:Allauth secrets>`.
+
+Configuring GitHub App
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Create a new GitHub app from https://github.com/settings/apps/new.
+- Callback URL should be ``http://devthedocs.org/accounts/githubapp/login/callback/``.
+- Keep marked "Expire user authorization tokens"
+- Activate the webhook, and set the URL to one provided by a service like `Webhook.site <https://docs.webhook.site/cli.html>`__ to forward all incoming webhooks to your local development instance.
+  You should forward all events to ``http://devthedocs.org/webhook/githubapp/``.
+- In permissions, select the following:
+
+  - Repository permissions: Commit statuses (read and write, so we can create commit statuses),
+    Contents (read only, so we can clone repos with a token),
+    Metadata (read only, so we read the repo collaborators),
+    Pull requests (read and write, so we can post a comment on PRs in the future).
+  - Organization permissions: Members (read only so we can read the organization members).
+  - Account permissions: Email addresses (read only, so allauth can fetch all verified emails).
+
+- Subscribe to the following events: Installation target, Member, Organization, Membership, Pull request, Push, and Repository.
+- Copy the "Client ID" and "Client Secret" and set them as :ref:`environment variables <settings:Allauth secrets>`.
+- Generate a webhook secret and a private key from the GitHub App settings,
+  and set them as :ref:`environment variables <settings:GitHub App>`.
 
 Troubleshooting
 ---------------

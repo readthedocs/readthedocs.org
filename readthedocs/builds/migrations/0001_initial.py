@@ -1,10 +1,13 @@
 import taggit.managers
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 import readthedocs.builds.version_slug
 
 
 class Migration(migrations.Migration):
+    safe = Safe.always()
     dependencies = [
         ("projects", "0001_initial"),
         ("taggit", "0001_initial"),
@@ -73,27 +76,19 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "exit_code",
-                    models.IntegerField(
-                        null=True, verbose_name="Exit code", blank=True
-                    ),
+                    models.IntegerField(null=True, verbose_name="Exit code", blank=True),
                 ),
                 (
                     "commit",
-                    models.CharField(
-                        max_length=255, null=True, verbose_name="Commit", blank=True
-                    ),
+                    models.CharField(max_length=255, null=True, verbose_name="Commit", blank=True),
                 ),
                 (
                     "length",
-                    models.IntegerField(
-                        null=True, verbose_name="Build Length", blank=True
-                    ),
+                    models.IntegerField(null=True, verbose_name="Build Length", blank=True),
                 ),
                 (
                     "builder",
-                    models.CharField(
-                        max_length=255, null=True, verbose_name="Builder", blank=True
-                    ),
+                    models.CharField(max_length=255, null=True, verbose_name="Builder", blank=True),
                 ),
                 (
                     "project",
@@ -146,7 +141,6 @@ class Migration(migrations.Migration):
                 (
                     "slug",
                     readthedocs.builds.version_slug.VersionSlugField(
-                        populate_from=b"verbose_name",
                         max_length=255,
                         verbose_name="Slug",
                         db_index=True,
@@ -218,9 +212,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "from_slug",
-                    models.CharField(
-                        default=b"", max_length=255, verbose_name="From slug"
-                    ),
+                    models.CharField(default=b"", max_length=255, verbose_name="From slug"),
                 ),
                 (
                     "to_slug",
@@ -254,9 +246,5 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name="version",
             unique_together={("project", "slug")},
-        ),
-        migrations.AlterIndexTogether(
-            name="build",
-            index_together={("version", "state", "type")},
         ),
     ]

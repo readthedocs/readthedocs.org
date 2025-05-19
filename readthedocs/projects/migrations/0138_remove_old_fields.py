@@ -5,43 +5,43 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
 
     dependencies = [
-        ('projects', '0137_use_generic_root_selector'),
+        ("projects", "0137_use_generic_root_selector"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='addonsconfig',
-            name='doc_diff_root_selector',
+            model_name="addonsconfig",
+            name="doc_diff_root_selector",
         ),
         migrations.RemoveField(
-            model_name='addonsconfig',
-            name='linkpreviews_doctool_name',
+            model_name="addonsconfig",
+            name="linkpreviews_doctool_name",
         ),
         migrations.RemoveField(
-            model_name='addonsconfig',
-            name='linkpreviews_doctool_version',
+            model_name="addonsconfig",
+            name="linkpreviews_doctool_version",
         ),
         migrations.RemoveField(
-            model_name='addonsconfig',
-            name='linkpreviews_root_selector',
+            model_name="addonsconfig",
+            name="linkpreviews_root_selector",
         ),
         migrations.RemoveField(
-            model_name='historicaladdonsconfig',
-            name='doc_diff_root_selector',
+            model_name="historicaladdonsconfig",
+            name="doc_diff_root_selector",
         ),
         migrations.RemoveField(
-            model_name='historicaladdonsconfig',
-            name='linkpreviews_doctool_name',
+            model_name="historicaladdonsconfig",
+            name="linkpreviews_doctool_name",
         ),
         migrations.RemoveField(
-            model_name='historicaladdonsconfig',
-            name='linkpreviews_doctool_version',
+            model_name="historicaladdonsconfig",
+            name="linkpreviews_doctool_version",
         ),
         migrations.RemoveField(
-            model_name='historicaladdonsconfig',
-            name='linkpreviews_root_selector',
+            model_name="historicaladdonsconfig",
+            name="linkpreviews_root_selector",
         ),
     ]

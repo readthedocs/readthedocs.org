@@ -139,6 +139,7 @@ class TestBasicsForm(WizardTestCase):
             remote_repository=remote_repo,
             user=self.user,
             account=socialaccount,
+            admin=True,
         )
         self.step_data["basics"]["remote_repository"] = remote_repo.pk
         resp = self.post_step("basics")
@@ -221,13 +222,13 @@ class TestBasicsForm(WizardTestCase):
         invalid_remote_repos_pk = [
             remote_repository_not_admin_private.pk,
             remote_repository_other_user.pk,
+            remote_repository_not_admin_public.pk,
             # Doesn't exist
             99,
         ]
         valid_remote_repos_pk = [
             remote_repository_admin_private.pk,
             remote_repository_admin_public.pk,
-            remote_repository_not_admin_public.pk,
         ]
 
         for remote_repo_pk in invalid_remote_repos_pk:
@@ -253,6 +254,7 @@ class TestBasicsForm(WizardTestCase):
             remote_repository=remote_repo,
             user=user,
             account=socialaccount,
+            admin=True,
         )
         self.step_data["basics"]["remote_repository"] = remote_repo.pk
         resp = self.post_step("basics")
@@ -323,6 +325,7 @@ class TestAdvancedForm(TestBasicsForm):
             remote_repository=remote_repo,
             user=self.user,
             account=socialaccount,
+            admin=True,
         )
         self.step_data["basics"]["remote_repository"] = remote_repo.pk
         resp = self.post_step("basics")
@@ -363,16 +366,6 @@ class TestPublicViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.external_version, response.context["versions"])
-
-    @pytest.mark.skipif(
-        settings.RTD_EXT_THEME_ENABLED, reason="Not applicable for new theme"
-    )
-    def test_project_versions_only_shows_internal_versons(self):
-        url = reverse("project_version_list", args=[self.pip.slug])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn(self.external_version, response.context["active_versions"])
-        self.assertNotIn(self.external_version, response.context["inactive_versions"])
 
     @mock.patch(
         "readthedocs.projects.views.base.ProjectSpamMixin.is_show_dashboard_denied_wrapper",
@@ -455,8 +448,8 @@ class TestPrivateViews(TestCase):
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_called_once_with(
             project_pk=self.project.pk,
-            user_pk=self.user.pk,
             integration=integration.first(),
+            user_pk=None,
         )
 
     @mock.patch("readthedocs.projects.views.private.attach_webhook")

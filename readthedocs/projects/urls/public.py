@@ -1,23 +1,20 @@
 """Project URLS for public users."""
 
-from django.conf import settings
-from django.urls import path, re_path
+from django.urls import path
+from django.urls import re_path
 from django.views.generic.base import RedirectView
 
 from readthedocs.builds import views as build_views
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.views import public
-from readthedocs.projects.views.public import ProjectDetailView, ProjectTagIndex
+from readthedocs.projects.views.public import ProjectDetailView
+from readthedocs.projects.views.public import ProjectTagIndex
 from readthedocs.search.views import ProjectSearchView
 
-# While we have two dashboards, this logic exists to unify two views that are
-# mostly identical. For some background on the future plans here, see:
-# https://github.com/readthedocs/ext-theme/issues/191
-project_versions_list = public.project_versions
-if settings.RTD_EXT_THEME_ENABLED:
-    # The ProjectDetailView already contains the logic for filtering and sorting
-    # that is missing from the function view `public.project_versions`.
-    project_versions_list = ProjectDetailView.as_view()
+
+# The ProjectDetailView already contains the logic for filtering and sorting
+# that is missing from the function view `public.project_versions`.
+project_versions_list = ProjectDetailView.as_view()
 
 urlpatterns = [
     path(
@@ -33,9 +30,7 @@ urlpatterns = [
     # Match all URLs from projects that have an underscore in the slug,
     # and redirect them replacing the underscore with a dash (`-`).
     re_path(
-        r"^(?P<invalid_project_slug>{project_slug}_{project_slug})/".format(
-            **pattern_opts
-        ),
+        r"^(?P<invalid_project_slug>{project_slug}_{project_slug})/".format(**pattern_opts),
         public.project_redirect,
         name="project_redirect",
     ),
@@ -72,11 +67,7 @@ urlpatterns = [
         name="elastic_project_search",
     ),
     re_path(
-        (
-            r"^(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$".format(
-                **pattern_opts
-            )
-        ),
+        (r"^(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$".format(**pattern_opts)),
         build_views.BuildDetail.as_view(),
         name="builds_detail",
     ),

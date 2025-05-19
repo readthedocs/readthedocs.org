@@ -1,8 +1,11 @@
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy()
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("projects", "__first__"),
@@ -23,9 +26,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "pub_date",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Publication date"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Publication date"),
                 ),
                 (
                     "modified_date",

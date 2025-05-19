@@ -43,6 +43,32 @@ Individual configuration options for each addon are available in :guilabel:`Sett
 #. In the left bar, go to :guilabel:`Addons`.
 #. Configure each Addon individually.
 
+Integrating with Addons
+-----------------------
+
+Integrate with Search as you type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To configure your site to use :doc:`Read the Docs search </server-side-search/index>` instead of the default search, adapt the following block of JavaScript to your own site:
+
+    .. code-block:: js
+        :caption: javascript/readthedocs.js
+
+        // TODO: Change me if needed
+        const selector = "input[type='search']";
+
+        document.addEventListener("DOMContentLoaded", function(event) {
+            // Trigger Read the Docs' search addon instead of the default search
+            document.querySelector(selector).addEventListener("click", (e) => {
+                const event = new CustomEvent("readthedocs-search-show");
+                document.dispatchEvent(event);
+            });
+        });
+
+.. note::   Depending on the tool you are using,
+            you may need to change the selector to match the search input field.
+            You will also need to ensure that the JavaScript file is included in your documentation build.
+
 Addons data and customization
 -----------------------------
 

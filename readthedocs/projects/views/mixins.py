@@ -1,4 +1,5 @@
 """Mixin classes for project views."""
+
 from urllib.parse import urlparse
 
 import structlog
@@ -10,11 +11,11 @@ from readthedocs.core.utils import prepare_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import project_import
 
+
 log = structlog.get_logger(__name__)
 
 
 class ProjectRelationMixin:
-
     """
     Mixin class for constructing model views for project dashboard.
 
@@ -42,9 +43,7 @@ class ProjectRelationMixin:
         )
 
     def get_queryset(self):
-        return self.model.objects.filter(
-            **{self.project_lookup_field: self.get_project()}
-        )
+        return self.model.objects.filter(**{self.project_lookup_field: self.get_project()})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -53,7 +52,6 @@ class ProjectRelationMixin:
 
 
 class ProjectRelationListMixin:
-
     """Injects ``subprojects_and_urls`` into the context."""
 
     def get_context_data(self, **kwargs):
@@ -96,7 +94,6 @@ class ProjectRelationListMixin:
 
 
 class ProjectImportMixin:
-
     """Helpers to import a Project."""
 
     def finish_import_project(self, request, project):
@@ -140,6 +137,8 @@ class ProjectImportMixin:
         from readthedocs.oauth.tasks import attach_webhook
 
         task_promise = chain(
+            # TODO: Remove user_pk on the next release,
+            # it's used just to keep backward compatibility with the old task signature.
             attach_webhook.si(project.pk, user.pk),
             update_docs,
         )

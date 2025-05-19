@@ -5,7 +5,9 @@ Adding a documentation project
    :description lang=en: Add your existing documentation from a Git repository into Read the Docs.
 
 This page takes you through the process of adding a documentation project to Read the Docs.
-If you have :doc:`connected your Read the Docs account </guides/connecting-git-account>` to GitHub, Bitbucket or GitLab you will be able to add your project automatically.
+If you have :doc:`connected your Read the Docs account </guides/connecting-git-account>` to GitHub, Bitbucket, or GitLab,
+and you have admin access to the repository you want to add,
+you will be able to add your project automatically.
 Otherwise, you will need to add it manually and perform some extra steps.
 
 Automatically add your project
@@ -17,7 +19,7 @@ Automatically add your project
 #. Click on :guilabel:`Continue`.
 #. Edit any of the pre-filled fields with information of the repository.
 #. Click on :guilabel:`Next`.
-#. Add a :term:`configuration file` to your repository if it's doesn't exist yet.
+#. Add a :term:`configuration file` to your repository if it doesn't exist yet.
 #. Click on :guilabel:`This file exists`.
 
 .. seealso::
@@ -35,7 +37,7 @@ Manually add your project
 #. Click on :guilabel:`Continue`.
 #. Fill all the fields of the form.
 #. Click on :guilabel:`Next`.
-#. Add a :term:`configuration file` to your repository if it's doesn't exist yet.
+#. Add a :term:`configuration file` to your repository if it doesn't exist yet.
 #. Click on :guilabel:`This file exists`.
 
 Once your project is created, you'll need to manually configure the repository webhook if you would like to have new changes trigger builds for your project on Read the Docs.
@@ -44,7 +46,6 @@ Once your project is created, you'll need to manually configure the repository w
 
    :doc:`/guides/setup/git-repo-manual`
       Additional setup steps required for manually created projects. This guide covers setting up SSH keys and webhook integrations.
-
 
 What's next
 -----------

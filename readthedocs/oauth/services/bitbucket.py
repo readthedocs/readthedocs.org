@@ -4,9 +4,7 @@ import json
 import re
 
 import structlog
-from allauth.socialaccount.providers.bitbucket_oauth2.views import (
-    BitbucketOAuth2Adapter,
-)
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from django.conf import settings
 from requests.exceptions import RequestException
 
@@ -14,21 +12,25 @@ from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 
 from ..constants import BITBUCKET
-from ..models import RemoteOrganization, RemoteRepository, RemoteRepositoryRelation
-from .base import Service, SyncServiceError
+from ..models import RemoteOrganization
+from ..models import RemoteRepository
+from ..models import RemoteRepositoryRelation
+from .base import SyncServiceError
+from .base import UserService
+
 
 log = structlog.get_logger(__name__)
 
 
-class BitbucketService(Service):
-
+class BitbucketService(UserService):
     """Provider service for Bitbucket."""
 
-    adapter = BitbucketOAuth2Adapter
+    vcs_provider_slug = BITBUCKET
+    allauth_provider = BitbucketOAuth2Provider
+    base_api_url = "https://api.bitbucket.org"
     # TODO replace this with a less naive check
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
-    vcs_provider_slug = BITBUCKET
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
@@ -48,7 +50,7 @@ class BitbucketService(Service):
             log.warning("Error syncing Bitbucket repositories")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.vcs_provider_slug
+                    provider=self.allauth_provider.name
                 )
             )
 
@@ -81,7 +83,7 @@ class BitbucketService(Service):
 
         try:
             workspaces = self.paginate(
-                "https://api.bitbucket.org/2.0/workspaces/",
+                f"{self.base_api_url}/2.0/workspaces/",
                 role="member",
             )
             for workspace in workspaces:
@@ -101,7 +103,7 @@ class BitbucketService(Service):
             log.warning("Error syncing Bitbucket organizations")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.vcs_provider_slug
+                    provider=self.allauth_provider.name
                 )
             )
 
@@ -234,9 +236,8 @@ class BitbucketService(Service):
         if integration.provider_data:
             return integration.provider_data
 
-        session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        url = f"https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/2.0/repositories/{owner}/{repo}/hooks"
 
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
@@ -246,7 +247,7 @@ class BitbucketService(Service):
             url=url,
         )
         try:
-            resp = session.get(url)
+            resp = self.session.get(url)
 
             if resp.status_code == 200:
                 recv_data = resp.json()
@@ -272,7 +273,7 @@ class BitbucketService(Service):
 
         return integration.provider_data
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """
         Set up Bitbucket project webhook for project.
 
@@ -281,11 +282,9 @@ class BitbucketService(Service):
         :param integration: Integration for the project
         :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
         """
-        session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        url = f"https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/2.0/repositories/{owner}/{repo}/hooks"
         if not integration:
             integration, _ = Integration.objects.get_or_create(
                 project=project,
@@ -301,7 +300,7 @@ class BitbucketService(Service):
         )
 
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -313,7 +312,7 @@ class BitbucketService(Service):
                 log.debug(
                     "Bitbucket webhook creation successful for project.",
                 )
-                return (True, resp)
+                return True
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
@@ -333,9 +332,9 @@ class BitbucketService(Service):
         except (RequestException, ValueError):
             log.exception("Bitbucket webhook creation failed for project.")
 
-        return (False, resp)
+        return False
 
-    def update_webhook(self, project, integration):
+    def update_webhook(self, project, integration) -> bool:
         """
         Update webhook integration.
 
@@ -344,7 +343,6 @@ class BitbucketService(Service):
         :param integration: Webhook integration to update
         :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
         """
         log.bind(project_slug=project.slug)
         provider_data = self.get_provider_data(project, integration)
@@ -354,13 +352,12 @@ class BitbucketService(Service):
         if not provider_data:
             return self.setup_webhook(project, integration)
 
-        session = self.get_session()
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
             # Expect to throw KeyError here if provider_data is invalid
             url = provider_data["links"]["self"]["href"]
-            resp = session.put(
+            resp = self.session.put(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -371,7 +368,7 @@ class BitbucketService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info("Bitbucket webhook update successful for project.")
-                return (True, resp)
+                return True
 
             # Bitbucket returns 404 when the webhook doesn't exist. In this
             # case, we call ``setup_webhook`` to re-configure it from scratch
@@ -392,4 +389,4 @@ class BitbucketService(Service):
         except (KeyError, RequestException, TypeError, ValueError):
             log.exception("Bitbucket webhook update failed for project.")
 
-        return (False, resp)
+        return False

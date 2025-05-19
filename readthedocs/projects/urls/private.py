@@ -1,64 +1,64 @@
 """Project URLs for authenticated users."""
-from django.conf import settings
+
 from django.contrib.auth.decorators import login_required
-from django.urls import path, re_path
+from django.urls import path
+from django.urls import re_path
 from django.views.generic.base import RedirectView
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core.views import PageNotFoundView
 from readthedocs.projects.backends.views import ImportWizardView
 from readthedocs.projects.views import private
-from readthedocs.projects.views.private import (
-    AddonsConfigUpdate,
-    AutomationRuleDelete,
-    AutomationRuleList,
-    AutomationRuleMove,
-    DomainCreate,
-    DomainDelete,
-    DomainList,
-    DomainUpdate,
-    EnvironmentVariableCreate,
-    EnvironmentVariableDelete,
-    EnvironmentVariableList,
-    ImportView,
-    IntegrationCreate,
-    IntegrationDelete,
-    IntegrationDetail,
-    IntegrationExchangeDetail,
-    IntegrationList,
-    IntegrationWebhookSync,
-    ProjectAdvertisingUpdate,
-    ProjectDashboard,
-    ProjectDelete,
-    ProjectEmailNotificationsCreate,
-    ProjectNotifications,
-    ProjectNotificationsDelete,
-    ProjectPullRequestsUpdate,
-    ProjectRedirectsCreate,
-    ProjectRedirectsDelete,
-    ProjectRedirectsInsert,
-    ProjectRedirectsList,
-    ProjectRedirectsUpdate,
-    ProjectTranslationsCreate,
-    ProjectTranslationsDelete,
-    ProjectTranslationsList,
-    ProjectUpdate,
-    ProjectUsersCreate,
-    ProjectUsersDelete,
-    ProjectUsersList,
-    ProjectVersionCreate,
-    ProjectVersionDeleteHTML,
-    ProjectVersionDetail,
-    RegexAutomationRuleCreate,
-    RegexAutomationRuleUpdate,
-    SearchAnalytics,
-    TrafficAnalyticsView,
-    WebHookCreate,
-    WebHookDelete,
-    WebHookExchangeDetail,
-    WebHookList,
-    WebHookUpdate,
-)
+from readthedocs.projects.views.private import AddonsConfigUpdate
+from readthedocs.projects.views.private import AutomationRuleDelete
+from readthedocs.projects.views.private import AutomationRuleList
+from readthedocs.projects.views.private import AutomationRuleMove
+from readthedocs.projects.views.private import DomainCreate
+from readthedocs.projects.views.private import DomainDelete
+from readthedocs.projects.views.private import DomainList
+from readthedocs.projects.views.private import DomainUpdate
+from readthedocs.projects.views.private import EnvironmentVariableCreate
+from readthedocs.projects.views.private import EnvironmentVariableDelete
+from readthedocs.projects.views.private import EnvironmentVariableList
+from readthedocs.projects.views.private import ImportView
+from readthedocs.projects.views.private import IntegrationCreate
+from readthedocs.projects.views.private import IntegrationDelete
+from readthedocs.projects.views.private import IntegrationDetail
+from readthedocs.projects.views.private import IntegrationExchangeDetail
+from readthedocs.projects.views.private import IntegrationList
+from readthedocs.projects.views.private import IntegrationWebhookSync
+from readthedocs.projects.views.private import ProjectAdvertisingUpdate
+from readthedocs.projects.views.private import ProjectDashboard
+from readthedocs.projects.views.private import ProjectDelete
+from readthedocs.projects.views.private import ProjectEmailNotificationsCreate
+from readthedocs.projects.views.private import ProjectNotifications
+from readthedocs.projects.views.private import ProjectNotificationsDelete
+from readthedocs.projects.views.private import ProjectPullRequestsUpdate
+from readthedocs.projects.views.private import ProjectRedirectsCreate
+from readthedocs.projects.views.private import ProjectRedirectsDelete
+from readthedocs.projects.views.private import ProjectRedirectsInsert
+from readthedocs.projects.views.private import ProjectRedirectsList
+from readthedocs.projects.views.private import ProjectRedirectsUpdate
+from readthedocs.projects.views.private import ProjectTranslationsCreate
+from readthedocs.projects.views.private import ProjectTranslationsDelete
+from readthedocs.projects.views.private import ProjectTranslationsList
+from readthedocs.projects.views.private import ProjectUpdate
+from readthedocs.projects.views.private import ProjectUsersCreate
+from readthedocs.projects.views.private import ProjectUsersDelete
+from readthedocs.projects.views.private import ProjectUsersList
+from readthedocs.projects.views.private import ProjectVersionCreate
+from readthedocs.projects.views.private import ProjectVersionDeleteHTML
+from readthedocs.projects.views.private import ProjectVersionDetail
+from readthedocs.projects.views.private import RegexAutomationRuleCreate
+from readthedocs.projects.views.private import RegexAutomationRuleUpdate
+from readthedocs.projects.views.private import SearchAnalytics
+from readthedocs.projects.views.private import TrafficAnalyticsView
+from readthedocs.projects.views.private import WebHookCreate
+from readthedocs.projects.views.private import WebHookDelete
+from readthedocs.projects.views.private import WebHookExchangeDetail
+from readthedocs.projects.views.private import WebHookList
+from readthedocs.projects.views.private import WebHookUpdate
+
 
 urlpatterns = [
     path("", ProjectDashboard.as_view(), name="projects_dashboard"),
@@ -210,19 +210,12 @@ urlpatterns = [
         PageNotFoundView.as_view(),
         name="projects_keys",
     ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/version/create/$",
+        ProjectVersionCreate.as_view(),
+        name="project_version_create",
+    ),
 ]
-
-# TODO move this up to the list above when it's not a conditional URL.
-# Currently, this is only used by the new theme, we don't allow for "create" in
-# our current templates.
-if settings.RTD_EXT_THEME_ENABLED:
-    urlpatterns.append(
-        re_path(
-            r"^(?P<project_slug>[-\w]+)/version/create/$",
-            ProjectVersionCreate.as_view(),
-            name="project_version_create",
-        ),
-    )
 
 domain_urls = [
     re_path(
@@ -249,17 +242,15 @@ domain_urls = [
 
 urlpatterns += domain_urls
 
-# We are allowing users to enable the new addons only from the new dashboard
-if settings.RTD_EXT_THEME_ENABLED:
-    addons_urls = [
-        re_path(
-            r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
-            AddonsConfigUpdate.as_view(),
-            name="projects_addons",
-        ),
-    ]
+addons_urls = [
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/addons/edit/$",
+        AddonsConfigUpdate.as_view(),
+        name="projects_addons",
+    ),
+]
 
-    urlpatterns += addons_urls
+urlpatterns += addons_urls
 
 integration_urls = [
     re_path(
@@ -273,11 +264,7 @@ integration_urls = [
         name="projects_integrations_webhooks_sync",
     ),
     re_path(
-        (
-            r"^(?P<project_slug>{project_slug})/integrations/create/$".format(
-                **pattern_opts
-            )
-        ),
+        (r"^(?P<project_slug>{project_slug})/integrations/create/$".format(**pattern_opts)),
         IntegrationCreate.as_view(),
         name="projects_integrations_create",
     ),
@@ -301,9 +288,7 @@ integration_urls = [
     re_path(
         (
             r"^(?P<project_slug>{project_slug})/"
-            r"integrations/(?P<integration_pk>{integer_pk})/sync/$".format(
-                **pattern_opts
-            )
+            r"integrations/(?P<integration_pk>{integer_pk})/sync/$".format(**pattern_opts)
         ),
         IntegrationWebhookSync.as_view(),
         name="projects_integrations_webhooks_sync",
@@ -311,9 +296,7 @@ integration_urls = [
     re_path(
         (
             r"^(?P<project_slug>{project_slug})/"
-            r"integrations/(?P<integration_pk>{integer_pk})/delete/$".format(
-                **pattern_opts
-            )
+            r"integrations/(?P<integration_pk>{integer_pk})/delete/$".format(**pattern_opts)
         ),
         IntegrationDelete.as_view(),
         name="projects_integrations_delete",
@@ -329,20 +312,14 @@ subproject_urls = [
         name="projects_subprojects",
     ),
     re_path(
-        (
-            r"^(?P<project_slug>{project_slug})/subprojects/create/$".format(
-                **pattern_opts
-            )
-        ),
+        (r"^(?P<project_slug>{project_slug})/subprojects/create/$".format(**pattern_opts)),
         private.ProjectRelationshipCreate.as_view(),
         name="projects_subprojects_create",
     ),
     re_path(
         (
             r"^(?P<project_slug>{project_slug})/"
-            r"subprojects/(?P<subproject_slug>{project_slug})/edit/$".format(
-                **pattern_opts
-            )
+            r"subprojects/(?P<subproject_slug>{project_slug})/edit/$".format(**pattern_opts)
         ),
         private.ProjectRelationshipUpdate.as_view(),
         name="projects_subprojects_update",
@@ -350,9 +327,7 @@ subproject_urls = [
     re_path(
         (
             r"^(?P<project_slug>{project_slug})/"
-            r"subprojects/(?P<subproject_slug>{project_slug})/delete/$".format(
-                **pattern_opts
-            )
+            r"subprojects/(?P<subproject_slug>{project_slug})/delete/$".format(**pattern_opts)
         ),
         private.ProjectRelationshipDelete.as_view(),
         name="projects_subprojects_delete",

@@ -9,24 +9,26 @@ import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_bytes
 from django.views import View
 from django.views.decorators.cache import never_cache
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
+from django.views.generic import ListView
 from taggit.models import Tag
 
-from readthedocs.builds.constants import (
-    BUILD_STATE_FINISHED,
-    EXTERNAL,
-    INTERNAL,
-    LATEST,
-)
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
@@ -40,7 +42,9 @@ from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 
 from ..constants import PRIVATE
-from .base import ProjectOnboardMixin, ProjectSpamMixin
+from .base import ProjectOnboardMixin
+from .base import ProjectSpamMixin
+
 
 log = structlog.get_logger(__name__)
 search_log = structlog.get_logger(__name__ + ".search")
@@ -48,7 +52,6 @@ mimetypes.add_type("application/epub+zip", ".epub")
 
 
 class ProjectTagIndex(ListView):
-
     """List view of public :py:class:`Project` instances."""
 
     model = Project
@@ -93,17 +96,21 @@ class ProjectDetailViewBase(
     FilterContextMixin,
     ProjectSpamMixin,
     ProjectRelationListMixin,
-    BuildTriggerMixin,
     ProjectOnboardMixin,
     DetailView,
 ):
-
     """Display project onboard steps."""
 
     model = Project
     slug_url_kwarg = "project_slug"
 
     filterset_class = ProjectVersionListFilterSet
+
+    def _get_versions(self, project):
+        return Version.internal.public(
+            user=self.request.user,
+            project=project,
+        )
 
     def get_queryset(self):
         return Project.objects.public(self.request.user)
@@ -118,12 +125,11 @@ class ProjectDetailViewBase(
 
         # Get filtered and sorted versions
         versions = self._get_versions(project)
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset(
-                queryset=versions,
-                project=project,
-            )
-            versions = self.get_filtered_queryset()
+        context["filter"] = self.get_filterset(
+            queryset=versions,
+            project=project,
+        )
+        versions = self.get_filtered_queryset()
         context["versions"] = versions
 
         protocol = "http"
@@ -160,7 +166,6 @@ class ProjectDetailView(SettingsOverrideObject):
 
 
 class ProjectBadgeView(View):
-
     """
     Return a sweet badge for the project.
 
@@ -368,9 +373,7 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
 
             # Use the project from the domain, or use the subproject slug.
             if subproject_slug:
-                project = get_object_or_404(
-                    project.subprojects, alias=subproject_slug
-                ).child
+                project = get_object_or_404(project.subprojects, alias=subproject_slug).child
 
             # Redirect old language codes with underscores to new ones with dashes and lowercase.
             normalized_language_code = lang_slug.lower().replace("_", "-")
@@ -444,9 +447,7 @@ def project_versions(request, project_slug):
     inactive_versions = versions.filter(active=False)
     version_filter = request.GET.get("version_filter", "")
     if version_filter:
-        inactive_versions = inactive_versions.filter(
-            verbose_name__icontains=version_filter
-        )
+        inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
     total_inactive_versions_count = inactive_versions.count()
     inactive_versions = inactive_versions[:max_inactive_versions]
 

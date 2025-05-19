@@ -118,6 +118,9 @@
   "readthedocs": {
     "analytics": {
       "code": null
+    },
+    "resolver": {
+      "filename": "/index.html"
     }
   },
   "addons": {
@@ -152,7 +155,7 @@
       "inject_styles": true
     },
     "filetreediff": {
-      "enabled": false
+      "enabled": true
     },
     "flyout": {
       "enabled": true,

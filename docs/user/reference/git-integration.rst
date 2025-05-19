@@ -35,7 +35,7 @@ Getting started
 
 ⏩️️ Signed up with your email address?
   If you have signed up to Read the Docs with your email address,
-  you can add the connection to the Git provider afterwards.
+  you can add the connection to the Git provider afterward.
   You can also add a connection to an additional Git provider this way.
 
   Please follow :doc:`/guides/connecting-git-account` in this case.
@@ -48,7 +48,7 @@ How automatic configuration works
 
 When your Read the Docs account is connected to |git_providers_or| and you :doc:`add a new Read the Docs project </intro/add-project>`:
 
-* Read the Docs automatically creates a Read the Docs Integration that matches your Git provider,
+* Read the Docs automatically creates a Read the Docs Integration that matches your Git provider.
 * Read the Docs creates an incoming webhook with your Git provider, which is automatically added to your Git repository's settings using the account connection.
 
 After project creation,
@@ -65,14 +65,14 @@ Read the Docs incoming webhook
 ------------------------------
 
 Accounts with |git_providers_and| integration automatically have Read the Docs' incoming :term:`webhook` configured on all Git repositories that are imported.
-Other setups can setup the webhook through :doc:`manual configuration </guides/setup/git-repo-manual>`.
+Other setups can set up the webhook through :doc:`manual configuration </guides/setup/git-repo-manual>`.
 
 When an incoming webhook notification is received,
 Read the Docs ensures that it matches an existing project.
 Once the webhook is validated,
 an action is taken based on the information inside of the webhook.
 
-Possible webhook actions outcomes are:
+Possible webhook action outcomes are:
 
 * :doc:`Builds </builds>` the latest commit.
 * Synchronizes your versions based on the latest tag and branch data in Git.
@@ -93,7 +93,7 @@ See more in our :ref:`sso_git_provider`.
 How does the connection work?
 -----------------------------
 
-Read the Docs uses `OAuth`_ to connect to your account at |git_providers_or|,
+Read the Docs uses `OAuth`_ to connect to your account at |git_providers_or|.
 You are asked to grant permissions for Read the Docs to perform a number of actions on your behalf.
 
 At the same time, we use this process for authentication (login)
@@ -130,7 +130,7 @@ Permissions for connected accounts
 Read the Docs does not generally ask for *write* permission to your repository code
 (with one exception detailed below).
 However, we do need permissions for authorizing your account
-so that you can login to Read the Docs with your connected account credentials.
+so that you can log in to Read the Docs with your connected account credentials.
 
 .. tabs::
 
@@ -142,7 +142,7 @@ so that you can login to Read the Docs with your connected account credentials.
       .. _OAuth scopes: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/
 
       Read access to your email address (``user:email``)
-          We ask for this so you can create a Read the Docs account and login with your GitHub credentials.
+          We ask for this so you can create a Read the Docs account and log in with your GitHub credentials.
 
       Administering webhooks (``admin:repo_hook``)
           We ask for this so we can create :term:`webhooks <webhook>` on your repositories when you import them into Read the Docs.
@@ -154,13 +154,13 @@ so that you can login to Read the Docs with your connected account credentials.
 
       Repository status (``repo:status``)
           Repository statuses allow Read the Docs to report the status
-          (eg. passed, failed, pending) of pull requests to GitHub.
+          (e.g. passed, failed, pending) of pull requests to GitHub.
 
       .. note::
 
           :doc:`Read the Docs for Business </commercial/index>`
           asks for one additional permission (``repo``) to allow access to private repositories
-          and to allow us to setup SSH keys to clone your private repositories.
+          and to allow us to set up SSH keys to clone your private repositories.
           Unfortunately, this is the permission for read/write control of the repository
           but there isn't a more granular permission
           that only allows setting up SSH keys for read access.
@@ -175,7 +175,7 @@ so that you can login to Read the Docs with your connected account credentials.
         NB! This permission scope does **not** include any write access to code.
 
       Reading your account information including your email address
-        We ask for this so you can create a Read the Docs account and login with your Bitbucket credentials.
+        We ask for this so you can create a Read the Docs account and log in with your Bitbucket credentials.
 
       Read access to your team memberships
         We ask for this so we know which organizations you have access to.

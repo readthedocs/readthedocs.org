@@ -22,8 +22,6 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.services import GitHubService, GitLabService
 from readthedocs.projects.constants import (
-    GITHUB_BRAND,
-    GITLAB_BRAND,
     MEDIA_TYPE_EPUB,
     MEDIA_TYPE_HTML,
     MEDIA_TYPE_HTMLZIP,
@@ -231,25 +229,35 @@ class TestProject(ProjectMixin, TestCase):
         # Test that External Version is not considered for get_latest_build.
         self.assertEqual(self.pip.get_latest_build(), None)
 
-    def test_git_provider_name_github(self):
+    def test_git_provider_github(self):
         self.pip.repo = "https://github.com/pypa/pip"
         self.pip.save()
-        self.assertEqual(self.pip.git_provider_name, GITHUB_BRAND)
+        assert self.pip.is_github_project
+        assert not self.pip.is_gitlab_project
+        assert not self.pip.is_bitbucket_project
 
     def test_git_service_class_github(self):
         self.pip.repo = "https://github.com/pypa/pip"
         self.pip.save()
-        self.assertEqual(self.pip.git_service_class(), GitHubService)
+        self.assertEqual(self.pip.get_git_service_class(), None)
+        self.assertEqual(
+            self.pip.get_git_service_class(fallback_to_clone_url=True), GitHubService
+        )
 
-    def test_git_provider_name_gitlab(self):
+    def test_git_provider_gitlab(self):
         self.pip.repo = "https://gitlab.com/pypa/pip"
         self.pip.save()
-        self.assertEqual(self.pip.git_provider_name, GITLAB_BRAND)
+        assert self.pip.is_gitlab_project
+        assert not self.pip.is_github_project
+        assert not self.pip.is_bitbucket_project
 
     def test_git_service_class_gitlab(self):
         self.pip.repo = "https://gitlab.com/pypa/pip"
         self.pip.save()
-        self.assertEqual(self.pip.git_service_class(), GitLabService)
+        self.assertEqual(self.pip.get_git_service_class(), None)
+        self.assertEqual(
+            self.pip.get_git_service_class(fallback_to_clone_url=True), GitLabService
+        )
 
 
 @mock.patch("readthedocs.projects.forms.trigger_build", mock.MagicMock())

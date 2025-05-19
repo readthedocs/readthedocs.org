@@ -2,6 +2,7 @@
 
 from django.utils.translation import gettext_lazy as _
 
+
 READ_ONLY_ACCESS = "readonly"
 ADMIN_ACCESS = "admin"
 

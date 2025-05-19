@@ -1,55 +1,70 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
+
 import json
+from dataclasses import asdict
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.db.models import BooleanField, Case, Value, When
+from django.db.models import BooleanField
+from django.db.models import Case
+from django.db.models import Value
+from django.db.models import When
 from django.http import Http404
 from django.template.loader import render_to_string
-from rest_framework import decorators, status, viewsets
-from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
-from rest_framework.parsers import JSONParser, MultiPartParser
-from rest_framework.renderers import BaseRenderer, JSONRenderer
+from rest_framework import decorators
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import UpdateModelMixin
+from rest_framework.parsers import JSONParser
+from rest_framework.parsers import MultiPartParser
+from rest_framework.renderers import BaseRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.api.v2.permissions import HasBuildAPIKey, IsOwner, ReadOnlyPermission
+from readthedocs.api.v2.permissions import HasBuildAPIKey
+from readthedocs.api.v2.permissions import IsOwner
+from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
+from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
+from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildCommandResult
+from readthedocs.builds.models import Version
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.oauth.models import RemoteOrganization
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Project
 from readthedocs.storage import build_commands_storage
 
-from ..serializers import (
-    BuildAdminReadOnlySerializer,
-    BuildAdminSerializer,
-    BuildCommandSerializer,
-    BuildSerializer,
-    DomainSerializer,
-    NotificationSerializer,
-    ProjectAdminSerializer,
-    ProjectSerializer,
-    RemoteOrganizationSerializer,
-    RemoteRepositorySerializer,
-    SocialAccountSerializer,
-    VersionAdminSerializer,
-    VersionSerializer,
-)
-from ..utils import (
-    ProjectPagination,
-    RemoteOrganizationPagination,
-    RemoteProjectPagination,
-)
+from ..serializers import BuildAdminReadOnlySerializer
+from ..serializers import BuildAdminSerializer
+from ..serializers import BuildCommandSerializer
+from ..serializers import BuildSerializer
+from ..serializers import DomainSerializer
+from ..serializers import NotificationSerializer
+from ..serializers import ProjectAdminSerializer
+from ..serializers import ProjectSerializer
+from ..serializers import RemoteOrganizationSerializer
+from ..serializers import RemoteRepositorySerializer
+from ..serializers import SocialAccountSerializer
+from ..serializers import VersionAdminSerializer
+from ..serializers import VersionSerializer
+from ..utils import ProjectPagination
+from ..utils import RemoteOrganizationPagination
+from ..utils import RemoteProjectPagination
+
 
 log = structlog.get_logger(__name__)
 
 
 class PlainTextBuildRenderer(BaseRenderer):
-
     """
     Custom renderer for text/plain format.
 
@@ -72,7 +87,6 @@ class PlainTextBuildRenderer(BaseRenderer):
 
 
 class DisableListEndpoint:
-
     """
     Helper to disable APIv2 listing endpoint.
 
@@ -127,7 +141,6 @@ class DisableListEndpoint:
 
 
 class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
-
     """
     View set that varies serializer class based on request user credentials.
 
@@ -167,7 +180,6 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-
     """List, filter, etc, Projects."""
 
     permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
@@ -337,6 +349,44 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     def get_queryset_for_api_key(self, api_key):
         return self.model.objects.filter(project=api_key.project)
 
+    @decorators.action(
+        detail=True,
+        permission_classes=[HasBuildAPIKey],
+        methods=["post"],
+        url_path="credentials/storage",
+    )
+    def credentials_for_storage(self, request, **kwargs):
+        """
+        Generate temporary credentials for interacting with storage.
+
+        This can generate temporary credentials for interacting with S3 only for now.
+        """
+        build = self.get_object()
+        credentials_type = request.data.get("type")
+
+        if credentials_type == "build_media":
+            method = get_s3_build_media_scoped_credentials
+            # 30 minutes should be enough for uploading build artifacts.
+            duration = 30 * 60
+        elif credentials_type == "build_tools":
+            method = get_s3_build_tools_scoped_credentials
+            # 30 minutes should be enough for downloading build tools.
+            duration = 30 * 60
+        else:
+            return Response(
+                {"error": "Invalid storage type"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            credentials = method(build=build, duration=duration)
+        except AWSTemporaryCredentialsError:
+            return Response(
+                {"error": "Failed to generate temporary credentials"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        return Response({"s3": asdict(credentials)})
+
 
 class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
     parser_classes = [JSONParser, MultiPartParser]
@@ -366,7 +416,6 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
 
 class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
-
     """
     Create a notification attached to an object (User, Project, Build, Organization).
 
@@ -420,7 +469,7 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
             self.model.objects.api_v2(self.request.user)
             .filter(
                 remote_organization_relations__account__provider__in=[
-                    service.adapter.provider_id for service in registry
+                    service.allauth_provider.id for service in registry
                 ]
             )
             .distinct()
@@ -466,14 +515,12 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         query = query.filter(
             remote_repository_relations__account__provider__in=[
-                service.adapter.provider_id for service in registry
+                service.allauth_provider.id for service in registry
             ],
         ).distinct()
 
         # optimizes for the RemoteOrganizationSerializer
-        query = query.select_related("organization").order_by(
-            "organization__name", "full_name"
-        )
+        query = query.select_related("organization").order_by("organization__name", "full_name")
 
         return query
 

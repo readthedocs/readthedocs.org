@@ -2,19 +2,17 @@
 
 import os
 import re
-import subprocess
 import socket
+import subprocess
 
 import structlog
-
 from celery.schedules import crontab
-
-from readthedocs.core.logs import shared_processors
 from corsheaders.defaults import default_headers
-from readthedocs.core.settings import Settings
-from readthedocs.builds import constants_docker
-
 from django.conf.global_settings import PASSWORD_HASHERS
+
+from readthedocs.builds import constants_docker
+from readthedocs.core.logs import shared_processors
+from readthedocs.core.settings import Settings
 
 try:
     import readthedocsext.cdn  # noqa
@@ -36,7 +34,6 @@ log = structlog.get_logger(__name__)
 
 
 class CommunityBaseSettings(Settings):
-
     """Community base settings, don't use this directly."""
 
     # Django settings
@@ -76,7 +73,7 @@ class CommunityBaseSettings(Settings):
                 # It's a "known issue/bug" and there is no solution as far as we can tell.
                 "debug_toolbar.panels.sql.SQLPanel",
                 "debug_toolbar.panels.templates.TemplatesPanel",
-            ]
+            ],
         }
 
     @property
@@ -99,12 +96,6 @@ class CommunityBaseSettings(Settings):
     PUBLIC_API_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
-
-    @property
-    def SWITCH_PRODUCTION_DOMAIN(self):
-        if self.RTD_EXT_THEME_ENABLED:
-            return self.PRODUCTION_DOMAIN.removeprefix("app.")
-        return f"app.{self.PRODUCTION_DOMAIN}"
 
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
@@ -144,6 +135,7 @@ class CommunityBaseSettings(Settings):
     CSP_REPORT_URI = None
     CSP_REPORT_ONLY = False
     CSP_EXCLUDE_URL_PREFIXES = ("/admin/",)
+    RTD_CSP_UPDATE_HEADERS = {}
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -228,10 +220,6 @@ class CommunityBaseSettings(Settings):
 
     DOC_PATH_PREFIX = "_/"
 
-    @property
-    def RTD_EXT_THEME_ENABLED(self):
-        return ext_theme and "RTD_EXT_THEME_ENABLED" in os.environ
-
     RTD_EXT_THEME_DEV_SERVER = None
 
     # Application classes
@@ -297,6 +285,7 @@ class CommunityBaseSettings(Settings):
             "allauth.account",
             "allauth.socialaccount",
             "allauth.socialaccount.providers.github",
+            "readthedocs.allauth.providers.githubapp",
             "allauth.socialaccount.providers.gitlab",
             "allauth.socialaccount.providers.bitbucket_oauth2",
             "allauth.mfa",
@@ -305,30 +294,26 @@ class CommunityBaseSettings(Settings):
             # but we still need to include it even when not enabled, since it has objects
             # related to the user model that Django needs to know about when deleting users.
             "impersonate",
-            "cacheops",
         ]
         if ext:
             apps.append("readthedocsext.cdn")
             apps.append("readthedocsext.donate")
             apps.append("readthedocsext.spamfighting")
-        if self.RTD_EXT_THEME_ENABLED:
-            apps.append("readthedocsext.theme")
         if self.SHOW_DEBUG_TOOLBAR:
             apps.append("debug_toolbar")
+
+        if ext_theme:
+            apps.append("readthedocsext.theme")
 
         return apps
 
     @property
     def CRISPY_TEMPLATE_PACK(self):
-        if self.RTD_EXT_THEME_ENABLED:
-            return "semantic-ui"
-        return "bootstrap"
+        return "semantic-ui"
 
     @property
     def CRISPY_ALLOWED_TEMPLATE_PACKS(self):
-        if self.RTD_EXT_THEME_ENABLED:
-            return ("semantic-ui",)
-        return ("bootstrap", "uni_form", "bootstrap3", "bootstrap4")
+        return ("semantic-ui",)
 
     @property
     def USE_PROMOS(self):  # noqa
@@ -350,6 +335,7 @@ class CommunityBaseSettings(Settings):
             "allauth.account.middleware.AccountMiddleware",
             "dj_pagination.middleware.PaginationMiddleware",
             "csp.middleware.CSPMiddleware",
+            "readthedocs.core.middleware.UpdateCSPMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
             "django_structlog.middlewares.CeleryMiddleware",
@@ -407,7 +393,6 @@ class CommunityBaseSettings(Settings):
     ADMIN_MEDIA_PREFIX = "/media/admin/"
     ADMIN_URL = "/admin"
     STATICFILES_DIRS = [
-        os.path.join(SITE_ROOT, "readthedocs", "static"),
         os.path.join(SITE_ROOT, "media"),
     ]
     STATICFILES_FINDERS = [
@@ -420,9 +405,6 @@ class CommunityBaseSettings(Settings):
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = "readthedocs.builds.storage.BuildMediaFileSystemStorage"
-    RTD_BUILD_ENVIRONMENT_STORAGE = (
-        "readthedocs.builds.storage.BuildMediaFileSystemStorage"
-    )
     RTD_BUILD_TOOLS_STORAGE = "readthedocs.builds.storage.BuildMediaFileSystemStorage"
     RTD_BUILD_COMMANDS_STORAGE = (
         "readthedocs.builds.storage.BuildMediaFileSystemStorage"
@@ -432,7 +414,8 @@ class CommunityBaseSettings(Settings):
     @property
     def TEMPLATES(self):
         dirs = [self.TEMPLATE_ROOT]
-        if self.RTD_EXT_THEME_ENABLED:
+
+        if ext_theme:
             dirs.insert(
                 0,
                 os.path.join(
@@ -682,7 +665,8 @@ class CommunityBaseSettings(Settings):
 
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
-    ACCOUNT_EMAIL_REQUIRED = True
+    SOCIALACCOUNT_ADAPTER = 'readthedocs.core.adapters.SocialAccountAdapter'
+    ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
     # By preventing enumeration, we will always send an email,
     # even if the email is not registered, that's hurting
     # our email reputation. We are okay with people knowing
@@ -694,7 +678,7 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_EMAIL_VERIFICATION = "mandatory"
     ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
-    ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+    ACCOUNT_LOGIN_METHODS = ["username", "email"]
     ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_STORE_TOKENS = True
@@ -704,7 +688,6 @@ class CommunityBaseSettings(Settings):
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
-            "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "user:email",
                 "read:org",
@@ -712,10 +695,18 @@ class CommunityBaseSettings(Settings):
                 "repo:status",
             ],
         },
+        "githubapp": {
+            "APPS": [
+                {"client_id": "123", "secret": "456", "key": ""},
+            ],
+            # Scope is determined by the GitHub App permissions.
+            "SCOPE": [],
+        },
         "gitlab": {
             "APPS": [
                 {"client_id": "123", "secret": "456", "key": ""},
             ],
+            # GitLab returns the primary email only, we can trust it's verified.
             "VERIFIED_EMAIL": True,
             "SCOPE": [
                 "api",
@@ -742,6 +733,15 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_FORMS = {
         "signup": "readthedocs.forms.SignupFormWithNewsletter",
     }
+
+    GITHUB_APP_ID = 1234
+    GITHUB_APP_NAME = "readthedocs"
+    GITHUB_APP_PRIVATE_KEY = ""
+    GITHUB_APP_WEBHOOK_SECRET = ""
+
+    @property
+    def GITHUB_APP_CLIENT_ID(self):
+        return self.SOCIALACCOUNT_PROVIDERS["githubapp"]["APPS"][0]["client_id"]
 
     # CORS
     # Don't allow sending cookies in cross-domain requests, this is so we can
@@ -1038,43 +1038,11 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
 
-    CACHEOPS_ENABLED = False
-    CACHEOPS_TIMEOUT = 60 * 60  # seconds
-    CACHEOPS_OPS = {"get", "fetch"}
-    CACHEOPS_DEGRADE_ON_FAILURE = True
-    CACHEOPS = {
-        # readthedocs.projects.*
-        "projects.project": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        "projects.feature": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        "projects.projectrelationship": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        "projects.domain": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        # readthedocs.builds.*
-        "builds.version": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        # readthedocs.organizations.*
-        "organizations.organization": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-        # readthedocs.subscriptions.*
-        "subscriptions.planfeature": {
-            "ops": CACHEOPS_OPS,
-            "timeout": CACHEOPS_TIMEOUT,
-        },
-    }
-
     S3_PROVIDER = "AWS"
+    # Used by readthedocs.aws.security_token_service.
+    AWS_STS_ASSUME_ROLE_ARN = "arn:aws:iam::1234:role/SomeRole"
+
+    @property
+    def USING_AWS(self):
+        """Return True if we are using AWS as our storage/cloud provider."""
+        return self.S3_PROVIDER == "AWS"

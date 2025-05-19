@@ -4,16 +4,18 @@ import requests
 import structlog
 from django.conf import settings
 from rest_framework.renderers import JSONRenderer
-from slumber import API, serialize
+from slumber import API
+from slumber import serialize
 from urllib3.util.retry import Retry
 
-from .adapters import TimeoutHostHeaderSSLAdapter, TimeoutHTTPAdapter
+from .adapters import TimeoutHostHeaderSSLAdapter
+from .adapters import TimeoutHTTPAdapter
+
 
 log = structlog.get_logger(__name__)
 
 
 class DrfJsonSerializer(serialize.JsonSerializer):
-
     """Additional serialization help from the DRF renderer."""
 
     key = "json-drf"

@@ -7,7 +7,7 @@ orbs:
 jobs:
   tests:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: 'cimg/python:3.12'
         environment:
           # Don't skip search tests.
           TOX_POSARGS: ''
@@ -27,35 +27,12 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install -y rclone
       - run: pip install --user tox
-      - run: tox -e py310
+      - run: tox -e py312
       - codecov/upload
-
-  tests-ext-theme:
-    docker:
-      - image: 'cimg/python:3.10'
-        environment:
-          # Don't skip search tests.
-          TOX_POSARGS: ''
-      - image: 'docker.elastic.co/elasticsearch/elasticsearch:8.10.2'
-        name: search
-        environment:
-          discovery.type: single-node
-          ES_JAVA_OPTS: -Xms750m -Xmx750m
-          ELASTIC_PASSWORD: password
-          # Disabled SSL for testing.
-          xpack.security.transport.ssl.enabled: 'false'
-    steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
-      - run: sudo apt update
-      - run: sudo apt install -y rclone
-      - run: pip install --user tox
-      - run: tox -e ext-theme
 
   tests-embedapi:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: 'cimg/python:3.12'
     steps:
       - checkout
       - run: git submodule sync
@@ -66,7 +43,7 @@ jobs:
 
   checks:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: 'cimg/python:3.12'
     steps:
       - checkout
       - run: git submodule sync
@@ -99,7 +76,6 @@ workflows:
     jobs:
       - checks
       - tests
-      - tests-ext-theme
       - tests-embedapi:
           requires:
             - checks

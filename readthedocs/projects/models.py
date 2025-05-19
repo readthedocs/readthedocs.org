@@ -1,4 +1,5 @@
 """Project models."""
+
 import fnmatch
 import hashlib
 import hmac
@@ -7,32 +8,34 @@ from shlex import quote
 from urllib.parse import urlparse
 
 import structlog
-from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
+from django_extensions.db.fields import CreationDateTimeField
+from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import (
-    BRANCH,
-    EXTERNAL,
-    INTERNAL,
-    LATEST,
-    LATEST_VERBOSE_NAME,
-    STABLE,
-)
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
-from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
+from readthedocs.core.utils import extract_valid_attributes_for_model
+from readthedocs.core.utils import slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
@@ -40,36 +43,31 @@ from readthedocs.notifications.models import Notification as NewNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
-from readthedocs.projects.querysets import (
-    ChildRelatedProjectQuerySet,
-    FeatureQuerySet,
-    ProjectQuerySet,
-    RelatedProjectQuerySet,
-)
-from readthedocs.projects.validators import (
-    validate_build_config_file,
-    validate_custom_prefix,
-    validate_custom_subproject_prefix,
-    validate_domain_name,
-    validate_environment_variable_size,
-    validate_no_ip,
-    validate_repository_url,
-)
+from readthedocs.projects.querysets import ChildRelatedProjectQuerySet
+from readthedocs.projects.querysets import FeatureQuerySet
+from readthedocs.projects.querysets import ProjectQuerySet
+from readthedocs.projects.querysets import RelatedProjectQuerySet
+from readthedocs.projects.validators import validate_build_config_file
+from readthedocs.projects.validators import validate_custom_prefix
+from readthedocs.projects.validators import validate_custom_subproject_prefix
+from readthedocs.projects.validators import validate_domain_name
+from readthedocs.projects.validators import validate_environment_variable_size
+from readthedocs.projects.validators import validate_no_ip
+from readthedocs.projects.validators import validate_repository_url
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import (
-    ADDONS_FLYOUT_POSITION_CHOICES,
-    ADDONS_FLYOUT_SORTING_CHOICES,
-    ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE,
-    DOWNLOADABLE_MEDIA_TYPES,
-    MEDIA_TYPES,
-    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
-    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
-    PUBLIC,
-)
+from .constants import ADDONS_FLYOUT_POSITION_CHOICES
+from .constants import ADDONS_FLYOUT_SORTING_CHOICES
+from .constants import ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
+from .constants import DOWNLOADABLE_MEDIA_TYPES
+from .constants import MEDIA_TYPES
+from .constants import MULTIPLE_VERSIONS_WITH_TRANSLATIONS
+from .constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+from .constants import PUBLIC
+
 
 log = structlog.get_logger(__name__)
 
@@ -80,7 +78,6 @@ def default_privacy_level():
 
 
 class ProjectRelationship(models.Model):
-
     """
     Project to project relationship.
 
@@ -135,7 +132,6 @@ class ProjectRelationship(models.Model):
 
 
 class AddonsConfig(TimeStampedModel):
-
     """
     Addons project configuration.
 
@@ -174,6 +170,7 @@ class AddonsConfig(TimeStampedModel):
         "builds.Version",
         verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
     )
 
@@ -192,7 +189,12 @@ class AddonsConfig(TimeStampedModel):
     ethicalads_enabled = models.BooleanField(default=True)
 
     # File Tree Diff
-    filetreediff_enabled = models.BooleanField(default=False, null=True, blank=True)
+    filetreediff_enabled = models.BooleanField(default=True)
+    filetreediff_ignored_files = models.JSONField(
+        help_text=_("List of ignored files. One per line."),
+        null=True,
+        blank=True,
+    )
 
     # Flyout
     flyout_enabled = models.BooleanField(
@@ -215,9 +217,7 @@ class AddonsConfig(TimeStampedModel):
         '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples">See examples</a>)',
     )
     flyout_sorting_latest_stable_at_beginning = models.BooleanField(
-        verbose_name=_(
-            "Show <code>latest</code> and <code>stable</code> at the beginning"
-        ),
+        verbose_name=_("Show <code>latest</code> and <code>stable</code> at the beginning"),
         default=True,
     )
 
@@ -260,7 +260,6 @@ class AddonsConfig(TimeStampedModel):
 
 
 class AddonSearchFilter(TimeStampedModel):
-
     """
     Addon search user defined filter.
 
@@ -273,16 +272,11 @@ class AddonSearchFilter(TimeStampedModel):
 
 
 class Project(models.Model):
-
     """Project model."""
 
     # Auto fields
-    pub_date = models.DateTimeField(
-        _("Publication date"), auto_now_add=True, db_index=True
-    )
-    modified_date = models.DateTimeField(
-        _("Modified date"), auto_now=True, db_index=True
-    )
+    pub_date = models.DateTimeField(_("Publication date"), auto_now_add=True, db_index=True)
+    modified_date = models.DateTimeField(_("Modified date"), auto_now=True, db_index=True)
 
     # Generally from conf.py
     users = models.ManyToManyField(
@@ -303,7 +297,6 @@ class Project(models.Model):
         max_length=255,
         validators=[validate_repository_url],
         help_text=_("Git repository URL"),
-        db_index=True,
     )
 
     # NOTE: this field is going to be completely removed soon.
@@ -364,8 +357,7 @@ class Project(models.Model):
         null=True,
         blank=True,
         help_text=_(
-            'What branch "latest" points to. Leave empty '
-            "to use the default value for your VCS.",
+            'What branch "latest" points to. Leave empty to use the default value for your VCS.',
         ),
     )
     custom_prefix = models.CharField(
@@ -445,8 +437,7 @@ class Project(models.Model):
         null=True,
         blank=True,
         help_text=_(
-            "Memory limit in Docker format "
-            "-- example: <code>512m</code> or <code>1g</code>",
+            "Memory limit in Docker format -- example: <code>512m</code> or <code>1g</code>",
         ),
     )
     container_time_limit = models.IntegerField(
@@ -580,7 +571,9 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True, ordering=["name"])
-    history = ExtraHistoricalRecords()
+    history = ExtraHistoricalRecords(
+        no_db_index=["repo", "slug", "remote_repository_id", "main_language_project_id"]
+    )
     objects = ProjectQuerySet.as_manager()
 
     remote_repository = models.ForeignKey(
@@ -650,23 +643,7 @@ class Project(models.Model):
             self.repo = self.remote_repository.clone_url
 
         super().save(*args, **kwargs)
-
-        try:
-            if not self.versions.filter(slug=LATEST).exists():
-                self.versions.create_latest()
-        except Exception:
-            log.exception("Error creating default branches")
-
-        # Update `Version.identifier` for `latest` with the default branch the user has selected,
-        # even if it's `None` (meaning to match the `default_branch` of the repository)
-        # NOTE: this code is required to be *after* ``create_latest()``.
-        # It has to be updated after creating LATEST originally.
-        log.debug(
-            "Updating default branch.", slug=LATEST, identifier=self.default_branch
-        )
-        self.versions.filter(slug=LATEST, machine=True).update(
-            identifier=self.default_branch
-        )
+        self.update_latest_version()
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -727,9 +704,7 @@ class Project(models.Model):
         storage_paths = [f"{type_}/{self.slug}" for type_ in MEDIA_TYPES]
         return storage_paths
 
-    def get_storage_path(
-        self, type_, version_slug=LATEST, include_file=True, version_type=None
-    ):
+    def get_storage_path(self, type_, version_slug=LATEST, include_file=True, version_type=None):
         """
         Get a path to a build artifact for use with Django's storage system.
 
@@ -825,9 +800,7 @@ class Project(models.Model):
         # paths as is, this is, without the prefix, while those projects
         # migrate to the new implementation, we will prefix special paths
         # when generating links, these paths will be manually un-prefixed in nginx.
-        if self.custom_prefix and self.has_feature(
-            Feature.USE_PROXIED_APIS_WITH_PREFIX
-        ):
+        if self.custom_prefix and self.has_feature(Feature.USE_PROXIED_APIS_WITH_PREFIX):
             return self.custom_prefix
         return None
 
@@ -979,39 +952,23 @@ class Project(models.Model):
             return self._good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
-    def vcs_repo(
-        self,
-        environment,
-        version=LATEST,
-        verbose_name=None,
-        version_type=None,
-        version_identifier=None,
-        version_machine=None,
-    ):
+    def vcs_repo(self, environment, version):
         """
         Return a Backend object for this project able to handle VCS commands.
 
         :param environment: environment to run the commands
         :type environment: doc_builder.environments.BuildEnvironment
-        :param version: version slug for the backend (``LATEST`` by default)
-        :type version: str
+        :param version: Version for the backend.
         """
-        # TODO: this seems to be the only method that receives a
-        # ``version.slug`` instead of a ``Version`` instance (I prefer an
-        # instance here)
-
         backend = self.vcs_class()
         if not backend:
             repo = None
         else:
             repo = backend(
                 self,
-                version,
+                version=version,
                 environment=environment,
-                verbose_name=verbose_name,
-                version_type=version_type,
-                version_identifier=version_identifier,
-                version_machine=version_machine,
+                use_token=bool(self.clone_token),
             )
         return repo
 
@@ -1023,28 +980,50 @@ class Project(models.Model):
         """
         return backend_cls.get(self.repo_type)
 
-    def git_service_class(self):
-        """Get the service class for project. e.g: GitHubService, GitLabService."""
+    def _guess_service_class(self):
         from readthedocs.oauth.services import registry
 
         for service_cls in registry:
             if service_cls.is_project_service(self):
-                service = service_cls
-                break
-        else:
-            log.warning("There are no registered services in the application.")
-            service = None
+                return service_cls
+        return None
 
-        return service
+    def get_git_service_class(self, fallback_to_clone_url=False):
+        """
+        Get the service class for project. e.g: GitHubService, GitLabService.
+
+        :param fallback_to_clone_url: If the project doesn't have a remote repository,
+         we try to guess the service class based on the clone URL.
+        """
+        service_cls = None
+        if self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
+            return self._guess_service_class()
+        service_cls = self.remote_repository and self.remote_repository.get_service_class()
+        if not service_cls and fallback_to_clone_url:
+            return self._guess_service_class()
+        return service_cls
 
     @property
-    def git_provider_name(self):
-        """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
-        service = self.git_service_class()
-        if service:
-            provider_class = allauth_registry.get_class(service.adapter.provider_id)
-            return provider_class.name
-        return None
+    def is_github_project(self):
+        from readthedocs.oauth.services import GitHubAppService
+        from readthedocs.oauth.services import GitHubService
+
+        return self.get_git_service_class(fallback_to_clone_url=True) in [
+            GitHubService,
+            GitHubAppService,
+        ]
+
+    @property
+    def is_gitlab_project(self):
+        from readthedocs.oauth.services import GitLabService
+
+        return self.get_git_service_class(fallback_to_clone_url=True) == GitLabService
+
+    @property
+    def is_bitbucket_project(self):
+        from readthedocs.oauth.services import BitbucketService
+
+        return self.get_git_service_class(fallback_to_clone_url=True) == BitbucketService
 
     def find(self, filename, version):
         """
@@ -1200,6 +1179,7 @@ class Project(models.Model):
                 version_updated = (
                     new_stable.identifier != current_stable.identifier
                     or new_stable.type != current_stable.type
+                    or current_stable.verbose_name != STABLE_VERBOSE_NAME
                 )
                 if version_updated:
                     log.info(
@@ -1209,6 +1189,7 @@ class Project(models.Model):
                         version_type=new_stable.type,
                     )
                     current_stable.identifier = new_stable.identifier
+                    current_stable.verbose_name = STABLE_VERBOSE_NAME
                     current_stable.type = new_stable.type
                     current_stable.save()
                     return new_stable
@@ -1226,13 +1207,31 @@ class Project(models.Model):
                 )
                 return new_stable
 
-    def versions_from_branch_name(self, branch):
-        return (
-            self.versions.filter(identifier=branch)
-            | self.versions.filter(identifier="remotes/origin/%s" % branch)
-            | self.versions.filter(identifier="origin/%s" % branch)
-            | self.versions.filter(verbose_name=branch)
+    def versions_from_name(self, name, type=None):
+        """
+        Get all versions attached to the branch or tag name.
+
+        Normally, only one version should be returned, but since LATEST and STABLE
+        are aliases for the branch/tag, they may be returned as well.
+
+        If type is None, both, tags and branches will be taken into consideration.
+        """
+        queryset = self.versions(manager=INTERNAL)
+        queryset = queryset.filter(
+            # Normal branches
+            Q(verbose_name=name, machine=False)
+            # Latest and stable have the name of the branch/tag in the identifier.
+            # NOTE: if stable is a branch, identifier will be the commit hash,
+            # so we don't have a way to match it by name.
+            # We should do another lookup to get the original stable version,
+            # or change our logic to store the tags name in the identifier of stable.
+            | Q(identifier=name, machine=True)
         )
+
+        if type:
+            queryset = queryset.filter(type=type)
+
+        return queryset.distinct()
 
     def get_default_version(self):
         """
@@ -1400,9 +1399,31 @@ class Project(models.Model):
     def organization(self):
         return self.organizations.first()
 
+    @property
+    def clone_token(self) -> str | None:
+        """
+        Return a HTTP-based Git access token to the repository.
+
+        .. note::
+
+           - A token is only returned for projects linked to a private repository.
+           - Only repositories granted access by a GitHub app installation will return a token.
+        """
+        service_class = self.get_git_service_class()
+        if not service_class or not self.remote_repository.private:
+            return None
+
+        if not service_class.supports_clone_token:
+            return None
+
+        for service in service_class.for_project(self):
+            token = service.get_clone_token(self)
+            if token:
+                return token
+        return None
+
 
 class APIProject(Project):
-
     """
     Project proxy model for API data deserialization.
 
@@ -1417,12 +1438,17 @@ class APIProject(Project):
     """
 
     features = []
+    # This is a property in the original model, in order to
+    # be able to assign it a value in the constructor, we need to re-declare it
+    # as an attribute here.
+    clone_token = None
 
     class Meta:
         proxy = True
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop("features", [])
+        self.clone_token = kwargs.pop("clone_token", None)
         environment_variables = kwargs.pop("environment_variables", {})
         ad_free = not kwargs.pop("show_advertising", True)
         # These fields only exist on the API return, not on the model, so we'll
@@ -1476,7 +1502,6 @@ class APIProject(Project):
 
 
 class ImportedFile(models.Model):
-
     """
     Imported files model.
 
@@ -1484,6 +1509,7 @@ class ImportedFile(models.Model):
     things like CDN invalidation.
     """
 
+    id = models.BigAutoField(primary_key=True)
     project = models.ForeignKey(
         Project,
         verbose_name=_("Project"),
@@ -1527,7 +1553,6 @@ class ImportedFile(models.Model):
 
 
 class HTMLFile(ImportedFile):
-
     """
     Imported HTML file Proxy model.
 
@@ -1549,7 +1574,6 @@ class HTMLFile(ImportedFile):
 
 
 class Notification(TimeStampedModel):
-
     """WebHook / Email notification attached to a Project."""
 
     # TODO: Overridden from TimeStampedModel just to allow null values,
@@ -1662,12 +1686,8 @@ class WebHook(Notification):
         # Commit can be None, display an empty string instead.
         commit = build.commit or ""
         protocol = "http" if settings.DEBUG else "https"
-        project_url = (
-            f"{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}"
-        )
-        build_url = (
-            f"{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}"
-        )
+        project_url = f"{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}"
+        build_url = f"{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}"
         build_docsurl = Resolver().resolve_version(project, version=version)
 
         # Remove timezone and microseconds from the date,
@@ -1694,13 +1714,9 @@ class WebHook(Notification):
         max_substitutions = 99
         for substitution, value in substitutions.items():
             # Replace {{ foo }}.
-            payload = payload.replace(
-                f"{{{{ {substitution} }}}}", str(value), max_substitutions
-            )
+            payload = payload.replace(f"{{{{ {substitution} }}}}", str(value), max_substitutions)
             # Replace {{foo}}.
-            payload = payload.replace(
-                f"{{{{{substitution}}}}}", str(value), max_substitutions
-            )
+            payload = payload.replace(f"{{{{{substitution}}}}}", str(value), max_substitutions)
         return payload
 
     def sign_payload(self, payload):
@@ -1714,7 +1730,6 @@ class WebHook(Notification):
 
 
 class Domain(TimeStampedModel):
-
     """A custom domain name for a project."""
 
     # TODO: Overridden from TimeStampedModel just to allow null values,
@@ -1788,9 +1803,7 @@ class Domain(TimeStampedModel):
     )
     hsts_include_subdomains = models.BooleanField(
         default=False,
-        help_text=_(
-            "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
-        ),
+        help_text=_("If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"),
     )
     hsts_preload = models.BooleanField(
         default=False,
@@ -1826,7 +1839,10 @@ class Domain(TimeStampedModel):
             self.save()
 
     def clean(self):
-        check_domains_limit(self.project)
+        # Only check the limit when creating a new domain,
+        # not when updating existing ones.
+        if not self.pk:
+            check_domains_limit(self.project)
 
     def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)
@@ -1838,7 +1854,6 @@ class Domain(TimeStampedModel):
 
 
 class HTTPHeader(TimeStampedModel, models.Model):
-
     """
     Define a HTTP header for a user Domain.
 
@@ -1881,7 +1896,6 @@ class HTTPHeader(TimeStampedModel, models.Model):
 
 
 class Feature(models.Model):
-
     """
     Project feature flags.
 
@@ -1924,6 +1938,7 @@ class Feature(models.Model):
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
+    USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
 
     FEATURES = (
         (
@@ -1982,9 +1997,7 @@ class Feature(models.Model):
         ),
         (
             INSTALL_LATEST_CORE_REQUIREMENTS,
-            _(
-                "Build: Install all the latest versions of Read the Docs core requirements"
-            ),
+            _("Build: Install all the latest versions of Read the Docs core requirements"),
         ),
         # Search related features.
         (
@@ -2000,9 +2013,13 @@ class Feature(models.Model):
             SCALE_IN_PROTECTION,
             _("Build: Set scale-in protection before/after building."),
         ),
+        (
+            USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS,
+            _("Build: Use S3 scoped credentials for uploading build artifacts."),
+        ),
     )
 
-    FEATURES = sorted(FEATURES, key=lambda l: l[1])
+    FEATURES = sorted(FEATURES, key=lambda x: x[1])
 
     projects = models.ManyToManyField(
         Project,
@@ -2076,7 +2093,5 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         return super().save(*args, **kwargs)
 
     def clean(self):
-        validate_environment_variable_size(
-            project=self.project, new_env_value=self.value
-        )
+        validate_environment_variable_size(project=self.project, new_env_value=self.value)
         return super().clean()

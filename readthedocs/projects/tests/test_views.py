@@ -7,6 +7,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import (
@@ -81,6 +82,17 @@ class TestExternalBuildOption(TestCase):
                 "To build from pull requests your repository's webhook needs to send pull request events."
             )
         )
+
+    def test_github_app_integration(self):
+        Integration.objects.all().delete()
+        remote_repository = get(RemoteRepository, vcs_provider=GITHUB_APP)
+        self.project.remote_repository = remote_repository
+        self.project.save()
+
+        resp = self.client.get(self.url)
+        field = resp.context["form"].fields["external_builds_enabled"]
+        assert not field.disabled
+        assert field.help_text.startswith("More information in")
 
     def test_gitlab_integration(self):
         self.integration.integration_type = Integration.GITLAB_WEBHOOK

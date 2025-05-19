@@ -7,17 +7,17 @@ import structlog
 from django.conf import settings
 from rest_framework.pagination import PageNumberPagination
 
-from readthedocs.builds.constants import (
-    BRANCH,
-    INTERNAL,
-    LATEST,
-    LATEST_VERBOSE_NAME,
-    NON_REPOSITORY_VERSIONS,
-    STABLE,
-    STABLE_VERBOSE_NAME,
-    TAG,
-)
-from readthedocs.builds.models import RegexAutomationRule, Version
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.builds.constants import TAG
+from readthedocs.builds.models import RegexAutomationRule
+from readthedocs.builds.models import Version
+
 
 log = structlog.get_logger(__name__)
 

@@ -7,44 +7,42 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from readthedocs import __version__
 from readthedocs.api.v2.serializers import BuildCommandSerializer
-from readthedocs.api.v2.utils import (
-    delete_versions_from_db,
-    get_deleted_active_versions,
-    run_automation_rules,
-    sync_versions_to_db,
-)
-from readthedocs.builds.constants import (
-    BRANCH,
-    BUILD_STATUS_FAILURE,
-    BUILD_STATUS_PENDING,
-    BUILD_STATUS_SUCCESS,
-    EXTERNAL,
-    EXTERNAL_VERSION_STATE_CLOSED,
-    LOCK_EXPIRE,
-    MAX_BUILD_COMMAND_SIZE,
-    TAG,
-)
-from readthedocs.builds.models import Build, Version
+from readthedocs.api.v2.utils import delete_versions_from_db
+from readthedocs.api.v2.utils import get_deleted_active_versions
+from readthedocs.api.v2.utils import run_automation_rules
+from readthedocs.api.v2.utils import sync_versions_to_db
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_STATUS_FAILURE
+from readthedocs.builds.constants import BUILD_STATUS_PENDING
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
+from readthedocs.builds.constants import LOCK_EXPIRE
+from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
+from readthedocs.builds.constants import TAG
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.builds.utils import memcache_lock
-from readthedocs.core.permissions import AdminPermission
-from readthedocs.core.utils import send_email, trigger_build
+from readthedocs.core.utils import send_email
+from readthedocs.core.utils import trigger_build
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
-from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
-from readthedocs.projects.models import Project, WebHookEvent
+from readthedocs.projects.models import Project
+from readthedocs.projects.models import WebHookEvent
 from readthedocs.storage import build_commands_storage
 from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 
 
 class TaskRouter:
-
     """
     Celery tasks router.
 
@@ -144,9 +142,7 @@ class TaskRouter:
                 )
                 return self.BUILD_LARGE_QUEUE
 
-        successful_builds_count = (
-            version.builds.filter(success=True).order_by("-date").count()
-        )
+        successful_builds_count = version.builds.filter(success=True).order_by("-date").count()
         # We do not have enough builds for this version yet
         if successful_builds_count < self.MIN_SUCCESSFUL_BUILDS:
             log.info(
@@ -221,13 +217,9 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
                             "Command output too long. Truncated to last 1MB."
                             "\n\n" + cmd["output"]
                         )  # noqa
-                        log.debug(
-                            "Truncating build command for build.", build_id=build.id
-                        )
+                        log.debug("Truncating build command for build.", build_id=build.id)
                 output = BytesIO(json.dumps(commands).encode("utf8"))
-                filename = "{date}/{id}.json".format(
-                    date=str(build.date.date()), id=build.id
-                )
+                filename = "{date}/{id}.json".format(date=str(build.date.date()), id=build.id)
                 try:
                     build_commands_storage.save(name=filename, content=output)
                     if delete:
@@ -258,11 +250,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
             if last_build:
                 status = BUILD_STATUS_PENDING
                 if last_build.finished:
-                    status = (
-                        BUILD_STATUS_SUCCESS
-                        if last_build.success
-                        else BUILD_STATUS_FAILURE
-                    )
+                    status = BUILD_STATUS_SUCCESS if last_build.success else BUILD_STATUS_FAILURE
                 send_build_status(
                     build_pk=last_build.pk,
                     commit=last_build.commit,
@@ -385,23 +373,15 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
 @app.task(max_retries=3, default_retry_delay=60, queue="web")
 def send_build_status(build_pk, commit, status):
     """
-    Send Build Status to Git Status API for project external versions.
-
-    It tries using these services' account in order:
-
-    1. user's account that imported the project
-    2. each user's account from the project's maintainers
+    Send build status to GitHub/GitLab for a given build/commit.
 
     :param build_pk: Build primary key
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
-    # TODO: Send build status for Bitbucket.
     build = Build.objects.filter(pk=build_pk).first()
     if not build:
         return
-
-    provider_name = build.project.git_provider_name
 
     log.bind(
         build_id=build.pk,
@@ -412,76 +392,40 @@ def send_build_status(build_pk, commit, status):
 
     log.debug("Sending build status.")
 
-    if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
-        # get the service class for the project e.g: GitHubService.
-        service_class = build.project.git_service_class()
-        users = AdminPermission.admins(build.project)
-
-        if build.project.remote_repository:
-            remote_repository = build.project.remote_repository
-            remote_repository_relations = (
-                remote_repository.remote_repository_relations.filter(
-                    account__isnull=False,
-                    # Use ``user_in=`` instead of ``user__projects=`` here
-                    # because User's are not related to Project's directly in
-                    # Read the Docs for Business
-                    user__in=AdminPermission.members(build.project),
-                )
-                .select_related("account", "user")
-                .only("user", "account")
-            )
-
-            # Try using any of the users' maintainer accounts
-            # Try to loop through all remote repository relations for the projects users
-            for relation in remote_repository_relations:
-                service = service_class(relation.user, relation.account)
-                # Send status report using the API.
-                success = service.send_build_status(
-                    build,
-                    commit,
-                    status,
-                )
-
-                if success:
-                    log.debug(
-                        "Build status report sent correctly.",
-                        user_username=relation.user.username,
-                    )
-                    return True
-        else:
-            log.warning("Project does not have a RemoteRepository.")
-            # Try to send build status for projects with no RemoteRepository
-            for user in users:
-                services = service_class.for_user(user)
-                # Try to loop through services for users all social accounts
-                # to send successful build status
-                for service in services:
-                    success = service.send_build_status(
-                        build,
-                        commit,
-                        status,
-                    )
-                    if success:
-                        log.debug(
-                            "Build status report sent correctly using an user account.",
-                            user_username=user.username,
-                        )
-                        return True
-
-        # NOTE: this notifications was attached to every user.
-        # Now, I'm attaching it to the project itself since it's a problem at project level.
-        Notification.objects.add(
-            message_id=MESSAGE_OAUTH_BUILD_STATUS_FAILURE,
-            attached_to=build.project,
-            format_values={
-                "provider_name": provider_name,
-                "url_connect_account": reverse("socialaccount_connections"),
-            },
-            dismissable=True,
-        )
-
-        log.info("No social account or repository permission available.")
+    # Get the service class for the project e.g: GitHubService.
+    # We fallback to guess the service from the repo,
+    # in the future we should only consider projects that have a remote repository.
+    service_class = build.project.get_git_service_class(fallback_to_clone_url=True)
+    if not service_class:
+        log.info("Project isn't connected to a Git service, not sending build status.")
         return False
+
+    if not service_class.supports_build_status:
+        log.info("Git service doesn't support build status.")
+        return False
+
+    for service in service_class.for_project(build.project):
+        success = service.send_build_status(
+            build=build,
+            commit=commit,
+            status=status,
+        )
+        if success:
+            log.debug("Build status report sent correctly.")
+            return True
+
+    Notification.objects.add(
+        message_id=MESSAGE_OAUTH_BUILD_STATUS_FAILURE,
+        attached_to=build.project,
+        format_values={
+            "provider_name": service_class.allauth_provider.name,
+            "url_connect_account": reverse("socialaccount_connections"),
+        },
+        dismissable=True,
+    )
+
+    log.info("No social account or repository permission available, no build status sent.")
+    return False
 
 
 @app.task(queue="web")
@@ -585,9 +529,7 @@ class BuildNotificationSender:
                 **context,
             )
         else:
-            title = _("Failed: {project[name]} ({version[verbose_name]})").format(
-                **context
-            )
+            title = _("Failed: {project[name]} ({version[verbose_name]})").format(**context)
 
         log.info(
             "Sending email notification.",

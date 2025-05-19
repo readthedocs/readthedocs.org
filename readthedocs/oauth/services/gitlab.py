@@ -2,27 +2,32 @@
 
 import json
 import re
-from urllib.parse import quote_plus, urlparse
+from urllib.parse import quote_plus
+from urllib.parse import urlparse
 
 import structlog
-from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
+from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 from django.conf import settings
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
+from readthedocs.builds.constants import SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITLAB
-from ..models import RemoteOrganization, RemoteRepository
-from .base import Service, SyncServiceError
+from ..models import RemoteOrganization
+from ..models import RemoteRepository
+from .base import SyncServiceError
+from .base import UserService
+
 
 log = structlog.get_logger(__name__)
 
 
-class GitLabService(Service):
-
+class GitLabService(UserService):
     """
     Provider service for GitLab.
 
@@ -31,11 +36,13 @@ class GitLabService(Service):
      - https://docs.gitlab.com/ce/api/oauth2.html
     """
 
-    adapter = GitLabOAuth2Adapter
+    allauth_provider = GitLabProvider
+    base_api_url = "https://gitlab.com"
+    supports_build_status = True
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(
-        re.escape(urlparse(adapter.provider_default_url).netloc),
+        re.escape(urlparse(base_api_url).netloc),
     )
 
     PERMISSION_NO_ACCESS = 0
@@ -73,7 +80,7 @@ class GitLabService(Service):
         remote_repositories = []
         try:
             repos = self.paginate(
-                "{url}/api/v4/projects".format(url=self.adapter.provider_default_url),
+                f"{self.base_api_url}/api/v4/projects",
                 per_page=100,
                 archived=False,
                 order_by="path",
@@ -100,7 +107,7 @@ class GitLabService(Service):
 
         try:
             orgs = self.paginate(
-                "{url}/api/v4/groups".format(url=self.adapter.provider_default_url),
+                f"{self.base_api_url}/api/v4/groups",
                 per_page=100,
                 all_available=False,
                 order_by="path",
@@ -110,7 +117,7 @@ class GitLabService(Service):
                 remote_organization = self.create_organization(org)
                 org_repos = self.paginate(
                     "{url}/api/v4/groups/{id}/projects".format(
-                        url=self.adapter.provider_default_url,
+                        url=self.base_api_url,
                         id=org["id"],
                     ),
                     per_page=100,
@@ -129,9 +136,9 @@ class GitLabService(Service):
                         # admin permission fields for GitLab projects.
                         # So, fetch every single project data from the API
                         # which contains the admin permission fields.
-                        resp = self.get_session().get(
+                        resp = self.session.get(
                             "{url}/api/v4/projects/{id}".format(
-                                url=self.adapter.provider_default_url, id=repo["id"]
+                                url=self.base_api_url, id=repo["id"]
                             )
                         )
 
@@ -227,22 +234,16 @@ class GitLabService(Service):
 
             project_access = fields.get("permissions", {}).get("project_access", {})
             if project_access:
-                project_access_level = project_access.get(
-                    "access_level", self.PERMISSION_NO_ACCESS
-                )
+                project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
 
             group_access = fields.get("permissions", {}).get("group_access", {})
             if group_access:
-                group_access_level = group_access.get(
-                    "access_level", self.PERMISSION_NO_ACCESS
-                )
+                group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
 
             remote_repository_relation.admin = any(
                 [
-                    project_access_level
-                    in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
-                    group_access_level
-                    in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                    project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                    group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
                 ]
             )
             remote_repository_relation.save()
@@ -270,7 +271,7 @@ class GitLabService(Service):
         organization.name = fields.get("name")
         organization.slug = fields.get("path")
         organization.url = "{url}/{path}".format(
-            url=self.adapter.provider_default_url,
+            url=self.base_api_url,
             path=fields.get("path"),
         )
         organization.avatar_url = fields.get("avatar_url")
@@ -325,7 +326,6 @@ class GitLabService(Service):
         if repo_id is None:
             return None
 
-        session = self.get_session()
         log.bind(
             project_slug=project.slug,
             integration_id=integration.pk,
@@ -334,9 +334,9 @@ class GitLabService(Service):
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
         try:
-            resp = session.get(
+            resp = self.session.get(
                 "{url}/api/v4/projects/{repo_id}/hooks".format(
-                    url=self.adapter.provider_default_url,
+                    url=self.base_api_url,
                     repo_id=repo_id,
                 ),
             )
@@ -354,16 +354,14 @@ class GitLabService(Service):
                         )
                         break
             else:
-                log.info(
-                    "GitLab project does not exist or user does not have permissions."
-                )
+                log.info("GitLab project does not exist or user does not have permissions.")
 
         except Exception:
             log.exception("GitLab webhook Listing failed for project.")
 
         return integration.provider_data
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """
         Set up GitLab project webhook for project.
 
@@ -383,10 +381,10 @@ class GitLabService(Service):
             )
 
         repo_id = self._get_repo_id(project)
-        url = f"{self.adapter.provider_default_url}/api/v4/projects/{repo_id}/hooks"
+        url = f"{self.base_api_url}/api/v4/projects/{repo_id}/hooks"
 
         if repo_id is None:
-            return (False, resp)
+            return False
 
         log.bind(
             project_slug=project.slug,
@@ -394,9 +392,8 @@ class GitLabService(Service):
             url=url,
         )
         data = self.get_webhook_data(repo_id, project, integration)
-        session = self.get_session()
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -407,23 +404,19 @@ class GitLabService(Service):
                 integration.provider_data = resp.json()
                 integration.save()
                 log.debug("GitLab webhook creation successful for project.")
-                return (True, resp)
+                return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    "Gitlab project does not exist or user does not have permissions."
-                )
+                log.info("Gitlab project does not exist or user does not have permissions.")
             else:
-                log.warning(
-                    "GitLab webhook creation failed. Unknown response from GitLab."
-                )
+                log.warning("GitLab webhook creation failed. Unknown response from GitLab.")
 
         except Exception:
             log.exception("GitLab webhook creation failed.")
 
-        return (False, resp)
+        return False
 
-    def update_webhook(self, project, integration):
+    def update_webhook(self, project, integration) -> bool:
         """
         Update webhook integration.
 
@@ -435,8 +428,6 @@ class GitLabService(Service):
 
         :returns: boolean based on webhook update success, and requests Response
                   object
-
-        :rtype: (Bool, Response)
         """
         provider_data = self.get_provider_data(project, integration)
 
@@ -446,11 +437,10 @@ class GitLabService(Service):
             return self.setup_webhook(project, integration)
 
         resp = None
-        session = self.get_session()
         repo_id = self._get_repo_id(project)
 
         if repo_id is None:
-            return (False, resp)
+            return False
 
         data = self.get_webhook_data(repo_id, project, integration)
 
@@ -460,9 +450,9 @@ class GitLabService(Service):
         )
         try:
             hook_id = provider_data.get("id")
-            resp = session.put(
+            resp = self.session.put(
                 "{url}/api/v4/projects/{repo_id}/hooks/{hook_id}".format(
-                    url=self.adapter.provider_default_url,
+                    url=self.base_api_url,
                     repo_id=repo_id,
                     hook_id=hook_id,
                 ),
@@ -475,7 +465,7 @@ class GitLabService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info("GitLab webhook update successful for project.")
-                return (True, resp)
+                return True
 
             # GitLab returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
@@ -494,9 +484,9 @@ class GitLabService(Service):
                 debug_data=debug_data,
             )
 
-        return (False, resp)
+        return False
 
-    def send_build_status(self, build, commit, status):
+    def send_build_status(self, *, build, commit, status):
         """
         Create GitLab commit status for project.
 
@@ -510,7 +500,6 @@ class GitLabService(Service):
         :rtype: Bool
         """
         resp = None
-        session = self.get_session()
         project = build.project
 
         repo_id = self._get_repo_id(project)
@@ -537,7 +526,7 @@ class GitLabService(Service):
             "description": description,
             "context": context,
         }
-        url = f"{self.adapter.provider_default_url}/api/v4/projects/{repo_id}/statuses/{commit}"
+        url = f"{self.base_api_url}/api/v4/projects/{repo_id}/statuses/{commit}"
 
         log.bind(
             project_slug=project.slug,
@@ -546,7 +535,7 @@ class GitLabService(Service):
             url=url,
         )
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=json.dumps(data),
                 headers={"content-type": "application/json"},
@@ -558,9 +547,7 @@ class GitLabService(Service):
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    "GitLab project does not exist or user does not have permissions."
-                )
+                log.info("GitLab project does not exist or user does not have permissions.")
                 return False
 
             return False

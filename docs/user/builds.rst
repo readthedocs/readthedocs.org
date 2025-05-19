@@ -122,7 +122,7 @@ Our build limits are:
 
    .. tab:: |com_brand|
 
-      * 30 minutes build time
+      * 30 minutes build time (upgradable)
       * 7GB of memory (upgradable)
       * Concurrent builds vary based on your pricing plan
 
@@ -134,8 +134,9 @@ Our build limits are:
       * 15 minutes build time
       * 7GB of memory
       * 2 concurrent builds
+      * 5GB of disk storage (soft limit)
 
-      We can increase build length on a per-project basis.
+      We can increase build time on a per-project basis.
       Send an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
 
       If your business is hitting build limits hosting documentation on Read the Docs,

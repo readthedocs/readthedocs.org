@@ -1,9 +1,12 @@
 import django.core.validators
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy()
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("oauth", "0001_initial"),
@@ -24,9 +27,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "pub_date",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Publication date"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Publication date"),
                 ),
                 (
                     "modified_date",
@@ -39,27 +40,19 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "name",
-                    models.CharField(
-                        max_length=255, null=True, verbose_name="Name", blank=True
-                    ),
+                    models.CharField(max_length=255, null=True, verbose_name="Name", blank=True),
                 ),
                 (
                     "email",
-                    models.EmailField(
-                        max_length=255, null=True, verbose_name="Email", blank=True
-                    ),
+                    models.EmailField(max_length=255, null=True, verbose_name="Email", blank=True),
                 ),
                 (
                     "avatar_url",
-                    models.URLField(
-                        null=True, verbose_name="Avatar image URL", blank=True
-                    ),
+                    models.URLField(null=True, verbose_name="Avatar image URL", blank=True),
                 ),
                 (
                     "url",
-                    models.URLField(
-                        null=True, verbose_name="URL to organization page", blank=True
-                    ),
+                    models.URLField(null=True, verbose_name="URL to organization page", blank=True),
                 ),
                 (
                     "source",
@@ -94,9 +87,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "pub_date",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Publication date"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Publication date"),
                 ),
                 (
                     "modified_date",
@@ -119,9 +110,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "avatar_url",
-                    models.URLField(
-                        null=True, verbose_name="Owner avatar image URL", blank=True
-                    ),
+                    models.URLField(null=True, verbose_name="Owner avatar image URL", blank=True),
                 ),
                 (
                     "ssh_url",
@@ -129,9 +118,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         max_length=512,
                         verbose_name="SSH URL",
-                        validators=[
-                            django.core.validators.URLValidator(schemes=[b"ssh"])
-                        ],
+                        validators=[django.core.validators.URLValidator(schemes=[b"ssh"])],
                     ),
                 ),
                 (
@@ -153,15 +140,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "private",
-                    models.BooleanField(
-                        default=False, verbose_name="Private repository"
-                    ),
+                    models.BooleanField(default=False, verbose_name="Private repository"),
                 ),
                 (
                     "admin",
-                    models.BooleanField(
-                        default=False, verbose_name="Has admin privilege"
-                    ),
+                    models.BooleanField(default=False, verbose_name="Has admin privilege"),
                 ),
                 (
                     "vcs",

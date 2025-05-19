@@ -12,6 +12,7 @@ from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.api.v2.views.integrations import (
     BITBUCKET_EVENT_HEADER,
@@ -41,12 +42,15 @@ from readthedocs.api.v2.views.integrations import (
     WebhookMixin,
 )
 from readthedocs.builds.constants import (
+    BRANCH,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
+    BUILD_STATE_UPLOADING,
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
+    TAG,
 )
 from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
 from readthedocs.doc_builder.exceptions import BuildCancelled, BuildMaxConcurrencyError
@@ -54,11 +58,14 @@ from readthedocs.integrations.models import GenericAPIWebhook, Integration
 from readthedocs.notifications.constants import READ, UNREAD
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
+    GitHubAccountType,
+    GitHubAppInstallation,
     RemoteOrganization,
     RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
+from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import (
     APIProject,
@@ -67,8 +74,10 @@ from readthedocs.projects.models import (
     Feature,
     Project,
 )
+from readthedocs.aws.security_token_service import AWSS3TemporaryCredentials
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
+from readthedocs.vcs_support.backends.git import parse_version_from_ref
 
 
 def get_signature(integration, payload):
@@ -139,6 +148,73 @@ class APIBuildTests(TestCase):
         self.assertFalse(build.cold_storage)
         self.assertEqual(build.commands.count(), 0)
         self.assertEqual(build.notifications.count(), 0)
+
+    @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_tools_scoped_credentials")
+    @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_media_scoped_credentials")
+    def test_get_temporary_credentials_for_build(self, get_s3_build_media_scoped_credentials, get_s3_build_tools_scoped_credentials):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_UPLOADING,
+            success=False,
+            output="Output",
+            error="Error",
+            exit_code=0,
+            builder="Builder",
+            cold_storage=True,
+        )
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(self.project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+        get_s3_build_media_scoped_credentials.return_value = AWSS3TemporaryCredentials(
+            access_key_id="access_key_id",
+            secret_access_key="secret_access_key",
+            session_token="session_token",
+            region_name="us-east-1",
+            bucket_name="readthedocs-media",
+        )
+        r = client.post(reverse("build-credentials-for-storage", args=(build.pk,)), {"type": "build_media"})
+        assert r.status_code == 200
+        assert r.data == {
+            "s3": {
+                "access_key_id": "access_key_id",
+                "secret_access_key": "secret_access_key",
+                "session_token": "session_token",
+                "region_name": "us-east-1",
+                "bucket_name": "readthedocs-media",
+            }
+        }
+
+        get_s3_build_media_scoped_credentials.assert_called_once_with(
+            build=build,
+            duration=60 * 30,
+        )
+
+        get_s3_build_tools_scoped_credentials.return_value = AWSS3TemporaryCredentials(
+            access_key_id="access_key_id",
+            secret_access_key="secret_access_key",
+            session_token="session_token",
+            region_name="us-east-1",
+            bucket_name="readthedocs-build-tools",
+        )
+        r = client.post(reverse("build-credentials-for-storage", args=(build.pk,)), {"type": "build_tools"})
+        assert r.status_code == 200
+        assert r.data == {
+            "s3": {
+                "access_key_id": "access_key_id",
+                "secret_access_key": "secret_access_key",
+                "session_token": "session_token",
+                "region_name": "us-east-1",
+                "bucket_name": "readthedocs-build-tools",
+            }
+        }
+
+        get_s3_build_tools_scoped_credentials.assert_called_once_with(
+            build=build,
+            duration=60 * 30,
+        )
 
     def test_api_does_not_have_private_config_key_superuser(self):
         client = APIClient()
@@ -1416,6 +1492,44 @@ class APITests(TestCase):
         self.assertIn("features", resp.data)
         self.assertEqual(resp.data["features"], [feature.feature_id])
 
+    @mock.patch.object(GitHubAppService, "get_clone_token")
+    def test_project_clone_token(self, get_clone_token):
+        clone_token = "token:1234"
+        get_clone_token.return_value = clone_token
+        project = get(Project)
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        # No remote repository, no token.
+        assert project.remote_repository is None
+
+        resp = client.get(f"/api/v2/project/{project.pk}/")
+        assert resp.status_code == 200
+        assert resp.data["clone_token"] == None
+        get_clone_token.assert_not_called()
+
+        # Project has a GitHubApp remote repository, but it's public.
+        github_app_installation = get(GitHubAppInstallation, installation_id=1234, target_id=1234, target_type=GitHubAccountType.USER)
+        remote_repository = get(RemoteRepository, vcs_provider=GitHubAppProvider.id, github_app_installation=github_app_installation, private=False)
+        project.remote_repository = remote_repository
+        project.save()
+
+        resp = client.get(f"/api/v2/project/{project.pk}/")
+        assert resp.status_code == 200
+        assert resp.data["clone_token"] == None
+        get_clone_token.assert_not_called()
+
+        # Project has a GitHubApp remote repository, and it's private.
+        remote_repository.private = True
+        remote_repository.save()
+
+        resp = client.get(f"/api/v2/project/{project.pk}/")
+        assert resp.status_code == 200
+        assert resp.data["clone_token"] == clone_token
+        get_clone_token.assert_called_once_with(project)
+
     def test_remote_repository_pagination(self):
         account = get(SocialAccount, provider="github")
         user = get(User)
@@ -1700,6 +1814,7 @@ class IntegrationsTests(TestCase):
             verbose_name="master",
             active=True,
             project=self.project,
+            type=BRANCH,
         )
         self.version_tag = get(
             Version,
@@ -1707,9 +1822,10 @@ class IntegrationsTests(TestCase):
             verbose_name="v1.0",
             active=True,
             project=self.project,
+            type=TAG,
         )
         self.github_payload = {
-            "ref": "master",
+            "ref": "refs/heads/master",
         }
         self.commit = "ec26de721c3235aad62de7213c562f8c821"
         self.github_pull_request_payload = {
@@ -1737,7 +1853,7 @@ class IntegrationsTests(TestCase):
         }
         self.gitlab_payload = {
             "object_kind": GITLAB_PUSH,
-            "ref": "master",
+            "ref": "refs/heads/master",
             "before": "95790bf891e76fee5e1747ab589903a6a1f80f22",
             "after": "95790bf891e76fee5e1747ab589903a6a1f80f23",
         }
@@ -1806,6 +1922,9 @@ class IntegrationsTests(TestCase):
     def test_sync_repository_custom_project_queue(
         self, sync_repository_task, trigger_build
     ):
+        """
+        Check that the custom queue isn't used for sync_repository_task.
+        """
         client = APIClient()
         self.project.build_queue = "specific-build-queue"
         self.project.save()
@@ -1836,14 +1955,14 @@ class IntegrationsTests(TestCase):
             kwargs={
                 "build_api_key": mock.ANY,
             },
-            queue="specific-build-queue",
+            # No queue
         )
 
     def test_github_webhook_for_branches(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
 
-        data = {"ref": "master"}
+        data = {"ref": "refs/heads/master"}
         client.post(
             "/api/v2/webhook/github/{}/".format(self.project.slug),
             data,
@@ -1856,7 +1975,7 @@ class IntegrationsTests(TestCase):
             [mock.call(version=self.version, project=self.project)],
         )
 
-        data = {"ref": "non-existent"}
+        data = {"ref": "refs/heads/non-existent"}
         client.post(
             "/api/v2/webhook/github/{}/".format(self.project.slug),
             data,
@@ -1885,7 +2004,7 @@ class IntegrationsTests(TestCase):
     def test_github_webhook_for_tags(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
-        data = {"ref": "v1.0"}
+        data = {"ref": "refs/tags/v1.0"}
 
         client.post(
             "/api/v2/webhook/github/{}/".format(self.project.slug),
@@ -2240,14 +2359,18 @@ class IntegrationsTests(TestCase):
         )
 
     def test_github_parse_ref(self, trigger_build):
-        wh = GitHubWebhookView()
-
-        self.assertEqual(wh._normalize_ref("refs/heads/master"), "master")
-        self.assertEqual(wh._normalize_ref("refs/heads/v0.1"), "v0.1")
-        self.assertEqual(wh._normalize_ref("refs/tags/v0.1"), "v0.1")
-        self.assertEqual(wh._normalize_ref("refs/tags/tag"), "tag")
-        self.assertEqual(wh._normalize_ref("refs/heads/stable/2018"), "stable/2018")
-        self.assertEqual(wh._normalize_ref("refs/tags/tag/v0.1"), "tag/v0.1")
+        self.assertEqual(
+            parse_version_from_ref("refs/heads/master"), ("master", BRANCH)
+        )
+        self.assertEqual(parse_version_from_ref("refs/heads/v0.1"), ("v0.1", BRANCH))
+        self.assertEqual(parse_version_from_ref("refs/tags/v0.1"), ("v0.1", TAG))
+        self.assertEqual(parse_version_from_ref("refs/tags/tag"), ("tag", TAG))
+        self.assertEqual(
+            parse_version_from_ref("refs/heads/stable/2018"), ("stable/2018", BRANCH)
+        )
+        self.assertEqual(
+            parse_version_from_ref("refs/tags/tag/v0.1"), ("tag/v0.1", TAG)
+        )
 
     def test_github_invalid_webhook(self, trigger_build):
         """GitHub webhook unhandled event."""
@@ -2286,7 +2409,7 @@ class IntegrationsTests(TestCase):
 
     def test_github_valid_payload(self, trigger_build):
         client = APIClient()
-        payload = '{"ref":"master"}'
+        payload = '{"ref":"refs/heads/master"}'
         signature = get_signature(
             self.github_integration,
             payload,
@@ -2428,7 +2551,7 @@ class IntegrationsTests(TestCase):
         client = APIClient()
         self.gitlab_payload.update(
             object_kind=GITLAB_TAG_PUSH,
-            ref="v1.0",
+            ref="refs/tags/v1.0",
         )
         headers = {
             GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
@@ -3288,6 +3411,7 @@ class APIVersionTests(TestCase):
                 "slug": "pip",
                 "users": [1],
                 "custom_prefix": None,
+                "clone_token": None,
             },
             "privacy_level": "public",
             "downloads": {},

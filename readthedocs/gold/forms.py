@@ -5,11 +5,11 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.projects.models import Project
 
-from .models import LEVEL_CHOICES, GoldUser
+from .models import LEVEL_CHOICES
+from .models import GoldUser
 
 
 class GoldSubscriptionForm(forms.ModelForm):
-
     """Gold subscription form."""
 
     class Meta:
@@ -23,7 +23,6 @@ class GoldSubscriptionForm(forms.ModelForm):
 
 
 class GoldProjectForm(forms.Form):
-
     """Gold users form to select projects to remove ads from."""
 
     project = forms.ChoiceField(

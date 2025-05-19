@@ -7,6 +7,7 @@ from django.utils import timezone
 from readthedocs.audit.models import AuditLog
 from readthedocs.worker import app
 
+
 log = structlog.get_logger(__name__)
 
 

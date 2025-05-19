@@ -28,6 +28,8 @@ or taking the open source Read the Docs codebase for your own custom installatio
    migrations
    server-side-search
    search-integration
+   aws-temporary-credentials
    subscriptions
+   github-app
    settings
    tests

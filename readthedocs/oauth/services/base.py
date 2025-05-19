@@ -1,24 +1,25 @@
 """OAuth utility functions."""
 
-from datetime import datetime
+import re
+from functools import cached_property
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
-from allauth.socialaccount.providers import registry
-from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
+from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 from django.conf import settings
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
-from requests_oauthlib import OAuth2Session
+
+from readthedocs.core.permissions import AdminPermission
+from readthedocs.oauth.clients import get_oauth2_client
+
 
 log = structlog.get_logger(__name__)
 
 
 class SyncServiceError(Exception):
-
     """Error raised when a service failed to sync."""
 
     INVALID_OR_REVOKED_ACCESS_TOKEN = _(
@@ -28,132 +29,157 @@ class SyncServiceError(Exception):
 
 
 class Service:
+    """Base class for service that interacts with a VCS provider and a project."""
 
+    vcs_provider_slug: str
+    allauth_provider = type[OAuth2Provider]
+
+    url_pattern: re.Pattern | None = None
+    default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
+    default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
+    supports_build_status = False
+    supports_clone_token = False
+
+    @classmethod
+    def for_project(cls, project):
+        """Return an iterator of services that can be used for the project."""
+        raise NotImplementedError
+
+    @classmethod
+    def for_user(cls, user):
+        """Return an iterator of services that belong to the user."""
+        raise NotImplementedError
+
+    @classmethod
+    def sync_user_access(cls, user):
+        """Sync the user's access to the provider's repositories and organizations."""
+        raise NotImplementedError
+
+    def sync(self):
+        """
+        Sync remote repositories and organizations.
+
+        - Creates a new RemoteRepository/Organization per new repository
+        - Updates fields for existing RemoteRepository/Organization
+        - Deletes old RemoteRepository/Organization that are no longer present
+          in this provider.
+        """
+        raise NotImplementedError
+
+    def setup_webhook(self, project, integration=None) -> bool:
+        """
+        Setup webhook for project.
+
+        :param project: project to set up webhook for
+        :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
+        :returns: boolean based on webhook set up success
+        """
+        raise NotImplementedError
+
+    def update_webhook(self, project, integration) -> bool:
+        """
+        Update webhook integration.
+
+        :param project: project to set up webhook for
+        :type project: Project
+        :param integration: Webhook integration to update
+        :type integration: Integration
+        :returns: boolean based on webhook update success, and requests Response object
+        """
+        raise NotImplementedError
+
+    def send_build_status(self, *, build, commit, status):
+        """
+        Create commit status for project.
+
+        :param build: Build to set up commit status for
+        :type build: Build
+        :param commit: commit sha of the pull/merge request
+        :type commit: str
+        :param status: build state failure, pending, or success.
+        :type status: str
+        :returns: boolean based on commit status creation was successful or not.
+        :rtype: Bool
+        """
+        raise NotImplementedError
+
+    def get_clone_token(self, project):
+        """Get a token used for cloning the repository."""
+        raise NotImplementedError
+
+    @classmethod
+    def is_project_service(cls, project):
+        """
+        Determine if this is the service the project is using.
+
+        .. note::
+
+            This should be deprecated in favor of attaching the
+            :py:class:`RemoteRepository` to the project instance. This is a
+            slight improvement on the legacy check for webhooks
+        """
+        return cls.url_pattern is not None and cls.url_pattern.search(project.repo) is not None
+
+
+class UserService(Service):
     """
-    Service mapping for local accounts.
+    Subclass of Service that interacts with a VCS provider using the user's OAuth token.
 
     :param user: User to use in token lookup and session creation
     :param account: :py:class:`SocialAccount` instance for user
     """
 
-    adapter = None
-    url_pattern = None
-    vcs_provider_slug = None
-
-    default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
-    default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
-
     def __init__(self, user, account):
-        self.session = None
         self.user = user
         self.account = account
         log.bind(
             user_username=self.user.username,
-            social_provider=self.provider_id,
+            social_provider=self.allauth_provider.id,
             social_account_id=self.account.pk,
         )
 
     @classmethod
+    def for_project(cls, project):
+        users = AdminPermission.admins(project)
+        for user in users:
+            yield from cls.for_user(user)
+
+    @classmethod
     def for_user(cls, user):
-        """Return list of instances if user has an account for the provider."""
-        try:
-            accounts = SocialAccount.objects.filter(
-                user=user,
-                provider=cls.adapter.provider_id,
-            )
-            return [cls(user=user, account=account) for account in accounts]
-        except SocialAccount.DoesNotExist:
-            return []
-
-    def get_adapter(self) -> type[OAuth2Adapter]:
-        return self.adapter
-
-    @property
-    def provider_id(self):
-        return self.get_adapter().provider_id
-
-    @property
-    def provider_name(self):
-        return registry.get_class(self.provider_id).name
-
-    def get_session(self):
-        if self.session is None:
-            self.create_session()
-        return self.session
-
-    def get_access_token_url(self):
-        # ``access_token_url`` is a property in some adapters,
-        # so we need to instantiate it to get the actual value.
-        # pylint doesn't recognize that get_adapter returns a class.
-        # pylint: disable=not-callable
-        adapter = self.get_adapter()(request=None)
-        return adapter.access_token_url
-
-    def create_session(self):
-        """
-        Create OAuth session for user.
-
-        This configures the OAuth session based on the :py:class:`SocialToken`
-        attributes. If there is an ``expires_at``, treat the session as an auto
-        renewing token. Some providers expire tokens after as little as 2 hours.
-        """
-        token = self.account.socialtoken_set.first()
-        if token is None:
-            return None
-
-        token_config = {
-            "access_token": token.token,
-            "token_type": "bearer",
-        }
-        if token.expires_at is not None:
-            token_expires = (token.expires_at - timezone.now()).total_seconds()
-            token_config.update(
-                {
-                    "refresh_token": token.token_secret,
-                    "expires_in": token_expires,
-                }
-            )
-
-        social_app = self.account.get_provider().app
-        self.session = OAuth2Session(
-            client_id=social_app.client_id,
-            token=token_config,
-            auto_refresh_kwargs={
-                "client_id": social_app.client_id,
-                "client_secret": social_app.secret,
-            },
-            auto_refresh_url=self.get_access_token_url(),
-            token_updater=self.token_updater(token),
+        accounts = SocialAccount.objects.filter(
+            user=user,
+            provider=cls.allauth_provider.id,
         )
+        for account in accounts:
+            yield cls(user=user, account=account)
 
-        return self.session or None
-
-    def token_updater(self, token):
+    @classmethod
+    def sync_user_access(cls, user):
         """
-        Update token given data from OAuth response.
+        Sync the user's access to the provider repositories and organizations.
 
-        Expect the following response into the closure::
+        Since UserService makes use of the user's OAuth token,
+        we can just sync the user's repositories in order to
+        update the user access to repositories and organizations.
 
-            {
-                u'token_type': u'bearer',
-                u'scopes': u'webhook repository team account',
-                u'refresh_token': u'...',
-                u'access_token': u'...',
-                u'expires_in': 3600,
-                u'expires_at': 1449218652.558185
-            }
+        :raises SyncServiceError: if the access token is invalid or revoked
         """
+        has_error = False
+        for service in cls.for_user(user):
+            try:
+                service.sync()
+            except SyncServiceError:
+                # Don't stop the sync if one service account fails,
+                # as we should try to sync all accounts.
+                has_error = True
+        if has_error:
+            raise SyncServiceError()
 
-        def _updater(data):
-            token.token = data["access_token"]
-            token.token_secret = data.get("refresh_token", "")
-            token.expires_at = timezone.make_aware(
-                datetime.fromtimestamp(data["expires_at"]),
-            )
-            token.save()
-            log.info("Updated token.", token_id=token.pk)
-
-        return _updater
+    @cached_property
+    def session(self):
+        return get_oauth2_client(self.account)
 
     def paginate(self, url, **kwargs):
         """
@@ -166,7 +192,7 @@ class Service:
         """
         resp = None
         try:
-            resp = self.get_session().get(url, params=kwargs)
+            resp = self.session.get(url, params=kwargs)
 
             # TODO: this check of the status_code would be better in the
             # ``create_session`` method since it could be used from outside, but
@@ -178,7 +204,7 @@ class Service:
                 # needs to reconnect his account
                 raise SyncServiceError(
                     SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                        provider=self.provider_name
+                        provider=self.allauth_provider.name
                     )
                 )
 
@@ -192,7 +218,7 @@ class Service:
             log.warning("access_token or refresh_token failed.", url=url)
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.provider_name
+                    provider=self.allauth_provider.name
                 )
             )
         # Catch exceptions with request or deserializing JSON
@@ -228,31 +254,29 @@ class Service:
 
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
-        all_remote_repositories = (
-            remote_repositories + remote_repositories_organizations
-        )
-        repository_remote_ids = [
-            r.remote_id for r in all_remote_repositories if r is not None
-        ]
+        all_remote_repositories = remote_repositories + remote_repositories_organizations
+        repository_remote_ids = [r.remote_id for r in all_remote_repositories if r is not None]
         (
-            self.user.remote_repository_relations.exclude(
-                remote_repository__remote_id__in=repository_remote_ids,
+            self.user.remote_repository_relations.filter(
+                account=self.account,
                 remote_repository__vcs_provider=self.vcs_provider_slug,
             )
-            .filter(account=self.account)
+            .exclude(
+                remote_repository__remote_id__in=repository_remote_ids,
+            )
             .delete()
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_remote_ids = [
-            o.remote_id for o in remote_organizations if o is not None
-        ]
+        organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
         (
-            self.user.remote_organization_relations.exclude(
-                remote_organization__remote_id__in=organization_remote_ids,
+            self.user.remote_organization_relations.filter(
+                account=self.account,
                 remote_organization__vcs_provider=self.vcs_provider_slug,
             )
-            .filter(account=self.account)
+            .exclude(
+                remote_organization__remote_id__in=organization_remote_ids,
+            )
             .delete()
         )
 
@@ -300,60 +324,8 @@ class Service:
         """
         raise NotImplementedError
 
-    def setup_webhook(self, project, integration=None):
-        """
-        Setup webhook for project.
-
-        :param project: project to set up webhook for
-        :type project: Project
-        :param integration: Integration for the project
-        :type integration: Integration
-        :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
-        """
+    def sync_repositories(self):
         raise NotImplementedError
 
-    def update_webhook(self, project, integration):
-        """
-        Update webhook integration.
-
-        :param project: project to set up webhook for
-        :type project: Project
-        :param integration: Webhook integration to update
-        :type integration: Integration
-        :returns: boolean based on webhook update success, and requests Response object
-        :rtype: (Bool, Response)
-        """
+    def sync_organizations(self):
         raise NotImplementedError
-
-    def send_build_status(self, build, commit, status):
-        """
-        Create commit status for project.
-
-        :param build: Build to set up commit status for
-        :type build: Build
-        :param commit: commit sha of the pull/merge request
-        :type commit: str
-        :param status: build state failure, pending, or success.
-        :type status: str
-        :returns: boolean based on commit status creation was successful or not.
-        :rtype: Bool
-        """
-        raise NotImplementedError
-
-    @classmethod
-    def is_project_service(cls, project):
-        """
-        Determine if this is the service the project is using.
-
-        .. note::
-
-            This should be deprecated in favor of attaching the
-            :py:class:`RemoteRepository` to the project instance. This is a
-            slight improvement on the legacy check for webhooks
-        """
-        # TODO Replace this check by keying project to remote repos
-        return (
-            cls.url_pattern is not None
-            and cls.url_pattern.search(project.repo) is not None
-        )
