@@ -22,7 +22,7 @@ Enabling link previews
 #. Click on a project name.
 #. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons`.
 #. Go to :guilabel:`Link previews` and check :guilabel:`Enabled`.
-#. Save your settings and rebuild your project.
+#. Save your settings -- a rebuild of your project isn't required!
 
 Troubleshooting link previews
 -----------------------------
