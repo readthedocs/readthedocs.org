@@ -159,7 +159,7 @@ Configuring the project
 
 To update the project description and configure the notification settings:
 
-#. Navigate back to the :term:`project page` and click the :guilabel:`⚙ Settings` button, to open the settings page.
+#. Navigate back to the :term:`project page` and click the :guilabel:`Settings` button, to open the settings page.
 
 #. Update the project description by adding the following text:
 
@@ -178,7 +178,7 @@ and show you a preview of the documentation with those changes.
 
 To trigger builds from pull requests:
 
-#. Click the :guilabel:`Pull request builds` link on the left under the :guilabel:`⚙ Settings` menu, check the "Build pull requests for this project" checkbox, and click the :guilabel:`Update` button at the bottom of the page.
+#. Click the :guilabel:`Pull request builds` link on the left under the :guilabel:`Settings` menu, check the "Build pull requests for this project" checkbox, and click the :guilabel:`Update` button at the bottom of the page.
 
 #. Make some changes to your documentation:
 

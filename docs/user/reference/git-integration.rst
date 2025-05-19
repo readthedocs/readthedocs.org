@@ -47,7 +47,7 @@ you can follow the :doc:`/intro/add-project` guide to actually add your project 
 How automatic configuration works
 ---------------------------------
 
-When you Read the Docs account is connected to GitHub, and you :doc:`add a new Read the Docs project </intro/add-project>`:
+When your Read the Docs account is connected to GitHub, and you :doc:`add a new Read the Docs project </intro/add-project>`:
 
 * Read the Docs automatically connects your project with the GitHub repository,
   and subscribes to the repository's events.
@@ -57,7 +57,7 @@ When your Read the Docs account is connected to GitLab or Bitbucket, and you :do
 
 * Read the Docs automatically creates a Read the Docs Integration that matches your Git provider.
 * Read the Docs creates an incoming webhook with your Git provider, which is automatically added to your Git repository's settings using the account connection.
-* Read the Docs creates an SSH key, which is automatically added to your Git repository (when importing private repositories on |com_brand|).
+* Read the Docs creates an SSH key, which is automatically added to your Git repository (when adding private repositories on |com_brand|).
 
 After project creation,
 you can continue to configure the project.
@@ -115,8 +115,8 @@ since we trust that the user who connects the account is the owner of Git provid
 By granting Read the Docs the requested permissions,
 we are issued a secret OAuth token from your Git provider.
 In the case of GitLab and Bitbucket, we can use the secret token
-to automatically configure repositories during :doc:`project creation </intro/add-project>`,
-for GitHub, you need to install our :ref:`GitHub App <reference/git-integration:GitHub App>` in the repository you want to import.
+to automatically configure repositories during :doc:`project creation </intro/add-project>`.
+For GitHub, you need to install our :ref:`GitHub App <reference/git-integration:GitHub App>` in the repository you want to add.
 
 .. _OAuth: https://en.wikipedia.org/wiki/OAuth
 
@@ -184,9 +184,9 @@ so that you can log in to Read the Docs with your connected account credentials.
       .. note::
 
          Read the Docs used to use a GitHub OAuth application for integration,
-         which has been replaced by a `GitHub App <https://docs.github.com/en/apps/overview>`__.
+         which is being deprecated and replaced by a `GitHub App <https://docs.github.com/en/apps/overview>`__.
          If you haven't migrated your projects to the new GitHub App,
-         we will still use the OAuth application to interact with your repositories,
+         we will still use the OAuth application to interact with your repositories for now,
          but we recommend migrating to the GitHub App for a better experience and more granular permissions.
 
       Read the Docs requests the following permissions (more precisely, `OAuth scopes`_)
