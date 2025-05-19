@@ -34,6 +34,14 @@ starting with contributions, we suggest focusing on the following areas:
 .. contents::
     :local:
 
+.. tip::
+    If you are a new contributor, you can consider starting with the `Read the Docs Sphinx Theme`_,
+    or Sphinx extensions in the `Read the Docs GitHub organization`_ like sphinx-notfound-page`_.
+
+.. _Read the Docs Sphinx Theme: https://sphinx-rtd-theme.readthedocs.io/en/stable/
+.. _Read the Docs GitHub organization: https://github.com/readthedocs
+.. _sphinx-notfound-page: https://github.com/readthedocs/sphinx-notfound-page
+
 Contributing to development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
