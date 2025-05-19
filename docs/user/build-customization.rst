@@ -450,12 +450,12 @@ Take a look at the following example:
 Install dependencies with ``uv``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Projects managed with `uv <https://github.com/astral-sh/uv/>`__, can install `uv` with asdf,
-and then rely on it to set up the environment and install the python project and its dependencies
-where readthedocs' own build steps expect it by setting the ``UV_PROJECT_ENVIRONMENT`` variable,
+Projects managed with `uv <https://github.com/astral-sh/uv/>`__ can install `uv` with asdf,
+and then rely on it to set up the environment and install the python project and its dependencies.
+Read the Docs' own build steps expect it by setting the ``UV_PROJECT_ENVIRONMENT`` variable,
 usually reducing the time taken to install compared to pip.
 
-The following examples assumes uv's project managed was used as described in its
+The following examples assumes a uv project as described in its
 `projects concept <https://docs.astral.sh/uv/concepts/projects/>`__. As an introduction
 refer to its `Working on projects guide <https://docs.astral.sh/uv/guides/projects/>`__.
 The ``doc`` dependency group which should is pulled in during the ``uv sync`` step (if additional
