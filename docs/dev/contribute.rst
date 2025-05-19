@@ -33,8 +33,8 @@ starting with contributions, we suggest focusing on the following areas:
     :local:
 
 .. tip::
-    If you are a new contributor, you can consider starting with the `Read the Docs Sphinx Theme`_,
-    or Sphinx extensions in the `Read the Docs GitHub organization`_ like sphinx-notfound-page`_.
+    You can also contribute to the `Read the Docs Sphinx Theme`_,
+    or Sphinx extensions in the `Read the Docs GitHub organization`_ like `sphinx-notfound-page`_.
 
 .. _Read the Docs Sphinx Theme: https://sphinx-rtd-theme.readthedocs.io/en/stable/
 .. _Read the Docs GitHub organization: https://github.com/readthedocs
