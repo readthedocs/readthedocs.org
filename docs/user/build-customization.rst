@@ -450,33 +450,41 @@ Take a look at the following example:
 Install dependencies with ``uv``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Projects can use `uv <https://github.com/astral-sh/uv/>`__,
-to install Python dependencies, usually reducing the time taken to install compared to pip.
-Take a look at the following example:
+Projects managed with `uv <https://github.com/astral-sh/uv/>`__ can install `uv` with asdf,
+and then rely on it to set up the environment and install the python project and its dependencies.
+Read the Docs' own build steps expect it by setting the ``UV_PROJECT_ENVIRONMENT`` variable,
+usually reducing the time taken to install compared to pip.
 
+The following examples assumes a uv project as described in its
+`projects concept <https://docs.astral.sh/uv/concepts/projects/>`__. As an introduction
+refer to its `Working on projects guide <https://docs.astral.sh/uv/guides/projects/>`__.
+The ``docs`` dependency group which should is pulled in during the ``uv sync`` step (if additional
+extras are required they can be added with the `--extra attribute <https://docs.astral.sh/uv/concepts/projects/sync/#syncing-optional-dependencies>`__).
+
+If a ``uv.lock`` file exists it is respected.
 
 .. code-block:: yaml
+
    :caption: .readthedocs.yaml
 
    version: 2
+
+   sphinx:
+      configuration: docs/conf.py
 
    build:
       os: ubuntu-24.04
       tools:
          python: "3.13"
       jobs:
-         create_environment:
+         pre_create_environment:
             - asdf plugin add uv
             - asdf install uv latest
             - asdf global uv latest
-            - uv venv
+         create_environment:
+            - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
          install:
-            - uv pip install -r requirements.txt
-         build:
-            html:
-               - uv run sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
-
-MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
+            - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
 
 Update Conda version
 ~~~~~~~~~~~~~~~~~~~~
