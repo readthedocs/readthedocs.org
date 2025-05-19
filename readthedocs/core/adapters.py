@@ -142,6 +142,10 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
         This is a temporary measure to block the use of the old GitHub OAuth app
         until we switch our login to always use the new GitHub App.
+
+        If the user has its account still connected to the old GitHub OAuth app,
+        we allow them to use it, since there is no difference between using the two apps
+        for logging in.
         """
         provider = sociallogin.account.get_provider()
 
@@ -149,17 +153,20 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         if provider.id != GitHubProvider.id:
             return
 
-        social_account = SocialAccount.objects.filter(
+        # If the user is still using the old GitHub OAuth app, nothing to do.
+        if sociallogin.is_existing:
+            return
+
+        has_gh_app_social_account = SocialAccount.objects.filter(
             provider=GitHubAppProvider.id,
             uid=sociallogin.account.uid,
-        ).first()
+        ).exists()
 
         # If there is no existing GitHub App account, nothing to do.
-        if not social_account:
+        if not has_gh_app_social_account:
             return
 
         # Show a warning to the user and redirect them to the GitHub App login page.
-        # TODO: only show this warning if the user already removed the old GitHub OAuth app from their account?
         messages.warning(
             request,
             "You already migrated from our old GitHub OAuth app. "
