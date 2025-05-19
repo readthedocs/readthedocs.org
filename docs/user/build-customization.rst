@@ -478,6 +478,32 @@ Take a look at the following example:
 
 MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
 
+Install dependencies from Dependency Groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Python `Dependency Groups <https://packaging.python.org/en/latest/specifications/dependency-groups/>`_
+are a way of storing lists of dependencies in your ``pyproject.toml``.
+
+``pip`` version 25.1 and later, which is the default for Read the Docs builds,
+as well as many other tools support Dependency Groups.
+This example uses ``pip`` and installs from a group named ``docs``:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+      os: ubuntu-24.04
+      tools:
+         python: "3.13"
+      jobs:
+         install:
+            - pip install --group 'docs'
+
+For more information on relevant ``pip`` usage, see the
+`pip user guide on Dependency Groups <https://pip.pypa.io/en/stable/user_guide/#dependency-groups>`_.
+
 Update Conda version
 ~~~~~~~~~~~~~~~~~~~~
 
