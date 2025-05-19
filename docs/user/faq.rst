@@ -190,6 +190,9 @@ You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 
+Instead, you can consider *migrating your documentation to another domain*
+with :doc:`/user-defined-redirects`.
+
 If that isn't enough,
 you can request the change sending an email to support@readthedocs.org.
 
