@@ -19,11 +19,9 @@ communication channels:
 
 - Ask usage questions ("How do I?") on `StackOverflow`_.
 - Report bugs, suggest features, or view the source code `on GitHub`_.
-- Discuss development topics on `Gitter`_.
 
 .. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
 .. _on GitHub: https://github.com/readthedocs/readthedocs.org
-.. _Gitter: https://gitter.im/readthedocs/community
 
 Contributing
 ------------
