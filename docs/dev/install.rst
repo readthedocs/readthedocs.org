@@ -91,7 +91,7 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.up  --ext-theme --webpack --init
+      inv docker.up  --init
 
    .. warning::
 
@@ -140,8 +140,6 @@ save some work while typing docker compose commands. This section explains these
     * ``--http-domain`` configures an external domain for the environment (useful for Ngrok or other http proxy).
       Note that https proxies aren't supported.
       There will also be issues with "suspicious domain" failures on Proxito.
-    * ``--ext-theme`` to use the new dashboard templates
-    * ``--webpack`` to start the Webpack dev server for the new dashboard templates
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).

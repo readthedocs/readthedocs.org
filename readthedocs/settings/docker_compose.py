@@ -61,9 +61,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         return os.path.join(super().DOCROOT, socket.gethostname())
 
     # New templates
-    @property
-    def RTD_EXT_THEME_DEV_SERVER_ENABLED(self):
-        return os.environ.get("RTD_EXT_THEME_DEV_SERVER_ENABLED") is not None
+    RTD_EXT_THEME_DEV_SERVER_ENABLED = True
 
     @property
     def RTD_EXT_THEME_DEV_SERVER(self):
