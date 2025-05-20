@@ -603,7 +603,8 @@ Here is an example configuration file:
            - asciidoctor -D $READTHEDOCS_OUTPUT/html index.asciidoc
 
 Generate text format with Sphinx
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 There might be various reasons why would you want to generate your
 documentation in `text` format (secondary to `html`). One of such reasons
 would be generating LLM friendly documentation.
