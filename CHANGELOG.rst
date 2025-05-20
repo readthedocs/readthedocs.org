@@ -1,3 +1,31 @@
+Version 13.2.0
+--------------
+
+:Date: May 20, 2025
+
+* `@barseghyanartur <https://github.com/barseghyanartur>`__: Add info on generating docs in `.txt` format (`#12194 <https://github.com/readthedocs/readthedocs.org/pull/12194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: add is_github_app_project helper method (`#12193 <https://github.com/readthedocs/readthedocs.org/pull/12193>`__)
+* `@pjfan <https://github.com/pjfan>`__: Delete how to change url versioning page (`#12192 <https://github.com/readthedocs/readthedocs.org/pull/12192>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Add note about contributing to other RTD projects (`#12191 <https://github.com/readthedocs/readthedocs.org/pull/12191>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Update dev site build step (`#12190 <https://github.com/readthedocs/readthedocs.org/pull/12190>`__)
+* `@sirosen <https://github.com/sirosen>`__: Add an example of `pip install --group` (`#12189 <https://github.com/readthedocs/readthedocs.org/pull/12189>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Remove mention of Gitter from contributor docs (`#12188 <https://github.com/readthedocs/readthedocs.org/pull/12188>`__)
+* `@pjfan <https://github.com/pjfan>`__: Link previews docs update (`#12187 <https://github.com/readthedocs/readthedocs.org/pull/12187>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Update faq about changing project slugs (`#12184 <https://github.com/readthedocs/readthedocs.org/pull/12184>`__)
+* `@humitos <https://github.com/humitos>`__: Development: always use webpack on development (`#12182 <https://github.com/readthedocs/readthedocs.org/pull/12182>`__)
+* `@verisimilidude2 <https://github.com/verisimilidude2>`__: Update 'built in' info (`#12180 <https://github.com/readthedocs/readthedocs.org/pull/12180>`__)
+* `@MilaZhou22 <https://github.com/MilaZhou22>`__: Add doc tools to frontpage (`#12179 <https://github.com/readthedocs/readthedocs.org/pull/12179>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: block GH app users to re-connect to old OAuth app (`#12175 <https://github.com/readthedocs/readthedocs.org/pull/12175>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade redis (`#12173 <https://github.com/readthedocs/readthedocs.org/pull/12173>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Downgrade Redis back to 5.2.1 (`#12172 <https://github.com/readthedocs/readthedocs.org/pull/12172>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 13.1.1 (`#12170 <https://github.com/readthedocs/readthedocs.org/pull/12170>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Document ability to set `public` on EnvironmentVariable API v3 (`#12169 <https://github.com/readthedocs/readthedocs.org/pull/12169>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: escape all whitespaces (`#12152 <https://github.com/readthedocs/readthedocs.org/pull/12152>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update build tools (`#12143 <https://github.com/readthedocs/readthedocs.org/pull/12143>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: support cloning private repos with token (`#12115 <https://github.com/readthedocs/readthedocs.org/pull/12115>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use scoped credentials for interacting with S3 (`#12078 <https://github.com/readthedocs/readthedocs.org/pull/12078>`__)
+* `@coroa <https://github.com/coroa>`__: More concise uv example with docs (`#12064 <https://github.com/readthedocs/readthedocs.org/pull/12064>`__)
+
 Version 13.1.1
 --------------
 

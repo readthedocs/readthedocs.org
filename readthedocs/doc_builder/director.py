@@ -31,7 +31,8 @@ from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.signals import after_build
 from readthedocs.projects.signals import before_build
 from readthedocs.projects.signals import before_vcs
-from readthedocs.storage import build_tools_storage
+from readthedocs.projects.tasks.storage import StorageType
+from readthedocs.projects.tasks.storage import get_storage
 
 
 log = structlog.get_logger(__name__)
@@ -518,6 +519,13 @@ class BuildDirector:
                 record=False,
             )
 
+        build_tools_storage = get_storage(
+            project=self.data.project,
+            build_id=self.data.build["id"],
+            api_client=self.data.api_client,
+            storage_type=StorageType.build_tools,
+        )
+
         for tool, version in self.data.config.build.tools.items():
             full_version = version.full_version  # e.g. 3.9 -> 3.9.7
 
@@ -671,6 +679,7 @@ class BuildDirector:
         env = self.get_rtd_env_vars()
         # Don't prompt for username, this requires Git 2.3+
         env["GIT_TERMINAL_PROMPT"] = "0"
+        env["READTHEDOCS_GIT_CLONE_TOKEN"] = self.data.project.clone_token
         return env
 
     def get_rtd_env_vars(self):

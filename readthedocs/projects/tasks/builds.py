@@ -53,7 +53,8 @@ from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
-from readthedocs.storage import build_media_storage
+from readthedocs.projects.tasks.storage import StorageType
+from readthedocs.projects.tasks.storage import get_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
@@ -204,6 +205,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             version=self.data.version,
             environment={
                 "GIT_TERMINAL_PROMPT": "0",
+                "READTHEDOCS_GIT_CLONE_TOKEN": self.data.project.clone_token,
             },
             # Pass the api_client so that all environments have it.
             # This is needed for ``readthedocs-corporate``.
@@ -901,6 +903,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         types_to_copy = []
         types_to_delete = []
+
+        build_media_storage = get_storage(
+            project=self.data.project,
+            build_id=self.data.build["id"],
+            api_client=self.data.api_client,
+            storage_type=StorageType.build_media,
+        )
 
         for artifact_type in ARTIFACT_TYPES:
             if artifact_type in valid_artifacts:
