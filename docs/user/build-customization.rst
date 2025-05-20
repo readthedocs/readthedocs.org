@@ -649,12 +649,9 @@ configuration are highlighted/emphasized:
        # rust: "1.70"
        # golang: "1.20"
      jobs:
-       build:
-         # The default commands for generating the HTML and pdf formats will still run.
-         htmlzip:
-           - echo "Override default build command for htmlzip format"
-           - mkdir -p $READTHEDOCS_OUTPUT/html/
-           - sphinx-build -n -b text docs $READTHEDOCS_OUTPUT/html/
+       post_build:
+         - mkdir -p $READTHEDOCS_OUTPUT/html/
+         - sphinx-build -n -b text docs $READTHEDOCS_OUTPUT/html/
 
 The generated ``.txt`` files will be placed in the `html` directory, together
 with ``.html`` files.
