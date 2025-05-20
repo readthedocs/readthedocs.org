@@ -614,34 +614,21 @@ configuration are highlighted/emphasized:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 11, 37-
+   :emphasize-lines: 14-
 
    version: 2
 
-   # Build documentation in the "docs/" directory with Sphinx
    sphinx:
      configuration: docs/conf.py
-     # You can configure Sphinx to use a different builder, for instance use the dirhtml builder for simpler URLs
-     # builder: "dirhtml"
-     # Fail on all warnings to avoid broken references
-     # fail_on_warning: true
 
-   # Optional but recommended, declare the Python requirements required
-   # to build your documentation
-   # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
    python:
      install:
      - requirements: docs/requirements.txt
 
-   # Set the OS, Python version and other tools you might need
    build:
      os: ubuntu-22.04
      tools:
        python: "3.12"
-       # You can also specify other tool versions:
-       # nodejs: "20"
-       # rust: "1.70"
-       # golang: "1.20"
      jobs:
        post_build:
          - mkdir -p $READTHEDOCS_OUTPUT/html/
