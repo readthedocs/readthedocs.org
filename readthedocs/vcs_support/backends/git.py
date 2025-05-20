@@ -1,7 +1,7 @@
 """Git-related utilities."""
 
-import re
 from typing import Iterable
+from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
@@ -27,22 +27,15 @@ class Backend(BaseVCS):
     fallback_branch = "master"  # default branch
     repo_depth = 50
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, use_token=False, **kwargs):
         super().__init__(*args, **kwargs)
-        self.token = kwargs.get("token")
+        self.use_token = use_token
         self.repo_url = self._get_clone_url()
 
     def _get_clone_url(self):
-        if "://" in self.repo_url:
-            hacked_url = self.repo_url.split("://")[1]
-            hacked_url = re.sub(".git$", "", hacked_url)
-            clone_url = "https://%s" % hacked_url
-            if self.token:
-                clone_url = "https://{}@{}".format(self.token, hacked_url)
-                return clone_url
-            # Don't edit URL because all hosts aren't the same
-            # else:
-            #     clone_url = 'git://%s' % (hacked_url)
+        if self.repo_url.startswith(("https://", "http://")) and self.use_token:
+            parsed_url = urlparse(self.repo_url)
+            return f"{parsed_url.scheme}://$READTHEDOCS_GIT_CLONE_TOKEN@{parsed_url.netloc}{parsed_url.path}"
         return self.repo_url
 
     def update(self):

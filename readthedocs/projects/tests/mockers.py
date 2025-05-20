@@ -7,6 +7,7 @@ from django.conf import settings
 from readthedocs.api.v2.serializers import VersionAdminSerializer
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.projects.constants import MKDOCS
+from readthedocs.projects.tasks.builds import UpdateDocsTask
 
 
 class BuildEnvironmentMocker:
@@ -159,9 +160,7 @@ class BuildEnvironmentMocker:
         # )
 
     def _mock_storage(self):
-        self.patches["build_media_storage"] = mock.patch(
-            "readthedocs.projects.tasks.builds.build_media_storage",
-        )
+        self.patches["get_build_media_storage_class"] = mock.patch("readthedocs.projects.tasks.storage._get_build_media_storage_class")
 
     def _mock_api(self):
         headers = {"Content-Type": "application/json"}
@@ -221,6 +220,21 @@ class BuildEnvironmentMocker:
                         "slug": self.version.slug,
                     },
                 ]
+            },
+            headers=headers,
+        )
+
+        self.requestsmock.post(
+            f"{settings.SLUMBER_API_HOST}/api/v2/build/{self.build.pk}/credentials/storage/",
+            status_code=201,
+            json={
+                "s3": {
+                    "access_key_id": "some-access-key",
+                    "secret_access_key": "some-secret-key",
+                    "session_token": "some-session-token",
+                    "bucket_name": "some-bucket-name",
+                    "region_name": "us-east-1",
+                }
             },
             headers=headers,
         )

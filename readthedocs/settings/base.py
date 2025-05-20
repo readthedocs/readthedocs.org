@@ -1039,3 +1039,10 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_MAX_SCORE = 9999
 
     S3_PROVIDER = "AWS"
+    # Used by readthedocs.aws.security_token_service.
+    AWS_STS_ASSUME_ROLE_ARN = "arn:aws:iam::1234:role/SomeRole"
+
+    @property
+    def USING_AWS(self):
+        """Return True if we are using AWS as our storage/cloud provider."""
+        return self.S3_PROVIDER == "AWS"
