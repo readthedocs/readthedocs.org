@@ -601,3 +601,39 @@ Here is an example configuration file:
        build:
          html:
            - asciidoctor -D $READTHEDOCS_OUTPUT/html index.asciidoc
+
+Generate text format with Sphinx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There might be various reasons why would you want to generate your
+documentation in `text` format (secondary to `html`). One of such reasons
+would be generating LLM friendly documentation.
+
+See the following example for how to add generation of additional `text`
+format to your existing documentation. Deviations from standard build
+configuration are highlighted/emphasized:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 14-
+
+   version: 2
+
+   sphinx:
+     configuration: docs/conf.py
+
+   python:
+     install:
+     - requirements: docs/requirements.txt
+
+   build:
+     os: ubuntu-22.04
+     tools:
+       python: "3.12"
+     jobs:
+       post_build:
+         - mkdir -p $READTHEDOCS_OUTPUT/html/
+         - sphinx-build -n -b text docs $READTHEDOCS_OUTPUT/html/
+
+The generated ``.txt`` files will be placed in the `html` directory, together
+with ``.html`` files.
