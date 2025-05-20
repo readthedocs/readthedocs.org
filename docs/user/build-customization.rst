@@ -618,12 +618,6 @@ configuration are highlighted/emphasized:
 
    version: 2
 
-   # Optionally build your docs in additional formats such as PDF and ePub
-   formats:
-     - pdf
-     - epub
-     - htmlzip
-
    # Build documentation in the "docs/" directory with Sphinx
    sphinx:
      configuration: docs/conf.py
