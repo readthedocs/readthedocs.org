@@ -616,10 +616,6 @@ configuration are highlighted/emphasized:
    :caption: .readthedocs.yaml
    :emphasize-lines: 11, 37-
 
-   # Read the Docs configuration file for Sphinx projects
-   # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-   # Required
    version: 2
 
    # Optionally build your docs in additional formats such as PDF and ePub
