@@ -24,11 +24,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.38.13
+boto3==1.38.18
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.38.13
+botocore==1.38.18
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -134,7 +134,7 @@ django-annoying==0.10.8
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
-django-celery-beat==2.8.0
+django-celery-beat==2.8.1
     # via -r requirements/pip.txt
 django-cors-headers==4.7.0
     # via -r requirements/pip.txt
@@ -291,9 +291,9 @@ prompt-toolkit==3.0.51
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.2.7
+psycopg[binary,pool]==3.2.9
     # via -r requirements/pip.txt
-psycopg-binary==3.2.7
+psycopg-binary==3.2.9
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -385,7 +385,7 @@ s3transfer==0.12.0
     #   boto3
 selectolax==0.3.29
     # via -r requirements/pip.txt
-sentry-sdk==2.27.0
+sentry-sdk==2.28.0
     # via structlog-sentry
 six==1.17.0
     # via
