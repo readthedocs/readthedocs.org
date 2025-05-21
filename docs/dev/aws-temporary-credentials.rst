@@ -22,8 +22,8 @@ You can use :ref:`environment variables <settings:AWS configuration>` to set the
 
 .. note::
 
-   If you are part of the development team, you should be able to use the credentials from the ``storage-dev``` user,
-   which is already configured to make use of STS, and the ARN from the ``RTDSTSAssumeRoleDev`` role.
+   If you are part of the development team, you should be able to use the credentials from the ``storage-dev`` user,
+   which is already configured to make use of STS, and the ARN from the ``builder-dev`` role.
 
 .. note::
 
