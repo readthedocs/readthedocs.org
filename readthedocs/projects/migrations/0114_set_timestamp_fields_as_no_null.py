@@ -7,7 +7,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
 
     dependencies = [
         ("projects", "0113_disable_analytics_addons"),

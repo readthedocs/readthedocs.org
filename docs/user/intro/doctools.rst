@@ -72,6 +72,9 @@ Below is a list of popular documentation tools that you can use to write your do
         Supported formats
              :bdg-success:`md`
 
+        Written in
+             :bdg-info:`typescript`
+
     .. grid-item-card::  Antora
         :link: antora.html
 

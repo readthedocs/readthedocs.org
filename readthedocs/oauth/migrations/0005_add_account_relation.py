@@ -4,7 +4,7 @@ from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
-    safe = Safe.after_deploy
+    safe = Safe.after_deploy()
     dependencies = [
         ("socialaccount", "0002_token_max_lengths"),
         ("oauth", "0004_drop_github_and_bitbucket_models"),

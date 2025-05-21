@@ -7,7 +7,7 @@ import readthedocs.builds.version_slug
 
 
 class Migration(migrations.Migration):
-    safe = Safe.always
+    safe = Safe.always()
     dependencies = [
         ("projects", "0001_initial"),
         ("taggit", "0001_initial"),
@@ -246,9 +246,5 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name="version",
             unique_together={("project", "slug")},
-        ),
-        migrations.AlterIndexTogether(
-            name="build",
-            index_together={("version", "state", "type")},
         ),
     ]

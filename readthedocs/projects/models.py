@@ -40,6 +40,7 @@ from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -968,6 +969,7 @@ class Project(models.Model):
                 self,
                 version=version,
                 environment=environment,
+                use_token=bool(self.clone_token),
             )
         return repo
 
@@ -1011,6 +1013,10 @@ class Project(models.Model):
             GitHubService,
             GitHubAppService,
         ]
+
+    @property
+    def is_github_app_project(self):
+        return self.remote_repository and self.remote_repository.vcs_provider == GITHUB_APP
 
     @property
     def is_gitlab_project(self):
@@ -1398,6 +1404,29 @@ class Project(models.Model):
     def organization(self):
         return self.organizations.first()
 
+    @property
+    def clone_token(self) -> str | None:
+        """
+        Return a HTTP-based Git access token to the repository.
+
+        .. note::
+
+           - A token is only returned for projects linked to a private repository.
+           - Only repositories granted access by a GitHub app installation will return a token.
+        """
+        service_class = self.get_git_service_class()
+        if not service_class or not self.remote_repository.private:
+            return None
+
+        if not service_class.supports_clone_token:
+            return None
+
+        for service in service_class.for_project(self):
+            token = service.get_clone_token(self)
+            if token:
+                return token
+        return None
+
 
 class APIProject(Project):
     """
@@ -1414,12 +1443,17 @@ class APIProject(Project):
     """
 
     features = []
+    # This is a property in the original model, in order to
+    # be able to assign it a value in the constructor, we need to re-declare it
+    # as an attribute here.
+    clone_token = None
 
     class Meta:
         proxy = True
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop("features", [])
+        self.clone_token = kwargs.pop("clone_token", None)
         environment_variables = kwargs.pop("environment_variables", {})
         ad_free = not kwargs.pop("show_advertising", True)
         # These fields only exist on the API return, not on the model, so we'll
@@ -1810,7 +1844,10 @@ class Domain(TimeStampedModel):
             self.save()
 
     def clean(self):
-        check_domains_limit(self.project)
+        # Only check the limit when creating a new domain,
+        # not when updating existing ones.
+        if not self.pk:
+            check_domains_limit(self.project)
 
     def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)
@@ -1906,6 +1943,7 @@ class Feature(models.Model):
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
+    USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
 
     FEATURES = (
         (
@@ -1979,6 +2017,10 @@ class Feature(models.Model):
         (
             SCALE_IN_PROTECTION,
             _("Build: Set scale-in protection before/after building."),
+        ),
+        (
+            USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS,
+            _("Build: Use S3 scoped credentials for uploading build artifacts."),
         ),
     )
 

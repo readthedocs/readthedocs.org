@@ -228,6 +228,11 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
 
     def clean_prevalidation(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
+        # If the project is attached to a GitHub app integration,
+        # it will always be able to build external versions.
+        if self.instance.is_github_app_project:
+            return
+
         integrations = list(self.instance.integrations.all())
         has_supported_integration = self.has_supported_integration(integrations)
         can_build_external_versions = self.can_build_external_versions(integrations)
@@ -434,9 +439,6 @@ class UpdateProjectForm(
             # Booleans
             "external_builds_privacy_level",
             "external_builds_enabled",
-            # Deprecated
-            "analytics_code",
-            "analytics_disabled",
             "show_version_warning",
         )
 
@@ -449,9 +451,6 @@ class UpdateProjectForm(
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Remove the nullable option from the form
-        self.fields["analytics_disabled"].widget = forms.CheckboxInput()
-        self.fields["analytics_disabled"].empty_value = False
 
         # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
@@ -476,11 +475,6 @@ class UpdateProjectForm(
 
         if not settings.ALLOW_PRIVATE_REPOS:
             for field in ["privacy_level", "external_builds_privacy_level"]:
-                self.fields.pop(field)
-
-        # Remove analytics from new dashboard
-        if settings.RTD_EXT_THEME_ENABLED:
-            for field in ["analytics_code", "analytics_disabled"]:
                 self.fields.pop(field)
 
         default_choice = (None, "-" * 9)

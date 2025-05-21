@@ -162,6 +162,9 @@ We have a few places for you to get started:
 :doc:`/tutorial/index`
   Follow the Read the Docs tutorial.
 
+:doc:`/intro/doctools`
+  Quick start for MkDocs and Docusaurus.
+
 :doc:`/examples`
   Start your journey with an example project to hit the ground running.
 

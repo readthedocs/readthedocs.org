@@ -430,16 +430,3 @@ class TestStripeEventHandlers(TestCase):
 
             self.organization.refresh_from_db()
             assert self.organization.stripe_subscription == stripe_subscription
-
-    def test_register_events(self):
-        def test_func():
-            pass
-
-        with override_settings(RTD_ALLOW_ORGANIZATIONS=False):
-            event_handlers.handler("event")(test_func)
-
-        self.assertEqual(webhooks.registrations["event"], [])
-
-        with override_settings(RTD_ALLOW_ORGANIZATIONS=True):
-            event_handlers.handler("event")(test_func)
-        self.assertEqual(webhooks.registrations["event"], [test_func])
