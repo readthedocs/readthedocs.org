@@ -478,7 +478,7 @@ class TestStripeEventHandlers(PaymentMixin, TestCase):
             },
         )
 
-        event_handlers.gold_membership_events(event)
+        event_handlers.gold_membership_subscription_updated(event)
         golduser = GoldUser.objects.get(stripe_id=stripe_customer_id)
         self.assertEqual(golduser.level, "v1-org-15")
 
@@ -533,7 +533,7 @@ class TestStripeEventHandlers(PaymentMixin, TestCase):
             },
         )
 
-        event_handlers.gold_membership_events(event)
+        event_handlers.gold_membership_new_subscription(event)
 
         golduser = GoldUser.objects.get(stripe_id=stripe_customer_id)
         self.assertEqual(GoldUser.objects.count(), 1)
