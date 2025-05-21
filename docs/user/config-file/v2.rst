@@ -557,6 +557,11 @@ See :doc:`/build-customization` for more details.
 
    ``build.os`` and ``build.tools`` are also required when using ``build.commands``.
 
+.. note::
+
+   All items in the ``build.commands`` array are executed in a clean shell environment, i.e. environment changes do not
+   persist and the working directory always start from the git repo.
+
 :Type: ``list``
 :Required: ``false``
 :Default: ``[]``
