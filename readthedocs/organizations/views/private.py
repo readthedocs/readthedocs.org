@@ -121,7 +121,7 @@ class DeleteOrganization(
     OrganizationView,
     DeleteViewWithMessage,
 ):
-    template_name = "organizations/admin/organization_delete.html"
+    http_method_names = ["post"]
     success_message = _("Organization deleted")
 
     def get_success_url(self):
@@ -170,7 +170,7 @@ class DeleteOrganizationTeam(
     OrganizationTeamView,
     DeleteViewWithMessage,
 ):
-    template_name = "organizations/team_delete.html"
+    http_method_names = ["post"]
     success_message = _("Team deleted")
 
     def get_success_url(self):
