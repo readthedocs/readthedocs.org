@@ -1,6 +1,5 @@
 from unittest import mock
 
-import pytest
 import requests_mock
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.github.provider import GitHubProvider
@@ -257,6 +256,18 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is False
+        assert context["github_app_name"] == "readthedocs"
+        assert list(context["migrated_projects"]) == []
+        assert (
+            context["old_application_link"]
+            == "https://github.com/settings/connections/applications/123"
+        )
+        assert context["step_revoke_completed"] is False
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "install"})
+        assert response.status_code == 200
+        context = response.context
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
                 target=GitHubAccountTarget(
@@ -279,7 +290,10 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids={4444},
             ),
         ]
-        assert context["github_app_name"] == "readthedocs"
+
+        response = self.client.get(self.url, data={"step": "migrate"})
+        assert response.status_code == 200
+        context = response.context
         assert context["migration_targets"] == [
             MigrationTarget(
                 project=self.project_with_remote_repository,
@@ -306,13 +320,11 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
-        assert list(context["migrated_projects"]) == []
-        assert (
-            context["old_application_link"]
-            == "https://github.com/settings/connections/applications/123"
-        )
-        assert context["step_revoke_completed"] is False
-        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "revoke"})
+        assert response.status_code == 200
+        context = response.context
+        assert context["has_projects_pending_migration"] is True
 
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_connect_done(self, request):
@@ -323,6 +335,18 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
+        assert context["github_app_name"] == "readthedocs"
+        assert list(context["migrated_projects"]) == []
+        assert (
+            context["old_application_link"]
+            == "https://github.com/settings/connections/applications/123"
+        )
+        assert context["step_revoke_completed"] is False
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "install"})
+        assert response.status_code == 200
+        context = response.context
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
                 target=GitHubAccountTarget(
@@ -345,7 +369,10 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids={4444},
             ),
         ]
-        assert context["github_app_name"] == "readthedocs"
+
+        response = self.client.get(self.url, data={"step": "migrate"})
+        assert response.status_code == 200
+        context = response.context
         assert context["migration_targets"] == [
             MigrationTarget(
                 project=self.project_with_remote_repository,
@@ -372,13 +399,11 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
-        assert list(context["migrated_projects"]) == []
-        assert (
-            context["old_application_link"]
-            == "https://github.com/settings/connections/applications/123"
-        )
-        assert context["step_revoke_completed"] is False
-        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "revoke"})
+        assert response.status_code == 200
+        context = response.context
+        assert context["has_projects_pending_migration"] is True
 
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_install_done(self, request):
@@ -394,6 +419,18 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
+        assert context["github_app_name"] == "readthedocs"
+        assert list(context["migrated_projects"]) == []
+        assert (
+            context["old_application_link"]
+            == "https://github.com/settings/connections/applications/123"
+        )
+        assert context["step_revoke_completed"] is False
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "install"})
+        assert response.status_code == 200
+        context = response.context
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
                 target=GitHubAccountTarget(
@@ -416,7 +453,10 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids=set(),
             ),
         ]
-        assert context["github_app_name"] == "readthedocs"
+
+        response = self.client.get(self.url, data={"step": "migrate"})
+        assert response.status_code == 200
+        context = response.context
         assert context["migration_targets"] == [
             MigrationTarget(
                 project=self.project_with_remote_repository,
@@ -443,13 +483,11 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
-        assert list(context["migrated_projects"]) == []
-        assert (
-            context["old_application_link"]
-            == "https://github.com/settings/connections/applications/123"
-        )
-        assert context["step_revoke_completed"] is False
-        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "revoke"})
+        assert response.status_code == 200
+        context = response.context
+        assert context["has_projects_pending_migration"] is True
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubService, "remove_webhook")
@@ -471,10 +509,25 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         assert response.status_code == 302
         response = self.client.get(self.url)
+        assert response.status_code == 200
         context = response.context
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
+        assert context["github_app_name"] == "readthedocs"
+        assert list(context["migrated_projects"]) == [
+            self.project_with_remote_repository,
+        ]
+        assert (
+            context["old_application_link"]
+            == "https://github.com/settings/connections/applications/123"
+        )
+        assert context["step_revoke_completed"] is False
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "install"})
+        assert response.status_code == 200
+        context = response.context
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
                 target=GitHubAccountTarget(
@@ -497,7 +550,10 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids=set(),
             ),
         ]
-        assert context["github_app_name"] == "readthedocs"
+
+        response = self.client.get(self.url, data={"step": "migrate"})
+        assert response.status_code == 200
+        context = response.context
         assert context["migration_targets"] == [
             MigrationTarget(
                 project=self.project_with_remote_repository_no_admin,
@@ -518,15 +574,11 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
-        assert list(context["migrated_projects"]) == [
-            self.project_with_remote_repository,
-        ]
-        assert (
-            context["old_application_link"]
-            == "https://github.com/settings/connections/applications/123"
-        )
-        assert context["step_revoke_completed"] is False
-        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "revoke"})
+        assert response.status_code == 200
+        context = response.context
+        assert context["has_projects_pending_migration"] is True
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubService, "remove_webhook")
@@ -550,6 +602,20 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
+        assert context["github_app_name"] == "readthedocs"
+        assert list(context["migrated_projects"]) == [
+            self.project_with_remote_repository,
+            self.project_with_remote_organization,
+        ]
+        assert (
+            context["old_application_link"]
+            == "https://github.com/settings/connections/applications/123"
+        )
+        assert context["step_revoke_completed"] is False
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "install"})
+        context = response.context
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
                 target=GitHubAccountTarget(
@@ -572,7 +638,10 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids=set(),
             ),
         ]
-        assert context["github_app_name"] == "readthedocs"
+
+        response = self.client.get(self.url, data={"step": "migrate"})
+        assert response.status_code == 200
+        context = response.context
         assert context["migration_targets"] == [
             MigrationTarget(
                 project=self.project_with_remote_repository_no_admin,
@@ -587,16 +656,11 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.social_account_github.uid),
             ),
         ]
-        assert list(context["migrated_projects"]) == [
-            self.project_with_remote_repository,
-            self.project_with_remote_organization,
-        ]
-        assert (
-            context["old_application_link"]
-            == "https://github.com/settings/connections/applications/123"
-        )
-        assert context["step_revoke_completed"] is False
-        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "revoke"})
+        assert response.status_code == 200
+        context = response.context
+        assert context["has_projects_pending_migration"] is True
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubService, "remove_webhook")
@@ -622,6 +686,29 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
+        assert context["github_app_name"] == "readthedocs"
+        assert list(context["migrated_projects"]) == [
+            self.project_with_remote_repository,
+        ]
+        assert (
+            context["old_application_link"]
+            == "https://github.com/settings/connections/applications/123"
+        )
+        assert context["step_revoke_completed"] is False
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        notifications = Notification.objects.for_user(self.user, self.user)
+        assert notifications.count() == 2
+        assert notifications.filter(
+            message_id=MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED
+        ).exists()
+        assert notifications.filter(
+            message_id=MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED
+        ).exists()
+
+        response = self.client.get(self.url, data={"step": "install"})
+        assert response.status_code == 200
+        context = response.context
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
                 target=GitHubAccountTarget(
@@ -644,7 +731,10 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids=set(),
             ),
         ]
-        assert context["github_app_name"] == "readthedocs"
+
+        response = self.client.get(self.url, data={"step": "migrate"})
+        assert response.status_code == 200
+        context = response.context
         assert context["migration_targets"] == [
             MigrationTarget(
                 project=self.project_with_remote_repository_no_admin,
@@ -665,24 +755,11 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
-        assert list(context["migrated_projects"]) == [
-            self.project_with_remote_repository,
-        ]
-        assert (
-            context["old_application_link"]
-            == "https://github.com/settings/connections/applications/123"
-        )
-        assert context["step_revoke_completed"] is False
-        assert list(context["old_github_accounts"]) == [self.social_account_github]
 
-        notifications = Notification.objects.for_user(self.user, self.user)
-        assert notifications.count() == 2
-        assert notifications.filter(
-            message_id=MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED
-        ).exists()
-        assert notifications.filter(
-            message_id=MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED
-        ).exists()
+        response = self.client.get(self.url, data={"step": "revoke"})
+        assert response.status_code == 200
+        context = response.context
+        assert context["has_projects_pending_migration"] is True
 
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_revoke_done(self, request):
@@ -693,6 +770,18 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
+        assert context["github_app_name"] == "readthedocs"
+        assert list(context["migrated_projects"]) == []
+        assert (
+            context["old_application_link"]
+            == "https://github.com/settings/connections/applications/123"
+        )
+        assert context["step_revoke_completed"] is True
+        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "install"})
+        assert response.status_code == 200
+        context = response.context
         assert context["installation_target_groups"] == [
             InstallationTargetGroup(
                 target=GitHubAccountTarget(
@@ -715,7 +804,10 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids={4444},
             ),
         ]
-        assert context["github_app_name"] == "readthedocs"
+
+        response = self.client.get(self.url, data={"step": "migrate"})
+        assert response.status_code == 200
+        context = response.context
         assert context["migration_targets"] == [
             MigrationTarget(
                 project=self.project_with_remote_repository,
@@ -742,10 +834,8 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
-        assert list(context["migrated_projects"]) == []
-        assert (
-            context["old_application_link"]
-            == "https://github.com/settings/connections/applications/123"
-        )
-        assert context["step_revoke_completed"] is True
-        assert list(context["old_github_accounts"]) == [self.social_account_github]
+
+        response = self.client.get(self.url, data={"step": "revoke"})
+        assert response.status_code == 200
+        context = response.context
+        assert context["has_projects_pending_migration"] is True
