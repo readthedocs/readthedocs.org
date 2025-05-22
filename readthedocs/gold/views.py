@@ -2,26 +2,22 @@
 
 import json
 
-import stripe
 import structlog
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from rest_framework import permissions
-from rest_framework.renderers import JSONRenderer
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from djstripe.enums import APIKeyType
+from djstripe.models import APIKey
 from vanilla import DetailView
 from vanilla import FormView
 from vanilla import GenericView
 
 from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.payments.utils import get_stripe_client
 from readthedocs.projects.models import Project
 
 from .forms import GoldProjectForm
@@ -66,7 +62,9 @@ class GoldSubscription(
         context = super().get_context_data(**kwargs)
         context["form"] = self.get_form()
         context["golduser"] = self.get_object()
-        context["stripe_publishable"] = settings.STRIPE_PUBLISHABLE
+        context["stripe_publishable"] = (
+            APIKey.objects.filter(type=APIKeyType.publishable).first().secret
+        )
         return context
 
 
@@ -133,20 +131,24 @@ class GoldCreateCheckoutSession(GenericView):
                 user_username=user.username,
                 price=price,
             )
-            checkout_session = stripe.checkout.Session.create(
-                client_reference_id=user.username,
-                customer_email=user.emailaddress_set.filter(verified=True).first() or user.email,
-                payment_method_types=["card"],
-                line_items=[
-                    {
-                        "price": price,
-                        "quantity": 1,
-                    }
-                ],
-                mode="subscription",
-                # We use the same URL to redirect the user. We only show a different notification.
-                success_url=f"{url}?subscribed=true",
-                cancel_url=f"{url}?subscribed=false",
+            stripe_client = get_stripe_client()
+            checkout_session = stripe_client.checkout.sessions.create(
+                params={
+                    "client_reference_id": user.username,
+                    "customer_email": user.emailaddress_set.filter(verified=True).first()
+                    or user.email,
+                    "payment_method_types": ["card"],
+                    "line_items": [
+                        {
+                            "price": price,
+                            "quantity": 1,
+                        }
+                    ],
+                    "mode": "subscription",
+                    # We use the same URL to redirect the user. We only show a different notification.
+                    "success_url": f"{url}?subscribed=true",
+                    "cancel_url": f"{url}?subscribed=false",
+                }
             )
             return JsonResponse({"session_id": checkout_session.id})
         except:  # noqa
@@ -170,9 +172,12 @@ class GoldSubscriptionPortal(GenericView):
         scheme = "https" if settings.PUBLIC_DOMAIN_USES_HTTPS else "http"
         return_url = f"{scheme}://{settings.PRODUCTION_DOMAIN}" + str(self.get_success_url())
         try:
-            billing_portal = stripe.billing_portal.Session.create(
-                customer=stripe_customer,
-                return_url=return_url,
+            stripe_client = get_stripe_client()
+            billing_portal = stripe_client.billing_portal.sessions.create(
+                params={
+                    "customer": stripe_customer,
+                    "return_url": return_url,
+                }
             )
             return HttpResponseRedirect(billing_portal.url)
         except:  # noqa
@@ -189,125 +194,3 @@ class GoldSubscriptionPortal(GenericView):
 
     def get_success_url(self):
         return reverse_lazy("gold_detail")
-
-
-# TODO: where this code should live? (readthedocs-ext?)
-# Should we move all GoldUser code to readthedocs-ext?
-class StripeEventView(APIView):
-    """Endpoint for Stripe events."""
-
-    permission_classes = (permissions.AllowAny,)
-    renderer_classes = (JSONRenderer,)
-
-    EVENT_CHECKOUT_PAYMENT_FAILED = "checkout.session.async_payment_failed"
-    EVENT_CHECKOUT_PAYMENT_SUCCEEDED = "checkout.session.async_payment_succeeded"
-    EVENT_CHECKOUT_COMPLETED = "checkout.session.completed"
-    EVENT_CUSTOMER_SUBSCRIPTION_UPDATED = "customer.subscription.updated"
-
-    EVENTS = [
-        EVENT_CHECKOUT_PAYMENT_FAILED,
-        EVENT_CHECKOUT_PAYMENT_SUCCEEDED,
-        EVENT_CHECKOUT_COMPLETED,
-        EVENT_CUSTOMER_SUBSCRIPTION_UPDATED,
-    ]
-
-    def post(self, request, format=None):
-        try:
-            event = stripe.Event.construct_from(request.data, settings.STRIPE_SECRET)
-            log.bind(event=event.type)
-            if event.type not in self.EVENTS:
-                log.warning("Unhandled Stripe event.", event_type=event.type)
-                return Response({"OK": False, "msg": f"Unhandled event. event={event.type}"})
-
-            stripe_customer = event.data.object.customer
-            log.bind(stripe_customer=stripe_customer)
-
-            if event.type == self.EVENT_CHECKOUT_COMPLETED:
-                username = event.data.object.client_reference_id
-                log.bind(user_username=username)
-                mode = event.data.object.mode
-                if mode == "subscription":
-                    # Gold Membership
-                    user = User.objects.get(username=username)
-                    subscription = stripe.Subscription.retrieve(event.data.object.subscription)
-                    stripe_price = self._get_stripe_price(subscription)
-                    log.bind(stripe_price=stripe_price.id)
-                    log.info("Gold Membership subscription.")
-                    gold, _ = GoldUser.objects.get_or_create(
-                        user=user,
-                        stripe_id=stripe_customer,
-                    )
-                    gold.level = stripe_price.id
-                    gold.subscribed = True
-                    gold.save()
-                elif mode == "payment":
-                    # One-time donation
-                    try:
-                        # TODO: find a better way to extend this view for one-time donations.
-                        from readthedocsext.donate.utils import handle_payment_webhook
-
-                        stripe_session = event.data.object.id
-                        price_in_cents = event.data.object.amount_total
-                        log.info(
-                            "Gold Membership one-time donation.",
-                            price_in_cents=price_in_cents,
-                        )
-                        handle_payment_webhook(
-                            username,
-                            stripe_customer,
-                            stripe_session,
-                            price_in_cents,
-                        )
-                    except ImportError:
-                        log.warning(
-                            "Not able to import handle_payment_webhook for one-time donation.",
-                        )
-                # TODO: add user notification saying it was successful
-
-            elif event.type == self.EVENT_CHECKOUT_PAYMENT_FAILED:
-                username = event.data.object.client_reference_id
-                log.bind(user_username=username)
-                # TODO: add user notification saying it failed
-                log.exception("Gold User payment failed.")
-
-            elif event.type == self.EVENT_CUSTOMER_SUBSCRIPTION_UPDATED:
-                subscription = event.data.object
-                stripe_price = self._get_stripe_price(subscription)
-                log.info(
-                    "Gold User subscription updated.",
-                    stripe_price=stripe_price.id,
-                )
-                (
-                    GoldUser.objects.filter(stripe_id=stripe_customer).update(
-                        level=stripe_price.id,
-                        modified_date=timezone.now(),
-                    )
-                )
-
-                if subscription.status != "active":
-                    log.warning(
-                        "GoldUser is not active anymore.",
-                    )
-        except Exception:
-            log.exception("Unexpected data in Stripe Event object")
-            return Response(
-                {
-                    "OK": False,
-                },
-                status=500,
-            )
-
-        return Response(
-            {
-                "OK": True,
-            }
-        )
-
-    def _get_stripe_price(self, stripe_subscription):
-        subscription_items = stripe_subscription["items"].data
-        if len(subscription_items) > 1:
-            log.info(
-                "Subscription with more than one item.",
-                subscription_items=subscription_items,
-            )
-        return subscription_items[0].price

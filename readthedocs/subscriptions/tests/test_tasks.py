@@ -11,6 +11,7 @@ from djstripe.enums import InvoiceStatus, SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.tasks import daily_email
+from readthedocs.payments.tests.utils import PaymentMixin
 
 
 @override_settings(
@@ -18,7 +19,8 @@ from readthedocs.subscriptions.tasks import daily_email
     RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
 )
 @mock.patch("readthedocs.notifications.email.send_email")
-class DailyEmailTests(TestCase):
+class DailyEmailTests(PaymentMixin, TestCase):
+
     def test_trial_ending(self, mock_send_email):
         """Trial ending daily email."""
         now = timezone.now()
