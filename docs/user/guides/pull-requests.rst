@@ -4,7 +4,7 @@ How to configure pull request builds
 In this section, you can learn how to configure :doc:`pull request builds </pull-requests>`.
 
 To enable pull request builds for your project,
-your Read the Docs account needs to be connected to an account with a supported Git provider.
+your Read the Docs account needs to be connected to an account with a supported Git provider, with a webhook configured to send information on pull requests for your repository.
 See `Limitations`_ for more information.
 
 If your account is already connected:
@@ -55,12 +55,13 @@ Limitations
 
 - Pull requests are only available for **GitHub** and **GitLab** currently. Bitbucket is not yet supported.
 - To enable this feature, your Read the Docs account needs to be connected to an
-  account with your Git provider.
+  account with your Git provider, *and* the connecting webhook must be configured to notify ReadTheDocs upon creation of a pull request (not just on pushes to your main branch).
 - Builds from pull requests have the same memory and time limitations
   :doc:`as regular builds </builds>`.
 - Additional formats like PDF aren't built in order to reduce build time.
 - Read the Docs doesn't index search on pull request builds. This means that Addons search and the Read the Docs Search API will return no results.
 - The built documentation is kept for 90 days after the pull request has been closed or merged.
+- In order to have pull request build links automatically added to your pull requests, you must configure an automation to accomplish this with your Git provider. For example, see `these instructions <https://github.com/readthedocs/actions/blob/v1/preview/README.md>`_ to configure with GitHub Actions.
 
 Troubleshooting
 ---------------
@@ -79,6 +80,11 @@ No new builds are started when I open a pull request
    connected to your Git provider account, or if it needs to be reconnected.
    You can (re)connect your account by going to your :guilabel:`<Username dropdown>`,
    :guilabel:`Settings`, then to :guilabel:`Connected Services`.
+
+Pull request build links (such as those generated from `the official GitHub Action <https://github.com/readthedocs/actions/blob/v1/preview/README.md>`_) return a 404 error
+   This means that a build is not being triggered on ReadTheDocs.
+
+   Verify your repository's webhook is properly synced with ReadTheDocs, and configured to send pull request events. For GitHub, you can check this by visiting the "Webhooks" section of the repository's "Settings" page. For your ReadTheDocs webhook, under "Which events would you like to trigger this webhook?", choose "Send Me Everything," or manually select push events and all events relevant to pull requests.
 
 Build status is not being reported to your Git provider
    If opening a pull request does start a new build, but the build status is not
