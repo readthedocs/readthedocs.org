@@ -1,6 +1,6 @@
 from unittest import mock
 
-from allauth.exceptions import ImmediateHttpResponse
+from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import get_adapter as get_social_account_adapter
 from allauth.socialaccount.models import SocialAccount, SocialLogin
 from allauth.socialaccount.providers.github.provider import GitHubProvider
