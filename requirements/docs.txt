@@ -20,7 +20,7 @@ certifi==2025.4.26
     #   sphinx-prompt
 charset-normalizer==3.4.2
     # via requests
-click==8.2.0
+click==8.2.1
     # via
     #   sphinx-intl
     #   uvicorn
