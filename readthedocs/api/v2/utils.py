@@ -48,8 +48,8 @@ def sync_versions_to_db(project, versions, type):
     has_user_stable = False
     has_user_latest = False
     for version in versions:
-        version_id = version["identifier"]
-        version_name = version["verbose_name"]
+        version_id = version.identifier
+        version_name = version.verbose_name
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
             created_version, created = _set_or_create_version(
@@ -170,8 +170,8 @@ def _set_or_create_version(project, slug, version_id, verbose_name, type_):
 def _get_deleted_versions_qs(project, tags_data, branches_data):
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
-    versions_tags = [version["verbose_name"] for version in tags_data]
-    versions_branches = [version["identifier"] for version in branches_data]
+    versions_tags = [version.verbose_name for version in tags_data]
+    versions_branches = [version.identifier for version in branches_data]
 
     to_delete_qs = (
         project.versions(manager=INTERNAL)
