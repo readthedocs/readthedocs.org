@@ -1,6 +1,8 @@
 Welcome to Read the Docs
 ========================
 
+.. Small test for https://github.com/readthedocs/readthedocs.org/issues/11961
+
 |build-status| |docs| |coverage|
 
 Purpose
