@@ -6,10 +6,12 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from ..models import GoldUser
+from readthedocs.payments.tests.utils import PaymentMixin
 
 
-class GoldSignalTests(TestCase):
+class GoldSignalTests(PaymentMixin, TestCase):
     def setUp(self):
+        super().setUp()
         self.user = fixture.get(User)
 
     @requests_mock.Mocker(kw="mock_request")
