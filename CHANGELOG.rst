@@ -1,3 +1,22 @@
+Version 13.3.0
+--------------
+
+:Date: May 27, 2025
+
+* `@humitos <https://github.com/humitos>`__: Tests: call `super().setUp()` (`#12208 <https://github.com/readthedocs/readthedocs.org/pull/12208>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12204 <https://github.com/readthedocs/readthedocs.org/pull/12204>`__)
+* `@humitos <https://github.com/humitos>`__: Remove allauth warning (`#12198 <https://github.com/readthedocs/readthedocs.org/pull/12198>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update AWS temporary credentials documentation (`#12196 <https://github.com/readthedocs/readthedocs.org/pull/12196>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 13.2.0 (`#12195 <https://github.com/readthedocs/readthedocs.org/pull/12195>`__)
+* `@barseghyanartur <https://github.com/barseghyanartur>`__: Add info on generating docs in `.txt` format (`#12194 <https://github.com/readthedocs/readthedocs.org/pull/12194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: add is_github_app_project helper method (`#12193 <https://github.com/readthedocs/readthedocs.org/pull/12193>`__)
+* `@pjfan <https://github.com/pjfan>`__: Delete how to change url versioning page (`#12192 <https://github.com/readthedocs/readthedocs.org/pull/12192>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: delete legacy HTML templates (part 1) (`#12183 <https://github.com/readthedocs/readthedocs.org/pull/12183>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12176 <https://github.com/readthedocs/readthedocs.org/pull/12176>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: block GH app users to re-connect to old OAuth app (`#12175 <https://github.com/readthedocs/readthedocs.org/pull/12175>`__)
+* `@humitos <https://github.com/humitos>`__: Djstripe cleanup (`#12160 <https://github.com/readthedocs/readthedocs.org/pull/12160>`__)
+* `@coroa <https://github.com/coroa>`__: More concise uv example with docs (`#12064 <https://github.com/readthedocs/readthedocs.org/pull/12064>`__)
+
 Version 13.2.0
 --------------
 

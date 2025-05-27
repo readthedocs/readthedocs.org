@@ -62,6 +62,8 @@ class AuthUserOrganizationsTest(OrganizationMixin, TestCase):
         "/organizations/choose/{next_name}/": {"status_code": 302},
         "/organizations/invite/{hash}/redeem/": {"status_code": 302},
         # 405's where we should be POST'ing
+        "/organizations/{slug}/delete/": {"status_code": 405},
+        "/organizations/{slug}/teams/{team}/delete/": {"status_code": 405},
         "/organizations/{slug}/owners/{owner}/delete/": {"status_code": 405},
         "/organizations/{slug}/teams/{team}/members/{member}/revoke/": {
             "status_code": 405

@@ -3,7 +3,7 @@
 import structlog
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.account.adapter import get_adapter as get_account_adapter
-from allauth.exceptions import ImmediateHttpResponse
+from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
