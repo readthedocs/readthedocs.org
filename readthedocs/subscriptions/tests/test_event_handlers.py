@@ -526,9 +526,7 @@ class TestStripeEventHandlers(PaymentMixin, TestCase):
                     "object": "checkout.session",
                     "mode": "subscription",
                     "client_reference_id": "goldusername",
-                    "subscription": {
-                        "id": "sub_KMiHJXFHpLkcRP",
-                    },
+                    "subscription": "sub_KMiHJXFHpLkcRP",
                 }
             },
         )
