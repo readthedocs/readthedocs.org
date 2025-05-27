@@ -5,6 +5,8 @@ from djstripe.models import Account
 class PaymentMixin:
 
     def setUp(self):
+        super().setUp()
+
         Account.objects.create(
             id="acct_1032D82eZvKYlo2C",
             charges_enabled=True,
