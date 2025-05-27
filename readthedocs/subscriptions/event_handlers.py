@@ -332,7 +332,7 @@ def gold_membership_payment_failed(event, **kwargs):
 
 @djstripe_receiver_gold_membership("checkout.session.completed")
 def gold_membership_new_subscription(event, **kwargs):
-    stripe_subscription_id = event.data["object"]["subscription"]["id"]
+    stripe_subscription_id = event.data["object"]["subscription"]
     stripe_subscription = djstripe.Subscription.objects.filter(id=stripe_subscription_id).first()
     if not stripe_subscription:
         log.info("Stripe subscription not found.")
