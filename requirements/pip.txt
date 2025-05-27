@@ -15,9 +15,9 @@ asgiref==3.8.1
     #   django-cors-headers
 billiard==4.2.1
     # via celery
-boto3==1.38.13
+boto3==1.38.23
     # via django-storages
-botocore==1.38.13
+botocore==1.38.23
     # via
     #   boto3
     #   s3transfer
@@ -37,7 +37,7 @@ cffi==1.17.1
     #   pynacl
 charset-normalizer==3.4.2
     # via requests
-click==8.2.0
+click==8.2.1
     # via
     #   bumpver
     #   celery
@@ -54,7 +54,7 @@ colorama==0.4.6
     # via bumpver
 cron-descriptor==1.4.5
     # via django-celery-beat
-cryptography==44.0.3
+cryptography==45.0.2
     # via
     #   fido2
     #   pyjwt
@@ -91,13 +91,13 @@ django==5.2.1
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.8.0
+django-allauth[mfa,saml,socialaccount]==65.8.1
     # via -r requirements/pip.in
 django-annoying==0.10.8
     # via -r requirements/pip.in
 django-autoslug==1.9.9
     # via -r requirements/pip.in
-django-celery-beat==2.8.0
+django-celery-beat==2.8.1
     # via -r requirements/pip.in
 django-cors-headers==4.7.0
     # via -r requirements/pip.in
@@ -123,7 +123,7 @@ django-ipware==5.0.2
     # via
     #   -r requirements/pip.in
     #   django-structlog
-django-polymorphic==3.1.0
+django-polymorphic==4.1.0
     # via -r requirements/pip.in
 django-safemigrate==5.3
     # via -r requirements/pip.in
@@ -172,7 +172,7 @@ elasticsearch-dsl==8.18.0
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-fido2==1.2.0
+fido2==2.0.0
     # via django-allauth
 filelock==3.18.0
     # via virtualenv
@@ -215,15 +215,15 @@ platformdirs==4.3.8
     # via virtualenv
 prompt-toolkit==3.0.51
     # via click-repl
-psycopg[binary,pool]==3.2.7
+psycopg[binary,pool]==3.2.9
     # via -r requirements/pip.in
-psycopg-binary==3.2.7
+psycopg-binary==3.2.9
     # via psycopg
 psycopg-pool==3.2.6
     # via psycopg
 pycparser==2.22
     # via cffi
-pydantic==2.11.4
+pydantic==2.11.5
     # via -r requirements/pip.in
 pydantic-core==2.33.2
     # via pydantic
@@ -279,7 +279,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
-s3transfer==0.12.0
+s3transfer==0.13.0
     # via boto3
 selectolax==0.3.29
     # via -r requirements/pip.in
@@ -316,7 +316,7 @@ typing-extensions==4.13.2
     #   pygithub
     #   stripe
     #   typing-inspection
-typing-inspection==0.4.0
+typing-inspection==0.4.1
     # via pydantic
 tzdata==2025.2
     # via

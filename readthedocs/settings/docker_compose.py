@@ -204,11 +204,6 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     AWS_QUERYSTRING_AUTH = False
 
-    STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET", "sk_test_x")
-    STRIPE_PUBLISHABLE = os.environ.get("RTD_STRIPE_PUBLISHABLE")
-    STRIPE_TEST_SECRET_KEY = STRIPE_SECRET
-    DJSTRIPE_WEBHOOK_SECRET = os.environ.get("RTD_DJSTRIPE_WEBHOOK_SECRET")
-
     @property
     def SOCIALACCOUNT_PROVIDERS(self):
         """Allow settings social account settigs from the host system."""

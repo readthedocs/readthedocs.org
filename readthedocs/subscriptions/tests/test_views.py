@@ -16,6 +16,7 @@ from readthedocs.subscriptions.constants import (
     TYPE_PRIVATE_DOCS,
 )
 from readthedocs.subscriptions.products import RTDProduct, RTDProductFeature
+from readthedocs.payments.tests.utils import PaymentMixin
 
 
 @override_settings(
@@ -43,11 +44,12 @@ from readthedocs.subscriptions.products import RTDProduct, RTDProductFeature
         ]
     ),
 )
-class SubscriptionViewTests(TestCase):
+class SubscriptionViewTests(PaymentMixin, TestCase):
 
     """Subscription view tests."""
 
     def setUp(self):
+        super().setUp()
         self.user = get(User)
         self.organization = get(Organization, stripe_id="123", owners=[self.user])
         self.stripe_product = get(
@@ -155,8 +157,8 @@ class SubscriptionViewTests(TestCase):
             fetch_redirect_response=False,
         )
 
-    @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.create")
-    def test_user_without_subscription(self, customer_create_mock):
+    @mock.patch("readthedocs.subscriptions.utils.get_stripe_client")
+    def test_user_without_subscription(self, stripe_client):
         stripe_subscription = self._create_stripe_subscription()
         stripe_customer = stripe_subscription.customer
         stripe_customer.subscribe = mock.MagicMock()
@@ -176,14 +178,14 @@ class SubscriptionViewTests(TestCase):
         self.organization.refresh_from_db()
         self.assertEqual(self.organization.stripe_customer, stripe_customer)
         self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
-        customer_create_mock.assert_not_called()
+        stripe_client().assert_not_called()
 
     @mock.patch(
         "readthedocs.subscriptions.utils.djstripe.Customer.sync_from_stripe_data"
     )
-    @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.create")
+    @mock.patch("readthedocs.subscriptions.utils.get_stripe_client")
     def test_user_without_subscription_and_customer(
-        self, customer_create_mock, sync_from_stripe_data_mock
+        self, stripe_client, sync_from_stripe_data_mock
     ):
         stripe_subscription = self._create_stripe_subscription()
         stripe_customer = stripe_subscription.customer
@@ -208,7 +210,7 @@ class SubscriptionViewTests(TestCase):
         self.assertEqual(self.organization.stripe_id, "cus_a1b2c3")
         self.assertEqual(self.organization.stripe_customer, stripe_customer)
         self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
-        customer_create_mock.assert_called_once()
+        stripe_client().customers.create.assert_called_once()
 
     def test_user_with_canceled_subscription(self):
         self.stripe_subscription.status = SubscriptionStatus.canceled
