@@ -214,7 +214,7 @@ def _get_github_account_target(remote_repository) -> GitHubAccountTarget | None:
 
 def _get_projects_missing_migration(user) -> Iterator[tuple[Project, bool, bool]]:
     """
-    Get all projects where the user has admin permissions that are still connected to the old GitHub OAuth App.
+    Get all projects where the user has access that are still connected to the old GitHub OAuth App.
 
     Returns an iterator with the project, a boolean indicating if the GitHub App is installed on the repository,
     and a boolean indicating if the user has admin permissions on the repository.

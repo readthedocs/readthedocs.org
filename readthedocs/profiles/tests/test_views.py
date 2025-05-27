@@ -264,6 +264,9 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         assert context["step_revoke_completed"] is False
         assert list(context["old_github_accounts"]) == [self.social_account_github]
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "install"})
         assert response.status_code == 200
@@ -290,6 +293,8 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids={4444},
             ),
         ]
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "migrate"})
         assert response.status_code == 200
@@ -320,11 +325,15 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
+        assert "installation_target_groups" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "revoke"})
         assert response.status_code == 200
         context = response.context
         assert context["has_projects_pending_migration"] is True
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
 
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_connect_done(self, request):
@@ -343,6 +352,9 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         assert context["step_revoke_completed"] is False
         assert list(context["old_github_accounts"]) == [self.social_account_github]
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "install"})
         assert response.status_code == 200
@@ -369,6 +381,8 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids={4444},
             ),
         ]
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "migrate"})
         assert response.status_code == 200
@@ -399,11 +413,15 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
+        assert "installation_target_groups" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "revoke"})
         assert response.status_code == 200
         context = response.context
         assert context["has_projects_pending_migration"] is True
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
 
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_install_done(self, request):
@@ -427,6 +445,9 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         assert context["step_revoke_completed"] is False
         assert list(context["old_github_accounts"]) == [self.social_account_github]
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "install"})
         assert response.status_code == 200
@@ -453,6 +474,8 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids=set(),
             ),
         ]
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "migrate"})
         assert response.status_code == 200
@@ -483,11 +506,15 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
+        assert "installation_target_groups" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "revoke"})
         assert response.status_code == 200
         context = response.context
         assert context["has_projects_pending_migration"] is True
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubService, "remove_webhook")
@@ -524,6 +551,9 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         assert context["step_revoke_completed"] is False
         assert list(context["old_github_accounts"]) == [self.social_account_github]
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "install"})
         assert response.status_code == 200
@@ -550,6 +580,8 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids=set(),
             ),
         ]
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "migrate"})
         assert response.status_code == 200
@@ -574,11 +606,15 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
+        assert "installation_target_groups" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "revoke"})
         assert response.status_code == 200
         context = response.context
         assert context["has_projects_pending_migration"] is True
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubService, "remove_webhook")
@@ -613,6 +649,9 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         assert context["step_revoke_completed"] is False
         assert list(context["old_github_accounts"]) == [self.social_account_github]
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "install"})
         context = response.context
@@ -638,6 +677,8 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids=set(),
             ),
         ]
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "migrate"})
         assert response.status_code == 200
@@ -656,11 +697,15 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.social_account_github.uid),
             ),
         ]
+        assert "installation_target_groups" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "revoke"})
         assert response.status_code == 200
         context = response.context
         assert context["has_projects_pending_migration"] is True
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubService, "remove_webhook")
@@ -705,6 +750,9 @@ class TestMigrateToGitHubAppView(TestCase):
         assert notifications.filter(
             message_id=MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED
         ).exists()
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "install"})
         assert response.status_code == 200
@@ -731,6 +779,8 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids=set(),
             ),
         ]
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "migrate"})
         assert response.status_code == 200
@@ -755,11 +805,15 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
+        assert "installation_target_groups" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "revoke"})
         assert response.status_code == 200
         context = response.context
         assert context["has_projects_pending_migration"] is True
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
 
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_revoke_done(self, request):
@@ -778,6 +832,9 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         assert context["step_revoke_completed"] is True
         assert list(context["old_github_accounts"]) == [self.social_account_github]
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "install"})
         assert response.status_code == 200
@@ -804,6 +861,8 @@ class TestMigrateToGitHubAppView(TestCase):
                 repository_ids={4444},
             ),
         ]
+        assert "migration_targets" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "migrate"})
         assert response.status_code == 200
@@ -834,8 +893,12 @@ class TestMigrateToGitHubAppView(TestCase):
                 target_id=int(self.remote_organization.remote_id),
             ),
         ]
+        assert "installation_target_groups" not in context
+        assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "revoke"})
         assert response.status_code == 200
         context = response.context
         assert context["has_projects_pending_migration"] is True
+        assert "installation_target_groups" not in context
+        assert "migration_targets" not in context
