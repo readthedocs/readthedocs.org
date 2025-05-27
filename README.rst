@@ -3,6 +3,8 @@ Welcome to Read the Docs
 
 .. Small test for https://github.com/readthedocs/readthedocs.org/issues/11961
 
+   Let's see if it works now!
+
 |build-status| |docs| |coverage|
 
 Purpose
