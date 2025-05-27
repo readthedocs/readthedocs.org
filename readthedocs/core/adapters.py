@@ -3,7 +3,7 @@
 import structlog
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.account.adapter import get_adapter as get_account_adapter
-from allauth.exceptions import ImmediateHttpResponse
+from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
@@ -64,6 +64,7 @@ class AccountAdapter(DefaultAccountAdapter):
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         self._filter_email_addresses(sociallogin)
+        self._block_use_of_old_github_oauth_app(request, sociallogin)
         self._connect_github_app_to_existing_github_account(request, sociallogin)
 
     def _filter_email_addresses(self, sociallogin):
@@ -134,3 +135,42 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         Only staff users can use the GitHub App for now.
         """
         return user.is_staff
+
+    def _block_use_of_old_github_oauth_app(self, request, sociallogin):
+        """
+        Block the use of the old GitHub OAuth app if the user is already using the new GitHub App.
+
+        This is a temporary measure to block the use of the old GitHub OAuth app
+        until we switch our login to always use the new GitHub App.
+
+        If the user has its account still connected to the old GitHub OAuth app,
+        we allow them to use it, since there is no difference between using the two apps
+        for logging in.
+        """
+        provider = sociallogin.account.get_provider()
+
+        # If the provider is not GitHub, nothing to do.
+        if provider.id != GitHubProvider.id:
+            return
+
+        # If the user is still using the old GitHub OAuth app, nothing to do.
+        if sociallogin.is_existing:
+            return
+
+        has_gh_app_social_account = SocialAccount.objects.filter(
+            provider=GitHubAppProvider.id,
+            uid=sociallogin.account.uid,
+        ).exists()
+
+        # If there is no existing GitHub App account, nothing to do.
+        if not has_gh_app_social_account:
+            return
+
+        # Show a warning to the user and redirect them to the GitHub App login page.
+        messages.warning(
+            request,
+            "You already migrated from our old GitHub OAuth app. "
+            "Click below to sign in with the new GitHub App.",
+        )
+        url = reverse("githubapp_login")
+        raise ImmediateHttpResponse(HttpResponseRedirect(url))

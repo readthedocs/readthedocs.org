@@ -28,9 +28,6 @@ class CommunityTestSettings(CommunityBaseSettings):
     # Skip automatic detection of Docker limits for testing
     DOCKER_LIMITS = {"memory": "200m", "time": 600}
 
-    STRIPE_PUBLISHABLE = "pk_test_"
-    STRIPE_SECRET = "sk_test_"
-
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

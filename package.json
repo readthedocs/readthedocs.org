@@ -1,6 +1,6 @@
 {
   "name": "readthedocs",
-  "version": "13.1.1",
+  "version": "13.3.0",
   "description": "Read the Docs build dependencies",
   "author": "Read the Docs, Inc <support@readthedocs.com>",
   "scripts": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "bowser": "^1.9.3",
     "cssfilter": "0.0.8",
-    "github-changelog": "git+https://github.com/agjohnson/github-changelog.git",
+    "github-changelog": "github:agjohnson/github-changelog",
     "npm": "^6.1.0"
   },
   "devDependencies": {

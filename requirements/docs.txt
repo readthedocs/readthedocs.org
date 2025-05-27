@@ -20,7 +20,7 @@ certifi==2025.4.26
     #   sphinx-prompt
 charset-normalizer==3.4.2
     # via requests
-click==8.2.0
+click==8.2.1
     # via
     #   sphinx-intl
     #   uvicorn
@@ -68,7 +68,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==4.0.1
     # via -r requirements/docs.in
-numpy==2.2.5
+numpy==2.2.6
     # via
     #   contourpy
     #   matplotlib
