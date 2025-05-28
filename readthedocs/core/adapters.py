@@ -7,9 +7,9 @@ from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
+from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.conf import settings
 from django.urls import reverse
 from django.utils.encoding import force_str
 
