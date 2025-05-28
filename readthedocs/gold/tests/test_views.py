@@ -4,10 +4,12 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
+from readthedocs.payments.tests.utils import PaymentMixin
 
 
-class TestViews(TestCase):
+class TestViews(PaymentMixin, TestCase):
     def setUp(self):
+        super().setUp()
         self.user = get(User)
 
     def test_csp_headers(self):
