@@ -11,6 +11,7 @@ class GitHubAppProvider(GitHubProvider):
     """
 
     id = "githubapp"
+    name = "GitHub App"
     oauth2_adapter_class = GitHubAppOAuth2Adapter
 
 

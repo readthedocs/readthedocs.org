@@ -9,6 +9,7 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.conf import settings
 from django.urls import reverse
 from django.utils.encoding import force_str
 
@@ -134,7 +135,7 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
         Only staff users can use the GitHub App for now.
         """
-        return user.is_staff
+        return settings.RTD_ALLOW_GITHUB_APP or user.is_staff
 
     def _block_use_of_old_github_oauth_app(self, request, sociallogin):
         """
