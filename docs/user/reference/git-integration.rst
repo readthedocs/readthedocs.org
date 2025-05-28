@@ -229,3 +229,90 @@ depending on where the project you are trying to access has permissions from.
       .. seealso:: GitHub doc on `requesting access to your organization OAuth`_ for step-by-step instructions.
 
       .. _requesting access to your organization OAuth: https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps
+
+GitHub App
+----------
+
+.. warning::
+
+   Our GitHub App is currenlty in beta, see our `blog post <https://about.readthedocs.com/blog/2025/06/welcome-to-our-beta-github-app/>`__ for more information.
+
+We are in the process of migrating our GitHub OAuth application to a `GitHub App <https://docs.github.com/en/apps/overview>`__.
+We have two GitHub Apps, one for each of our platforms:
+
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community>`__.
+- `Read the Docs for Business <https://github.com/apps/read-the-docs-business>`__.
+
+Features
+~~~~~~~~
+
+When using GitHub, Read the Docs uses a GitHub App to interact with your repositories.
+This has the following benefits over using an OAuth application (like the other Git providers):
+
+- More control over which repositories Read the Docs can access.
+  You don't need to grant access to all your repositories in order to create an account or import a single repository.
+- No need to create webhooks on your repositories.
+  The GitHub App subscribes to all required events when you install it.
+- No need to create a deploy key on your repository (|com_brand| only).
+  The GitHub App can clone your private repositories using a temporal token.
+- If the original user who connected the repository to Read the Docs loses access to the project or repository,
+  the GitHub App will still have access to the repository.
+- You can revoke access to the GitHub App at any time from your GitHub settings.
+- Never out of sync with changes on your repository.
+  The GitHub App subscribes to all required events and will always keep your project up to date with your repository.
+
+Revoking access
+~~~~~~~~~~~~~~~
+
+You can revoke access to the Read the Docs GitHub App at any time from your GitHub settings.
+
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__.
+- `Read the Docs for Business <https://github.com/apps/read-the-docs-business/installations/new/>`__.
+
+There are three ways to revoke access to the Read the Docs GitHub App:
+
+Revoke access to one or more repositories:
+  Remove the repositories from the list of repositories that the GitHub App has access to.
+Suspend the GitHub App:
+  This will suspend the GitHub App and revoke access to all repositories.
+  The installation and configuration will still be available,
+  and you can re-enable the GitHub App at any time.
+Uninstall the GitHub App:
+  This will uninstall the GitHub App and revoke access to all repositories.
+  The installation and configuration will be removed,
+  and you will need to re-install the GitHub App and reconfigure it to use it again.
+
+.. warning::
+
+   If you revoke access to the GitHub App with any of the above methods,
+   all projects linked to that repository will stop working,
+   but the projects and its documentation will still be available.
+   If you grant access to the repository again,
+   you will need to manually connect your project to the repository.
+
+.. _github-permission-troubleshooting:
+
+Troubleshooting
+~~~~~~~~~~~~~~~
+
+**Repository not in the list to import**
+
+Make sure you have installed the corresponding GitHub App in your GitHub account or organization,
+and have granted access to the repository you want to import.
+
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__.
+- `Read the Docs for Business <https://github.com/apps/read-the-docs-business/installations/new/>`__.
+
+If you still can't see the repository in the list,
+you may need to wait a couple of minutes and refresh the page,
+or click on the "Refresh your repositories" button in the import page.
+
+**Repository is in the list, but can't be imported**
+
+Make sure you have admin access to the repository you are trying to import.
+If you are using |org_brand|, make sure your project is public,
+or use |com_brand| to import private repositories.
+
+If you still can't import the repository,
+you may need to wait a couple of minutes and refresh the page,
+or click on the "Refresh your repositories" button in the import page.
