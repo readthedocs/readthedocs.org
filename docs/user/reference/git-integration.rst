@@ -306,7 +306,7 @@ you can follow these steps:
 
 - For projects using Read the Docs Business,
   go to the settings page of your GitHub repository,
-  click on :guilabel:`Deploy keys`, and delete the deploy with a title matching the format ``support@readthedocs.com <your-project-slug>``.
+  click on :guilabel:`Deploy keys`, and delete the deploy with a title matching the format ``support@readthedocs.com (<your-project-slug>)``.
 - :ref:`Connect the project to the repository <reference/git-integration:Connect a repository to a project>`.
 
 Revoking access
