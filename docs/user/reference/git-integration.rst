@@ -265,7 +265,7 @@ Creating a project from a repository
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To create a project from a repository,
-you need to install the Read the Docs GitHub App and grant access to the repository you want to import.
+you need to install the Read the Docs GitHub App and grant access to that repository.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
@@ -273,10 +273,10 @@ you need to install the Read the Docs GitHub App and grant access to the reposit
 Once you have installed the GitHub App, click on the :guilabel:`Projects` tab, and click on :guilabel:`Add project`,
 then search for the repository you want to import, and follow the instructions from there.
 
-Connect a repository to a project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Connect a repository to an existing project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To connect a repository to a project,
+To connect a repository to an existing Read the Docs project,
 you need to install the Read the Docs GitHub App and grant access to the repository you want to connect.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
@@ -307,10 +307,18 @@ you can follow these steps:
 - For projects using Read the Docs Business,
   go to the settings page of your GitHub repository,
   click on :guilabel:`Deploy keys`, and delete the deploy with a title matching the format ``support@readthedocs.com (<your-project-slug>)``.
-- :ref:`Connect the project to the repository <reference/git-integration:Connect a repository to a project>`.
+- :ref:`Connect the project to the repository <reference/git-integration:Connect a repository to an existing project>`.
 
 Revoking access
 ~~~~~~~~~~~~~~~
+
+.. warning::
+
+   If you revoke access to the GitHub App with any of the methods below,
+   all projects linked to that repository will stop working,
+   but the projects and its documentation will still be available.
+   If you grant access to the repository again,
+   you will need to :ref:`manually connect your project to the repository <reference/git-integration:Connect a repository to an existing project>`.
 
 You can revoke access to the Read the Docs GitHub App at any time from your GitHub settings.
 
@@ -329,14 +337,6 @@ Uninstall the GitHub App:
   This will uninstall the GitHub App and revoke access to all repositories.
   The installation and configuration will be removed,
   and you will need to re-install the GitHub App and reconfigure it to use it again.
-
-.. warning::
-
-   If you revoke access to the GitHub App with any of the above methods,
-   all projects linked to that repository will stop working,
-   but the projects and its documentation will still be available.
-   If you grant access to the repository again,
-   you will need to manually connect your project to the repository.
 
 Troubleshooting
 ~~~~~~~~~~~~~~~
