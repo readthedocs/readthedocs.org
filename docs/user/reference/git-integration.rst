@@ -290,8 +290,6 @@ Uninstall the GitHub App:
    If you grant access to the repository again,
    you will need to manually connect your project to the repository.
 
-.. _github-permission-troubleshooting:
-
 Troubleshooting
 ~~~~~~~~~~~~~~~
 
