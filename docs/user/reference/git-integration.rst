@@ -240,8 +240,8 @@ GitHub App
 We are in the process of migrating our GitHub OAuth application to a `GitHub App <https://docs.github.com/en/apps/overview>`__.
 We have two GitHub Apps, one for each of our platforms:
 
-- `Read the Docs Community <https://github.com/apps/read-the-docs-community>`__.
-- `Read the Docs for Business <https://github.com/apps/read-the-docs-business>`__.
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community>`__
+- `Read the Docs Business <https://github.com/apps/read-the-docs-business>`__
 
 Features
 ~~~~~~~~
@@ -261,13 +261,61 @@ This has the following benefits over using an OAuth application (like the other 
 - Never out of sync with changes on your repository.
   The GitHub App subscribes to all required events and will always keep your project up to date with your repository.
 
+Creating a project from a repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To create a project from a repository,
+you need to install the Read the Docs GitHub App and grant access to the repository you want to import.
+
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
+- `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
+
+Once you have installed the GitHub App, click on the :guilabel:`Projects` tab, and click on :guilabel:`Add project`,
+then search for the repository you want to import, and follow the instructions from there.
+
+Connect a repository to a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To connect a repository to a project,
+you need to install the Read the Docs GitHub App and grant access to the repository you want to connect.
+
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
+- `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
+
+Once you have installed the GitHub App, go the :guilabel:`Settings` page of the project,
+and select the repository you want to connect from the :guilabel:`Connected repository` dropdown.
+
+Manually migrating a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We recommend using the migration page to migrate your projects from the old OAuth application to the new GitHub App.
+
+- `Read the Docs Community <https://app.readthedocs.com/accounts/migrate-to-github-app/>`__
+- `Read the Docs Business <https://app.readthedocs.com/accounts/migrate-to-github-app/>`__
+
+But in case you need to manually migrate a project,
+you can follow these steps:
+
+- Go to the settings page of your Read the Docs project,
+  and click on :guilabel:`Integrations`, and delete all the integrations that are listed there.
+- Go to the settings page of your GitHub repository,
+  click on :guilabel:`Webhooks`, and delete all the webhooks with URLs that start with:
+
+  - ``https://readthedocs.org/api/v2/webhook/<your-project-slug>`` or ``https://app.readthedocs.org/api/v2/webhook/<your-project-slug>`` for Read the Docs Community.
+  - ``https://readthedocs.com/api/v2/webhook/<your-project-slug>`` or ``https://app.readthedocs.com/api/v2/webhook/<your-project-slug>`` for Read the Docs Business.
+
+- For projects using Read the Docs Business,
+  go to the settings page of your GitHub repository,
+  click on :guilabel:`Deploy keys`, and delete the deploy with a title matching the format ``support@readthedocs.com <your-project-slug>``.
+- :ref:`Connect the project to the repository <reference/git-integration:Connect a repository to a project>`.
+
 Revoking access
 ~~~~~~~~~~~~~~~
 
 You can revoke access to the Read the Docs GitHub App at any time from your GitHub settings.
 
-- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__.
-- `Read the Docs for Business <https://github.com/apps/read-the-docs-business/installations/new/>`__.
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
+- `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
 
 There are three ways to revoke access to the Read the Docs GitHub App:
 
@@ -298,8 +346,8 @@ Troubleshooting
 Make sure you have installed the corresponding GitHub App in your GitHub account or organization,
 and have granted access to the repository you want to import.
 
-- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__.
-- `Read the Docs for Business <https://github.com/apps/read-the-docs-business/installations/new/>`__.
+- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
+- `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
 
 If you still can't see the repository in the list,
 you may need to wait a couple of minutes and refresh the page,
