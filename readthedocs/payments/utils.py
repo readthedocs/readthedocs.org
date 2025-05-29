@@ -50,7 +50,7 @@ def cancel_subscription(subscription_id):
             "Canceling stripe subscription.",
             stripe_subscription=subscription_id,
         )
-        return stripe_client.subscriptions.delete(subscription_id)
+        return stripe_client.subscriptions.cancel(subscription_id)
     except stripe.error.StripeError:
         log.exception(
             "Subscription not cancelled. Subscription not found on Stripe. ",
