@@ -738,6 +738,7 @@ class CommunityBaseSettings(Settings):
     GITHUB_APP_NAME = "readthedocs"
     GITHUB_APP_PRIVATE_KEY = ""
     GITHUB_APP_WEBHOOK_SECRET = ""
+    RTD_ALLOW_GITHUB_APP = True
 
     @property
     def GITHUB_APP_CLIENT_ID(self):
