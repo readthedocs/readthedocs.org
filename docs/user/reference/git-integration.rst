@@ -235,7 +235,7 @@ GitHub App
 
 .. warning::
 
-   Our GitHub App is currenlty in beta, see our `blog post <https://about.readthedocs.com/blog/2025/06/welcome-to-our-beta-github-app/>`__ for more information.
+   Our GitHub App is currently in beta, see our `blog post <https://about.readthedocs.com/blog/2025/06/welcome-to-our-beta-github-app/>`__ for more information.
 
 We are in the process of migrating our GitHub OAuth application to a `GitHub App <https://docs.github.com/en/apps/overview>`__.
 We have two GitHub Apps, one for each of our platforms:
@@ -247,7 +247,7 @@ Features
 ~~~~~~~~
 
 When using GitHub, Read the Docs uses a GitHub App to interact with your repositories.
-This has the following benefits over using an OAuth application (like the other Git providers):
+This has the following benefits over using an OAuth application:
 
 - More control over which repositories Read the Docs can access.
   You don't need to grant access to all your repositories in order to create an account or import a single repository.
@@ -296,7 +296,7 @@ We recommend using the migration page to migrate your projects from the old OAut
 But in case you need to manually migrate a project,
 you can follow these steps:
 
-- Go to the settings page of your Read the Docs project,
+- Go to the :guilabel:`Settings` page of your Read the Docs project,
   and click on :guilabel:`Integrations`, and delete all the integrations that are listed there.
 - Go to the settings page of your GitHub repository,
   click on :guilabel:`Webhooks`, and delete all the webhooks with URLs that start with:
