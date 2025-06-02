@@ -339,6 +339,30 @@ Uninstall the GitHub App:
   The installation and configuration will be removed,
   and you will need to re-install the GitHub App and reconfigure it to use it again.
 
+Security
+~~~~~~~~
+
+When cloning private repositories (|com_brand| only)
+Read the Docs creates an `installation access token <https://docs.github.com/en/rest/apps/apps?apiVersion=2022-11-28#create-an-installation-access-token-for-an-app>`__,
+which has read access to the `contents permission <https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-contents>`__,
+and it's scoped to the repository to be cloned.
+
+This token is valid for one hour and GitHub automatically grants read access to the `metadata permission <https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-metadata>`__,
+which allows to query the repository collaborators, events, and other metadata.
+By default, Read the Docs doesn't show this token during the build,
+but the token is available during the whole build process.
+Make sure to not print it in your build logs,
+and that only trusted users are able to trigger builds on your project.
+
+.. note::
+
+   If your repository is public, Read the Docs will not create an installation access token.
+
+.. note::
+
+   The build log page is publicly accessible only if your project and version to build are marked as public.
+   See more in :doc:`/commercial/privacy-level`.
+
 Troubleshooting
 ~~~~~~~~~~~~~~~
 
