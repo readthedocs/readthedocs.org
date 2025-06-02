@@ -425,7 +425,9 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
             migrated_projects_count += 1
 
         if migrated_projects_count > 0:
-            messages.success(request, _(f"Successfully migrated {migrated_projects_count} project(s)."))
+            messages.success(
+                request, _(f"Successfully migrated {migrated_projects_count} project(s).")
+            )
         else:
             messages.info(request, _("No projects were migrated."))
 
