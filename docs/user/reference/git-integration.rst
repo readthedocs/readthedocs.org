@@ -366,24 +366,22 @@ and that only trusted users are able to trigger builds on your project.
 Troubleshooting
 ~~~~~~~~~~~~~~~
 
-**Repository not found in the repository list**
+Repository not found in the repository list
+   Make sure you have installed the corresponding GitHub App in your GitHub account or organization,
+   and have granted access to the repository your project will be connected to.
 
-Make sure you have installed the corresponding GitHub App in your GitHub account or organization,
-and have granted access to the repository your project will be connected to.
+   - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
+   - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
 
-- `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
-- `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
+   If you still can't see the repository in the list,
+   you may need to wait a couple of minutes and refresh the page,
+   or click on the "Refresh your repositories" button on the project creation page.
 
-If you still can't see the repository in the list,
-you may need to wait a couple of minutes and refresh the page,
-or click on the "Refresh your repositories" button on the project creation page.
+Repository is in the list, but isn't usable
+   Make sure you have admin access to the repository you are trying to use for your project.
+   If you are using |org_brand|, make sure your project is public,
+   or use |com_brand| to create projects from private repositories.
 
-**Repository is in the list, but isn't usable**
-
-Make sure you have admin access to the repository you are trying to use for your project.
-If you are using |org_brand|, make sure your project is public,
-or use |com_brand| to create projects from private repositories.
-
-If you still can't use the repository for your project,
-you may need to wait a couple of minutes and refresh the page,
-or click on the "Refresh your repositories" button on the project creation page.
+   If you still can't use the repository for your project,
+   you may need to wait a couple of minutes and refresh the page,
+   or click on the "Refresh your repositories" button on the project creation page.
