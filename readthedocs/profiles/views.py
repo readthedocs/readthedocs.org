@@ -399,7 +399,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         else:
             projects = get_valid_projects_missing_migration(request.user)
 
-        count = 0
+        migrated_projects_count = 0
         for project in projects:
             result = migrate_project_to_github_app(project=project, user=request.user)
             if not result.webhook_removed:
@@ -422,10 +422,10 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
                         "project_slug": project.slug,
                     },
                 )
-            count += 1
+            migrated_projects_count += 1
 
-        if count > 0:
-            messages.success(request, _(f"Successfully migrated {count} project(s)."))
+        if migrated_projects_count > 0:
+            messages.success(request, _(f"Successfully migrated {migrated_projects_count} project(s)."))
         else:
             messages.info(request, _("No projects were migrated."))
 

@@ -261,10 +261,10 @@ This has the following benefits over using an OAuth application:
 - Never out of sync with changes on your repository.
   The GitHub App subscribes to all required events and will always keep your project up to date with your repository.
 
-Creating a project from a repository
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Adding a project from a repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To create a project from a repository,
+To add a project from a repository,
 you need to install the Read the Docs GitHub App and grant access to that repository.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
@@ -276,7 +276,8 @@ then search for the repository you want to import, and follow the instructions f
 Connect a repository to an existing project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To connect a repository to an existing Read the Docs project,
+In case you manually added a project on Read the Docs,
+or if you want to connect your project to a different repository,
 you need to install the Read the Docs GitHub App and grant access to the repository you want to connect.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
