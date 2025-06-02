@@ -250,7 +250,7 @@ When using GitHub, Read the Docs uses a GitHub App to interact with your reposit
 This has the following benefits over using an OAuth application:
 
 - More control over which repositories Read the Docs can access.
-  You don't need to grant access to all your repositories in order to create an account or import a single repository.
+  You don't need to grant access to all your repositories in order to create an account or connect a project to a single repository.
 - No need to create webhooks on your repositories.
   The GitHub App subscribes to all required events when you install it.
 - No need to create a deploy key on your repository (|com_brand| only).
@@ -271,7 +271,7 @@ you need to install the Read the Docs GitHub App and grant access to that reposi
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
 
 Once you have installed the GitHub App, click on the :guilabel:`Projects` tab, and click on :guilabel:`Add project`,
-then search for the repository you want to import, and follow the instructions from there.
+search for the repository you want to create a project for, and then follow the instructions from there.
 
 Connect a repository to an existing project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -366,24 +366,24 @@ and that only trusted users are able to trigger builds on your project.
 Troubleshooting
 ~~~~~~~~~~~~~~~
 
-**Repository not in the list to import**
+**Repository not found in the repository list**
 
 Make sure you have installed the corresponding GitHub App in your GitHub account or organization,
-and have granted access to the repository you want to import.
+and have granted access to the repository your project will be connected to.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
 
 If you still can't see the repository in the list,
 you may need to wait a couple of minutes and refresh the page,
-or click on the "Refresh your repositories" button in the import page.
+or click on the "Refresh your repositories" button on the project creation page.
 
-**Repository is in the list, but can't be imported**
+**Repository is in the list, but isn't usable**
 
-Make sure you have admin access to the repository you are trying to import.
+Make sure you have admin access to the repository you are trying to use for your project.
 If you are using |org_brand|, make sure your project is public,
-or use |com_brand| to import private repositories.
+or use |com_brand| to create projects from private repositories.
 
-If you still can't import the repository,
+If you still can't use the repository for your project,
 you may need to wait a couple of minutes and refresh the page,
-or click on the "Refresh your repositories" button in the import page.
+or click on the "Refresh your repositories" button on the project creation page.
