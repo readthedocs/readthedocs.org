@@ -1,3 +1,20 @@
+Version 13.4.0
+--------------
+
+:Date: June 03, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12226 <https://github.com/readthedocs/readthedocs.org/pull/12226>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add Project queryset `prefetch_latest_build()` to project filter (`#12225 <https://github.com/readthedocs/readthedocs.org/pull/12225>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: fix canceling subscription (`#12224 <https://github.com/readthedocs/readthedocs.org/pull/12224>`__)
+* `@henryiii <https://github.com/henryiii>`__: fix(schema): require tools or commands (`#12222 <https://github.com/readthedocs/readthedocs.org/pull/12222>`__)
+* `@humitos <https://github.com/humitos>`__: Upload staticfiles to S3 (`#12220 <https://github.com/readthedocs/readthedocs.org/pull/12220>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix sitemap by moving comment. (`#12216 <https://github.com/readthedocs/readthedocs.org/pull/12216>`__)
+* `@humitos <https://github.com/humitos>`__: Gold: `subscription` is the subscription id as string (`#12212 <https://github.com/readthedocs/readthedocs.org/pull/12212>`__)
+* `@humitos <https://github.com/humitos>`__: Release 13.3.0 (`#12209 <https://github.com/readthedocs/readthedocs.org/pull/12209>`__)
+* `@humitos <https://github.com/humitos>`__: Tests: call `super().setUp()` (`#12208 <https://github.com/readthedocs/readthedocs.org/pull/12208>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: delete legacy HTML templates (part 2) (`#12197 <https://github.com/readthedocs/readthedocs.org/pull/12197>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: faster migration page (`#12186 <https://github.com/readthedocs/readthedocs.org/pull/12186>`__)
+
 Version 13.3.0
 --------------
 
