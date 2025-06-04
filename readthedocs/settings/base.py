@@ -1031,6 +1031,15 @@ class CommunityBaseSettings(Settings):
     AWS_STS_ASSUME_ROLE_ARN = "arn:aws:iam::1234:role/SomeRole"
 
     @property
+    def STORAGES(self):
+        # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+        return {
+            "staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
+            },
+        }
+
+    @property
     def USING_AWS(self):
         """Return True if we are using AWS as our storage/cloud provider."""
         return self.S3_PROVIDER == "AWS"
