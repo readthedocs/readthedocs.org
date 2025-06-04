@@ -127,15 +127,6 @@ class CommunityBaseSettings(Settings):
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = "DENY"
 
-    # Content Security Policy
-    # https://django-csp.readthedocs.io/
-    CSP_DEFAULT_SRC = None  # This could be improved
-    CSP_FRAME_ANCESTORS = ("'none'",)
-    CSP_OBJECT_SRC = ("'none'",)
-    CSP_REPORT_URI = None
-    CSP_REPORT_ONLY = False
-    CSP_EXCLUDE_URL_PREFIXES = ("/admin/",)
-    RTD_CSP_UPDATE_HEADERS = {}
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -401,6 +392,81 @@ class CommunityBaseSettings(Settings):
         "readthedocs.core.finders.DebugToolbarFinder",
     ]
     PYTHON_MEDIA = False
+
+    # Content Security Policy
+    # https://django-csp.readthedocs.io/
+    CSP_FRAME_ANCESTORS = ("'none'",)
+    CSP_OBJECT_SRC = ("'none'",)
+    CSP_REPORT_URI = None
+    CSP_REPORT_ONLY = False
+    CSP_EXCLUDE_URL_PREFIXES = ("/admin/",)
+
+    # Default to disallow everything, and then allow specific sources on each directive.
+    CSP_DEFAULT_SRC = ["'none'"]
+    CSP_SCRIPT_SRC = [
+        "'self'",
+        STATIC_URL,
+        # Some of our JS deps are using eval.
+        "'unsafe-eval'",
+        # Allow fontawesome to load.
+        "https://kit.fontawesome.com",
+        # Stripe (used for Gold subscriptions)
+        "https://js.stripe.com/",
+    ]
+    CSP_CONNECT_SRC = [
+        "'self'",
+        # Allow sentry to report errors.
+        "https://*.ingest.us.sentry.io",
+        # Allow fontawesome to load.
+        "https://ka-p.fontawesome.com",
+        "https://kit.fontawesome.com",
+        # Plausible analytics
+        "https://plausible.io/api/event",
+    ]
+    CSP_IMG_SRC = [
+        "'self'",
+        # Some of our styles include images as data URLs.
+        "data:",
+        # We load avatars from GitHub, GitLab, and Bitbucket,
+        # and other services. They don't use a single specific domain,
+        # so we just allow any https domain here.
+        "https:",
+    ]
+    CSP_STYLE_SRC = [
+        "'self'",
+        STATIC_URL,
+        # We have lots of inline styles!
+        # TODO: we should remove this.
+        "'unsafe-inline'",
+    ]
+    CSP_BASE_URI = ["'self'"]
+    CSP_FORM_ACTION = [
+        "'self'",
+        # Allow our support form to submit to external domains.
+        SUPPORT_FORM_ENDPOINT,
+        # Chrome and Safari block form submissions if it redirects to a different domain.
+        # We redirect to external domains for some forms, like login.
+        "https://github.com",
+        "https://gitlab.com",
+        "https://bitbucket.org",
+        "https://id.atlassian.com",
+        "https://accounts.google.com",
+        # We also redirect to Stripe on subscription forms.
+        "https://billing.stripe.com",
+        "https://checkout.stripe.com",
+    ]
+    CSP_FONT_SRC = [
+        "'self'",
+        STATIC_URL,
+        # Allow fontawesome to load.
+        "data:",
+        "https://ka-p.fontawesome.com",
+    ]
+    CSP_FRAME_SRC = [
+        # Stripe (used for Gold subscriptions)
+        "https://js.stripe.com/",
+    ]
+    RTD_CSP_UPDATE_HEADERS = {}
 
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
