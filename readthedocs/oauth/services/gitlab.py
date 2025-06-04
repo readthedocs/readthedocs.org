@@ -174,7 +174,7 @@ class GitLabService(UserService):
 
         return remote_organizations, remote_repositories
 
-    def create_repository(self, fields, organization: RemoteOrganization|None = None):
+    def create_repository(self, fields, organization: RemoteOrganization | None = None):
         """
         Update or create a repository from GitLab API response.
 
