@@ -267,7 +267,6 @@ class GitLabService(UserService):
         organization.get_remote_organization_relation(self.user, self.account)
 
         organization.name = fields.get("name")
-        # NOTE: this should be full_path, path has only the last part of the path.
         organization.slug = fields.get("path")
         organization.url = fields.get("web_url")
         organization.avatar_url = fields.get("avatar_url")
