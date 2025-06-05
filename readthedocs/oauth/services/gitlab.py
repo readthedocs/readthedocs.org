@@ -174,7 +174,9 @@ class GitLabService(UserService):
 
         return remote_organizations, remote_repositories
 
-    def create_repository(self, fields, organization: RemoteOrganization | None = None):
+    def create_repository(
+        self, fields, privacy=None, organization: RemoteOrganization | None = None
+    ):
         """
         Update or create a repository from GitLab API response.
 
@@ -189,10 +191,11 @@ class GitLabService(UserService):
         https://gitlab.com/help/user/permissions
 
         :param fields: dictionary of response data from API
+        :param privacy: privacy level to support
         :param organization: remote organization to associate with
         :rtype: RemoteRepository
         """
-        privacy = settings.DEFAULT_PRIVACY_LEVEL
+        privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         repo_is_public = fields["visibility"] == "public"
         if privacy == "private" or (repo_is_public and privacy == "public"):
             repo, _ = RemoteRepository.objects.get_or_create(
@@ -264,6 +267,7 @@ class GitLabService(UserService):
         organization.get_remote_organization_relation(self.user, self.account)
 
         organization.name = fields.get("name")
+        # NOTE: this should be full_path, path has only the last part of the path.
         organization.slug = fields.get("path")
         organization.url = fields.get("web_url")
         organization.avatar_url = fields.get("avatar_url")
