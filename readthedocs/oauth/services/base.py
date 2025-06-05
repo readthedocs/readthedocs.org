@@ -2,6 +2,7 @@
 
 import re
 from functools import cached_property
+from typing import Iterator
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
@@ -181,7 +182,7 @@ class UserService(Service):
     def session(self):
         return get_oauth2_client(self.account)
 
-    def paginate(self, url, **kwargs):
+    def paginate(self, url, **kwargs) -> Iterator[dict]:
         """
         Recursively combine results from service's pagination.
 
@@ -209,10 +210,9 @@ class UserService(Service):
                 )
 
             next_url = self.get_next_url_to_paginate(resp)
-            results = self.get_paginated_results(resp)
+            yield from self.get_paginated_results(resp)
             if next_url:
-                results.extend(self.paginate(next_url))
-            return results
+                yield from self.paginate(next_url)
         # Catch specific exception related to OAuth
         except InvalidClientIdError:
             log.warning("access_token or refresh_token failed.", url=url)
