@@ -400,10 +400,9 @@ class ServeRedirectMixin:
 
         # Check explicitly only the path and hostname, since a different
         # protocol or query parameters could lead to a infinite redirect.
-        if (
-            new_url_parsed.hostname == current_url_parsed.hostname
-            and new_url_parsed.path == current_url_parsed.path
-        ):
+        # NOTE: we compare against the `path` parameter, since requests
+        # from the 404 handler will have a different path (/_proxito_404/path/to/file.html).
+        if new_url_parsed.hostname == current_url_parsed.hostname and new_url_parsed.path == path:
             # check that we do have a response and avoid infinite redirect
             log.debug(
                 "Infinite Redirect: FROM URL is the same than TO URL.",
