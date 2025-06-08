@@ -24,18 +24,18 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.38.27
+boto3==1.38.32
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.38.27
+botocore==1.38.32
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2024.1130
     # via -r requirements/pip.txt
-celery==5.5.2
+celery==5.5.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -105,7 +105,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.1
+django==5.2.2
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -128,7 +128,7 @@ django==5.2.1
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.8.1
+django-allauth[mfa,saml,socialaccount]==65.9.0
     # via -r requirements/pip.txt
 django-annoying==0.10.8
     # via -r requirements/pip.txt
@@ -162,7 +162,7 @@ django-ipware==5.0.2
     #   django-structlog
 django-polymorphic==4.1.0
     # via -r requirements/pip.txt
-django-safemigrate==5.3
+django-safemigrate==6.0
     # via -r requirements/pip.txt
 django-simple-history==3.8.0
     # via -r requirements/pip.txt
@@ -245,7 +245,7 @@ jmespath==1.0.1
     #   botocore
 jsonfield==3.1.0
     # via -r requirements/pip.txt
-kombu==5.5.3
+kombu==5.5.4
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -278,6 +278,7 @@ packaging==25.0
     #   dparse
     #   drf-extensions
     #   gunicorn
+    #   kombu
 parso==0.8.4
     # via jedi
 pexpect==4.9.0
@@ -422,7 +423,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.13.2
+typing-extensions==4.14.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
