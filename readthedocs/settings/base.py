@@ -686,7 +686,13 @@ class CommunityBaseSettings(Settings):
     _SOCIALACCOUNT_PROVIDERS = {
         "github": {
             "APPS": [
-                {"client_id": "123", "secret": "456", "key": ""},
+                {
+                    "name": "GitHub OAuth",
+                    "client_id": "123",
+                    "secret": "456",
+                    "key": "",
+                    "settings": {"hidden": False},
+                },
             ],
             "SCOPE": [
                 "user:email",
@@ -697,7 +703,13 @@ class CommunityBaseSettings(Settings):
         },
         "githubapp": {
             "APPS": [
-                {"client_id": "123", "secret": "456", "key": ""},
+                {
+                    "name": "GitHub App",
+                    "client_id": "123",
+                    "secret": "456",
+                    "key": "",
+                    "settings": {"hidden": False},
+                },
             ],
             # Scope is determined by the GitHub App permissions.
             "SCOPE": [],
