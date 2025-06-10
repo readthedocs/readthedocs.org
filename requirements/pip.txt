@@ -15,15 +15,15 @@ asgiref==3.8.1
     #   django-cors-headers
 billiard==4.2.1
     # via celery
-boto3==1.38.27
+boto3==1.38.32
     # via django-storages
-botocore==1.38.27
+botocore==1.38.32
     # via
     #   boto3
     #   s3transfer
 bumpver==2024.1130
     # via -r requirements/pip.in
-celery==5.5.2
+celery==5.5.3
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
@@ -68,7 +68,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.9.0
     # via -r requirements/pip.in
-django==5.2.1
+django==5.2.2
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -91,7 +91,7 @@ django==5.2.1
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.8.1
+django-allauth[mfa,saml,socialaccount]==65.9.0
     # via -r requirements/pip.in
 django-annoying==0.10.8
     # via -r requirements/pip.in
@@ -125,7 +125,7 @@ django-ipware==5.0.2
     #   django-structlog
 django-polymorphic==4.1.0
     # via -r requirements/pip.in
-django-safemigrate==5.3
+django-safemigrate==6.0
     # via -r requirements/pip.in
 django-simple-history==3.8.0
     # via -r requirements/pip.in
@@ -188,7 +188,7 @@ jmespath==1.0.1
     #   botocore
 jsonfield==3.1.0
     # via -r requirements/pip.in
-kombu==5.5.3
+kombu==5.5.4
     # via celery
 lexid==2021.1006
     # via bumpver
@@ -211,6 +211,7 @@ packaging==25.0
     #   dparse
     #   drf-extensions
     #   gunicorn
+    #   kombu
 platformdirs==4.3.8
     # via virtualenv
 prompt-toolkit==3.0.51
@@ -305,7 +306,7 @@ structlog==23.2.0
     #   django-structlog
 toml==0.10.2
     # via bumpver
-typing-extensions==4.13.2
+typing-extensions==4.14.0
     # via
     #   elasticsearch
     #   elasticsearch-dsl
