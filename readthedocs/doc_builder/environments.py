@@ -289,9 +289,6 @@ class BuildCommand(BuildCommandResultMixin):
 
         self.id = resp.get("id")
 
-    def _update(self):
-        pass
-
 
 class DockerBuildCommand(BuildCommand):
     """
