@@ -2043,7 +2043,7 @@ class GitLabOAuthTests(TestCase):
         "web_url": "https://gitlab.com/groups/testorga",
         "request_access_enabled": False,
         "full_name": "Test Orga",
-        "full_path": "testorga",
+        "full_path": "group/testorga",
         "parent_id": None,
     }
 
@@ -2145,7 +2145,7 @@ class GitLabOAuthTests(TestCase):
     def test_make_organization(self):
         org = self.service.create_organization(self.group_response_data)
         self.assertIsInstance(org, RemoteOrganization)
-        self.assertEqual(org.slug, "testorga")
+        self.assertEqual(org.slug, "group/testorga")
         self.assertEqual(org.name, "Test Orga")
         self.assertEqual(
             org.avatar_url,
