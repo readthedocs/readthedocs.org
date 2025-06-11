@@ -197,6 +197,12 @@ class BuildCommandSerializer(serializers.ModelSerializer):
         model = BuildCommandResult
         exclude = []
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make the build field read-only on update operations.
+        if self.instance and self.instance.pk:
+            self.fields["build"].read_only = True
+
 
 class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     """
