@@ -686,7 +686,18 @@ class CommunityBaseSettings(Settings):
     _SOCIALACCOUNT_PROVIDERS = {
         "github": {
             "APPS": [
-                {"client_id": "123", "secret": "456", "key": ""},
+                {
+                    "name": "GitHub OAuth",
+                    "client_id": "123",
+                    "secret": "456",
+                    "key": "",
+                    "settings": {
+                        "hidden": False,
+                        "hidden_on_login": False,
+                        "hidden_on_connect": False,
+                        "priority": 10,
+                    },
+                },
             ],
             "SCOPE": [
                 "user:email",
@@ -697,14 +708,25 @@ class CommunityBaseSettings(Settings):
         },
         "githubapp": {
             "APPS": [
-                {"client_id": "123", "secret": "456", "key": ""},
+                {
+                    "name": "GitHub App",
+                    "client_id": "123",
+                    "secret": "456",
+                    "key": "",
+                    "settings": {
+                        "hidden": False,
+                        "hidden_on_login": False,
+                        "hidden_on_connect": False,
+                        "priority": 20,
+                    },
+                },
             ],
             # Scope is determined by the GitHub App permissions.
             "SCOPE": [],
         },
         "gitlab": {
             "APPS": [
-                {"client_id": "123", "secret": "456", "key": ""},
+                {"client_id": "123", "secret": "456", "key": "", "settings": {"priority": 30}},
             ],
             # GitLab returns the primary email only, we can trust it's verified.
             "VERIFIED_EMAIL": True,
@@ -715,7 +737,7 @@ class CommunityBaseSettings(Settings):
         },
         "bitbucket_oauth2": {
             "APPS": [
-                {"client_id": "123", "secret": "456", "key": ""},
+                {"client_id": "123", "secret": "456", "key": "", "settings": {"priority": 40}},
             ],
             # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org.
         },
