@@ -240,7 +240,18 @@ class BuildCommand(BuildCommandResultMixin):
         return self.command
 
     def save(self, api_client):
-        """Save this command and result via the API."""
+        """
+        Save this command and result via the API.
+
+        The command can be saved before or after it has been run,
+        if it's saved before it has been run, the exit_code,
+        start_time, and end_time will be None.
+
+        If the command is saved twice (before and after it has been run),
+        the second save will update the command instead of creating a new one.
+        The id of the command will be set the first time it is saved,
+        so it can be used to update the command later.
+        """
         # Force record this command as success to avoid Build reporting errors
         # on commands that are just for checking purposes and do not interferes
         # in the Build
