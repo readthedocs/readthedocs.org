@@ -9,7 +9,6 @@ from readthedocs.api.v2.views import core_views
 from readthedocs.api.v2.views import integrations
 from readthedocs.api.v2.views import task_views
 from readthedocs.constants import pattern_opts
-from readthedocs.gold.views import StripeEventView
 
 from .views.model_views import BuildCommandViewSet
 from .views.model_views import BuildViewSet
@@ -108,6 +107,3 @@ integration_urls = [
 urlpatterns += function_urls
 urlpatterns += task_urls
 urlpatterns += integration_urls
-urlpatterns += [
-    path("webhook/stripe/", StripeEventView.as_view(), name="api_webhook_stripe"),
-]

@@ -261,7 +261,11 @@
           }
         }
       },
-      "required": ["os", "tools"],
+      "required": ["os"],
+      "anyOf": [
+        {"required": ["tools"]},
+        {"required": ["commands"]}
+      ],
       "additionalProperties": false
     },
     "python": {

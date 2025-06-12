@@ -116,7 +116,7 @@ django-cors-headers
 # User agent parsing - used for analytics purposes
 user-agents
 
-django-storages[boto3]
+django-storages[s3]
 
 
 # Required only in development and linting

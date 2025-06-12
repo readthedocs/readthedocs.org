@@ -850,20 +850,8 @@ class CommunityBaseSettings(Settings):
     # https://django-taggit.readthedocs.io
     TAGGIT_TAGS_FROM_STRING = "readthedocs.projects.tag_utils.rtd_parse_tags"
 
-    # Stripe
-    # Existing values we use
-    STRIPE_SECRET = None
-    STRIPE_PUBLISHABLE = None
-
     # DJStripe values -- **CHANGE THESE IN PRODUCTION**
-    STRIPE_LIVE_SECRET_KEY = None
-    STRIPE_TEST_SECRET_KEY = "sk_test_x"  # A default so the `checks` don't fail
-    DJSTRIPE_WEBHOOK_SECRET = None
     STRIPE_LIVE_MODE = False  # Change to True in production
-    # This is less optimal than setting the webhook secret
-    # However, the app won't start without the secret
-    # with this setting set to the default
-    DJSTRIPE_WEBHOOK_VALIDATION = "retrieve_event"
 
     # These values shouldn't need to change..
     DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
@@ -879,7 +867,7 @@ class CommunityBaseSettings(Settings):
 
     # Webhook URL for BotDog to post messages in Slack #sales channel:
     # https://api.slack.com/apps/A01ML7J7N4T/incoming-webhooks
-    SLACK_WEBHOOK_SALES_CHANNEL = None  # https://hooks.slack.com/services/...
+    SLACK_WEBHOOK_RTD_NOTIFICATIONS_CHANNEL = None  # https://hooks.slack.com/services/...
 
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False
@@ -1041,6 +1029,15 @@ class CommunityBaseSettings(Settings):
     S3_PROVIDER = "AWS"
     # Used by readthedocs.aws.security_token_service.
     AWS_STS_ASSUME_ROLE_ARN = "arn:aws:iam::1234:role/SomeRole"
+
+    @property
+    def STORAGES(self):
+        # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+        return {
+            "staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
+            },
+        }
 
     @property
     def USING_AWS(self):

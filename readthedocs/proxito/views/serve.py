@@ -817,7 +817,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             It generates values from 1 to 0.1 by decreasing in 0.1 on each
             iteration. After 0.1 is reached, it will keep returning 0.1.
             """
-            priorities = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
+            priorities = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
             yield from itertools.chain(priorities, itertools.repeat(0.1))
 
         def hreflang_formatter(lang):
