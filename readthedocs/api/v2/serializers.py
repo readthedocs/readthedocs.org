@@ -197,6 +197,11 @@ class BuildCommandSerializer(serializers.ModelSerializer):
         model = BuildCommandResult
         exclude = []
 
+    def update(self, instance, validated_data):
+        # Build isn't allowed to be updated after creation.
+        validated_data.pop("build", None)
+        return super().update(instance, validated_data)
+
 
 class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     """

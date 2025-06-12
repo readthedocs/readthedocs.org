@@ -38,6 +38,9 @@ class TestLocalBuildEnvironment(TestCase):
 
     def test_record_command_as_success(self):
         api_client = mock.MagicMock()
+        api_client.command().patch.return_value = {
+            "id": 1,
+        }
         project = get(Project)
         build_env = LocalBuildEnvironment(
             project=project,
@@ -57,8 +60,19 @@ class TestLocalBuildEnvironment(TestCase):
         self.assertEqual(len(build_env.commands), 1)
 
         command = build_env.commands[0]
-        self.assertEqual(command.exit_code, 0)
+        assert command.exit_code == 0
+        assert command.id == 1
         api_client.command.post.assert_called_once_with(
+            {
+                "build": mock.ANY,
+                "command": command.get_command(),
+                "output": "",
+                "exit_code": None,
+                "start_time": None,
+                "end_time": None,
+            }
+        )
+        api_client.command().patch.assert_called_once_with(
             {
                 "build": mock.ANY,
                 "command": command.get_command(),

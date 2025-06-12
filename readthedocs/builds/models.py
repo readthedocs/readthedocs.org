@@ -997,6 +997,15 @@ class BuildCommandResultMixin:
         """
         return not self.successful
 
+    @property
+    def finished(self):
+        """
+        Check if the command has finished running.
+
+        This is determined by checking if the `end_time` is not None.
+        """
+        return self.end_time is not None
+
 
 class BuildCommandResult(BuildCommandResultMixin, models.Model):
     """Build command for a ``Build``."""
@@ -1011,10 +1020,10 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     command = models.TextField(_("Command"))
     description = models.TextField(_("Description"), blank=True)
     output = models.TextField(_("Command output"), blank=True)
-    exit_code = models.IntegerField(_("Command exit code"))
+    exit_code = models.IntegerField(_("Command exit code"), null=True, blank=True)
 
-    start_time = models.DateTimeField(_("Start time"))
-    end_time = models.DateTimeField(_("End time"))
+    start_time = models.DateTimeField(_("Start time"), null=True, blank=True)
+    end_time = models.DateTimeField(_("End time"), null=True, blank=True)
 
     class Meta:
         ordering = ["start_time"]
