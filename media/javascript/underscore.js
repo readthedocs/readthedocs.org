@@ -1,0 +1,1 @@
+../../readthedocs/static/vendor/underscore-standalone.js
