@@ -173,12 +173,6 @@ dummy_dashboard_urls = [
         ProxitoErrorView.as_view(status_code=418),
         name="project_version_list",
     ),
-    # /projects/<project_slug>/downloads/
-    re_path(
-        (r"^projects/(?P<project_slug>{project_slug})/downloads/$".format(**pattern_opts)),
-        ProxitoErrorView.as_view(status_code=418),
-        name="project_downloads",
-    ),
     # /projects/<project_slug>/builds/<build_id>/
     re_path(
         (

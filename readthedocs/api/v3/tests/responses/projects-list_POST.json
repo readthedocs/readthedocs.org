@@ -37,7 +37,7 @@
     "urls": {
         "builds": "https://readthedocs.org/projects/test-project/builds/",
         "documentation": "http://test-project.readthedocs.io/en/latest/",
-        "downloads": "https://readthedocs.org/projects/test-project/downloads/",
+        "downloads": null,
         "home": "https://readthedocs.org/projects/test-project/",
         "versions": "https://readthedocs.org/projects/test-project/versions/"
     },

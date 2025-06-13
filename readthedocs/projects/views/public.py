@@ -3,7 +3,6 @@
 import hashlib
 import mimetypes
 import os
-from collections import OrderedDict
 
 import structlog
 from django.conf import settings
@@ -37,7 +36,6 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 
@@ -299,32 +297,6 @@ class ProjectBadgeView(View):
 
 
 project_badge = never_cache(ProjectBadgeView.as_view())
-
-
-def project_downloads(request, project_slug):
-    """A detail view for a project with various downloads."""
-    project = get_object_or_404(
-        Project.objects.public(request.user),
-        slug=project_slug,
-    )
-    versions = Version.internal.public(user=request.user, project=project)
-    versions = sort_version_aware(versions)
-    version_data = OrderedDict()
-    for version in versions:
-        data = version.get_downloads()
-        # Don't show ones that have no downloads.
-        if data:
-            version_data[version] = data
-
-    return render(
-        request,
-        "projects/project_downloads.html",
-        {
-            "project": project,
-            "version_data": version_data,
-            "versions": versions,
-        },
-    )
 
 
 class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):

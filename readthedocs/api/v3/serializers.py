@@ -466,8 +466,10 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return self._absolute_url(path)
 
     def get_downloads(self, obj):
-        path = reverse("project_downloads", kwargs={"project_slug": obj.slug})
-        return self._absolute_url(path)
+        # We are deprecating this field.
+        # The URL for the page returned was deleted in ext-theme.
+        # We are returning `None` just to not delete the field.
+        return None
 
     def get_documentation(self, obj):
         version_slug = getattr(self.parent, "version_slug", None)
