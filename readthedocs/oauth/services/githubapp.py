@@ -502,3 +502,37 @@ class GitHubAppService(Service):
     def update_webhook(self, project, integration=None) -> bool:
         """When using a GitHub App, we don't need to set up a webhook."""
         return True
+
+    def post_comment(self, build, comment):
+        """Post a comment on the pull request attached to the build."""
+        project = build.project
+        version = build.version
+
+        if not version.is_external:
+            raise ValueError("Only versions from pull requests can have comments posted.")
+
+        remote_repo = project.remote_repository
+        # NOTE: we use the lazy option to avoid fetching the repository object,
+        # since we only need the object to interact with the commit status API.
+        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
+        issue = gh_repo.get_issue(int(version.verbose_name))
+        existing_gh_comment = None
+        for gh_comment in issue.get_comments():
+            # Get the comment where the author is us.
+            # The login is of the author is the name of the GitHub App, with "[bot]" suffix.
+            if gh_comment.user.login == f"{settings.GITHUB_APP_NAME}[bot]":
+                # TODO: check the boyd of the comment to see it it matches the project?
+                # What to do when the same repo is attached to multiple projects?
+                existing_gh_comment = gh_comment
+                break
+
+        # NOTE: don't replace the whole comment,
+        # instead use some delimiter to separate comments per project.
+        if existing_gh_comment:
+            existing_gh_comment.edit(
+                body=comment,
+            )
+        else:
+            issue.create_comment(
+                body=comment,
+            )
