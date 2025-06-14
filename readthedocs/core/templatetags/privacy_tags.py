@@ -22,6 +22,16 @@ def is_member(user, project):
     return AdminPermission.is_member(user, project)
 
 
+@register.filter
+def admins(obj):
+    """
+    Return admin users on the object.
+
+    The object could an Organization or a Project.
+    """
+    return AdminPermission.admins(obj)
+
+
 @register.simple_tag(takes_context=True)
 def get_public_projects(context, user):
     # 'Exists()' checks if the project has any good builds.
