@@ -16,6 +16,7 @@ Automatically add your project
 #. Go to your :term:`dashboard`.
 #. Click on :guilabel:`Add project`.
 #. Type the name of the repository you want to add and click on it.
+   If you are using GitHub, make sure you have installed the :ref:`Read the Docs GitHub App <reference/git-integration:GitHub App>` in your repository.
 #. Click on :guilabel:`Continue`.
 #. Edit any of the pre-filled fields with information of the repository.
 #. Click on :guilabel:`Next`.
