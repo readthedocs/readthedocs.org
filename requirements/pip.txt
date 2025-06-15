@@ -15,9 +15,9 @@ asgiref==3.8.1
     #   django-cors-headers
 billiard==4.2.1
     # via celery
-boto3==1.38.32
+boto3==1.38.36
     # via django-storages
-botocore==1.38.32
+botocore==1.38.36
     # via
     #   boto3
     #   s3transfer
@@ -54,7 +54,7 @@ colorama==0.4.6
     # via bumpver
 cron-descriptor==1.4.5
     # via django-celery-beat
-cryptography==45.0.3
+cryptography==45.0.4
     # via
     #   fido2
     #   pyjwt
@@ -68,7 +68,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.9.0
     # via -r requirements/pip.in
-django==5.2.2
+django==5.2.3
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -224,7 +224,7 @@ psycopg-pool==3.2.6
     # via psycopg
 pycparser==2.22
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via -r requirements/pip.in
 pydantic-core==2.33.2
     # via pydantic
@@ -262,7 +262,7 @@ redis==5.2.1
     # via -r requirements/pip.in
 regex==2024.11.6
     # via -r requirements/pip.in
-requests==2.32.3
+requests==2.32.4
     # via
     #   -r requirements/pip.in
     #   django-allauth
