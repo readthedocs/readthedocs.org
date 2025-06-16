@@ -252,16 +252,7 @@ class GitHubAppWebhookHandler:
     def __init__(self, data: dict, event: str):
         self.data = data
         self.event = event
-
-    @cached_property
-    def gh_app_client(self):
-        return get_gh_app_client()
-
-    def handle(self):
-        # Most of the events have an installation object and action.
-        installation_id = self.data.get("installation", {}).get("id", "unknown")
-        action = self.data.get("action", "unknown")
-        event_handlers = {
+        self.event_handlers = {
             "installation": self._handle_installation_event,
             "installation_repositories": self._handle_installation_repositories_event,
             "installation_target": self._handle_installation_target_event,
@@ -272,17 +263,26 @@ class GitHubAppWebhookHandler:
             "member": self._handle_member_event,
             "github_app_authorization": self._handle_github_app_authorization_event,
         }
+
+    @cached_property
+    def gh_app_client(self):
+        return get_gh_app_client()
+
+    def handle(self):
+        # Most of the events have an installation object and action.
+        installation_id = self.data.get("installation", {}).get("id", "unknown")
+        action = self.data.get("action", "unknown")
         log.bind(
             installation_id=installation_id,
             action=action,
             event=self.event,
         )
-        if self.event in event_handlers:
-            log.debug("Handling event")
-            event_handlers[self.event]()
+        if self.event not in self.event_handlers:
+            log.debug("Unsupported event")
+            raise ValueError(f"Unsupported event: {self.event}")
 
-        log.debug("Unsupported event")
-        raise ValueError(f"Unsupported event: {self.event}")
+        log.debug("Handling event")
+        self.event_handlers[self.event]()
 
     def _handle_installation_event(self):
         """

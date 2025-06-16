@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from readthedocs.api.v2.views.integrations import GITHUB_EVENT_HEADER
 from readthedocs.api.v2.views.integrations import GITHUB_SIGNATURE_HEADER
 from readthedocs.api.v2.views.integrations import WebhookMixin
+from readthedocs.oauth.tasks import GitHubAppWebhookHandler
 from readthedocs.oauth.tasks import handle_github_app_webhook
 
 
@@ -40,6 +41,10 @@ class GitHubAppWebhookView(APIView):
             action=action,
             event=event,
         )
+        if event not in GitHubAppWebhookHandler(request.data, event).event_handlers:
+            log.debug("Unsupported event")
+            raise ValidationError(f"Unsupported event: {event}")
+
         log.debug("Handling event")
         handle_github_app_webhook.delay(
             data=request.data,
