@@ -15,7 +15,7 @@ You can always find our most up-to-date pricing information on our `pricing page
 Managing your subscription
 --------------------------
 
-1. Navigate to the `subscription management page <https://readthedocs.com/organizations/choose/subscription_detail/>`__.
+1. Navigate to the `subscription management page <https://app.readthedocs.com/organizations/choose/subscription_detail/>`__.
 2. Click :guilabel:`Manage Subscription`.
 
 This action will take you to the Stripe billing portal where you can manage your subscription.

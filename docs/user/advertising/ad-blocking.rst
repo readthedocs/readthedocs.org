@@ -52,14 +52,14 @@ or simply the **Read the Docs Ads list**.
 Going ad-free
 -------------
 
-`Gold members <https://readthedocs.org/accounts/gold/>`_
+`Gold members <https://app.readthedocs.org/accounts/gold/>`_
 may completely remove advertising for all visitors to their projects.
 Thank you for supporting Read the Docs.
 
 .. note::
 
    Previously, Gold members or
-   `Supporters <https://readthedocs.org/sustainability/#donations>`_
+   `Supporters <https://app.readthedocs.org/sustainability/#donations>`_
    were provided an ad-free reading experience across all projects on Read the Docs while logged-in.
    However, the cross-site cookies needed to make that work are no longer supported by major browsers outside of Chrome,
    and this feature has been removed.

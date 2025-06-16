@@ -132,7 +132,7 @@ Managing Integrations
 To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
 dashboard page and select the integration type you'd like to add.
 
-As an example, the URL pattern looks like this: ``https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*``.
+As an example, the URL pattern looks like this: ``https://app.readthedocs.org/api/v2/webhook/<project-name>/<id>/*``.
 Use this URL when setting up a new integration with your provider.
 
 .. _webhook-integration-generic:
@@ -175,7 +175,7 @@ For example, the cURL command to build the ``dev`` branch, using the token
 ``1234``, would be::
 
     curl -X POST -d "branches=dev" -d "token=1234" -d "default_branch=main"
-    https://readthedocs.org/api/v2/webhook/example-project/1/
+    https://app.readthedocs.org/api/v2/webhook/example-project/1/
 
 A command like the one above could be called from a cron job or from a `Git hook`_.
 
