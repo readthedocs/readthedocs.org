@@ -8,6 +8,7 @@ and adapted to use:
  * El Proxito
 """
 
+from django.urls import reverse
 import django_dynamic_fixture as fixture
 from django.test.utils import override_settings
 
@@ -282,6 +283,39 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
 
         r = self.client.get("/en/latest/install.html?foo=bar", headers={"host": host})
         self.assertEqual(r.status_code, 404)
+
+    def test_infinite_redirect_on_404_view(self):
+        """
+        Explicitly test using the ``proxito_404_handler`` view.
+
+        This mimics the actual request that happens when a page is not found.
+        """
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/install.html",
+        )
+        r = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/latest/install.html"},
+            ),
+            headers={"host": host},
+        )
+        assert r.status_code == 404
+
+        r = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/latest/install.html"},
+                query={"foo": "bar"},
+            ),
+            headers={"host": host},
+        )
+        assert r.status_code == 404
 
     def test_infinite_redirect_changing_protocol(self):
         host = "project.dev.readthedocs.io"

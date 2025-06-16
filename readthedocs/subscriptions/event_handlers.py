@@ -230,7 +230,7 @@ def subscription_canceled(event, **kwargs):
             organization_slug=organization.slug,
         )
 
-    if settings.SLACK_WEBHOOK_SALES_CHANNEL and total_spent > 0:
+    if settings.SLACK_WEBHOOK_RTD_NOTIFICATIONS_CHANNEL and total_spent > 0:
         start_date = stripe_subscription.start_date.strftime("%b %-d, %Y")
         timesince = humanize.naturaltime(stripe_subscription.start_date).split(",")[0]
         domains = Domain.objects.filter(project__organizations__in=[organization]).count()
@@ -290,7 +290,7 @@ def subscription_canceled(event, **kwargs):
         }
         try:
             response = requests.post(
-                settings.SLACK_WEBHOOK_SALES_CHANNEL,
+                settings.SLACK_WEBHOOK_RTD_NOTIFICATIONS_CHANNEL,
                 json=slack_message,
                 timeout=3,
             )
