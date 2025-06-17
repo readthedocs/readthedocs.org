@@ -6,6 +6,7 @@ import socket
 import subprocess
 
 import structlog
+from pathlib import Path
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 from django.conf.global_settings import PASSWORD_HASHERS
@@ -1036,6 +1037,13 @@ class CommunityBaseSettings(Settings):
         return {
             "staticfiles": {
                 "BACKEND": self.RTD_STATICFILES_STORAGE,
+            },
+            "usercontent": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+                "OPTIONS": {
+                    "location": Path(self.MEDIA_ROOT) / "usercontent",
+                    "allow_overwrite": True,
+                }
             },
         }
 

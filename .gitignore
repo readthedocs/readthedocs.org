@@ -38,6 +38,7 @@ media/json
 media/man
 media/pdf
 media/static
+media/usercontent
 /static
 node_modules
 nodeenv
