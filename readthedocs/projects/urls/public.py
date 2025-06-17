@@ -41,8 +41,8 @@ urlpatterns = [
     ),
     re_path(
         r"^(?P<project_slug>{project_slug})/downloads/$".format(**pattern_opts),
-        public.project_downloads,
-        name="project_downloads",
+        RedirectView.as_view(pattern_name="projects_detail", permanent=False),
+        name="projects_downloads",
     ),
     # NOTE: this URL is kept here only for backward compatibility to serve
     # non-html files from the dashboard. The ``name=`` is removed to avoid

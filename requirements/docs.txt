@@ -37,7 +37,7 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.58.1
+fonttools==4.58.4
     # via matplotlib
 h11==0.16.0
     # via uvicorn
@@ -68,7 +68,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==4.0.1
     # via -r requirements/docs.in
-numpy==2.2.6
+numpy==2.3.0
     # via
     #   contourpy
     #   matplotlib
@@ -91,7 +91,7 @@ python-dateutil==2.9.0.post0
     # via matplotlib
 pyyaml==6.0.2
     # via myst-parser
-requests==2.32.3
+requests==2.32.4
     # via sphinx
 roman-numerals-py==3.1.0
     # via sphinx
@@ -161,13 +161,13 @@ sphinxext-opengraph==0.10.0
     # via -r requirements/docs.in
 starlette==0.47.0
     # via sphinx-autobuild
-typing-extensions==4.13.2
+typing-extensions==4.14.0
     # via anyio
 urllib3==2.4.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.34.2
+uvicorn==0.34.3
     # via sphinx-autobuild
 watchfiles==1.0.5
     # via sphinx-autobuild
