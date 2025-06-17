@@ -2,11 +2,13 @@
 
 from django.db import migrations
 from django.db import models
+from django_safemigrate import Safe
 
 import readthedocs.organizations.models
 
 
 class Migration(migrations.Migration):
+    safe = Safe.before_deploy()
     dependencies = [
         ("organizations", "0015_remove_unused_indexes"),
     ]
