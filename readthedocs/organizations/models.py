@@ -34,6 +34,16 @@ def _upload_organization_avatar_to(instance, filename):
     return f"avatars/organizations/{instance.pk}.{extension}"
 
 
+def _get_user_content_storage():
+    """
+    Get the storage for user content.
+
+    Use a function for storage instead of directly assigning the instance
+    to avoid hardcoding the backend in the migration file.
+    """
+    return storages["usercontent"]
+
+
 class Organization(models.Model):
     """Organization model."""
 
@@ -141,7 +151,7 @@ class Organization(models.Model):
     avatar = models.ImageField(
         _("Avatar"),
         upload_to=_upload_organization_avatar_to,
-        storage=storages["usercontent"],
+        storage=_get_user_content_storage,
         validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
         blank=True,
         null=True,
