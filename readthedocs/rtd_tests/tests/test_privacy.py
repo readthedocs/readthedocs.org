@@ -83,7 +83,7 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
 
         self.client.login(username="tester", password="test")
         r = self.client.get("/projects/django-kong/")
@@ -91,7 +91,7 @@ class PrivacyTests(TestCase):
         r = self.client.get("/projects/django-kong/builds/")
         self.assertEqual(r.status_code, 404)
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 302)
 
     def test_public_repo(self):
         """Check that public projects show up in: builds, downloads, detail,
@@ -110,7 +110,7 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
 
         self.client.login(username="tester", password="test")
         r = self.client.get("/projects/django-kong/")
@@ -122,7 +122,7 @@ class PrivacyTests(TestCase):
         # Build button shouldn't appear here
         self.assertFalse("build version" in r.content.decode().lower())
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
 
     def test_private_branch(self):
         kong = self._create_kong("public", "private")
@@ -181,14 +181,14 @@ class PrivacyTests(TestCase):
         # Unauth'd user
         self.client.login(username="tester", password="test")
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 302)
         r = self.client.get("/projects/django-kong/downloads/pdf/latest/")
         self.assertEqual(r.status_code, 404)
 
         # Auth'd user
         self.client.login(username="eric", password="test")
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
         r = self.client.get("/projects/django-kong/downloads/pdf/latest/")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
@@ -203,7 +203,7 @@ class PrivacyTests(TestCase):
         # Unauth'd user
         self.client.login(username="tester", password="test")
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
         r = self.client.get("/projects/django-kong/downloads/pdf/latest/")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
@@ -214,7 +214,7 @@ class PrivacyTests(TestCase):
         # Auth'd user
         self.client.login(username="eric", password="test")
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
         r = self.client.get("/projects/django-kong/downloads/pdf/latest/")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
@@ -274,7 +274,7 @@ class PrivacyTests(TestCase):
         # Unauth'd user
         self.client.login(username="tester", password="test")
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
         r = self.client.get("/projects/django-kong/downloads/pdf/latest/")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
@@ -289,7 +289,7 @@ class PrivacyTests(TestCase):
         # Auth'd user
         self.client.login(username="eric", password="test")
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
         r = self.client.get("/projects/django-kong/downloads/pdf/latest/")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
@@ -311,14 +311,14 @@ class PrivacyTests(TestCase):
         # Unauth'd user
         self.client.login(username="tester", password="test")
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 302)
         r = self.client.get("/projects/django-kong/downloads/pdf/latest/")
         self.assertEqual(r.status_code, 404)
 
         # Auth'd user
         self.client.login(username="eric", password="test")
         r = self.client.get("/projects/django-kong/downloads/")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
         r = self.client.get("/projects/django-kong/downloads/pdf/latest/")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(

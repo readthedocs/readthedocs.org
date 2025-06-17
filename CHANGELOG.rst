@@ -1,3 +1,21 @@
+Version 13.5.0
+--------------
+
+:Date: June 17, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12250 <https://github.com/readthedocs/readthedocs.org/pull/12250>`__)
+* `@humitos <https://github.com/humitos>`__: Delete /projects/<slug>/downloads/ URL (`#12247 <https://github.com/readthedocs/readthedocs.org/pull/12247>`__)
+* `@humitos <https://github.com/humitos>`__: Delete old URLs (`#12246 <https://github.com/readthedocs/readthedocs.org/pull/12246>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12240 <https://github.com/readthedocs/readthedocs.org/pull/12240>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirect: fix infinite redirect in 404 view (`#12237 <https://github.com/readthedocs/readthedocs.org/pull/12237>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab: Use full path for GitLab groups/organizations (`#12236 <https://github.com/readthedocs/readthedocs.org/pull/12236>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: return an iterator for pagination (`#12235 <https://github.com/readthedocs/readthedocs.org/pull/12235>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab: handle when a repository is moved to another group (`#12233 <https://github.com/readthedocs/readthedocs.org/pull/12233>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 13.4.0 (`#12229 <https://github.com/readthedocs/readthedocs.org/pull/12229>`__)
+* `@humitos <https://github.com/humitos>`__: Publish canceled subscriptions into `#rtd-notifications` channel (`#12228 <https://github.com/readthedocs/readthedocs.org/pull/12228>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: handle webhook events in task (`#12223 <https://github.com/readthedocs/readthedocs.org/pull/12223>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: delete legacy HTML templates (part 3) (`#12200 <https://github.com/readthedocs/readthedocs.org/pull/12200>`__)
+
 Version 13.4.0
 --------------
 
