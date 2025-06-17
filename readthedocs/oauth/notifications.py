@@ -120,7 +120,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-                Migrate your projects from the <a href="{% url "migrate_to_github_app" %}">migration page</a>.
+                Migrate your projects automatically using the <a href="{% url "migrate_to_github_app" %}">migration page</a>.
                 """
             ).strip(),
         ),
