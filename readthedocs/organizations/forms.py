@@ -1,5 +1,4 @@
 """Organization forms."""
-from PIL import Image
 
 from django import forms
 from django.contrib.auth.models import User
@@ -8,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.permissions import AdminPermission

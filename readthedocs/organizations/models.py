@@ -1,17 +1,17 @@
 """Organizations models."""
-from django_gravatar.helpers import get_gravatar_url
-from django.core.files.storage import storages
 
-from django.core.validators import FileExtensionValidator
 import structlog
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.storage import storages
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
 from django.utils.translation import gettext_lazy as _
+from django_gravatar.helpers import get_gravatar_url
 from djstripe.enums import SubscriptionStatus
 
 from readthedocs.core.history import ExtraHistoricalRecords
@@ -27,6 +27,7 @@ from .utils import send_team_add_email
 
 
 log = structlog.get_logger(__name__)
+
 
 def _upload_organization_avatar_to(instance, filename):
     extension = filename.split(".")[-1].lower()
