@@ -198,7 +198,8 @@ class BuildCommandSerializer(serializers.ModelSerializer):
         exclude = []
 
     def update(self, instance, validated_data):
-        # Build isn't allowed to be updated after creation.
+        # Build isn't allowed to be updated after creation
+        # (e.g. to avoid moving commands to another build).
         validated_data.pop("build", None)
         return super().update(instance, validated_data)
 

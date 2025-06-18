@@ -268,6 +268,8 @@ class BuildCommand(BuildCommandResultMixin):
             "end_time": self.end_time,
         }
 
+        # If the command has an id, it means it has been saved before,
+        # so we update it instead of creating a new one.
         if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
             # Don't use slumber directly here. Slumber tries to enforce a string,
             # which will break our multipart encoding here.
@@ -526,6 +528,8 @@ class BaseBuildEnvironment:
         kwargs["build_env"] = self
         build_cmd = cls(cmd, **kwargs)
 
+        # Save the command that's running before it starts,
+        # then we will update the results after it has run.
         if record:
             self.record_command(build_cmd)
             # We want append this command to the list of commands only if it has
