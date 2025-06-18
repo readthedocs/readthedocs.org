@@ -2,6 +2,7 @@
 
 import re
 from functools import cached_property
+from typing import Iterator
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
@@ -38,6 +39,7 @@ class Service:
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
     supports_build_status = False
+    supports_clone_token = False
 
     @classmethod
     def for_project(cls, project):
@@ -180,7 +182,7 @@ class UserService(Service):
     def session(self):
         return get_oauth2_client(self.account)
 
-    def paginate(self, url, **kwargs):
+    def paginate(self, url, **kwargs) -> Iterator[dict]:
         """
         Recursively combine results from service's pagination.
 
@@ -208,10 +210,9 @@ class UserService(Service):
                 )
 
             next_url = self.get_next_url_to_paginate(resp)
-            results = self.get_paginated_results(resp)
+            yield from self.get_paginated_results(resp)
             if next_url:
-                results.extend(self.paginate(next_url))
-            return results
+                yield from self.paginate(next_url)
         # Catch specific exception related to OAuth
         except InvalidClientIdError:
             log.warning("access_token or refresh_token failed.", url=url)
@@ -328,7 +329,3 @@ class UserService(Service):
 
     def sync_organizations(self):
         raise NotImplementedError
-
-    def get_clone_token(self, project):
-        """User services make use of SSH keys only for cloning."""
-        return None

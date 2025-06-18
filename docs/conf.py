@@ -81,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "13.0.0"
+version = "13.5.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"

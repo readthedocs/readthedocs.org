@@ -19,11 +19,9 @@ communication channels:
 
 - Ask usage questions ("How do I?") on `StackOverflow`_.
 - Report bugs, suggest features, or view the source code `on GitHub`_.
-- Discuss development topics on `Gitter`_.
 
 .. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
 .. _on GitHub: https://github.com/readthedocs/readthedocs.org
-.. _Gitter: https://gitter.im/readthedocs/community
 
 Contributing
 ------------
@@ -33,6 +31,14 @@ starting with contributions, we suggest focusing on the following areas:
 
 .. contents::
     :local:
+
+.. tip::
+    You can also contribute to the `Read the Docs Sphinx Theme`_,
+    or Sphinx extensions in the `Read the Docs GitHub organization`_ like `sphinx-notfound-page`_.
+
+.. _Read the Docs Sphinx Theme: https://sphinx-rtd-theme.readthedocs.io/en/stable/
+.. _Read the Docs GitHub organization: https://github.com/readthedocs
+.. _sphinx-notfound-page: https://github.com/readthedocs/sphinx-notfound-page
 
 Contributing to development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -37,9 +37,9 @@ Configuring Read the Docs Addons
 
 Individual configuration options for each addon are available in :guilabel:`Settings`.
 
-#. Go to the new :term:`dashboard`:
+#. Go to the new :term:`dashboard`.
 #. Click on a project name.
-#. Go to :guilabel:`Settings`
+#. Go to :guilabel:`Settings`.
 #. In the left bar, go to :guilabel:`Addons`.
 #. Configure each Addon individually.
 
@@ -264,7 +264,7 @@ The ``event.detail.data()`` object contains all the Addons configuration, includ
                 "urls": {
                     "builds": "https://readthedocs.org/projects/docs/builds/",
                     "documentation": "https://docs.readthedocs.io/en/stable/",
-                    "downloads": "https://readthedocs.org/projects/docs/downloads/",
+                    "downloads": null,
                     "home": "https://readthedocs.org/projects/docs/",
                     "versions": "https://readthedocs.org/projects/docs/versions/"
                 },

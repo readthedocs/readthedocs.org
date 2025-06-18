@@ -450,10 +450,51 @@ Take a look at the following example:
 Install dependencies with ``uv``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Projects can use `uv <https://github.com/astral-sh/uv/>`__,
-to install Python dependencies, usually reducing the time taken to install compared to pip.
-Take a look at the following example:
+Projects managed with `uv <https://github.com/astral-sh/uv/>`__ can install `uv` with asdf,
+and then rely on it to set up the environment and install the python project and its dependencies.
+Read the Docs' own build steps expect it by setting the ``UV_PROJECT_ENVIRONMENT`` variable,
+usually reducing the time taken to install compared to pip.
 
+The following examples assumes a uv project as described in its
+`projects concept <https://docs.astral.sh/uv/concepts/projects/>`__. As an introduction
+refer to its `Working on projects guide <https://docs.astral.sh/uv/guides/projects/>`__.
+The ``docs`` dependency group which should is pulled in during the ``uv sync`` step (if additional
+extras are required they can be added with the `--extra attribute <https://docs.astral.sh/uv/concepts/projects/sync/#syncing-optional-dependencies>`__).
+
+If a ``uv.lock`` file exists it is respected.
+
+.. code-block:: yaml
+
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   sphinx:
+      configuration: docs/conf.py
+
+   build:
+      os: ubuntu-24.04
+      tools:
+         python: "3.13"
+      jobs:
+         pre_create_environment:
+            - asdf plugin add uv
+            - asdf install uv latest
+            - asdf global uv latest
+         create_environment:
+            - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
+         install:
+            - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
+
+Install dependencies from Dependency Groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Python `Dependency Groups <https://packaging.python.org/en/latest/specifications/dependency-groups/>`_
+are a way of storing lists of dependencies in your ``pyproject.toml``.
+
+``pip`` version 25.1 and later, which is the default for Read the Docs builds,
+as well as many other tools support Dependency Groups.
+This example uses ``pip`` and installs from a group named ``docs``:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -465,18 +506,11 @@ Take a look at the following example:
       tools:
          python: "3.13"
       jobs:
-         create_environment:
-            - asdf plugin add uv
-            - asdf install uv latest
-            - asdf global uv latest
-            - uv venv
          install:
-            - uv pip install -r requirements.txt
-         build:
-            html:
-               - uv run sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
+            - pip install --group 'docs'
 
-MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
+For more information on relevant ``pip`` usage, see the
+`pip user guide on Dependency Groups <https://pip.pypa.io/en/stable/user_guide/#dependency-groups>`_.
 
 Install dependencies with ``pixi``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -596,3 +630,39 @@ Here is an example configuration file:
        build:
          html:
            - asciidoctor -D $READTHEDOCS_OUTPUT/html index.asciidoc
+
+Generate text format with Sphinx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There might be various reasons why would you want to generate your
+documentation in `text` format (secondary to `html`). One of such reasons
+would be generating LLM friendly documentation.
+
+See the following example for how to add generation of additional `text`
+format to your existing documentation. Deviations from standard build
+configuration are highlighted/emphasized:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 14-
+
+   version: 2
+
+   sphinx:
+     configuration: docs/conf.py
+
+   python:
+     install:
+     - requirements: docs/requirements.txt
+
+   build:
+     os: ubuntu-22.04
+     tools:
+       python: "3.12"
+     jobs:
+       post_build:
+         - mkdir -p $READTHEDOCS_OUTPUT/html/
+         - sphinx-build -n -b text docs $READTHEDOCS_OUTPUT/html/
+
+The generated ``.txt`` files will be placed in the `html` directory, together
+with ``.html`` files.

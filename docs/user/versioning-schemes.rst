@@ -12,9 +12,6 @@ Read the Docs supports three different versioning schemes:
 
 .. seealso::
 
-   :doc:`/guides/setup/versioning-schemes`
-     How to configure your project to use a specific versioning scheme.
-
    :doc:`/versions`
      General explanation of how versioning works on Read the Docs.
 
@@ -64,3 +61,15 @@ The URLs of your documentation will look like:
 .. warning::
 
    This means you can't have translations or multiple versions for your documentation.
+
+How to change the URL versioning scheme of your project
+-------------------------------------------------------
+
+Changing the versioning scheme of your project will affect the URLs of your documentation,
+any existing links to your documentation will break.
+If you want to keep the old URLs working, you can create :doc:`redirects </user-defined-redirects>`.
+
+#. Go the :guilabel:`Admin` tab of your project.
+#. Click on :guilabel:`Settings`.
+#. Select the new versioning scheme in the :guilabel:`URL versioning scheme` dropdown.
+#. Click on :guilabel:`Save`.

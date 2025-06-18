@@ -1,3 +1,121 @@
+Version 13.5.0
+--------------
+
+:Date: June 17, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12250 <https://github.com/readthedocs/readthedocs.org/pull/12250>`__)
+* `@humitos <https://github.com/humitos>`__: Delete /projects/<slug>/downloads/ URL (`#12247 <https://github.com/readthedocs/readthedocs.org/pull/12247>`__)
+* `@humitos <https://github.com/humitos>`__: Delete old URLs (`#12246 <https://github.com/readthedocs/readthedocs.org/pull/12246>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12240 <https://github.com/readthedocs/readthedocs.org/pull/12240>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirect: fix infinite redirect in 404 view (`#12237 <https://github.com/readthedocs/readthedocs.org/pull/12237>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab: Use full path for GitLab groups/organizations (`#12236 <https://github.com/readthedocs/readthedocs.org/pull/12236>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: return an iterator for pagination (`#12235 <https://github.com/readthedocs/readthedocs.org/pull/12235>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab: handle when a repository is moved to another group (`#12233 <https://github.com/readthedocs/readthedocs.org/pull/12233>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 13.4.0 (`#12229 <https://github.com/readthedocs/readthedocs.org/pull/12229>`__)
+* `@humitos <https://github.com/humitos>`__: Publish canceled subscriptions into `#rtd-notifications` channel (`#12228 <https://github.com/readthedocs/readthedocs.org/pull/12228>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: handle webhook events in task (`#12223 <https://github.com/readthedocs/readthedocs.org/pull/12223>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: delete legacy HTML templates (part 3) (`#12200 <https://github.com/readthedocs/readthedocs.org/pull/12200>`__)
+
+Version 13.4.0
+--------------
+
+:Date: June 03, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12226 <https://github.com/readthedocs/readthedocs.org/pull/12226>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add Project queryset `prefetch_latest_build()` to project filter (`#12225 <https://github.com/readthedocs/readthedocs.org/pull/12225>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: fix canceling subscription (`#12224 <https://github.com/readthedocs/readthedocs.org/pull/12224>`__)
+* `@henryiii <https://github.com/henryiii>`__: fix(schema): require tools or commands (`#12222 <https://github.com/readthedocs/readthedocs.org/pull/12222>`__)
+* `@humitos <https://github.com/humitos>`__: Upload staticfiles to S3 (`#12220 <https://github.com/readthedocs/readthedocs.org/pull/12220>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix sitemap by moving comment. (`#12216 <https://github.com/readthedocs/readthedocs.org/pull/12216>`__)
+* `@humitos <https://github.com/humitos>`__: Gold: `subscription` is the subscription id as string (`#12212 <https://github.com/readthedocs/readthedocs.org/pull/12212>`__)
+* `@humitos <https://github.com/humitos>`__: Release 13.3.0 (`#12209 <https://github.com/readthedocs/readthedocs.org/pull/12209>`__)
+* `@humitos <https://github.com/humitos>`__: Tests: call `super().setUp()` (`#12208 <https://github.com/readthedocs/readthedocs.org/pull/12208>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: delete legacy HTML templates (part 2) (`#12197 <https://github.com/readthedocs/readthedocs.org/pull/12197>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: faster migration page (`#12186 <https://github.com/readthedocs/readthedocs.org/pull/12186>`__)
+
+Version 13.3.0
+--------------
+
+:Date: May 27, 2025
+
+* `@humitos <https://github.com/humitos>`__: Tests: call `super().setUp()` (`#12208 <https://github.com/readthedocs/readthedocs.org/pull/12208>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12204 <https://github.com/readthedocs/readthedocs.org/pull/12204>`__)
+* `@humitos <https://github.com/humitos>`__: Remove allauth warning (`#12198 <https://github.com/readthedocs/readthedocs.org/pull/12198>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update AWS temporary credentials documentation (`#12196 <https://github.com/readthedocs/readthedocs.org/pull/12196>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 13.2.0 (`#12195 <https://github.com/readthedocs/readthedocs.org/pull/12195>`__)
+* `@barseghyanartur <https://github.com/barseghyanartur>`__: Add info on generating docs in `.txt` format (`#12194 <https://github.com/readthedocs/readthedocs.org/pull/12194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: add is_github_app_project helper method (`#12193 <https://github.com/readthedocs/readthedocs.org/pull/12193>`__)
+* `@pjfan <https://github.com/pjfan>`__: Delete how to change url versioning page (`#12192 <https://github.com/readthedocs/readthedocs.org/pull/12192>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: delete legacy HTML templates (part 1) (`#12183 <https://github.com/readthedocs/readthedocs.org/pull/12183>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12176 <https://github.com/readthedocs/readthedocs.org/pull/12176>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: block GH app users to re-connect to old OAuth app (`#12175 <https://github.com/readthedocs/readthedocs.org/pull/12175>`__)
+* `@humitos <https://github.com/humitos>`__: Djstripe cleanup (`#12160 <https://github.com/readthedocs/readthedocs.org/pull/12160>`__)
+* `@coroa <https://github.com/coroa>`__: More concise uv example with docs (`#12064 <https://github.com/readthedocs/readthedocs.org/pull/12064>`__)
+
+Version 13.2.0
+--------------
+
+:Date: May 20, 2025
+
+* `@barseghyanartur <https://github.com/barseghyanartur>`__: Add info on generating docs in `.txt` format (`#12194 <https://github.com/readthedocs/readthedocs.org/pull/12194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: add is_github_app_project helper method (`#12193 <https://github.com/readthedocs/readthedocs.org/pull/12193>`__)
+* `@pjfan <https://github.com/pjfan>`__: Delete how to change url versioning page (`#12192 <https://github.com/readthedocs/readthedocs.org/pull/12192>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Add note about contributing to other RTD projects (`#12191 <https://github.com/readthedocs/readthedocs.org/pull/12191>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Update dev site build step (`#12190 <https://github.com/readthedocs/readthedocs.org/pull/12190>`__)
+* `@sirosen <https://github.com/sirosen>`__: Add an example of `pip install --group` (`#12189 <https://github.com/readthedocs/readthedocs.org/pull/12189>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Remove mention of Gitter from contributor docs (`#12188 <https://github.com/readthedocs/readthedocs.org/pull/12188>`__)
+* `@pjfan <https://github.com/pjfan>`__: Link previews docs update (`#12187 <https://github.com/readthedocs/readthedocs.org/pull/12187>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Update faq about changing project slugs (`#12184 <https://github.com/readthedocs/readthedocs.org/pull/12184>`__)
+* `@humitos <https://github.com/humitos>`__: Development: always use webpack on development (`#12182 <https://github.com/readthedocs/readthedocs.org/pull/12182>`__)
+* `@verisimilidude2 <https://github.com/verisimilidude2>`__: Update 'built in' info (`#12180 <https://github.com/readthedocs/readthedocs.org/pull/12180>`__)
+* `@MilaZhou22 <https://github.com/MilaZhou22>`__: Add doc tools to frontpage (`#12179 <https://github.com/readthedocs/readthedocs.org/pull/12179>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: block GH app users to re-connect to old OAuth app (`#12175 <https://github.com/readthedocs/readthedocs.org/pull/12175>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade redis (`#12173 <https://github.com/readthedocs/readthedocs.org/pull/12173>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Downgrade Redis back to 5.2.1 (`#12172 <https://github.com/readthedocs/readthedocs.org/pull/12172>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 13.1.1 (`#12170 <https://github.com/readthedocs/readthedocs.org/pull/12170>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Document ability to set `public` on EnvironmentVariable API v3 (`#12169 <https://github.com/readthedocs/readthedocs.org/pull/12169>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: escape all whitespaces (`#12152 <https://github.com/readthedocs/readthedocs.org/pull/12152>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update build tools (`#12143 <https://github.com/readthedocs/readthedocs.org/pull/12143>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: support cloning private repos with token (`#12115 <https://github.com/readthedocs/readthedocs.org/pull/12115>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use scoped credentials for interacting with S3 (`#12078 <https://github.com/readthedocs/readthedocs.org/pull/12078>`__)
+* `@coroa <https://github.com/coroa>`__: More concise uv example with docs (`#12064 <https://github.com/readthedocs/readthedocs.org/pull/12064>`__)
+
+Version 13.1.1
+--------------
+
+:Date: May 13, 2025
+
+* `@ericholscher <https://github.com/ericholscher>`__: Document ability to set `public` on EnvironmentVariable API v3 (`#12169 <https://github.com/readthedocs/readthedocs.org/pull/12169>`__)
+* `@humitos <https://github.com/humitos>`__: Downgrade `lxml` to avoid mismatch versions (`#12167 <https://github.com/readthedocs/readthedocs.org/pull/12167>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12166 <https://github.com/readthedocs/readthedocs.org/pull/12166>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add comment to Sitemap explaining how to customize it (`#12164 <https://github.com/readthedocs/readthedocs.org/pull/12164>`__)
+* `@humitos <https://github.com/humitos>`__: Redirect for `/` and `/welcome` URLs (`#12163 <https://github.com/readthedocs/readthedocs.org/pull/12163>`__)
+* `@humitos <https://github.com/humitos>`__: Do not run `djstripe` checks on builders (`#12159 <https://github.com/readthedocs/readthedocs.org/pull/12159>`__)
+* `@humitos <https://github.com/humitos>`__: Release 13.1.0 (`#12157 <https://github.com/readthedocs/readthedocs.org/pull/12157>`__)
+* `@humitos <https://github.com/humitos>`__: Update djstripe handlers (`webhook.handler` was deleted) (`#12156 <https://github.com/readthedocs/readthedocs.org/pull/12156>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: don't check for limit on existing domains (`#12154 <https://github.com/readthedocs/readthedocs.org/pull/12154>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: escape all whitespaces (`#12152 <https://github.com/readthedocs/readthedocs.org/pull/12152>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade Django to 5.2 (`#12149 <https://github.com/readthedocs/readthedocs.org/pull/12149>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade `djstripe` (`#12148 <https://github.com/readthedocs/readthedocs.org/pull/12148>`__)
+* `@humitos <https://github.com/humitos>`__: Condiontally homepage redirect based on domain and logged in status (`#12147 <https://github.com/readthedocs/readthedocs.org/pull/12147>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update build tools (`#12143 <https://github.com/readthedocs/readthedocs.org/pull/12143>`__)
+
+Version 13.1.0
+--------------
+
+:Date: May 06, 2025
+
+* `@humitos <https://github.com/humitos>`__: Update djstripe handlers (`webhook.handler` was deleted) (`#12156 <https://github.com/readthedocs/readthedocs.org/pull/12156>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: don't check for limit on existing domains (`#12154 <https://github.com/readthedocs/readthedocs.org/pull/12154>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade `djstripe` (`#12148 <https://github.com/readthedocs/readthedocs.org/pull/12148>`__)
+* `@humitos <https://github.com/humitos>`__: Condiontally homepage redirect based on domain and logged in status (`#12147 <https://github.com/readthedocs/readthedocs.org/pull/12147>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: truncate contents before indexing (`#12146 <https://github.com/readthedocs/readthedocs.org/pull/12146>`__)
+* `@humitos <https://github.com/humitos>`__: Downgrade to Django 4.2.x due to `djstripe` (`#12145 <https://github.com/readthedocs/readthedocs.org/pull/12145>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: handle versions when "instant loading" feature enabled (`#12142 <https://github.com/readthedocs/readthedocs.org/pull/12142>`__)
+* `@humitos <https://github.com/humitos>`__: Release 13.0.0 (`#12141 <https://github.com/readthedocs/readthedocs.org/pull/12141>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add migration page for GitHub App (`#12112 <https://github.com/readthedocs/readthedocs.org/pull/12112>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: remove legacy dashboard (`#12091 <https://github.com/readthedocs/readthedocs.org/pull/12091>`__)
+
 Version 13.0.0
 --------------
 

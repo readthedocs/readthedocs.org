@@ -2043,7 +2043,7 @@ class GitLabOAuthTests(TestCase):
         "web_url": "https://gitlab.com/groups/testorga",
         "request_access_enabled": False,
         "full_name": "Test Orga",
-        "full_path": "testorga",
+        "full_path": "group/testorga",
         "parent_id": None,
     }
 
@@ -2054,6 +2054,7 @@ class GitLabOAuthTests(TestCase):
         self.project.repo = "https://gitlab.com/testorga/testrepo"
         self.project.save()
         self.org = RemoteOrganization.objects.create(
+            remote_id="1",
             slug="testorga",
             vcs_provider=GITLAB,
         )
@@ -2144,13 +2145,13 @@ class GitLabOAuthTests(TestCase):
     def test_make_organization(self):
         org = self.service.create_organization(self.group_response_data)
         self.assertIsInstance(org, RemoteOrganization)
-        self.assertEqual(org.slug, "testorga")
+        self.assertEqual(org.slug, "group/testorga")
         self.assertEqual(org.name, "Test Orga")
         self.assertEqual(
             org.avatar_url,
             "https://secure.gravatar.com/avatar/test",
         )
-        self.assertEqual(org.url, "https://gitlab.com/testorga")
+        self.assertEqual(org.url, "https://gitlab.com/groups/testorga")
 
     @override_settings(DEFAULT_PRIVACY_LEVEL="private")
     def test_make_private_project(self):
@@ -2416,3 +2417,88 @@ class GitLabOAuthTests(TestCase):
         mock_logger.exception.assert_called_with(
             "GitLab webhook Listing failed for project.",
         )
+
+    def test_project_moved_from_user_to_group(self):
+        repo = self.service.create_repository(
+            self.repo_response_data,
+            organization=None,
+        )
+        assert repo.organization is None
+        assert repo.full_name == "testorga/testrepo"
+        assert not repo.private
+        assert repo.remote_repository_relations.count() == 1
+        relationship = repo.remote_repository_relations.first()
+        assert relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
+        repo_b = self.service.create_repository(
+            self.repo_response_data,
+            organization=self.org,
+        )
+        assert repo_b == repo
+        repo.refresh_from_db()
+        assert repo.organization == self.org
+        relationship = repo.remote_repository_relations.first()
+        assert relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
+    def test_project_moved_from_group_to_user(self):
+        repo = self.service.create_repository(
+            self.repo_response_data,
+            organization=self.org,
+        )
+        assert repo.organization == self.org
+        assert repo.full_name == "testorga/testrepo"
+        assert not repo.private
+        assert repo.remote_repository_relations.count() == 1
+        relationship = repo.remote_repository_relations.first()
+        assert relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
+        repo_b = self.service.create_repository(
+            self.repo_response_data,
+            organization=None,
+        )
+        assert repo_b == repo
+        repo.refresh_from_db()
+        assert repo.organization is None
+        relationship = repo.remote_repository_relations.first()
+        assert relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
+    def test_project_moved_between_groups(self):
+        repo = self.service.create_repository(
+            self.repo_response_data,
+            organization=self.org,
+        )
+        assert repo.organization == self.org
+        assert repo.full_name == "testorga/testrepo"
+        assert not repo.private
+        assert repo.remote_repository_relations.count() == 1
+        relationship = repo.remote_repository_relations.first()
+        assert relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
+        another_group = RemoteOrganization.objects.create(
+            slug="anothergroup",
+            name="Another Group",
+            remote_id="2",
+            vcs_provider=GITLAB,
+        )
+
+        repo_b = self.service.create_repository(
+            self.repo_response_data,
+            organization=another_group,
+        )
+        assert repo_b == repo
+        repo.refresh_from_db()
+        assert repo.organization == another_group
+        relationship = repo.remote_repository_relations.first()
+        assert relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account

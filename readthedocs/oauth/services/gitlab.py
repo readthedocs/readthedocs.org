@@ -77,15 +77,19 @@ class GitLabService(UserService):
         return response.json()
 
     def sync_repositories(self):
+        """
+        Sync repositories that the user has access to.
+
+        See https://docs.gitlab.com/api/projects/#list-a-users-projects.
+        """
         remote_repositories = []
         try:
             repos = self.paginate(
-                f"{self.base_api_url}/api/v4/projects",
+                f"{self.base_api_url}/api/v4/users/{self.account.uid}/projects",
                 per_page=100,
                 archived=False,
                 order_by="path",
                 sort="asc",
-                membership=True,
             )
 
             for repo in repos:
@@ -170,7 +174,9 @@ class GitLabService(UserService):
 
         return remote_organizations, remote_repositories
 
-    def create_repository(self, fields, privacy=None, organization=None):
+    def create_repository(
+        self, fields, privacy=None, organization: RemoteOrganization | None = None
+    ):
         """
         Update or create a repository from GitLab API response.
 
@@ -187,7 +193,6 @@ class GitLabService(UserService):
         :param fields: dictionary of response data from API
         :param privacy: privacy level to support
         :param organization: remote organization to associate with
-        :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
@@ -199,13 +204,6 @@ class GitLabService(UserService):
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
             )
-
-            if repo.organization and repo.organization != organization:
-                log.debug(
-                    "Not importing because mismatched orgs",
-                    repository=fields["name"],
-                )
-                return None
 
             repo.organization = organization
             repo.name = fields["name"]
@@ -269,11 +267,8 @@ class GitLabService(UserService):
         organization.get_remote_organization_relation(self.user, self.account)
 
         organization.name = fields.get("name")
-        organization.slug = fields.get("path")
-        organization.url = "{url}/{path}".format(
-            url=self.base_api_url,
-            path=fields.get("path"),
-        )
+        organization.slug = fields.get("full_path")
+        organization.url = fields.get("web_url")
         organization.avatar_url = fields.get("avatar_url")
 
         if not organization.avatar_url:
