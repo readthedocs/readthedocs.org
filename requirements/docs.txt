@@ -37,7 +37,7 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.58.2
+fonttools==4.58.4
     # via matplotlib
 h11==0.16.0
     # via uvicorn
@@ -91,7 +91,7 @@ python-dateutil==2.9.0.post0
     # via matplotlib
 pyyaml==6.0.2
     # via myst-parser
-requests==2.32.3
+requests==2.32.4
     # via sphinx
 roman-numerals-py==3.1.0
     # via sphinx
