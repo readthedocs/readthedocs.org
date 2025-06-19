@@ -84,7 +84,7 @@ We can place ads in:
 * on 404 pages (rare)
 
 We show no more than one ad per page so you will never see both
-a sidebar ad and a footer ad on the same page.
+a sidebar ad and a footer ad on the same site.
 
 
 Do Not Track Policy

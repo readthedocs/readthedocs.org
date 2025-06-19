@@ -1,0 +1,17 @@
+extends: existence
+message: "'%s' - Do not be hectoring or arrogant"
+description: "Those who disagree with you are not necessarily '%s.'"
+link: http://www.economist.com/styleguide/introduction
+scope: text
+level: warning
+ignorecase: true
+tokens:
+  - stupid
+  - idiotic
+  - imbecile
+  - ignorant
+  - insane
+  - absurd
+  - ridiculous
+  - lunatic
+  - asinine

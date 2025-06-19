@@ -1,0 +1,34 @@
+extends: existence
+message: "'%s' - See section 'Unnecessary words'"
+level: warning
+scope: text
+description: Some words add nothing but length to your prose.
+link: http://www.economist.com/style-guide/unnecessary-words
+ignorecase: true
+tokens:
+  - any time soon
+  - bought up
+  - cut back
+  - cutbacks
+  - for free
+  - free gift
+  - freed up
+  - hatched up
+  - headed up by
+  - large-scale
+  - meet with
+  - Most especially
+  - Most probably
+  - policymaking process
+  - safe haven
+  - sale events
+  - sent off to bed
+  - so-called
+  - sold off
+  - strike action
+  - The fact that
+  - This time around
+  - top priority
+  - track record
+  - weather conditions
+  - wilderness area

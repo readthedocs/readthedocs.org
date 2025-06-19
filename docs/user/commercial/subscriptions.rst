@@ -60,7 +60,7 @@ Non-profit and academic organizations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Our community hosting,
-provided for free and open source projects,
+provided for open source projects,
 is generally where we recommend most academic projects to host their projects.
 If you have constraints on how public your documentation can be,
 our commercial hosting is probably a better fit.
