@@ -264,7 +264,7 @@ Project details
             "urls": {
                 "documentation": "http://pip.pypa.io/en/stable/",
                 "home": "https://app.readthedocs.org/projects/pip/",
-                "downloads": "https://app.readthedocs.org/projects/pip/downloads/",
+                "downloads": null,
                 "builds": "https://app.readthedocs.org/projects/pip/builds/",
                 "versions": "https://app.readthedocs.org/projects/pip/versions/",
             },

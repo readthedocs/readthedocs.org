@@ -264,7 +264,7 @@ The ``event.detail.data()`` object contains all the Addons configuration, includ
                 "urls": {
                     "builds": "https://app.readthedocs.org/projects/docs/builds/",
                     "documentation": "https://docs.readthedocs.io/en/stable/",
-                    "downloads": "https://app.readthedocs.org/projects/docs/downloads/",
+                    "downloads": null,
                     "home": "https://app.readthedocs.org/projects/docs/",
                     "versions": "https://app.readthedocs.org/projects/docs/versions/"
                 },

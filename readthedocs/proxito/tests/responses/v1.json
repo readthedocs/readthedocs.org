@@ -35,7 +35,7 @@
         "documentation": "https://project.dev.readthedocs.io/en/latest/",
         "home": "https://readthedocs.org/projects/project/",
         "versions": "https://readthedocs.org/projects/project/versions/",
-        "downloads": "https://readthedocs.org/projects/project/downloads/"
+        "downloads": null
       },
       "users": [
         {
