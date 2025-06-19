@@ -13,7 +13,7 @@ and can pull Git_ repositories.
 Then we build documentation and host it for you.
 Think of it as *Continuous Documentation*, or Docs as Code.
 
-.. _Read the docs: https://readthedocs.org/
+.. _Read the docs: https://app.readthedocs.org/
 .. _Sphinx: http://www.sphinx-doc.org/
 .. _reStructuredText: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 .. _Git: http://git-scm.com/
@@ -23,9 +23,9 @@ Think of it as *Continuous Documentation*, or Docs as Code.
 Documentation for Read the Docs
 -------------------------------
 
-You will find complete documentation for setting up your project at `the Read the Docs site`_.
+You will find complete documentation for setting up your project in `the Read the Docs documentation`_.
 
-.. _the Read the Docs site: https://docs.readthedocs.io/
+.. _the Read the Docs documentation: https://docs.readthedocs.com/
 
 Get in touch
 ------------
@@ -62,7 +62,7 @@ By the end of this quickstart, you will have a new project automatically updated
     :alt: build status
     :target: https://circleci.com/gh/readthedocs/readthedocs.org
 
-.. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
+.. |docs| image:: https://app.readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100%
     :target: https://docs.readthedocs.io/en/latest/?badge=latest
@@ -75,6 +75,6 @@ By the end of this quickstart, you will have a new project automatically updated
 License
 -------
 
-`MIT`_ © 2010 Read the Docs, Inc. & contributors
+`MIT`_ © 2025 Read the Docs, Inc. & contributors
 
 .. _MIT: LICENSE

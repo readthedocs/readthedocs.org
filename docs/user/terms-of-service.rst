@@ -422,7 +422,7 @@ and letting you know well in advance if those prices change.*
 Pricing
 ~~~~~~~
 
-Our pricing and payment terms are available at https://readthedocs.com/pricing/.
+Our pricing and payment terms are available at https://about.readthedocs.com/pricing/.
 If you agree to a subscription price, that will remain your price for the duration of the payment term;
 however, prices are subject to change at the end of a payment term.
 

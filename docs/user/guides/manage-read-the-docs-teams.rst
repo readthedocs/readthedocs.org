@@ -16,7 +16,7 @@ whether it's *read-only* or *admin*.
 
 Follow these steps:
 
-1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
+1. Navigate to the `teams management page <https://app.readthedocs.com/organizations/choose/organization_team_list/>`__.
 2. Click on a :guilabel:`<team name>`.
 3. Click :guilabel:`Invite Member`.
 4. Input the user's Read the Docs username or email address.
@@ -29,7 +29,7 @@ Removing a user from a team removes all permissions that team gave them.
 
 Follow these steps:
 
-1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
+1. Navigate to the `teams management page <https://app.readthedocs.com/organizations/choose/organization_team_list/>`__.
 2. Click on :guilabel:`<team name>`.
 3. Click :guilabel:`Remove` next to the user.
 
