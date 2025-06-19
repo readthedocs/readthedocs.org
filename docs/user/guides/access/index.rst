@@ -14,9 +14,8 @@ How-to guides: security and access
     When using an :doc:`organization </commercial/organizations>` on  |com_brand|,
     it's possible to create different teams with custom access levels.
 
-⏩️ :doc:`Manually importing private repositories </guides/importing-private-repositories>`
-    You can grant access to private Git repositories using |com_brand| using a custom process if required.
-    Here is how you set it up.
+⏩️ :doc:`/guides/creating-project-private-repository`
+    How to create and configure a project using a private repository on |com_brand|.
 
 ⏩️ :doc:`Using private Git submodules </guides/private-submodules>`
     If you are using private Git repositories and they also contain private Git submodules,
@@ -38,7 +37,7 @@ How-to guides: security and access
    Single sign-on (SSO) with Google Workspace </guides/setup-single-sign-on-google-email>
    Single sign-on (SSO) with SAML </guides/set-up-single-sign-on-saml>
    Managing Read the Docs teams </guides/manage-read-the-docs-teams>
-   Manually importing private repositories </guides/importing-private-repositories>
+   /guides/creating-project-private-repository
    Using private Git submodules </guides/private-submodules>
    Installing private python packages </guides/private-python-packages>
    Manage maintainers </guides/managing-maintainers>
