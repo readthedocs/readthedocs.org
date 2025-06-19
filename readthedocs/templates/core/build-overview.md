@@ -6,7 +6,7 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 {% endcomment %}
 ## Documentation build overview
 
-> 📚 [{{ project.name }}](https://{{ PRODUCTION_DOMAIN }}{% url "projects_detail" project.slug %}) project| 🛠️ build [#{{ current_version_build.pk }}](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) ({{ current_version_build.commit }}) | 🔍 [preview]({{ current_version.get_absolute_url }})
+> 📚 [{{ project.name }}](https://{{ PRODUCTION_DOMAIN }}{% url "projects_detail" project.slug %}) project | 🛠️ build [#{{ current_version_build.pk }}](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) ({{ current_version_build.commit }}) | 🔍 [preview]({{ current_version.get_absolute_url }})
 
 ### Files changed
 
