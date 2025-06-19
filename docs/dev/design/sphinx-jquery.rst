@@ -92,7 +92,7 @@ When setting ``jquery_force_enable=True``, jQuery is added no matter the Sphinx 
 jQuery version and inclusion
 ----------------------------
 
-jQuery should be be shipped together with the Python package and not be referenced from a CDN.
+jQuery should be shipped together with the Python package and not be referenced from a CDN.
 
 Sphinx has kept relatively up to date with jQuery, and this package intends to follow.
 The most recently bundled jQuery version was v3.5.1 and only two releases have happened since: 3.6.0 and 3.6.1.
