@@ -250,7 +250,7 @@ Improving page redirects
   without having to create an exact redirect for each version.
 
   Similar to exact redirects, users need to add the ``:splat`` placeholder explicitly.
-  This means that that page redirects are the same as exact redirects,
+  This means that page redirects are the same as exact redirects,
   with the only difference that they apply to all versions.
 
   Example:

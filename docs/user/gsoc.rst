@@ -38,7 +38,7 @@ Getting started
 The :doc:`rtd-dev:install` doc is probably the best place to get going.
 It will walk you through getting a basic environment for Read the Docs setup.
 
-Then you can look through our :doc:`rtd-dev:contribute` doc for information on how to get started contributing to RTD.
+Then you can look through our :doc:`rtd-dev:contribute` doc for information on how to get started contributing to Read the Docs.
 
 People who have a history of submitting pull requests will be prioritized in our Summer of Code selection process.
 

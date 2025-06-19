@@ -309,7 +309,7 @@ Future features
 
   - Multi match (query as is)
   - Simple query string (allows using the ES query syntax)
-  - Fuzzy search (same as multi match, but with with fuzziness)
+  - Fuzzy search (same as multi match, but with fuzziness)
 
 - Add the ``org`` filter,
   so users can search by all projects that belong

@@ -98,7 +98,7 @@ Where to put files
 It is your responsibility to generate HTML and other formats of your documentation when overriding the steps from :ref:`config-file/v2:build.jobs.build`.
 The contents of the ``$READTHEDOCS_OUTPUT/<format>/`` directory will be hosted as part of your documentation.
 
-We store the the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
+We store the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
 
 Supported :ref:`formats <downloadable-documentation:accessing offline formats>` are published if they exist in the following directories:
 
