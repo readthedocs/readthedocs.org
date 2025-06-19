@@ -447,7 +447,7 @@ rather than ``latest``,
 so that users see the ``stable`` documentation
 when they visit the :term:`root URL` of your documentation:
 
-#. In the the :guilabel:`⚙ Admin` menu of your project home, go to the :guilabel:`Settings` link, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
+#. In the :guilabel:`⚙ Admin` menu of your project home, go to the :guilabel:`Settings` link, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
 
 Modifying versions
 ~~~~~~~~~~~~~~~~~~

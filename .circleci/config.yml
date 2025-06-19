@@ -65,6 +65,7 @@ jobs:
           node-version: '10.17.0'
       - run: npm ci
       - run: tox -e eslint
+      - run: tox -e vale
       - save_cache:
           key: pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
           paths:
