@@ -17,9 +17,13 @@ The process is as follows:
 """
 
 import json
+from enum import StrEnum
+from enum import auto
+from functools import cached_property
 
+from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
-from readthedocs.filetreediff.dataclasses import FileTreeDiff
+from readthedocs.core.resolver import Resolver
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
 from readthedocs.storage import build_media_storage
@@ -28,7 +32,120 @@ from readthedocs.storage import build_media_storage
 MANIFEST_FILE_NAME = "manifest.json"
 
 
-def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
+class FileTreeDiffFileStatus(StrEnum):
+    """Status of a file in the file tree diff."""
+
+    ADDED = auto()
+    DELETED = auto()
+    MODIFIED = auto()
+
+    @property
+    def emoji(self):
+        """Return an emoji representing the file status."""
+        if self == FileTreeDiffFileStatus.ADDED:
+            return "➕"
+        elif self == FileTreeDiffFileStatus.DELETED:
+            return "❌"
+        elif self == FileTreeDiffFileStatus.MODIFIED:
+            return "📝"
+        return ""
+
+
+class FileTreeDiffFile:
+    def __init__(
+        self,
+        filename: str,
+        current_version,
+        current_version_build: Build,
+        base_version,
+        base_version_build: Build,
+        status: FileTreeDiffFileStatus,
+        resolver: Resolver,
+    ):
+        self.filename = filename
+        self.current_version = current_version
+        self.current_version_build = current_version_build
+        self.base_version = base_version
+        self.base_version_build = base_version_build
+        self.status = status
+        self._resolver = resolver
+
+    @property
+    def url(self):
+        return self._resolver.resolve_version(
+            project=self.current_version.project,
+            version=self.current_version,
+            filename=self.filename,
+        )
+
+    @property
+    def base_url(self):
+        return self._resolver.resolve_version(
+            project=self.base_version.project,
+            version=self.base_version,
+            filename=self.filename,
+        )
+
+
+class FileTreeDiff:
+    def __init__(
+        self,
+        current_version: Version,
+        base_version: Version,
+        current_version_build: Build,
+        base_version_build: Build,
+        files: list[FileTreeDiffFile],
+        outdated: bool,
+    ):
+        self.current_version = current_version
+        self.current_version_build = current_version_build
+        self.base_version = base_version
+        self.base_version_build = base_version_build
+        self.files = files
+        self.outdated = outdated
+        self._resolver = Resolver()
+
+    @cached_property
+    def added(self):
+        """List of added files."""
+        return [file for file in self.files if file.status == FileTreeDiffFileStatus.ADDED]
+
+    @cached_property
+    def deleted(self):
+        """List of deleted files."""
+        return [file for file in self.files if file.status == FileTreeDiffFileStatus.DELETED]
+
+    @cached_property
+    def modified(self):
+        """List of modified files."""
+        return [file for file in self.files if file.status == FileTreeDiffFileStatus.MODIFIED]
+
+    def top_files(self, limit: int = 5) -> list[FileTreeDiffFile]:
+        """Get the top files from all added, deleted, and modified files."""
+        added = []
+        deleted = []
+        modified = []
+        while limit > 0:
+            if self.added:
+                added.append(self.added[len(added)])
+                limit -= 1
+                if limit <= 0:
+                    break
+
+            if self.deleted:
+                deleted.append(self.deleted[len(deleted)])
+                limit -= 1
+                if limit <= 0:
+                    break
+
+            if self.modified:
+                modified.append(self.modified[len(modified)])
+                limit -= 1
+                if limit <= 0:
+                    break
+
+
+def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | None:
     """
     Get the file tree diff between two versions.
 
@@ -43,7 +160,7 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
     """
     outdated = False
     manifests: list[FileTreeDiffManifest] = []
-    for version in (version_a, version_b):
+    for version in (current_version, base_version):
         manifest = get_manifest(version)
         if not manifest:
             return None
@@ -58,20 +175,58 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
         manifests.append(manifest)
 
     # pylint: disable=unbalanced-tuple-unpacking
-    version_a_manifest, version_b_manifest = manifests
-    files_a = set(version_a_manifest.files.keys())
-    files_b = set(version_b_manifest.files.keys())
+    current_version_manifest, base_version_manifest = manifests
+    current_version_file_paths = set(current_version_manifest.files.keys())
+    base_version_file_paths = set(base_version_manifest.files.keys())
 
-    files_added = list(files_a - files_b)
-    files_deleted = list(files_b - files_a)
-    files_modified = []
-    for file_path in files_a & files_b:
-        file_a = version_a_manifest.files[file_path]
-        file_b = version_b_manifest.files[file_path]
+    current_version_build = Build.objects.get(id=current_version_manifest.build.id)
+    base_version_build = Build.objects.get(id=base_version_manifest.build.id)
+
+    files = []
+    resolver = Resolver()
+    for file_path in current_version_file_paths - base_version_file_paths:
+        files.append(
+            FileTreeDiffFile(
+                current_version=current_version,
+                current_version_build=current_version_build,
+                base_version=base_version,
+                base_version_build=base_version_build,
+                filename=file_path,
+                status=FileTreeDiffFileStatus.ADDED,
+                resolver=resolver,
+            )
+        )
+
+    for file_path in base_version_file_paths - current_version_file_paths:
+        files.append(
+            FileTreeDiffFile(
+                current_version=current_version,
+                current_version_build=current_version_build,
+                base_version=base_version,
+                base_version_build=base_version_build,
+                filename=file_path,
+                status=FileTreeDiffFileStatus.DELETED,
+                resolver=resolver,
+            )
+        )
+
+    for file_path in current_version_file_paths & base_version_file_paths:
+        file_a = current_version_manifest.files[file_path]
+        file_b = base_version_manifest.files[file_path]
         if file_a.main_content_hash != file_b.main_content_hash:
-            files_modified.append(file_path)
+            files.append(
+                FileTreeDiffFile(
+                    current_version=current_version,
+                    current_version_build=current_version_build,
+                    base_version=base_version,
+                    base_version_build=base_version_build,
+                    filename=file_path,
+                    status=FileTreeDiffFileStatus.MODIFIED,
+                    resolver=resolver,
+                )
+            )
 
-    def sortpath(filename):
+    def sortpath(file):
         """
         Function to use as `key=` argument for `sorted`.
 
@@ -82,13 +237,15 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
         first), groupping them by directory and alphabetically. We should update
         this function to achieve that goal if we find a simple way to do it.
         """
-        parts = filename.split("/")
+        parts = file.filename.split("/")
         return len(parts), parts
 
     return FileTreeDiff(
-        added=sorted(files_added, key=sortpath),
-        deleted=sorted(files_deleted, key=sortpath),
-        modified=sorted(files_modified, key=sortpath),
+        files=sorted(files, key=sortpath),
+        current_version=current_version,
+        base_version=base_version,
+        current_version_build=current_version_build,
+        base_version_build=base_version_build,
         outdated=outdated,
     )
 

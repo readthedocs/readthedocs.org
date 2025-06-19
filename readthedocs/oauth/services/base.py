@@ -40,6 +40,7 @@ class Service:
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
     supports_build_status = False
     supports_clone_token = False
+    supports_commenting = False
 
     @classmethod
     def for_project(cls, project):
