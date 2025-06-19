@@ -50,7 +50,7 @@ Creating a project manually
 
 .. figure:: /img/screenshots/business-project-manual-team-select.png
   :scale: 40%
-  :align: right 
+  :align: right
   :alt: Select an organization team to create the project in.
 
 #. Select :guilabel:`Add project` from the the main dashboard.
@@ -62,7 +62,7 @@ In the next form page you will manually configure your project's repository deta
 
 .. figure:: /img/screenshots/business-project-manual-form.png
   :scale: 40%
-  :align: right 
+  :align: right
   :alt: Specify your project and repository configuration.
 
 4. In the :guilabel:`Repository URL` field, provide the repository's SSH or Git URL.

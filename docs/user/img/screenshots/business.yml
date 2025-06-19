@@ -13,7 +13,7 @@
 
 # Project manual creation form, have to submit with a team first. The JS looks
 # funny becuase Playwright needs to wait for the page to load before submitting.
-- url: https://app.readthedocs.com/dashboard/import/manual/ 
+- url: https://app.readthedocs.com/dashboard/import/manual/
   javascript: |-
     const _submit = () => {
       document
