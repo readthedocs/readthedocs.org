@@ -635,7 +635,6 @@ Using pydoctor
 ~~~~~~~~~~~~~~
 
 `Pydoctor <https://github.com/twisted/pydoctor>`_ is an easy-to-use standalone API documentation tool for Python.  
-
 Here is an example configuration file:
 
 .. code-block:: yaml
