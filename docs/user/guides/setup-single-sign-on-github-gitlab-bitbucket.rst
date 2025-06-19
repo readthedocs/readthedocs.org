@@ -1,9 +1,9 @@
-How to setup Single Sign-On (SSO) with GitHub, GitLab, or Bitbucket
+How to setup single sign-on (SSO) with GitHub, GitLab, or Bitbucket
 ===================================================================
 
 .. include:: /shared/admonition-rtd-business.rst
 
-This how-to guide will provide instructions on how to enable :abbr:`SSO (Single Sign-on)` with GitHub, GitLab, or Bitbucket.
+This how-to guide will provide instructions on how to enable :abbr:`SSO (single sign-on)` with GitHub, GitLab, or Bitbucket.
 If you want more information on this feature,
 please read :doc:`/commercial/single-sign-on`
 
@@ -74,5 +74,5 @@ Instead of revoking access completely,
 downgrade their permissions to *read only*.
 
 .. seealso::
-    To learn more about choosing a Single Sign-on approach,
+    To learn more about choosing a single sign-on approach,
     please read :doc:`/commercial/single-sign-on`.

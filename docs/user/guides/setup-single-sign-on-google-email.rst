@@ -1,9 +1,9 @@
-How to setup Single Sign-On (SSO) with Google Workspace
+How to setup single sign-on (SSO) with Google Workspace
 =======================================================
 
 .. include:: /shared/admonition-rtd-business.rst
 
-This how-to guide will provide instructions on how to enable :abbr:`SSO (Single Sign-on)` with Google Workspace.
+This how-to guide will provide instructions on how to enable :abbr:`SSO (single sign-on)` with Google Workspace.
 If you want more information on this feature,
 please read :doc:`/commercial/single-sign-on`
 
@@ -94,4 +94,4 @@ and disable login on Read the Docs completely for that user.
    :doc:`/guides/manage-read-the-docs-teams`
      Additional user management options
    :doc:`/commercial/single-sign-on`
-     Information about choosing a Single Sign-on approach
+     Information about choosing a single sign-on approach

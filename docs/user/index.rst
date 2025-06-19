@@ -233,7 +233,7 @@ Our Business hosting has everything your business needs:
   Manage permissions across multiple teams.
 
 :doc:`/commercial/single-sign-on`
-  Stay secure with Single Sign On.
+  Stay secure with single sign-on.
 
 :doc:`/commercial/sharing`
   Share your private docs easily with contractors or customers.
