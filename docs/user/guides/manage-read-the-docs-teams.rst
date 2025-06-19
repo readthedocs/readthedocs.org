@@ -43,7 +43,7 @@ they will be granted access to import a project on that team.
 Automating this process
 -----------------------
 
-You can manage teams more easily using our :doc:`Single Sign-On </commercial/single-sign-on>` features.
+You can manage teams more easily using our :doc:`single sign-on </commercial/single-sign-on>` features.
 
 .. seealso::
 
