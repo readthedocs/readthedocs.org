@@ -57,7 +57,7 @@ Each version of your documentation has a state that changes the visibility of it
   Hidden versions are listed as ``Disallow: /path/to/version/``
   in the default :doc:`/reference/robots` created by Read the Docs.
 
-**Public** or **Private** (only available on on :doc:`/commercial/index`)
+**Public** or **Private** (only available on :doc:`/commercial/index`)
   - **Public** versions are visible to everyone, and are browsable by unauthenticated users.
   - **Private** versions are available only to people who have permissions to see them.
     They will return a `404 Not Found` when visited by people without viewing permissions.

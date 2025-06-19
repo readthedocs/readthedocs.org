@@ -38,7 +38,7 @@ Git repositories aren't automatically listed for setups that are not connected t
 That is the reason why this guide is an extension of the :doc:`manual Git repository setup </guides/setup/git-repo-manual>`,
 with the following exception:
 
-#. Go to https://readthedocs.com/dashboard/import/manual/
+#. Go to https://app.readthedocs.com/dashboard/import/manual/
 
 #. In the :guilabel:`Repository URL` field, you need to provide the SSH version of your repository's URL.
    It starts with ``git@...``, for example ``git@github.com:readthedocs/readthedocs.org.git``.

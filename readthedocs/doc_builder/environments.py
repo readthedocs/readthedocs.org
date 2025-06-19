@@ -75,6 +75,7 @@ class BuildCommand(BuildCommandResultMixin):
         demux=False,
         **kwargs,
     ):
+        self.id = None
         self.command = command
         self.shell = shell
         self.cwd = cwd or settings.RTD_DOCKER_WORKDIR
@@ -239,11 +240,22 @@ class BuildCommand(BuildCommandResultMixin):
         return self.command
 
     def save(self, api_client):
-        """Save this command and result via the API."""
+        """
+        Save this command and result via the API.
+
+        The command can be saved before or after it has been run,
+        if it's saved before it has been run, the exit_code,
+        start_time, and end_time will be None.
+
+        If the command is saved twice (before and after it has been run),
+        the second save will update the command instead of creating a new one.
+        The id of the command will be set the first time it is saved,
+        so it can be used to update the command later.
+        """
         # Force record this command as success to avoid Build reporting errors
         # on commands that are just for checking purposes and do not interferes
         # in the Build
-        if self.record_as_success:
+        if self.record_as_success and self.exit_code is not None:
             log.warning("Recording command exit_code as success")
             self.exit_code = 0
 
@@ -256,22 +268,39 @@ class BuildCommand(BuildCommandResultMixin):
             "end_time": self.end_time,
         }
 
+        # If the command has an id, it means it has been saved before,
+        # so we update it instead of creating a new one.
         if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
             # Don't use slumber directly here. Slumber tries to enforce a string,
             # which will break our multipart encoding here.
             encoder = MultipartEncoder({key: str(value) for key, value in data.items()})
-            resource = api_client.command
-            resp = resource._store["session"].post(
-                resource._store["base_url"] + "/",
-                data=encoder,
-                headers={
-                    "Content-Type": encoder.content_type,
-                },
-            )
-            log.debug("Post response via multipart form.", response=resp)
+            if self.id:
+                resource = api_client.command(self.id).patch
+                resp = resource._store["session"].patch(
+                    resource._store["url"],
+                    data=encoder,
+                    headers={
+                        "Content-Type": encoder.content_type,
+                    },
+                )
+            else:
+                resource = api_client.command.post
+                resp = resource._store["session"].post(
+                    resource._store["base_url"],
+                    data=encoder,
+                    headers={
+                        "Content-Type": encoder.content_type,
+                    },
+                )
+            log.debug("Response via multipart form.", response=resp)
         else:
-            resp = api_client.command.post(data)
-            log.debug("Post response via JSON encoded data.", response=resp)
+            if self.id:
+                resp = api_client.command(self.id).patch(data)
+            else:
+                resp = api_client.command.post(data)
+            log.debug("Response via JSON encoded data.", response=resp)
+
+        self.id = resp.get("id")
 
 
 class DockerBuildCommand(BuildCommand):
@@ -498,6 +527,17 @@ class BaseBuildEnvironment:
         kwargs["environment"] = environment
         kwargs["build_env"] = self
         build_cmd = cls(cmd, **kwargs)
+
+        # Save the command that's running before it starts,
+        # then we will update the results after it has run.
+        if record:
+            self.record_command(build_cmd)
+            # We want append this command to the list of commands only if it has
+            # to be recorded in the database (to keep consistency) and also, it
+            # has to be added after ``self.record_command`` since its
+            # ``exit_code`` can be altered because of ``record_as_success``
+            self.commands.append(build_cmd)
+
         build_cmd.run()
 
         if record:
@@ -505,12 +545,6 @@ class BaseBuildEnvironment:
             # this class should know nothing about a BuildCommand (which are the
             # only ones that can be saved/recorded)
             self.record_command(build_cmd)
-
-            # We want append this command to the list of commands only if it has
-            # to be recorded in the database (to keep consistency) and also, it
-            # has to be added after ``self.record_command`` since its
-            # ``exit_code`` can be altered because of ``record_as_success``
-            self.commands.append(build_cmd)
 
         if build_cmd.failed:
             if warn_only:

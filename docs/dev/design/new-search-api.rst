@@ -195,7 +195,7 @@ But also, re-using the current serializers shouldn't be a problem either.
              "role": "http:post",
              "name": "/api/v3/projects/",
              "id": "post--api-v3-projects-",
-             "content": "Import a project under authenticated user. Example request: BashPython$ curl \\ -X POST \\ -H \"Authorization: Token <token>\" https://readthedocs.org/api/v3/projects/ \\ -H \"Content-Type: application/json\" \\ -d @body.json import requests import json URL = 'https://readthedocs.org/api/v3/projects/' TOKEN = '<token>' HEADERS = {'Authorization': f'token {TOKEN}'} data = json.load(open('body.json', 'rb')) response = requests.post( URL, json=data, headers=HEADERS, ) print(response.json()) The content of body.json is like, { \"name\": \"Test Project\", \"repository\": { \"url\": \"https://github.com/readthedocs/template\", \"type\": \"git\" }, \"homepage\": \"http://template.readthedocs.io/\", \"programming_language\": \"py\", \"language\": \"es\" } Example response: See Project details Note Read the Docs for Business, also accepts",
+             "content": "Import a project under authenticated user. Example request: BashPython$ curl \\ -X POST \\ -H \"Authorization: Token <token>\" https://app.readthedocs.org/api/v3/projects/ \\ -H \"Content-Type: application/json\" \\ -d @body.json import requests import json URL = 'https://app.readthedocs.org/api/v3/projects/' TOKEN = '<token>' HEADERS = {'Authorization': f'token {TOKEN}'} data = json.load(open('body.json', 'rb')) response = requests.post( URL, json=data, headers=HEADERS, ) print(response.json()) The content of body.json is like, { \"name\": \"Test Project\", \"repository\": { \"url\": \"https://github.com/readthedocs/template\", \"type\": \"git\" }, \"homepage\": \"http://template.readthedocs.io/\", \"programming_language\": \"py\", \"language\": \"es\" } Example response: See Project details Note Read the Docs for Business, also accepts",
              "highlights": {
                "name": [],
                "content": [
@@ -309,7 +309,7 @@ Future features
 
   - Multi match (query as is)
   - Simple query string (allows using the ES query syntax)
-  - Fuzzy search (same as multi match, but with with fuzziness)
+  - Fuzzy search (same as multi match, but with fuzziness)
 
 - Add the ``org`` filter,
   so users can search by all projects that belong

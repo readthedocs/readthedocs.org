@@ -52,11 +52,11 @@ Overlap with existing API endpoints
 -----------------------------------
 
 There is already significant overlap between the APIv2 ``footer_html`` call
-with the existing APIv3 for a project (eg. ``https://readthedocs.org/api/v3/projects/docs/``).
+with the existing APIv3 for a project (eg. ``https://app.readthedocs.org/api/v3/projects/docs/``).
 The project API already returns much of the data we want,
 but some things like other active versions, translations, and downloads would require additional API calls or options.
 These options already partially implemented via the `DRF Flex Fields <https://pypi.org/project/drf-flex-fields/>`_ module
-(eg. ``https://readthedocs.org/api/v3/projects/docs/?expand=active_versions``).
+(eg. ``https://app.readthedocs.org/api/v3/projects/docs/?expand=active_versions``).
 Currently, there are separate API endpoints for translations and downloads,
 but ideally all the data needed to generate a version selector would be available from a single API.
 

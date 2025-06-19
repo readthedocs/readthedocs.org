@@ -867,7 +867,7 @@ class CommunityBaseSettings(Settings):
 
     # Webhook URL for BotDog to post messages in Slack #sales channel:
     # https://api.slack.com/apps/A01ML7J7N4T/incoming-webhooks
-    SLACK_WEBHOOK_SALES_CHANNEL = None  # https://hooks.slack.com/services/...
+    SLACK_WEBHOOK_RTD_NOTIFICATIONS_CHANNEL = None  # https://hooks.slack.com/services/...
 
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False

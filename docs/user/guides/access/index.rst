@@ -1,11 +1,11 @@
 How-to guides: security and access
 ==================================
 
-⏩️ :doc:`Single Sign-On (SSO) with GitHub, GitLab, or Bitbucket </guides/setup-single-sign-on-github-gitlab-bitbucket>`
+⏩️ :doc:`Single sign-on (SSO) with GitHub, GitLab, or Bitbucket </guides/setup-single-sign-on-github-gitlab-bitbucket>`
     When using an :doc:`organization </commercial/organizations>` on  |com_brand|,
     you can configure SSO for your users to authenticate to Read the Docs.
 
-⏩️ :doc:`Single Sign-On (SSO) with Google Workspace </guides/setup-single-sign-on-google-email>`
+⏩️ :doc:`Single sign-on (SSO) with Google Workspace </guides/setup-single-sign-on-google-email>`
     When using an :doc:`organization </commercial/organizations>` on  |com_brand|,
     you can configure SSO for your users to authenticate to Read the Docs.
     This guide is written for Google Workspace.
@@ -34,9 +34,9 @@ How-to guides: security and access
    :maxdepth: 1
    :hidden:
 
-   Single Sign-On (SSO) with GitHub, GitLab, or Bitbucket </guides/setup-single-sign-on-github-gitlab-bitbucket>
-   Single Sign-On (SSO) with Google Workspace </guides/setup-single-sign-on-google-email>
-   Single Sign-On (SSO) with SAML </guides/set-up-single-sign-on-saml>
+   Single sign-on (SSO) with GitHub, GitLab, or Bitbucket </guides/setup-single-sign-on-github-gitlab-bitbucket>
+   Single sign-on (SSO) with Google Workspace </guides/setup-single-sign-on-google-email>
+   Single sign-on (SSO) with SAML </guides/set-up-single-sign-on-saml>
    Managing Read the Docs teams </guides/manage-read-the-docs-teams>
    Manually importing private repositories </guides/importing-private-repositories>
    Using private Git submodules </guides/private-submodules>
