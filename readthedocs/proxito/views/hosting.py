@@ -629,7 +629,7 @@ class AddonsResponseBase:
         if not base_version or not self._has_permission(request=request, version=base_version):
             return None
 
-        diff = get_diff(version_a=version, version_b=base_version)
+        diff = get_diff(current_version=version, base_version=base_version)
         if not diff:
             return None
 

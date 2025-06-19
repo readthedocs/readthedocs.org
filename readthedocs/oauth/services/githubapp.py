@@ -35,6 +35,7 @@ class GitHubAppService(Service):
     allauth_provider = GitHubAppProvider
     supports_build_status = True
     supports_clone_token = True
+    supports_commenting = True
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
@@ -521,18 +522,45 @@ class GitHubAppService(Service):
             # Get the comment where the author is us.
             # The login is of the author is the name of the GitHub App, with "[bot]" suffix.
             if gh_comment.user.login == f"{settings.GITHUB_APP_NAME}[bot]":
-                # TODO: check the boyd of the comment to see it it matches the project?
-                # What to do when the same repo is attached to multiple projects?
                 existing_gh_comment = gh_comment
                 break
 
-        # NOTE: don't replace the whole comment,
-        # instead use some delimiter to separate comments per project.
+        start_comment = f"<!-- readthedocs-{project.pk}-start -->"
+        end_comment = f"<!-- readthedocs-{project.pk}-end -->"
+
         if existing_gh_comment:
+            existing_comment_body = existing_gh_comment.body
+            start_index = existing_comment_body.find(start_comment)
+            end_index = existing_comment_body.find(end_comment)
+
+            if start_index != -1 and end_index != -1:
+                # Replace the content between the delimiters.
+                comment = (
+                    existing_comment_body[:start_index]
+                    + start_comment
+                    + "\n"
+                    + comment
+                    + "\n"
+                    + end_comment
+                    + existing_comment_body[end_index + len(end_comment) :]
+                )
+            else:
+                # If the delimiters are not found, append to the existing comment.
+                comment = (
+                    existing_comment_body
+                    + "---"
+                    + "\n"
+                    + start_comment
+                    + "\n"
+                    + comment
+                    + "\n"
+                    + end_comment
+                )
+
             existing_gh_comment.edit(
                 body=comment,
             )
         else:
             issue.create_comment(
-                body=comment,
+                body=f"{start_comment}\n{comment}\n{end_comment}",
             )

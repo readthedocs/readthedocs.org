@@ -27,6 +27,7 @@ from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.builds.reporting import get_build_report
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import send_email
 from readthedocs.core.utils import trigger_build
@@ -425,6 +426,42 @@ def send_build_status(build_pk, commit, status):
     )
 
     log.info("No social account or repository permission available, no build status sent.")
+    return False
+
+
+@app.task(max_retries=3, default_retry_delay=60, queue="web")
+def post_pr_comment(build_pk):
+    build = Build.objects.filter(pk=build_pk).first()
+    if not build:
+        return
+
+    log.bind(
+        build_id=build.pk,
+        project_slug=build.project.slug,
+    )
+
+    log.debug("Commenting on PR.")
+
+    service_class = build.project.get_git_service_class()
+    if not service_class:
+        log.info("Project isn't connected to a Git service, skipping PR comment.")
+        return False
+
+    if not service_class.supports_commenting:
+        log.info("Git service doesn't support PR comment.")
+        return False
+
+    for service in service_class.for_project(build.project):
+        comment_content = get_build_report(build)
+        success = service.post_comment(
+            build=build,
+            comment=comment_content,
+        )
+        if success:
+            log.debug("PR comment posted successfully.")
+            return True
+
+    log.info("No social account or repository permission available, no PR comment posted.")
     return False
 
 

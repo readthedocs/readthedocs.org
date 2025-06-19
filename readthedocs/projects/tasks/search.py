@@ -8,6 +8,7 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import post_pr_comment
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFile
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
@@ -145,6 +146,7 @@ class FileManifestIndexer(Indexer):
             ],
         )
         write_manifest(self.version, manifest)
+        post_pr_comment.delay(self.build.id)
 
 
 def _get_indexers(*, version: Version, build: Build, search_index_name=None):
@@ -235,10 +237,25 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
                 build=sync_id,
             )
             for indexer in indexers:
-                indexer.process(html_file, sync_id)
+                try:
+                    indexer.process(html_file, sync_id)
+                except Exception:
+                    log.exception(
+                        "Failed to process HTML file",
+                        html_file=html_file.path,
+                        indexer=indexer.__class__.__name__,
+                        version_slug=version.slug,
+                    )
 
     for indexer in indexers:
-        indexer.collect(sync_id)
+        try:
+            indexer.collect(sync_id)
+        except Exception:
+            log.exception(
+                "Failed to collect indexer results",
+                indexer=indexer.__class__.__name__,
+                version_slug=version.slug,
+            )
 
     # This signal is used for purging the CDN.
     files_changed.send(
