@@ -1,0 +1,16 @@
+extends: substitution
+message: Use '%s' instead of '%s'
+level: warning
+ignorecase: true
+exceptions:
+  # Hacky way to match at the start and mid sentence. This will miss on:
+  # "This is a Pull request build"
+  - single sign-on
+  - Single sign-on
+  - pull request
+  - Pull request
+swap:
+  single sign on: single sign-on
+  single sign-on: single sign-on
+  single-sign on: single sign-on
+  Pull Request: pull request
