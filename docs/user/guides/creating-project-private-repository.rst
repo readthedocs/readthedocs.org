@@ -1,75 +1,94 @@
-How to import private repositories
-==================================
+Creating a project from a private repository
+============================================
 
 .. include:: /shared/admonition-rtd-business.rst
 
-You can grant access to private Git repositories using |com_brand|.
-Here is how you set it up.
+On |com_brand|, projects can be connected to both private and public repositories.
+There are two methods you can use to create a project from a private repository:
 
-✅️ Logged in with |git_providers_or|?
-  If you signed up or logged in to Read the Docs with your |git_providers_or| credentials,
-  *all you have to do* is to use the normal :doc:`project import </intro/add-project>`.
-  Your Read the Docs account is connected to your Git provider and
-  will let you choose from private Git repositories and configure them for you.
+`Automatically create a project from a connected repository`_
+    If you have a |git_providers_or| service connected to your account,
+    projects can be created automatically from a connected private repository.
+    We will handle the configuration of your repository to allow cloning
+    and pushing status updates to trigger new builds for your project.
 
-  You can still use the below guide if you need to recreate SSH keys for a private repository.
+    We recommend this method for most projects.
 
-⬇️ Logging in with another provider or email?
-  For all other Git provider setups,
-  you will need to configure the Git repository manually.
+`Manually create a project from a repository`_
+    If your Git provider is unsupported or if your Read the Docs account is not connected to your provider,
+    you can still manually create a project against a private repository.
+    You will have to manually configure your Git provider and repository after project creation.
 
-  Follow the steps below.
+Automatically create a project from a connected repository
+----------------------------------------------------------
 
-.. warning::
+.. Putting this section up front to provide a clear focus on automatic project
+   connection before pointing users at manual connection
 
-   If you have :doc:`/commercial/single-sign-on` enabled, you cannot import projects manually.
-   This is because authorization to the documentation depends on a connection to your VCS provider which isn't established during manual import.
+If your Read the Docs account has a connected |git_providers_or| account,
+you should be able to automatically create a project from your repository.
+Your account will need sufficient permissions to the repository to automatically configure it.
 
-Importing your project manually
--------------------------------
+We recommend most users follow our :doc:`directions on automatically creating projects </intro/add-project>` from a connected repository.
 
-Git repositories aren't automatically listed for setups that are not connected to |git_providers_or|.
+Manually create a project from a repository
+-------------------------------------------
 
-.. image:: /img/screenshot-com-manual-import.png
-   :scale: 50%
+In the case that automatic project creation isn't supported or doesn't work for your repository,
+projects may be able to be manually created and configured.
+You can still clone the repository with SSH but you will have to manually
+configure the repository SSH keys and webhooks.
+
+.. seealso::
+
+    :doc:`/guides/setup/git-repo-manual`
+        An overview of all of the steps required to manually add a project.
+        This guide is useful for both projects using public and private repositories.
+
+Creating a project manually
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. figure:: /img/screenshots/business-project-manual-team-select.png
+  :scale: 40%
+  :align: right 
+  :alt: Select an organization team to create the project in.
+
+#. Select :guilabel:`Add project` from the the main dashboard.
+#. Select :guilabel:`Configure manually` and then :guilabel:`Continue`.
+#. Select the organization team you'd like to create the project for.
+   You must be on a team with ``admin`` permission to do this.
+
+In the next form page you will manually configure your project's repository details.
+
+.. figure:: /img/screenshots/business-project-manual-form.png
+  :scale: 40%
+  :align: right 
+  :alt: Specify your project and repository configuration.
+
+4. In the :guilabel:`Repository URL` field, provide the repository's SSH or Git URL.
+   This URL usually starts with ``git@...``, for example ``git@github.com:readthedocs/readthedocs.org.git``.
+#. In the :guilabel:`Default branch` field, provide the name of the default remote branch.
+   This is usually ``main`` or ``master``.
+#. The project's first build should fail to clone your repository.
+   This is expected, your repository is not configured to allow access yet.
+
+Configuring your repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each project is configured with an SSH key pair consisting of a public and private key.
+Your repository will need to be configured with the public SSH key
+in order to allow builds to clone your repository.
+
+.. image:: /img/screenshots/business-project-ssh-key.png
+   :scale: 40%
    :align: right
-   :alt: A cropped screenshot showing the first step of a manual import on |com_brand|.
+   :alt: Project SSH key details.
 
-That is the reason why this guide is an extension of the :doc:`manual Git repository setup </guides/setup/git-repo-manual>`,
-with the following exception:
-
-#. Go to https://app.readthedocs.com/dashboard/import/manual/
-
-#. In the :guilabel:`Repository URL` field, you need to provide the SSH version of your repository's URL.
-   It starts with ``git@...``, for example ``git@github.com:readthedocs/readthedocs.org.git``.
-
-After importing your project the build will fail,
-because Read the Docs doesn't have access to clone your repository.
-To give Read the Docs access to your repository, add your project's public SSH key to your Git provider.
-
-Copy your project's public key
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Next step is to locate a public SSH key which Read the Docs has automatically generated:
-
-.. image:: /img/screenshot-com-ssh-keys.png
-   :scale: 50%
-   :align: right
-   :alt: A screenshot of the SSH Keys admin page.
-
-#. Going to the :menuselection:`Admin --> SSH Keys` tab of your project.
-#. Click on the fingerprint of the SSH key (it looks like ``6d:ca:6d:ca:6d:ca:6d:ca``)
-#. Copy the text from the :guilabel:`Public key` section
-
-.. note::
-
-   The private part of the SSH key is kept secret.
-
-Add the public key to your project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Now that you have copied the public key generated by Read the Docs,
-you need to add it to your Git repository's settings.
+#. Go to the :menuselection:`Settings --> SSH keys` page for your project.
+#. Click on the fingerprint of the SSH key.
+#. Copy the text from the :guilabel:`Public SSH key` field
+#. Next, configure your repository with this key,
+   we've provided instructions for common Git providers:
 
 .. tabs::
 
@@ -82,8 +101,7 @@ you need to add it to your Git repository's settings.
       #. Click on :guilabel:`Settings`
       #. Click on :guilabel:`Deploy Keys`
       #. Click on :guilabel:`Add deploy key`
-      #. Put a descriptive title and paste the
-         :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      #. Put a descriptive title and paste the public key you copied above.
       #. Click on :guilabel:`Add key`
 
    .. tab:: GitLab
@@ -94,8 +112,7 @@ you need to add it to your Git repository's settings.
       #. Click on :guilabel:`Settings`
       #. Click on :guilabel:`Repository`
       #. Expand the :guilabel:`Deploy Keys` section
-      #. Put a descriptive title and paste the
-         :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      #. Put a descriptive title and paste the public key you copied above.
       #. Click on :guilabel:`Add key`
 
    .. tab:: Bitbucket
@@ -106,8 +123,7 @@ you need to add it to your Git repository's settings.
       #. Click on :guilabel:`Repository Settings`
       #. Click on :guilabel:`Access keys`
       #. Click on :guilabel:`Add key`
-      #. Put a descriptive label and paste the
-         :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      #. Put a descriptive label and paste the public key you copied above.
       #. Click on :guilabel:`Add SSH key`
 
    .. tab:: Azure DevOps
@@ -118,24 +134,20 @@ you need to add it to your Git repository's settings.
       #. Click on :guilabel:`User settings`
       #. Click on :guilabel:`SSH public keys`
       #. Click on :guilabel:`New key`
-      #. Put a descriptive name and paste the
-         :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      #. Put a descriptive name and paste the public key you copied above.
       #. Click on :guilabel:`Add`
 
    .. tab:: Others
 
-      If you are not using any of the above providers,
-      Read the Docs will still generate a pair of SSH keys.
-      You'll need to add the :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
-      to your repository.
-      Refer to your provider's documentation for the steps required to do this.
+      If you are using a provider not listed here,
+      you should still be able to configure your repository with your project's SSH key.
+      Refer to your provider's documentation for managing SSH keys on private repositories.
 
-Webhooks
---------
+Configuring repository webhooks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Finally, since this is a manual project import:
+Your repository will also need to be configured to push updates via webhooks to Read the Docs on repository events.
+Webhook updates are used to to automatically trigger new builds for your project and syncronize your repository's branches and tags.
 
-**Don't forget to add the Read the Docs webhook!**
-
-To automatically trigger new builds on Read the Docs,
-you'll need to manually add a webhook, see :doc:`/guides/setup/git-repo-manual`.
+This step is the same for public repositories,
+follow the directions for :doc:`manually configuring a Git repository integration </guides/setup/git-repo-manual>`.
