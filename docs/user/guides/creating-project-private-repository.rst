@@ -79,7 +79,7 @@ Each project is configured with an SSH key pair consisting of a public and priva
 Your repository will need to be configured with the public SSH key
 in order to allow builds to clone your repository.
 
-.. image:: /img/screenshots/business-project-ssh-key.png
+.. figure:: /img/screenshots/business-project-ssh-key.png
    :scale: 40%
    :align: right
    :alt: Project SSH key details.
