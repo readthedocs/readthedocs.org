@@ -162,8 +162,8 @@ To see the build logs:
 
    Advertisement is one of our main sources of revenue.
    If you want to learn more about how do we fund our operations
-   and explore options to go ad-free,
-   check out our `Sustainability page <https://app.readthedocs.org/sustainability/>`_.
+   or explore options to go ad-free,
+   check out :doc:`our overview of EthicalAds </advertising/ethical-advertising>`.
 
    If you don't see the ad, you might be using an ad blocker.
    Our EthicalAds network respects your privacy, doesn't target you,
