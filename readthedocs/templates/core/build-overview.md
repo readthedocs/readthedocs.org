@@ -10,7 +10,7 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 ### Files changed
 
-> Comparing with [{{ base_version.verbose_name }}](#) ({{ base_version_build.commit }}). Click on [↩️]({{ base_version.get_absolute_url }}) to see the file in the base version.
+> Comparing with [{{ base_version.verbose_name }}]({{ base_version.get_absolute_url }}) ({{ base_version_build.commit }}). Click on [↩️]({{ base_version.get_absolute_url }}) to see the file in the base version.
 
 {% if diff.files %}
 
