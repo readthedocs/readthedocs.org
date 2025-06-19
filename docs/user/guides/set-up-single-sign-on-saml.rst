@@ -23,6 +23,8 @@ Create a SAML application in Okta
 
 In order to enable SSO with Okta, you need to create a new SAML application in your Okta account.
 
+.. vale RTD.features = NO
+
 1. Log in to your Okta account.
 2. Click on :guilabel:`Applications`.
 3. Click on :guilabel:`Create App Integration`.
@@ -50,6 +52,8 @@ In order to enable SSO with Okta, you need to create a new SAML application in y
 7. Click :guilabel:`Next`.
 8. Select ``This is an internal app that we have created``.
 9. Click :guilabel:`Finish`.
+
+.. vale RTD.features = YES
 
 Enable SAML on your Read the Docs organization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
