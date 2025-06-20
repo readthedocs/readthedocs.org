@@ -29,7 +29,7 @@ To create a new outgoing webhook for your project:
 * Fill in the :guilabel:`URL` field with the target URL for your endpoint.
 * Select the which events will trigger the webhook.
 * Modify the :guilabel:`JSON payload` field or leave the default (see below for more).
-* Click on :guilabel:`Save`
+* Click on :guilabel:`Add webhook`
 
 .. figure:: /img/screenshots/community-project-webhook-create.png
     :align: center
