@@ -53,7 +53,7 @@ Creating a project manually
   :align: right
   :alt: Select an organization team to create the project in.
 
-#. Select :guilabel:`Add project` from the the main dashboard.
+#. Select :guilabel:`Add project` from the main dashboard.
 #. Select :guilabel:`Configure manually` and then :guilabel:`Continue`.
 #. Select the organization team you'd like to create the project for.
    You must be on a team with ``admin`` permission to do this.
@@ -147,7 +147,7 @@ Configuring repository webhooks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Your repository will also need to be configured to push updates via webhooks to Read the Docs on repository events.
-Webhook updates are used to to automatically trigger new builds for your project and syncronize your repository's branches and tags.
+Webhook updates are used to automatically trigger new builds for your project and syncronize your repository's branches and tags.
 
 This step is the same for public repositories,
 follow the directions for :doc:`manually configuring a Git repository integration </guides/setup/git-repo-manual>`.
