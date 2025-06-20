@@ -427,7 +427,7 @@ Exposing users how we want them to use our platform will allow us to be able to 
 than giving the option to select a specific Docker image by name that we can't guarantee it will be frozen.
 
 Finally, having the ability to deprecate and *remove* pre-built images from our builders over time,
-will reduce the maintenance work required from the the core team.
+will reduce the maintenance work required from the core team.
 We can always support all the languages versions by installing them at build time.
 The only required pre-built image for this are the OS ``-base`` images.
 In fact, even after decided to deprecate and removed a pre-built image from the builders,

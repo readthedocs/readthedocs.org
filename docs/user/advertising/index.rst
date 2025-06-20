@@ -28,7 +28,7 @@ although you will still see :ref:`community ads <advertising/ethical-advertising
 For businesses looking to remove advertising,
 please consider :doc:`Read the Docs for Business </commercial/index>`.
 
-.. _Gold members: https://readthedocs.org/accounts/gold/
+.. _Gold members: https://app.readthedocs.org/accounts/gold/
 
 .. toctree::
     :maxdepth: 2

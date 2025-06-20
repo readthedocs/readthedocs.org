@@ -1,6 +1,6 @@
 .. This document is linked from:
-..    https://readthedocs.org/.well-known/security.txt
-..    https://readthedocs.org/security/
+..    https://app.readthedocs.org/.well-known/security.txt
+..    https://app.readthedocs.org/security/
 
 Security reports
 ================

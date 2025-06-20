@@ -109,7 +109,7 @@ How do I add additional software dependencies for my documentation?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For most Python dependencies,
-you can can specify a requirements file which details your dependencies.
+you can specify a requirements file which details your dependencies.
 You can also set your project documentation to install your Python project itself as a dependency.
 
 .. seealso::
