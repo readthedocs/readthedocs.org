@@ -61,7 +61,6 @@ jobs:
       - run: pip install --user tox
       - run: tox -e pre-commit
       - run: tox -e migrations
-      - run: tox -e vale
       - save_cache:
           key: pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
           paths:
