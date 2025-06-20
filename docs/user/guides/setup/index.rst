@@ -16,9 +16,8 @@ The following how-to guides help you solve common tasks and challenges in the se
 ⏩️ :doc:`Using custom URL redirects in documentation projects </guides/redirects>`
     Configuring your Read the Docs project for redirecting visitors from one location to another.
 
-⏩️ :doc:`Managing subprojects </guides/subprojects>`
-    Need several projects under the same umbrella?
-    Start using subprojects, which is a way to host multiple projects under a "main project".
+⏩️ :doc:`/guides/subprojects`
+    Use subprojects to nest multiple projects into a single custom domain or single documentation project.
 
 ⏩️ :doc:`Using a .readthedocs.yaml file in a sub-folder </guides/setup/monorepo>`
     This guide shows how to configure a Read the Docs project to use a custom path for the ``.readthedocs.yaml`` build configuration.
@@ -44,7 +43,7 @@ The following how-to guides help you solve common tasks and challenges in the se
    Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>
    Configuring a Git repository manually </guides/setup/git-repo-manual>
    Managing custom domains </guides/custom-domains>
-   Managing subprojects </guides/subprojects>
+   /guides/subprojects
    Hiding a version </guides/hiding-a-version>
    Using a .readthedocs.yaml file in a sub-folder </guides/setup/monorepo>
    Using custom URL redirects in documentation projects </guides/redirects>
