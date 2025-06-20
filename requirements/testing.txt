@@ -288,6 +288,8 @@ packaging==25.0
     #   kombu
     #   pytest
     #   sphinx
+pillow==11.2.1
+    # via -r requirements/pip.txt
 platformdirs==4.3.8
     # via
     #   -r requirements/pip.txt
