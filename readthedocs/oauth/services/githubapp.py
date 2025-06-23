@@ -548,6 +548,7 @@ class GitHubAppService(Service):
                 # If the delimiters are not found, append to the existing comment.
                 comment = (
                     existing_comment_body
+                    + "\n"
                     + "---"
                     + "\n"
                     + start_comment

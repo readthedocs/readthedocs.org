@@ -24,6 +24,14 @@ Build status report
 
        GitHub build status reporting
 
+Build overview with changed files
+    We create a comment on the pull request including a link to the preview of the documentation,
+    and a list of the files that changed in the pull request.
+
+    .. note::
+
+       This feature is only available for projects connected to a :ref:`reference/git-integration:GitHub App`.
+
 Pull request notifications
     A pull request notifications is shown at the top of preview pages,
     which let readers know they aren't viewing an active version of the project.

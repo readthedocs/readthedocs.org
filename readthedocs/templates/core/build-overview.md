@@ -6,7 +6,7 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 {% endcomment %}
 ## Documentation build overview
 
-> 📚 [{{ project.name }}](https://{{ PRODUCTION_DOMAIN }}{% url "projects_detail" project.slug %}) project | 🛠️ build [#{{ current_version_build.pk }}](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) ({{ current_version_build.commit }}) | 🔍 [preview]({{ current_version.get_absolute_url }})
+> 📚 [{{ project.name }}](https://{{ PRODUCTION_DOMAIN }}{% url "projects_detail" project.slug %}) | 🛠️ build [#{{ current_version_build.pk }}](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) ({{ current_version_build.commit }}) | 🔍 [preview]({{ current_version.get_absolute_url }})
 
 ### Files changed
 
@@ -16,7 +16,7 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 Top 5 files changed:
 
-{% for file in diff.files|slice:5 %}- {{ file.status.emoji }} [{{ file.filename }}]({{ file.url }}) [↩️]({{ file.base_url }})
+{% for file in diff.files|slice:5 %}- {{ file.status.emoji }} [{{ file.path }}]({{ file.url }}) [↩️]({{ file.base_url }})
 {% endfor %}
 
 <details>
@@ -26,7 +26,7 @@ Top 5 files changed:
 
 | File | Status |
 | --- | --- |
-{% for file in diff.files %}| [{{ file.filename }}]({{ file.url }}) [↩️]({{ file.base_url }}) | {{ file.status.emoji }} {{ file.status }} |
+{% for file in diff.files %}| [{{ file.path }}]({{ file.url }}) [↩️]({{ file.base_url }}) | {{ file.status.emoji }} {{ file.status }} |
 {% endfor %}
 
 </details>

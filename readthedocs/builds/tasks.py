@@ -435,21 +435,25 @@ def post_pr_comment(build_pk):
     if not build:
         return
 
+    version = build.version
     log.bind(
         build_id=build.pk,
         project_slug=build.project.slug,
+        version_slug=version.slug,
     )
 
-    log.debug("Commenting on PR.")
+    if not version.is_external:
+        log.info("Build is not for an external version, skipping PR comment.")
+        return
 
     service_class = build.project.get_git_service_class()
     if not service_class:
         log.info("Project isn't connected to a Git service, skipping PR comment.")
-        return False
+        return
 
     if not service_class.supports_commenting:
         log.info("Git service doesn't support PR comment.")
-        return False
+        return
 
     for service in service_class.for_project(build.project):
         comment_content = get_build_report(build)
@@ -459,10 +463,9 @@ def post_pr_comment(build_pk):
         )
         if success:
             log.debug("PR comment posted successfully.")
-            return True
+            return
 
-    log.info("No social account or repository permission available, no PR comment posted.")
-    return False
+    log.debug("No social account or repository permission available, no PR comment posted.")
 
 
 @app.task(queue="web")

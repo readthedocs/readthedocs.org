@@ -10,8 +10,8 @@ from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_pr_comment
 from readthedocs.filetreediff import write_manifest
-from readthedocs.filetreediff.dataclasses import FileTreeDiffFile
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
+from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import files_changed
@@ -141,7 +141,7 @@ class FileManifestIndexer(Indexer):
         manifest = FileTreeDiffManifest(
             build_id=self.build.id,
             files=[
-                FileTreeDiffFile(path=path, main_content_hash=hash)
+                FileTreeDiffManifestFile(path=path, main_content_hash=hash)
                 for path, hash in self._hashes.items()
             ],
         )
