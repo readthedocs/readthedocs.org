@@ -80,9 +80,6 @@ RUN if [ -n "$GITHUB_TOKEN" ] ; \
         uv pip install --no-cache-dir -e readthedocs-ext ; \
         fi
 
-RUN git clone --depth 1 https://github.com/readthedocs/ext-theme ; \
-    uv pip install --no-cache-dir -e ext-theme
-
 # Required by polymorphic
 RUN uv pip install --no-cache-dir -U setuptools
 
