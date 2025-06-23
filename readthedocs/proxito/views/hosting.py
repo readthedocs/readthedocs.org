@@ -637,27 +637,27 @@ class AddonsResponseBase:
             # Filter out all the files that match the ignored patterns
             ignore_patterns = project.addons.filetreediff_ignored_files or []
             files = [
-                filename
-                for filename in files
+                file
+                for file in files
                 if not any(
-                    fnmatch.fnmatch(filename, ignore_pattern) for ignore_pattern in ignore_patterns
+                    fnmatch.fnmatch(file.path, ignore_pattern) for ignore_pattern in ignore_patterns
                 )
             ]
 
             result = []
-            for filename in files:
+            for file in files:
                 result.append(
                     {
-                        "filename": filename,
+                        "filename": file.path,
                         "urls": {
                             "current": resolver.resolve_version(
                                 project=project,
-                                filename=filename,
+                                filename=file.path,
                                 version=version,
                             ),
                             "base": resolver.resolve_version(
                                 project=project,
-                                filename=filename,
+                                filename=file.path,
                                 version=base_version,
                             ),
                         },

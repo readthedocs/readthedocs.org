@@ -69,16 +69,16 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
 
     files: list[tuple[str, FileTreeDiffFileStatus]] = []
     for file_path in current_version_file_paths - base_version_file_paths:
-        files.append((file_path, FileTreeDiffFileStatus.ADDED))
+        files.append((file_path, FileTreeDiffFileStatus.added))
 
     for file_path in base_version_file_paths - current_version_file_paths:
-        files.append((file_path, FileTreeDiffFileStatus.DELETED))
+        files.append((file_path, FileTreeDiffFileStatus.deleted))
 
     for file_path in current_version_file_paths & base_version_file_paths:
         file_a = current_version_manifest.files[file_path]
         file_b = base_version_manifest.files[file_path]
         if file_a.main_content_hash != file_b.main_content_hash:
-            files.append((file_path, FileTreeDiffFileStatus.MODIFIED))
+            files.append((file_path, FileTreeDiffFileStatus.modified))
 
     return FileTreeDiff(
         files=files,

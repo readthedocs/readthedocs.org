@@ -58,18 +58,18 @@ class FileTreeDiffManifest:
 class FileTreeDiffFileStatus(StrEnum):
     """Status of a file in the file tree diff."""
 
-    ADDED = auto()
-    DELETED = auto()
-    MODIFIED = auto()
+    added = auto()
+    deleted = auto()
+    modified = auto()
 
     @property
     def emoji(self) -> str:
         """Return an emoji representing the file status."""
-        if self == FileTreeDiffFileStatus.ADDED:
+        if self == FileTreeDiffFileStatus.added:
             return "➕"
-        elif self == FileTreeDiffFileStatus.DELETED:
+        elif self == FileTreeDiffFileStatus.deleted:
             return "❌"
-        elif self == FileTreeDiffFileStatus.MODIFIED:
+        elif self == FileTreeDiffFileStatus.modified:
             return "📝"
         return ""
 
@@ -146,14 +146,14 @@ class FileTreeDiff:
     @cached_property
     def added(self):
         """List of added files."""
-        return [file for file in self.files if file.status == FileTreeDiffFileStatus.ADDED]
+        return [file for file in self.files if file.status == FileTreeDiffFileStatus.added]
 
     @cached_property
     def deleted(self):
         """List of deleted files."""
-        return [file for file in self.files if file.status == FileTreeDiffFileStatus.DELETED]
+        return [file for file in self.files if file.status == FileTreeDiffFileStatus.deleted]
 
     @cached_property
     def modified(self):
         """List of modified files."""
-        return [file for file in self.files if file.status == FileTreeDiffFileStatus.MODIFIED]
+        return [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
