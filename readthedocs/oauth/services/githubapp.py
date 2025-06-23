@@ -505,7 +505,12 @@ class GitHubAppService(Service):
         return True
 
     def post_comment(self, build, comment):
-        """Post a comment on the pull request attached to the build."""
+        """
+        Post a comment on the pull request attached to the build.
+
+        A comment can contain information about more than one project,
+        so we use a delimiter to separate information for each project.
+        """
         project = build.project
         version = build.version
 
@@ -520,7 +525,7 @@ class GitHubAppService(Service):
         existing_gh_comment = None
         for gh_comment in issue.get_comments():
             # Get the comment where the author is us.
-            # The login is of the author is the name of the GitHub App, with "[bot]" suffix.
+            # The login of the author is the name of the GitHub App, with the "[bot]" suffix.
             if gh_comment.user.login == f"{settings.GITHUB_APP_NAME}[bot]":
                 existing_gh_comment = gh_comment
                 break
