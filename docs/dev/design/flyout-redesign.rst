@@ -11,7 +11,7 @@ Flyout Redesign Design Document
 
 
 This document describes the design of a new "flyout API"
-to replace our existing :ref:`"footer_html" <api/v2:Undocumented resources and endpoints>` endpoint in APIv2.
+to replace our existing `footer_html` endpoint in APIv2.
 The Read the Docs theme uses this API to put an updated version selector
 with active versions into the lower left menu.
 On other themes, this appears as a floating menu in the lower right.
