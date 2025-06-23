@@ -53,7 +53,7 @@ to give read access to several repositories using only one SSH key.
    #. Click on :guilabel:`SSH and GPG keys`
    #. Click on :guilabel:`New SSH key`
    #. Put a descriptive title and paste the
-      :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      :ref:`public SSH key from your Read the Docs project <guides/creating-project-private-repository:Configuring your repository>`
    #. Click on :guilabel:`Add SSH key`
 
 Azure DevOps
@@ -65,7 +65,7 @@ Read the Docs can clone all the repositories with the same key.
 
 .. seealso::
 
-   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/importing-private-repositories:Add the public key to your project>`.
+   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/creating-project-private-repository:Configuring your repository>`.
 
 Others
 ------
@@ -76,4 +76,4 @@ you only need to add it to each submodule repository.
 
 .. seealso::
 
-   :doc:`/guides/importing-private-repositories`
+   :doc:`/guides/creating-project-private-repository`

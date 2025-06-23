@@ -5,7 +5,7 @@ from allauth.socialaccount.adapter import get_adapter as get_social_account_adap
 from allauth.socialaccount.models import SocialAccount, SocialLogin
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib.auth.models import AnonymousUser, User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
@@ -16,6 +16,7 @@ class SocialAdapterTest(TestCase):
         self.user = get(User, username="test")
         self.adapter = get_social_account_adapter()
 
+    @override_settings(RTD_ALLOW_GITHUB_APP=False)
     def test_dont_allow_using_githubapp_for_non_staff_users(self):
         assert not SocialAccount.objects.filter(provider=GitHubAppProvider.id).exists()
 
@@ -41,6 +42,21 @@ class SocialAdapterTest(TestCase):
         with self.assertRaises(ImmediateHttpResponse) as exc:
             self.adapter.pre_social_login(request, sociallogin)
         self.assertEqual(exc.exception.response.status_code, 302)
+        assert not self.user.socialaccount_set.filter(
+            provider=GitHubAppProvider.id
+        ).exists()
+
+    @override_settings(RTD_ALLOW_GITHUB_APP=True)
+    def test_allow_using_githubapp_for_all_users(self):
+        assert not self.user.is_staff
+
+        request = mock.MagicMock(user=self.user)
+        sociallogin = SocialLogin(
+            user=User(email="me@example.com"),
+            account=SocialAccount(provider=GitHubAppProvider.id),
+        )
+        self.adapter.pre_social_login(request, sociallogin)
+        # No exception raised, but the account is not created, as that is done in another step by allauth.
         assert not self.user.socialaccount_set.filter(
             provider=GitHubAppProvider.id
         ).exists()
