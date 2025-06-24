@@ -3,7 +3,7 @@ SHOTSCRAPER=uvx --from shot-scraper shot-scraper
 all: reqs screenshots
 
 reqs: install auth-business.json auth-community.json
-screenshots: business
+screenshots: business community
 
 clean:
 	-rm *.png
