@@ -4,12 +4,11 @@ Managing subprojects
 Subprojects can be used to nest projects together under a single parent project,
 which is most commonly used to share a single custom domain across multiple projects.
 
-The subproject **alias** field is used to fine tune the URL structure of your built documentation.
-
 .. seealso::
 
    :doc:`/subprojects`
-      Learn what the subproject feature can do and how it works.
+      Learn what the subproject feature can do, how it works,
+      and how to use custom domains and subproject aliases.
 
 Adding a subproject
 -------------------
