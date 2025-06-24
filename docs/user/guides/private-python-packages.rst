@@ -76,7 +76,7 @@ Here ``BITBUCKET_USER`` is your Bitbucket user.
 
    Bitbucket doesn't support app passwords per repository.
    An app password will grant read access to all repositories the user has access to.
-   You can create a a `machine user <https://confluence.atlassian.com/bitbucketserver/ssh-access-keys-for-system-use-776639781.html>`__ to give read access only to the repositories you need.
+   You can create a `machine user <https://confluence.atlassian.com/bitbucketserver/ssh-access-keys-for-system-use-776639781.html>`__ to give read access only to the repositories you need.
 
 From a repository manager other than PyPI
 -----------------------------------------
