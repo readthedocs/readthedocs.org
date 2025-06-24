@@ -504,12 +504,12 @@ class GitHubAppService(Service):
         """When using a GitHub App, we don't need to set up a webhook."""
         return True
 
-    def post_comment(self, build, comment):
+    def post_comment(self, build, comment: str):
         """
         Post a comment on the pull request attached to the build.
 
-        A comment can contain information about more than one project,
-        so we use a delimiter to separate information for each project.
+        Since repositories can be linked to multiple projects, we post a comment per project.
+        We use an HTML comment to identify the comment for the project.
         """
         project = build.project
         version = build.version
@@ -521,52 +521,21 @@ class GitHubAppService(Service):
         # NOTE: we use the lazy option to avoid fetching the repository object,
         # since we only need the object to interact with the commit status API.
         gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
-        issue = gh_repo.get_issue(int(version.verbose_name))
+        gh_issue = gh_repo.get_issue(int(version.verbose_name))
         existing_gh_comment = None
-        for gh_comment in issue.get_comments():
-            # Get the comment where the author is us.
+        comment_marker = f"<!-- readthedocs-{project.pk} -->"
+        for gh_comment in gh_issue.get_comments():
+            # Get the comment where the author is us, and the comment belongs to the project.
             # The login of the author is the name of the GitHub App, with the "[bot]" suffix.
-            if gh_comment.user.login == f"{settings.GITHUB_APP_NAME}[bot]":
+            if (
+                gh_comment.user.login == f"{settings.GITHUB_APP_NAME}[bot]"
+                and comment_marker in gh_comment.body
+            ):
                 existing_gh_comment = gh_comment
                 break
 
-        start_comment = f"<!-- readthedocs-{project.pk}-start -->"
-        end_comment = f"<!-- readthedocs-{project.pk}-end -->"
-
+        comment = f"{comment_marker}\n{comment}"
         if existing_gh_comment:
-            existing_comment_body = existing_gh_comment.body
-            start_index = existing_comment_body.find(start_comment)
-            end_index = existing_comment_body.find(end_comment)
-
-            if start_index != -1 and end_index != -1:
-                # Replace the content between the delimiters.
-                comment = (
-                    existing_comment_body[:start_index]
-                    + start_comment
-                    + "\n"
-                    + comment
-                    + "\n"
-                    + end_comment
-                    + existing_comment_body[end_index + len(end_comment) :]
-                )
-            else:
-                # If the delimiters are not found, append to the existing comment.
-                comment = (
-                    existing_comment_body
-                    + "\n"
-                    + "---"
-                    + "\n"
-                    + start_comment
-                    + "\n"
-                    + comment
-                    + "\n"
-                    + end_comment
-                )
-
-            existing_gh_comment.edit(
-                body=comment,
-            )
+            existing_gh_comment.edit(body=comment)
         else:
-            issue.create_comment(
-                body=f"{start_comment}\n{comment}\n{end_comment}",
-            )
+            gh_issue.create_comment(body=comment)

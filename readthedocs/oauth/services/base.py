@@ -111,6 +111,10 @@ class Service:
         """Get a token used for cloning the repository."""
         raise NotImplementedError
 
+    def post_comment(self, build, comment: str):
+        """Post a comment on the pull request attached to the build."""
+        raise NotImplementedError
+
     @classmethod
     def is_project_service(cls, project):
         """
