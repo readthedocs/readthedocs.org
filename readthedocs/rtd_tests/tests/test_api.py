@@ -1178,12 +1178,41 @@ class APITests(TestCase):
         resp = client.get(f"/api/v2/command/{command.pk}/")
         self.assertEqual(resp.status_code, 200)
 
+        # And updating them.
+        resp = client.patch(
+            f"/api/v2/command/{command.pk}/",
+            {
+                "command": "test2",
+                "exit_code": 1,
+                "output": "test2",
+                "end_time": None,
+                "start_time": None,
+            },
+        )
+        assert resp.status_code == 200
+        command.refresh_from_db()
+        assert command.command == "test2"
+        assert command.exit_code == 1
+        assert command.output == "test2"
+        assert command.start_time is None
+        assert command.end_time is None
+
+        # Isn't possible to update the build the command belongs to.
+        another_build = get(
+            Build, project=project_b, version=project_b.versions.first()
+        )
+        resp = client.patch(
+            f"/api/v2/command/{command.pk}/",
+            {
+                "build": another_build.pk,
+            },
+        )
+        assert resp.status_code == 200
+        command.refresh_from_db()
+        assert command.build == build
+
         # We don't allow deleting commands.
         resp = client.delete(f"/api/v2/command/{command.pk}/")
-        self.assertEqual(resp.status_code, 405)
-
-        # Neither updating them.
-        resp = client.patch(f"/api/v2/command/{command.pk}/")
         self.assertEqual(resp.status_code, 405)
 
         disallowed_builds = [
@@ -1214,7 +1243,7 @@ class APITests(TestCase):
             self.assertEqual(resp.status_code, 405)
 
             resp = client.patch(f"/api/v2/command/{command.pk}/")
-            self.assertEqual(resp.status_code, 405)
+            self.assertEqual(resp.status_code, 404)
 
     def test_versions_read_only_endpoints_for_normal_user(self):
         user_normal = get(User, is_staff=False)

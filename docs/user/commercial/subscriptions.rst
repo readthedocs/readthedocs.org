@@ -15,7 +15,7 @@ You can always find our most up-to-date pricing information on our `pricing page
 Managing your subscription
 --------------------------
 
-1. Navigate to the `subscription management page <https://readthedocs.com/organizations/choose/subscription_detail/>`__.
+1. Navigate to the `subscription management page <https://app.readthedocs.com/organizations/choose/subscription_detail/>`__.
 2. Click :guilabel:`Manage Subscription`.
 
 This action will take you to the Stripe billing portal where you can manage your subscription.
@@ -60,7 +60,7 @@ Non-profit and academic organizations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Our community hosting,
-provided for free and open source projects,
+provided for open source projects,
 is generally where we recommend most academic projects to host their projects.
 If you have constraints on how public your documentation can be,
 our commercial hosting is probably a better fit.

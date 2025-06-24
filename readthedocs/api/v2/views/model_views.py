@@ -388,7 +388,9 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         return Response({"s3": asdict(credentials)})
 
 
-class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
+class BuildCommandViewSet(
+    DisableListEndpoint, CreateModelMixin, UpdateModelMixin, UserSelectViewSet
+):
     parser_classes = [JSONParser, MultiPartParser]
     permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)

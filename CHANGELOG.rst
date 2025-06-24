@@ -233,6 +233,9 @@ Version 12.0.0
 * `@ericholscher <https://github.com/ericholscher>`__: Hosting: Don't check for superprojects on subprojects (`#11683 <https://github.com/readthedocs/readthedocs.org/pull/11683>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Remove indexes that aren't used and that are large (`#11623 <https://github.com/readthedocs/readthedocs.org/pull/11623>`__)
 
+
+.. vale off
+
 Version 11.21.1
 ---------------
 
@@ -246,6 +249,9 @@ Version 11.21.1
 * `@humitos <https://github.com/humitos>`__: Release 11.21.0 (`#11989 <https://github.com/readthedocs/readthedocs.org/pull/11989>`__)
 * `@humitos <https://github.com/humitos>`__: File Tree Diff: normalize ignore files (`#11987 <https://github.com/readthedocs/readthedocs.org/pull/11987>`__)
 * `@stsewd <https://github.com/stsewd>`__: Git service: depend on the project instead of users (`#11983 <https://github.com/readthedocs/readthedocs.org/pull/11983>`__)
+
+.. vale on
+
 
 Version 11.21.0
 ---------------

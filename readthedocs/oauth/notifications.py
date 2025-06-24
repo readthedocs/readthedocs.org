@@ -5,6 +5,7 @@ import textwrap
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.notifications.constants import ERROR
+from readthedocs.notifications.constants import INFO
 from readthedocs.notifications.constants import WARNING
 from readthedocs.notifications.messages import Message
 from readthedocs.notifications.messages import registry
@@ -17,6 +18,7 @@ MESSAGE_OAUTH_BUILD_STATUS_FAILURE = "oauth:status:send-failed"
 MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_FAILED = "oauth:deploy-key:attached-failed"
 MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED = "oauth:migration:webhook-not-removed"
 MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED = "oauth:migration:ssh-key-not-removed"
+MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP = "oauth:migration:projects-to-migrate-to-github-app"
 
 messages = [
     Message(
@@ -111,6 +113,18 @@ messages = [
             )
         ),
         type=WARNING,
+    ),
+    Message(
+        id=MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP,
+        header=_("You have projects that need to be migrated to the new GitHub App"),
+        body=_(
+            textwrap.dedent(
+                """
+                Migrate your projects automatically using the <a href="{% url "migrate_to_github_app" %}">migration page</a>.
+                """
+            ).strip(),
+        ),
+        type=INFO,
     ),
 ]
 registry.add(messages)

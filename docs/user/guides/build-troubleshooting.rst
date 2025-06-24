@@ -24,7 +24,7 @@ This error also occurs if you have changed a ``public`` repository to ``private`
 
 .. note::
 
-   To use private repositories, you need a plan on `Read the Docs for Business <https://readthedocs.com>`__.
+   To use private repositories, you need a plan on `Read the Docs for Business <https://app.readthedocs.com>`__.
 
 
 error: pathspec
