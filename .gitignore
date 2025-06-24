@@ -60,6 +60,9 @@ tags
 .pytest_cache/
 scripts/travis/elasticsearch*
 
+# Secrets
+/docs/user/img/screenshots/auth*.json
+
 # Environments
 .env
 .venv

@@ -1,13 +1,11 @@
-How to setup build status webhooks
-==================================
+Setting up outgoing webhooks
+============================
 
-In this guide,
-you can learn how to setup build notifications via webhooks.
-
-When a documentation build is *triggered*, *successful* or *failed*,
-Read the Docs can notify external APIs using :term:`webhooks <webhook>`.
-In that way,
-you can receive build notifications in your own monitoring channels and be alerted you when your builds fail so you can take immediate action.
+When a project build is *triggered*, *successful* or *failed*,
+Read the Docs can notify external APIs using outgoing :term:`webhooks <webhook>`.
+These webhooks contain information about the build and build status
+and can allow an external service to use this information for alerting,
+monitoring, and many other custom configurations.
 
 .. seealso::
 
@@ -17,25 +15,30 @@ you can receive build notifications in your own monitoring channels and be alert
     :doc:`/pull-requests`
         Configure automated feedback and documentation site previews for your pull requests.
 
+.. note::
 
-Build status webhooks
----------------------
+   :doc:`Builds for pull requests </pull-requests>` do not trigger outgoing :term:`webhooks <webhook>`.
 
-Take these steps to enable build notifications using a webhook:
+Creating a new webhook
+----------------------
 
-* Go to :menuselection:`Admin --> Webhooks` in your project.
-* Fill in the **URL** field and select what events will trigger the webhook
-* Modify the payload or leave the default (see below)
-* Click on :guilabel:`Save`
+To create a new outgoing webhook for your project:
 
-.. figure:: /_static/images/webhooks-events.png
-   :align: center
-   :alt: URL and events for a webhook
+* Go to :menuselection:`Settings --> Outgoing webhooks` in your project.
+* Click :guilabel:`Add webhook`.
+* Fill in the :guilabel:`URL` field with the target URL for your endpoint.
+* Select the which events will trigger the webhook.
+* Modify the :guilabel:`JSON payload` field or leave the default (see below for more).
+* Click on :guilabel:`Add webhook`
 
-   URL and events for a webhook
+.. figure:: /img/screenshots/community-project-webhook-create.png
+    :align: center
+    :alt: Form for creating a new webhook
 
-Every time one of the checked events triggers,
-Read the Docs will send a POST request to your webhook URL.
+    Form for creating a new webhook
+
+Every time one of the selected events trigger,
+Read the Docs will send a POST request to your webhook target URL.
 The default payload will look like this:
 
 .. code-block:: json
@@ -48,38 +51,74 @@ The default payload will look like this:
        "commit": "2552bb609ca46865dc36401dee0b1865a0aee52d",
        "build": "15173336",
        "start_date": "2021-11-03T16:23:14",
-       "build_url": "https://readthedocs.org/projects/docs/builds/15173336/",
+       "build_url": "https://app.readthedocs.org/projects/docs/builds/15173336/",
        "docs_url": "https://docs.readthedocs.io/en/latest/"
    }
 
-When a webhook is sent, a new entry will be added to the
-"Recent Activity" table. By clicking on each individual entry,
-you will see the server response, the webhook request, and the payload.
+When a webhook is sent, a new entry will be added to the :guilabel:`Recent activity` list.
+You can click on each entry to see the webhook request, response, and the request payload.
 
-.. figure:: /_static/images/webhooks-activity.png
+.. figure:: /img/screenshots/community-project-webhook-activity.png
    :align: center
-   :alt: Activity of a webhook
+   :alt: Recent activity of a webhook
 
-   Activity of a webhook
+   Recent activity of a webhook
 
-.. note::
+Custom payloads
+---------------
 
-   We don't trigger :term:`webhooks <webhook>` on :doc:`builds from pull requests </pull-requests>`.
+You can customize the payload of the webhook to fit the expected structure of your target endpoint.
+The payload structure must be valid JSON but can contain any of our
+`payload variable substitutions <Payload variable reference>`_.
 
+Variable substitutions
+~~~~~~~~~~~~~~~~~~~~~~
 
-Custom payload examples
-~~~~~~~~~~~~~~~~~~~~~~~
+The following variable strings can be used in a custom payload to substitute information
+about the build and project in the webhook body.
 
-You can customize the payload of the webhook to suit your needs,
-as long as it is valid JSON. Below you have a couple of examples,
-and in the following section you will find all the available variables.
+``{{ event }}``
+  Event that triggered the webhook, one of ``build:triggered``, ``build:failed``, or ``build:passed``.
 
-.. figure:: /_static/images/webhooks-payload.png
-   :width: 80%
-   :align: center
-   :alt: Custom payload
+``{{ build.id }}``
+  Build ID.
 
-   Custom payload
+``{{ build.commit }}``
+  Commit corresponding to the build, if present (otherwise ``""``).
+
+``{{ build.url }}``
+  URL of the build, for example ``https://app.readthedocs.org/projects/docs/builds/15173336/``.
+
+``{{ build.docs_url }}``
+  URL of the documentation corresponding to the build,
+  for example ``https://docs.readthedocs.io/en/latest/``.
+
+``{{ build.start_date }}``
+  Start date of the build (UTC, ISO format), for example ``2021-11-03T16:23:14``.
+
+``{{ organization.name }}``
+  Organization name (Commercial only).
+
+``{{ organization.slug }}``
+  Organization slug (Commercial only).
+
+``{{ project.slug }}``
+  Project slug.
+
+``{{ project.name }}``
+  Project name.
+
+``{{ project.url }}``
+  URL of the project :term:`dashboard`.
+
+``{{ version.slug }}``
+  Version slug.
+
+``{{ version.name }}``
+  Version name.
+
+Examples
+~~~~~~~~
 
 .. tabs::
 
@@ -121,7 +160,8 @@ and in the following section you will find all the available variables.
            ]
          }
 
-      More information on `the Slack Incoming Webhooks documentation <https://api.slack.com/messaging/webhooks>`_.
+      .. seealso::
+         `Slack Incoming Webhooks documentation <https://api.slack.com/messaging/webhooks>`_
 
    .. tab:: Discord
 
@@ -155,59 +195,17 @@ and in the following section you will find all the available variables.
            ]
          }
 
-      More information on `the Discord webhooks documentation <https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks>`_.
+      .. seealso::
+         `Discord webhooks documentation <https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks>`_
 
-Variable substitutions reference
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``{{ event }}``
-  Event that triggered the webhook, one of ``build:triggered``, ``build:failed``, or ``build:passed``.
-
-``{{ build.id }}``
-  Build ID.
-
-``{{ build.commit }}``
-  Commit corresponding to the build, if present (otherwise ``""``).
-
-``{{ build.url }}``
-  URL of the build, for example ``https://readthedocs.org/projects/docs/builds/15173336/``.
-
-``{{ build.docs_url }}``
-  URL of the documentation corresponding to the build,
-  for example ``https://docs.readthedocs.io/en/latest/``.
-
-``{{ build.start_date }}``
-  Start date of the build (UTC, ISO format), for example ``2021-11-03T16:23:14``.
-
-``{{ organization.name }}``
-  Organization name (Commercial only).
-
-``{{ organization.slug }}``
-  Organization slug (Commercial only).
-
-``{{ project.slug }}``
-  Project slug.
-
-``{{ project.name }}``
-  Project name.
-
-``{{ project.url }}``
-  URL of the project :term:`dashboard`.
-
-``{{ version.slug }}``
-  Version slug.
-
-``{{ version.name }}``
-  Version name.
-
-Validating the payload
-----------------------
+Verifying the payload
+---------------------
 
 After you add a new webhook, Read the Docs will generate a secret key for it
-and uses it to generate a hash signature (HMAC-SHA256) for each payload
-that is included in the ``X-Hub-Signature`` header of the request.
+and use the key to generate a hash signature (HMAC-SHA256) for each payload.
+This signature is included in the ``X-Hub-Signature`` header of each request.
 
-.. figure:: /_static/images/webhooks-secret.png
+.. figure:: /img/screenshots/community-project-webhook-secret.png
    :width: 80%
    :align: center
    :alt: Webhook secret
@@ -263,7 +261,7 @@ send a payload with the following structure:
    }
 
 To migrate to the new webhooks and keep a similar structure,
-you can use this payload:
+you can use this as the webhook custom payload:
 
 .. code-block:: json
 
@@ -281,17 +279,18 @@ you can use this payload:
 Troubleshooting webhooks and payload discovery
 ----------------------------------------------
 
-You can use public tools to discover, inspect and test webhook
-integration. These tools act as catch-all endpoints for HTTP requests
+You can use public tools to discover, inspect, and test outgoing webhooks.
+These tools act as catch-all endpoints for HTTP requests
 and respond with a 200 OK HTTP status code. You can use these payloads
 to develop your webhook services. You should exercise caution when using
 these tools as you might be sending sensitive data to external tools.
 
 These public tools include:
 
--  `Beeceptor <https://beeceptor.com/webhook-integration/>`__ to create
-   a temporary HTTPS endpoint and inspect incoming payloads. It lets you
-   respond custom response code or messages from named HTTP mock server.
--  `Webhook Tester <https://webhook-test.com/>`__ to inspect and debug
-   incoming payloads. It lets you inspect all incoming requests to it’s
-   URL/bucket.
+`Beeceptor <https://beeceptor.com/webhook-integration/>`__
+    Create a temporary HTTPS endpoint and inspect incoming payloads. It lets you
+    respond custom response code or messages from named HTTP mock server.
+
+`Webhook Tester <https://webhook-test.com/>`__
+    Inspect and debug incoming payloads. It lets you inspect all incoming
+    requests to it’s URL/bucket.
