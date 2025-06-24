@@ -1,10 +1,20 @@
+from django.conf import settings
 from django.template.loader import render_to_string
 
 from readthedocs.builds.models import Build
 from readthedocs.filetreediff import get_diff
 
 
-def get_build_report(build: Build):
+def get_build_overview(build: Build) -> str | None:
+    """
+    Generate a build overview for the given build.
+
+    The overview includes a diff of the files changed between the current
+    build and the base version of the project (latest by default).
+
+    The returned string is rendered using a Markdown template,
+    which can be included in a comment on a pull request.
+    """
     project = build.project
     base_version = project.addons.options_base_version or project.get_latest_version()
     if not base_version:
@@ -14,13 +24,13 @@ def get_build_report(build: Build):
         current_version=build.version,
         base_version=base_version,
     )
-
     if not diff:
         return None
 
     return render_to_string(
         "core/build-overview.md",
         {
+            "PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
             "project": project,
             "current_version": diff.current_version,
             "current_version_build": diff.current_version_build,

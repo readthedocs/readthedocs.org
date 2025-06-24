@@ -8,7 +8,7 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
-from readthedocs.builds.tasks import post_pr_comment
+from readthedocs.builds.tasks import post_build_overview
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
@@ -146,7 +146,7 @@ class FileManifestIndexer(Indexer):
             ],
         )
         write_manifest(self.version, manifest)
-        post_pr_comment.delay(self.build.id)
+        post_build_overview.delay(self.build.id)
 
 
 def _get_indexers(*, version: Version, build: Build, search_index_name=None):

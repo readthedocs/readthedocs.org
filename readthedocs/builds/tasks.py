@@ -27,7 +27,7 @@ from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
-from readthedocs.builds.reporting import get_build_report
+from readthedocs.builds.reporting import get_build_overview
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import send_email
 from readthedocs.core.utils import trigger_build
@@ -430,7 +430,7 @@ def send_build_status(build_pk, commit, status):
 
 
 @app.task(max_retries=3, default_retry_delay=60, queue="web")
-def post_pr_comment(build_pk):
+def post_build_overview(build_pk):
     build = Build.objects.filter(pk=build_pk).first()
     if not build:
         return
@@ -443,29 +443,32 @@ def post_pr_comment(build_pk):
     )
 
     if not version.is_external:
-        log.info("Build is not for an external version, skipping PR comment.")
+        log.debug("Build is not for an external version, skipping build overview.")
         return
 
     service_class = build.project.get_git_service_class()
     if not service_class:
-        log.info("Project isn't connected to a Git service, skipping PR comment.")
+        log.debug("Project isn't connected to a Git service, skipping build overview.")
         return
 
     if not service_class.supports_commenting:
-        log.info("Git service doesn't support PR comment.")
+        log.debug("Git service doesn't support creating comments.")
+        return
+
+    comment = get_build_overview(build)
+    if not comment:
+        log.debug("No build overview available, skipping posting comment.")
         return
 
     for service in service_class.for_project(build.project):
-        comment_content = get_build_report(build)
-        success = service.post_comment(
+        service.post_comment(
             build=build,
-            comment=comment_content,
+            comment=comment,
         )
-        if success:
-            log.debug("PR comment posted successfully.")
-            return
+        log.debug("PR comment posted successfully.")
+        return
 
-    log.debug("No social account or repository permission available, no PR comment posted.")
+    log.debug("No service available, no build overview posted.")
 
 
 @app.task(queue="web")
