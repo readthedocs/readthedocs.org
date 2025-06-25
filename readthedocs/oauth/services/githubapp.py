@@ -248,6 +248,14 @@ class GitHubAppService(Service):
                 # in order for PyGithub to use the API to fetch the repository by ID (not by name).
                 # it needs to be an integer, so just in case we cast it to an integer.
                 repo = self.installation_client.get_repo(int(repository_id))
+
+                # GitHub will send some events from all repositories in the organization (like the members event),
+                # even from those that don't have the app installed. For private repositories, the previous API
+                # call will fail, but for public repositories we can still hit the API successfully, so we make
+                # an additional check using the GitHub App API, which will raise a GithubException with a 404
+                # status code if the app is not installed on the repository.
+                if not repo.private:
+                    self.gh_app_client.get_repo_installation(owner=repo.owner.login, repo=repo.name)
             except GithubException as e:
                 log.info(
                     "Failed to fetch repository from GitHub",
@@ -277,7 +285,7 @@ class GitHubAppService(Service):
         target_id = self.installation.target_id
         target_type = self.installation.target_type
         # NOTE: All the repositories should be owned by the installation account.
-        # he following condition should never happen, unless the previous assumption is wrong.
+        # The following condition should never happen, unless the previous assumption is wrong.
         if gh_repo.owner.id != target_id or gh_repo.owner.type != target_type:
             log.exception(
                 "Repository owner does not match the installation account",
