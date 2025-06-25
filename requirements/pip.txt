@@ -52,8 +52,6 @@ click-repl==0.3.0
     # via celery
 colorama==0.4.6
     # via bumpver
-crispy-forms-semantic-ui==0.2.0
-    # via readthedocsext-theme
 cron-descriptor==1.4.5
     # via django-celery-beat
 cryptography==45.0.4
@@ -75,7 +73,6 @@ dj-stripe==2.9.0
 django==5.2.3
     # via
     #   -r requirements/pip.in
-    #   crispy-forms-semantic-ui
     #   dj-stripe
     #   django-allauth
     #   django-annoying
@@ -96,7 +93,6 @@ django==5.2.3
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-    #   readthedocsext-theme
 django-allauth[mfa,saml,socialaccount]==65.9.0
     # via -r requirements/pip.in
 django-annoying==0.10.8
@@ -108,9 +104,7 @@ django-celery-beat==2.8.1
 django-cors-headers==4.7.0
     # via -r requirements/pip.in
 django-crispy-forms==1.14.0
-    # via
-    #   -r requirements/pip.in
-    #   crispy-forms-semantic-ui
+    # via -r requirements/pip.in
 django-csp==3.8
     # via -r requirements/pip.in
 django-debug-toolbar==5.2.0
@@ -266,8 +260,6 @@ pyyaml==6.0.2
     # via -r requirements/pip.in
 qrcode==8.2
     # via django-allauth
-readthedocsext-theme @ git+https://github.com/readthedocs/ext-theme@main
-    # via -r requirements/pip.in
 redis==5.2.1
     # via -r requirements/pip.in
 regex==2024.11.6

@@ -9,3 +9,6 @@ structlog-sentry
 newrelic==10.7.0
 
 ipython
+
+# Theme for the dashboard (install from rel)
+readthedocsext-theme @ git+https://github.com/readthedocs/ext-theme@rel

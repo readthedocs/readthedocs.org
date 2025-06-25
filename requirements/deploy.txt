@@ -79,9 +79,7 @@ colorama==0.4.6
     #   -r requirements/pip.txt
     #   bumpver
 crispy-forms-semantic-ui==0.2.0
-    # via
-    #   -r requirements/pip.txt
-    #   readthedocsext-theme
+    # via readthedocsext-theme
 cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
@@ -370,8 +368,8 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-readthedocsext-theme @ git+https://github.com/readthedocs/ext-theme@main
-    # via -r requirements/pip.txt
+readthedocsext-theme @ git+https://github.com/readthedocs/ext-theme@rel
+    # via -r requirements/deploy.in
 redis==5.2.1
     # via -r requirements/pip.txt
 regex==2024.11.6
