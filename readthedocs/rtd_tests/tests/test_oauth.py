@@ -977,6 +977,8 @@ class GitHubAppTests(TestCase):
         )
 
         service = self.installation.service
+
+        # Since there's no existing comment from the bot, it will create a new one.
         service.post_comment(build, "First comment!")
 
         assert request_post_comment.called
@@ -1009,6 +1011,7 @@ class GitHubAppTests(TestCase):
         )
         request_post_comment.reset()
 
+        # Since there's an existing comment from the bot, it will update it.
         service.post_comment(build, "Second comment!")
 
         assert not request_post_comment.called
@@ -1037,6 +1040,8 @@ class GitHubAppTests(TestCase):
 
         request_post_comment.reset()
 
+        # There is an existing comment from the bot, but it belongs to another project.
+        # So it will create a new comment for the new project.
         service.post_comment(
             another_build,
             "Comment from another project.",
