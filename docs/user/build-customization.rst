@@ -650,14 +650,11 @@ Here is an example configuration file:
          html:
            - |
              pydoctor \
-               --project-name='my project' \
                --project-version=${READTHEDOCS_GIT_IDENTIFIER} \
                --project-url=${READTHEDOCS_GIT_CLONE_URL%*.git} \
                --html-viewsource-base=${READTHEDOCS_GIT_CLONE_URL%*.git}/tree/${READTHEDOCS_GIT_COMMIT_HASH} \
                --html-base-url=${READTHEDOCS_CANONICAL_URL} \
                --html-output $READTHEDOCS_OUTPUT/html/ \
-               --docformat=restructuredtext \
-               --intersphinx=https://docs.python.org/3/objects.inv \
                ./src/my_project
 
 Generate text format with Sphinx
