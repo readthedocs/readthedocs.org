@@ -146,7 +146,8 @@ class FileManifestIndexer(Indexer):
             ],
         )
         write_manifest(self.version, manifest)
-        post_build_overview.delay(self.build.id)
+        if self.version.is_external:
+            post_build_overview.delay(self.build.id)
 
 
 def _get_indexers(*, version: Version, build: Build, search_index_name=None):
