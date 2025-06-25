@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             model_name="historicalproject",
             name="show_build_overview_in_comment",
             field=models.BooleanField(
-                db_default=True,
+                db_default=False,
                 help_text="Show an overview of the build and files changed in a comment when a pull request is built.",
                 verbose_name="Show build overview in a comment",
             ),
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             model_name="project",
             name="show_build_overview_in_comment",
             field=models.BooleanField(
-                db_default=True,
+                db_default=False,
                 help_text="Show an overview of the build and files changed in a comment when a pull request is built.",
                 verbose_name="Show build overview in a comment",
             ),

@@ -405,7 +405,7 @@ class Project(models.Model):
     )
     show_build_overview_in_comment = models.BooleanField(
         _("Show build overview in a comment"),
-        db_default=True,
+        db_default=False,
         help_text=_(
             "Show an overview of the build and files changed in a comment when a pull request is built."
         ),

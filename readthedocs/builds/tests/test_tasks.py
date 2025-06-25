@@ -22,7 +22,7 @@ from readthedocs.builds.tasks import (
     delete_closed_external_versions,
     post_build_overview,
 )
-from readthedocs.filetreediff.dataclasses import FileTreeDiff
+from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeDiffFileStatus
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import (
     GitHubAccountType,
@@ -187,7 +187,57 @@ class PostBuildOverviewTest(TestCase):
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
     def test_post_build_overview(self, get_diff, post_comment):
-        pass
+        get_diff.return_value = FileTreeDiff(
+            current_version=self.current_version,
+            current_version_build=self.current_version_build,
+            base_version=self.base_version,
+            base_version_build=self.base_version_build,
+            files=[
+                ("index.html", FileTreeDiffFileStatus.modified),
+                ("changes.html", FileTreeDiffFileStatus.added),
+                ("deleteme.html", FileTreeDiffFileStatus.deleted),
+            ],
+            outdated=False,
+        )
+        post_build_overview(build_pk=self.current_version_build.pk)
+        expected_comment = dedent(
+            f"""
+            ## Documentation build overview
+
+            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) (5678abcd) | 🔍 [preview](http://my-project--1.readthedocs.build/en/1/)
+
+            ### Files changed
+
+            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd). Click on [↩️](http://my-project.readthedocs.io/en/latest/) to see the file in the base version.
+
+
+            Top 5 files changed:
+
+            - ➕ [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) [↩️](http://my-project.readthedocs.io/en/latest/changes.html)
+            - ❌ [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) [↩️](http://my-project.readthedocs.io/en/latest/deleteme.html)
+            - 📝 [index.html](http://my-project--1.readthedocs.build/en/1/index.html) [↩️](http://my-project.readthedocs.io/en/latest/index.html)
+
+
+            <details>
+            <summary>Show all 3 file(s) changed</summary>
+
+            > 📝 1 file(s) modified | ➕ 1 file(s) added | ❌ 1 file(s) deleted
+
+            | File | Status |
+            | --- | --- |
+            | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) [↩️](http://my-project.readthedocs.io/en/latest/changes.html) | ➕ added |
+            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) [↩️](http://my-project.readthedocs.io/en/latest/deleteme.html) | ❌ deleted |
+            | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) [↩️](http://my-project.readthedocs.io/en/latest/index.html) | 📝 modified |
+
+
+            </details>
+
+            """
+        )
+        post_comment.assert_called_once_with(
+            build=self.current_version_build,
+            comment=expected_comment,
+        )
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
