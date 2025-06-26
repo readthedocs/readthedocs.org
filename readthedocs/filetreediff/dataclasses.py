@@ -1,8 +1,10 @@
+import fnmatch
 from dataclasses import asdict
 from dataclasses import dataclass
 from enum import StrEnum
 from enum import auto
 from functools import cached_property
+from typing import Iterator
 
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -120,6 +122,7 @@ class FileTreeDiff:
         files: list[tuple[str, FileTreeDiffFileStatus]],
         outdated: bool,
     ):
+        self.project = current_version.project
         self.current_version = current_version
         self.current_version_build = current_version_build
         self.base_version = base_version
@@ -127,8 +130,21 @@ class FileTreeDiff:
         self._resolver = Resolver()
         self.outdated = outdated
         self.files = sorted(
-            (FileTreeDiffFile(path=path, status=status, diff=self) for path, status in files),
+            (
+                FileTreeDiffFile(path=path, status=status, diff=self)
+                for path, status in self._filter_files(files)
+            ),
             key=self._sortpath,
+        )
+
+    def _filter_files(
+        self, files: list[tuple[str, FileTreeDiffFileStatus]]
+    ) -> Iterator[tuple[str, FileTreeDiffFileStatus]]:
+        ignore_patterns = self.project.addons.filetreediff_ignored_files or []
+        return (
+            (path, status)
+            for path, status in files
+            if not any(fnmatch.fnmatch(path, ignore_pattern) for ignore_pattern in ignore_patterns)
         )
 
     def _sortpath(self, file: FileTreeDiffFile):

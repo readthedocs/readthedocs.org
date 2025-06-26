@@ -1,6 +1,5 @@
 """Views for hosting features."""
 
-import fnmatch
 from functools import lru_cache
 
 import packaging
@@ -633,44 +632,32 @@ class AddonsResponseBase:
         if not diff:
             return None
 
-        def _filter_diff_files(files):
-            # Filter out all the files that match the ignored patterns
-            ignore_patterns = project.addons.filetreediff_ignored_files or []
-            files = [
-                file
+        def _serialize_files(files):
+            return [
+                {
+                    "filename": file.path,
+                    "urls": {
+                        "current": resolver.resolve_version(
+                            project=project,
+                            filename=file.path,
+                            version=version,
+                        ),
+                        "base": resolver.resolve_version(
+                            project=project,
+                            filename=file.path,
+                            version=base_version,
+                        ),
+                    },
+                }
                 for file in files
-                if not any(
-                    fnmatch.fnmatch(file.path, ignore_pattern) for ignore_pattern in ignore_patterns
-                )
             ]
-
-            result = []
-            for file in files:
-                result.append(
-                    {
-                        "filename": file.path,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=file.path,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=file.path,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                )
-            return result
 
         return {
             "outdated": diff.outdated,
             "diff": {
-                "added": _filter_diff_files(diff.added),
-                "deleted": _filter_diff_files(diff.deleted),
-                "modified": _filter_diff_files(diff.modified),
+                "added": _serialize_files(diff.added),
+                "deleted": _serialize_files(diff.deleted),
+                "modified": _serialize_files(diff.modified),
             },
         }
 
