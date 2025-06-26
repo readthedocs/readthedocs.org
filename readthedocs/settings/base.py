@@ -409,6 +409,8 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_COMMANDS_STORAGE = (
         "readthedocs.builds.storage.BuildMediaFileSystemStorage"
     )
+    # This is for serving static files on proxito, not Django static files
+    # https://github.com/readthedocs/readthedocs.org/pull/9237
     RTD_STATICFILES_STORAGE = "readthedocs.builds.storage.StaticFilesStorage"
 
     @property
@@ -1058,7 +1060,7 @@ class CommunityBaseSettings(Settings):
         # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
         return {
             "staticfiles": {
-                "BACKEND": self.RTD_STATICFILES_STORAGE,
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
             },
         }
 
