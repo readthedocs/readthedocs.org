@@ -908,11 +908,16 @@ class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
         return self.get_integration_queryset()
 
     def get_object(self):
+        integration = self.get_integration()
+        # Don't allow an integration detail page if the integration subclass
+        # does not support configuration
+        if integration.is_remote_only:
+            raise Http404
         return self.get_integration()
 
     def get_integration_queryset(self):
         self.project = self.get_project()
-        return self.model.objects.filter(project=self.project)
+        return self.model.objects.filter(project=self.project).subclass()
 
     def get_integration(self):
         """Return project integration determined by url kwarg."""
