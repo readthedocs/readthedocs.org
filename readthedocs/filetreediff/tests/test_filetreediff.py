@@ -23,6 +23,13 @@ class TestsFileTreeDiff(TestCase):
     def setUp(self):
         self.project = get(Project)
         self.version_a = self.project.versions.get(slug=LATEST)
+        self.build_a_old = get(
+            Build,
+            project=self.project,
+            version=self.version_a,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
         self.build_a = get(
             Build,
             project=self.project,
@@ -36,6 +43,13 @@ class TestsFileTreeDiff(TestCase):
             slug="v2",
             active=True,
             built=True,
+        )
+        self.build_b_old = get(
+            Build,
+            project=self.project,
+            version=self.version_b,
+            state=BUILD_STATE_FINISHED,
+            success=True,
         )
         self.build_b = get(
             Build,
@@ -100,9 +114,10 @@ class TestsFileTreeDiff(TestCase):
             self._mock_manifest(self.build_b.id, files_b)(),
         ]
         diff = get_diff(self.version_a, self.version_b)
-        assert diff.added == ["new-file.html"]
-        assert diff.deleted == ["deleted.html"]
-        assert diff.modified == ["tutorials/index.html"]
+        assert [file.path for file in diff.files] == ["deleted.html", "new-file.html", "tutorials/index.html"]
+        assert [file.path for file in diff.added] == ["new-file.html"]
+        assert [file.path for file in diff.deleted] == ["deleted.html"]
+        assert [file.path for file in diff.modified] == ["tutorials/index.html"]
         assert not diff.outdated
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
@@ -124,11 +139,12 @@ class TestsFileTreeDiff(TestCase):
             "deleted.html": "hash-deleted",
         }
         storage_open.side_effect = [
-            self._mock_manifest(self.build_a.id + 5, files_a)(),
-            self._mock_manifest(self.build_b.id + 5, files_b)(),
+            self._mock_manifest(self.build_a_old.id, files_a)(),
+            self._mock_manifest(self.build_b_old.id, files_b)(),
         ]
         diff = get_diff(self.version_a, self.version_b)
-        assert diff.added == ["new-file.html"]
-        assert diff.deleted == ["deleted.html"]
-        assert diff.modified == ["tutorials/index.html"]
+        assert [file.path for file in diff.files] == ["deleted.html", "new-file.html", "tutorials/index.html"]
+        assert [file.path for file in diff.added] == ["new-file.html"]
+        assert [file.path for file in diff.deleted] == ["deleted.html"]
+        assert [file.path for file in diff.modified] == ["tutorials/index.html"]
         assert diff.outdated

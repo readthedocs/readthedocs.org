@@ -10,7 +10,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
+from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest, FileTreeDiffManifestFile
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks.search import index_build
 from readthedocs.search.documents import PageDocument
@@ -364,19 +364,19 @@ class ImportedFileTests(TestCase):
         manifest = FileTreeDiffManifest(
             build_id=self.build.pk,
             files=[
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="index.html",
                     main_content_hash=mock.ANY,
                 ),
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="404.html",
                     main_content_hash=mock.ANY,
                 ),
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="test.html",
                     main_content_hash=mock.ANY,
                 ),
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="api/index.html",
                     main_content_hash=mock.ANY,
                 ),

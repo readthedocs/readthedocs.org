@@ -606,13 +606,20 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
     class Meta:
         model = Project
-        fields = ["external_builds_enabled", "external_builds_privacy_level"]
+        fields = [
+            "external_builds_enabled",
+            "external_builds_privacy_level",
+            "show_build_overview_in_comment",
+        ]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
         self.setup_external_builds_option()
+
+        if not self.instance.is_github_app_project:
+            self.fields.pop("show_build_overview_in_comment")
 
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("external_builds_privacy_level")

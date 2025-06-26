@@ -403,6 +403,13 @@ class Project(models.Model):
             "Should builds from pull requests be public? <strong>If your repository is public, don't set this to private</strong>."
         ),
     )
+    show_build_overview_in_comment = models.BooleanField(
+        _("Show build overview in a comment"),
+        db_default=False,
+        help_text=_(
+            "Show an overview of the build and files changed in a comment when a pull request is built."
+        ),
+    )
 
     # Project features
     cdn_enabled = models.BooleanField(_("CDN Enabled"), default=False)
