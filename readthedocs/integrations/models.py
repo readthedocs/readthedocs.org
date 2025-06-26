@@ -9,6 +9,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db import transaction
+from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -240,7 +241,16 @@ class IntegrationQuerySet(models.QuerySet):
         original = super().get(*args, **kwargs)
         return self._get_subclass_replacement(original)
 
-    def subclass(self, instance):
+    def subclass(self, instance=None):
+        """
+        Return a subclass or list of subclasses integrations.
+
+        If an instance was passed in, return a single subclasses integration
+        instance. If this is a queryset or manager, render the list as a list
+        using the integration subsclasses.
+        """
+        if instance is None:
+            return [self._get_subclass_replacement(_instance) for _instance in self]
         return self._get_subclass_replacement(instance)
 
     def create(self, **kwargs):
@@ -263,6 +273,7 @@ class IntegrationQuerySet(models.QuerySet):
 class Integration(TimeStampedModel):
     """Inbound webhook integration for projects."""
 
+    GITHUBAPP = "githubapp"
     GITHUB_WEBHOOK = "github_webhook"
     BITBUCKET_WEBHOOK = "bitbucket_webhook"
     GITLAB_WEBHOOK = "gitlab_webhook"
@@ -275,7 +286,9 @@ class Integration(TimeStampedModel):
         (API_WEBHOOK, _("Generic API incoming webhook")),
     )
 
-    INTEGRATIONS = WEBHOOK_INTEGRATIONS
+    REMOTE_ONLY_INTEGRATIONS = ((GITHUBAPP, _("GitHub App")),)
+
+    INTEGRATIONS = WEBHOOK_INTEGRATIONS + REMOTE_ONLY_INTEGRATIONS
 
     project = models.ForeignKey(
         Project,
@@ -307,6 +320,8 @@ class Integration(TimeStampedModel):
 
     # Integration attributes
     has_sync = False
+    is_remote_only = False
+    is_active = True
 
     def __str__(self):
         return self.get_integration_type_display()
@@ -315,6 +330,9 @@ class Integration(TimeStampedModel):
         if not self.secret:
             self.secret = get_random_string(length=32)
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("projects_integrations_detail", args=(self.project.slug, self.pk))
 
 
 class GitHubWebhook(Integration):
@@ -330,6 +348,24 @@ class GitHubWebhook(Integration):
             return all((k in self.provider_data) for k in ["id", "url"])
         except (ValueError, TypeError):
             return False
+
+
+class GitHubApp(Integration):
+    integration_type_id = Integration.GITHUBAPP
+    has_sync = False
+    is_remote_only = True
+
+    class Meta:
+        proxy = True
+
+    def get_absolute_url(self):
+        # TODO how to get the URL of the project GHA view?
+        return self.provider_data.get("url", "https://example.com")
+
+    @property
+    def is_active(self):
+        # TODO decide on data structure
+        return self.provider_data.get("active", True)
 
 
 class BitbucketWebhook(Integration):
