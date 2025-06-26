@@ -177,7 +177,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Storage backend for build languages
     RTD_BUILD_TOOLS_STORAGE = "readthedocs.storage.s3_storage.S3BuildToolsStorage"
     # Storage for static files (those collected with `collectstatic`)
-    STATICFILES_STORAGE = "readthedocs.storage.s3_storage.S3StaticStorage"
     RTD_STATICFILES_STORAGE = "readthedocs.storage.s3_storage.NoManifestS3StaticStorage"
 
     AWS_ACCESS_KEY_ID = os.environ.get("RTD_AWS_ACCESS_KEY_ID", "admin")
