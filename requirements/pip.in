@@ -38,6 +38,9 @@ django-safemigrate
 # Impersonate users in the Django admin for support.
 django-impersonate
 
+# For ImageField
+Pillow
+
 requests
 requests-toolbelt
 slumber

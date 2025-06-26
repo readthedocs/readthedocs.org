@@ -5,10 +5,13 @@ from autoslug import AutoSlugField
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.storage import storages
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
 from django.utils.translation import gettext_lazy as _
+from django_gravatar.helpers import get_gravatar_url
 from djstripe.enums import SubscriptionStatus
 
 from readthedocs.core.history import ExtraHistoricalRecords
@@ -26,6 +29,21 @@ from .utils import send_team_add_email
 log = structlog.get_logger(__name__)
 
 
+def _upload_organization_avatar_to(instance, filename):
+    extension = filename.split(".")[-1].lower()
+    return f"avatars/organizations/{instance.pk}.{extension}"
+
+
+def _get_user_content_storage():
+    """
+    Get the storage for user content.
+
+    Use a function for storage instead of directly assigning the instance
+    to avoid hardcoding the backend in the migration file.
+    """
+    return storages["usercontent"]
+
+
 class Organization(models.Model):
     """Organization model."""
 
@@ -38,6 +56,7 @@ class Organization(models.Model):
         "projects.Project",
         verbose_name=_("Projects"),
         related_name="organizations",
+        blank=True,
     )
     owners = models.ManyToManyField(
         User,
@@ -129,6 +148,16 @@ class Organization(models.Model):
         object_id_field="attached_to_id",
     )
 
+    avatar = models.ImageField(
+        _("Avatar"),
+        upload_to=_upload_organization_avatar_to,
+        storage=_get_user_content_storage,
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
+        blank=True,
+        null=True,
+        help_text="Avatar for your organization (JPG or PNG format, max 500x500px, 750KB)",
+    )
+
     # Managers
     objects = OrganizationQuerySet.as_manager()
     history = ExtraHistoricalRecords()
@@ -213,6 +242,17 @@ class Organization(models.Model):
         if not member:
             member = TeamMember.objects.create(team=team, member=user)
         return member
+
+    def get_avatar_url(self):
+        """
+        Get the URL of the organization's avatar.
+
+        Use the `avatar` field if it exists, otherwise use
+        the gravatar from the organization's email.
+        """
+        if self.avatar:
+            return self.avatar.url
+        return get_gravatar_url(self.email, size=100)
 
 
 class OrganizationOwner(models.Model):
