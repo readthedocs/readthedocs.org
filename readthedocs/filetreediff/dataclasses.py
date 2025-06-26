@@ -109,6 +109,8 @@ class FileTreeDiffFile:
 
 
 class FileTreeDiff:
+    """Difference between two file tree manifests."""
+
     def __init__(
         self,
         current_version: Version,

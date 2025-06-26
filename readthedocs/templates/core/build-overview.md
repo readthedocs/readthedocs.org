@@ -13,13 +13,12 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 > Comparing with [{{ base_version.verbose_name }}]({{ base_version.get_absolute_url }}) ({{ base_version_build.commit }}). Click on [↩️]({{ base_version.get_absolute_url }}) to see the file in the base version.
 
 {% if diff.files %}
-Top 5 files changed:
-
 {% for file in diff.files|slice:5 %}- {{ file.status.emoji }} [{{ file.path }}]({{ file.url }}) [↩️]({{ file.base_url }})
 {% endfor %}
 
+{% if diff.files|length > 5 %}
 <details>
-<summary>Show all {{ diff.files|length }} file(s) changed</summary>
+<summary>Show all {{ diff.files|length }} files</summary>
 
 > 📝 {{ diff.modified|length }} file(s) modified | ➕ {{ diff.added|length }} file(s) added | ❌ {{ diff.deleted|length }} file(s) deleted
 
@@ -29,6 +28,7 @@ Top 5 files changed:
 {% endfor %}
 
 </details>
+{% endif %}
 {% else %}
 No files changed.
 {% endif %}

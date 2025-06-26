@@ -26,7 +26,7 @@ Build status report
 
 Build overview with changed files
     We create a comment on the pull request including a link to the preview of the documentation,
-    and a list of the files that changed in the pull request.
+    and a list of the :doc:`files that changed </visual-diff>` between the current pull request and the latest version of the project's documentation.
 
     .. note::
 
