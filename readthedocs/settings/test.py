@@ -130,5 +130,18 @@ class CommunityTestSettings(CommunityBaseSettings):
         logging["disable_existing_loggers"] = False
         return logging
 
+    @property
+    def STORAGES(self):
+        # Attempt to fix tests using the default storage backends
+        return {
+            "default": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+            },
+            "staticfiles": {
+                "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            },
+        }
+
+
 
 CommunityTestSettings.load_settings(__name__)
