@@ -1,9 +1,0 @@
-:orphan:
-
-API v1 (removed)
-================
-
-.. warning::
-
-    This API is has been **removed**.
-    Please connect with a supported :doc:`/api/index`.
