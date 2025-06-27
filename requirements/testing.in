@@ -12,3 +12,6 @@ pytest-cov
 pytest-mock
 
 requests-mock
+
+# Theme for the dashboard (install from main)
+readthedocsext-theme @ git+https://github.com/readthedocs/ext-theme@main
