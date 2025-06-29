@@ -52,6 +52,7 @@ jinja2==3.1.6
     # via
     #   myst-parser
     #   sphinx
+    #   sphinx-prompt
 kiwisolver==1.4.8
     # via matplotlib
 markdown-it-py==3.0.0
@@ -92,7 +93,9 @@ python-dateutil==2.9.0.post0
 pyyaml==6.0.2
     # via myst-parser
 requests==2.32.4
-    # via sphinx
+    # via
+    #   sphinx
+    #   sphinx-prompt
 roman-numerals-py==3.1.0
     # via sphinx
 six==1.17.0
@@ -131,7 +134,7 @@ sphinx-multiproject==1.0.0
     # via -r requirements/docs.in
 sphinx-notfound-page==1.1.0
     # via -r requirements/docs.in
-sphinx-prompt==1.9.0
+sphinx-prompt==1.10.0
     # via -r requirements/docs.in
 sphinx-rtd-theme==3.0.2
     # via -r requirements/docs.in
@@ -169,7 +172,7 @@ urllib3==2.5.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.34.3
+uvicorn==0.35.0
     # via sphinx-autobuild
 watchfiles==1.1.0
     # via sphinx-autobuild
