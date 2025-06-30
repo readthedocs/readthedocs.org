@@ -546,6 +546,7 @@ class AddonsResponseBase:
                     [
                         "Include subprojects",
                         f"subprojects:{project.slug}/{version.slug}",
+                        True,
                     ]
                 )
             elif project.superprojects.exists():
@@ -554,6 +555,7 @@ class AddonsResponseBase:
                     [
                         "Include subprojects",
                         f"subprojects:{superproject.slug}/{version.slug}",
+                        True,
                     ]
                 )
 
