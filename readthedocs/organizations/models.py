@@ -1,5 +1,8 @@
 """Organizations models."""
 
+from pathlib import Path
+from uuid import uuid4
+
 import structlog
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
@@ -30,8 +33,23 @@ log = structlog.get_logger(__name__)
 
 
 def _upload_organization_avatar_to(instance, filename):
+    """
+    Generate the upload path for the organization avatar.
+
+    The name of the file is an UUID, and the extension is preserved.
+    If the instance already has an avatar, we use its name to keep the same UUID.
+    """
     extension = filename.split(".")[-1].lower()
-    return f"avatars/organizations/{instance.pk}.{extension}"
+    try:
+        previous_avatar = Organization.objects.get(pk=instance.pk).avatar
+    except Organization.DoesNotExist:
+        previous_avatar = None
+
+    if not previous_avatar:
+        uuid = uuid4().hex
+    else:
+        uuid = Path(previous_avatar.name).stem
+    return f"avatars/organizations/{uuid}.{extension}"
 
 
 def _get_user_content_storage():
@@ -219,6 +237,14 @@ class Organization(models.Model):
         if self.stripe_customer:
             self.stripe_id = self.stripe_customer.id
 
+        # If the avatar is being changed, delete the previous one.
+        try:
+            previous_avatar = Organization.objects.get(pk=self.pk).avatar
+        except Organization.DoesNotExist:
+            previous_avatar = None
+        if previous_avatar and previous_avatar != self.avatar:
+            previous_avatar.delete(save=False)
+
         super().save(*args, **kwargs)
 
     def get_stripe_metadata(self):
@@ -253,6 +279,13 @@ class Organization(models.Model):
         if self.avatar:
             return self.avatar.url
         return get_gravatar_url(self.email, size=100)
+
+    def delete(self, *args, **kwargs):
+        """Override delete method to clean up related resources."""
+        # Delete the avatar file.
+        if self.avatar:
+            self.avatar.delete(save=False)
+        super().delete(*args, **kwargs)
 
 
 class OrganizationOwner(models.Model):

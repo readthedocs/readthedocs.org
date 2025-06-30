@@ -90,7 +90,8 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         assert response.status_code == 302
         self.organization.refresh_from_db()
         assert self.organization.avatar
-        assert self.organization.avatar.name == f"avatars/organizations/{self.organization.pk}.png"
+        assert self.organization.avatar.name.startswith("avatars/organizations/")
+        assert self.organization.avatar.name.endswith(".png")
 
     def test_update_avatar_invalid_dimensions(self):
         avatar_file = SimpleUploadedFile(
