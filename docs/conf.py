@@ -26,7 +26,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_tabs.tabs",
-    "sphinx-prompt",
+    "sphinx_prompt",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.extlinks",
