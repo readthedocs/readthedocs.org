@@ -208,15 +208,20 @@ class TestPostBuildOverview(TestCase):
 
             ### Files changed
 
-            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd). Click on [↩️](http://my-project.readthedocs.io/en/latest/) to see the file in the base version.
+            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
 
 
-            - ➕ [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) [↩️](http://my-project.readthedocs.io/en/latest/changes.html)
-            - ❌ [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) [↩️](http://my-project.readthedocs.io/en/latest/deleteme.html)
-            - 📝 [index.html](http://my-project--1.readthedocs.build/en/1/index.html) [↩️](http://my-project.readthedocs.io/en/latest/index.html)
+            <details>
+            <summary>Show files (3) | 1 modified | 1 added | 1 deleted</summary>
+
+            | File | Status |
+            | --- | --- |
+            | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
+            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ❌ deleted |
+            | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
 
 
-
+            </details>
 
             """
         )
@@ -252,34 +257,23 @@ class TestPostBuildOverview(TestCase):
 
             ### Files changed
 
-            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd). Click on [↩️](http://my-project.readthedocs.io/en/latest/) to see the file in the base version.
-
-
-            - ➕ [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) [↩️](http://my-project.readthedocs.io/en/latest/changes.html)
-            - ❌ [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) [↩️](http://my-project.readthedocs.io/en/latest/deleteme.html)
-            - 📝 [index.html](http://my-project--1.readthedocs.build/en/1/index.html) [↩️](http://my-project.readthedocs.io/en/latest/index.html)
-            - 📝 [one.html](http://my-project--1.readthedocs.build/en/1/one.html) [↩️](http://my-project.readthedocs.io/en/latest/one.html)
-            - 📝 [three.html](http://my-project--1.readthedocs.build/en/1/three.html) [↩️](http://my-project.readthedocs.io/en/latest/three.html)
-
+            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
 
 
             <details>
-            <summary>Show all 6 files</summary>
-
-            > 📝 4 file(s) modified | ➕ 1 file(s) added | ❌ 1 file(s) deleted
+            <summary>Show files (6) | 4 modified | 1 added | 1 deleted</summary>
 
             | File | Status |
             | --- | --- |
-            | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) [↩️](http://my-project.readthedocs.io/en/latest/changes.html) | ➕ added |
-            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) [↩️](http://my-project.readthedocs.io/en/latest/deleteme.html) | ❌ deleted |
-            | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) [↩️](http://my-project.readthedocs.io/en/latest/index.html) | 📝 modified |
-            | [one.html](http://my-project--1.readthedocs.build/en/1/one.html) [↩️](http://my-project.readthedocs.io/en/latest/one.html) | 📝 modified |
-            | [three.html](http://my-project--1.readthedocs.build/en/1/three.html) [↩️](http://my-project.readthedocs.io/en/latest/three.html) | 📝 modified |
-            | [two.html](http://my-project--1.readthedocs.build/en/1/two.html) [↩️](http://my-project.readthedocs.io/en/latest/two.html) | 📝 modified |
+            | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
+            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ❌ deleted |
+            | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
+            | [one.html](http://my-project--1.readthedocs.build/en/1/one.html) | 📝 modified |
+            | [three.html](http://my-project--1.readthedocs.build/en/1/three.html) | 📝 modified |
+            | [two.html](http://my-project--1.readthedocs.build/en/1/two.html) | 📝 modified |
 
 
             </details>
-
 
             """
         )
@@ -308,7 +302,7 @@ class TestPostBuildOverview(TestCase):
 
             ### Files changed
 
-            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd). Click on [↩️](http://my-project.readthedocs.io/en/latest/) to see the file in the base version.
+            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
 
 
             No files changed.
