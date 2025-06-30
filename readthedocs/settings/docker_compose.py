@@ -243,7 +243,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     def STORAGES(self):
         return {
             "staticfiles": {
-                "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
             },
             "usercontent": {
                 "BACKEND": "storages.backends.s3.S3Storage",
