@@ -38,7 +38,7 @@ feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
 You can :ref:`opt out <advertising/ethical-advertising:Opting out>` of having paid ads on your projects,
 or seeing paid ads if you want.
 You will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>`,
-which we run for free that promote community projects.
+which we run at no cost that promote community projects.
 
 Our worldview
 -------------
@@ -158,12 +158,12 @@ Opting out
 
 We have added multiple ways to opt out of the advertising on Read the Docs.
 
-1. `Gold members <https://readthedocs.org/accounts/gold/>`_
+1. `Gold members <https://app.readthedocs.org/accounts/gold/>`_
    may remove advertising from their projects for all visitors.
 
 2. You can opt out of seeing paid advertisements on documentation pages:
 
-   * Go to the drop down user menu in the top right of the Read the Docs dashboard and clicking :guilabel:`Settings` (https://readthedocs.org/accounts/edit/).
+   * Go to the drop down user menu in the top right of the Read the Docs dashboard and clicking :guilabel:`Settings` (https://app.readthedocs.org/accounts/edit/).
    * On the :guilabel:`Advertising` tab, you can deselect **See paid advertising**.
 
    You will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>`

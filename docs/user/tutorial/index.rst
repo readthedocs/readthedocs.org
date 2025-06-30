@@ -59,7 +59,7 @@ Creating a Read the Docs account
 --------------------------------
 
 To create a Read the Docs account:
-navigate to the `Sign Up page <https://readthedocs.org/accounts/signup/>`_
+navigate to the `Sign Up page <https://app.readthedocs.org/accounts/signup/>`_
 and choose the option :guilabel:`Sign up with GitHub`.
 On the authorization page, click the green :guilabel:`Authorize readthedocs` button.
 
@@ -95,7 +95,7 @@ Importing the project to Read the Docs
 
 To import your GitHub project to Read the Docs:
 
-#. Click the :guilabel:`Import a Project` button on your `dashboard <https://readthedocs.org/dashboard/>`_.
+#. Click the :guilabel:`Import a Project` button on your `dashboard <https://app.readthedocs.org/dashboard/>`_.
 
 #. Click the |:heavy_plus_sign:| button to the right of your ``rtd-tutorial`` project. If the list of repositories is empty, click the |:arrows_counterclockwise:| button.
 
@@ -163,7 +163,7 @@ To see the build logs:
    Advertisement is one of our main sources of revenue.
    If you want to learn more about how do we fund our operations
    and explore options to go ad-free,
-   check out our `Sustainability page <https://readthedocs.org/sustainability/>`_.
+   check out our `Sustainability page <https://app.readthedocs.org/sustainability/>`_.
 
    If you don't see the ad, you might be using an ad blocker.
    Our EthicalAds network respects your privacy, doesn't target you,
@@ -447,7 +447,7 @@ rather than ``latest``,
 so that users see the ``stable`` documentation
 when they visit the :term:`root URL` of your documentation:
 
-#. In the the :guilabel:`⚙ Admin` menu of your project home, go to the :guilabel:`Settings` link, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
+#. In the :guilabel:`⚙ Admin` menu of your project home, go to the :guilabel:`Settings` link, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
 
 Modifying versions
 ~~~~~~~~~~~~~~~~~~

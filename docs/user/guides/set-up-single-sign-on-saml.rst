@@ -1,4 +1,4 @@
-How to set up Single Sign-On (SSO) with SAML
+How to set up single sign-on (SSO) with SAML
 ============================================
 
 .. include:: /shared/admonition-rtd-business.rst
@@ -10,7 +10,7 @@ How to set up Single Sign-On (SSO) with SAML
 
    **At the moment only Okta is supported as a SAML identity provider.**
 
-This how-to guide will provide instructions on how to enable :abbr:`SSO (Single Sign-on)` using Okta as a SAML identity provider.
+This how-to guide will provide instructions on how to enable :abbr:`SSO (single sign-on)` using Okta as a SAML identity provider.
 If you want more information on this feature, please read :doc:`/commercial/single-sign-on`
 
 Prerequisites
@@ -22,6 +22,8 @@ Create a SAML application in Okta
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to enable SSO with Okta, you need to create a new SAML application in your Okta account.
+
+.. vale RTD.features = NO
 
 1. Log in to your Okta account.
 2. Click on :guilabel:`Applications`.
@@ -50,6 +52,8 @@ In order to enable SSO with Okta, you need to create a new SAML application in y
 7. Click :guilabel:`Next`.
 8. Select ``This is an internal app that we have created``.
 9. Click :guilabel:`Finish`.
+
+.. vale RTD.features = YES
 
 Enable SAML on your Read the Docs organization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,4 +150,4 @@ and disable login on Read the Docs completely for that user.
    :doc:`/guides/manage-read-the-docs-teams`
      Additional user management options
    :doc:`/commercial/single-sign-on`
-     Information about choosing a Single Sign-on approach
+     Information about choosing a single sign-on approach

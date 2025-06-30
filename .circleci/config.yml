@@ -61,10 +61,6 @@ jobs:
       - run: pip install --user tox
       - run: tox -e pre-commit
       - run: tox -e migrations
-      - node/install:
-          node-version: '10.17.0'
-      - run: npm ci
-      - run: tox -e eslint
       - save_cache:
           key: pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
           paths:

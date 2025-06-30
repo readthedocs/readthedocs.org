@@ -148,7 +148,7 @@ Open source and user focused
     Our company is bootstrapped and 100% user-focused,
     so our product gets better for our users instead of our investors.
     |org_brand| hosts documentation for over 100,000 large
-    and small open source projects for free.
+    and small open source projects at no cost.
     |com_brand| supports hundreds of organizations with product and internal documentation.
     Learn more about these differences on `our pricing page <https://about.readthedocs.com/pricing/>`_.
 
@@ -166,7 +166,7 @@ We have a few places for you to get started:
   Quick start for MkDocs and Docusaurus.
 
 :doc:`/examples`
-  Start your journey with an example project to hit the ground running.
+  Start your journey with an example project to learn how to use Read the Docs.
 
 Project setup and configuration
 -------------------------------
@@ -233,7 +233,7 @@ Our Business hosting has everything your business needs:
   Manage permissions across multiple teams.
 
 :doc:`/commercial/single-sign-on`
-  Stay secure with Single Sign On.
+  Stay secure with single sign-on.
 
 :doc:`/commercial/sharing`
   Share your private docs easily with contractors or customers.

@@ -15,9 +15,9 @@ asgiref==3.8.1
     #   django-cors-headers
 billiard==4.2.1
     # via celery
-boto3==1.38.36
+boto3==1.38.46
     # via django-storages
-botocore==1.38.36
+botocore==1.38.46
     # via
     #   boto3
     #   s3transfer
@@ -27,7 +27,7 @@ celery==5.5.3
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   elastic-transport
     #   requests
@@ -46,7 +46,7 @@ click==8.2.1
     #   click-repl
 click-didyoumean==0.3.1
     # via celery
-click-plugins==1.1.1
+click-plugins==1.1.1.2
     # via celery
 click-repl==0.3.0
     # via celery
@@ -60,6 +60,8 @@ cryptography==45.0.4
     #   pyjwt
 cssselect==1.3.0
     # via pyquery
+cython==3.0.11
+    # via selectolax
 deprecated==1.2.18
     # via pygithub
 distlib==0.3.9
@@ -107,7 +109,7 @@ django-csp==3.8
     # via -r requirements/pip.in
 django-debug-toolbar==5.2.0
     # via -r requirements/pip.in
-django-elasticsearch-dsl==8.0
+django-elasticsearch-dsl==8.2
     # via -r requirements/pip.in
 django-extensions==4.1
     # via -r requirements/pip.in
@@ -127,7 +129,7 @@ django-polymorphic==4.1.0
     # via -r requirements/pip.in
 django-safemigrate==6.0
     # via -r requirements/pip.in
-django-simple-history==3.8.0
+django-simple-history==3.10.1
     # via -r requirements/pip.in
 django-storages[s3]==1.14.6
     # via -r requirements/pip.in
@@ -167,11 +169,10 @@ elastic-transport==8.17.1
 elasticsearch==8.18.1
     # via
     #   -r requirements/pip.in
+    #   django-elasticsearch-dsl
     #   elasticsearch-dsl
 elasticsearch-dsl==8.18.0
-    # via
-    #   -r requirements/pip.in
-    #   django-elasticsearch-dsl
+    # via -r requirements/pip.in
 fido2==2.0.0
     # via django-allauth
 filelock==3.18.0
@@ -198,9 +199,9 @@ lxml==5.3.2
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.8
+markdown==3.8.2
     # via -r requirements/pip.in
-oauthlib==3.2.2
+oauthlib==3.3.1
     # via requests-oauthlib
 orjson==3.10.18
     # via -r requirements/pip.in
@@ -232,7 +233,7 @@ pydantic-core==2.33.2
     # via pydantic
 pygithub==2.6.1
     # via -r requirements/pip.in
-pygments==2.19.1
+pygments==2.19.2
     # via -r requirements/pip.in
 pyjwt[crypto]==2.10.1
     # via
@@ -284,7 +285,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
 s3transfer==0.13.0
     # via boto3
-selectolax==0.3.29
+selectolax==0.3.30
     # via -r requirements/pip.in
 six==1.17.0
     # via
@@ -333,7 +334,7 @@ unicode-slugify==0.1.5
     # via -r requirements/pip.in
 unidecode==1.4.0
     # via unicode-slugify
-urllib3==2.4.0
+urllib3==2.5.0
     # via
     #   botocore
     #   docker
