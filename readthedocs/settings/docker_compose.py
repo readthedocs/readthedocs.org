@@ -241,15 +241,19 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     @property
     def STORAGES(self):
-        storages = super().STORAGES
-        storages["usercontent"] = {
-            "BACKEND": "storages.backends.s3.S3Storage",
-            "OPTIONS": {
-                "bucket_name": os.environ.get("RTD_S3_USER_CONTENT_STORAGE_BUCKET", "usercontent"),
-                "url_protocol": "http:",
-                "custom_domain": self.PRODUCTION_DOMAIN + "/usercontent",
+        return {
+            "staticfiles": {
+                "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            },
+            "usercontent": {
+                "BACKEND": "storages.backends.s3.S3Storage",
+                "OPTIONS": {
+                    "bucket_name": os.environ.get("RTD_S3_USER_CONTENT_STORAGE_BUCKET", "usercontent"),
+                    "url_protocol": "http:",
+                    "custom_domain": self.PRODUCTION_DOMAIN + "/usercontent",
+                },
             },
         }
-        return storages
+
 
 DockerBaseSettings.load_settings(__name__)
