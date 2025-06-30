@@ -1,9 +1,9 @@
 import copy
 from unittest import mock
 
-from allauth.socialaccount.providers.github.provider import GitHubProvider
 import requests_mock
 from allauth.socialaccount.models import SocialAccount, SocialToken
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -281,6 +281,62 @@ class GitHubAppTests(TestCase):
         self._merge_dicts(default, kwargs)
         return default
 
+    def _get_pull_request_json(self, number: int, repo_full_name, **kwargs):
+        user, repo = repo_full_name.split("/")
+        default = {
+            "url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}",
+            "id": 1,
+            "html_url": f"https://github.com/{repo_full_name}/pull/{number}",
+            "comments_url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}/comments",
+            "number": number,
+            "state": "open",
+            "locked": False,
+            "title": "Amazing new feature",
+            "user": {
+                "login": user,
+                "id": 1,
+                "url": f"https://api.github.com/users/{user}",
+                "html_url": f"https://github.com/{user}",
+                "type": "User",
+            },
+            "body": "Please pull these awesome changes in!",
+            "labels": [],
+            "milestone": None,
+            "active_lock_reason": None,
+            "created_at": "2011-01-26T19:01:12Z",
+            "updated_at": "2011-01-26T19:01:12Z",
+            "closed_at": None,
+            "assignee": None,
+            "assignees": [],
+            "author_association": "OWNER",
+            "draft": False,
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
+    def _get_comment_json(self, issue_number, repo_full_name, **kwargs):
+        id = kwargs.get("id", 1)
+        default = {
+            "id": id,
+            "node_id": "MDEyOklzc3VlQ29tbWVudDE=",
+            "url": f"https://api.github.com/repos/{repo_full_name}/issues/comments/{id}",
+            "html_url": f"https://github.com/{repo_full_name}/issues/{issue_number}#issuecomment-1",
+            "body": "Comment",
+            "user": {
+                "login": "octocat",
+                "id": 1,
+                "url": "https://api.github.com/users/octocat",
+                "html_url": "https://github.com/octocat",
+                "type": "User",
+            },
+            "created_at": "2011-04-14T16:00:49Z",
+            "updated_at": "2011-04-14T16:00:49Z",
+            "issue_url": f"https://api.github.com/repos/{repo_full_name}/issues/{issue_number}",
+            "author_association": "COLLABORATOR",
+        }
+        self._merge_dicts(default, kwargs)
+        return default
+
     def test_for_project(self):
         services = list(GitHubAppService.for_project(self.project))
         assert len(services) == 1
@@ -333,7 +389,13 @@ class GitHubAppTests(TestCase):
     @mock.patch.object(GitHubAppService, "sync")
     @mock.patch.object(GitHubAppService, "update_or_create_organization")
     @mock.patch.object(GitHubAppService, "update_or_create_repositories")
-    def test_sync_user_access(self, update_or_create_repositories, update_or_create_organization, sync, request):
+    def test_sync_user_access(
+        self,
+        update_or_create_repositories,
+        update_or_create_organization,
+        sync,
+        request,
+    ):
         request.get(
             "https://api.github.com/user/installations",
             json={
@@ -355,7 +417,9 @@ class GitHubAppTests(TestCase):
             ],
             any_order=True,
         )
-        update_or_create_organization.assert_called_once_with(self.remote_organization.slug)
+        update_or_create_organization.assert_called_once_with(
+            self.remote_organization.slug
+        )
 
     @requests_mock.Mocker(kw="request")
     def test_create_repository(self, request):
@@ -741,7 +805,9 @@ class GitHubAppTests(TestCase):
         assert self.installation.repositories.count() == 1
         request.get(
             f"{self.api_url}/app/installations/1111",
-            json=self._get_installation_json(id=1111, suspended_at="2021-01-01T00:00:00Z"),
+            json=self._get_installation_json(
+                id=1111, suspended_at="2021-01-01T00:00:00Z"
+            ),
         )
         service = self.installation.service
         with self.assertRaises(SyncServiceError):
@@ -869,6 +935,123 @@ class GitHubAppTests(TestCase):
         clone_token = service.get_clone_token(self.project)
         assert clone_token == f"x-access-token:{token}"
 
+    @requests_mock.Mocker(kw="request")
+    def test_post_comment(self, request):
+        version = get(
+            Version,
+            verbose_name="1234",
+            project=self.project,
+            type=EXTERNAL,
+        )
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/issues/{version.verbose_name}",
+            json=self._get_pull_request_json(
+                number=int(version.verbose_name),
+                repo_full_name=self.remote_repository.full_name,
+            ),
+        )
+        request.get(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+            json=[
+                self._get_comment_json(
+                    id=1,
+                    issue_number=int(version.verbose_name),
+                    repo_full_name=self.remote_repository.full_name,
+                    user={"login": "user"},
+                    body="First comment!",
+                ),
+            ],
+        )
+        request_post_comment = request.post(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+        )
+
+        service = self.installation.service
+
+        # Since there's no existing comment from the bot, it will create a new one.
+        service.post_comment(build, "First comment!")
+
+        assert request_post_comment.called
+        assert request_post_comment.last_request.json() == {
+            "body": f"<!-- readthedocs-{self.project.id} -->\nFirst comment!",
+        }
+
+        request.get(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+            json=[
+                self._get_comment_json(
+                    id=1,
+                    issue_number=int(version.verbose_name),
+                    repo_full_name=self.remote_repository.full_name,
+                    user={"login": "user"},
+                    body="First comment!",
+                ),
+                self._get_comment_json(
+                    id=2,
+                    issue_number=int(version.verbose_name),
+                    repo_full_name=self.remote_repository.full_name,
+                    user={"login": f"{settings.GITHUB_APP_NAME}[bot]"},
+                    body=f"<!-- readthedocs-{self.project.id} -->\nFirst comment!",
+                ),
+            ],
+        )
+        request_patch_comment = request.patch(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/comments/2",
+            json={},
+        )
+        request_post_comment.reset()
+
+        # Since there's an existing comment from the bot, it will update it.
+        service.post_comment(build, "Second comment!")
+
+        assert not request_post_comment.called
+        assert request_patch_comment.called
+        assert request_patch_comment.last_request.json() == {
+            "body": f"<!-- readthedocs-{self.project.id} -->\nSecond comment!",
+        }
+
+        # Another project linked to the same remote repository.
+        another_project = get(
+            Project,
+            users=[self.user],
+            remote_repository=self.remote_repository,
+        )
+        another_version = get(
+            Version,
+            project=another_project,
+            type=EXTERNAL,
+            verbose_name="1234",
+        )
+        another_build = get(
+            Build,
+            project=another_project,
+            version=another_version,
+        )
+
+        request_post_comment.reset()
+
+        # There is an existing comment from the bot, but it belongs to another project.
+        # So it will create a new comment for the new project.
+        service.post_comment(
+            another_build,
+            "Comment from another project.",
+        )
+
+        assert request_post_comment.called
+        assert request_post_comment.last_request.json() == {
+            "body": f"<!-- readthedocs-{another_project.id} -->\nComment from another project.",
+        }
+
 
 @override_settings(
     PUBLIC_API_URL="https://app.readthedocs.org",
@@ -895,9 +1078,7 @@ class GitHubOAuthTests(TestCase):
             SocialToken,
             account=self.social_github_account,
         )
-        self.service = GitHubService(
-            user=self.user, account=self.social_github_account
-        )
+        self.service = GitHubService(user=self.user, account=self.social_github_account)
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
             Build,
@@ -1444,7 +1625,7 @@ class GitHubOAuthTests(TestCase):
                         "url": "https://example.com/dont-delete-me/",
                     },
                 },
-            ]
+            ],
         )
         mock_request_deletions = [
             request.delete(
@@ -1507,7 +1688,7 @@ class GitHubOAuthTests(TestCase):
                         "url": "https://example.com/dont-delete-me/",
                     },
                 },
-            ]
+            ],
         )
         mock_request_deletion = request.delete(
             f"{self.api_url}/repos/pypa/pip/hooks/1",
@@ -1535,9 +1716,10 @@ class GitHubOAuthTests(TestCase):
                         "url": "https://example.com/dont-delete-me/",
                     },
                 },
-            ]
+            ],
         )
         assert self.service.remove_webhook(self.project) is True
+
 
 class BitbucketOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
