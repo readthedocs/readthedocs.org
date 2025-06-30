@@ -4,6 +4,7 @@ import json
 import re
 import uuid
 
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -358,14 +359,37 @@ class GitHubApp(Integration):
     class Meta:
         proxy = True
 
-    def get_absolute_url(self):
-        # TODO how to get the URL of the project GHA view?
-        return self.provider_data.get("url", "https://example.com")
+    def get_absolute_url(self) -> str | None:
+        """
+        Get URL of the GHA installation page.
+
+        Instead of showing a link to the integration details page, for GHA
+        projects we show a link in the UI to the GHA installation page for the
+        installation used by the project.
+        """
+        # If the GHA is disconnected we'll disonnect the remote repository and
+        # so we won't have a URL to the installation page the project should be
+        # using. We might want to store this on the model later so a repository
+        # that is removed from the installation can still link to the
+        # installation the project was _previously_ using.
+        try:
+            installation_id = self.project.remote_repository.github_app_installation.installation_id
+            return f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/{installation_id}"
+        except AttributeError:
+            return None
 
     @property
-    def is_active(self):
-        # TODO decide on data structure
-        return self.provider_data.get("active", True)
+    def is_active(self) -> bool:
+        """
+        Is the GHA connection active for this project?
+
+        This assumes that the status of the GHA connect will be reflected as
+        soon as there is an event that might disconnect the GHA on GitHub's
+        side -- uninstalling the app or revoking permission to the repository.
+        We listen for these events and should disconnect the remote
+        repository, but would leave this integration.
+        """
+        return self.project.is_github_app_project()
 
 
 class BitbucketWebhook(Integration):
