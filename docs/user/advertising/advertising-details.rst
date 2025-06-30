@@ -83,9 +83,7 @@ We can place ads in:
 * a small footer fixed to the bottom of the viewport
 * on 404 pages (rare)
 
-We show no more than one ad per page so you will never see both
-a sidebar ad and a footer ad on the same page.
-
+We never show more than 1 ad on a page.
 
 Do Not Track Policy
 -------------------

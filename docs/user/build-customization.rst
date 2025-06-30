@@ -631,6 +631,32 @@ Here is an example configuration file:
          html:
            - asciidoctor -D $READTHEDOCS_OUTPUT/html index.asciidoc
 
+Using pydoctor
+~~~~~~~~~~~~~~
+
+`Pydoctor <https://github.com/twisted/pydoctor>`_ is an easy-to-use standalone API documentation tool for Python.
+Here is an example configuration file:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     jobs:
+       install:
+         - pip install pydoctor
+       build:
+         html:
+           - |
+             pydoctor \
+               --project-version=${READTHEDOCS_GIT_IDENTIFIER} \
+               --project-url=${READTHEDOCS_GIT_CLONE_URL%*.git} \
+               --html-viewsource-base=${READTHEDOCS_GIT_CLONE_URL%*.git}/tree/${READTHEDOCS_GIT_COMMIT_HASH} \
+               --html-base-url=${READTHEDOCS_CANONICAL_URL} \
+               --html-output $READTHEDOCS_OUTPUT/html/ \
+               ./src/my_project
+
 Generate text format with Sphinx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

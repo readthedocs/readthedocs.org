@@ -52,3 +52,20 @@
     > *
   padding: 20
   output: business-project-ssh-key.png
+
+# TODO set up this fixture project on community instead
+- url: https://app.readthedocs.com/dashboard/read-the-docs-qa-superproject/subprojects/
+  javascript: |-
+    document
+      .querySelectorAll("#edit-content table tr:nth-child(n+2)")
+      .forEach((el) => { el.remove() });
+    document
+      .querySelector("#edit-content table tr td > .ui.tiny.header > .content")
+      .innerHTML = "<a href='#'>example-subproject</a><a href='#' class='sub header'>https://docs.example.com/projects/example</a>";
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  output: community-project-subproject-list.png

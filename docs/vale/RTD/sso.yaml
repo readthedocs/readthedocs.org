@@ -1,9 +1,0 @@
-extends: substitution
-message: Use 'Single sign-on' instead of '%s'
-level: warning
-swap:
-  Single Sign-On: Single sign-on
-  Single Sign on: Single sign-on
-  single sign-on: Single sign-on
-  single Sign-On: Single sign-on
-  single Sign on: Single sign-on
