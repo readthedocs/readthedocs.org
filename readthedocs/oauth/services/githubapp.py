@@ -35,6 +35,7 @@ class GitHubAppService(Service):
     allauth_provider = GitHubAppProvider
     supports_build_status = True
     supports_clone_token = True
+    supports_commenting = True
 
     def __init__(self, installation: GitHubAppInstallation):
         self.installation = installation
@@ -248,6 +249,14 @@ class GitHubAppService(Service):
                 # in order for PyGithub to use the API to fetch the repository by ID (not by name).
                 # it needs to be an integer, so just in case we cast it to an integer.
                 repo = self.installation_client.get_repo(int(repository_id))
+
+                # GitHub will send some events from all repositories in the organization (like the members event),
+                # even from those that don't have the app installed. For private repositories, the previous API
+                # call will fail, but for public repositories we can still hit the API successfully, so we make
+                # an additional check using the GitHub App API, which will raise a GithubException with a 404
+                # status code if the app is not installed on the repository.
+                if not repo.private:
+                    self.gh_app_client.get_repo_installation(owner=repo.owner.login, repo=repo.name)
             except GithubException as e:
                 log.info(
                     "Failed to fetch repository from GitHub",
@@ -277,7 +286,7 @@ class GitHubAppService(Service):
         target_id = self.installation.target_id
         target_type = self.installation.target_type
         # NOTE: All the repositories should be owned by the installation account.
-        # he following condition should never happen, unless the previous assumption is wrong.
+        # The following condition should never happen, unless the previous assumption is wrong.
         if gh_repo.owner.id != target_id or gh_repo.owner.type != target_type:
             log.exception(
                 "Repository owner does not match the installation account",
@@ -502,3 +511,39 @@ class GitHubAppService(Service):
     def update_webhook(self, project, integration=None) -> bool:
         """When using a GitHub App, we don't need to set up a webhook."""
         return True
+
+    def post_comment(self, build, comment: str):
+        """
+        Post a comment on the pull request attached to the build.
+
+        Since repositories can be linked to multiple projects, we post a comment per project.
+        We use an HTML comment to identify the comment for the project.
+        """
+        project = build.project
+        version = build.version
+
+        if not version.is_external:
+            raise ValueError("Only versions from pull requests can have comments posted.")
+
+        remote_repo = project.remote_repository
+        # NOTE: we use the lazy option to avoid fetching the repository object,
+        # since we only need the object to interact with the commit status API.
+        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
+        gh_issue = gh_repo.get_issue(int(version.verbose_name))
+        existing_gh_comment = None
+        comment_marker = f"<!-- readthedocs-{project.pk} -->"
+        for gh_comment in gh_issue.get_comments():
+            # Get the comment where the author is us, and the comment belongs to the project.
+            # The login of the author is the name of the GitHub App, with the "[bot]" suffix.
+            if (
+                gh_comment.user.login == f"{settings.GITHUB_APP_NAME}[bot]"
+                and comment_marker in gh_comment.body
+            ):
+                existing_gh_comment = gh_comment
+                break
+
+        comment = f"{comment_marker}\n{comment}"
+        if existing_gh_comment:
+            existing_gh_comment.edit(body=comment)
+        else:
+            gh_issue.create_comment(body=comment)
