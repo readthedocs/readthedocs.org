@@ -146,7 +146,7 @@ class FileManifestIndexer(Indexer):
             ],
         )
         write_manifest(self.version, manifest)
-        if self.version.is_external:
+        if self.version.is_external and self.version.project.show_build_overview_in_comment:
             post_build_overview.delay(self.build.id)
 
 
