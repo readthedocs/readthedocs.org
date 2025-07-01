@@ -3441,6 +3441,7 @@ class APIVersionTests(TestCase):
                 "users": [1],
                 "custom_prefix": None,
                 "clone_token": None,
+                "has_ssh_key_with_write_access": False,
             },
             "privacy_level": "public",
             "downloads": {},
