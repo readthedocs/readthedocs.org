@@ -439,6 +439,10 @@ class GitHubAppTests(TestCase):
             ),
         )
         request.get(
+            f"{self.api_url}/repos/user/repo/installation",
+            json=self._get_installation_json(id=1111),
+        )
+        request.get(
             f"{self.api_url}/repos/user/repo/collaborators",
             json=[self._get_collaborator_json()],
         )
@@ -469,6 +473,56 @@ class GitHubAppTests(TestCase):
         assert relation.admin
 
     @requests_mock.Mocker(kw="request")
+    def test_create_private_repository(self, request):
+        new_repo_id = 4444
+        assert not RemoteRepository.objects.filter(
+            remote_id=new_repo_id, vcs_provider=GitHubAppProvider.id
+        ).exists()
+
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/4444",
+            json=self._get_repository_json(
+                full_name="user/repo",
+                id=4444,
+                owner={"id": int(self.account.uid)},
+                private=True,
+            ),
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.update_or_create_repositories([new_repo_id])
+
+        repo = RemoteRepository.objects.get(
+            remote_id=new_repo_id, vcs_provider=GitHubAppProvider.id
+        )
+        assert repo.name == "repo"
+        assert repo.full_name == "user/repo"
+        assert repo.organization is None
+        assert repo.description == "Some description"
+        assert repo.avatar_url == "https://github.com/images/error/octocat_happy.gif"
+        assert repo.ssh_url == "git@github.com:user/repo.git"
+        assert repo.html_url == "https://github.com/user/repo"
+        assert repo.clone_url == "https://github.com/user/repo.git"
+        assert repo.private
+        assert repo.default_branch == "main"
+        assert repo.github_app_installation == self.installation
+
+        relations = repo.remote_repository_relations.all()
+        assert relations.count() == 1
+        relation = relations[0]
+        assert relation.user == self.user
+        assert relation.account == self.account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
     def test_update_repository(self, request):
         assert self.remote_repository.description == "Some description"
         request.post(
@@ -482,6 +536,38 @@ class GitHubAppTests(TestCase):
                 id=int(self.remote_repository.remote_id),
                 owner={"id": int(self.account.uid)},
                 description="New description",
+            ),
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/installation",
+            json=self._get_installation_json(id=1111),
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.update_or_create_repositories([int(self.remote_repository.remote_id)])
+
+        self.remote_repository.refresh_from_db()
+        assert self.remote_repository.description == "New description"
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_private_repository(self, request):
+        assert self.remote_repository.description == "Some description"
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}",
+            json=self._get_repository_json(
+                full_name="user/repo",
+                id=int(self.remote_repository.remote_id),
+                owner={"id": int(self.account.uid)},
+                description="New description",
+                private=True,
             ),
         )
         request.get(
