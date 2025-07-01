@@ -1,6 +1,5 @@
 """Views for hosting features."""
 
-import fnmatch
 from functools import lru_cache
 
 import packaging
@@ -546,6 +545,7 @@ class AddonsResponseBase:
                     [
                         "Include subprojects",
                         f"subprojects:{project.slug}/{version.slug}",
+                        True,
                     ]
                 )
             elif project.superprojects.exists():
@@ -554,6 +554,7 @@ class AddonsResponseBase:
                     [
                         "Include subprojects",
                         f"subprojects:{superproject.slug}/{version.slug}",
+                        True,
                     ]
                 )
 
@@ -629,48 +630,36 @@ class AddonsResponseBase:
         if not base_version or not self._has_permission(request=request, version=base_version):
             return None
 
-        diff = get_diff(version_a=version, version_b=base_version)
+        diff = get_diff(current_version=version, base_version=base_version)
         if not diff:
             return None
 
-        def _filter_diff_files(files):
-            # Filter out all the files that match the ignored patterns
-            ignore_patterns = project.addons.filetreediff_ignored_files or []
-            files = [
-                filename
-                for filename in files
-                if not any(
-                    fnmatch.fnmatch(filename, ignore_pattern) for ignore_pattern in ignore_patterns
-                )
+        def _serialize_files(files):
+            return [
+                {
+                    "filename": file.path,
+                    "urls": {
+                        "current": resolver.resolve_version(
+                            project=project,
+                            filename=file.path,
+                            version=version,
+                        ),
+                        "base": resolver.resolve_version(
+                            project=project,
+                            filename=file.path,
+                            version=base_version,
+                        ),
+                    },
+                }
+                for file in files
             ]
-
-            result = []
-            for filename in files:
-                result.append(
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                )
-            return result
 
         return {
             "outdated": diff.outdated,
             "diff": {
-                "added": _filter_diff_files(diff.added),
-                "deleted": _filter_diff_files(diff.deleted),
-                "modified": _filter_diff_files(diff.modified),
+                "added": _serialize_files(diff.added),
+                "deleted": _serialize_files(diff.deleted),
+                "modified": _serialize_files(diff.modified),
             },
         }
 

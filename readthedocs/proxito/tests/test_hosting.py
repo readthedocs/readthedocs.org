@@ -16,7 +16,8 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff.dataclasses import (
     FileTreeDiff,
-    FileTreeDiffFile,
+    FileTreeDiffManifestFile,
+    FileTreeDiffFileStatus,
     FileTreeDiffManifest,
 )
 from readthedocs.projects.constants import (
@@ -920,9 +921,18 @@ class TestReadTheDocsConfigJson(TestCase):
         self.project.addons.save()
 
         get_diff.return_value = FileTreeDiff(
-            added=["tags/newtag.html"],
-            modified=["ignored.html", "archives/2025.html", "changelog/2025.2.html"],
-            deleted=["deleted.html"],
+            current_version=self.version,
+            current_version_build=self.build,
+            base_version=self.version,
+            base_version_build=self.build,
+            files=[
+                ("tags/newtag.html", FileTreeDiffFileStatus.added),
+                ("ignored.html", FileTreeDiffFileStatus.modified),
+                ("archives/2025.html", FileTreeDiffFileStatus.modified),
+                ("changelog/2025.2.html", FileTreeDiffFileStatus.modified),
+                ("deleted.html", FileTreeDiffFileStatus.deleted),
+            ],
+            outdated=False,
         )
 
         r = self.client.get(
@@ -999,15 +1009,15 @@ class TestReadTheDocsConfigJson(TestCase):
             FileTreeDiffManifest(
                 build_id=pr_build.id,
                 files=[
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="index.html",
                         main_content_hash="hash1",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="tutorial/index.html",
                         main_content_hash="hash1",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="new-file.html",
                         main_content_hash="hash1",
                     ),
@@ -1016,22 +1026,22 @@ class TestReadTheDocsConfigJson(TestCase):
             FileTreeDiffManifest(
                 build_id=self.build.id,
                 files=[
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="index.html",
                         main_content_hash="hash1",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="tutorial/index.html",
                         main_content_hash="hash-changed",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="deleted.html",
                         main_content_hash="hash-deleted",
                     ),
                 ],
             ),
         ]
-        with self.assertNumQueries(25):
+        with self.assertNumQueries(27):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

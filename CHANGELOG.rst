@@ -1,3 +1,9 @@
+.. note::
+
+   Starting on June 30, the changelog is published as a GitHub release
+   and `listed in the repository itself <https://github.com/readthedocs/readthedocs.org/releases>`_.
+
+
 Version 14.0.0
 --------------
 

@@ -40,6 +40,7 @@ class Service:
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
     supports_build_status = False
     supports_clone_token = False
+    supports_commenting = False
 
     @classmethod
     def for_project(cls, project):
@@ -108,6 +109,10 @@ class Service:
 
     def get_clone_token(self, project):
         """Get a token used for cloning the repository."""
+        raise NotImplementedError
+
+    def post_comment(self, build, comment: str):
+        """Post a comment on the pull request attached to the build."""
         raise NotImplementedError
 
     @classmethod
