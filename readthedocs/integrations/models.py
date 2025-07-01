@@ -332,7 +332,7 @@ class Integration(TimeStampedModel):
             self.secret = get_random_string(length=32)
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("projects_integrations_detail", args=(self.project.slug, self.pk))
 
 
@@ -351,7 +351,7 @@ class GitHubWebhook(Integration):
             return False
 
 
-class GitHubApp(Integration):
+class GitHubAppIntegration(Integration):
     integration_type_id = Integration.GITHUBAPP
     has_sync = False
     is_remote_only = True
@@ -389,7 +389,7 @@ class GitHubApp(Integration):
         We listen for these events and should disconnect the remote
         repository, but would leave this integration.
         """
-        return self.project.is_github_app_project()
+        return self.project.is_github_app_project
 
 
 class BitbucketWebhook(Integration):

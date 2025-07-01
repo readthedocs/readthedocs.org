@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="GitHubApp",
+            name="GitHubAppIntegration",
             fields=[],
             options={
                 "proxy": True,
