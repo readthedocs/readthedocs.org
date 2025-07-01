@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("projects", "0148_remove_unused_indexes"),
+        ("projects", "0149_show_build_overview_in_comment"),
     ]
 
     operations = [
