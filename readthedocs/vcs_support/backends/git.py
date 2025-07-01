@@ -1,5 +1,6 @@
 """Git-related utilities."""
 
+import re
 from typing import Iterable
 from urllib.parse import urlparse
 
