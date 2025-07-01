@@ -915,9 +915,15 @@ class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
             raise Http404
         return self.get_integration()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if "object_list" in context:
+            context["subclassed_object_list"] = context["object_list"].subclass()
+        return context
+
     def get_integration_queryset(self):
         self.project = self.get_project()
-        return self.model.objects.filter(project=self.project).subclass()
+        return self.model.objects.filter(project=self.project)
 
     def get_integration(self):
         """Return project integration determined by url kwarg."""
