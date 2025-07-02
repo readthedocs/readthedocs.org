@@ -3,8 +3,7 @@ Security policy
 
 Read the Docs adheres to the following security policies and procedures with
 regards to development, operations, and managing infrastructure. You can also
-find information on how we handle specific user data in our
-:doc:`/privacy-policy`.
+find information on how we handle specific user data.
 
 Our engineering team monitors several sources for security threats and responds
 accordingly to security threats and notifications.
@@ -86,4 +85,5 @@ Account security
   and Read the Docs employees may only view them
   with your explicit permission in response to your support requests,
   or when required for security purposes.
-* You can read more about account privacy in our :doc:`/privacy-policy`.
+  
+ * You can read more about account privacy.
