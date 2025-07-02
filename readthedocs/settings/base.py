@@ -442,8 +442,6 @@ class CommunityBaseSettings(Settings):
     CSP_BASE_URI = ["'self'"]
     CSP_FORM_ACTION = [
         "'self'",
-        # Allow our support form to submit to external domains.
-        SUPPORT_FORM_ENDPOINT,
         # Chrome and Safari block form submissions if it redirects to a different domain.
         # We redirect to external domains for some forms, like login.
         "https://github.com",
@@ -455,6 +453,10 @@ class CommunityBaseSettings(Settings):
         "https://billing.stripe.com",
         "https://checkout.stripe.com",
     ]
+    # Allow our support form to submit to external domains.
+    if SUPPORT_FORM_ENDPOINT:
+        CSP_FORM_ACTION.append(SUPPORT_FORM_ENDPOINT)
+
     CSP_FONT_SRC = [
         "'self'",
         STATIC_URL,
