@@ -911,7 +911,7 @@ class Project(models.Model):
         if self.remote_repository:
             return self.remote_repository.html_url
 
-        ssh_url_pattern = re.compile(r"^(?P<user>.+)@(?P<host>.+):(?<repo>.+)$")
+        ssh_url_pattern = re.compile(r"^(?P<user>.+)@(?P<host>.+):(?P<repo>.+)$")
         match = ssh_url_pattern.match(self.repo)
         if match:
             return f"https://{match.group('host')}/{match.group('repo')}"
