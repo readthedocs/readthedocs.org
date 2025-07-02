@@ -88,9 +88,6 @@ We never show more than 1 ad on a page.
 Do Not Track Policy
 -------------------
 
-Read the Docs supports Do Not Track (DNT) and respects users' tracking preferences.
-For more details, see the :ref:`Do Not Track section <privacy-policy:Do Not Track>`
-of our privacy policy.
 
 
 Ad serving infrastructure
