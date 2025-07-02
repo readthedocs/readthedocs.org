@@ -85,5 +85,5 @@ Account security
   and Read the Docs employees may only view them
   with your explicit permission in response to your support requests,
   or when required for security purposes.
-  
- * You can read more about account privacy.
+
+* You can read more about account privacy.

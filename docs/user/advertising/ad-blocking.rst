@@ -81,4 +81,5 @@ here is the data we have on ad blocking at Read the Docs.
   due to an ad blocker, privacy plugin, disabling JavaScript, or another reason.
 * Of users who do not block GA,
   about 6% opt out of analytics on Read the Docs by enabling
-Do Not Track
+
+Do Not Track.
