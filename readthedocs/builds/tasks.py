@@ -455,15 +455,16 @@ def post_build_overview(build_pk):
         log.debug("Git service doesn't support creating comments.")
         return
 
-    comment = get_build_overview(build)
-    if not comment:
+    build_overview = get_build_overview(build)
+    if not build_overview:
         log.debug("No build overview available, skipping posting comment.")
         return
 
     for service in service_class.for_project(build.project):
         service.post_comment(
             build=build,
-            comment=comment,
+            comment=build_overview.content,
+            update_only=not build_overview.diff.files,
         )
         log.debug("PR comment posted successfully.")
         return

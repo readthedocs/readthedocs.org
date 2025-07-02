@@ -1,11 +1,20 @@
+from dataclasses import dataclass
+
 from django.conf import settings
 from django.template.loader import render_to_string
 
 from readthedocs.builds.models import Build
 from readthedocs.filetreediff import get_diff
+from readthedocs.filetreediff.dataclasses import FileTreeDiff
 
 
-def get_build_overview(build: Build) -> str | None:
+@dataclass
+class BuildOverview:
+    content: str
+    diff: FileTreeDiff
+
+
+def get_build_overview(build: Build) -> BuildOverview | None:
     """
     Generate a build overview for the given build.
 
@@ -27,7 +36,7 @@ def get_build_overview(build: Build) -> str | None:
     if not diff:
         return None
 
-    return render_to_string(
+    content = render_to_string(
         "core/build-overview.md",
         {
             "PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
@@ -38,4 +47,8 @@ def get_build_overview(build: Build) -> str | None:
             "base_version_build": diff.base_version_build,
             "diff": diff,
         },
+    )
+    return BuildOverview(
+        content=content,
+        diff=diff,
     )

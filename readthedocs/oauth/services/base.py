@@ -111,8 +111,13 @@ class Service:
         """Get a token used for cloning the repository."""
         raise NotImplementedError
 
-    def post_comment(self, build, comment: str):
-        """Post a comment on the pull request attached to the build."""
+    def post_comment(self, build, comment: str, update_only: bool = False):
+        """
+        Post a comment on the pull request attached to the build.
+
+        :param update_only: If True, only update an existing comment,
+         don't create a new one.
+        """
         raise NotImplementedError
 
     @classmethod
