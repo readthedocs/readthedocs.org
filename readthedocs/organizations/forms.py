@@ -92,10 +92,13 @@ class OrganizationSignupFormBase(OrganizationForm):
 
     class Meta:
         model = Organization
-        fields = ["name", "email"]
+        fields = ["name", "slug", "email"]
         labels = {
             "name": _("Organization Name"),
             "email": _("Billing Email"),
+        }
+        help_texts = {
+            "slug": "Used in URLs for your projects when not using a custom domain. It cannot be changed later.",
         }
 
     url = None
