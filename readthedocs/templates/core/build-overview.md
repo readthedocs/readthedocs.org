@@ -4,13 +4,10 @@ Template used for generating the build overview page that is posted as a comment
 Whitespaces and newlines are important in some places like lists and tables,
 make sure to adjust the tags accordingly, as they introduce newlines.
 {% endcomment %}
-## Documentation build overview
 
-> 📚 [{{ project.name }}](https://{{ PRODUCTION_DOMAIN }}{% url "projects_detail" project.slug %}) | 🛠️ build [#{{ current_version_build.pk }}](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) ({{ current_version_build.commit }}) | 🔍 [preview]({{ current_version.get_absolute_url }})
+#### [View documentation preview]({{ current_version.get_absolute_url }})
 
-### Files changed
-
-> Comparing with [{{ base_version.verbose_name }}]({{ base_version.get_absolute_url }}) ({{ base_version_build.commit }})
+> 📚 [{{ project.name }}](https://{{ PRODUCTION_DOMAIN }}{% url "projects_detail" project.slug %}) | 🛠️ Build [#{{ current_version_build.pk }}](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) ({{ current_version_build.commit }}) | comparing [{{ base_version.verbose_name }}]({{ base_version.get_absolute_url }}) ({{ base_version_build.commit }})
 
 {% if diff.files %}
 <details>
