@@ -299,6 +299,7 @@ packaging==25.0
     #   kombu
     #   pyproject-api
     #   tox
+    #   tox-uv
 parso==0.8.4
     # via jedi
 pdbpp==0.11.6
@@ -449,6 +450,9 @@ toml==0.10.2
     #   bumpver
 tox==4.27.0
     # via -r requirements/docker.in
+    #   tox-uv
+tox-uv==1.16.1
+    # via -r requirements/docker.in
 traitlets==5.14.3
     # via
     #   ipython
@@ -498,6 +502,8 @@ urllib3==2.5.0
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
+uv==0.5.8
+    # via tox-uv
 vine==5.1.0
     # via
     #   -r requirements/pip.txt
