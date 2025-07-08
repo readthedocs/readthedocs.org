@@ -103,6 +103,12 @@ class OrganizationSignupFormBase(OrganizationForm):
 
     url = None
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # `slug` is not required since its value is auto-generated from `name` if not provided
+        self.fields["slug"].required = False
+
     @staticmethod
     def _create_default_teams(organization):
         organization.teams.create(name="Admins", access=ADMIN_ACCESS)
