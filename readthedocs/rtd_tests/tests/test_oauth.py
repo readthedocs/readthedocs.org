@@ -20,6 +20,7 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import Build, Version
+from readthedocs.integrations.models import GitHubAppIntegration
 from readthedocs.integrations.models import GitHubWebhook, GitLabWebhook
 from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITHUB_APP, GITLAB
 from readthedocs.oauth.models import (
@@ -77,6 +78,10 @@ class GitHubAppTests(TestCase):
         )
         self.project = get(
             Project, users=[self.user], remote_repository=self.remote_repository
+        )
+        self.integration = get(
+            GitHubAppIntegration,
+            project=self.project,
         )
 
         self.remote_organization = get(
@@ -1137,6 +1142,13 @@ class GitHubAppTests(TestCase):
         assert request_post_comment.last_request.json() == {
             "body": f"<!-- readthedocs-{another_project.id} -->\nComment from another project.",
         }
+
+    def test_integration_attributes(self):
+        assert self.integration.is_active
+        assert self.integration.get_absolute_url() == "https://github.com/apps/readthedocs/installations/1111"
+        self.project.remote_repository = None
+        assert not self.integration.is_active
+        assert self.integration.get_absolute_url() is None
 
 
 @override_settings(
