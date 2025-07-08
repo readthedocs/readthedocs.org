@@ -174,7 +174,7 @@ django-simple-history==3.10.1
     # via -r requirements/pip.txt
 django-storages[s3]==1.14.6
     # via -r requirements/pip.txt
-django-structlog[celery]==5.3.0
+django-structlog[celery]==6.0.1
     # via -r requirements/pip.txt
 django-taggit==6.1.0
     # via -r requirements/pip.txt
