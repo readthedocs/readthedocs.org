@@ -168,7 +168,7 @@ django-gravatar2==1.4.5
     # via -r requirements/pip.txt
 django-impersonate==1.9.5
     # via -r requirements/pip.txt
-django-ipware==5.0.2
+django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -180,7 +180,7 @@ django-simple-history==3.10.1
     # via -r requirements/pip.txt
 django-storages[s3]==1.14.6
     # via -r requirements/pip.txt
-django-structlog[celery]==6.0.1
+django-structlog[celery]==7.1.0
     # via -r requirements/pip.txt
 django-taggit==6.1.0
     # via -r requirements/pip.txt
@@ -375,6 +375,10 @@ python-dateutil==2.9.0.post0
     #   elasticsearch
     #   elasticsearch-dsl
     #   python-crontab
+python-ipware==3.0.0
+    # via
+    #   -r requirements/pip.txt
+    #   django-ipware
 python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
