@@ -179,3 +179,15 @@ class OrganizationSignupTest(OrganizationTestCase):
         }
         form = forms.OrganizationSignupForm(data, user=self.user)
         self.assertTrue(form.is_valid())
+        organization = form.save()
+        self.assertEqual(Organization.objects.filter(slug="my-new-organization").count(), 1)
+
+    def test_create_organization_with_invalid_slug(self):
+        data = {
+            "name": "My Org",
+            "email": "test@example.org",
+            "slug": "invalid-<slug>",
+        }
+        form = forms.OrganizationSignupForm(data, user=self.user)
+        self.assertFalse(form.is_valid())
+        self.assertIn("consisting of letters, numbers", form.errors["slug"][0])

@@ -92,13 +92,22 @@ class OrganizationSignupFormBase(OrganizationForm):
 
     class Meta:
         model = Organization
-        fields = ["name", "email"]
+        fields = ["name", "slug", "email"]
         labels = {
             "name": _("Organization Name"),
             "email": _("Billing Email"),
         }
+        help_texts = {
+            "slug": "Used in URLs for your projects when not using a custom domain. It cannot be changed later.",
+        }
 
     url = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # `slug` is not required since its value is auto-generated from `name` if not provided
+        self.fields["slug"].required = False
 
     @staticmethod
     def _create_default_teams(organization):
