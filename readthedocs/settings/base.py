@@ -338,6 +338,7 @@ class CommunityBaseSettings(Settings):
             "readthedocs.core.middleware.UpdateCSPMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
+            "readthedocs.core.middleware.LoginMethodCookie",
             "django_structlog.middlewares.CeleryMiddleware",
         ]
         if self.SHOW_DEBUG_TOOLBAR:

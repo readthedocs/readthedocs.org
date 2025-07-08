@@ -77,3 +77,26 @@ class UpdateCSPMiddleware:
             response._csp_update = update_csp_headers[url_name]
 
         return response
+
+
+class LoginMethodCookie:
+    """
+    Set a cookie with the login method used by the user.
+
+    This is used by the templates to put a small "Last used" label next to the method used.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if request.user.is_authenticated and hasattr(request, "_last_login_method_used"):
+            response.set_cookie("last_login_method", request._last_login_method_used)
+        return response
+
+    def process_template_response(self, request, response):
+        response.context_data = response.context_data or {}
+        response.context_data["last_login_method"] = request.COOKIES.get("last_login_method")
+        # response.context_data["last_login_method"] = "github"
+        return response
