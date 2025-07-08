@@ -60,23 +60,24 @@ class OrganizationForm(SimpleHistoryModelForm):
             )
         super().__init__(*args, **kwargs)
 
-    def clean_name(self):
-        """Raise exception on duplicate organization slug."""
-        name = self.cleaned_data["name"]
+    def clean_slug(self):
+        slug_source = self.cleaned_data["slug"]
 
         # Skip slug validation on already created organizations.
         if self.instance.pk:
-            return name
+            return slug_source
 
-        potential_slug = slugify(name)
-        if not potential_slug:
-            raise forms.ValidationError(_("Invalid organization name: no slug generated"))
-        if Organization.objects.filter(slug=potential_slug).exists():
-            raise forms.ValidationError(
-                _("Organization %(name)s already exists"),
-                params={"name": name},
-            )
-        return name
+        slug = slugify(slug_source, dns_safe=True)
+        if not slug or slug != slug_source:
+            # There is a difference between the slug from the front end code, or
+            # the user is trying to submit the form without our front end code.
+            # TODO this should probably be individual validation rules, the
+            # reason for the validation error isn't going to be clear to the
+            # user.
+            raise forms.ValidationError(_("Invalid slug"))
+        if Organization.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(_("Slug is already used by another organization"))
+        return slug
 
 
 class OrganizationSignupFormBase(OrganizationForm):
@@ -105,9 +106,6 @@ class OrganizationSignupFormBase(OrganizationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # `slug` is not required since its value is auto-generated from `name` if not provided
-        self.fields["slug"].required = False
 
     @staticmethod
     def _create_default_teams(organization):
