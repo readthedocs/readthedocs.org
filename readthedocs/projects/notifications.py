@@ -17,6 +17,8 @@ from readthedocs.projects.exceptions import UserFileNotFound
 
 MESSAGE_PROJECT_SKIP_BUILDS = "project:invalid:skip-builds"
 MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
+MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS = "project:ssh-key-with-write-access"
+
 messages = [
     Message(
         id=MESSAGE_PROJECT_SKIP_BUILDS,
@@ -175,6 +177,21 @@ messages = [
             ).strip(),
         ),
         type=INFO,
+    ),
+    Message(
+        id=MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS,
+        header=_("SSH key with read-only access is required"),
+        body=_(
+            textwrap.dedent(
+                """
+                This project has a deploy key with write access to the repository.
+                For protection against abuse we've restricted use of these deploy keys.
+                A read-only deploy key will need to be set up <b>before July 31, 2025</b> to continue building this project.
+                Read more about this in our <a href="https://about.readthedocs.com/blog/2025/07/ssh-keys-with-write-access/">blog post</a>.
+                """
+            ).strip(),
+        ),
+        type=WARNING,
     ),
 ]
 registry.add(messages)

@@ -4,11 +4,13 @@ import json
 import re
 import uuid
 
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db import transaction
+from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -240,7 +242,16 @@ class IntegrationQuerySet(models.QuerySet):
         original = super().get(*args, **kwargs)
         return self._get_subclass_replacement(original)
 
-    def subclass(self, instance):
+    def subclass(self, instance=None):
+        """
+        Return a subclass or list of subclasses integrations.
+
+        If an instance was passed in, return a single subclasses integration
+        instance. If this is a queryset or manager, render the list as a list
+        using the integration subsclasses.
+        """
+        if instance is None:
+            return [self._get_subclass_replacement(_instance) for _instance in self]
         return self._get_subclass_replacement(instance)
 
     def create(self, **kwargs):
@@ -263,6 +274,7 @@ class IntegrationQuerySet(models.QuerySet):
 class Integration(TimeStampedModel):
     """Inbound webhook integration for projects."""
 
+    GITHUBAPP = "githubapp"
     GITHUB_WEBHOOK = "github_webhook"
     BITBUCKET_WEBHOOK = "bitbucket_webhook"
     GITLAB_WEBHOOK = "gitlab_webhook"
@@ -275,7 +287,9 @@ class Integration(TimeStampedModel):
         (API_WEBHOOK, _("Generic API incoming webhook")),
     )
 
-    INTEGRATIONS = WEBHOOK_INTEGRATIONS
+    REMOTE_ONLY_INTEGRATIONS = ((GITHUBAPP, _("GitHub App")),)
+
+    INTEGRATIONS = WEBHOOK_INTEGRATIONS + REMOTE_ONLY_INTEGRATIONS
 
     project = models.ForeignKey(
         Project,
@@ -307,6 +321,8 @@ class Integration(TimeStampedModel):
 
     # Integration attributes
     has_sync = False
+    is_remote_only = False
+    is_active = True
 
     def __str__(self):
         return self.get_integration_type_display()
@@ -315,6 +331,9 @@ class Integration(TimeStampedModel):
         if not self.secret:
             self.secret = get_random_string(length=32)
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self) -> str:
+        return reverse("projects_integrations_detail", args=(self.project.slug, self.pk))
 
 
 class GitHubWebhook(Integration):
@@ -330,6 +349,47 @@ class GitHubWebhook(Integration):
             return all((k in self.provider_data) for k in ["id", "url"])
         except (ValueError, TypeError):
             return False
+
+
+class GitHubAppIntegration(Integration):
+    integration_type_id = Integration.GITHUBAPP
+    has_sync = False
+    is_remote_only = True
+
+    class Meta:
+        proxy = True
+
+    def get_absolute_url(self) -> str | None:
+        """
+        Get URL of the GHA installation page.
+
+        Instead of showing a link to the integration details page, for GHA
+        projects we show a link in the UI to the GHA installation page for the
+        installation used by the project.
+        """
+        # If the GHA is disconnected we'll disonnect the remote repository and
+        # so we won't have a URL to the installation page the project should be
+        # using. We might want to store this on the model later so a repository
+        # that is removed from the installation can still link to the
+        # installation the project was _previously_ using.
+        try:
+            installation_id = self.project.remote_repository.github_app_installation.installation_id
+            return f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/{installation_id}"
+        except AttributeError:
+            return None
+
+    @property
+    def is_active(self) -> bool:
+        """
+        Is the GHA connection active for this project?
+
+        This assumes that the status of the GHA connect will be reflected as
+        soon as there is an event that might disconnect the GHA on GitHub's
+        side -- uninstalling the app or revoking permission to the repository.
+        We listen for these events and should disconnect the remote
+        repository, but would leave this integration.
+        """
+        return self.project.is_github_app_project
 
 
 class BitbucketWebhook(Integration):
