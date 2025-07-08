@@ -10,14 +10,14 @@ from datetime import datetime
 import structlog
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from docker import APIClient
-from docker.errors import APIError as DockerAPIError
-from docker.errors import DockerException
-from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
+from docker import APIClient
+from docker.errors import APIError as DockerAPIError
+from docker.errors import DockerException
+from docker.errors import NotFound as DockerNotFoundError
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.models import Feature
@@ -109,7 +109,7 @@ class BuildCommand(BuildCommandResultMixin):
             # When using `project.vcs_repo` on tests we are passing `environment=False`.
             # See https://github.com/readthedocs/readthedocs.org/pull/6482#discussion_r367694530
             if self.build_env.project and self.build_env.version:
-                log.bind(
+                structlog.contextvars.bind_contextvars(
                     project_slug=self.build_env.project.slug,
                     version_slug=self.build_env.version.slug,
                 )
@@ -117,7 +117,7 @@ class BuildCommand(BuildCommandResultMixin):
             # NOTE: `self.build_env.build` is not available when using this class
             # from `sync_repository_task` since it's not associated to any build
             if self.build_env.build:
-                log.bind(
+                structlog.contextvars.bind_contextvars(
                     build_id=self.build_env.build.get("id"),
                 )
 
@@ -627,7 +627,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         if self.project.container_time_limit:
             self.container_time_limit = self.project.container_time_limit
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=self.project.slug,
             version_slug=self.version.slug,
         )
@@ -635,7 +635,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         # NOTE: as this environment is used for `sync_repository_task` it may
         # not have a build associated
         if self.build:
-            log.bind(
+            structlog.contextvars.bind_contextvars(
                 build_id=self.build.get("id"),
             )
 

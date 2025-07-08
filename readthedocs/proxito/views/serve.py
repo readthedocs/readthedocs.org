@@ -291,7 +291,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 # A false positive was detected, continue with our normal serve.
                 pass
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             version_slug=version.slug,
             filename=filename,
@@ -309,7 +309,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # All public versions can be cached.
         self.cache_response = version.is_public
 
-        log.bind(cache_response=self.cache_response)
+        structlog.contextvars.bind_contextvars(cache_response=self.cache_response)
         log.debug("Serving docs.")
 
         # Verify if the project is marked as spam and return a 401 in that case
@@ -393,7 +393,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         with the default version and finally, if none of them are found, the Read
         the Docs default page (Maze Found) is rendered by Django and served.
         """
-        log.bind(proxito_path=proxito_path)
+        structlog.contextvars.bind_contextvars(proxito_path=proxito_path)
         log.debug("Executing 404 handler.")
         unresolved_domain = request.unresolved_domain
         # We force all storage calls to use the external versions storage,
@@ -458,7 +458,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             filename = exc.path
             # TODO: Use a contextualized 404
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             version_slug=version_slug,
         )
@@ -720,7 +720,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
             # ... we do return a 404
             raise Http404()
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             version_slug=version.slug,
         )

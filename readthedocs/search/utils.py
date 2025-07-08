@@ -40,7 +40,7 @@ def remove_indexed_files(project_slug, version_slug=None, sync_id=None, index_na
     :param build_id: Build id. If isn't given, all index from `version` are deleted.
     """
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=project_slug,
         version_slug=version_slug,
     )
