@@ -687,7 +687,6 @@ class AddonsConfigForm(forms.ModelForm):
             "hotkeys_enabled",
             "search_enabled",
             "linkpreviews_enabled",
-            "linkpreviews_selector",
             "notifications_enabled",
             "notifications_show_on_latest",
             "notifications_show_on_non_stable",
@@ -702,7 +701,6 @@ class AddonsConfigForm(forms.ModelForm):
             "notifications_show_on_non_stable": _("Show a notification on non-stable versions"),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
-            "linkpreviews_selector": _("CSS link previews selector"),
             "options_root_selector": _("CSS main content selector"),
         }
 

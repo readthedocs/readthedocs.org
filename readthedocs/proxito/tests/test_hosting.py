@@ -742,7 +742,6 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         expected = {
             "enabled": True,
-            "selector": None,
         }
 
         assert r.status_code == 200
