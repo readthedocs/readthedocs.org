@@ -127,7 +127,7 @@ django-debug-toolbar
 # https://django-csp.readthedocs.io/en/latest/configuration.html#migrating-from-django-csp-3-8
 django-csp==3.8
 
-django-structlog~=3.0
+django-structlog[celery]~=4.0
 
 # Pining due to a Sentry error we started getting
 # https://read-the-docs.sentry.io/issues/4678167578/events/2d9d348729874d67b120b153908ca54c/

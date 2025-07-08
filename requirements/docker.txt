@@ -18,6 +18,7 @@ asgiref==3.8.1
     #   django
     #   django-allauth
     #   django-cors-headers
+    #   django-structlog
 asttokens==3.0.0
     # via stack-data
 billiard==4.2.1
@@ -41,6 +42,7 @@ celery==5.5.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
+    #   django-structlog
 certifi==2025.6.15
     # via
     #   -r requirements/pip.txt
@@ -180,7 +182,7 @@ django-simple-history==3.10.1
     # via -r requirements/pip.txt
 django-storages[s3]==1.14.6
     # via -r requirements/pip.txt
-django-structlog==3.0.1
+django-structlog[celery]==4.1.1
     # via -r requirements/pip.txt
 django-taggit==6.1.0
     # via -r requirements/pip.txt
