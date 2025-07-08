@@ -127,7 +127,7 @@ django-debug-toolbar
 # https://django-csp.readthedocs.io/en/latest/configuration.html#migrating-from-django-csp-3-8
 django-csp==3.8
 
-django-structlog[celery]~=7.0
+django-structlog[celery]~=8.0
 
 # https://github.com/readthedocs/readthedocs.org/issues/10990
 structlog==23.2.0
