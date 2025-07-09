@@ -376,7 +376,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     def post(self, *args, **kwargs):
         self._set_initial_dict()
 
-        log.bind(user_username=self.request.user.username)
+        structlog.contextvars.bind_contextvars(user_username=self.request.user.username)
 
         if self.request.user.profile.banned:
             log.info("Rejecting project POST from shadowbanned user.")

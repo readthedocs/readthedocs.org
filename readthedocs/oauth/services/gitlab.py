@@ -321,7 +321,7 @@ class GitLabService(UserService):
         if repo_id is None:
             return None
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
         )
@@ -381,7 +381,7 @@ class GitLabService(UserService):
         if repo_id is None:
             return False
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
             url=url,
@@ -393,7 +393,7 @@ class GitLabService(UserService):
                 data=data,
                 headers={"content-type": "application/json"},
             )
-            log.bind(http_status_code=resp.status_code)
+            structlog.contextvars.bind_contextvars(http_status_code=resp.status_code)
 
             if resp.status_code == 201:
                 integration.provider_data = resp.json()
@@ -439,7 +439,7 @@ class GitLabService(UserService):
 
         data = self.get_webhook_data(repo_id, project, integration)
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
         )
@@ -523,7 +523,7 @@ class GitLabService(UserService):
         }
         url = f"{self.base_api_url}/api/v4/projects/{repo_id}/statuses/{commit}"
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             commit_status=gitlab_build_state,
             user_username=self.user.username,
@@ -536,7 +536,7 @@ class GitLabService(UserService):
                 headers={"content-type": "application/json"},
             )
 
-            log.bind(http_status_code=resp.status_code)
+            structlog.contextvars.bind_contextvars(http_status_code=resp.status_code)
             if resp.status_code == 201:
                 log.debug("GitLab commit status created for project.")
                 return True

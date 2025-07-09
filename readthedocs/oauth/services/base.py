@@ -140,7 +140,7 @@ class UserService(Service):
     def __init__(self, user, account):
         self.user = user
         self.account = account
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             user_username=self.user.username,
             social_provider=self.allauth_provider.id,
             social_account_id=self.account.pk,
