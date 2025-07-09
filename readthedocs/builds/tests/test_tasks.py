@@ -208,7 +208,7 @@ class TestPostBuildOverview(TestCase):
 
             ### Files changed
 
-            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd...5678abcd)
 
 
             <details>
@@ -258,7 +258,7 @@ class TestPostBuildOverview(TestCase):
 
             ### Files changed
 
-            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd...5678abcd)
 
 
             <details>
@@ -304,7 +304,7 @@ class TestPostBuildOverview(TestCase):
 
             ### Files changed
 
-            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd...5678abcd)
 
 
             No files changed.

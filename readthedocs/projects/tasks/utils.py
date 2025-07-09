@@ -177,7 +177,10 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in):
     This way, AWS will not scale-in this builder while it's building the documentation.
     This is pretty useful for long running tasks.
     """
-    log.bind(builder=builder, protected_from_scale_in=protected_from_scale_in)
+    structlog.contextvars.bind_contextvars(
+        builder=builder,
+        protected_from_scale_in=protected_from_scale_in,
+    )
 
     if settings.DEBUG or settings.RTD_DOCKER_COMPOSE:
         log.info(
@@ -216,7 +219,7 @@ class BuildRequest(Request):
     def on_timeout(self, soft, timeout):
         super().on_timeout(soft, timeout)
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             task_name=self.task.name,
             project_slug=self.task.data.project.slug,
             build_id=self.task.data.build["id"],

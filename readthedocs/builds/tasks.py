@@ -384,7 +384,7 @@ def send_build_status(build_pk, commit, status):
     if not build:
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         build_id=build.pk,
         project_slug=build.project.slug,
         commit=commit,
@@ -436,7 +436,7 @@ def post_build_overview(build_pk):
         return
 
     version = build.version
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         build_id=build.pk,
         project_slug=build.project.slug,
         version_slug=version.slug,

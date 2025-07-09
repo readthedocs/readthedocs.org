@@ -43,7 +43,7 @@ def process_email_confirmed(request, email_address, **kwargs):
     profile = UserProfile.objects.filter(user=user).first()
     if profile and profile.mailing_list:
         # TODO: Unsubscribe users if they unset `mailing_list`.
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             email=email_address.email,
             username=user.username,
         )
