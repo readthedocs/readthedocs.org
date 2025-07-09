@@ -68,13 +68,19 @@ class OrganizationForm(SimpleHistoryModelForm):
             return slug_source
 
         slug = slugify(slug_source, dns_safe=True)
-        if not slug or slug != slug_source:
+        if not slug:
+            # If the was not empty, but renders down to something empty, the
+            # user gave an invalid slug. However, we can't suggest anything
+            # useful because the slug is empty. This is an edge case for input
+            # like `---`, so the error here doesn't need to be very specific.
+            raise forms.ValidationError(_("Invalid slug, use more valid characters."))
+        elif slug != slug_source:
             # There is a difference between the slug from the front end code, or
             # the user is trying to submit the form without our front end code.
-            # TODO this should probably be individual validation rules, the
-            # reason for the validation error isn't going to be clear to the
-            # user.
-            raise forms.ValidationError(_("Invalid slug"))
+            raise forms.ValidationError(
+                _("Invalid slug, use suggested slug '%(slug)s' instead"),
+                params={"slug": slug},
+            )
         if Organization.objects.filter(slug=slug).exists():
             raise forms.ValidationError(_("Slug is already used by another organization"))
         return slug
