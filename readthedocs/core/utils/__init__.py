@@ -55,7 +55,7 @@ def prepare_build(
     from readthedocs.projects.tasks.builds import update_docs_task
     from readthedocs.projects.tasks.utils import send_external_build_status
 
-    log.bind(project_slug=project.slug)
+    structlog.contextvars.bind_contextvars(project_slug=project.slug)
 
     if not Project.objects.is_active(project):
         log.warning(
@@ -76,7 +76,7 @@ def prepare_build(
         commit=commit,
     )
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         build_id=build.id,
         version_slug=version.slug,
     )
@@ -105,7 +105,7 @@ def prepare_build(
     options["time_limit"] = int(time_limit * 1.2)
 
     if commit:
-        log.bind(commit=commit)
+        structlog.contextvars.bind_contextvars(commit=commit)
 
         # Send pending Build Status using Git Status API for External Builds.
         send_external_build_status(
@@ -198,7 +198,7 @@ def trigger_build(project, version=None, commit=None):
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=project.slug,
         version_slug=version.slug if version else None,
         commit=commit,

@@ -20,7 +20,7 @@ def update_stripe_customer(sender, instance, created, **kwargs):
         return
 
     organization = instance
-    log.bind(organization_slug=organization.slug)
+    structlog.contextvars.bind_contextvars(organization_slug=organization.slug)
 
     stripe_customer = organization.stripe_customer
     if not stripe_customer:

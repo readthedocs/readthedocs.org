@@ -28,7 +28,7 @@ class BuildDataCollector:
         self.config = self.environment.config
         self.checkout_path = self.project.checkout_path(self.version.slug)
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             build_id=self.build["id"],
             project_slug=self.project.slug,
             version_slug=self.version.slug,
