@@ -174,7 +174,10 @@ class Backend(BaseVCS):
            to ensure that no commands controled by the user are run.
         """
         remote_name = "rtd-test-ssh-key"
-        ssh_url = re.sub("https?://github.com/", "git@github.com:", self.project.repo, 1)
+        ssh_url = self.project.repo
+        if ssh_url.startswith("http"):
+            parsed_url = urlparse(ssh_url)
+            ssh_url = f"git@{parsed_url.netloc}:{parsed_url.path.lstrip('/')}"
 
         try:
             cmd = ["git", "remote", "add", remote_name, ssh_url]
