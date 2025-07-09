@@ -431,6 +431,17 @@ def send_build_status(build_pk, commit, status):
 
 @app.task(max_retries=3, default_retry_delay=60, queue="web")
 def post_build_overview(build_pk):
+    """
+    Post an overview about the build to the project's Git service.
+
+    The overview contains information about the build,
+    and the list of files that were changed in the build.
+
+    If no files changed in the build,
+    we only post the build overview if there is an existng comment.
+
+    Only GitHub is supported at the moment.
+    """
     build = Build.objects.filter(pk=build_pk).first()
     if not build:
         return
