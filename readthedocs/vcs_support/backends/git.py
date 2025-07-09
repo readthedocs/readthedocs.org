@@ -215,6 +215,8 @@ class Backend(BaseVCS):
                 # but since the key can't be used from the builders,
                 # it should be safe to return False.
                 "ERROR: The repository owner has an IP allow list enabled",
+                # Gitlab:
+                "ERROR: This deploy key does not have write access to this project.",
             ]
             for pattern in errors_read_access_only:
                 if pattern in stderr:
