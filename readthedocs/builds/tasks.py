@@ -438,7 +438,7 @@ def post_build_overview(build_pk):
     and the list of files that were changed in the build.
 
     If no files changed in the build,
-    we only post the build overview if there is an existng comment.
+    we only update the build overview if there is an existing comment.
 
     Only GitHub is supported at the moment.
     """
