@@ -54,6 +54,30 @@ class DockerBaseSettings(CommunityBaseSettings):
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
     @property
+    def CSP_CONNECT_SRC(self):
+        csp_connect_src = super().CSP_CONNECT_SRC
+        csp_connect_src.append(f"ws://{self.PRODUCTION_DOMAIN}:10001/ws")
+        return csp_connect_src
+
+    @property
+    def CSP_SCRIPT_SRC(self):
+        csp_script_src = super().CSP_SCRIPT_SRC
+        csp_script_src.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return csp_script_src
+
+    @property
+    def CSP_FONT_SRC(self):
+        csp_font_src = super().CSP_FONT_SRC
+        csp_font_src.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return csp_font_src
+
+    @property
+    def CSP_STYLE_SRC(self):
+        csp_style_src = super().CSP_STYLE_SRC
+        csp_style_src.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return csp_style_src
+
+    @property
     def DOCROOT(self):
         # Add an extra directory level using the container's hostname.
         # This allows us to run development environment with multiple builders (`--scale-build=2` or more),
