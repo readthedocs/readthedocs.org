@@ -259,6 +259,12 @@ class AddonsConfig(TimeStampedModel):
 
     # Link Previews
     linkpreviews_enabled = models.BooleanField(default=False)
+    linkpreviews_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector for the links preview of the page. Leave it blank for auto-detect.",
+    )
 
 
 class AddonSearchFilter(TimeStampedModel):

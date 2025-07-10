@@ -171,7 +171,8 @@
       "src": null
     },
     "linkpreviews": {
-      "enabled": false
+      "enabled": false,
+      "selector": null
     }
   }
 }
