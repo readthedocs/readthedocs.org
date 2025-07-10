@@ -143,7 +143,7 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
 
 
 class OrganizationSignupTest(OrganizationTestCase):
-    def test_create_organization_with_empy_slug(self):
+    def test_create_organization_with_empty_slug(self):
         data = {
             "name": "往事",
             "email": "test@example.org",
@@ -151,7 +151,19 @@ class OrganizationSignupTest(OrganizationTestCase):
         form = forms.OrganizationSignupForm(data, user=self.user)
         self.assertFalse(form.is_valid())
         self.assertEqual(
-            "Invalid organization name: no slug generated", form.errors["name"][0]
+            "This field is required.", form.errors["slug"][0]
+        )
+
+    def test_create_organization_with_invalid_unicode_slug(self):
+        data = {
+            "name": "往事",
+            "email": "test@example.org",
+            "slug": "-",
+        }
+        form = forms.OrganizationSignupForm(data, user=self.user)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            "Invalid slug, use more valid characters.", form.errors["slug"][0]
         )
 
     def test_create_organization_with_big_name(self):
@@ -165,17 +177,42 @@ class OrganizationSignupTest(OrganizationTestCase):
 
     def test_create_organization_with_existent_slug(self):
         data = {
-            "name": "mozilla",
+            "name": "Fauxzilla",
             "email": "test@example.org",
+            "slug": "mozilla",
         }
         form = forms.OrganizationSignupForm(data, user=self.user)
         # there is already an organization with the slug ``mozilla`` (lowercase)
         self.assertFalse(form.is_valid())
+        self.assertEqual("Slug is already used by another organization", form.errors["slug"][0])
 
     def test_create_organization_with_nonexistent_slug(self):
         data = {
             "name": "My New Organization",
             "email": "test@example.org",
+            "slug": "my-new-organization",
         }
         form = forms.OrganizationSignupForm(data, user=self.user)
         self.assertTrue(form.is_valid())
+        organization = form.save()
+        self.assertEqual(Organization.objects.filter(slug="my-new-organization").count(), 1)
+
+    def test_create_organization_with_invalid_slug(self):
+        data = {
+            "name": "My Org",
+            "email": "test@example.org",
+            "slug": "invalid-<slug>",
+        }
+        form = forms.OrganizationSignupForm(data, user=self.user)
+        self.assertFalse(form.is_valid())
+        self.assertIn("consisting of letters, numbers", form.errors["slug"][0])
+
+    def test_create_organization_with_dns_invalid_slug(self):
+        data = {
+            "name": "My Org",
+            "email": "test@example.org",
+            "slug": "-invalid_slug-",
+        }
+        form = forms.OrganizationSignupForm(data, user=self.user)
+        self.assertFalse(form.is_valid())
+        self.assertIn("Invalid slug, use suggested slug 'invalid-slug' instead", form.errors["slug"][0])

@@ -1,5 +1,6 @@
 """Git-related utilities."""
 
+import re
 from typing import Iterable
 from urllib.parse import urlparse
 
@@ -154,6 +155,98 @@ class Backend(BaseVCS):
             if settings.ALLOW_PRIVATE_REPOS:
                 message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED
             raise RepositoryError(message_id=message_id) from exc
+
+    def has_ssh_key_with_write_access(self) -> bool:
+        """
+        Check if the SSH key has write access to the repository.
+
+        This is done by trying to push to the repository in dry-run mode.
+
+        We create a temporary remote to test the SSH key,
+        since we need the remote to be in the SSH format,
+        which isn't always the case for projects that are public,
+        and changing the URL of the default remote may be a breaking
+        change for some projects.
+
+        .. note::
+
+           This check is better done just after the clone step,
+           to ensure that no commands controled by the user are run.
+        """
+        remote_name = "rtd-test-ssh-key"
+        ssh_url = re.sub("https?://github.com/", "git@github.com:", self.project.repo, 1)
+
+        try:
+            cmd = ["git", "remote", "add", remote_name, ssh_url]
+            self.run(*cmd, record=False)
+
+            cmd = ["git", "push", "--dry-run", remote_name]
+            code, stdout, stderr = self.run(*cmd, record=False, demux=True)
+
+            if code == 0:
+                return True
+
+            # NOTE: if the command fails, it doesn't necessarily mean the key
+            # doesn't have write access, there are a couple of other reasons
+            # why this may fail, so we check for the error message.
+
+            # This error is shown when the repo is archived, but the key has write access.
+            if "ERROR: This repository was archived so it is read-only" in stderr:
+                return True
+
+            # This error is shown when the repo is empty, but we don't know if the key has write access or not.
+            # We assume it has write access just to be safe, future steps will fail after the repo is cloned anyway.
+            # Example: error: src refspec refs/heads/master does not match any
+            pattern = r"error: src refspec refs/heads/\w does not match any"
+            if re.search(pattern, stderr):
+                return True
+
+            # Example: ERROR: Permission to user/repo denied to deploy key
+            pattern = r"ERROR: Permission to .* denied to deploy key"
+            if re.search(pattern, stderr):
+                return False
+
+            errors_read_access_only = [
+                "ERROR: The key you are authenticating with has been marked as read only",
+                "ERROR: Write access to repository not granted",
+                # This error is shown when the key isn't registered in GH at all.
+                "git@github.com: Permission denied (publickey).",
+                # We don't know if the key has write access or not,
+                # but since the key can't be used from the builders,
+                # it should be safe to return False.
+                "ERROR: The repository owner has an IP allow list enabled",
+            ]
+            for pattern in errors_read_access_only:
+                if pattern in stderr:
+                    return False
+
+            # This is an error when the repo URL is not a git+ssh URL,
+            # we don't know if the key has write access or not, as the URL is invalid.
+            # Log and return False for now.
+            if "fatal: could not read Username for" in stderr:
+                log.error(
+                    "Invalid repo URL for SSH key check.",
+                    project_slug=self.project.slug,
+                    repo_url=self.project.repo,
+                    ssh_url=ssh_url,
+                    exit_code=code,
+                    stdout=stdout,
+                    stderr=stderr,
+                )
+                return False
+
+            # Log any other errors that we don't know about.
+            log.error(
+                "Unknown error when checking SSH key access.",
+                project_slug=self.project.slug,
+                exit_code=code,
+                stdout=stdout,
+                stderr=stderr,
+            )
+            return False
+        finally:
+            # Always remove the temporary remote.
+            self.run("git", "remote", "remove", remote_name, record=False)
 
     def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
