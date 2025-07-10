@@ -16,11 +16,9 @@ from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
-from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
-from readthedocs.projects.models import Feature
 
 from .constants import DOCKER_HOSTNAME_MAX_LEN
 from .constants import DOCKER_IMAGE
@@ -270,35 +268,12 @@ class BuildCommand(BuildCommandResultMixin):
 
         # If the command has an id, it means it has been saved before,
         # so we update it instead of creating a new one.
-        if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
-            # Don't use slumber directly here. Slumber tries to enforce a string,
-            # which will break our multipart encoding here.
-            encoder = MultipartEncoder({key: str(value) for key, value in data.items()})
-            if self.id:
-                resource = api_client.command(self.id).patch
-                resp = resource._store["session"].patch(
-                    resource._store["url"],
-                    data=encoder,
-                    headers={
-                        "Content-Type": encoder.content_type,
-                    },
-                )
-            else:
-                resource = api_client.command.post
-                resp = resource._store["session"].post(
-                    resource._store["base_url"],
-                    data=encoder,
-                    headers={
-                        "Content-Type": encoder.content_type,
-                    },
-                )
-            log.debug("Response via multipart form.", response=resp)
+        if self.id:
+            resp = api_client.command(self.id).patch(data)
         else:
-            if self.id:
-                resp = api_client.command(self.id).patch(data)
-            else:
-                resp = api_client.command.post(data)
-            log.debug("Response via JSON encoded data.", response=resp)
+            resp = api_client.command.post(data)
+
+        log.debug("Response via JSON encoded data.", response=resp)
 
         self.id = resp.get("id")
 
