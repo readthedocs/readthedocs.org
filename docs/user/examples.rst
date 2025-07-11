@@ -1,4 +1,4 @@
-Example projects
+ccc Example projects
 ================
 
 The following example projects show a rich variety of uses of Read the Docs.
