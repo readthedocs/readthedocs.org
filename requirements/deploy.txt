@@ -12,7 +12,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
-asgiref==3.8.1
+asgiref==3.9.1
     # via
     #   -r requirements/pip.txt
     #   django
@@ -25,23 +25,23 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.38.46
+boto3==1.39.4
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.38.46
+botocore==1.39.4
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
-bumpver==2024.1130
+bumpver==2025.1131
     # via -r requirements/pip.txt
 celery==5.5.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2025.6.15
+certifi==2025.7.9
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -84,7 +84,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==45.0.4
+cryptography==45.0.5
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -93,10 +93,6 @@ cssselect==1.3.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
-cython==3.0.11
-    # via
-    #   -r requirements/pip.txt
-    #   selectolax
 decorator==5.2.1
     # via ipython
 deprecated==1.2.18
@@ -111,7 +107,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.3
+django==5.2.4
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -134,7 +130,7 @@ django==5.2.3
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.9.0
+django-allauth[mfa,saml,socialaccount]==65.10.0
     # via -r requirements/pip.txt
 django-annoying==0.10.8
     # via -r requirements/pip.txt
@@ -233,7 +229,7 @@ idna==3.10
     # via
     #   -r requirements/pip.txt
     #   requests
-ipython==9.3.0
+ipython==9.4.0
     # via -r requirements/deploy.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -248,7 +244,7 @@ jmespath==1.0.1
     #   -r requirements/pip.txt
     #   boto3
     #   botocore
-jsonfield==3.1.0
+jsonfield==3.2.0
     # via -r requirements/pip.txt
 kombu==5.5.4
     # via
@@ -273,6 +269,7 @@ newrelic==10.7.0
 oauthlib==3.3.1
     # via
     #   -r requirements/pip.txt
+    #   django-allauth
     #   requests-oauthlib
 orjson==3.10.18
     # via -r requirements/pip.txt
@@ -382,9 +379,7 @@ requests==2.32.4
     #   slumber
     #   stripe
 requests-oauthlib==2.0.0
-    # via
-    #   -r requirements/pip.txt
-    #   django-allauth
+    # via -r requirements/pip.txt
 requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
@@ -393,7 +388,7 @@ s3transfer==0.13.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.30
+selectolax==0.3.31
     # via -r requirements/pip.txt
 sentry-sdk==2.32.0
     # via structlog-sentry
@@ -432,7 +427,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
