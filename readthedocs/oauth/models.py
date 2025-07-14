@@ -4,6 +4,7 @@ from functools import cached_property
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import models
@@ -93,6 +94,11 @@ class GitHubAppInstallation(TimeStampedModel):
         from readthedocs.oauth.services import GitHubAppService
 
         return GitHubAppService(self)
+
+    @property
+    def html_url(self):
+        """Return the URL to the GitHub App installation page."""
+        return f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/{self.installation_id}"
 
     def delete(self, *args, **kwargs):
         """Override delete method to remove orphaned remote organizations."""

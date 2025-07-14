@@ -4,7 +4,6 @@ import json
 import re
 import uuid
 
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -373,8 +372,7 @@ class GitHubAppIntegration(Integration):
         # that is removed from the installation can still link to the
         # installation the project was _previously_ using.
         try:
-            installation_id = self.project.remote_repository.github_app_installation.installation_id
-            return f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/{installation_id}"
+            return self.project.remote_repository.github_app_installation.html_url
         except AttributeError:
             return None
 
