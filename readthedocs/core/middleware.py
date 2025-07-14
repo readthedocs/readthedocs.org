@@ -98,13 +98,17 @@ class LoginMethodCookie:
         last_login_method = request.COOKIES.get("last-login-method")
         response.context_data["last_login_method"] = last_login_method
 
-        login_tab = None
+        last_login_tab = None
         if last_login_method == "email":
-            login_tab = "email"
+            last_login_tab = "email"
         if last_login_method in ("githubapp", "github", "gitlab", "bitbucket"):
-            login_tab = "vcs"
+            last_login_tab = "vcs"
         if last_login_method in "sso":
-            login_tab = "sso"
-        log.debug("Login method.", last_login_method=last_login_method, login_tab=login_tab)
-        response.context_data["login_tab"] = login_tab
+            last_login_tab = "sso"
+        log.debug(
+            "Login method.",
+            last_login_method=last_login_method,
+            last_login_tab=last_login_tab,
+        )
+        response.context_data["last_login_tab"] = last_login_tab
         return response
