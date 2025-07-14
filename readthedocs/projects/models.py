@@ -1950,7 +1950,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    API_LARGE_DATA = "api_large_data"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
@@ -1979,10 +1978,6 @@ class Feature(models.Model):
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
 
     FEATURES = (
-        (
-            API_LARGE_DATA,
-            _("Build: Try alternative method of posting large data"),
-        ),
         (
             RECORD_404_PAGE_VIEWS,
             _("Proxito: Record 404s page views."),
