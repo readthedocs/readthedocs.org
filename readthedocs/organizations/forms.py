@@ -60,23 +60,30 @@ class OrganizationForm(SimpleHistoryModelForm):
             )
         super().__init__(*args, **kwargs)
 
-    def clean_name(self):
-        """Raise exception on duplicate organization slug."""
-        name = self.cleaned_data["name"]
+    def clean_slug(self):
+        slug_source = self.cleaned_data["slug"]
 
         # Skip slug validation on already created organizations.
         if self.instance.pk:
-            return name
+            return slug_source
 
-        potential_slug = slugify(name)
-        if not potential_slug:
-            raise forms.ValidationError(_("Invalid organization name: no slug generated"))
-        if Organization.objects.filter(slug=potential_slug).exists():
+        slug = slugify(slug_source, dns_safe=True)
+        if not slug:
+            # If the was not empty, but renders down to something empty, the
+            # user gave an invalid slug. However, we can't suggest anything
+            # useful because the slug is empty. This is an edge case for input
+            # like `---`, so the error here doesn't need to be very specific.
+            raise forms.ValidationError(_("Invalid slug, use more valid characters."))
+        elif slug != slug_source:
+            # There is a difference between the slug from the front end code, or
+            # the user is trying to submit the form without our front end code.
             raise forms.ValidationError(
-                _("Organization %(name)s already exists"),
-                params={"name": name},
+                _("Invalid slug, use suggested slug '%(slug)s' instead"),
+                params={"slug": slug},
             )
-        return name
+        if Organization.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(_("Slug is already used by another organization"))
+        return slug
 
 
 class OrganizationSignupFormBase(OrganizationForm):
@@ -105,9 +112,6 @@ class OrganizationSignupFormBase(OrganizationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # `slug` is not required since its value is auto-generated from `name` if not provided
-        self.fields["slug"].required = False
 
     @staticmethod
     def _create_default_teams(organization):

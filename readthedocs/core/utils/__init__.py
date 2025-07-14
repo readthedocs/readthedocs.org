@@ -104,6 +104,10 @@ def prepare_build(
     options["soft_time_limit"] = time_limit
     options["time_limit"] = int(time_limit * 1.2)
 
+    structlog.contextvars.bind_contextvars(
+        time_limit=options["time_limit"], soft_time_limit=options["soft_time_limit"]
+    )
+
     if commit:
         structlog.contextvars.bind_contextvars(commit=commit)
 
