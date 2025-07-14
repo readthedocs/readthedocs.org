@@ -810,6 +810,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 "Creating Docker container.",
                 container_image=self.container_image,
                 container_id=self.container_id,
+                time_limit=self.container_time_limit,
+                mem_limit=self.container_mem_limit,
             )
             self.container = client.create_container(
                 image=self.container_image,
