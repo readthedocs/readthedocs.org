@@ -103,7 +103,7 @@ class LoginMethodCookie:
             last_login_tab = "email"
         if last_login_method in ("githubapp", "github", "gitlab", "bitbucket"):
             last_login_tab = "vcs"
-        if last_login_method in "sso":
+        if last_login_method == "sso":
             last_login_tab = "sso"
         log.debug(
             "Login method.",
