@@ -35,7 +35,7 @@ class PythonEnvironment:
             self.config = load_yaml_config(version)
         # Compute here, since it's used a lot
         self.checkout_path = self.project.checkout_path(self.version.slug)
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=self.project.slug,
             version_slug=self.version.slug,
         )

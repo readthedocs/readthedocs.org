@@ -20,6 +20,7 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import Build, Version
+from readthedocs.integrations.models import GitHubAppIntegration
 from readthedocs.integrations.models import GitHubWebhook, GitLabWebhook
 from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITHUB_APP, GITLAB
 from readthedocs.oauth.models import (
@@ -77,6 +78,10 @@ class GitHubAppTests(TestCase):
         )
         self.project = get(
             Project, users=[self.user], remote_repository=self.remote_repository
+        )
+        self.integration = get(
+            GitHubAppIntegration,
+            project=self.project,
         )
 
         self.remote_organization = get(
@@ -1138,6 +1143,13 @@ class GitHubAppTests(TestCase):
             "body": f"<!-- readthedocs-{another_project.id} -->\nComment from another project.",
         }
 
+    def test_integration_attributes(self):
+        assert self.integration.is_active
+        assert self.integration.get_absolute_url() == "https://github.com/apps/readthedocs/installations/1111"
+        self.project.remote_repository = None
+        assert not self.integration.is_active
+        assert self.integration.get_absolute_url() is None
+
 
 @override_settings(
     PUBLIC_API_URL="https://app.readthedocs.org",
@@ -1431,9 +1443,10 @@ class GitHubOAuthTests(TestCase):
         self.assertIsNotNone(github_project_2)
         self.assertEqual(github_project_2, github_project_6)
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_send_build_status_successful(self, session, mock_logger):
+    def test_send_build_status_successful(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         success = self.service.send_build_status(
             build=self.external_build,
@@ -1442,14 +1455,15 @@ class GitHubOAuthTests(TestCase):
         )
 
         self.assertTrue(success)
-        mock_logger.bind.assert_called_with(http_status_code=201)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=201)
         mock_logger.debug.assert_called_with(
             "GitHub commit status created for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_send_build_status_404_error(self, session, mock_logger):
+    def test_send_build_status_404_error(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         success = self.service.send_build_status(
             build=self.external_build,
@@ -1458,14 +1472,15 @@ class GitHubOAuthTests(TestCase):
         )
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(http_status_code=404)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
         mock_logger.info.assert_called_with(
             "GitHub project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_send_build_status_value_error(self, session, mock_logger):
+    def test_send_build_status_value_error(self, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         success = self.service.send_build_status(
             build=self.external_build,
@@ -1474,7 +1489,7 @@ class GitHubOAuthTests(TestCase):
         )
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             commit_status="success",
             user_username=self.user.username,
@@ -1493,9 +1508,11 @@ class GitHubOAuthTests(TestCase):
         self.assertEqual(repo.organization, self.org)
         self.assertEqual(repo.remote_id, str(self.repo_with_org_response_data["id"]))
 
+
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_setup_webhook_successful(self, session, mock_logger):
+    def test_setup_webhook_successful(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
         success = self.service.setup_webhook(self.project, self.integration)
@@ -1504,35 +1521,37 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(http_status_code=201)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=201)
         mock_logger.debug.assert_called_with(
             "GitHub webhook creation successful for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_setup_webhook_404_error(self, session, mock_logger):
+    def test_setup_webhook_404_error(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         success = self.service.setup_webhook(self.project, self.integration)
         self.integration.refresh_from_db()
 
         self.assertFalse(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(http_status_code=404)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
         mock_logger.warning.assert_called_with(
             "GitHub project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_setup_webhook_value_error(self, session, mock_logger):
+    def test_setup_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.github.com/repos/pypa/pip/hooks",
@@ -1541,9 +1560,10 @@ class GitHubOAuthTests(TestCase):
             "GitHub webhook creation failed for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_update_webhook_successful(self, session, mock_logger):
+    def test_update_webhook_successful(self, session, mock_logger, mock_structlog):
         session.patch.return_value.status_code = 201
         session.patch.return_value.json.return_value = {}
         success = self.service.update_webhook(self.project, self.integration)
@@ -1552,7 +1572,7 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             http_status_code=201,
             url="https://github.com/",
         )
@@ -1579,9 +1599,10 @@ class GitHubOAuthTests(TestCase):
 
         setup_webhook.assert_called_once_with(self.project, self.integration)
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_update_webhook_value_error(self, session, mock_logger):
+    def test_update_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.patch.side_effect = ValueError
         self.service.update_webhook(self.project, self.integration)
 
@@ -1592,9 +1613,10 @@ class GitHubOAuthTests(TestCase):
             "GitHub webhook update failed for project."
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_get_provider_data_successful(self, session, mock_logger):
+    def test_get_provider_data_successful(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -1619,7 +1641,7 @@ class GitHubOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, webhook_data[0])
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.github.com/repos/pypa/pip/hooks",
@@ -1628,9 +1650,10 @@ class GitHubOAuthTests(TestCase):
             "GitHub integration updated with provider data for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_get_provider_data_404_error(self, session, mock_logger):
+    def test_get_provider_data_404_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -1646,9 +1669,10 @@ class GitHubOAuthTests(TestCase):
             https_status_code=404,
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_get_provider_data_attribute_error(self, session, mock_logger):
+    def test_get_provider_data_attribute_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -1659,7 +1683,7 @@ class GitHubOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.github.com/repos/pypa/pip/hooks",
@@ -2050,15 +2074,16 @@ class BitbucketOAuthTests(TestCase):
         services = list(BitbucketService.for_user(get(User)))
         self.assertEqual(services, [])
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_setup_webhook_successful(self, session, mock_logger):
+    def test_setup_webhook_successful(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
         success = self.service.setup_webhook(self.project, self.integration)
 
         self.assertTrue(success)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2067,14 +2092,15 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket webhook creation successful for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_setup_webhook_404_error(self, session, mock_logger):
+    def test_setup_webhook_404_error(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         success = self.service.setup_webhook(self.project, self.integration)
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2083,13 +2109,14 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_setup_webhook_value_error(self, session, mock_logger):
+    def test_setup_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         self.service.setup_webhook(self.project, self.integration)
 
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2098,16 +2125,17 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket webhook creation failed for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_update_webhook_successful(self, session, mock_logger):
+    def test_update_webhook_successful(self, session, mock_logger, mock_structlog):
         session.put.return_value.status_code = 200
         session.put.return_value.json.return_value = {}
         success = self.service.update_webhook(self.project, self.integration)
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(project_slug=self.project.slug)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(project_slug=self.project.slug)
         mock_logger.info.assert_called_with(
             "Bitbucket webhook update successful for project.",
         )
@@ -2131,20 +2159,22 @@ class BitbucketOAuthTests(TestCase):
 
         setup_webhook.assert_called_once_with(self.project, self.integration)
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_update_webhook_value_error(self, session, mock_logger):
+    def test_update_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.put.side_effect = ValueError
         self.service.update_webhook(self.project, self.integration)
 
-        mock_logger.bind.assert_called_with(project_slug=self.project.slug)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(project_slug=self.project.slug)
         mock_logger.exception.assert_called_with(
             "Bitbucket webhook update failed for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_get_provider_data_successful(self, session, mock_logger):
+    def test_get_provider_data_successful(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2169,7 +2199,7 @@ class BitbucketOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, webhook_data["values"][0])
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2178,9 +2208,10 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket integration updated with provider data for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_get_provider_data_404_error(self, session, mock_logger):
+    def test_get_provider_data_404_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2191,7 +2222,7 @@ class BitbucketOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2200,9 +2231,10 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_get_provider_data_attribute_error(self, session, mock_logger):
+    def test_get_provider_data_attribute_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2213,7 +2245,7 @@ class BitbucketOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2431,10 +2463,11 @@ class GitLabOAuthTests(TestCase):
         repo = self.service.create_repository(data, organization=self.org)
         self.assertIsNotNone(repo)
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_send_build_status_successful(self, repo_id, session, mock_logger):
+    def test_send_build_status_successful(self, repo_id, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         repo_id().return_value = "9999"
 
@@ -2445,15 +2478,16 @@ class GitLabOAuthTests(TestCase):
         )
 
         self.assertTrue(success)
-        mock_logger.bind.assert_called_with(http_status_code=201)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=201)
         mock_logger.debug.assert_called_with(
             "GitLab commit status created for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_send_build_status_404_error(self, repo_id, session, mock_logger):
+    def test_send_build_status_404_error(self, repo_id, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         repo_id.return_value = "9999"
 
@@ -2464,15 +2498,16 @@ class GitLabOAuthTests(TestCase):
         )
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(http_status_code=404)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
         mock_logger.info.assert_called_with(
             "GitLab project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_send_build_status_value_error(self, repo_id, session, mock_logger):
+    def test_send_build_status_value_error(self, repo_id, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         repo_id().return_value = "9999"
 
@@ -2483,7 +2518,7 @@ class GitLabOAuthTests(TestCase):
         )
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             commit_status="success",
             user_username=self.user.username,
@@ -2494,9 +2529,10 @@ class GitLabOAuthTests(TestCase):
             debug_data=None,
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_setup_webhook_successful(self, session, mock_logger):
+    def test_setup_webhook_successful(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
         success = self.service.setup_webhook(self.project, self.integration)
@@ -2505,16 +2541,17 @@ class GitLabOAuthTests(TestCase):
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             http_status_code=201,
         )
         mock_logger.debug.assert_called_with(
             "GitLab webhook creation successful for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_setup_webhook_404_error(self, session, mock_logger):
+    def test_setup_webhook_404_error(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         success = self.service.setup_webhook(self.project, self.integration)
 
@@ -2522,21 +2559,22 @@ class GitLabOAuthTests(TestCase):
 
         self.assertFalse(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(http_status_code=404)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
         mock_logger.info.assert_called_with(
             "Gitlab project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_setup_webhook_value_error(self, session, mock_logger):
+    def test_setup_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://gitlab.com/api/v4/projects/testorga%2Ftestrepo/hooks",
@@ -2545,10 +2583,11 @@ class GitLabOAuthTests(TestCase):
             "GitLab webhook creation failed.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_update_webhook_successful(self, repo_id, session, mock_logger):
+    def test_update_webhook_successful(self, repo_id, session, mock_logger, mock_structlog):
         repo_id.return_value = "9999"
         session.put.return_value.status_code = 200
         session.put.return_value.json.return_value = {}
@@ -2558,7 +2597,7 @@ class GitLabOAuthTests(TestCase):
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )
@@ -2589,10 +2628,11 @@ class GitLabOAuthTests(TestCase):
 
         setup_webhook.assert_called_once_with(self.project, self.integration)
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_update_webhook_value_error(self, repo_id, session, mock_logger):
+    def test_update_webhook_value_error(self, repo_id, session, mock_logger, mock_structlog):
         repo_id.return_value = "9999"
         session.put.side_effect = ValueError
         self.service.update_webhook(self.project, self.integration)
@@ -2600,7 +2640,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )
@@ -2609,9 +2649,10 @@ class GitLabOAuthTests(TestCase):
             debug_data=None,
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_get_provider_data_successful(self, session, mock_logger):
+    def test_get_provider_data_successful(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2636,7 +2677,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, webhook_data[0])
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )
@@ -2644,9 +2685,10 @@ class GitLabOAuthTests(TestCase):
             "GitLab integration updated with provider data for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_get_provider_data_404_error(self, session, mock_logger):
+    def test_get_provider_data_404_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2657,7 +2699,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )
@@ -2665,9 +2707,10 @@ class GitLabOAuthTests(TestCase):
             "GitLab project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_get_provider_data_attribute_error(self, session, mock_logger):
+    def test_get_provider_data_attribute_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2678,7 +2721,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )

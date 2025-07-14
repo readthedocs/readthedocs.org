@@ -146,7 +146,7 @@ class FileManifestIndexer(Indexer):
             ],
         )
         write_manifest(self.version, manifest)
-        if self.version.is_external:
+        if self.version.is_external and self.version.project.show_build_overview_in_comment:
             post_build_overview.delay(self.build.id)
 
 
@@ -284,7 +284,7 @@ def index_build(build_id):
         )
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=build.id,
@@ -327,7 +327,7 @@ def reindex_version(version_id, search_index_name=None):
         )
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=latest_successful_build.id,
@@ -352,7 +352,7 @@ def index_project(project_slug, skip_if_exists=False):
     the project has at least one version indexed,
     and skip the re-indexing if it does.
     """
-    log.bind(project_slug=project_slug)
+    structlog.contextvars.bind_contextvars(project_slug=project_slug)
     project = Project.objects.filter(slug=project_slug).first()
     if not project:
         log.debug("Project doesn't exist.")

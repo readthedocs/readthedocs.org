@@ -376,7 +376,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     def post(self, *args, **kwargs):
         self._set_initial_dict()
 
-        log.bind(user_username=self.request.user.username)
+        structlog.contextvars.bind_contextvars(user_username=self.request.user.username)
 
         if self.request.user.profile.banned:
             log.info("Rejecting project POST from shadowbanned user.")
@@ -910,7 +910,18 @@ class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
         return self.get_integration_queryset()
 
     def get_object(self):
+        integration = self.get_integration()
+        # Don't allow an integration detail page if the integration subclass
+        # does not support configuration
+        if integration.is_remote_only:
+            raise Http404
         return self.get_integration()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if "object_list" in context:
+            context["subclassed_object_list"] = context["object_list"].subclass()
+        return context
 
     def get_integration_queryset(self):
         self.project = self.get_project()
