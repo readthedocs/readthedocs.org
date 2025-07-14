@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             name="linkpreviews_selector",
             field=models.CharField(
                 blank=True,
-                help_text="CSS selector for the links preview of the page. Leave it blank for auto-detect.",
+                help_text="CSS selector to select links you want enabled for link previews. Leave it blank for auto-detect all links in your main page content.",
                 max_length=128,
                 null=True,
             ),
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             name="linkpreviews_selector",
             field=models.CharField(
                 blank=True,
-                help_text="CSS selector for the links preview of the page. Leave it blank for auto-detect.",
+                help_text="CSS selector to select links you want enabled for link previews. Leave it blank for auto-detect all links in your main page content.",
                 max_length=128,
                 null=True,
             ),

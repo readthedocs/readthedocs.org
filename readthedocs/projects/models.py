@@ -263,7 +263,7 @@ class AddonsConfig(TimeStampedModel):
         null=True,
         blank=True,
         max_length=128,
-        help_text="CSS selector for the links preview of the page. Leave it blank for auto-detect.",
+        help_text="CSS selector to select links you want enabled for link previews. Leave it blank for auto-detect all links in your main page content.",
     )
 
 
