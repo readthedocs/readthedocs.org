@@ -101,7 +101,7 @@ class LoginMethodCookie:
         last_login_tab = None
         if last_login_method == "email":
             last_login_tab = "email"
-        if last_login_method in ("githubapp", "github", "gitlab", "bitbucket"):
+        if last_login_method in ("githubapp", "github", "gitlab", "bitbucket_oauth2", "google"):
             last_login_tab = "vcs"
         if last_login_method == "sso":
             last_login_tab = "sso"
