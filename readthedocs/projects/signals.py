@@ -41,7 +41,7 @@ def create_integration_on_github_app_project(instance, *args, **kwargs):
         integration_type=Integration.GITHUBAPP,
     )
     # Save some metadata about the GitHub App installation and repository,
-    # so we can use it to guide the user if our apps loses access to the repository.
+    # so we can know which repository the project was linked to.
     remote_repo = project.remote_repository
     installation = project.remote_repository.github_app_installation
     integration.provider_data = {
