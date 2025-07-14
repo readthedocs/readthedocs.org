@@ -1,0 +1,5 @@
+extends: substitution
+message: "Use 'Read the Docs' instead of 'RTD'"
+level: warning
+swap:
+  RTD: 'Read the Docs'
