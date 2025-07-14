@@ -13,34 +13,9 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP
 from readthedocs.oauth.tasks import sync_remote_repositories
 from readthedocs.projects.models import Feature
-from django.utils import timezone
 
 
 log = structlog.get_logger(__name__)
-
-
-@receiver(user_logged_in, sender=User)
-def save_last_login_method_used(sender, request, user, *args, **kwargs):
-    """Save the login method used by the user.
-
-    We don't know exactly what was the method used (regular user or social
-    account), so we check if any of the social account was used in the last 5
-    seconds, if so, we save it as last method used.
-
-    If we don't find a social account used in the last seconds, we set "email"
-    as login method.
-
-    The method is saved in `Request._last_login_method_used`. This attribute is
-    read in the middleware to set the cookie in the response.
-
-    Then, next time the user logs in, the middleware reads the cookie and
-    updates the context data.
-    """
-    socialaccount = user.socialaccount_set.filter(last_login__gt=timezone.now() - timezone.timedelta(seconds=5)).first()
-    if socialaccount:
-        request._last_login_method_used = socialaccount.provider
-    else:
-        request._last_login_method_used = "email"
 
 
 @receiver(user_logged_in, sender=User)

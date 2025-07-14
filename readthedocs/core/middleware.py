@@ -91,12 +91,20 @@ class LoginMethodCookie:
 
     def __call__(self, request):
         response = self.get_response(request)
-        if request.user.is_authenticated and hasattr(request, "_last_login_method_used"):
-            response.set_cookie("last_login_method", request._last_login_method_used)
         return response
 
     def process_template_response(self, request, response):
         response.context_data = response.context_data or {}
-        response.context_data["last_login_method"] = request.COOKIES.get("last_login_method")
-        # response.context_data["last_login_method"] = "github"
+        last_login_method = request.COOKIES.get("last-login-method")
+        response.context_data["last_login_method"] = last_login_method
+
+        login_tab = None
+        if last_login_method == "email":
+            login_tab = "email"
+        if last_login_method in ("githubapp", "github", "gitlab", "bitbucket"):
+            login_tab = "vcs"
+        if last_login_method in "sso":
+            login_tab = "sso"
+        log.debug("Login method.", last_login_method=last_login_method, login_tab=login_tab)
+        response.context_data["login_tab"] = login_tab
         return response
