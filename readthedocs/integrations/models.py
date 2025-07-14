@@ -4,6 +4,7 @@ import json
 import re
 import uuid
 
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -351,6 +352,23 @@ class GitHubWebhook(Integration):
 
 
 class GitHubAppIntegration(Integration):
+    """
+    Dummy integration for GitHub App projects.
+
+    This is a proxy model for the Integration model, which is used to
+    represent GitHub App integrations in the UI.
+
+    This integration is automatically created when a project is linked to a
+    remote repository from a GitHub App installation, and it remains
+    associated with the project even if the remote repository is removed.
+
+    The provider_data field has the following information:
+
+    - installation_id
+    - repository_id
+    - repository_full_name
+    """
+
     integration_type_id = Integration.GITHUBAPP
     has_sync = False
     is_remote_only = True
@@ -365,16 +383,15 @@ class GitHubAppIntegration(Integration):
         Instead of showing a link to the integration details page, for GHA
         projects we show a link in the UI to the GHA installation page for the
         installation used by the project.
+
+        If the project was disconnected from the remote repository,
+        we can't link to the installation page, but we can still link
+        to the GitHub App page, from where the user can install the app
+        into the correct account.
         """
-        # If the GHA is disconnected we'll disonnect the remote repository and
-        # so we won't have a URL to the installation page the project should be
-        # using. We might want to store this on the model later so a repository
-        # that is removed from the installation can still link to the
-        # installation the project was _previously_ using.
-        try:
+        if self.project.is_github_app_project:
             return self.project.remote_repository.github_app_installation.html_url
-        except AttributeError:
-            return None
+        return f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/new/"
 
     @property
     def is_active(self) -> bool:

@@ -88,7 +88,11 @@ class TestExternalBuildOption(TestCase):
         github_app_installation = get(
             GitHubAppInstallation,
         )
-        remote_repository = get(RemoteRepository, vcs_provider=GITHUB_APP, github_app_installation=github_app_installation)
+        remote_repository = get(
+            RemoteRepository,
+            vcs_provider=GITHUB_APP,
+            github_app_installation=github_app_installation,
+        )
         self.project.remote_repository = remote_repository
         self.project.save()
 
