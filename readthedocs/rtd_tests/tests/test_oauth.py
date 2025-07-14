@@ -1179,7 +1179,7 @@ class GitHubAppTests(TestCase):
         service = self.installation.service
 
         # No comments exist, so it will not create a new one.
-        service.post_comment(build, "Comment!", update_only=True)
+        service.post_comment(build, "Comment!", create_new=False)
         assert not request_post_comment.called
 
         request.get(
@@ -1202,7 +1202,7 @@ class GitHubAppTests(TestCase):
         request_post_comment.reset()
 
         # A comment exists from the bot, so it will update it.
-        service.post_comment(build, "Comment!", update_only=True)
+        service.post_comment(build, "Comment!", create_new=False)
         assert not request_post_comment.called
 
         assert request_patch_comment.called

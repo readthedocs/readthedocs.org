@@ -475,7 +475,7 @@ def post_build_overview(build_pk):
         service.post_comment(
             build=build,
             comment=build_overview.content,
-            update_only=not build_overview.diff.files,
+            create_new=bool(build_overview.diff.files),
         )
         log.debug("PR comment posted successfully.")
         return

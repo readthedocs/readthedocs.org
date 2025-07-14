@@ -512,7 +512,7 @@ class GitHubAppService(Service):
         """When using a GitHub App, we don't need to set up a webhook."""
         return True
 
-    def post_comment(self, build, comment: str, update_only: bool = False):
+    def post_comment(self, build, comment: str, create_new: bool = True):
         """
         Post a comment on the pull request attached to the build.
 
@@ -545,7 +545,7 @@ class GitHubAppService(Service):
         comment = f"{comment_marker}\n{comment}"
         if existing_gh_comment:
             existing_gh_comment.edit(body=comment)
-        elif not update_only:
+        elif create_new:
             gh_issue.create_comment(body=comment)
         else:
             log.debug(
