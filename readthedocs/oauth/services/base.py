@@ -111,8 +111,12 @@ class Service:
         """Get a token used for cloning the repository."""
         raise NotImplementedError
 
-    def post_comment(self, build, comment: str):
-        """Post a comment on the pull request attached to the build."""
+    def post_comment(self, build, comment: str, create_new: bool = True):
+        """
+        Post a comment on the pull request attached to the build.
+
+        :param create_new: Create a new comment if one doesn't exist.
+        """
         raise NotImplementedError
 
     @classmethod
@@ -140,7 +144,7 @@ class UserService(Service):
     def __init__(self, user, account):
         self.user = user
         self.account = account
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             user_username=self.user.username,
             social_provider=self.allauth_provider.id,
             social_account_id=self.account.pk,

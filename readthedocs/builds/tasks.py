@@ -384,7 +384,7 @@ def send_build_status(build_pk, commit, status):
     if not build:
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         build_id=build.pk,
         project_slug=build.project.slug,
         commit=commit,
@@ -431,12 +431,23 @@ def send_build_status(build_pk, commit, status):
 
 @app.task(max_retries=3, default_retry_delay=60, queue="web")
 def post_build_overview(build_pk):
+    """
+    Post an overview about the build to the project's Git service.
+
+    The overview contains information about the build,
+    and the list of files that were changed in the build.
+
+    If no files changed in the build,
+    we only update the build overview if there is an existing comment.
+
+    Only GitHub is supported at the moment.
+    """
     build = Build.objects.filter(pk=build_pk).first()
     if not build:
         return
 
     version = build.version
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         build_id=build.pk,
         project_slug=build.project.slug,
         version_slug=version.slug,
@@ -455,15 +466,16 @@ def post_build_overview(build_pk):
         log.debug("Git service doesn't support creating comments.")
         return
 
-    comment = get_build_overview(build)
-    if not comment:
+    build_overview = get_build_overview(build)
+    if not build_overview:
         log.debug("No build overview available, skipping posting comment.")
         return
 
     for service in service_class.for_project(build.project):
         service.post_comment(
             build=build,
-            comment=comment,
+            comment=build_overview.content,
+            create_new=bool(build_overview.diff.files),
         )
         log.debug("PR comment posted successfully.")
         return
