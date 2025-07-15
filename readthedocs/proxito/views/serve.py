@@ -321,21 +321,42 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             return spam_response
 
         # Trailing slash redirect.
-        # We don't want to serve documentation at:
-        # - `/en/latest`
-        # - `/projects/subproject/en/latest`
-        # - `/projects/subproject`
-        # These paths need to end with an slash.
-        if filename == "/" and not path.endswith("/"):
-            # TODO: We could avoid calling the resolver,
-            # and just redirect to the same path with a slash.
-            return self.system_redirect(
-                request=request,
-                final_project=project,
-                version_slug=version.slug,
-                filename=filename,
-                is_external_version=unresolved_domain.is_from_external_domain,
-            )
+        if not path.endswith("/"):
+            if filename == "/":
+                # We don't want to serve documentation at:
+                # - `/en/latest`
+                # - `/projects/subproject/en/latest`
+                # - `/projects/subproject`
+                # These paths need to end with an slash.
+
+                # TODO: We could avoid calling the resolver,
+                # and just redirect to the same path with a slash.
+                return self.system_redirect(
+                    request=request,
+                    final_project=project,
+                    version_slug=version.slug,
+                    filename=filename,
+                    is_external_version=unresolved_domain.is_from_external_domain,
+                )
+            else:
+                # Valid path without trailing slash.
+                # We want to check if there is a redirect configured for this project,
+                # and append `.html` in that case.
+                # https://github.com/readthedocs/readthedocs.org/issues/11220
+                # - `/en/latest/tabs` - > `/en/latest/tabs.html`
+                # - `/en/latest/guides/myst` - > `/en/latest/guides/myst.html`
+                # Check if the project has "Clean URL, without trailing slash, to HTML" redirect configured.
+                redirect_response = self.get_redirect_response(
+                    request=request,
+                    project=project,
+                    language=project.language,
+                    version_slug=version.slug,
+                    filename=filename,
+                    path=request.path,
+                    forced_only=True,
+                )
+                if redirect_response:
+                    return redirect_response
 
         # Check for forced redirects on non-external domains only.
         if not unresolved_domain.is_from_external_domain:

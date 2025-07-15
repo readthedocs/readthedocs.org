@@ -12,6 +12,7 @@ from django.db.models import Value
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
+from readthedocs.redirects.constants import CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT
 from readthedocs.redirects.constants import EXACT_REDIRECT
 from readthedocs.redirects.constants import HTML_TO_CLEAN_URL_REDIRECT
 from readthedocs.redirects.constants import PAGE_REDIRECT
@@ -110,6 +111,9 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
             path__startswith=F("from_url_without_rest"),
         )
         clean_url_to_html = Q(redirect_type=CLEAN_URL_TO_HTML_REDIRECT)
+        clean_url_without_trailing_slash_to_html = Q(
+            redirect_type=CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT
+        )
         html_to_clean_url = Q(redirect_type=HTML_TO_CLEAN_URL_REDIRECT)
 
         if filename in ["/index.html", "/"]:
@@ -122,7 +126,7 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
             elif filename.endswith(".html"):
                 queryset = queryset.filter(page | exact | html_to_clean_url)
             else:
-                queryset = queryset.filter(page | exact)
+                queryset = queryset.filter(page | exact | clean_url_without_trailing_slash_to_html)
         else:
             # If the filename is empty, we only need to match exact redirects.
             # Since the other types of redirects are not valid without a filename.
