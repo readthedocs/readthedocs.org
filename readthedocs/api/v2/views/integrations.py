@@ -90,7 +90,7 @@ class WebhookMixin:
         """Set up webhook post view with request and project objects."""
         self.request = request
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project_slug,
             integration_type=self.integration_type,
         )
@@ -453,7 +453,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         created = self.data.get("created", False)
         deleted = self.data.get("deleted", False)
         event = self.request.headers.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
-        log.bind(webhook_event=event)
+        structlog.contextvars.bind_contextvars(webhook_event=event)
         webhook_github.send(
             Project,
             project=self.project,
@@ -609,7 +609,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         """
         event = self.request.data.get("object_kind", GITLAB_PUSH)
         action = self.data.get("object_attributes", {}).get("action", None)
-        log.bind(webhook_event=event)
+        structlog.contextvars.bind_contextvars(webhook_event=event)
         webhook_gitlab.send(
             Project,
             project=self.project,
@@ -702,7 +702,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         attribute (null if it is a creation).
         """
         event = self.request.headers.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
-        log.bind(webhook_event=event)
+        structlog.contextvars.bind_contextvars(webhook_event=event)
         webhook_bitbucket.send(
             Project,
             project=self.project,
