@@ -17,6 +17,7 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Feature
 from readthedocs.redirects.constants import (
+    CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
     CLEAN_URL_TO_HTML_REDIRECT,
     EXACT_REDIRECT,
     HTML_TO_CLEAN_URL_REDIRECT,
@@ -1239,6 +1240,22 @@ class UserForcedRedirectTests(BaseDocServing):
         self.assertEqual(
             r["Location"],
             "http://project.dev.readthedocs.io/en/latest/faq.html",
+        )
+
+    def test_redirect_html_without_trailing_slash(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/guides/faq", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/guides/faq.html",
         )
 
     def test_redirect_htmldir(self):

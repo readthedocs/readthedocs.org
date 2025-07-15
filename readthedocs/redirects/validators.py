@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
+from readthedocs.redirects.constants import CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT
 from readthedocs.redirects.constants import EXACT_REDIRECT
 from readthedocs.redirects.constants import HTML_TO_CLEAN_URL_REDIRECT
 from readthedocs.redirects.constants import PAGE_REDIRECT
@@ -32,7 +33,11 @@ def validate_redirect(*, project, pk, redirect_type, from_url, to_url, error_cla
                 "The * wildcard must be at the end of from_url to use the :splat placeholder in to_url."
             )
 
-    if redirect_type in [CLEAN_URL_TO_HTML_REDIRECT, HTML_TO_CLEAN_URL_REDIRECT]:
+    if redirect_type in [
+        CLEAN_URL_TO_HTML_REDIRECT,
+        CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
+        HTML_TO_CLEAN_URL_REDIRECT,
+    ]:
         redirect_exists = (
             project.redirects.filter(redirect_type=redirect_type).exclude(pk=pk).exists()
         )

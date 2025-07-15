@@ -346,17 +346,21 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 # - `/en/latest/tabs` - > `/en/latest/tabs.html`
                 # - `/en/latest/guides/myst` - > `/en/latest/guides/myst.html`
                 # Check if the project has "Clean URL, without trailing slash, to HTML" redirect configured.
-                redirect_response = self.get_redirect_response(
-                    request=request,
-                    project=project,
-                    language=project.language,
-                    version_slug=version.slug,
-                    filename=filename,
-                    path=request.path,
-                    forced_only=True,
-                )
-                if redirect_response:
-                    return redirect_response
+                try:
+                    redirect_response = self.get_redirect_response(
+                        request=request,
+                        project=project,
+                        language=project.language,
+                        version_slug=version.slug,
+                        filename=filename,
+                        path=request.path,
+                        forced_only=True,
+                    )
+                    if redirect_response:
+                        return redirect_response
+                except InfiniteRedirectException:
+                    # Continue with our normal serve.
+                    pass
 
         # Check for forced redirects on non-external domains only.
         if not unresolved_domain.is_from_external_domain:
