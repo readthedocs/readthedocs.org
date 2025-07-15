@@ -1,10 +1,13 @@
 """Project signals."""
 
+from dataclasses import asdict
+
 import django.dispatch
 import structlog
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from readthedocs.integrations.models import GitHubAppIntegrationProviderData
 from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import AddonsConfig
 from readthedocs.projects.models import Project
@@ -44,9 +47,11 @@ def create_integration_on_github_app_project(instance, *args, **kwargs):
     # so we can know which repository the project was linked to.
     remote_repo = project.remote_repository
     installation = project.remote_repository.github_app_installation
-    integration.provider_data = {
-        "installation_id": installation.installation_id,
-        "repository_id": remote_repo.remote_id,
-        "repository_full_name": remote_repo.full_name,
-    }
+    integration.provider_data = asdict(
+        GitHubAppIntegrationProviderData(
+            installation_id=installation.installation_id,
+            repository_id=int(remote_repo.remote_id),
+            repository_full_name=remote_repo.full_name,
+        )
+    )
     integration.save()

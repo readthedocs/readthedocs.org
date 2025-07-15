@@ -96,7 +96,7 @@ class GitHubAppInstallation(TimeStampedModel):
         return GitHubAppService(self)
 
     @property
-    def html_url(self):
+    def url(self):
         """Return the URL to the GitHub App installation page."""
         return f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/{self.installation_id}"
 

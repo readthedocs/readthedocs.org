@@ -3,6 +3,7 @@
 import json
 import re
 import uuid
+from dataclasses import dataclass
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
@@ -350,6 +351,13 @@ class GitHubWebhook(Integration):
             return False
 
 
+@dataclass
+class GitHubAppIntegrationProviderData:
+    installation_id: int
+    repository_id: int
+    repository_full_name: str
+
+
 class GitHubAppIntegration(Integration):
     """
     Dummy integration for GitHub App projects.
@@ -361,11 +369,7 @@ class GitHubAppIntegration(Integration):
     remote repository from a GitHub App installation, and it remains
     associated with the project even if the remote repository is removed.
 
-    The provider_data field has the following information:
-
-    - installation_id
-    - repository_id
-    - repository_full_name
+    The provider_data field is a JSON representation of the GitHubAppIntegrationProviderData class.
     """
 
     integration_type_id = Integration.GITHUBAPP
@@ -389,7 +393,7 @@ class GitHubAppIntegration(Integration):
         # that is removed from the installation can still link to the
         # installation the project was _previously_ using.
         if self.project.is_github_app_project:
-            return self.project.remote_repository.github_app_installation.html_url
+            return self.project.remote_repository.github_app_installation.url
         return None
 
     @property
