@@ -228,6 +228,7 @@ class TestPostBuildOverview(TestCase):
         post_comment.assert_called_once_with(
             build=self.current_version_build,
             comment=expected_comment,
+            create_new=True,
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
@@ -280,6 +281,7 @@ class TestPostBuildOverview(TestCase):
         post_comment.assert_called_once_with(
             build=self.current_version_build,
             comment=expected_comment,
+            create_new=True,
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
@@ -312,6 +314,7 @@ class TestPostBuildOverview(TestCase):
         post_comment.assert_called_once_with(
             build=self.current_version_build,
             comment=expected_comment,
+            create_new=False,
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
