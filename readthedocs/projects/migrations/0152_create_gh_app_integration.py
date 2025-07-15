@@ -23,7 +23,7 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
     safe = Safe.after_deploy()
     dependencies = [
-        ("projects", "0150_add_ssh_key_with_write_access"),
+        ("projects", "0151_addons_linkpreviews_selector"),
     ]
 
     operations = [
