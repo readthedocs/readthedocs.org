@@ -369,7 +369,7 @@ class GitHubAppIntegration(Integration):
     remote repository from a GitHub App installation, and it remains
     associated with the project even if the remote repository is removed.
 
-    The provider_data field is a JSON representation of the GitHubAppIntegrationProviderData class.
+    The `provider_data` field is a JSON representation of the `GitHubAppIntegrationProviderData` class.
     """
 
     integration_type_id = Integration.GITHUBAPP
