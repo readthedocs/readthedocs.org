@@ -396,16 +396,13 @@ class CommunityBaseSettings(Settings):
     # Content Security Policy
     # https://django-csp.readthedocs.io/
     CSP_FRAME_ANCESTORS = ("'none'",)
-    CSP_OBJECT_SRC = ("'none'",)
     CSP_REPORT_URI = None
     CSP_REPORT_ONLY = False
-    CSP_EXCLUDE_URL_PREFIXES = ("/admin/",)
 
     # Default to disallow everything, and then allow specific sources on each directive.
     CSP_DEFAULT_SRC = ["'none'"]
     CSP_SCRIPT_SRC = [
         "'self'",
-        STATIC_URL,
         # Some of our JS deps are using eval.
         "'unsafe-eval'",
         # Allow fontawesome to load.
@@ -434,7 +431,6 @@ class CommunityBaseSettings(Settings):
     ]
     CSP_STYLE_SRC = [
         "'self'",
-        STATIC_URL,
         # We have lots of inline styles!
         # TODO: we should remove this.
         "'unsafe-inline'",
@@ -453,13 +449,9 @@ class CommunityBaseSettings(Settings):
         "https://billing.stripe.com",
         "https://checkout.stripe.com",
     ]
-    # Allow our support form to submit to external domains.
-    if SUPPORT_FORM_ENDPOINT:
-        CSP_FORM_ACTION.append(SUPPORT_FORM_ENDPOINT)
 
     CSP_FONT_SRC = [
         "'self'",
-        STATIC_URL,
         # Allow fontawesome to load.
         "data:",
         "https://ka-p.fontawesome.com",

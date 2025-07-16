@@ -63,19 +63,30 @@ class DockerBaseSettings(CommunityBaseSettings):
     def CSP_SCRIPT_SRC(self):
         csp_script_src = super().CSP_SCRIPT_SRC
         csp_script_src.append(self.RTD_EXT_THEME_DEV_SERVER)
+        csp_script_src.append(self.STATIC_URL)
         return csp_script_src
 
     @property
     def CSP_FONT_SRC(self):
         csp_font_src = super().CSP_FONT_SRC
         csp_font_src.append(self.RTD_EXT_THEME_DEV_SERVER)
+        csp_font_src.append(self.STATIC_URL)
         return csp_font_src
 
     @property
     def CSP_STYLE_SRC(self):
         csp_style_src = super().CSP_STYLE_SRC
         csp_style_src.append(self.RTD_EXT_THEME_DEV_SERVER)
+        csp_style_src.append(self.STATIC_URL)
         return csp_style_src
+
+    @property
+    def CSP_FORM_ACTION(self):
+        csp_form_action = super().CSP_FORM_ACTION
+        # Allow our support form to submit to external domains.
+        if self.SUPPORT_FORM_ENDPOINT:
+            csp_form_action.append(self.SUPPORT_FORM_ENDPOINT)
+        return csp_form_action
 
     @property
     def DOCROOT(self):
