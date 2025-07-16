@@ -1,5 +1,6 @@
 """Git-related utilities."""
 
+import os
 import re
 from typing import Iterable
 from urllib.parse import urlparse
@@ -15,6 +16,7 @@ from readthedocs.config import ALL
 from readthedocs.projects.constants import GITHUB_PR_PULL_PATTERN
 from readthedocs.projects.constants import GITLAB_MR_PULL_PATTERN
 from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.models import Feature
 from readthedocs.vcs_support.base import BaseVCS
 from readthedocs.vcs_support.base import VCSVersion
 
@@ -42,6 +44,10 @@ class Backend(BaseVCS):
     def update(self):
         """Clone and/or fetch remote repository."""
         super().update()
+
+        # Check for existing checkout and skip clone if it exists.
+        if self.project.has_feature(Feature.DONT_CLEAN_BUILD) and os.path.exists(self.working_dir):
+            return self.fetch()
 
         self.clone()
         # TODO: We are still using return values in this function that are legacy.
