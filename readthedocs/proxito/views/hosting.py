@@ -507,6 +507,7 @@ class AddonsResponseBase:
                 },
                 "linkpreviews": {
                     "enabled": project.addons.linkpreviews_enabled,
+                    "selector": project.addons.linkpreviews_selector,
                 },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,

@@ -16,11 +16,9 @@ from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
-from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
-from readthedocs.projects.models import Feature
 
 from .constants import DOCKER_HOSTNAME_MAX_LEN
 from .constants import DOCKER_IMAGE
@@ -109,7 +107,7 @@ class BuildCommand(BuildCommandResultMixin):
             # When using `project.vcs_repo` on tests we are passing `environment=False`.
             # See https://github.com/readthedocs/readthedocs.org/pull/6482#discussion_r367694530
             if self.build_env.project and self.build_env.version:
-                log.bind(
+                structlog.contextvars.bind_contextvars(
                     project_slug=self.build_env.project.slug,
                     version_slug=self.build_env.version.slug,
                 )
@@ -117,7 +115,7 @@ class BuildCommand(BuildCommandResultMixin):
             # NOTE: `self.build_env.build` is not available when using this class
             # from `sync_repository_task` since it's not associated to any build
             if self.build_env.build:
-                log.bind(
+                structlog.contextvars.bind_contextvars(
                     build_id=self.build_env.build.get("id"),
                 )
 
@@ -270,35 +268,12 @@ class BuildCommand(BuildCommandResultMixin):
 
         # If the command has an id, it means it has been saved before,
         # so we update it instead of creating a new one.
-        if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
-            # Don't use slumber directly here. Slumber tries to enforce a string,
-            # which will break our multipart encoding here.
-            encoder = MultipartEncoder({key: str(value) for key, value in data.items()})
-            if self.id:
-                resource = api_client.command(self.id).patch
-                resp = resource._store["session"].patch(
-                    resource._store["url"],
-                    data=encoder,
-                    headers={
-                        "Content-Type": encoder.content_type,
-                    },
-                )
-            else:
-                resource = api_client.command.post
-                resp = resource._store["session"].post(
-                    resource._store["base_url"],
-                    data=encoder,
-                    headers={
-                        "Content-Type": encoder.content_type,
-                    },
-                )
-            log.debug("Response via multipart form.", response=resp)
+        if self.id:
+            resp = api_client.command(self.id).patch(data)
         else:
-            if self.id:
-                resp = api_client.command(self.id).patch(data)
-            else:
-                resp = api_client.command.post(data)
-            log.debug("Response via JSON encoded data.", response=resp)
+            resp = api_client.command.post(data)
+
+        log.debug("Response via JSON encoded data.", response=resp)
 
         self.id = resp.get("id")
 
@@ -627,7 +602,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         if self.project.container_time_limit:
             self.container_time_limit = self.project.container_time_limit
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=self.project.slug,
             version_slug=self.version.slug,
         )
@@ -635,7 +610,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         # NOTE: as this environment is used for `sync_repository_task` it may
         # not have a build associated
         if self.build:
-            log.bind(
+            structlog.contextvars.bind_contextvars(
                 build_id=self.build.get("id"),
             )
 
@@ -835,6 +810,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 "Creating Docker container.",
                 container_image=self.container_image,
                 container_id=self.container_id,
+                time_limit=self.container_time_limit,
+                mem_limit=self.container_mem_limit,
             )
             self.container = client.create_container(
                 image=self.container_image,

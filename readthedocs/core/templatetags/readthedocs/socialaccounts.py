@@ -41,3 +41,9 @@ def has_github_app_account(account):
         provider=GitHubAppProvider.id,
         uid=account.uid,
     ).exists()
+
+
+@register.filter
+def user_has_github_app_account(user):
+    """Check if a user has a GitHub App account."""
+    return user.socialaccount_set.filter(provider=GitHubAppProvider.id).exists()

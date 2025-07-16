@@ -259,6 +259,12 @@ class AddonsConfig(TimeStampedModel):
 
     # Link Previews
     linkpreviews_enabled = models.BooleanField(default=False)
+    linkpreviews_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector to select links you want enabled for link previews. Leave it blank for auto-detect all links in your main page content.",
+    )
 
 
 class AddonSearchFilter(TimeStampedModel):
@@ -911,7 +917,7 @@ class Project(models.Model):
         if self.remote_repository:
             return self.remote_repository.html_url
 
-        ssh_url_pattern = re.compile(r"^(?P<user>.+)@(?P<host>.+):(?<repo>.+)$")
+        ssh_url_pattern = re.compile(r"^(?P<user>.+)@(?P<host>.+):(?P<repo>.+)$")
         match = ssh_url_pattern.match(self.repo)
         if match:
             return f"https://{match.group('host')}/{match.group('repo')}"
@@ -1944,7 +1950,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    API_LARGE_DATA = "api_large_data"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
@@ -1973,10 +1978,6 @@ class Feature(models.Model):
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
 
     FEATURES = (
-        (
-            API_LARGE_DATA,
-            _("Build: Try alternative method of posting large data"),
-        ),
         (
             RECORD_404_PAGE_VIEWS,
             _("Proxito: Record 404s page views."),

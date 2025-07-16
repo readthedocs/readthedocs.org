@@ -248,6 +248,7 @@ class CommunityBaseSettings(Settings):
             "djstripe",
             "django_celery_beat",
             "django_safemigrate.apps.SafeMigrateConfig",
+            "django_structlog",
             # our apps
             "readthedocs.projects",
             "readthedocs.organizations",
@@ -329,7 +330,7 @@ class CommunityBaseSettings(Settings):
             "readthedocs.core.middleware.UpdateCSPMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
-            "django_structlog.middlewares.CeleryMiddleware",
+            "django_structlog.middlewares.RequestMiddleware",
         ]
         if self.SHOW_DEBUG_TOOLBAR:
             middlewares.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
@@ -640,6 +641,8 @@ class CommunityBaseSettings(Settings):
 
     # Sentry
     SENTRY_CELERY_IGNORE_EXPECTED = True
+
+    DJANGO_STRUCTLOG_CELERY_ENABLED = True
 
     # Docker
     DOCKER_ENABLE = False
