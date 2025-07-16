@@ -285,6 +285,8 @@ parso==0.8.4
     # via jedi
 pexpect==4.9.0
     # via ipython
+pillow==11.2.1
+    # via -r requirements/pip.txt
 platformdirs==4.3.8
     # via
     #   -r requirements/pip.txt
