@@ -1,4 +1,11 @@
 """Views for hosting features."""
+import copy
+import time
+import timeit
+from silk.profiling.profiler import silk_profile
+
+from django.db.models import Q
+from rest_framework.renderers import BrowsableAPIRenderer
 
 from functools import lru_cache
 
@@ -12,6 +19,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
@@ -100,10 +108,13 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
     http_method_names = ["get"]
     permission_classes = [IsAuthorizedToViewProject | IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer]
+    # renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     project_cache_tag = "rtd-addons"
 
     @lru_cache(maxsize=1)
     def _resolve_resources(self):
+        # Total time: xxms
+        start_time = time.perf_counter()
         url = self.request.GET.get("url")
         project_slug = self.request.GET.get("project-slug")
         version_slug = self.request.GET.get("version-slug")
@@ -154,6 +165,12 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 .first()
             )
 
+        end_time = time.perf_counter()
+        elapsed_time = end_time - start_time
+        in_milliseconds = elapsed_time * 1000
+        log.info(
+            "Resolve resources", total_time=f"{in_milliseconds:.3f}ms"
+        )
         return project, version, build, filename
 
     def _get_project(self):
@@ -172,7 +189,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         project_slug = request.GET.get("project-slug")
         version_slug = request.GET.get("version-slug")
         if not url and (not project_slug or not version_slug):
-            return JsonResponse(
+            return Response(
                 {
                     "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
                 },
@@ -180,11 +197,12 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             )
         return super().dispatch(request, *args, **kwargs)
 
+    # @silk_profile(name="ReadTheDocsConfigJson.get")
     def get(self, request, *args, **kwargs):
         url = request.GET.get("url")
         addons_version = request.GET.get("api-version")
         if not addons_version:
-            return JsonResponse(
+            return Response(
                 {"error": "'api-version' GET attribute is required"},
                 status=400,
             )
@@ -193,20 +211,22 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             if addons_version.major not in ADDONS_VERSIONS_SUPPORTED:
                 raise ClientError
         except packaging.version.InvalidVersion:
-            return JsonResponse(
+            return Response(
                 {
                     "error": ClientError.VERSION_INVALID,
                 },
                 status=400,
             )
         except ClientError:
-            return JsonResponse(
+            return Response(
                 {"error": ClientError.VERSION_NOT_CURRENTLY_SUPPORTED},
                 status=400,
             )
 
         project, version, build, filename = self._resolve_resources()
 
+        # Total time: 50ms
+        start_time = time.perf_counter()
         data = AddonsResponse().get(
             addons_version=addons_version,
             project=project,
@@ -216,7 +236,31 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             filename=filename,
             url=url,
         )
-        return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
+
+        # r = timeit.timeit(
+        #     lambda: JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True}),
+        #     # lambda: JsonResponse(data),
+        #     number=1000,
+        # )
+        # log.info("JsonResponse time", time=f"{r:.3f}s")
+        # r = timeit.timeit(
+        #     # 6 times faster than JsonResponse
+        #     # 30 times faster than JsonResponse with indent and sort_keys!
+        #     lambda: Response(data),
+        #     number=1000,
+        # )
+        # log.info("Response time", time=f"{r:.3f}s")
+        # response = JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
+        response = Response(data)
+        # avg 130ms
+        # response = Response(data)
+        end_time = time.perf_counter()
+        elapsed_time = end_time - start_time
+        in_milliseconds = elapsed_time * 1000
+        log.info(
+            "Processing the whole response", total_time=f"{in_milliseconds:.3f}ms"
+        )
+        return response
 
 
 class NoLinksMixin:
@@ -248,21 +292,11 @@ class RelatedProjectSerializerNoLinks(NoLinksMixin, RelatedProjectSerializer):
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
     related_project_serializer = RelatedProjectSerializerNoLinks
 
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            **kwargs,
-        )
-
 
 class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
     def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
         super().__init__(
             *args,
-            resolver=resolver,
             version_serializer=VersionSerializerNoLinks,
             **kwargs,
         )
@@ -323,6 +357,7 @@ class AddonsResponseBase:
         """
         return True
 
+    # @silk_profile(name="ReadTheDocsConfigJsonV1")
     def _v1(self, project, version, build, filename, url, request):
         """
         Initial JSON data structure consumed by the JavaScript client.
@@ -379,51 +414,61 @@ class AddonsResponseBase:
 
         main_project = project.main_language_project or project
 
-        # Exclude the current project since we don't want to return itself as a translation
+        translation_filter = Q(pk__in=main_project.translations.all())
+        # Include main project as translation if the current project is one of the translations
+        if main_project != project:
+            translation_filter |= Q(pk=main_project.pk)
         project_translations = (
             Project.objects.public(user=user)
-            .filter(pk__in=main_project.translations.all())
-            .exclude(slug=project.slug)
+            .filter(translation_filter)
+            # Exclude the current project since we don't want to return itself as a translation
+            .exclude(pk=project.pk)
+            .order_by("language")
+            .select_related("main_language_project")
         )
 
-        # Include main project as translation if the current project is one of the translations
-        if project != main_project:
-            project_translations |= Project.objects.public(user=user).filter(slug=main_project.slug)
-        project_translations = project_translations.order_by("language").select_related(
-            "main_language_project"
-        )
-
-        data = {
-            "api_version": "1",
-            "projects": {
-                "current": ProjectSerializerNoLinks(
-                    project,
-                    resolver=resolver,
-                    version_slug=version.slug if version else None,
-                ).data,
-                "translations": ProjectSerializerNoLinks(
+        with silk_profile(name="AddonsResponse.current_project"):
+            current_project = ProjectSerializerNoLinks(
+                project,
+                resolver=resolver,
+                version=version,
+            ).data
+        with silk_profile(name="AddonsResponse.translations"):
+            if project_translations.exists():
+                translations = ProjectSerializerNoLinks(
                     project_translations,
                     resolver=resolver,
-                    version_slug=version.slug if version else None,
+                    version=version,
                     many=True,
-                ).data,
+                ).data
+            else:
+                translations = []
+
+        with silk_profile(name="AddonsResponse.current_version"):
+            current_version = VersionSerializerNoLinks(version, resolver=resolver).data if version else None
+        with silk_profile(name="AddonsResponse.active_versions"):
+            active_versions = VersionSerializerNoLinks(
+                sorted_versions_active_built_not_hidden,
+                resolver=resolver,
+                many=True,
+            ).data
+        with silk_profile(name="AddonsResponse.current_build"):
+            current_build = BuildSerializerNoLinks(build).data if build else None
+        data = {
+            "api_version": "1",
+            # this adds like 12ms overhead
+            "projects": {
+                # HOW deleting this reduces like 15ms???
+                # This adds 4 extra queries to the database.
+                "current": current_project,
+                "translations": translations,
             },
             "versions": {
-                "current": VersionSerializerNoLinks(
-                    version,
-                    resolver=resolver,
-                ).data
-                if version
-                else None,
-                # These are "sorted active, built, not hidden versions"
-                "active": VersionSerializerNoLinks(
-                    sorted_versions_active_built_not_hidden,
-                    resolver=resolver,
-                    many=True,
-                ).data,
+                "current": current_version,
+                "active": active_versions,
             },
             "builds": {
-                "current": BuildSerializerNoLinks(build).data if build else None,
+                "current": current_build,
             },
             # TODO: consider creating one serializer per field here.
             # The resulting JSON will be the same, but maybe it's easier/cleaner?

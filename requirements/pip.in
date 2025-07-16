@@ -118,6 +118,7 @@ django-storages[s3]
 
 # Required only in development and linting
 django-debug-toolbar
+django-silk
 
 # For enabling content-security-policy
 # Pinned to 3.8 because we need to take some manual actions before upgrading to 4.x

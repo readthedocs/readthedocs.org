@@ -195,6 +195,7 @@ if settings.SHOW_DEBUG_TOOLBAR:
 
     debug_urls += [
         path("__debug__/", include(debug_toolbar.urls)),
+        path('silk/', include('silk.urls', namespace='silk'))
     ]
     groups.append(debug_urls)
 

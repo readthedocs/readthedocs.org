@@ -296,6 +296,7 @@ class CommunityBaseSettings(Settings):
             # related to the user model that Django needs to know about when deleting users.
             "impersonate",
         ]
+        apps.append("silk")
         if ext:
             apps.append("readthedocsext.cdn")
             apps.append("readthedocsext.donate")
@@ -307,6 +308,9 @@ class CommunityBaseSettings(Settings):
             apps.append("readthedocsext.theme")
 
         return apps
+
+    SILKY_PYTHON_PROFILER = True
+    SILKY_PYTHON_PROFILER_BINARY = True
 
     @property
     def CRISPY_TEMPLATE_PACK(self):
@@ -323,6 +327,7 @@ class CommunityBaseSettings(Settings):
     @property
     def MIDDLEWARE(self):
         middlewares = [
+            "silk.middleware.SilkyMiddleware",
             "readthedocs.core.middleware.NullCharactersMiddleware",
             "django.contrib.sessions.middleware.SessionMiddleware",
             "django.middleware.locale.LocaleMiddleware",

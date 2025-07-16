@@ -12,6 +12,7 @@ from rest_framework import serializers
 from taggit.serializers import TaggitSerializer
 from taggit.serializers import TagListSerializerField
 
+import structlog
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Build
@@ -37,6 +38,8 @@ from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICE
 from readthedocs.redirects.models import Redirect
 from readthedocs.redirects.validators import validate_redirect
 
+
+log = structlog.get_logger(__name__)
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -387,7 +390,7 @@ class VersionSerializer(serializers.ModelSerializer):
             if obj.slug == LATEST:
                 alias_version = obj.project.get_original_latest_version()
             if alias_version and alias_version.active:
-                return [self.version_serializer(alias_version).data]
+                return [self.version_serializer(alias_version, resolver=self.resolver).data]
         return []
 
 
@@ -473,7 +476,9 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     def get_documentation(self, obj):
         version_slug = getattr(self.parent, "version_slug", None)
+        version = getattr(self.parent, "version", None)
         resolver = getattr(self.parent, "resolver", Resolver())
+        return resolver.resolve_version(project=obj, version=version)
         return obj.get_docs_url(version_slug=version_slug, resolver=resolver)
 
 
@@ -748,7 +753,7 @@ class RelatedProjectSerializer(serializers.ModelSerializer):
         ]
 
 
-class ProjectSerializer(FlexFieldsModelSerializer):
+class ProjectSerializer(serializers.ModelSerializer):
     """
     Project serializer.
 
@@ -840,6 +845,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     def __init__(self, *args, **kwargs):
         # Receive a `Version.slug` here to build URLs properly
         self.version_slug = kwargs.pop("version_slug", None)
+        self.version = kwargs.pop("version", None)
 
         # Use a shared resolver to reduce the amount of DB queries while
         # resolving version URLs.
