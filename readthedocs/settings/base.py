@@ -402,25 +402,6 @@ class CommunityBaseSettings(Settings):
 
     # Default to disallow everything, and then allow specific sources on each directive.
     CSP_DEFAULT_SRC = ["'none'"]
-    CSP_SCRIPT_SRC = [
-        "'self'",
-        # Some of our JS deps are using eval.
-        "'unsafe-eval'",
-        # Allow fontawesome to load.
-        "https://kit.fontawesome.com",
-        # Stripe (used for Gold subscriptions)
-        "https://js.stripe.com/",
-    ]
-    CSP_CONNECT_SRC = [
-        "'self'",
-        # Allow sentry to report errors.
-        "https://*.ingest.us.sentry.io",
-        # Allow fontawesome to load.
-        "https://ka-p.fontawesome.com",
-        "https://kit.fontawesome.com",
-        # Plausible analytics
-        "https://plausible.io/api/event",
-    ]
     CSP_IMG_SRC = [
         "'self'",
         # Some of our styles include images as data URLs.
@@ -430,38 +411,90 @@ class CommunityBaseSettings(Settings):
         # so we just allow any https domain here.
         "https:",
     ]
-    CSP_STYLE_SRC = [
-        "'self'",
-        # We have lots of inline styles!
-        # TODO: we should remove this.
-        "'unsafe-inline'",
-    ]
     CSP_BASE_URI = ["'self'"]
-    CSP_FORM_ACTION = [
-        "'self'",
-        # Chrome and Safari block form submissions if it redirects to a different domain.
-        # We redirect to external domains for some forms, like login.
-        "https://github.com",
-        "https://gitlab.com",
-        "https://bitbucket.org",
-        "https://id.atlassian.com",
-        "https://accounts.google.com",
-        # We also redirect to Stripe on subscription forms.
-        "https://billing.stripe.com",
-        "https://checkout.stripe.com",
-    ]
-
-    CSP_FONT_SRC = [
-        "'self'",
-        # Allow fontawesome to load.
-        "data:",
-        "https://ka-p.fontawesome.com",
-    ]
     CSP_FRAME_SRC = [
         # Stripe (used for Gold subscriptions)
         "https://js.stripe.com/",
     ]
     RTD_CSP_UPDATE_HEADERS = {}
+
+    @property
+    def CSP_CONNECT_SRC(self):
+        CSP_CONNECT_SRC = [
+            "'self'",
+            # Allow sentry to report errors.
+            "https://*.ingest.us.sentry.io",
+            # Allow fontawesome to load.
+            "https://ka-p.fontawesome.com",
+            "https://kit.fontawesome.com",
+            # Plausible analytics
+            "https://plausible.io/api/event",
+        ]
+        CSP_CONNECT_SRC.append(f"ws://{self.PRODUCTION_DOMAIN}:10001/ws")
+        return CSP_CONNECT_SRC
+
+    @property
+    def CSP_SCRIPT_SRC(self):
+        CSP_SCRIPT_SRC = [
+            "'self'",
+            # Some of our JS deps are using eval.
+            "'unsafe-eval'",
+            # Allow fontawesome to load.
+            "https://kit.fontawesome.com",
+            # Stripe (used for Gold subscriptions)
+            "https://js.stripe.com/",
+        ]
+        CSP_SCRIPT_SRC.append(self.STATIC_URL)
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            CSP_SCRIPT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return CSP_SCRIPT_SRC
+
+    @property
+    def CSP_FONT_SRC(self):
+        CSP_FONT_SRC = [
+            "'self'",
+            # Allow fontawesome to load.
+            "data:",
+            "https://ka-p.fontawesome.com",
+        ]
+        CSP_FONT_SRC.append(self.STATIC_URL)
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            CSP_FONT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return CSP_FONT_SRC
+
+    @property
+    def CSP_STYLE_SRC(self):
+        CSP_STYLE_SRC = [
+            "'self'",
+            # We have lots of inline styles!
+            # TODO: we should remove this.
+            "'unsafe-inline'",
+        ]
+        CSP_STYLE_SRC.append(self.STATIC_URL)
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            CSP_STYLE_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return CSP_STYLE_SRC
+
+    @property
+    def CSP_FORM_ACTION(self):
+        CSP_FORM_ACTION = [
+            "'self'",
+            # Chrome and Safari block form submissions if it redirects to a different domain.
+            # We redirect to external domains for some forms, like login.
+            "https://github.com",
+            "https://gitlab.com",
+            "https://bitbucket.org",
+            "https://id.atlassian.com",
+            "https://accounts.google.com",
+            # We also redirect to Stripe on subscription forms.
+            "https://billing.stripe.com",
+            "https://checkout.stripe.com",
+        ]
+        # Allow our support form to submit to external domains.
+        if self.SUPPORT_FORM_ENDPOINT:
+            CSP_FORM_ACTION.append(self.SUPPORT_FORM_ENDPOINT)
+        return CSP_FORM_ACTION
+
 
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
