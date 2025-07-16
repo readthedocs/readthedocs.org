@@ -17,7 +17,6 @@ from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.notifications.models import Notification
-from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -27,6 +26,8 @@ log = structlog.get_logger(__name__)
 
 def clean_build(version):
     """Clean the files used in the build of the given version."""
+    from readthedocs.projects.models import Feature
+
     if version.project.has_feature(
         Feature.DONT_CLEAN_BUILD,
     ):
