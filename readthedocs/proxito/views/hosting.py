@@ -220,10 +220,10 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
 
 
-class NoLinksMixin:
-    """Mixin to remove conflicting fields from serializers."""
+class RemoveFieldsMixin:
+    """Mixin to remove fields from serializers."""
 
-    FIELDS_TO_REMOVE = ("_links",)
+    FIELDS_TO_REMOVE = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -242,11 +242,18 @@ class NoLinksMixin:
 # on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
-class RelatedProjectSerializerNoLinks(NoLinksMixin, RelatedProjectSerializer):
-    pass
+class RelatedProjectSerializerNoLinks(RemoveFieldsMixin, RelatedProjectSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+    ]
 
 
-class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
+class ProjectSerializerNoLinks(RemoveFieldsMixin, ProjectSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+        "users",
+        "tags",
+    ]
     related_project_serializer = RelatedProjectSerializerNoLinks
 
     def __init__(self, *args, **kwargs):
@@ -258,7 +265,10 @@ class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
         )
 
 
-class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
+class VersionSerializerNoLinks(RemoveFieldsMixin, VersionSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+    ]
     def __init__(self, *args, **kwargs):
         resolver = kwargs.pop("resolver", Resolver())
         super().__init__(
@@ -269,8 +279,10 @@ class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
         )
 
 
-class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
-    pass
+class BuildSerializerNoLinks(RemoveFieldsMixin, BuildSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+    ]
 
 
 class AddonsResponseBase:
@@ -603,7 +615,7 @@ class AddonsResponseBase:
             .exclude(pk=project.pk)
             .order_by("language")
             .select_related("main_language_project")
-            .prefetch_related("tags", "domains", "related_projects", "users")
+            .prefetch_related("domains", "related_projects")
         )
         # NOTE: we check if there are translations first,
         # otherwise evaluating the queryset will be more expensive
