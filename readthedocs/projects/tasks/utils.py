@@ -1,7 +1,6 @@
 import datetime
 import os
 import re
-import signal
 
 import boto3
 import structlog
@@ -120,7 +119,7 @@ def finish_inactive_builds():
         build.save()
 
         # Tell Celery to cancel this task in case it's in a zombie state.
-        app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=True)
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
 
         Notification.objects.add(
             message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
