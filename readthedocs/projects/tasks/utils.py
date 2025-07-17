@@ -108,7 +108,7 @@ def finish_inactive_builds():
     ``state=CANCELLED`` with an ``error`` to be communicated to the user.
     """
     log.debug("Running task to finish inactive builds (no healtcheck received).")
-    delta = datetime.timedelta(seconds=30)
+    delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
     query = ~Q(state__in=BUILD_FINAL_STATES) & Q(healthcheck__lt=timezone.now() - delta)
 
     projects_finished = set()

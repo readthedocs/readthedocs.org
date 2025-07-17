@@ -843,7 +843,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             #
             # TODO: update this URL to work in production
             url = f"http://readthedocs.ngrok.io/api/v2/build/{build_id}/healthcheck/"
-            cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -H \"Authorization: Token {self.build_api_key}\" -X POST {url}; sleep 2; done;'"
+            cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -H \"Authorization: Token {self.build_api_key}\" -X POST {url}; sleep {settings.BUILD_HEALTHCHECK_DELAY}; done;'"
             log.debug("Healthcheck.", command=cmd)
             exec_cmd = client.exec_create(
                 container=self.container_id,
