@@ -10,13 +10,13 @@ from datetime import datetime
 import structlog
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from requests.exceptions import ConnectionError
+from requests.exceptions import ReadTimeout
+
 from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
-from requests.exceptions import ConnectionError
-from requests.exceptions import ReadTimeout
-
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 
@@ -573,6 +573,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
     container_time_limit = DOCKER_LIMITS.get("time")
 
     def __init__(self, *args, **kwargs):
+        self.build_api_key = kwargs.pop("build_api_key", None)
         container_image = kwargs.pop("container_image", None)
         super().__init__(*args, **kwargs)
         self.client = None
@@ -829,6 +830,32 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 runtime="runsc",  # gVisor runtime
             )
             client.start(container=self.container_id)
+
+            # Run a healthcheck that will ping our API constantly.
+            # If we detect the API is not pinged for 10s we mark this build as failed.
+            build_id = self.build.get("id")
+
+            # NOTE: we do require using NGROK here to go over internet because I
+            # didn't find a way to access the `web` container from inside the
+            # container the `build` container created for this particular build.
+            #
+            # This shouldn't happen in production, because we are not doing Docker in Docker.
+            #
+            # TODO: update this URL to work in production
+            url = f"http://readthedocs.ngrok.io/api/v2/build/{build_id}/healthcheck/"
+            cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -H \"Authorization: Token {self.build_api_key}\" -X POST {url}; sleep 2; done;'"
+            log.debug("Healthcheck.", command=cmd)
+            exec_cmd = client.exec_create(
+                container=self.container_id,
+                cmd=cmd,
+                user=settings.RTD_DOCKER_USER,
+                stdout=True,
+                stderr=True,
+            )
+            # `detach=True` allows us to run this command in the background
+            client.exec_start(exec_id=exec_cmd["Id"], stream=False, detach=True)
+            # output = client.exec_start(exec_id=exec_cmd["Id"], stream=False)
+            # log.warning("Healthcheck.", command=cmd, output=output)
         except (DockerAPIError, ConnectionError) as exc:
             raise BuildAppError(
                 BuildAppError.GENERIC_WITH_BUILD_ID, exception_messag=exc.explanation
