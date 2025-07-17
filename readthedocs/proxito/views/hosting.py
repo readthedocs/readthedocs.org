@@ -339,7 +339,6 @@ class AddonsResponseBase:
         resolver = Resolver()
         versions_active_built_not_hidden = Version.objects.none()
         sorted_versions_active_built_not_hidden = Version.objects.none()
-        user = request.user
 
         versions_active_built_not_hidden = (
             self._get_versions(request, project).select_related("project").order_by("-slug")
