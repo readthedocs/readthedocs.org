@@ -108,6 +108,7 @@ class TaskData:
 
     # Slumber client to interact with the API v2.
     api_client: API = None
+    build_api_key: str = None
 
     start_time: timezone.datetime = None
     environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
@@ -381,7 +382,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.data.environment_class = LocalBuildEnvironment
 
-        self.data.api_client = setup_api(kwargs["build_api_key"])
+        self.data.build_api_key = kwargs["build_api_key"]
+        self.data.api_client = setup_api(self.data.build_api_key)
 
         self.data.build = self.get_build(self.data.build_pk)
         self.data.version = self.get_version(self.data.version_pk)

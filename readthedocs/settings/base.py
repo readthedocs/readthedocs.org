@@ -144,6 +144,8 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE = "stable"
     RTD_STABLE_VERBOSE_NAME = "stable"
     RTD_CLEAN_AFTER_BUILD = False
+    RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
+    RTD_BUILD_HEALTHCHECK_DELAY = 5 # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
@@ -510,9 +512,9 @@ class CommunityBaseSettings(Settings):
     CELERY_DEFAULT_QUEUE = "celery"
     CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
     CELERYBEAT_SCHEDULE = {
-        "quarter-finish-inactive-builds": {
+        "every-minute-finish-inactive-builds": {
             "task": "readthedocs.projects.tasks.utils.finish_inactive_builds",
-            "schedule": crontab(minute="*/15"),
+            "schedule": crontab(minute="*"),
             "options": {"queue": "web"},
         },
         "every-day-delete-old-search-queries": {
