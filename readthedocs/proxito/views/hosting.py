@@ -604,6 +604,7 @@ class AddonsResponseBase:
             .exclude(pk=project.pk)
             .order_by("language")
             .select_related("main_language_project")
+            .prefetch_related("tags", "domains", "related_projects", "users")
         )
         # NOTE: we check if there are translations first,
         # otherwise evaluating the queryset will be more expensive
