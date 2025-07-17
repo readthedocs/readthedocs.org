@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+import signal
 
 import boto3
 import structlog
@@ -100,42 +101,26 @@ def finish_inactive_builds():
     """
     Finish inactive builds.
 
-    A build is consider inactive if it's not in a final state and it has been
-    "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
+    A build is consider inactive if the last healthcheck reported was more than
+    30 seconds ago.
 
-    These inactive builds will be marked as ``success`` and ``CANCELLED`` with an
-    ``error`` to be communicated to the user.
+    These inactive builds will be marked as ``success=False`` and
+    ``state=CANCELLED`` with an ``error`` to be communicated to the user.
     """
-    # TODO similar to the celery task time limit, we can't infer this from
-    # Docker settings anymore, because Docker settings are determined on the
-    # build servers dynamically.
-    # time_limit = int(DOCKER_LIMITS['time'] * 1.2)
-    # Set time as maximum celery task time limit + 5m
-    time_limit = 7200 + 300
-    delta = datetime.timedelta(seconds=time_limit)
-    query = (
-        ~Q(state__in=BUILD_FINAL_STATES)
-        & Q(date__lt=timezone.now() - delta)
-        & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
-    )
+    log.debug("Running task to finish inactive builds (no healtcheck received).")
+    delta = datetime.timedelta(seconds=30)
+    query = ~Q(state__in=BUILD_FINAL_STATES) & Q(healthcheck__lt=timezone.now() - delta)
 
     projects_finished = set()
     builds_finished = []
     builds = Build.objects.filter(query)[:50]
     for build in builds:
-        if build.project.container_time_limit:
-            custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit),
-            )
-            if build.date + custom_delta > timezone.now():
-                # Do not mark as CANCELLED builds with a custom time limit that wasn't
-                # expired yet (they are still building the project version)
-                continue
-
         build.success = False
         build.state = BUILD_STATE_CANCELLED
         build.save()
+
+        # Tell Celery to cancel this task in case it's in a zombie state.
+        app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=True)
 
         Notification.objects.add(
             message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
@@ -145,12 +130,13 @@ def finish_inactive_builds():
         builds_finished.append(build.pk)
         projects_finished.add(build.project.slug)
 
-    log.info(
-        'Builds marked as "Terminated due inactivity".',
-        count=len(builds_finished),
-        project_slugs=projects_finished,
-        build_pks=builds_finished,
-    )
+    if builds_finished:
+        log.info(
+            'Builds marked as "Terminated due inactivity" (not healthcheck received).',
+            count=len(builds_finished),
+            project_slugs=projects_finished,
+            build_pks=builds_finished,
+        )
 
 
 def send_external_build_status(version_type, build_pk, commit, status):

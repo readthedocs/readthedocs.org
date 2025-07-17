@@ -510,9 +510,9 @@ class CommunityBaseSettings(Settings):
     CELERY_DEFAULT_QUEUE = "celery"
     CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
     CELERYBEAT_SCHEDULE = {
-        "quarter-finish-inactive-builds": {
+        "every-minute-finish-inactive-builds": {
             "task": "readthedocs.projects.tasks.utils.finish_inactive_builds",
-            "schedule": crontab(minute="*/15"),
+            "schedule": crontab(minute="*"),
             "options": {"queue": "web"},
         },
         "every-day-delete-old-search-queries": {
