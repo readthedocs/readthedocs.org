@@ -1,6 +1,7 @@
 """Views for hosting features."""
 
 from functools import lru_cache
+from rest_framework.response import Response
 
 import packaging
 import structlog
@@ -172,6 +173,8 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         project_slug = request.GET.get("project-slug")
         version_slug = request.GET.get("version-slug")
         if not url and (not project_slug or not version_slug):
+            # NOTE: we don't use Response because we can't return it from
+            # the dispatch method, we shuould refactor this to raise a subclass of APIException instead.
             return JsonResponse(
                 {
                     "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
@@ -184,7 +187,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         url = request.GET.get("url")
         addons_version = request.GET.get("api-version")
         if not addons_version:
-            return JsonResponse(
+            return Response(
                 {"error": "'api-version' GET attribute is required"},
                 status=400,
             )
@@ -193,14 +196,14 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             if addons_version.major not in ADDONS_VERSIONS_SUPPORTED:
                 raise ClientError
         except packaging.version.InvalidVersion:
-            return JsonResponse(
+            return Response(
                 {
                     "error": ClientError.VERSION_INVALID,
                 },
                 status=400,
             )
         except ClientError:
-            return JsonResponse(
+            return Response(
                 {"error": ClientError.VERSION_NOT_CURRENTLY_SUPPORTED},
                 status=400,
             )
@@ -216,7 +219,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             filename=filename,
             url=url,
         )
-        return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
+        return Response(data)
 
 
 class NoLinksMixin:
