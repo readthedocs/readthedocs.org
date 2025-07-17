@@ -472,9 +472,9 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return None
 
     def get_documentation(self, obj):
-        version_slug = getattr(self.parent, "version_slug", None)
+        version = getattr(self.parent, "version", None)
         resolver = getattr(self.parent, "resolver", Resolver())
-        return obj.get_docs_url(version_slug=version_slug, resolver=resolver)
+        return resolver.resolve_version(project=obj, version=version)
 
 
 class RepositorySerializer(serializers.Serializer):
@@ -838,8 +838,8 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         }
 
     def __init__(self, *args, **kwargs):
-        # Receive a `Version.slug` here to build URLs properly
-        self.version_slug = kwargs.pop("version_slug", None)
+        # Receive a `Version` here to build URLs properly
+        self.version = kwargs.pop("version", None)
 
         # Use a shared resolver to reduce the amount of DB queries while
         # resolving version URLs.
