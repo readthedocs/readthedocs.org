@@ -9,6 +9,7 @@ from datetime import datetime
 
 import structlog
 from django.conf import settings
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
@@ -19,6 +20,7 @@ from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
+from readthedocs.projects.models import Feature
 
 from .constants import DOCKER_HOSTNAME_MAX_LEN
 from .constants import DOCKER_IMAGE
@@ -831,32 +833,43 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             )
             client.start(container=self.container_id)
 
-            # Run a healthcheck that will ping our API constantly.
-            # If we detect the API is not pinged for 10s we mark this build as failed.
-            build_id = self.build.get("id")
+            if self.project.has_feature(Feature.BUILD_HEALTHCHECK):
+                self._run_background_healthcheck()
 
-            # NOTE: we do require using NGROK here to go over internet because I
-            # didn't find a way to access the `web` container from inside the
-            # container the `build` container created for this particular build.
-            #
-            # This shouldn't happen in production, because we are not doing Docker in Docker.
-            #
-            # TODO: update this URL to work in production
-            url = f"http://readthedocs.ngrok.io/api/v2/build/{build_id}/healthcheck/"
-            cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -H \"Authorization: Token {self.build_api_key}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
-            log.debug("Healthcheck.", command=cmd)
-            exec_cmd = client.exec_create(
-                container=self.container_id,
-                cmd=cmd,
-                user=settings.RTD_DOCKER_USER,
-                stdout=True,
-                stderr=True,
-            )
-            # `detach=True` allows us to run this command in the background
-            client.exec_start(exec_id=exec_cmd["Id"], stream=False, detach=True)
-            # output = client.exec_start(exec_id=exec_cmd["Id"], stream=False)
-            # log.warning("Healthcheck.", command=cmd, output=output)
         except (DockerAPIError, ConnectionError) as exc:
             raise BuildAppError(
                 BuildAppError.GENERIC_WITH_BUILD_ID, exception_messag=exc.explanation
             ) from exc
+
+    def _run_background_healthcheck(self):
+        log.info("Running build with healthcheck.")
+
+        # Run a healthcheck that will ping our API constantly.
+        # If we detect the API is not pinged for 10s we mark this build as failed.
+        build_id = self.build.get("id")
+
+        healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
+        if settings.RTD_DOCKER_COMPOSE and "ngrok" in settings.PRODUCTION_DOMAIN:
+            # NOTE: we do require using NGROK here to go over internet because I
+            # didn't find a way to access the `web` container from inside the
+            # container the `build` container created for this particular build
+            # (there are 3 containers involved locally here)
+            #
+            # This shouldn't happen in production, because we are not doing Docker in Docker.
+            url = f"http://readthedocs.ngrok.io{healthcheck_url}"
+        else:
+            url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}"
+
+        cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -H \"Authorization: Token {self.build_api_key}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
+        log.info("Healthcheck command to run.", command=cmd)
+
+        client = self.get_client()
+        exec_cmd = client.exec_create(
+            container=self.container_id,
+            cmd=cmd,
+            user=settings.RTD_DOCKER_USER,
+            stdout=True,
+            stderr=True,
+        )
+        # `detach=True` allows us to run this command in the background
+        client.exec_start(exec_id=exec_cmd["Id"], stream=False, detach=True)

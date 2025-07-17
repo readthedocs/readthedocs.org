@@ -1976,6 +1976,7 @@ class Feature(models.Model):
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
+    BUILD_HEALTHCHECK = "build_healthcheck"
 
     FEATURES = (
         (
@@ -2049,6 +2050,10 @@ class Feature(models.Model):
         (
             USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS,
             _("Build: Use S3 scoped credentials for uploading build artifacts."),
+        ),
+        (
+            BUILD_HEALTHCHECK,
+            _("Build: Use background cURL healthcheck."),
         ),
     )
 
