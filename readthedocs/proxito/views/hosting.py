@@ -1,7 +1,6 @@
 """Views for hosting features."""
 
 from functools import lru_cache
-from rest_framework.response import Response
 
 import packaging
 import structlog
@@ -12,6 +11,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
