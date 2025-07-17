@@ -1,7 +1,6 @@
 """Common utility functions."""
 
 import re
-import signal
 
 import structlog
 from django.conf import settings
@@ -279,7 +278,7 @@ def cancel_build(build):
         build_task_id=build.task_id,
         terminate=terminate,
     )
-    app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=terminate)
+    app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
 
 
 def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):
