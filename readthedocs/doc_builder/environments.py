@@ -16,6 +16,7 @@ from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
+from slumber.exceptions import HttpNotFoundError
 
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
@@ -269,7 +270,16 @@ class BuildCommand(BuildCommandResultMixin):
         # If the command has an id, it means it has been saved before,
         # so we update it instead of creating a new one.
         if self.id:
-            resp = api_client.command(self.id).patch(data)
+            try:
+                resp = api_client.command(self.id).patch(data)
+            except HttpNotFoundError:
+                # TODO don't do this, address builds restarting instead.
+                # We try to post the buildcommand again as a temporary fix
+                # for projects that restart the build process. There seems to be
+                # something that causes a 404 during `patch()` in some biulds,
+                # so we assume retrying `post()` for the build command is okay.
+                log.exception("Build command has an id but doesn't exist in the database.")
+                resp = api_client.command.post(data)
         else:
             resp = api_client.command.post(data)
 
