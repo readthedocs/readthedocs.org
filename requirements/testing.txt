@@ -27,11 +27,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.39.4
+boto3==1.39.9
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.39.4
+botocore==1.39.9
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -43,7 +43,7 @@ celery==5.5.3
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2025.7.9
+certifi==2025.7.14
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -104,7 +104,7 @@ deprecated==1.2.18
     # via
     #   -r requirements/pip.txt
     #   pygithub
-distlib==0.3.9
+distlib==0.4.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -278,7 +278,7 @@ oauthlib==3.3.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   requests-oauthlib
-orjson==3.10.18
+orjson==3.11.0
     # via -r requirements/pip.txt
 packaging==25.0
     # via
@@ -361,7 +361,7 @@ pytest-mock==3.14.1
     # via -r requirements/testing.in
 pytest-xdist[psutil]==3.8.0
     # via sphinx
-python-crontab==3.2.0
+python-crontab==3.3.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -372,7 +372,6 @@ python-dateutil==2.9.0.post0
     #   celery
     #   elasticsearch
     #   elasticsearch-dsl
-    #   python-crontab
 python-ipware==3.0.0
     # via
     #   -r requirements/pip.txt
@@ -415,11 +414,11 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
 roman-numerals-py==3.1.0
     # via sphinx
-s3transfer==0.13.0
+s3transfer==0.13.1
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.31
+selectolax==0.3.32
     # via -r requirements/pip.txt
 six==1.17.0
     # via
