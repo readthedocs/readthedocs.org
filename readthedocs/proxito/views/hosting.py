@@ -6,11 +6,13 @@ import packaging
 import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.db.models import Q
 from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
@@ -172,6 +174,8 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         project_slug = request.GET.get("project-slug")
         version_slug = request.GET.get("version-slug")
         if not url and (not project_slug or not version_slug):
+            # NOTE: we don't use Response because we can't return it from
+            # the dispatch method, we shuould refactor this to raise a subclass of APIException instead.
             return JsonResponse(
                 {
                     "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
@@ -184,7 +188,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         url = request.GET.get("url")
         addons_version = request.GET.get("api-version")
         if not addons_version:
-            return JsonResponse(
+            return Response(
                 {"error": "'api-version' GET attribute is required"},
                 status=400,
             )
@@ -193,14 +197,14 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             if addons_version.major not in ADDONS_VERSIONS_SUPPORTED:
                 raise ClientError
         except packaging.version.InvalidVersion:
-            return JsonResponse(
+            return Response(
                 {
                     "error": ClientError.VERSION_INVALID,
                 },
                 status=400,
             )
         except ClientError:
-            return JsonResponse(
+            return Response(
                 {"error": ClientError.VERSION_NOT_CURRENTLY_SUPPORTED},
                 status=400,
             )
@@ -216,7 +220,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             filename=filename,
             url=url,
         )
-        return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
+        return Response(data)
 
 
 class NoLinksMixin:
@@ -248,24 +252,9 @@ class RelatedProjectSerializerNoLinks(NoLinksMixin, RelatedProjectSerializer):
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
     related_project_serializer = RelatedProjectSerializerNoLinks
 
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            **kwargs,
-        )
-
 
 class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            version_serializer=VersionSerializerNoLinks,
-            **kwargs,
-        )
+    pass
 
 
 class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
@@ -338,7 +327,6 @@ class AddonsResponseBase:
         resolver = Resolver()
         versions_active_built_not_hidden = Version.objects.none()
         sorted_versions_active_built_not_hidden = Version.objects.none()
-        user = request.user
 
         versions_active_built_not_hidden = (
             self._get_versions(request, project).select_related("project").order_by("-slug")
@@ -377,37 +365,11 @@ class AddonsResponseBase:
                     project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
 
-        main_project = project.main_language_project or project
-
-        # Exclude the current project since we don't want to return itself as a translation
-        project_translations = (
-            Project.objects.public(user=user)
-            .filter(pk__in=main_project.translations.all())
-            .exclude(slug=project.slug)
-        )
-
-        # Include main project as translation if the current project is one of the translations
-        if project != main_project:
-            project_translations |= Project.objects.public(user=user).filter(slug=main_project.slug)
-        project_translations = project_translations.order_by("language").select_related(
-            "main_language_project"
-        )
-
         data = {
             "api_version": "1",
-            "projects": {
-                "current": ProjectSerializerNoLinks(
-                    project,
-                    resolver=resolver,
-                    version_slug=version.slug if version else None,
-                ).data,
-                "translations": ProjectSerializerNoLinks(
-                    project_translations,
-                    resolver=resolver,
-                    version_slug=version.slug if version else None,
-                    many=True,
-                ).data,
-            },
+            "projects": self._get_projects_response(
+                request=request, project=project, version=version, resolver=resolver
+            ),
             "versions": {
                 "current": VersionSerializerNoLinks(
                     version,
@@ -613,6 +575,46 @@ class AddonsResponseBase:
             )
 
         return data
+
+    def _get_projects_response(self, *, request, project, version, resolver):
+        main_project = project.main_language_project or project
+
+        translation_filter = Q(pk__in=main_project.translations.all())
+        # Include main project as translation if the current project is one of the translations
+        if main_project != project:
+            translation_filter |= Q(pk=main_project.pk)
+
+        translations_qs = (
+            Project.objects.public(user=request.user)
+            .filter(translation_filter)
+            # Exclude the current project since we don't want to return itself as a translation
+            .exclude(pk=project.pk)
+            .order_by("language")
+            .select_related("main_language_project")
+            .prefetch_related("tags", "domains", "related_projects", "users")
+        )
+        # NOTE: we check if there are translations first,
+        # otherwise evaluating the queryset will be more expensive
+        # even if there are no results. Django optimizes the queryset
+        # if only we need to check if there are results or not.
+        if translations_qs.exists():
+            translations = ProjectSerializerNoLinks(
+                translations_qs,
+                resolver=resolver,
+                version=version,
+                many=True,
+            ).data
+        else:
+            translations = []
+
+        return {
+            "current": ProjectSerializerNoLinks(
+                project,
+                resolver=resolver,
+                version=version,
+            ).data,
+            "translations": translations,
+        }
 
     def _get_filetreediff_response(self, *, request, project, version, resolver):
         """
