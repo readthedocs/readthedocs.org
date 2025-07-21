@@ -845,7 +845,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         log.info("Running build with healthcheck.")
 
         # Run a healthcheck that will ping our API constantly.
-        # If we detect the API is not pinged for 10s we mark this build as failed.
+        # We run a Celery task to check the running build has a valid healthcheck timestamp,
+        # if that's not the case, these builds are terminated and marked as failed.
         build_id = self.build.get("id")
 
         healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
@@ -853,7 +854,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             # NOTE: we do require using NGROK here to go over internet because I
             # didn't find a way to access the `web` container from inside the
             # container the `build` container created for this particular build
-            # (there are 3 containers involved locally here)
+            # (there are 3 containers involved locally here: web, build, and user's build)
             #
             # This shouldn't happen in production, because we are not doing Docker in Docker.
             url = f"http://readthedocs.ngrok.io{healthcheck_url}"
