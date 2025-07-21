@@ -14,7 +14,7 @@ babel==2.17.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2025.7.9
+certifi==2025.7.14
     # via
     #   requests
     #   sphinx-prompt
@@ -37,7 +37,7 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.58.5
+fonttools==4.59.0
     # via matplotlib
 h11==0.16.0
     # via uvicorn
