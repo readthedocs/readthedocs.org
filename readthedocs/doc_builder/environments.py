@@ -842,7 +842,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             ) from exc
 
     def _run_background_healthcheck(self):
-        log.info("Running build with healthcheck.")
+        log.debug("Running build with healthcheck.")
 
         # Run a healthcheck that will ping our API constantly.
         # We run a Celery task to check the running build has a valid healthcheck timestamp,
@@ -862,7 +862,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}"
 
         cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -H \"Authorization: Token {self.build_api_key}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
-        log.info("Healthcheck command to run.", command=cmd)
+        log.debug("Healthcheck command to run.", command=cmd)
 
         client = self.get_client()
         exec_cmd = client.exec_create(
