@@ -252,24 +252,9 @@ class RelatedProjectSerializerNoLinks(NoLinksMixin, RelatedProjectSerializer):
 class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
     related_project_serializer = RelatedProjectSerializerNoLinks
 
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            **kwargs,
-        )
-
 
 class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            version_serializer=VersionSerializerNoLinks,
-            **kwargs,
-        )
+    pass
 
 
 class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
@@ -616,7 +601,7 @@ class AddonsResponseBase:
             translations = ProjectSerializerNoLinks(
                 translations_qs,
                 resolver=resolver,
-                version_slug=version.slug if version else None,
+                version=version,
                 many=True,
             ).data
         else:
@@ -626,7 +611,7 @@ class AddonsResponseBase:
             "current": ProjectSerializerNoLinks(
                 project,
                 resolver=resolver,
-                version_slug=version.slug if version else None,
+                version=version,
             ).data,
             "translations": translations,
         }
