@@ -257,6 +257,8 @@ class ProjectSerializerNoLinks(RemoveFieldsMixin, ProjectSerializer):
         "users",
         "tags",
     ]
+    related_project_serializer = RelatedProjectSerializerNoLinks
+
 
 class VersionSerializerNoLinks(RemoveFieldsMixin, VersionSerializer):
     FIELDS_TO_REMOVE = [
