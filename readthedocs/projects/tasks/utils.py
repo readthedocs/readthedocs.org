@@ -166,6 +166,7 @@ def finish_inactive_builds():
         ~Q(state__in=BUILD_FINAL_STATES)
         & Q(date__lt=timezone.now() - delta)
         & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
+        & ~Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
     )
 
     projects_finished = set()
