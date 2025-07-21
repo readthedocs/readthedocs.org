@@ -512,9 +512,16 @@ class CommunityBaseSettings(Settings):
     CELERY_DEFAULT_QUEUE = "celery"
     CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
     CELERYBEAT_SCHEDULE = {
-        "every-minute-finish-inactive-builds": {
-            "task": "readthedocs.projects.tasks.utils.finish_inactive_builds",
+        "every-minute-finish-unhealthy-builds": {
+            "task": "readthedocs.projects.tasks.utils.finish_unhealthy_builds",
             "schedule": crontab(minute="*"),
+            "options": {"queue": "web"},
+        },
+        # TODO: delete `quarter-finish-inactive-builds` once we are fully
+        # migrated into build healthcheck
+        "quarter-finish-inactive-builds": {
+            "task": "readthedocs.projects.tasks.utils.finish_inactive_builds",
+            "schedule": crontab(minute="*/15"),
             "options": {"queue": "web"},
         },
         "every-day-delete-old-search-queries": {
