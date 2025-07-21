@@ -11,13 +11,13 @@ import structlog
 from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from requests.exceptions import ConnectionError
-from requests.exceptions import ReadTimeout
-
 from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
+from requests.exceptions import ConnectionError
+from requests.exceptions import ReadTimeout
+
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.models import Feature
