@@ -601,7 +601,7 @@ class AddonsResponseBase:
             translations = ProjectSerializerNoLinks(
                 translations_qs,
                 resolver=resolver,
-                version_slug=version.slug if version else None,
+                version=version,
                 many=True,
             ).data
         else:
@@ -611,7 +611,7 @@ class AddonsResponseBase:
             "current": ProjectSerializerNoLinks(
                 project,
                 resolver=resolver,
-                version_slug=version.slug if version else None,
+                version=version,
             ).data,
             "translations": translations,
         }
