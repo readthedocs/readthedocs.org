@@ -62,7 +62,6 @@ class NotificationTests(TestCase):
                 "TEMPLATE_ROOT": mock.ANY,
                 "USE_PROMOS": mock.ANY,
                 "USE_ORGANIZATIONS": mock.ANY,
-                "GITHUB_APP_NAME": mock.ANY,
             },
         )
 
