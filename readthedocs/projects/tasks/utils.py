@@ -102,7 +102,7 @@ def finish_unhealthy_builds():
     Finish inactive builds.
 
     A build is consider inactive if the last healthcheck reported was more than
-    30 seconds ago.
+    RTD_BUILD_HEALTHCHECK_TIMEOUT seconds ago.
 
     These inactive builds will be marked as ``success=False`` and
     ``state=CANCELLED`` with an ``error`` to be communicated to the user.
