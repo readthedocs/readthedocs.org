@@ -507,6 +507,12 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
+    # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
+    # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
+    BROKER_TRANSPORT_OPTIONS = {
+        'visibility_timeout': 18000,  # 5 hours
+    }
+
     CELERY_DEFAULT_QUEUE = "celery"
     CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
     CELERYBEAT_SCHEDULE = {
