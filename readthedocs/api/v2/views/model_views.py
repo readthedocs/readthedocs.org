@@ -13,6 +13,7 @@ from django.db.models import Value
 from django.db.models import When
 from django.http import Http404
 from django.template.loader import render_to_string
+from django.utils import timezone
 from rest_framework import decorators
 from rest_framework import status
 from rest_framework import viewsets
@@ -296,6 +297,31 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
             "max_concurrent": max_concurrent,
         }
         return Response(data)
+
+    @decorators.action(
+        detail=True,
+        permission_classes=[HasBuildAPIKey],
+        methods=["post"],
+    )
+    def healthcheck(self, request, **kwargs):
+        build = self.get_object()
+        log.debug(
+            "Healthcheck received.",
+            build_id=build.pk,
+            project_slug=build.version.project.slug,
+        )
+        build_api_key = request.build_api_key
+        if build.version.project.slug != build_api_key.project.slug:
+            log.warning(
+                "Project slug doesn't match the one attached to the API key.",
+                api_key_id=build_api_key.id,
+                project_slug=build.version.project.slug,
+            )
+            raise Http404()
+
+        build.healthcheck = timezone.now()
+        build.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def retrieve(self, *args, **kwargs):
         """
