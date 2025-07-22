@@ -32,6 +32,7 @@ from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
 from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
 from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
@@ -300,22 +301,22 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=True,
-        permission_classes=[HasBuildAPIKey],
+        permission_classes=[],
         methods=["post"],
     )
     def healthcheck(self, request, **kwargs):
         build = self.get_object()
-        log.debug(
-            "Healthcheck received.",
+        builder_hostname = request.GET.get("builder")
+        structlog.contextvars.bind_contextvars(
             build_id=build.pk,
             project_slug=build.version.project.slug,
+            builder_hostname=builder_hostname,
         )
-        build_api_key = request.build_api_key
-        if build.version.project.slug != build_api_key.project.slug:
+
+        log.info("Healthcheck received.")
+        if build.state in BUILD_FINAL_STATES or build.builder != builder_hostname:
             log.warning(
-                "Project slug doesn't match the one attached to the API key.",
-                api_key_id=build_api_key.id,
-                project_slug=build.version.project.slug,
+                "Build is not running anymore or builder hostname doesn't match.",
             )
             raise Http404()
 
