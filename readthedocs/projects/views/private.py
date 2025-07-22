@@ -71,7 +71,6 @@ from readthedocs.projects.forms import WebHookForm
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable
-from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
@@ -1229,15 +1228,12 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
         # Count of views for top pages over the month
         top_pages_200 = PageView.top_viewed_pages(project, limit=25)
-        track_404 = project.has_feature(Feature.RECORD_404_PAGE_VIEWS)
-        top_pages_404 = []
-        if track_404:
-            top_pages_404 = PageView.top_viewed_pages(
-                project,
-                limit=25,
-                status=404,
-                per_version=True,
-            )
+        top_pages_404 = PageView.top_viewed_pages(
+            project,
+            limit=25,
+            status=404,
+            per_version=True,
+        )
 
         # Aggregate pageviews grouped by day
         page_data = PageView.page_views_by_date(
@@ -1249,7 +1245,6 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 "top_pages_200": top_pages_200,
                 "page_data": page_data,
                 "top_pages_404": top_pages_404,
-                "track_404": track_404,
             }
         )
 

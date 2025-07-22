@@ -61,9 +61,16 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         project = self._get_project()
         version = self._get_version()
         absolute_uri = self.request.GET.get("absolute_uri")
+        status_code = self.request.GET.get("status_code", "200")
         if not absolute_uri:
             return JsonResponse(
                 {"error": "'absolute_uri' GET attribute is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if status_code not in ("200", "404"):
+            return JsonResponse(
+                {"error": "'status_code' GET attribute is should be 200 or 404"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -71,10 +78,11 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             project=project,
             version=version,
             absolute_uri=absolute_uri,
+            status_code=status_code,
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def increase_page_view_count(self, project, version, absolute_uri):
+    def increase_page_view_count(self, project, version, absolute_uri, status_code):
         """Increase the page view count for the given project."""
         if is_suspicious_request(self.request):
             log.info(
@@ -104,7 +112,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             version=version,
             filename=unresolved.filename,
             path=path,
-            status=200,
+            status=status_code,
         )
 
 
