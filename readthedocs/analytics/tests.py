@@ -210,7 +210,7 @@ class AnalyticsPageViewsTests(TestCase):
 
     def test_notfound_404_pages(self):
         self.assertEqual(PageView.objects.all().count(), 0)
-        url = self.url + "&status_code=404"
+        url = self.url + "&status=404"
         resp = self.client.get(url, headers={"host": self.host})
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(PageView.objects.all().count(), 1)

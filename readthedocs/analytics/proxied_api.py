@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import structlog
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import status as status_codes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -61,28 +61,28 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         project = self._get_project()
         version = self._get_version()
         absolute_uri = self.request.GET.get("absolute_uri")
-        status_code = self.request.GET.get("status_code", "200")
+        status = self.request.GET.get("status", "200")
         if not absolute_uri:
             return JsonResponse(
                 {"error": "'absolute_uri' GET attribute is required"},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status_codes.HTTP_400_BAD_REQUEST,
             )
 
-        if status_code not in ("200", "404"):
+        if status not in ("200", "404"):
             return JsonResponse(
-                {"error": "'status_code' GET attribute is should be 200 or 404"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "'status' GET attribute is should be 200 or 404"},
+                status=status_codes.HTTP_400_BAD_REQUEST,
             )
 
         self.increase_page_view_count(
             project=project,
             version=version,
             absolute_uri=absolute_uri,
-            status_code=status_code,
+            status=status,
         )
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status_codes.HTTP_204_NO_CONTENT)
 
-    def increase_page_view_count(self, project, version, absolute_uri, status_code):
+    def increase_page_view_count(self, project, version, absolute_uri, status):
         """Increase the page view count for the given project."""
         if is_suspicious_request(self.request):
             log.info(
@@ -112,7 +112,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             version=version,
             filename=unresolved.filename,
             path=path,
-            status=status_code,
+            status=status,
         )
 
 
