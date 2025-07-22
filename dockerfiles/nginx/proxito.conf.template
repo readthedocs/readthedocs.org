@@ -77,6 +77,8 @@ server {
         add_header X-RTD-Resolver-Filename $rtd_resolver_filename always;
         set $cdn_cache_control $upstream_http_cdn_cache_control;
         add_header CDN-Cache-Control $cdn_cache_control always;
+        set $cache_control $upstream_http_cache_control;
+        add_header Cache-Control $cache_control always;
         set $cache_tag $upstream_http_cache_tag;
         add_header Cache-Tag $cache_tag always;
         set $referrer_policy $upstream_http_referrer_policy;
