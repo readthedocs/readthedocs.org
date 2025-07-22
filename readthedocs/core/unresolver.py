@@ -632,7 +632,7 @@ class Unresolver:
         :returns: A UnresolvedDomain object.
         """
         host = self.get_domain_from_host(request.get_host())
-        log.bind(host=host)
+        structlog.contextvars.bind_contextvars(host=host)
 
         # Explicit Project slug being passed in.
         header_project_slug = request.headers.get("X-RTD-Slug", "").lower()

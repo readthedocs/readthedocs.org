@@ -94,6 +94,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             "max_concurrent_builds",
             "readthedocs_yaml_path",
             "clone_token",
+            "has_ssh_key_with_write_access",
         )
 
 

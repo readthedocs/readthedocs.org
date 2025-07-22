@@ -18,8 +18,10 @@ The process is as follows:
 
 import json
 
+from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.filetreediff.dataclasses import FileTreeDiff
+from readthedocs.filetreediff.dataclasses import FileTreeDiffFileStatus
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
 from readthedocs.storage import build_media_storage
@@ -28,7 +30,7 @@ from readthedocs.storage import build_media_storage
 MANIFEST_FILE_NAME = "manifest.json"
 
 
-def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
+def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | None:
     """
     Get the file tree diff between two versions.
 
@@ -43,7 +45,7 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
     """
     outdated = False
     manifests: list[FileTreeDiffManifest] = []
-    for version in (version_a, version_b):
+    for version in (current_version, base_version):
         manifest = get_manifest(version)
         if not manifest:
             return None
@@ -58,37 +60,32 @@ def get_diff(version_a: Version, version_b: Version) -> FileTreeDiff | None:
         manifests.append(manifest)
 
     # pylint: disable=unbalanced-tuple-unpacking
-    version_a_manifest, version_b_manifest = manifests
-    files_a = set(version_a_manifest.files.keys())
-    files_b = set(version_b_manifest.files.keys())
+    current_version_manifest, base_version_manifest = manifests
+    current_version_file_paths = set(current_version_manifest.files.keys())
+    base_version_file_paths = set(base_version_manifest.files.keys())
 
-    files_added = list(files_a - files_b)
-    files_deleted = list(files_b - files_a)
-    files_modified = []
-    for file_path in files_a & files_b:
-        file_a = version_a_manifest.files[file_path]
-        file_b = version_b_manifest.files[file_path]
+    current_version_build = Build.objects.get(id=current_version_manifest.build.id)
+    base_version_build = Build.objects.get(id=base_version_manifest.build.id)
+
+    files: list[tuple[str, FileTreeDiffFileStatus]] = []
+    for file_path in current_version_file_paths - base_version_file_paths:
+        files.append((file_path, FileTreeDiffFileStatus.added))
+
+    for file_path in base_version_file_paths - current_version_file_paths:
+        files.append((file_path, FileTreeDiffFileStatus.deleted))
+
+    for file_path in current_version_file_paths & base_version_file_paths:
+        file_a = current_version_manifest.files[file_path]
+        file_b = base_version_manifest.files[file_path]
         if file_a.main_content_hash != file_b.main_content_hash:
-            files_modified.append(file_path)
-
-    def sortpath(filename):
-        """
-        Function to use as `key=` argument for `sorted`.
-
-        It sorts the file names by the less deep directories first.
-        However, it doesn't group the results by directory.
-
-        Ideally, this should sort file names by hierarchy (less deep directory
-        first), groupping them by directory and alphabetically. We should update
-        this function to achieve that goal if we find a simple way to do it.
-        """
-        parts = filename.split("/")
-        return len(parts), parts
+            files.append((file_path, FileTreeDiffFileStatus.modified))
 
     return FileTreeDiff(
-        added=sorted(files_added, key=sortpath),
-        deleted=sorted(files_deleted, key=sortpath),
-        modified=sorted(files_modified, key=sortpath),
+        files=files,
+        current_version=current_version,
+        current_version_build=current_version_build,
+        base_version=base_version,
+        base_version_build=base_version_build,
         outdated=outdated,
     )
 

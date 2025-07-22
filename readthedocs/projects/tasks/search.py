@@ -8,9 +8,10 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import post_build_overview
 from readthedocs.filetreediff import write_manifest
-from readthedocs.filetreediff.dataclasses import FileTreeDiffFile
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
+from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import files_changed
@@ -140,11 +141,13 @@ class FileManifestIndexer(Indexer):
         manifest = FileTreeDiffManifest(
             build_id=self.build.id,
             files=[
-                FileTreeDiffFile(path=path, main_content_hash=hash)
+                FileTreeDiffManifestFile(path=path, main_content_hash=hash)
                 for path, hash in self._hashes.items()
             ],
         )
         write_manifest(self.version, manifest)
+        if self.version.is_external and self.version.project.show_build_overview_in_comment:
+            post_build_overview.delay(self.build.id)
 
 
 def _get_indexers(*, version: Version, build: Build, search_index_name=None):
@@ -235,10 +238,25 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
                 build=sync_id,
             )
             for indexer in indexers:
-                indexer.process(html_file, sync_id)
+                try:
+                    indexer.process(html_file, sync_id)
+                except Exception:
+                    log.exception(
+                        "Failed to process HTML file",
+                        html_file=html_file.path,
+                        indexer=indexer.__class__.__name__,
+                        version_slug=version.slug,
+                    )
 
     for indexer in indexers:
-        indexer.collect(sync_id)
+        try:
+            indexer.collect(sync_id)
+        except Exception:
+            log.exception(
+                "Failed to collect indexer results",
+                indexer=indexer.__class__.__name__,
+                version_slug=version.slug,
+            )
 
     # This signal is used for purging the CDN.
     files_changed.send(
@@ -266,7 +284,7 @@ def index_build(build_id):
         )
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=build.id,
@@ -309,7 +327,7 @@ def reindex_version(version_id, search_index_name=None):
         )
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=latest_successful_build.id,
@@ -334,7 +352,7 @@ def index_project(project_slug, skip_if_exists=False):
     the project has at least one version indexed,
     and skip the re-indexing if it does.
     """
-    log.bind(project_slug=project_slug)
+    structlog.contextvars.bind_contextvars(project_slug=project_slug)
     project = Project.objects.filter(slug=project_slug).first()
     if not project:
         log.debug("Project doesn't exist.")

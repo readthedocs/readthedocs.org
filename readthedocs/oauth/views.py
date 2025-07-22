@@ -36,7 +36,7 @@ class GitHubAppWebhookView(APIView):
         installation_id = request.data.get("installation", {}).get("id", "unknown")
         action = request.data.get("action", "unknown")
         event = self.request.headers.get(GITHUB_EVENT_HEADER)
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             installation_id=installation_id,
             action=action,
             event=event,

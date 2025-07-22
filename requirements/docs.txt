@@ -14,7 +14,7 @@ babel==2.17.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2025.6.15
+certifi==2025.7.9
     # via
     #   requests
     #   sphinx-prompt
@@ -37,7 +37,7 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.58.4
+fonttools==4.58.5
     # via matplotlib
 h11==0.16.0
     # via uvicorn
@@ -52,6 +52,7 @@ jinja2==3.1.6
     # via
     #   myst-parser
     #   sphinx
+    #   sphinx-prompt
 kiwisolver==1.4.8
     # via matplotlib
 markdown-it-py==3.0.0
@@ -78,7 +79,7 @@ packaging==25.0
     #   sphinx
 pbr==6.1.1
     # via sphinxcontrib-video
-pillow==11.2.1
+pillow==11.3.0
     # via matplotlib
 pygments==2.19.2
     # via
@@ -92,7 +93,9 @@ python-dateutil==2.9.0.post0
 pyyaml==6.0.2
     # via myst-parser
 requests==2.32.4
-    # via sphinx
+    # via
+    #   sphinx
+    #   sphinx-prompt
 roman-numerals-py==3.1.0
     # via sphinx
 six==1.17.0
@@ -131,7 +134,7 @@ sphinx-multiproject==1.0.0
     # via -r requirements/docs.in
 sphinx-notfound-page==1.1.0
     # via -r requirements/docs.in
-sphinx-prompt==1.9.0
+sphinx-prompt==1.10.0
     # via -r requirements/docs.in
 sphinx-rtd-theme==3.0.2
     # via -r requirements/docs.in
@@ -161,7 +164,7 @@ sphinxext-opengraph==0.10.0
     # via -r requirements/docs.in
 starlette==0.47.1
     # via sphinx-autobuild
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   anyio
     #   starlette
@@ -169,7 +172,7 @@ urllib3==2.5.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.34.3
+uvicorn==0.35.0
     # via sphinx-autobuild
 watchfiles==1.1.0
     # via sphinx-autobuild

@@ -142,6 +142,10 @@ class BuildEnvironmentMocker:
                 "three",
             ],
         )
+        self.patches["git.Backend.has_ssh_key_with_write_access"] = mock.patch(
+            "readthedocs.vcs_support.backends.git.Backend.has_ssh_key_with_write_access",
+            return_value=False,
+        )
 
     def _mock_environment(self):
         # NOTE: by mocking `.run` we are not calling `.run_command_class`,
