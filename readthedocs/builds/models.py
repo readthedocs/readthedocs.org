@@ -644,6 +644,7 @@ class Build(models.Model):
         blank=True,
     )
     date = models.DateTimeField(_("Date"), auto_now_add=True, db_index=True)
+    healthcheck = models.DateTimeField(_("Healthcheck"), null=True, blank=True)
     success = models.BooleanField(_("Success"), default=True)
 
     # TODO: remove these fields (setup, setup_error, output, error, exit_code)
