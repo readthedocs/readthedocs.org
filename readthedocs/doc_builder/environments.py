@@ -268,7 +268,6 @@ class BuildCommand(BuildCommandResultMixin):
             "start_time": self.start_time,
             "end_time": self.end_time,
         }
-        resp = None
 
         # If the command has an id, it means it has been saved before,
         # so we update it instead of creating a new one.
