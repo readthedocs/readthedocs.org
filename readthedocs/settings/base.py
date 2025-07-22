@@ -145,7 +145,7 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE_VERBOSE_NAME = "stable"
     RTD_CLEAN_AFTER_BUILD = False
     RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
-    RTD_BUILD_HEALTHCHECK_DELAY = 5 # seconds
+    RTD_BUILD_HEALTHCHECK_DELAY = 15 # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
