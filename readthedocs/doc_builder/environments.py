@@ -842,13 +842,16 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             ) from exc
 
     def _run_background_healthcheck(self):
+        """
+        Run a cURL command in the background to ping the healthcheck API.
+
+        The API saves the last ping timestamp on each call. Then a periodic Celery task
+        checks this value for all the running builds and decide if the build is stalled or not.
+        If it's stalled, it terminates those builds and mark them as fail.
+        """
         log.debug("Running build with healthcheck.")
 
-        # Run a healthcheck that will ping our API constantly.
-        # We run a Celery task to check the running build has a valid healthcheck timestamp,
-        # if that's not the case, these builds are terminated and marked as failed.
         build_id = self.build.get("id")
-
         healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
         if settings.RTD_DOCKER_COMPOSE and "ngrok" in settings.PRODUCTION_DOMAIN:
             # NOTE: we do require using NGROK here to go over internet because I
