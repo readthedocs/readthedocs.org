@@ -259,6 +259,12 @@ class AddonsConfig(TimeStampedModel):
 
     # Link Previews
     linkpreviews_enabled = models.BooleanField(default=False)
+    linkpreviews_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector to select links you want enabled for link previews. Leave it blank for auto-detect all links in your main page content.",
+    )
 
 
 class AddonSearchFilter(TimeStampedModel):
@@ -1970,6 +1976,7 @@ class Feature(models.Model):
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
+    BUILD_HEALTHCHECK = "build_healthcheck"
 
     FEATURES = (
         (
@@ -2043,6 +2050,10 @@ class Feature(models.Model):
         (
             USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS,
             _("Build: Use S3 scoped credentials for uploading build artifacts."),
+        ),
+        (
+            BUILD_HEALTHCHECK,
+            _("Build: Use background cURL healthcheck."),
         ),
     )
 

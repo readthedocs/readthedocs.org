@@ -742,6 +742,7 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         expected = {
             "enabled": True,
+            "selector": None,
         }
 
         assert r.status_code == 200
@@ -784,7 +785,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(17):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -813,7 +814,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(22):
+        with self.assertNumQueries(18):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -849,7 +850,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(22):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -865,7 +866,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         # Test parent project has fewer queries
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(17):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -891,7 +892,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(42):
+        with self.assertNumQueries(35):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -1041,7 +1042,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        with self.assertNumQueries(27):
+        with self.assertNumQueries(25):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

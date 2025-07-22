@@ -17,6 +17,7 @@ from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.notifications.models import Notification
+from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -96,6 +97,53 @@ def clean_project_resources(project, version=None, version_slug=None):
 
 
 @app.task()
+def finish_unhealthy_builds():
+    """
+    Finish inactive builds.
+
+    A build is consider inactive if the last healthcheck reported was more than
+    RTD_BUILD_HEALTHCHECK_TIMEOUT seconds ago.
+
+    These inactive builds will be marked as ``success=False`` and
+    ``state=CANCELLED`` with an ``error`` to be communicated to the user.
+    """
+    log.debug("Running task to finish inactive builds (no healtcheck received).")
+    delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
+    query = (
+        ~Q(state__in=BUILD_FINAL_STATES)
+        & Q(healthcheck__lt=timezone.now() - delta)
+        & Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
+    )
+
+    projects_finished = set()
+    builds_finished = []
+    builds = Build.objects.filter(query)[:50]
+    for build in builds:
+        build.success = False
+        build.state = BUILD_STATE_CANCELLED
+        build.save()
+
+        # Tell Celery to cancel this task in case it's in a zombie state.
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
+
+        Notification.objects.add(
+            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
+            attached_to=build,
+        )
+
+        builds_finished.append(build.pk)
+        projects_finished.add(build.project.slug)
+
+    if builds_finished:
+        log.info(
+            'Builds marked as "Terminated due inactivity" (not healthcheck received).',
+            count=len(builds_finished),
+            project_slugs=projects_finished,
+            build_pks=builds_finished,
+        )
+
+
+@app.task()
 def finish_inactive_builds():
     """
     Finish inactive builds.
@@ -118,6 +166,7 @@ def finish_inactive_builds():
         ~Q(state__in=BUILD_FINAL_STATES)
         & Q(date__lt=timezone.now() - delta)
         & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
+        & ~Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
     )
 
     projects_finished = set()

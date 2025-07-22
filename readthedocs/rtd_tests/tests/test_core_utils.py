@@ -1,5 +1,4 @@
 """Test core util functions."""
-import signal
 from unittest import mock
 
 import pytest
@@ -209,8 +208,8 @@ class CoreUtilTests(TestCase):
         )
         app.control.revoke.assert_has_calls(
             [
-                mock.call("1", signal=signal.SIGINT, terminate=True),
-                mock.call("0", signal=signal.SIGINT, terminate=True),
+                mock.call("1", signal="SIGINT", terminate=True),
+                mock.call("0", signal="SIGINT", terminate=True),
             ]
         )
 
