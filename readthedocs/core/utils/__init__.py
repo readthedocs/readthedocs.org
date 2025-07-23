@@ -20,7 +20,6 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.doc_builder.exceptions import BuildCancelled
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.notifications.models import Notification
-from readthedocs.projects.models import Feature
 from readthedocs.worker import app
 
 
@@ -50,6 +49,7 @@ def prepare_build(
     from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
+    from readthedocs.projects.models import Feature
     from readthedocs.projects.models import Project
     from readthedocs.projects.models import WebHookEvent
     from readthedocs.projects.tasks.builds import update_docs_task
