@@ -585,7 +585,6 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
     container_time_limit = DOCKER_LIMITS.get("time")
 
     def __init__(self, *args, **kwargs):
-        self.build_api_key = kwargs.pop("build_api_key", None)
         container_image = kwargs.pop("container_image", None)
         super().__init__(*args, **kwargs)
         self.client = None
@@ -862,6 +861,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         log.debug("Running build with healthcheck.")
 
         build_id = self.build.get("id")
+        build_builder = self.build.get("builder")
         healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
         if settings.RTD_DOCKER_COMPOSE and "ngrok" in settings.PRODUCTION_DOMAIN:
             # NOTE: we do require using NGROK here to go over internet because I
@@ -874,7 +874,10 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         else:
             url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}"
 
-        cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -H \"Authorization: Token {self.build_api_key}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
+        # Add the builder hostname to the URL
+        url += f"?builder={build_builder}"
+
+        cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
         log.debug("Healthcheck command to run.", command=cmd)
 
         client = self.get_client()
