@@ -301,6 +301,8 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=True,
+        # We make this endpoint public because we don't want to expose the build API key inside the user's container.
+        # To emulate "auth" we check for the builder hostname to match the `Build.builder` defined in the database.
         permission_classes=[],
         methods=["post"],
     )
