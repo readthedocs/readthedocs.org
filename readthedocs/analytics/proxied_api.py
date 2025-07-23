@@ -18,6 +18,7 @@ from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.requests import is_suspicious_request
 from readthedocs.projects.models import Project
+from readthedocs.proxito.views.hosting import IsAuthorizedToViewProject
 
 
 log = structlog.get_logger(__name__)  # noqa
@@ -38,7 +39,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
     # so we capture all views/interactions.
     cache_response = False
     http_method_names = ["get"]
-    permission_classes = [IsAuthorizedToViewVersion]
+    permission_classes = [IsAuthorizedToViewProject | IsAuthorizedToViewVersion]
 
     @lru_cache(maxsize=1)
     def _get_project(self):
