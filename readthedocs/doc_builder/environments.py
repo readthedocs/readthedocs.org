@@ -585,7 +585,6 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
     container_time_limit = DOCKER_LIMITS.get("time")
 
     def __init__(self, *args, **kwargs):
-        self.build_api_key = kwargs.pop("build_api_key", None)
         container_image = kwargs.pop("container_image", None)
         super().__init__(*args, **kwargs)
         self.client = None
@@ -877,6 +876,9 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         build_builder = self.build.get("builder")
         healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
         url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}?builder={build_builder}"
+
+        # Add the builder hostname to the URL
+        url += f"?builder={build_builder}"
 
         cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
         log.info("Healthcheck command to run.", command=cmd)
