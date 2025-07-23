@@ -20,6 +20,7 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.doc_builder.exceptions import BuildCancelled
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.notifications.models import Notification
+from readthedocs.projects.models import Feature
 from readthedocs.worker import app
 
 
@@ -170,6 +171,14 @@ def prepare_build(
         )
 
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+
+    # Disable ``ACKS_LATE`` for this particular build task to try out running builders longer than 1h.
+    # At 1h exactly, the task is grabbed by another worker and re-executed,
+    # even while it's still running on the original worker.
+    # https://github.com/readthedocs/readthedocs.org/issues/12317
+    if project.has_feature(Feature.BUILD_NO_ACKS_LATE):
+        log.info("Disabling ACKS_LATE for this particular build.")
+        options["acks_late"] = False
 
     return (
         update_docs_task.signature(
