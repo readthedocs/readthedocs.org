@@ -135,6 +135,8 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE = "stable"
     RTD_STABLE_VERBOSE_NAME = "stable"
     RTD_CLEAN_AFTER_BUILD = False
+    RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
+    RTD_BUILD_HEALTHCHECK_DELAY = 15 # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
@@ -600,9 +602,22 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
+    # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
+    # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
+    BROKER_TRANSPORT_OPTIONS = {
+        'visibility_timeout': 18000,  # 5 hours
+    }
+
     CELERY_DEFAULT_QUEUE = "celery"
     CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
     CELERYBEAT_SCHEDULE = {
+        "every-minute-finish-unhealthy-builds": {
+            "task": "readthedocs.projects.tasks.utils.finish_unhealthy_builds",
+            "schedule": crontab(minute="*"),
+            "options": {"queue": "web"},
+        },
+        # TODO: delete `quarter-finish-inactive-builds` once we are fully
+        # migrated into build healthcheck
         "quarter-finish-inactive-builds": {
             "task": "readthedocs.projects.tasks.utils.finish_inactive_builds",
             "schedule": crontab(minute="*/15"),
