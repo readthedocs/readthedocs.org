@@ -591,7 +591,10 @@ class AddonsResponseBase:
             .exclude(pk=project.pk)
             .order_by("language")
             .select_related("main_language_project")
-            .prefetch_related("tags", "domains", "related_projects", "users")
+            # NOTE: there is no need to prefetch superprojects,
+            # as translations are not expected to have superprojects,
+            # and the serializer already checks for that.
+            .prefetch_related("tags", "domains", "users")
         )
         # NOTE: we check if there are translations first,
         # otherwise evaluating the queryset will be more expensive
