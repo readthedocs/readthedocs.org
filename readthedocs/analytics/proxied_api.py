@@ -50,10 +50,9 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
     def _get_version(self):
         version_slug = self.request.GET.get("version")
         project = self._get_project()
-        version = get_object_or_404(
-            project.versions.all(),
-            slug=version_slug,
-        )
+        # Do not call `get_object_or_404` because there may be some invalid URLs without versions.
+        # We do want to track those 404 pages as well. In that case, the `filename` attribute is the `path`.
+        version = project.versions.filter(slug=version_slug).first()
         return version
 
     def get(self, request, *args, **kwargs):
@@ -95,6 +94,10 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         if self.request.unresolved_domain.is_from_external_domain:
             return
 
+        # Don't track external versions.
+        if version and version.is_external:  # or not unresolved.filename:
+            return
+
         try:
             unresolved = unresolve(absolute_uri)
         except UnresolverError:
@@ -102,15 +105,15 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             # isn't pointing to a valid RTD project.
             return
 
-        # Don't track external versions.
-        if version.is_external or not unresolved.filename:
-            return
-
         path = urlparse(absolute_uri).path
+        filename = unresolved.filename
+        if not version:
+            filename = path
+
         PageView.objects.register_page_view(
             project=project,
             version=version,
-            filename=unresolved.filename,
+            filename=filename,
             path=path,
             status=status,
         )
