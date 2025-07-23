@@ -785,7 +785,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(16):
+        with self.assertNumQueries(14):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -814,7 +814,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(17):
+        with self.assertNumQueries(15):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -850,7 +850,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(18):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -866,7 +866,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         # Test parent project has fewer queries
-        with self.assertNumQueries(16):
+        with self.assertNumQueries(14):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -892,7 +892,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(29):
+        with self.assertNumQueries(24):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -1042,7 +1042,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(22):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
