@@ -120,7 +120,6 @@ class BuildDirector:
             environment=self.get_vcs_env_vars(),
             container_image=settings.RTD_DOCKER_CLONE_IMAGE,
             api_client=self.data.api_client,
-            build_api_key=self.data.build_api_key,
         )
 
     def create_build_environment(self):
@@ -131,7 +130,6 @@ class BuildDirector:
             build=self.data.build,
             environment=self.get_build_env_vars(),
             api_client=self.data.api_client,
-            build_api_key=self.data.build_api_key,
         )
 
     def setup_environment(self):

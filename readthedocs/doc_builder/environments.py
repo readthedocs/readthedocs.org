@@ -585,7 +585,6 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
     container_time_limit = DOCKER_LIMITS.get("time")
 
     def __init__(self, *args, **kwargs):
-        self.build_api_key = kwargs.pop("build_api_key", None)
         container_image = kwargs.pop("container_image", None)
         super().__init__(*args, **kwargs)
         self.client = None
