@@ -831,9 +831,11 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             if settings.RTD_DOCKER_COMPOSE:
                 # Create the container in the same network the web container is
                 # running, so we can hit its healthcheck API.
-                networking_config = client.create_networking_config({
-                    settings.RTD_DOCKER_COMPOSE_NETWORK: client.create_endpoint_config(),
-                })
+                networking_config = client.create_networking_config(
+                    {
+                        settings.RTD_DOCKER_COMPOSE_NETWORK: client.create_endpoint_config(),
+                    }
+                )
 
             self.container = client.create_container(
                 image=self.container_image,
