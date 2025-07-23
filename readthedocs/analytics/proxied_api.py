@@ -13,8 +13,9 @@ from rest_framework.views import APIView
 from readthedocs.analytics.models import PageView
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.core.mixins import CDNCacheControlMixin
+from readthedocs.core.unresolver import InvalidPathForVersionedProjectError
 from readthedocs.core.unresolver import UnresolverError
-from readthedocs.core.unresolver import unresolve
+from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.requests import is_suspicious_request
 from readthedocs.projects.models import Project
@@ -99,17 +100,20 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         if version and version.is_external:  # or not unresolved.filename:
             return
 
+        path = urlparse(absolute_uri).path
         try:
-            unresolved = unresolve(absolute_uri)
+            unresolved = unresolver.unresolve_path(self.request.unresolved_domain, absolute_uri)
+            filename = unresolved.filename
+        except InvalidPathForVersionedProjectError:
+            # If the version is missing, we still want to log this request.
+            #
+            # If we don't have a version, the filename is the path,
+            # otherwise it would be empty.
+            filename = path
         except UnresolverError:
             # If we were unable to resolve the URL, it
             # isn't pointing to a valid RTD project.
             return
-
-        path = urlparse(absolute_uri).path
-        filename = unresolved.filename
-        if not version:
-            filename = path
 
         PageView.objects.register_page_view(
             project=project,

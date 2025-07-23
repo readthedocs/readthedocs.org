@@ -218,14 +218,22 @@ class AnalyticsPageViewsTests(TestCase):
 
     def test_notfound_404_page_without_version(self):
         self.assertEqual(PageView.objects.all().count(), 0)
+        absolute_uri = (
+            f"https://{self.project.slug}.readthedocs.io/index.html"
+        )
         url = (
             reverse("analytics_api")
             + f"?project={self.project.slug}&version=null"
-            f"&absolute_uri={self.absolute_uri}"
+            f"&absolute_uri={absolute_uri}"
             "&status=404"
         )
 
         resp = self.client.get(url, headers={"host": self.host})
+        pageview = PageView.objects.all().first()
+
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(PageView.objects.all().count(), 1)
-        self.assertEqual(PageView.objects.filter(status=404).count(), 1)
+        self.assertIsNone(pageview.version)
+        self.assertEqual(pageview.project.slug, self.project.slug)
+        self.assertEqual(pageview.path, "/index.html")
+        self.assertEqual(pageview.status, 404)
