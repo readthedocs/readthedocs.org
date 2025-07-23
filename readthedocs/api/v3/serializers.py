@@ -860,10 +860,15 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         return None
 
     def get_subproject_of(self, obj):
-        parent_relationship = obj.superprojects.first()
-        if parent_relationship:
+        if obj.main_language_project:
+            # If the project is a translation, it can't be a subproject,
+            # so it doesn't have a superproject.
+            return None
+
+        superproject = obj.superproject
+        if superproject:
             # Since the related project can be private, we use a restricted serializer.
-            return self.related_project_serializer(parent_relationship.parent).data
+            return self.related_project_serializer(superproject).data
         return None
 
 
