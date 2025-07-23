@@ -606,7 +606,6 @@ class AddonsResponseBase:
             # NOTE: there is no need to prefetch superprojects,
             # as translations are not expected to have superprojects,
             # and the serializer already checks for that.
-            .prefetch_related("domains")
         )
         # NOTE: we check if there are translations first,
         # otherwise evaluating the queryset will be more expensive
