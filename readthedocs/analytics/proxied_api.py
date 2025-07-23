@@ -70,7 +70,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
 
         if status not in ("200", "404"):
             return JsonResponse(
-                {"error": "'status' GET attribute is should be 200 or 404"},
+                {"error": "'status' GET attribute should be 200 or 404"},
                 status=status_codes.HTTP_400_BAD_REQUEST,
             )
 
