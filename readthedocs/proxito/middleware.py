@@ -161,7 +161,7 @@ class ProxitoMiddleware(MiddlewareMixin):
     def add_cache_headers(self, request, response):
         """Add `Cache-Control: no-cache` header (browser level) for external versions."""
         unresolved_domain = request.unresolved_domain
-        if unresolved_domain.is_from_external_domain:
+        if unresolved_domain and unresolved_domain.is_from_external_domain:
             response["Cache-Control"] = "no-cache"
 
     def add_cdn_cache_headers(self, request, response):
