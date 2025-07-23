@@ -196,7 +196,7 @@ class ProxitoMiddleware(MiddlewareMixin):
     def add_x_robots_tag_headers(self, request, response):
         """Add `X-Robots-Tag: noindex` header for external versions."""
         unresolved_domain = request.unresolved_domain
-        if unresolved_domain.is_from_external_domain:
+        if unresolved_domain and unresolved_domain.is_from_external_domain:
             response["X-Robots-Tag"] = "noindex"
 
     def _set_request_attributes(self, request, unresolved_domain):
