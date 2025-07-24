@@ -104,10 +104,6 @@ def prepare_build(
     options["soft_time_limit"] = time_limit
     options["time_limit"] = int(time_limit * 1.2)
 
-    structlog.contextvars.bind_contextvars(
-        time_limit=options["time_limit"], soft_time_limit=options["soft_time_limit"]
-    )
-
     if commit:
         structlog.contextvars.bind_contextvars(commit=commit)
 
@@ -179,6 +175,9 @@ def prepare_build(
     if project.has_feature(Feature.BUILD_NO_ACKS_LATE):
         log.info("Disabling ACKS_LATE for this particular build.")
         options["acks_late"] = False
+
+    # Log all the extra options passed to the task
+    structlog.contextvars.bind_contextvars(**options)
 
     return (
         update_docs_task.signature(
