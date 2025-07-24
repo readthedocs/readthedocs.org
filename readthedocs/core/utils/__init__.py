@@ -49,6 +49,7 @@ def prepare_build(
     from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
+    from readthedocs.projects.models import Feature
     from readthedocs.projects.models import Project
     from readthedocs.projects.models import WebHookEvent
     from readthedocs.projects.tasks.builds import update_docs_task
@@ -170,6 +171,14 @@ def prepare_build(
         )
 
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+
+    # Disable ``ACKS_LATE`` for this particular build task to try out running builders longer than 1h.
+    # At 1h exactly, the task is grabbed by another worker and re-executed,
+    # even while it's still running on the original worker.
+    # https://github.com/readthedocs/readthedocs.org/issues/12317
+    if project.has_feature(Feature.BUILD_NO_ACKS_LATE):
+        log.info("Disabling ACKS_LATE for this particular build.")
+        options["acks_late"] = False
 
     return (
         update_docs_task.signature(

@@ -1977,6 +1977,7 @@ class Feature(models.Model):
     SCALE_IN_PROTECTION = "scale_in_prtection"
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
     BUILD_HEALTHCHECK = "build_healthcheck"
+    BUILD_NO_ACKS_LATE = "build_no_acks_late"
 
     FEATURES = (
         (
@@ -2054,6 +2055,10 @@ class Feature(models.Model):
         (
             BUILD_HEALTHCHECK,
             _("Build: Use background cURL healthcheck."),
+        ),
+        (
+            BUILD_NO_ACKS_LATE,
+            _("Build: Do not use Celery ASK_LATE config for this project."),
         ),
     )
 
