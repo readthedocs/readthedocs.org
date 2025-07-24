@@ -5,6 +5,7 @@ import hashlib
 import hmac
 import os
 import re
+from functools import cache
 from shlex import quote
 from urllib.parse import urlparse
 
@@ -885,6 +886,7 @@ class Project(models.Model):
         """Return whether or not this project supports translations."""
         return self.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 
+    @cache
     def subdomain(self, use_canonical_domain=True):
         """Get project subdomain from resolver."""
         return Resolver().get_domain_without_protocol(
