@@ -100,26 +100,36 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         if version and version.is_external:  # or not unresolved.filename:
             return
 
-        path = urlparse(absolute_uri).path
+        absolute_uri_parsed = urlparse(absolute_uri)
         try:
-            unresolved = unresolver.unresolve_path(self.request.unresolved_domain, absolute_uri)
+            unresolved = unresolver.unresolve_url(absolute_uri)
             filename = unresolved.filename
-        except InvalidPathForVersionedProjectError:
+            absolute_uri_project = unresolved.project
+        except InvalidPathForVersionedProjectError as exc:
             # If the version is missing, we still want to log this request.
             #
             # If we don't have a version, the filename is the path,
             # otherwise it would be empty.
-            filename = path
+            filename = absolute_uri_parsed.path
+            absolute_uri_project = exc.project
         except UnresolverError:
             # If we were unable to resolve the URL, it
             # isn't pointing to a valid RTD project.
+            return
+
+        if absolute_uri_project.slug != project.slug:
+            log.warning(
+                "Skipping page view count since projects don't match",
+                project_slug=project.slug,
+                uri_project_slug=absolute_uri_project.slug,
+            )
             return
 
         PageView.objects.register_page_view(
             project=project,
             version=version,
             filename=filename,
-            path=path,
+            path=absolute_uri_parsed.path,
             status=status,
         )
 

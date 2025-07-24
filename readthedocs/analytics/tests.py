@@ -135,6 +135,41 @@ class AnalyticsPageViewsTests(TestCase):
         self.client.get(url, headers={"host": self.host})
         assert PageView.objects.all().count() == 0
 
+    def test_uri_for_another_project(self):
+        other_project = get(
+            Project,
+            slug="other",
+        )
+        other_project.versions.all().update(privacy_level=PUBLIC)
+
+        # Host and ``absolute_uri`` are from different projects
+        assert PageView.objects.all().count() == 0
+        url = (
+            reverse("analytics_api")
+            + f"?project={self.project.slug}&version=latest"
+            f"&absolute_uri=https://other.readthedocs.io/en/latest/"
+        )
+        self.client.get(url, headers={"host": self.host})
+        assert PageView.objects.all().count() == 0
+
+        # Host and ``absolute_uri`` are from different projects with no ``?version`` attribute
+        url = (
+            reverse("analytics_api")
+            + f"?project={self.project.slug}"
+            f"&absolute_uri=https://other.readthedocs.io/en/latest/"
+        )
+        self.client.get(url, headers={"host": self.host})
+        assert PageView.objects.all().count() == 0
+
+        # Host and ``absolute_uri`` are from the same project
+        url = (
+            reverse("analytics_api")
+            + f"?project=other&version=latest"
+            f"&absolute_uri=https://other.readthedocs.io/en/latest/"
+        )
+        self.client.get(url, headers={"host": "other.readthedocs.io"})
+        assert PageView.objects.all().count() == 1
+
     def test_cache_headers(self):
         resp = self.client.get(self.url, headers={"host": self.host})
         self.assertEqual(resp.status_code, 204)
