@@ -14,7 +14,7 @@ class NullCharactersMiddleware:
     when trying to save the content containing a NULL character into the
     database, producing a 500 and creating an event in Sentry.
 
-    NULL characters are also used as an explotation technique, known as "Null Byte Injection".
+    NULL characters are also used as an exploitation technique, known as "Null Byte Injection".
     """
 
     def __init__(self, get_response):

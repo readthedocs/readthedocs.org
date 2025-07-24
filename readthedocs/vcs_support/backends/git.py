@@ -57,7 +57,7 @@ class Backend(BaseVCS):
         This method sits on top of a lot of legacy design.
         It decides how to treat the incoming ``Version.identifier`` from
         knowledge of how the caller (the build process) uses build data.
-        Thi is:
+        This is:
 
         For branches:
 
@@ -485,7 +485,7 @@ class Backend(BaseVCS):
                 yield value
             else:
                 # This should never happen, but we log a warning just in case the regex is wrong.
-                log.warning("Unexpected key extracted fom .gitmodules.", key=key)
+                log.warning("Unexpected key extracted from .gitmodules.", key=key)
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""

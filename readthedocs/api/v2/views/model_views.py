@@ -452,7 +452,7 @@ class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
     This endpoint is currently used only internally by the builder.
     Notifications are attached to `Build` objects only when using this endpoint.
-    This limitation will change in the future when re-implementing this on APIv3 if neeed.
+    This limitation will change in the future when re-implementing this on APIv3 if needed.
     """
 
     parser_classes = [JSONParser, MultiPartParser]

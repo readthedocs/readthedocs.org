@@ -159,7 +159,7 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
     indexers = []
     # NOTE: The search indexer must be before the index file indexer.
     # This is because saving the objects in the DB will give them an id,
-    # and we neeed this id to be `None` when indexing the objects in ES.
+    # and we need this id to be `None` when indexing the objects in ES.
     # ES will generate a unique id for each document.
     # NOTE: If the version is external, we don't create a search index for it.
     if not version.is_external:

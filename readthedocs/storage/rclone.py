@@ -31,7 +31,7 @@ class BaseRClone:
     :param rclone_bin: Binary name or path to the rclone binary.
      Defaults to ``rclone``.
     :param default_options: Options passed to the rclone command.
-    :parm env_vars: Environment variables used when executing the rclone command.
+    :param env_vars: Environment variables used when executing the rclone command.
      Useful to pass secrets to the ``rclone`  command, since all arguments and
      options will be logged.
     """

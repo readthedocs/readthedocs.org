@@ -789,7 +789,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Error while updating the build object.", state=state)
 
     def execute(self):
-        # Clonning
+        # Cloning
         self.update_build(state=BUILD_STATE_CLONING)
 
         # TODO: remove the ``create_vcs_environment`` hack. Ideally, this should be

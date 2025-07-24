@@ -905,7 +905,7 @@ class Project(models.Model):
 
     @property
     def clean_repo(self):
-        # NOTE: this method is used only when the project is going to be clonned.
+        # NOTE: this method is used only when the project is going to be cloned.
         # It probably makes sense to do a data migrations and force "Import Project"
         # form to validate it's an HTTPS URL when importing new ones
         if self.repo.startswith("http://github.com"):

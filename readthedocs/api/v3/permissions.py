@@ -8,7 +8,7 @@ class HasEmbedAPIAccess(BasePermission):
     """
     Check if the project being accessed has access to the Embed API.
 
-    The embedded API V3 allows getting content from external sites tha
+    The embedded API V3 allows getting content from external sites that
     aren't attached to a project. Those sites are restricted to the ones
     from ``RTD_EMBED_API_EXTERNAL_DOMAINS``, so we just allow that.
     """
