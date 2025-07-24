@@ -15,6 +15,8 @@ class CommunityTestSettings(CommunityBaseSettings):
     PUBLIC_DOMAIN = "readthedocs.io"
     DONT_HIT_DB = False
 
+    IS_TESTING = True
+
     # Disable password validators on tests
     AUTH_PASSWORD_VALIDATORS = []
 
