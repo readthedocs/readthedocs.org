@@ -51,7 +51,7 @@ class ClientError(Exception):
     VERSION_NOT_CURRENTLY_SUPPORTED = (
         "The version specified in 'api-version' is currently not supported"
     )
-    VERSION_INVALID = "The version specifified in 'api-version' is invalid"
+    VERSION_INVALID = "The version specified in 'api-version' is invalid"
     PROJECT_NOT_FOUND = "There is no project with the 'project-slug' requested"
 
 
@@ -470,7 +470,7 @@ class AddonsResponseBase:
                         # NOTE: this is an example of the structure of the this object.
                         # It contains the name of the filter and the search syntax to prepend
                         # to the user's query.
-                        # It uses "Search query sintax":
+                        # It uses "Search query syntax":
                         # https://docs.readthedocs.io/en/stable/server-side-search/syntax.html
                         # [
                         #     "Include subprojects",
@@ -575,7 +575,7 @@ class AddonsResponseBase:
                 {
                     "ethicalads": {
                         "enabled": project.addons.ethicalads_enabled,
-                        # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
+                        # NOTE: this endpoint is not authenticated, the user checks are done over an anonymous user for now
                         #
                         # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here
                         "ad_free": is_ad_free_user(AnonymousUser()) or is_ad_free_project(project),

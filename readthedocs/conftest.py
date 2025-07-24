@@ -21,5 +21,5 @@ def clear_cache():
     """
     # Code run before each test
     yield
-    # Code run afer each test
+    # Code run after each test
     cache.clear()

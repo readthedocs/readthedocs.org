@@ -77,7 +77,7 @@ def generate_version_slug(source):
         ok=ok_chars,
         space_replacement="-",
     )
-    # Remove first character wile it's an invalid character for the beginning of the slug.
+    # Remove first character while it's an invalid character for the beginning of the slug.
     slugified = slugified.lstrip(ok_chars)
     return slugified
 

@@ -6,7 +6,7 @@
 # This script automates the process to build and upload a Python/Node/Rust/Go
 # version and upload it to S3 making it available for the builders. When a
 # pre-compiled version is available in the cache, builds are faster because they
-# don't have to donwload and compile the requested version.
+# don't have to download and compile the requested version.
 #
 #
 # LOCAL DEVELOPMENT ENVIRONMENT

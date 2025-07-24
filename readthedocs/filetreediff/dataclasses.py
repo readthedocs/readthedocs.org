@@ -155,7 +155,7 @@ class FileTreeDiff:
         However, it doesn't group the results by directory.
 
         Ideally, this should sort file names by hierarchy (less deep directory
-        first), groupping them by directory and alphabetically. We should update
+        first), grouping them by directory and alphabetically. We should update
         this function to achieve that goal if we find a simple way to do it.
         """
         parts = file.path.split("/")

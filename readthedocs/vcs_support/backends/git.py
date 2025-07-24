@@ -171,7 +171,7 @@ class Backend(BaseVCS):
         .. note::
 
            This check is better done just after the clone step,
-           to ensure that no commands controled by the user are run.
+           to ensure that no commands controlled by the user are run.
         """
         remote_name = "rtd-test-ssh-key"
         ssh_url = self.project.repo

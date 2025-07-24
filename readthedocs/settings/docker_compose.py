@@ -58,7 +58,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     def DOCROOT(self):
         # Add an extra directory level using the container's hostname.
         # This allows us to run development environment with multiple builders (`--scale-build=2` or more),
-        # and avoid the builders overwritting each others when building the same project/version
+        # and avoid the builders overwriting each others when building the same project/version
         return os.path.join(super().DOCROOT, socket.gethostname())
 
     # New templates
@@ -206,7 +206,7 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     @property
     def SOCIALACCOUNT_PROVIDERS(self):
-        """Allow settings social account settigs from the host system."""
+        """Allow settings social account settings from the host system."""
         providers = self._SOCIALACCOUNT_PROVIDERS
         for provider in providers.keys():
             try:

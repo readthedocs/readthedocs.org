@@ -215,7 +215,7 @@ def delete_git_branch(directory, branch):
 def create_git_submodule(
     directory,
     submodule,
-    msg="Add realative submodule",
+    msg="Add relative submodule",
     branch="master",
 ):
     env = environ.copy()

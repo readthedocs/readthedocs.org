@@ -247,7 +247,7 @@ class TestBuildCommand(TestCase):
 
     def test_missing_command(self):
         """Test missing command."""
-        path = os.path.join("non-existant", str(uuid.uuid4()))
+        path = os.path.join("non-existent", str(uuid.uuid4()))
         self.assertFalse(os.path.exists(path))
         cmd = BuildCommand(path)
         cmd.run()

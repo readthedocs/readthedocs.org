@@ -115,7 +115,7 @@ class SubscriptionViewTests(PaymentMixin, TestCase):
         self.assertEqual(resp.context["stripe_subscription"], self.stripe_subscription)
         self.assertContains(resp, "active")
         self.assertNotContains(resp, "Extra products:")
-        # The subscribe form isn't shown, but the manage susbcription button is.
+        # The subscribe form isn't shown, but the manage subscription button is.
         self.assertContains(resp, "Manage subscription")
         self.assertNotContains(resp, "Start subscription")
 
@@ -133,7 +133,7 @@ class SubscriptionViewTests(PaymentMixin, TestCase):
         self.assertEqual(resp.context["stripe_subscription"], self.stripe_subscription)
         self.assertContains(resp, "active")
         self.assertContains(resp, "Extra products:")
-        # The subscribe form isn't shown, but the manage susbcription button is.
+        # The subscribe form isn't shown, but the manage subscription button is.
         self.assertContains(resp, "Manage subscription")
         self.assertNotContains(resp, "Start subscription")
 

@@ -122,7 +122,7 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
     def test_add_duplicate_invite_by_email(self):
         """Add duplicate invite by email."""
         self.assertEqual(self.organization.teams.count(), 1)
-        email = "non-existant@example.com"
+        email = "non-existent@example.com"
 
         self.assertEqual(Invitation.objects.all().count(), 0)
 

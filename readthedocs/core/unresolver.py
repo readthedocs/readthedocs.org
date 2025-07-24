@@ -246,7 +246,7 @@ class Unresolver:
         """
         The actual unresolver.
 
-        Extracted into a separate method so it can be re-used by
+        Extracted into a separate method so it can be reused by
         the unresolve and unresolve_path methods.
         """
         current_project, version, filename = self._unresolve_path_with_parent_project(

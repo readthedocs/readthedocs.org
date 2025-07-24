@@ -1477,7 +1477,7 @@ class APIProject(Project):
 
     features = []
     # This is a property in the original model, in order to
-    # be able to assign it a value in the constructor, we need to re-declare it
+    # be able to assign it a value in the constructor, we need to redeclare it
     # as an attribute here.
     clone_token = None
 
