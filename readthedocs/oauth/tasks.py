@@ -750,10 +750,10 @@ def handle_github_app_webhook(data: dict, event: str, event_id: str = "unknown")
     :param data: The webhook payload data.
     :param event: The event type of the webhook.
     """
-    log.info(
-        "Handling GitHub App webhook",
+    structlog.contextvars.bind_contextvars(
         event=event,
         event_id=event_id,
     )
+    log.info("Handling GitHub App webhook")
     handler = GitHubAppWebhookHandler(data, event)
     handler.handle()
