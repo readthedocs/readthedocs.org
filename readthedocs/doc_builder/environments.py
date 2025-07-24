@@ -876,7 +876,10 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         build_builder = self.build.get("builder")
         healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
         url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}?builder={build_builder}"
-        cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
+
+        # We use --insecure because we are hitting the internal load balancer here that doesn't have a SSL certificate
+        # The -H "Host: " header is required because of internal load balancer URL
+        cmd = f"/bin/bash -c 'while true; do curl --insecure --max-time 2 -H \"Host: {settings.PRODUCTION_DOMAIN}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
         log.info("Healthcheck command to run.", command=cmd)
 
         client = self.get_client()
