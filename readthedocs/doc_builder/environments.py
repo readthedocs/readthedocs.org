@@ -825,6 +825,17 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 time_limit=self.container_time_limit,
                 mem_limit=self.container_mem_limit,
             )
+
+            networking_config = None
+            if settings.RTD_DOCKER_COMPOSE:
+                # Create the container in the same network the web container is
+                # running, so we can hit its healthcheck API.
+                networking_config = client.create_networking_config(
+                    {
+                        settings.RTD_DOCKER_COMPOSE_NETWORK: client.create_endpoint_config(),
+                    }
+                )
+
             self.container = client.create_container(
                 image=self.container_image,
                 command=(
@@ -839,6 +850,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
                 runtime="runsc",  # gVisor runtime
+                networking_config=networking_config,
             )
             client.start(container=self.container_id)
 
@@ -863,22 +875,9 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         build_id = self.build.get("id")
         build_builder = self.build.get("builder")
         healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
-        if settings.RTD_DOCKER_COMPOSE and "ngrok" in settings.PRODUCTION_DOMAIN:
-            # NOTE: we do require using NGROK here to go over internet because I
-            # didn't find a way to access the `web` container from inside the
-            # container the `build` container created for this particular build
-            # (there are 3 containers involved locally here: web, build, and user's build)
-            #
-            # This shouldn't happen in production, because we are not doing Docker in Docker.
-            url = f"http://readthedocs.ngrok.io{healthcheck_url}"
-        else:
-            url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}"
-
-        # Add the builder hostname to the URL
-        url += f"?builder={build_builder}"
-
+        url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}?builder={build_builder}"
         cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
-        log.debug("Healthcheck command to run.", command=cmd)
+        log.info("Healthcheck command to run.", command=cmd)
 
         client = self.get_client()
         exec_cmd = client.exec_create(
