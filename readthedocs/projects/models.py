@@ -5,7 +5,6 @@ import hashlib
 import hmac
 import os
 import re
-from functools import cache
 from shlex import quote
 from urllib.parse import urlparse
 
@@ -764,11 +763,11 @@ class Project(models.Model):
             )
         return folder_path
 
-    def get_production_media_url(self, type_, version_slug):
+    def get_production_media_url(self, type_, version_slug, resolver=None):
         """Get the URL for downloading a specific media file."""
         # Use project domain for full path --same domain as docs
         # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
-        domain = self.subdomain()
+        domain = self.subdomain(resolver=resolver)
 
         # NOTE: we can't use ``reverse('project_download_media')`` here
         # because this URL only exists in El Proxito and this method is
@@ -886,14 +885,12 @@ class Project(models.Model):
         """Return whether or not this project supports translations."""
         return self.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 
-    @cache
-    def subdomain(self, use_canonical_domain=True):
+    def subdomain(self, use_canonical_domain=True, resolver=None):
         """Get project subdomain from resolver."""
-        return Resolver().get_domain_without_protocol(
-            self, use_canonical_domain=use_canonical_domain
-        )
+        resolver = resolver or Resolver()
+        return resolver.get_domain_without_protocol(self, use_canonical_domain=use_canonical_domain)
 
-    def get_downloads(self):
+    def get_downloads(self, resolver=None):
         downloads = {}
         default_version = self.get_default_version()
 
@@ -901,6 +898,7 @@ class Project(models.Model):
             downloads[type_] = self.get_production_media_url(
                 type_,
                 default_version,
+                resolver=resolver,
             )
 
         return downloads
