@@ -28,11 +28,13 @@ from readthedocs.core.unresolver import VersionNotFoundError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.requests import is_suspicious_request
+from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.proxito.exceptions import ContextualizedHttp404
@@ -780,7 +782,7 @@ class ServeRobotsTXT(SettingsOverrideObject):
 
 
 class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
-    """Serve sitemap.xml from the domain's root."""
+    """Serve a sitemap from the project root."""
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
@@ -789,7 +791,90 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
 
     def get(self, request):
         """
-        Generate and serve a ``sitemap.xml`` for a particular ``project``.
+        Generate and serve project sitemap.
+
+        Without any params, generate a sitemap index pointing to a sitemap for
+        each version of this project and it's subprojects.
+        """
+        context = {}
+        if "versions" in request.GET:
+            context["versions"] = self.get_urlset(request)
+        else:
+            context["sitemaps"] = self.get_sitemapindex(request)
+        return render(
+            request,
+            "sitemap.xml",
+            context,
+            content_type="application/xml",
+        )
+
+    def get_sitemapindex(self, request):
+        """
+        Generate and serve a sitemapindex sitemap pointing to other sitemaps.
+
+        This will point towards:
+
+        - Project urlset sitemap for links to all versions, using :py:method:`get_urlset`
+        - Sitemaps for each project version
+        - Sitemaps for each subproject
+        """
+
+        def get_public_versions(project, resolver=None):
+            if resolver is None:
+                resolver = Resolver()
+            public_versions = Version.internal.public(
+                project=project,
+                only_active=True,
+                include_hidden=False,
+            )
+            for version in public_versions:
+                prefix = resolver.resolve(
+                    project=project,
+                    version_slug=version.slug,
+                )
+                parsed_prefix = urlparse(prefix)
+                sitemap_url = parsed_prefix._replace(
+                    path=unsafe_join_url_path(parsed_prefix.path, "sitemap.xml"),
+                ).geturl()
+
+                sitemap = {
+                    "loc": sitemap_url,
+                }
+                # Version can be enabled, but not ``built`` yet. We want to show the
+                # link without a ``lastmod`` attribute
+                last_build = version.builds.order_by("-date").first()
+                if last_build:
+                    sitemap["lastmod"] = last_build.date.isoformat()
+
+                yield sitemap
+
+        # TODO is it important to share this between lookups? I saw other
+        # attempts to share this, I'm guessing to decrease lookup latency?
+        resolver = Resolver()
+
+        sitemaps = []
+
+        project = request.unresolved_domain.project
+        public_subprojects = Project.objects.public().filter(superprojects__parent=project)
+
+        # Version urlset list first. This is useful if the project doesn't
+        # output a sitemap per version.
+        sitemaps.append(
+            {
+                "loc": request.build_absolute_uri() + "?versions",
+            }
+        )
+
+        # Links to subproject and project versioned sitemaps
+        sitemaps.extend(get_public_versions(project, resolver=resolver))
+        for subproject in public_subprojects:
+            sitemaps.extend(get_public_versions(subproject, resolver=resolver))
+
+        return sitemaps
+
+    def get_urlset(self, request):
+        """
+        Generate and serve a urlset sitemap for all public project versions.
 
         The sitemap is generated from all the ``active`` and public versions of
         ``project``. These versions are sorted by using semantic versioning
@@ -846,11 +931,13 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             yield from itertools.chain(changefreqs, itertools.repeat("monthly"))
 
         project = request.unresolved_domain.project
+
         public_versions = Version.internal.public(
             project=project,
             only_active=True,
             include_hidden=False,
         )
+
         if not public_versions.exists():
             raise Http404()
 
@@ -919,16 +1006,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
                 )
 
             versions.append(element)
-
-        context = {
-            "versions": versions,
-        }
-        return render(
-            request,
-            "sitemap.xml",
-            context,
-            content_type="application/xml",
-        )
+        return versions
 
     def _get_project(self):
         # Method used by the CDNCacheTagsMixin class.
