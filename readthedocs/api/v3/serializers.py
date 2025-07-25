@@ -362,7 +362,7 @@ class VersionSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
     def get_downloads(self, obj):
-        downloads = obj.get_downloads()
+        downloads = obj.get_downloads(resolver=self.resolver)
         data = {}
 
         for k, v in downloads.items():
