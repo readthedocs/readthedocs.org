@@ -1020,7 +1020,7 @@ class GitHubAppTests(TestCase):
         token = "ghs_16C7e42F292c6912E7710c838347Ae178B4a"
         request.post(
             f"{self.api_url}/app/installations/1111/access_tokens",
-            json=self._get_access_token_json(toke=token),
+            json=self._get_access_token_json(token=token),
         )
         service = self.installation.service
         clone_token = service.get_clone_token(self.project)

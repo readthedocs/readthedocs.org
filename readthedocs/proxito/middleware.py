@@ -321,7 +321,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         """
         # TODO: se should add these headers to files from docs only,
         # proxied APIs and other endpoints should not have CORS headers.
-        # These attributes aren't currently set for proxied APIs, but we shuold
+        # These attributes aren't currently set for proxied APIs, but we should
         # find a better way to do this.
         project_slug = getattr(request, "path_project_slug", "")
         version_slug = getattr(request, "path_version_slug", "")

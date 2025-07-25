@@ -278,7 +278,7 @@ class BuildCommand(BuildCommandResultMixin):
                 # TODO don't do this, address builds restarting instead.
                 # We try to post the buildcommand again as a temporary fix
                 # for projects that restart the build process. There seems to be
-                # something that causes a 404 during `patch()` in some biulds,
+                # something that causes a 404 during `patch()` in some builds,
                 # so we assume retrying `post()` for the build command is okay.
                 log.exception("Build command has an id but doesn't exist in the database.")
                 resp = api_client.command.post(data)
@@ -430,7 +430,7 @@ class BaseBuildEnvironment:
     :param version: Project version that is being built
     :param build: Build instance
     :param environment: shell environment variables
-    :param record: whether or not record a build commands in the databse via
+    :param record: whether or not record a build commands in the database via
      the API. The only case where we want this to be `False` is when
      instantiating this class from `sync_repository_task` because it's a
      background task that does not expose commands to the user.

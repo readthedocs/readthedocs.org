@@ -13,7 +13,7 @@ log = structlog.get_logger(__name__)
 
 def index_objects(document, objects, index_name=None, chunk_size=500):
     if not DEDConfig.autosync_enabled():
-        log.info("Autosync disabled, skipping searh indexing.")
+        log.info("Autosync disabled, skipping search indexing.")
         return
 
     # If a search index name is provided, we need to temporarily change

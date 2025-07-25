@@ -142,7 +142,7 @@ now be objects.
 We could just reuse the old response too,
 since the only breaking changes would be the attributes now being objects,
 and we aren't adding any new information to those objects (yet).
-But also, re-using the current serializers shouldn't be a problem either.
+But also, reusing the current serializers shouldn't be a problem either.
 
 .. code-block:: json
 

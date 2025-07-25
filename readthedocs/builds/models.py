@@ -563,7 +563,7 @@ class APIVersion(Version):
 
     project = None
     # This is a property in the original model, in order to
-    # be able to assign it a value in the constructor, we need to re-declare it
+    # be able to assign it a value in the constructor, we need to redeclare it
     # as an attribute here.
     git_identifier = None
 
@@ -783,7 +783,7 @@ class Build(models.Model):
         """
         # TODO: now that we are using a proper JSONField here, we could
         # probably change this field to be a ForeignKey to avoid repeating the
-        # config file over and over again and re-use them to save db data as
+        # config file over and over again and reuse them to save db data as
         # well
         if self._config and self.CONFIG_KEY in self._config:
             return Build.objects.only("_config").get(pk=self._config[self.CONFIG_KEY])._config
@@ -958,7 +958,7 @@ class Build(models.Model):
 
     def reset(self):
         """
-        Reset the build so it can be re-used when re-trying.
+        Reset the build so it can be reused when re-trying.
 
         Dates and states are usually overridden by the build,
         we care more about deleting the commands.
@@ -981,7 +981,7 @@ class BuildCommandResultMixin:
     Mixin for common command result methods/properties.
 
     Shared methods between the database model :py:class:`BuildCommandResult` and
-    non-model respresentations of build command results from the API
+    non-model representations of build command results from the API
     """
 
     @property
