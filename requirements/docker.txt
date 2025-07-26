@@ -304,6 +304,8 @@ pdbpp==0.11.7
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
+pillow==11.2.1
+    # via -r requirements/pip.txt
 platformdirs==4.3.8
     # via
     #   -r requirements/pip.txt

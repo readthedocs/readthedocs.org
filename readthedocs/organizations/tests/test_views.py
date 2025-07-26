@@ -1,4 +1,6 @@
 import csv
+from django.core.files.uploadedfile import SimpleUploadedFile
+import io
 import itertools
 from unittest import mock
 
@@ -9,6 +11,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
+from PIL import Image
 
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.utils import slugify
@@ -58,6 +61,106 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(self.organization.description, "Description")
         # The slug hasn't changed.
         self.assertEqual(self.organization.slug, org_slug)
+
+    def _create_image(self, size=(100, 100), format='PNG'):
+        """Helper to create an in-memory image file."""
+        image = Image.new(mode='RGB', size=size, color=(0, 0, 0))
+        image_bytes = io.BytesIO()
+        image.save(image_bytes, format=format)
+        image_bytes.seek(0)
+        return image_bytes
+
+    def test_update_avatar(self):
+        avatar_file = SimpleUploadedFile(
+            name='test.png',
+            content=self._create_image(size=(100, 100)).read(),
+            content_type='image/png'
+        )
+
+        response = self.client.post(
+            reverse("organization_edit", args=[self.organization.slug]),
+            {
+                "name": "New name",
+                "email": "dev@example.com",
+                "description": "Description",
+                "url": "https://readthedocs.org",
+                "avatar": avatar_file,
+            },
+        )
+        assert response.status_code == 302
+        self.organization.refresh_from_db()
+        assert self.organization.avatar
+        assert self.organization.avatar.name.startswith("avatars/organizations/")
+        assert self.organization.avatar.name.endswith(".png")
+
+    def test_update_avatar_invalid_dimensions(self):
+        avatar_file = SimpleUploadedFile(
+            name='test.png',
+            content=self._create_image(size=(1000, 1000)).read(),
+            content_type='image/png'
+        )
+
+        response = self.client.post(
+            reverse("organization_edit", args=[self.organization.slug]),
+            {
+                "name": "New name",
+                "email": "dev@example.com",
+                "description": "Description",
+                "url": "https://readthedocs.org",
+                "avatar": avatar_file,
+            },
+        )
+        assert response.status_code == 200
+        form = response.context_data['form']
+        assert not form.is_valid()
+        assert 'avatar' in form.errors
+        assert "The image dimensions cannot exceed" in form.errors['avatar'][0]
+
+    def test_update_avatar_invalid_image(self):
+        avatar_file = SimpleUploadedFile(
+            name='test.txt',
+            content=b'This is not an image file.',
+            content_type='text/plain'
+        )
+
+        response = self.client.post(
+            reverse("organization_edit", args=[self.organization.slug]),
+            {
+                "name": "New name",
+                "email": "dev@example.com",
+                "description": "Description",
+                "url": "https://readthedocs.org",
+                "avatar": avatar_file,
+            },
+        )
+        assert response.status_code == 200
+        form = response.context_data['form']
+        assert not form.is_valid()
+        assert 'avatar' in form.errors
+        assert "Upload a valid image." in form.errors['avatar'][0]
+
+    def test_update_avatar_invalid_extension(self):
+        avatar_file = SimpleUploadedFile(
+            name='test.gif',
+            content=self._create_image(size=(100, 100), format='GIF').read(),
+            content_type='image/gif'
+        )
+
+        response = self.client.post(
+            reverse("organization_edit", args=[self.organization.slug]),
+            {
+                "name": "New name",
+                "email": "dev@example.com",
+                "description": "Description",
+                "url": "https://readthedocs.org",
+                "avatar": avatar_file,
+            },
+        )
+        assert response.status_code == 200
+        form = response.context_data['form']
+        assert not form.is_valid()
+        assert 'avatar' in form.errors
+        assert "File extension “gif” is not allowed" in form.errors['avatar'][0]
 
     def test_change_name(self):
         """
