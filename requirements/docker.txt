@@ -25,11 +25,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.39.9
+boto3==1.39.14
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.39.9
+botocore==1.39.14
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -152,7 +152,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==5.2.0
+django-debug-toolbar==6.0.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==8.2
     # via -r requirements/pip.txt
@@ -286,7 +286,7 @@ oauthlib==3.3.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.0
+orjson==3.11.1
     # via -r requirements/pip.txt
 packaging==25.0
     # via
@@ -411,7 +411,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-rich==14.0.0
+rich==14.1.0
     # via -r requirements/docker.in
 s3transfer==0.13.1
     # via
@@ -447,7 +447,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tox==4.27.0
+tox==4.28.3
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -504,7 +504,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.31.2
+virtualenv==20.32.0
     # via
     #   -r requirements/pip.txt
     #   tox
