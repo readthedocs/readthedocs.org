@@ -435,34 +435,6 @@ class ImportView(PrivateViewMixin, TemplateView):
     template_name = "projects/project_import.html"
     wizard_class = ImportWizardView
 
-    def get(self, request, *args, **kwargs):
-        """
-        Display list of repositories to import.
-
-        Adds a warning to the listing if any of the accounts connected for the
-        user are not supported accounts.
-        """
-        deprecated_accounts = SocialAccount.objects.filter(
-            user=self.request.user
-        ).exclude(
-            provider__in=[service.allauth_provider.id for service in registry],
-        )  # yapf: disable
-        for account in deprecated_accounts:
-            provider_account = account.get_provider_account()
-            messages.error(
-                request,
-                format_html(
-                    _(
-                        "There is a problem with your {service} account, "
-                        "try reconnecting your account on your "
-                        '<a href="{url}">connected services page</a>.',
-                    ),
-                    service=provider_account.get_brand()["name"],
-                    url=reverse("socialaccount_connections"),
-                ),
-            )
-        return super().get(request, *args, **kwargs)
-
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data["basics"] = {}
