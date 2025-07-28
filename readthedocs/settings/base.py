@@ -127,15 +127,6 @@ class CommunityBaseSettings(Settings):
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = "DENY"
 
-    # Content Security Policy
-    # https://django-csp.readthedocs.io/
-    CSP_DEFAULT_SRC = None  # This could be improved
-    CSP_FRAME_ANCESTORS = ("'none'",)
-    CSP_OBJECT_SRC = ("'none'",)
-    CSP_REPORT_URI = None
-    CSP_REPORT_ONLY = False
-    CSP_EXCLUDE_URL_PREFIXES = ("/admin/",)
-    RTD_CSP_UPDATE_HEADERS = {}
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -144,6 +135,8 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE = "stable"
     RTD_STABLE_VERBOSE_NAME = "stable"
     RTD_CLEAN_AFTER_BUILD = False
+    RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
+    RTD_BUILD_HEALTHCHECK_DELAY = 15 # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
@@ -403,6 +396,108 @@ class CommunityBaseSettings(Settings):
     ]
     PYTHON_MEDIA = False
 
+    # Content Security Policy
+    # https://django-csp.readthedocs.io/
+    CSP_FRAME_ANCESTORS = ("'none'",)
+    CSP_REPORT_URI = None
+    CSP_REPORT_ONLY = False
+
+    # Default to disallow everything, and then allow specific sources on each directive.
+    CSP_DEFAULT_SRC = ["'none'"]
+    CSP_IMG_SRC = [
+        "'self'",
+        # Some of our styles include images as data URLs.
+        "data:",
+        # We load avatars from GitHub, GitLab, and Bitbucket,
+        # and other services. They don't use a single specific domain,
+        # so we just allow any https domain here.
+        "https:",
+    ]
+    CSP_BASE_URI = ["'self'"]
+    CSP_FRAME_SRC = [
+        # Stripe (used for Gold subscriptions)
+        "https://js.stripe.com/",
+    ]
+    RTD_CSP_UPDATE_HEADERS = {}
+
+    @property
+    def CSP_CONNECT_SRC(self):
+        CSP_CONNECT_SRC = [
+            "'self'",
+            # Allow sentry to report errors.
+            "https://*.ingest.us.sentry.io",
+            # Allow fontawesome to load.
+            "https://ka-p.fontawesome.com",
+            "https://kit.fontawesome.com",
+            # Plausible analytics
+            "https://plausible.io/api/event",
+        ]
+        CSP_CONNECT_SRC.append(f"ws://{self.PRODUCTION_DOMAIN}:10001/ws")
+        return CSP_CONNECT_SRC
+
+    @property
+    def CSP_SCRIPT_SRC(self):
+        CSP_SCRIPT_SRC = [
+            "'self'",
+            # Some of our JS deps are using eval.
+            "'unsafe-eval'",
+            # Allow fontawesome to load.
+            "https://kit.fontawesome.com",
+            # Stripe (used for Gold subscriptions)
+            "https://js.stripe.com/",
+        ]
+        CSP_SCRIPT_SRC.append(self.STATIC_URL)
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            CSP_SCRIPT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return CSP_SCRIPT_SRC
+
+    @property
+    def CSP_FONT_SRC(self):
+        CSP_FONT_SRC = [
+            "'self'",
+            # Allow fontawesome to load.
+            "data:",
+            "https://ka-p.fontawesome.com",
+        ]
+        CSP_FONT_SRC.append(self.STATIC_URL)
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            CSP_FONT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return CSP_FONT_SRC
+
+    @property
+    def CSP_STYLE_SRC(self):
+        CSP_STYLE_SRC = [
+            "'self'",
+            # We have lots of inline styles!
+            # TODO: we should remove this.
+            "'unsafe-inline'",
+        ]
+        CSP_STYLE_SRC.append(self.STATIC_URL)
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            CSP_STYLE_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return CSP_STYLE_SRC
+
+    @property
+    def CSP_FORM_ACTION(self):
+        CSP_FORM_ACTION = [
+            "'self'",
+            # Chrome and Safari block form submissions if it redirects to a different domain.
+            # We redirect to external domains for some forms, like login.
+            "https://github.com",
+            "https://gitlab.com",
+            "https://bitbucket.org",
+            "https://id.atlassian.com",
+            "https://accounts.google.com",
+            # We also redirect to Stripe on subscription forms.
+            "https://billing.stripe.com",
+            "https://checkout.stripe.com",
+        ]
+        # Allow our support form to submit to external domains.
+        if self.SUPPORT_FORM_ENDPOINT:
+            CSP_FORM_ACTION.append(self.SUPPORT_FORM_ENDPOINT)
+        return CSP_FORM_ACTION
+
+
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = "readthedocs.builds.storage.BuildMediaFileSystemStorage"
@@ -507,9 +602,22 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
+    # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
+    # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
+    BROKER_TRANSPORT_OPTIONS = {
+        'visibility_timeout': 18000,  # 5 hours
+    }
+
     CELERY_DEFAULT_QUEUE = "celery"
     CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
     CELERYBEAT_SCHEDULE = {
+        "every-minute-finish-unhealthy-builds": {
+            "task": "readthedocs.projects.tasks.utils.finish_unhealthy_builds",
+            "schedule": crontab(minute="*"),
+            "options": {"queue": "web"},
+        },
+        # TODO: delete `quarter-finish-inactive-builds` once we are fully
+        # migrated into build healthcheck
         "quarter-finish-inactive-builds": {
             "task": "readthedocs.projects.tasks.utils.finish_inactive_builds",
             "schedule": crontab(minute="*/15"),

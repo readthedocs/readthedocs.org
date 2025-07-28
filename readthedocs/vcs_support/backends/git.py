@@ -229,6 +229,9 @@ class Backend(BaseVCS):
                 "ERROR: The repository owner has an IP allow list enabled",
                 # Gitlab:
                 "ERROR: This deploy key does not have write access to this project.",
+                "remote: This deploy key does not have write access to this project.",
+                # Bitbucket:
+                "fatal: Could not read from remote repository.",
             ]
             for pattern in errors_read_access_only:
                 if pattern in stderr:

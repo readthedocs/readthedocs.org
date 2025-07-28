@@ -9,6 +9,7 @@ from datetime import datetime
 
 import structlog
 from django.conf import settings
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from docker import APIClient
 from docker.errors import APIError as DockerAPIError
@@ -16,9 +17,11 @@ from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
+from slumber.exceptions import HttpNotFoundError
 
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
+from readthedocs.projects.models import Feature
 
 from .constants import DOCKER_HOSTNAME_MAX_LEN
 from .constants import DOCKER_IMAGE
@@ -269,7 +272,16 @@ class BuildCommand(BuildCommandResultMixin):
         # If the command has an id, it means it has been saved before,
         # so we update it instead of creating a new one.
         if self.id:
-            resp = api_client.command(self.id).patch(data)
+            try:
+                resp = api_client.command(self.id).patch(data)
+            except HttpNotFoundError:
+                # TODO don't do this, address builds restarting instead.
+                # We try to post the buildcommand again as a temporary fix
+                # for projects that restart the build process. There seems to be
+                # something that causes a 404 during `patch()` in some biulds,
+                # so we assume retrying `post()` for the build command is okay.
+                log.exception("Build command has an id but doesn't exist in the database.")
+                resp = api_client.command.post(data)
         else:
             resp = api_client.command.post(data)
 
@@ -813,6 +825,17 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 time_limit=self.container_time_limit,
                 mem_limit=self.container_mem_limit,
             )
+
+            networking_config = None
+            if settings.RTD_DOCKER_COMPOSE:
+                # Create the container in the same network the web container is
+                # running, so we can hit its healthcheck API.
+                networking_config = client.create_networking_config(
+                    {
+                        settings.RTD_DOCKER_COMPOSE_NETWORK: client.create_endpoint_config(),
+                    }
+                )
+
             self.container = client.create_container(
                 image=self.container_image,
                 command=(
@@ -827,9 +850,45 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
                 runtime="runsc",  # gVisor runtime
+                networking_config=networking_config,
             )
             client.start(container=self.container_id)
+
+            if self.project.has_feature(Feature.BUILD_HEALTHCHECK):
+                self._run_background_healthcheck()
+
         except (DockerAPIError, ConnectionError) as exc:
             raise BuildAppError(
                 BuildAppError.GENERIC_WITH_BUILD_ID, exception_messag=exc.explanation
             ) from exc
+
+    def _run_background_healthcheck(self):
+        """
+        Run a cURL command in the background to ping the healthcheck API.
+
+        The API saves the last ping timestamp on each call. Then a periodic Celery task
+        checks this value for all the running builds and decide if the build is stalled or not.
+        If it's stalled, it terminates those builds and mark them as fail.
+        """
+        log.debug("Running build with healthcheck.")
+
+        build_id = self.build.get("id")
+        build_builder = self.build.get("builder")
+        healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
+        url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}?builder={build_builder}"
+
+        # We use --insecure because we are hitting the internal load balancer here that doesn't have a SSL certificate
+        # The -H "Host: " header is required because of internal load balancer URL
+        cmd = f"/bin/bash -c 'while true; do curl --insecure --max-time 2 -H \"Host: {settings.PRODUCTION_DOMAIN}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
+        log.info("Healthcheck command to run.", command=cmd)
+
+        client = self.get_client()
+        exec_cmd = client.exec_create(
+            container=self.container_id,
+            cmd=cmd,
+            user=settings.RTD_DOCKER_USER,
+            stdout=True,
+            stderr=True,
+        )
+        # `detach=True` allows us to run this command in the background
+        client.exec_start(exec_id=exec_cmd["Id"], stream=False, detach=True)
