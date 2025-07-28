@@ -310,6 +310,34 @@ class TestBuildCommand(TestCase):
         for output, sanitized in checks:
             self.assertEqual(cmd.sanitize_output(output), sanitized)
 
+    def test_sanitize_output_private_variables(self):
+        build_env = mock.MagicMock()
+        build_env.project = mock.MagicMock()
+        build_env.project._environment_variables = mock.MagicMock()
+        build_env.project._environment_variables.items.return_value = [
+            (
+                "PUBLIC",
+                {
+                    "public": True,
+                    "value": "public-value",
+                },
+            ),
+            (
+                "PRIVATE",
+                {
+                    "public": False,
+                    "value": "private-value",
+                },
+            ),
+        ]
+        cmd = BuildCommand(["/bin/bash", "-c", "echo"], build_env=build_env)
+        checks = (
+            ("public-value", "public-value"),
+            ("private-value", "priv****"),
+        )
+        for output, sanitized in checks:
+            self.assertEqual(cmd.sanitize_output(output), sanitized)
+
     @patch("subprocess.Popen")
     def test_unicode_output(self, mock_subprocess):
         """Unicode output from command."""

@@ -200,6 +200,8 @@ class BuildCommand(BuildCommandResultMixin):
             2. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
                over the API call request
 
+            3. Obfuscate private environment variables.
+
         :param output: stdout/stderr to be sanitized
 
         :returns: sanitized output as string
@@ -231,6 +233,17 @@ class BuildCommand(BuildCommandResultMixin):
                 f"Output is too big. Truncated at {allowed_length} bytes.\n\n\n"
                 f"{truncated_output}"
             )
+
+        # Obfuscate private environment variables.
+        if self.build_env:
+            # NOTE: we can't use `self._environment` here because we don't know
+            # which variable is public/private since it's just a name/value
+            # dictionary. We need to check with the APIProject object (`self.build_env.project`).
+            for name, spec in self.build_env.project._environment_variables.items():
+                if not spec["public"]:
+                    value = spec["value"]
+                    sanitized_value = f"{value[:4]}****"
+                    sanitized = sanitized.replace(value, sanitized_value)
 
         return sanitized
 
