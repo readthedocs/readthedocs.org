@@ -308,6 +308,8 @@ class AddonsResponseBase:
         - They are active
         - They are not hidden
         """
+        # NOTE: Use project.versions, not Version.objects,
+        # so all results share the same instance of project.
         return project.versions(manager=INTERNAL).public(
             project=project,
             user=request.user,

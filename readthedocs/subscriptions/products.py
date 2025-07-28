@@ -116,6 +116,7 @@ def get_feature(obj, feature_type) -> RTDProductFeature:
     from readthedocs.projects.models import Project
 
     if isinstance(obj, Project):
+        # Fetch the subscription as well, as it's used just below.
         organization = obj.organizations.select_related("stripe_subscription").first()
     elif isinstance(obj, Organization):
         organization = obj
