@@ -1964,19 +1964,15 @@ class Feature(models.Model):
 
     # Dependencies related features
     PIP_ALWAYS_UPGRADE = "pip_always_upgrade"
-    USE_NEW_PIP_RESOLVER = "use_new_pip_resolver"
-    DONT_INSTALL_LATEST_PIP = "dont_install_latest_pip"
-    USE_SPHINX_RTD_EXT_LATEST = "rtd_sphinx_ext_latest"
-    INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
 
     # Search related features
-    ENABLE_MKDOCS_SERVER_SIDE_SEARCH = "enable_mkdocs_server_side_search"
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
     BUILD_HEALTHCHECK = "build_healthcheck"
+    BUILD_NO_ACKS_LATE = "build_no_acks_late"
 
     FEATURES = (
         (
@@ -2020,24 +2016,7 @@ class Feature(models.Model):
         ),
         # Dependencies related features
         (PIP_ALWAYS_UPGRADE, _("Build: Always run pip install --upgrade")),
-        (USE_NEW_PIP_RESOLVER, _("Build: Use new pip resolver")),
-        (
-            DONT_INSTALL_LATEST_PIP,
-            _("Build: Don't install the latest version of pip"),
-        ),
-        (
-            USE_SPHINX_RTD_EXT_LATEST,
-            _("Sphinx: Use latest version of the Read the Docs Sphinx extension"),
-        ),
-        (
-            INSTALL_LATEST_CORE_REQUIREMENTS,
-            _("Build: Install all the latest versions of Read the Docs core requirements"),
-        ),
         # Search related features.
-        (
-            ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
-            _("Search: Enable server side search for MkDocs projects"),
-        ),
         (
             DEFAULT_TO_FUZZY_SEARCH,
             _("Search: Default to fuzzy search for simple search queries"),
@@ -2054,6 +2033,10 @@ class Feature(models.Model):
         (
             BUILD_HEALTHCHECK,
             _("Build: Use background cURL healthcheck."),
+        ),
+        (
+            BUILD_NO_ACKS_LATE,
+            _("Build: Do not use Celery ASK_LATE config for this project."),
         ),
     )
 

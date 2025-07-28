@@ -27,11 +27,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.39.9
+boto3==1.39.14
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.39.9
+botocore==1.39.14
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -81,7 +81,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.9.2
+coverage[toml]==7.10.0
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
@@ -149,7 +149,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==5.2.0
+django-debug-toolbar==6.0.0
     # via -r requirements/pip.txt
 django-dynamic-fixture==4.0.1
     # via -r requirements/testing.in
@@ -278,7 +278,7 @@ oauthlib==3.3.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.0
+orjson==3.11.1
     # via -r requirements/pip.txt
 packaging==25.0
     # via
@@ -514,7 +514,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.31.2
+virtualenv==20.32.0
     # via -r requirements/pip.txt
 wcwidth==0.2.13
     # via
