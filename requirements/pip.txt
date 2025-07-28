@@ -93,7 +93,7 @@ django==5.2.4
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.10.0
+django-allauth[mfa,saml,socialaccount]==65.9.0
     # via -r requirements/pip.in
 django-annoying==0.10.8
     # via -r requirements/pip.in
@@ -200,9 +200,7 @@ lxml==5.3.2
 markdown==3.8.2
     # via -r requirements/pip.in
 oauthlib==3.3.1
-    # via
-    #   django-allauth
-    #   requests-oauthlib
+    # via requests-oauthlib
 orjson==3.11.1
     # via -r requirements/pip.in
 packaging==25.0
@@ -275,7 +273,9 @@ requests==2.32.4
     #   slumber
     #   stripe
 requests-oauthlib==2.0.0
-    # via -r requirements/pip.in
+    # via
+    #   -r requirements/pip.in
+    #   django-allauth
 requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0

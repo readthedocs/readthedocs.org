@@ -55,7 +55,10 @@ redis
 celery
 django-celery-beat
 
-django-allauth[socialaccount,saml,mfa]
+# 65.10.0 includes a fix that changes when clean_email is called,
+# we were relying on that method not being called on auto-signup for SAML and Google.
+# https://codeberg.org/allauth/django-allauth/commit/a5782aca5e373a48e7408e02d68211d934e821f3
+django-allauth[socialaccount,saml,mfa]==65.9.0
 
 requests-oauthlib
 
