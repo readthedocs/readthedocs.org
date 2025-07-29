@@ -1970,6 +1970,7 @@ class Feature(models.Model):
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
+    DONT_CLEAN_BUILD = "dont_clean_build"
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
 
@@ -2026,6 +2027,10 @@ class Feature(models.Model):
             _("Build: Use S3 scoped credentials for uploading build artifacts."),
         ),
         (
+            DONT_CLEAN_BUILD,
+            _(
+                "Build: Don't clean the build directory. Only for Enterprise users with dedicated builders."
+            ),
             BUILD_HEALTHCHECK,
             _("Build: Use background cURL healthcheck."),
         ),
