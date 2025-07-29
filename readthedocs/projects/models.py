@@ -1950,7 +1950,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
@@ -1975,10 +1974,6 @@ class Feature(models.Model):
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
 
     FEATURES = (
-        (
-            RECORD_404_PAGE_VIEWS,
-            _("Proxito: Record 404s page views."),
-        ),
         (
             DISABLE_PAGEVIEWS,
             _("Proxito: Disable all page views"),
