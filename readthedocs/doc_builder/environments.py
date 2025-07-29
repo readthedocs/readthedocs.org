@@ -585,7 +585,6 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
     container_time_limit = DOCKER_LIMITS.get("time")
 
     def __init__(self, *args, **kwargs):
-        self.build_api_key = kwargs.pop("build_api_key", None)
         container_image = kwargs.pop("container_image", None)
         super().__init__(*args, **kwargs)
         self.client = None
@@ -826,6 +825,17 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 time_limit=self.container_time_limit,
                 mem_limit=self.container_mem_limit,
             )
+
+            networking_config = None
+            if settings.RTD_DOCKER_COMPOSE:
+                # Create the container in the same network the web container is
+                # running, so we can hit its healthcheck API.
+                networking_config = client.create_networking_config(
+                    {
+                        settings.RTD_DOCKER_COMPOSE_NETWORK: client.create_endpoint_config(),
+                    }
+                )
+
             self.container = client.create_container(
                 image=self.container_image,
                 command=(
@@ -840,6 +850,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
                 runtime="runsc",  # gVisor runtime
+                networking_config=networking_config,
             )
             client.start(container=self.container_id)
 
@@ -862,20 +873,14 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         log.debug("Running build with healthcheck.")
 
         build_id = self.build.get("id")
+        build_builder = self.build.get("builder")
         healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
-        if settings.RTD_DOCKER_COMPOSE and "ngrok" in settings.PRODUCTION_DOMAIN:
-            # NOTE: we do require using NGROK here to go over internet because I
-            # didn't find a way to access the `web` container from inside the
-            # container the `build` container created for this particular build
-            # (there are 3 containers involved locally here: web, build, and user's build)
-            #
-            # This shouldn't happen in production, because we are not doing Docker in Docker.
-            url = f"http://readthedocs.ngrok.io{healthcheck_url}"
-        else:
-            url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}"
+        url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}?builder={build_builder}"
 
-        cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -H \"Authorization: Token {self.build_api_key}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
-        log.debug("Healthcheck command to run.", command=cmd)
+        # We use --insecure because we are hitting the internal load balancer here that doesn't have a SSL certificate
+        # The -H "Host: " header is required because of internal load balancer URL
+        cmd = f"/bin/bash -c 'while true; do curl --insecure --max-time 2 -H \"Host: {settings.PRODUCTION_DOMAIN}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
+        log.info("Healthcheck command to run.", command=cmd)
 
         client = self.get_client()
         exec_cmd = client.exec_create(

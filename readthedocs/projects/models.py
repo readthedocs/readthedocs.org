@@ -763,11 +763,11 @@ class Project(models.Model):
             )
         return folder_path
 
-    def get_production_media_url(self, type_, version_slug):
+    def get_production_media_url(self, type_, version_slug, resolver=None):
         """Get the URL for downloading a specific media file."""
         # Use project domain for full path --same domain as docs
         # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
-        domain = self.subdomain()
+        domain = self.subdomain(resolver=resolver)
 
         # NOTE: we can't use ``reverse('project_download_media')`` here
         # because this URL only exists in El Proxito and this method is
@@ -885,13 +885,12 @@ class Project(models.Model):
         """Return whether or not this project supports translations."""
         return self.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 
-    def subdomain(self, use_canonical_domain=True):
+    def subdomain(self, use_canonical_domain=True, resolver=None):
         """Get project subdomain from resolver."""
-        return Resolver().get_domain_without_protocol(
-            self, use_canonical_domain=use_canonical_domain
-        )
+        resolver = resolver or Resolver()
+        return resolver.get_domain_without_protocol(self, use_canonical_domain=use_canonical_domain)
 
-    def get_downloads(self):
+    def get_downloads(self, resolver=None):
         downloads = {}
         default_version = self.get_default_version()
 
@@ -899,6 +898,7 @@ class Project(models.Model):
             downloads[type_] = self.get_production_media_url(
                 type_,
                 default_version,
+                resolver=resolver,
             )
 
         return downloads
@@ -1950,7 +1950,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
@@ -1964,13 +1963,8 @@ class Feature(models.Model):
 
     # Dependencies related features
     PIP_ALWAYS_UPGRADE = "pip_always_upgrade"
-    USE_NEW_PIP_RESOLVER = "use_new_pip_resolver"
-    DONT_INSTALL_LATEST_PIP = "dont_install_latest_pip"
-    USE_SPHINX_RTD_EXT_LATEST = "rtd_sphinx_ext_latest"
-    INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
 
     # Search related features
-    ENABLE_MKDOCS_SERVER_SIDE_SEARCH = "enable_mkdocs_server_side_search"
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
 
     # Build related features
@@ -1980,10 +1974,6 @@ class Feature(models.Model):
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
 
     FEATURES = (
-        (
-            RECORD_404_PAGE_VIEWS,
-            _("Proxito: Record 404s page views."),
-        ),
         (
             DISABLE_PAGEVIEWS,
             _("Proxito: Disable all page views"),
@@ -2021,24 +2011,7 @@ class Feature(models.Model):
         ),
         # Dependencies related features
         (PIP_ALWAYS_UPGRADE, _("Build: Always run pip install --upgrade")),
-        (USE_NEW_PIP_RESOLVER, _("Build: Use new pip resolver")),
-        (
-            DONT_INSTALL_LATEST_PIP,
-            _("Build: Don't install the latest version of pip"),
-        ),
-        (
-            USE_SPHINX_RTD_EXT_LATEST,
-            _("Sphinx: Use latest version of the Read the Docs Sphinx extension"),
-        ),
-        (
-            INSTALL_LATEST_CORE_REQUIREMENTS,
-            _("Build: Install all the latest versions of Read the Docs core requirements"),
-        ),
         # Search related features.
-        (
-            ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
-            _("Search: Enable server side search for MkDocs projects"),
-        ),
         (
             DEFAULT_TO_FUZZY_SEARCH,
             _("Search: Default to fuzzy search for simple search queries"),

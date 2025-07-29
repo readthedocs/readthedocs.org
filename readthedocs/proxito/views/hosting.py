@@ -22,6 +22,7 @@ from readthedocs.api.v3.serializers import ProjectSerializer
 from readthedocs.api.v3.serializers import RelatedProjectSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -223,10 +224,10 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         return Response(data)
 
 
-class NoLinksMixin:
-    """Mixin to remove conflicting fields from serializers."""
+class RemoveFieldsMixin:
+    """Mixin to remove fields from serializers."""
 
-    FIELDS_TO_REMOVE = ("_links",)
+    FIELDS_TO_REMOVE = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -245,20 +246,32 @@ class NoLinksMixin:
 # on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
-class RelatedProjectSerializerNoLinks(NoLinksMixin, RelatedProjectSerializer):
-    pass
+class RelatedProjectAddonsSerializer(RemoveFieldsMixin, RelatedProjectSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+    ]
 
 
-class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
-    related_project_serializer = RelatedProjectSerializerNoLinks
+class ProjectAddonsSerializer(RemoveFieldsMixin, ProjectSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+        # users and tags result in additional queries for fields that we don't use.
+        "users",
+        "tags",
+    ]
+    related_project_serializer = RelatedProjectAddonsSerializer
 
 
-class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
-    pass
+class VersionAddonsSerializer(RemoveFieldsMixin, VersionSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+    ]
 
 
-class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
-    pass
+class BuildAddonsSerializer(RemoveFieldsMixin, BuildSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+    ]
 
 
 class AddonsResponseBase:
@@ -295,7 +308,9 @@ class AddonsResponseBase:
         - They are active
         - They are not hidden
         """
-        return Version.internal.public(
+        # NOTE: Use project.versions, not Version.objects,
+        # so all results share the same instance of project.
+        return project.versions(manager=INTERNAL).public(
             project=project,
             user=request.user,
             only_active=True,
@@ -328,9 +343,7 @@ class AddonsResponseBase:
         versions_active_built_not_hidden = Version.objects.none()
         sorted_versions_active_built_not_hidden = Version.objects.none()
 
-        versions_active_built_not_hidden = (
-            self._get_versions(request, project).select_related("project").order_by("-slug")
-        )
+        versions_active_built_not_hidden = self._get_versions(request, project).order_by("-slug")
         sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
         if not project.supports_multiple_versions:
             # Return only one version when the project doesn't support multiple versions.
@@ -371,21 +384,21 @@ class AddonsResponseBase:
                 request=request, project=project, version=version, resolver=resolver
             ),
             "versions": {
-                "current": VersionSerializerNoLinks(
+                "current": VersionAddonsSerializer(
                     version,
                     resolver=resolver,
                 ).data
                 if version
                 else None,
                 # These are "sorted active, built, not hidden versions"
-                "active": VersionSerializerNoLinks(
+                "active": VersionAddonsSerializer(
                     sorted_versions_active_built_not_hidden,
                     resolver=resolver,
                     many=True,
                 ).data,
             },
             "builds": {
-                "current": BuildSerializerNoLinks(build).data if build else None,
+                "current": BuildAddonsSerializer(build).data if build else None,
             },
             # TODO: consider creating one serializer per field here.
             # The resulting JSON will be the same, but maybe it's easier/cleaner?
@@ -591,14 +604,16 @@ class AddonsResponseBase:
             .exclude(pk=project.pk)
             .order_by("language")
             .select_related("main_language_project")
-            .prefetch_related("tags", "domains", "related_projects", "users")
+            # NOTE: there is no need to prefetch superprojects,
+            # as translations are not expected to have superprojects,
+            # and the serializer already checks for that.
         )
         # NOTE: we check if there are translations first,
         # otherwise evaluating the queryset will be more expensive
         # even if there are no results. Django optimizes the queryset
         # if only we need to check if there are results or not.
         if translations_qs.exists():
-            translations = ProjectSerializerNoLinks(
+            translations = ProjectAddonsSerializer(
                 translations_qs,
                 resolver=resolver,
                 version=version,
@@ -608,7 +623,7 @@ class AddonsResponseBase:
             translations = []
 
         return {
-            "current": ProjectSerializerNoLinks(
+            "current": ProjectAddonsSerializer(
                 project,
                 resolver=resolver,
                 version=version,
