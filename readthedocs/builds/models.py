@@ -489,7 +489,7 @@ class Version(TimeStampedModel):
             external=external,
         )
 
-    def get_downloads(self, pretty=False):
+    def get_downloads(self, pretty=False, resolver=None):
         project = self.project
         data = {}
 
@@ -500,17 +500,20 @@ class Version(TimeStampedModel):
             data[prettify("PDF")] = project.get_production_media_url(
                 "pdf",
                 self.slug,
+                resolver=resolver,
             )
 
         if self.has_htmlzip:
             data[prettify("HTML")] = project.get_production_media_url(
                 "htmlzip",
                 self.slug,
+                resolver=resolver,
             )
         if self.has_epub:
             data[prettify("Epub")] = project.get_production_media_url(
                 "epub",
                 self.slug,
+                resolver=resolver,
             )
         return data
 

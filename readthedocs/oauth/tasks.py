@@ -281,7 +281,7 @@ class GitHubAppWebhookHandler:
             log.debug("Unsupported event")
             raise ValueError(f"Unsupported event: {self.event}")
 
-        log.debug("Handling event")
+        log.info("Handling event")
         self.event_handlers[self.event]()
 
     def _handle_installation_event(self):
@@ -743,12 +743,17 @@ class GitHubAppWebhookHandler:
 
 
 @app.task(queue="web")
-def handle_github_app_webhook(data: dict, event: str):
+def handle_github_app_webhook(data: dict, event: str, event_id: str = "unknown"):
     """
     Handle GitHub App webhooks asynchronously.
 
     :param data: The webhook payload data.
     :param event: The event type of the webhook.
     """
+    structlog.contextvars.bind_contextvars(
+        event=event,
+        event_id=event_id,
+    )
+    log.info("Handling GitHub App webhook")
     handler = GitHubAppWebhookHandler(data, event)
     handler.handle()

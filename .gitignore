@@ -60,6 +60,9 @@ tags
 .pytest_cache/
 scripts/travis/elasticsearch*
 
+# django-silk
+media/*.prof
+
 # Secrets
 /docs/user/img/screenshots/auth*.json
 

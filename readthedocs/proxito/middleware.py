@@ -159,6 +159,12 @@ class ProxitoMiddleware(MiddlewareMixin):
             response["Strict-Transport-Security"] = "; ".join(hsts_header_values)
 
     def add_cache_headers(self, request, response):
+        """Add `Cache-Control: no-cache` header (browser level) for external versions."""
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain and unresolved_domain.is_from_external_domain:
+            response["Cache-Control"] = "no-cache"
+
+    def add_cdn_cache_headers(self, request, response):
         """
         Add Cache-Control headers.
 
@@ -186,6 +192,12 @@ class ProxitoMiddleware(MiddlewareMixin):
             private_response(response, force=False)
         else:
             cache_response(response, force=False)
+
+    def add_x_robots_tag_headers(self, request, response):
+        """Add `X-Robots-Tag: noindex` header for external versions."""
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain and unresolved_domain.is_from_external_domain:
+            response["X-Robots-Tag"] = "noindex"
 
     def _set_request_attributes(self, request, unresolved_domain):
         """
@@ -360,6 +372,8 @@ class ProxitoMiddleware(MiddlewareMixin):
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
         self.add_cache_headers(request, response)
+        self.add_cdn_cache_headers(request, response)
+        self.add_x_robots_tag_headers(request, response)
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         self.add_hosting_integrations_headers(request, response)
