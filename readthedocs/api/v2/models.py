@@ -18,7 +18,8 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
         Build API keys are valid for 3 hours,
         and can be revoked at any time by hitting the /api/v2/revoke/ endpoint.
         """
-        expiry_date = timezone.now() + timedelta(hours=3)
+        # Use the build time limit + 15% for the API token
+        expiry_date = timezone.now() + timedelta(seconds=settings.BUILD_TIME_LIMIT * 1.25)
         name_max_length = self.model._meta.get_field("name").max_length
         return super().create_key(
             # Name is required, so we use the project slug for it.

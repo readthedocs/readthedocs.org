@@ -25,7 +25,6 @@ from readthedocs.projects.models import Feature
 
 from .constants import DOCKER_HOSTNAME_MAX_LEN
 from .constants import DOCKER_IMAGE
-from .constants import DOCKER_LIMITS
 from .constants import DOCKER_OOM_EXIT_CODE
 from .constants import DOCKER_SOCKET
 from .constants import DOCKER_TIMEOUT_EXIT_CODE
@@ -581,8 +580,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
     command_class = DockerBuildCommand
     container_image = DOCKER_IMAGE
-    container_mem_limit = DOCKER_LIMITS.get("memory")
-    container_time_limit = DOCKER_LIMITS.get("time")
+    container_mem_limit = settings.BUILD_MEMORY_LIMIT
+    container_time_limit = settings.BUILD_TIME_LIMIT
 
     def __init__(self, *args, **kwargs):
         container_image = kwargs.pop("container_image", None)

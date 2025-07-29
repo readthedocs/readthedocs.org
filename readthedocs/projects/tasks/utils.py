@@ -167,6 +167,8 @@ def finish_inactive_builds():
     These inactive builds will be marked as ``success`` and ``CANCELLED`` with an
     ``error`` to be communicated to the user.
     """
+    # TODO: delete this task once we are fully migrated to ``BUILD_HEALTHCHECK``
+    #
     # TODO similar to the celery task time limit, we can't infer this from
     # Docker settings anymore, because Docker settings are determined on the
     # build servers dynamically.
