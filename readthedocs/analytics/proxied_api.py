@@ -92,12 +92,16 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             )
             return
 
+        # Don't track 200 if the version doesn't exist
+        if status == "200" and not version:
+            return
+
         # Don't allow tracking page views from external domains.
         if self.request.unresolved_domain.is_from_external_domain:
             return
 
         # Don't track external versions.
-        if version and version.is_external:  # or not unresolved.filename:
+        if version and version.is_external:
             return
 
         absolute_uri_parsed = urlparse(absolute_uri)
@@ -110,7 +114,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             #
             # If we don't have a version, the filename is the path,
             # otherwise it would be empty.
-            filename = absolute_uri_parsed.path
+            filename = exc.path
             absolute_uri_project = exc.project
         except UnresolverError:
             # If we were unable to resolve the URL, it
