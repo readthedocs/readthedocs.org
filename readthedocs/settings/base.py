@@ -589,6 +589,33 @@ class CommunityBaseSettings(Settings):
     USE_I18N = True
     USE_L10N = True
 
+    BUILD_TIME_LIMIT = 900  # seconds
+
+    @property
+    def BUILD_MEMORY_LIMIT(self):
+        """
+        Set build memory limit dynamically, if in production, based on system memory.
+
+        We do this to avoid having separate build images. This assumes 1 build
+        process per server, which will be allowed to consume all available
+        memory.
+        """
+        # Our normal default
+        default_memory_limit = "7g"
+
+        # Only run on our servers
+        if self.RTD_IS_PRODUCTION:
+            total_memory, memory_limit = self._get_build_memory_limit()
+
+        memory_limit = memory_limit or default_memory_limit
+        log.info(
+            "Using dynamic build limits.",
+            hostname=socket.gethostname(),
+            memory=memory_limit,
+        )
+        return memory_limit
+
+
     # Celery
     CELERY_APP_NAME = "readthedocs"
     CELERY_ALWAYS_EAGER = True
@@ -605,7 +632,7 @@ class CommunityBaseSettings(Settings):
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
     BROKER_TRANSPORT_OPTIONS = {
-        'visibility_timeout': self.BUILD_TIME_LIMIT * 1.15,  # 15% more than the build time limit
+        'visibility_timeout': BUILD_TIME_LIMIT * 1.15,  # 15% more than the build time limit
     }
 
     CELERY_DEFAULT_QUEUE = "celery"
@@ -740,32 +767,6 @@ class CommunityBaseSettings(Settings):
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
             log.exception("Failed to get memory size, using defaults Docker limits.")
-
-    BUILD_TIME_LIMIT = 900  # seconds
-
-    @property
-    def BUILD_MEMORY_LIMIT(self):
-        """
-        Set build memory limit dynamically, if in production, based on system memory.
-
-        We do this to avoid having separate build images. This assumes 1 build
-        process per server, which will be allowed to consume all available
-        memory.
-        """
-        # Our normal default
-        default_memory_limit = "7g"
-
-        # Only run on our servers
-        if self.RTD_IS_PRODUCTION:
-            total_memory, memory_limit = self._get_build_memory_limit()
-
-        memory_limit = memory_limit or default_memory_limit
-        log.info(
-            "Using dynamic build limits.",
-            hostname=socket.gethostname(),
-            memory=memory_limit,
-        )
-        return memory_limit
 
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
