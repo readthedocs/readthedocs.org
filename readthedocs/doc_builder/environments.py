@@ -835,8 +835,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 "Creating Docker container.",
                 container_image=self.container_image,
                 container_id=self.container_id,
-                time_limit=self.container_time_limit,
-                mem_limit=self.container_mem_limit,
+                container_time_limit=self.container_time_limit,
+                container_mem_limit=self.container_mem_limit,
             )
 
             networking_config = None
