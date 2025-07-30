@@ -185,6 +185,10 @@ def finish_inactive_builds():
     builds_finished = []
     builds = Build.objects.filter(query)[:50]
     for build in builds:
+        if build.project.has_feature(Feature.BUILD_HEALTHCHECK):
+            # Skip those projects that have healthcheck enabled indirectly (``Feature.default_true=True``)
+            continue
+
         if build.project.container_time_limit:
             custom_delta = datetime.timedelta(
                 seconds=int(build.project.container_time_limit),
