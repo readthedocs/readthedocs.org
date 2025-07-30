@@ -8,6 +8,7 @@ from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 
+from readthedocs.projects.models import APIProject
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.environments import (
     BuildCommand,
@@ -41,7 +42,7 @@ class TestLocalBuildEnvironment(TestCase):
         api_client.command().patch.return_value = {
             "id": 1,
         }
-        project = get(Project)
+        project = APIProject(**get(Project).__dict__)
         build_env = LocalBuildEnvironment(
             project=project,
             build={
@@ -258,7 +259,7 @@ class TestBuildCommand(TestCase):
 
     def test_output(self):
         """Test output command."""
-        project = get(Project)
+        project = APIProject(**get(Project).__dict__)
         api_client = mock.MagicMock()
         build_env = LocalBuildEnvironment(
             project=project,
@@ -306,6 +307,34 @@ class TestBuildCommand(TestCase):
             ("Hola", "Hola"),
             ("H\x00i", "Hi"),
             ("H\x00i \x00\x00\x00You!\x00", "Hi You!"),
+        )
+        for output, sanitized in checks:
+            self.assertEqual(cmd.sanitize_output(output), sanitized)
+
+    def test_obfuscate_output_private_variables(self):
+        build_env = mock.MagicMock()
+        build_env.project = mock.MagicMock()
+        build_env.project._environment_variables = mock.MagicMock()
+        build_env.project._environment_variables.items.return_value = [
+            (
+                "PUBLIC",
+                {
+                    "public": True,
+                    "value": "public-value",
+                },
+            ),
+            (
+                "PRIVATE",
+                {
+                    "public": False,
+                    "value": "private-value",
+                },
+            ),
+        ]
+        cmd = BuildCommand(["/bin/bash", "-c", "echo"], build_env=build_env)
+        checks = (
+            ("public-value", "public-value"),
+            ("private-value", "priv****"),
         )
         for output, sanitized in checks:
             self.assertEqual(cmd.sanitize_output(output), sanitized)
