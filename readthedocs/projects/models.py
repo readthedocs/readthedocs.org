@@ -1233,11 +1233,9 @@ class Project(models.Model):
                     return new_stable
             else:
                 log.info(
-                    "Creating new stable version: %(project)s:%(version)s",
-                    {
-                        "project": self.slug,
-                        "version": new_stable.identifier,
-                    },
+                    "Creating new stable version",
+                    project_slug=self.slug,
+                    version_identifier=new_stable.identifier,
                 )
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
