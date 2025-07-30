@@ -86,15 +86,7 @@ def prepare_build(
         options["queue"] = project.build_queue
 
     # Set per-task time limit
-    time_limit = settings.BUILD_TIME_LIMIT
-    try:
-        if project.container_time_limit:
-            time_limit = int(project.container_time_limit)
-    except ValueError:
-        log.warning(
-            "Invalid time_limit for project.",
-            time_limit=project.container_time_limit,
-        )
+    time_limit = project.container_time_limit or settings.BUILD_TIME_LIMIT
 
     # Add 20% overhead to task, to ensure the build can timeout and the task
     # will cleanly finish.
