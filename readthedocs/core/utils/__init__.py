@@ -181,7 +181,7 @@ def prepare_build(
 
     # NOTE: call this log here as well to log all the context variables added
     # inside this function. This is useful when debugging.
-    log.info("Triggering build with specific attributes.")
+    log.info("Build created and ready to be executed.")
 
     return (
         update_docs_task.signature(
