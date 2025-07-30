@@ -39,7 +39,7 @@ on each image without asking the users to change the image selected in their con
 Then, when a completely different image appeared and after testing ``testing`` image enough,
 we discarded ``stable``, old ``latest`` became the new ``stable`` and old ``testing`` became the new ``latest``.
 This produced issues to people pinning their images to any of these names because after this change,
-*we changed all the images for all the users* and many build issues arrised!
+*we changed all the images for all the users* and many build issues arose!
 
 
 Goals

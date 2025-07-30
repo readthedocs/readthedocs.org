@@ -256,6 +256,6 @@ Final notes
   - the project/build/user to expose a ``metadata.yaml`` with the contract that Read the Docs expects.
   - none, some or all the integrations will be added to the HTML output (these have to be implemented at Read the Docs core)
 - We are not responsible for extra formats (e.g. PDF, ePub, etc) on other tools.
-- Focus on support Sphinx with nice integrations made in a tool-agnostic way that can be re-used.
+- Focus on support Sphinx with nice integrations made in a tool-agnostic way that can be reused.
 - Removing the manipulation of ``conf.py.tmpl`` does not require us to implement the same manipulation
   for projects using the new potential feature ``sphinx.yaml`` file.

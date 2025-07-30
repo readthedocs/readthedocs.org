@@ -618,7 +618,7 @@ class APIBuildTests(TestCase):
         self.assertIn("Commit: {}".format(build.commit), resp.content.decode())
         self.assertIn("Date: ", resp.content.decode())
         self.assertIn("State: building", resp.content.decode())
-        self.assertIn("Success: Unknow", resp.content.decode())
+        self.assertIn("Success: Unknown", resp.content.decode())
         self.assertIn("[rtd-command-info]", resp.content.decode())
         self.assertIn(
             "python setup.py install\nInstalling dependencies...",

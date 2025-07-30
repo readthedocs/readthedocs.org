@@ -387,7 +387,7 @@ class GitHubAppIntegration(Integration):
         projects we show a link in the UI to the GHA installation page for the
         installation used by the project.
         """
-        # If the GHA is disconnected we'll disonnect the remote repository and
+        # If the GHA is disconnected we'll disconnect the remote repository and
         # so we won't have a URL to the installation page the project should be
         # using. We might want to store this on the model later so a repository
         # that is removed from the installation can still link to the
