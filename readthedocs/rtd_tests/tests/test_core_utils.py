@@ -2,6 +2,7 @@
 from unittest import mock
 
 import pytest
+from django.conf import settings
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
@@ -189,8 +190,8 @@ class CoreUtilTests(TestCase):
         trigger_build(project=self.project, version=self.version)
         kwargs = {"build_commit": None, "build_api_key": mock.ANY}
         options = {
-            "time_limit": int(7200 * 1.2),
-            "soft_time_limit": 7200,
+            "time_limit": settings.BUILD_TIME_LIMIT * 1.2,
+            "soft_time_limit": settings.BUILD_TIME_LIMIT,
             "countdown": 5 * 60,
             "max_retries": 25,
         }
