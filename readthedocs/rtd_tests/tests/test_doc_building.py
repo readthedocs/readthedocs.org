@@ -310,7 +310,7 @@ class TestBuildCommand(TestCase):
         for output, sanitized in checks:
             self.assertEqual(cmd.sanitize_output(output), sanitized)
 
-    def test_sanitize_output_private_variables(self):
+    def test_obfuscate_output_private_variables(self):
         build_env = mock.MagicMock()
         build_env.project = mock.MagicMock()
         build_env.project._environment_variables = mock.MagicMock()

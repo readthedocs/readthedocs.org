@@ -242,8 +242,8 @@ class BuildCommand(BuildCommandResultMixin):
             for name, spec in self.build_env.project._environment_variables.items():
                 if not spec["public"]:
                     value = spec["value"]
-                    sanitized_value = f"{value[:4]}****"
-                    sanitized = sanitized.replace(value, sanitized_value)
+                    obfuscated_value = f"{value[:4]}****"
+                    sanitized = sanitized.replace(value, obfuscated_value)
 
         return sanitized
 
