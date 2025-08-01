@@ -240,5 +240,21 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     RTD_FILETREEDIFF_ALL = "RTD_FILETREEDIFF_ALL" in os.environ
 
+    @property
+    def STORAGES(self):
+        return {
+            "staticfiles": {
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
+            },
+            "usercontent": {
+                "BACKEND": "storages.backends.s3.S3Storage",
+                "OPTIONS": {
+                    "bucket_name": os.environ.get("RTD_S3_USER_CONTENT_STORAGE_BUCKET", "usercontent"),
+                    "url_protocol": "http:",
+                    "custom_domain": self.PRODUCTION_DOMAIN + "/usercontent",
+                },
+            },
+        }
+
 
 DockerBaseSettings.load_settings(__name__)
