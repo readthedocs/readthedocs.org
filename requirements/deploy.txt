@@ -25,11 +25,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.39.14
+boto3==1.40.1
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.39.14
+botocore==1.40.1
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -95,10 +95,6 @@ cssselect==1.3.0
     #   pyquery
 decorator==5.2.1
     # via ipython
-deprecated==1.2.18
-    # via
-    #   -r requirements/pip.txt
-    #   pygithub
 distlib==0.4.0
     # via
     #   -r requirements/pip.txt
@@ -193,7 +189,7 @@ dnspython==2.7.0
     # via -r requirements/pip.txt
 docker==7.1.0
     # via -r requirements/pip.txt
-docutils==0.21.2
+docutils==0.22
     # via -r requirements/pip.txt
 dparse==0.6.4
     # via -r requirements/pip.txt
@@ -206,7 +202,7 @@ elastic-transport==8.17.1
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.18.1
+elasticsearch==8.19.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -317,7 +313,7 @@ pydantic-core==2.33.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
-pygithub==2.6.1
+pygithub==2.7.0
     # via -r requirements/pip.txt
 pygments==2.19.2
     # via
@@ -364,7 +360,7 @@ qrcode==8.2
     #   django-allauth
 redis==6.2.0
     # via -r requirements/pip.txt
-regex==2024.11.6
+regex==2025.7.34
     # via -r requirements/pip.txt
 requests==2.32.4
     # via
@@ -390,7 +386,7 @@ s3transfer==0.13.1
     #   boto3
 selectolax==0.3.32
     # via -r requirements/pip.txt
-sentry-sdk==2.33.2
+sentry-sdk==2.34.1
     # via structlog-sentry
 six==1.17.0
     # via
@@ -485,10 +481,6 @@ wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-wrapt==1.17.2
-    # via
-    #   -r requirements/pip.txt
-    #   deprecated
 xmlsec==1.3.14
     # via
     #   -r requirements/pip.txt

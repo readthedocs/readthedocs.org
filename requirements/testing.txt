@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/testing.txt requirements/testing.in
 #
-alabaster==1.0.0
+alabaster==0.7.16
     # via sphinx
 amqp==5.3.1
     # via
@@ -27,11 +27,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.39.14
+boto3==1.40.1
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.39.14
+botocore==1.40.1
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -81,7 +81,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.10.0
+coverage[toml]==7.10.1
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
@@ -98,12 +98,6 @@ cssselect==1.3.0
     #   pyquery
 cython==3.1.2
     # via sphinx
-defusedxml==0.7.1
-    # via sphinx
-deprecated==1.2.18
-    # via
-    #   -r requirements/pip.txt
-    #   pygithub
 distlib==0.4.0
     # via
     #   -r requirements/pip.txt
@@ -200,7 +194,7 @@ dnspython==2.7.0
     # via -r requirements/pip.txt
 docker==7.1.0
     # via -r requirements/pip.txt
-docutils==0.21.2
+docutils==0.22
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -215,15 +209,13 @@ elastic-transport==8.17.1
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.18.1
+elasticsearch==8.19.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
 elasticsearch-dsl==8.18.0
     # via -r requirements/pip.txt
-execnet==2.1.1
-    # via pytest-xdist
 fido2==2.0.0
     # via
     #   -r requirements/pip.txt
@@ -234,6 +226,8 @@ filelock==3.18.0
     #   virtualenv
 gunicorn==23.0.0
     # via -r requirements/pip.txt
+html5lib==1.1
+    # via sphinx
 idna==3.10
     # via
     #   -r requirements/pip.txt
@@ -301,8 +295,6 @@ prompt-toolkit==3.0.51
     # via
     #   -r requirements/pip.txt
     #   click-repl
-psutil==7.0.0
-    # via pytest-xdist
 psycopg[binary,pool]==3.2.9
     # via -r requirements/pip.txt
 psycopg-binary==3.2.9
@@ -323,7 +315,7 @@ pydantic-core==2.33.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
-pygithub==2.6.1
+pygithub==2.7.0
     # via -r requirements/pip.txt
 pygments==2.19.2
     # via
@@ -348,18 +340,17 @@ pytest==8.4.1
     #   pytest-custom-exit-code
     #   pytest-django
     #   pytest-mock
-    #   pytest-xdist
     #   sphinx
 pytest-cov==6.2.1
-    # via -r requirements/testing.in
+    # via
+    #   -r requirements/testing.in
+    #   sphinx
 pytest-custom-exit-code==0.3.0
     # via -r requirements/testing.in
 pytest-django==4.11.1
     # via -r requirements/testing.in
 pytest-mock==3.14.1
     # via -r requirements/testing.in
-pytest-xdist[psutil]==3.8.0
-    # via sphinx
 python-crontab==3.3.0
     # via
     #   -r requirements/pip.txt
@@ -389,7 +380,7 @@ qrcode==8.2
     #   django-allauth
 redis==6.2.0
     # via -r requirements/pip.txt
-regex==2024.11.6
+regex==2025.7.34
     # via -r requirements/pip.txt
 requests==2.32.4
     # via
@@ -413,8 +404,6 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-roman-numerals-py==3.1.0
-    # via sphinx
 s3transfer==0.13.1
     # via
     #   -r requirements/pip.txt
@@ -426,13 +415,14 @@ six==1.17.0
     #   -r requirements/pip.txt
     #   django-annoying
     #   django-elasticsearch-dsl
+    #   html5lib
     #   python-dateutil
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.txt
 snowballstemmer==3.0.1
     # via sphinx
-sphinx[test]==8.2.3
+sphinx[test]==3.5.3
     # via -r requirements/testing.in
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
@@ -473,7 +463,6 @@ typing-extensions==4.14.1
     #   pydantic
     #   pydantic-core
     #   pygithub
-    #   sphinx
     #   stripe
     #   typing-inspection
 typing-inspection==0.4.1
@@ -521,10 +510,8 @@ wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-wrapt==1.17.2
-    # via
-    #   -r requirements/pip.txt
-    #   deprecated
+webencodings==0.5.1
+    # via html5lib
 xmlsec==1.3.14
     # via
     #   -r requirements/pip.txt
