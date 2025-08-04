@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Exists
 from django.db.models import OuterRef
+from django.db.models import Prefetch
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
@@ -39,6 +40,7 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
+from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
@@ -177,11 +179,23 @@ class ProjectsViewSetBase(
         # This could be a class attribute and managed on the ``ProjectQuerySetMixin`` in
         # case we want to extend the ``prefetch_related`` to other views as
         # well.
-        return queryset.prefetch_related(
-            "related_projects",
-            "domains",
+        return queryset.select_related(
+            "main_language_project",
+        ).prefetch_related(
             "tags",
             "users",
+            # Prefetch superprojects to avoid N+1 queries when serializing the project.
+            Prefetch(
+                "superprojects",
+                ProjectRelationship.objects.all().select_related("parent"),
+                to_attr="_superprojects",
+            ),
+            # Prefetch the canonical domain to avoid N+1 queries when using the resolver.
+            Prefetch(
+                "domains",
+                Domain.objects.filter(canonical=True),
+                to_attr="_canonical_domains",
+            ),
         )
 
     def create(self, request, *args, **kwargs):
