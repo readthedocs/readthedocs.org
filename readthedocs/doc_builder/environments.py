@@ -200,6 +200,8 @@ class BuildCommand(BuildCommandResultMixin):
             2. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
                over the API call request
 
+            3. Obfuscate private environment variables.
+
         :param output: stdout/stderr to be sanitized
 
         :returns: sanitized output as string
@@ -231,6 +233,17 @@ class BuildCommand(BuildCommandResultMixin):
                 f"Output is too big. Truncated at {allowed_length} bytes.\n\n\n"
                 f"{truncated_output}"
             )
+
+        # Obfuscate private environment variables.
+        if self.build_env:
+            # NOTE: we can't use `self._environment` here because we don't know
+            # which variable is public/private since it's just a name/value
+            # dictionary. We need to check with the APIProject object (`self.build_env.project`).
+            for name, spec in self.build_env.project._environment_variables.items():
+                if not spec["public"]:
+                    value = spec["value"]
+                    obfuscated_value = f"{value[:4]}****"
+                    sanitized = sanitized.replace(value, obfuscated_value)
 
         return sanitized
 
@@ -822,9 +835,20 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 "Creating Docker container.",
                 container_image=self.container_image,
                 container_id=self.container_id,
-                time_limit=self.container_time_limit,
-                mem_limit=self.container_mem_limit,
+                container_time_limit=self.container_time_limit,
+                container_mem_limit=self.container_mem_limit,
             )
+
+            networking_config = None
+            if settings.RTD_DOCKER_COMPOSE:
+                # Create the container in the same network the web container is
+                # running, so we can hit its healthcheck API.
+                networking_config = client.create_networking_config(
+                    {
+                        settings.RTD_DOCKER_COMPOSE_NETWORK: client.create_endpoint_config(),
+                    }
+                )
+
             self.container = client.create_container(
                 image=self.container_image,
                 command=(
@@ -839,6 +863,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
                 runtime="runsc",  # gVisor runtime
+                networking_config=networking_config,
             )
             client.start(container=self.container_id)
 
@@ -863,22 +888,12 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         build_id = self.build.get("id")
         build_builder = self.build.get("builder")
         healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
-        if settings.RTD_DOCKER_COMPOSE and "ngrok" in settings.PRODUCTION_DOMAIN:
-            # NOTE: we do require using NGROK here to go over internet because I
-            # didn't find a way to access the `web` container from inside the
-            # container the `build` container created for this particular build
-            # (there are 3 containers involved locally here: web, build, and user's build)
-            #
-            # This shouldn't happen in production, because we are not doing Docker in Docker.
-            url = f"http://readthedocs.ngrok.io{healthcheck_url}"
-        else:
-            url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}"
+        url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}?builder={build_builder}"
 
-        # Add the builder hostname to the URL
-        url += f"?builder={build_builder}"
-
-        cmd = f"/bin/bash -c 'while true; do curl --max-time 2 -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
-        log.debug("Healthcheck command to run.", command=cmd)
+        # We use --insecure because we are hitting the internal load balancer here that doesn't have a SSL certificate
+        # The -H "Host: " header is required because of internal load balancer URL
+        cmd = f"/bin/bash -c 'while true; do curl --insecure --max-time 2 -H \"Host: {settings.PRODUCTION_DOMAIN}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
+        log.info("Healthcheck command to run.", command=cmd)
 
         client = self.get_client()
         exec_cmd = client.exec_create(

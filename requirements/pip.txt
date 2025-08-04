@@ -16,9 +16,9 @@ asgiref==3.9.1
     #   django-structlog
 billiard==4.2.1
     # via celery
-boto3==1.39.9
+boto3==1.39.14
     # via django-storages
-botocore==1.39.9
+botocore==1.39.14
     # via
     #   boto3
     #   s3transfer
@@ -93,7 +93,7 @@ django==5.2.4
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.10.0
+django-allauth[mfa,saml,socialaccount]==65.9.0
     # via -r requirements/pip.in
 django-annoying==0.10.8
     # via -r requirements/pip.in
@@ -107,7 +107,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.in
 django-csp==3.8
     # via -r requirements/pip.in
-django-debug-toolbar==5.2.0
+django-debug-toolbar==6.0.0
     # via -r requirements/pip.in
 django-elasticsearch-dsl==8.2
     # via -r requirements/pip.in
@@ -200,10 +200,8 @@ lxml==5.3.2
 markdown==3.8.2
     # via -r requirements/pip.in
 oauthlib==3.3.1
-    # via
-    #   django-allauth
-    #   requests-oauthlib
-orjson==3.11.0
+    # via requests-oauthlib
+orjson==3.11.1
     # via -r requirements/pip.in
 packaging==25.0
     # via
@@ -275,7 +273,9 @@ requests==2.32.4
     #   slumber
     #   stripe
 requests-oauthlib==2.0.0
-    # via -r requirements/pip.in
+    # via
+    #   -r requirements/pip.in
+    #   django-allauth
 requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0
@@ -345,7 +345,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.31.2
+virtualenv==20.32.0
     # via -r requirements/pip.in
 wcwidth==0.2.13
     # via prompt-toolkit

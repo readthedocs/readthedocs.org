@@ -22,6 +22,7 @@ from readthedocs.api.v3.serializers import ProjectSerializer
 from readthedocs.api.v3.serializers import RelatedProjectSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -307,7 +308,9 @@ class AddonsResponseBase:
         - They are active
         - They are not hidden
         """
-        return Version.internal.public(
+        # NOTE: Use project.versions, not Version.objects,
+        # so all results share the same instance of project.
+        return project.versions(manager=INTERNAL).public(
             project=project,
             user=request.user,
             only_active=True,
@@ -340,9 +343,7 @@ class AddonsResponseBase:
         versions_active_built_not_hidden = Version.objects.none()
         sorted_versions_active_built_not_hidden = Version.objects.none()
 
-        versions_active_built_not_hidden = (
-            self._get_versions(request, project).select_related("project").order_by("-slug")
-        )
+        versions_active_built_not_hidden = self._get_versions(request, project).order_by("-slug")
         sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
         if not project.supports_multiple_versions:
             # Return only one version when the project doesn't support multiple versions.
