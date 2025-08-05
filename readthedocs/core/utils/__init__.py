@@ -179,6 +179,10 @@ def prepare_build(
     # Log all the extra options passed to the task
     structlog.contextvars.bind_contextvars(**options)
 
+    # NOTE: call this log here as well to log all the context variables added
+    # inside this function. This is useful when debugging.
+    log.info("Build created and ready to be executed.")
+
     return (
         update_docs_task.signature(
             args=(
