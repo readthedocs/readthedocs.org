@@ -1,7 +1,6 @@
 """Project views for authenticated users."""
 
 import structlog
-from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -15,7 +14,6 @@ from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView
 from django.views.generic import TemplateView
@@ -47,7 +45,6 @@ from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.services import GitHubService
-from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
@@ -433,34 +430,6 @@ class ImportView(PrivateViewMixin, TemplateView):
 
     template_name = "projects/project_import.html"
     wizard_class = ImportWizardView
-
-    def get(self, request, *args, **kwargs):
-        """
-        Display list of repositories to import.
-
-        Adds a warning to the listing if any of the accounts connected for the
-        user are not supported accounts.
-        """
-        deprecated_accounts = SocialAccount.objects.filter(
-            user=self.request.user
-        ).exclude(
-            provider__in=[service.allauth_provider.id for service in registry],
-        )  # yapf: disable
-        for account in deprecated_accounts:
-            provider_account = account.get_provider_account()
-            messages.error(
-                request,
-                format_html(
-                    _(
-                        "There is a problem with your {service} account, "
-                        "try reconnecting your account on your "
-                        '<a href="{url}">connected services page</a>.',
-                    ),
-                    service=provider_account.get_brand()["name"],
-                    url=reverse("socialaccount_connections"),
-                ),
-            )
-        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         initial_data = {}

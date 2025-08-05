@@ -108,6 +108,7 @@ class AnalyticsPageViewsTests(TestCase):
         self.project = get(
             Project,
             slug="pip",
+            privacy_level=PUBLIC,
         )
         self.version = get(Version, slug="1.8", project=self.project)
         self.project.versions.all().update(privacy_level=PUBLIC)

@@ -33,6 +33,39 @@ class ProjectsEndpointTests(APIEndpointMixin):
             self._get_response_dict("projects-list"),
         )
 
+    def test_number_of_queries_projects_list(self):
+        another_project = get(
+            Project,
+            users=[self.me],
+        )
+        superproject = get(
+            Project,
+            users=[self.me],
+        )
+        subproject = get(
+            Project,
+            users=[self.me],
+        )
+        superproject.add_subproject(subproject)
+
+        main_traslation = get(
+            Project,
+            users=[self.me],
+            language="en",
+        )
+        translation = get(
+            Project,
+            users=[self.me],
+            main_language_project=main_traslation,
+            language="es",
+        )
+        url = reverse("projects-list")
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        with self.assertNumQueries(16):
+            response = self.client.get(url)
+            assert response.status_code == 200
+            assert len(response.json()["results"]) == 6
+
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_projects_list_privacy_levels_enabled(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
