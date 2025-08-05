@@ -5,16 +5,15 @@ MkDocs_ backend for building docs.
 """
 
 import os
-
 import structlog
-import yaml
 from django.conf import settings
 
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
-from readthedocs.doc_builder.exceptions import BuildUserError
+
 
 
 
