@@ -380,6 +380,32 @@ class TestPrivateViews(TestCase):
         self.client.login(username="eric", password="test")
         self.project = get(Project, slug="pip", users=[self.user])
 
+    def test_dashboard_number_of_queries(self):
+        """Test that the dashboard view doesn't make too many queries."""
+        for i in range(10):
+            project = get(
+                Project,
+                slug=f"project-{i}",
+                users=[self.user],
+            )
+            version = project.versions.first()
+            version.active = True
+            version.built = True
+            version.save()
+            for _ in range(3):
+                get(
+                    Build,
+                    project=project,
+                    version=version,
+                    success=True,
+                    state=BUILD_STATE_FINISHED,
+                )
+
+        # This used to be 35!
+        with self.assertNumQueries(15):
+            r = self.client.get(reverse(("projects_dashboard")))
+        assert r.status_code == 200
+
     def test_versions_page(self):
         self.project.versions.create(verbose_name="1.0")
 
