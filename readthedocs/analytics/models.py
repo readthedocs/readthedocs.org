@@ -59,7 +59,7 @@ class PageView(models.Model):
     project = models.ForeignKey(
         Project,
         related_name="page_views",
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
     )
     # NOTE: this could potentially be removed,
     # since isn't being used and not all page
@@ -68,7 +68,7 @@ class PageView(models.Model):
         Version,
         verbose_name=_("Version"),
         related_name="page_views",
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         null=True,
     )
     path = models.CharField(
