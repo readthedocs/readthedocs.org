@@ -144,7 +144,6 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
         # Prefetch the latest build for each project.
         subquery = Subquery(
-            # Is this project_id or pk?
             Build.internal.filter(project=OuterRef("project_id")).order_by("-date").values("pk")[:1]
         )
         latest_build = Prefetch(
@@ -152,17 +151,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
             Build.objects.filter(pk__in=subquery).select_related("version"),
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
-
-        subquery = Subquery(
-            Build.internal.filter(project=OuterRef("project_id"), success=True).values("pk")[:1]
-        )
-        has_good_build = Prefetch(
-            "builds",
-            Build.objects.filter(pk__in=subquery),
-            to_attr="_good_build",
-        )
-
-        return self.prefetch_related(latest_build, has_good_build)
+        return self.prefetch_related(latest_build)
 
     # Aliases
 

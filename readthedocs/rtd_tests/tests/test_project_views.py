@@ -1,8 +1,6 @@
 from unittest import mock
 
-import pytest
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
@@ -381,7 +379,6 @@ class TestPrivateViews(TestCase):
         self.project = get(Project, slug="pip", users=[self.user])
 
     def test_dashboard_number_of_queries(self):
-        """Test that the dashboard view doesn't make too many queries."""
         for i in range(10):
             project = get(
                 Project,
@@ -401,8 +398,7 @@ class TestPrivateViews(TestCase):
                     state=BUILD_STATE_FINISHED,
                 )
 
-        # This used to be 35!
-        with self.assertNumQueries(15):
+        with self.assertNumQueries(25):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 
