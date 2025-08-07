@@ -47,7 +47,7 @@ class AdminPermissionBase:
 
         if admin:
             # Project Team Admin
-            admin_teams = user.teams.filter(access=ADMIN_ACCESS)
+            admin_teams = user.teams.filter(access=ADMIN_ACCESS).select_related("organization")
             for team in admin_teams:
                 if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
                     projects |= team.projects.all()
