@@ -379,7 +379,8 @@ class TestPrivateViews(TestCase):
         self.project = get(Project, slug="pip", users=[self.user])
 
     def test_dashboard_number_of_queries(self):
-        for i in range(10):
+        # NOTE: create more than 15 projects, as we paginate by 15.
+        for i in range(15):
             project = get(
                 Project,
                 slug=f"project-{i}",
