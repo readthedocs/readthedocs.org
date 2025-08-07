@@ -398,7 +398,7 @@ class TestPrivateViews(TestCase):
                     state=BUILD_STATE_FINISHED,
                 )
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(23):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 
