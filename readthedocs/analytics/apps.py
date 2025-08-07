@@ -9,7 +9,3 @@ class AnalyticsAppConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "readthedocs.analytics"
     verbose_name = "Analytics"
-
-    def ready(self):
-        # Import tasks to ensure they are registered
-        pass

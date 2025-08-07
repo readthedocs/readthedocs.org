@@ -669,16 +669,12 @@ class Project(models.Model):
         self.update_latest_version()
 
     def delete(self, *args, **kwargs):
-        from readthedocs.analytics.tasks.pageviews import delete_project_pageviews
         from readthedocs.projects.tasks.utils import clean_project_resources
 
-        # Remove extra resources
+        # Remove HTML files, analytics data, etc.
         clean_project_resources(self)
 
         super().delete(*args, **kwargs)
-
-        # Trigger background task to delete PageViews for this project
-        delete_project_pageviews.delay(self.slug)
 
     def clean(self):
         if self.custom_prefix:
