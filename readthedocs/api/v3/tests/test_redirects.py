@@ -3,6 +3,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.redirects.constants import (
     CLEAN_URL_TO_HTML_REDIRECT,
+    CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
     EXACT_REDIRECT,
     HTML_TO_CLEAN_URL_REDIRECT,
 )
@@ -169,6 +170,30 @@ class RedirectsEndpointTests(APIEndpointMixin):
 
         redirect = Redirect.objects.first()
         self.assertEqual(redirect.redirect_type, CLEAN_URL_TO_HTML_REDIRECT)
+        self.assertEqual(redirect.from_url, "")
+        self.assertEqual(redirect.to_url, "")
+
+    def test_projects_redirects_type_clean_url_without_trailing_slash_to_html_list_post(self):
+        self.assertEqual(Redirect.objects.count(), 1)
+        data = {
+            "type": CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(
+            reverse(
+                "projects-redirects-list",
+                kwargs={
+                    "parent_lookup_project__slug": self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Redirect.objects.all().count(), 2)
+
+        redirect = Redirect.objects.first()
+        self.assertEqual(redirect.redirect_type, CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT)
         self.assertEqual(redirect.from_url, "")
         self.assertEqual(redirect.to_url, "")
 
@@ -345,6 +370,19 @@ class RedirectsEndpointTests(APIEndpointMixin):
         self.assertEqual(
             response.json(),
             ["Only one redirect of type `clean_url_to_html` is allowed per project."],
+        )
+
+        get(Redirect, redirect_type=CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT, project=self.project)
+        response = self.client.post(
+            url,
+            data={
+                "type": CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            ["Only one redirect of type `clean_url_without_trailing_slash_to_html` is allowed per project."],
         )
 
         get(Redirect, redirect_type=HTML_TO_CLEAN_URL_REDIRECT, project=self.project)
