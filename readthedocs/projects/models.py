@@ -980,10 +980,10 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
-        # Check if there is `_good_build` annotation in the Queryset.
-        # Used for Database optimization.
-        if hasattr(self, "_good_build"):
-            return self._good_build
+        # Check if there is `_has_good_build` annotation in the queryset.
+        # Used for database optimization.
+        if hasattr(self, "_has_good_build"):
+            return self._has_good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def vcs_repo(self, environment, version):
