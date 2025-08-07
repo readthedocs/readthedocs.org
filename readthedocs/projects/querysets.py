@@ -144,13 +144,11 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
         # Prefetch the latest build for each project.
         subquery = Subquery(
-            Build.internal.filter(project=OuterRef("project_id"))
-            .order_by("-date")
-            .values_list("id", flat=True)[:1]
+            Build.internal.filter(project=OuterRef("project_id")).order_by("-date").values("pk")[:1]
         )
         latest_build = Prefetch(
             "builds",
-            Build.internal.filter(pk__in=subquery),
+            Build.objects.filter(pk__in=subquery).select_related("version"),
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
         return self.prefetch_related(latest_build)
