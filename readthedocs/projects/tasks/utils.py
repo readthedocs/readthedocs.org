@@ -98,7 +98,7 @@ def clean_project_resources(project, version=None, version_slug=None):
 
     # Remove PageViews for this project async,
     # since they can be very slow to delete.
-    delete_project_pageviews.delay(project.slug)
+    delete_project_pageviews.delay(project_slug=project.slug, version_slug=version_slug)
 
 
 @app.task()
