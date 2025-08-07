@@ -36,7 +36,6 @@ class TaskTests(TestCase):
 
     def test_pageview_cleanup(self, settings):
 
-        settings.CELERY_TASK_ALWAYS_EAGER = True  # Run Celery tasks eagerly
         user = get(User)
         project = get(Project, users=[user], slug="test-project")
         project.save()
