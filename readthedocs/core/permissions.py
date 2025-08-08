@@ -62,7 +62,7 @@ class AdminPermissionBase:
         if member:
             filter |= Q(access=READ_ONLY_ACCESS)
 
-        teams = user.teams.filter(filter).select_related("organization")
+        teams = user.teams.filter(filter).select_related("organization", "organization__ssointegration")
         for team in teams:
             if not _has_sso_enabled(team.organization):
                 projects |= team.projects.all()
