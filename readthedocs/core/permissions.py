@@ -45,16 +45,32 @@ class AdminPermissionBase:
             # when we aren't using organizations.
             return user.projects.all()
 
-        if admin:
-            # Project Team Admin
-            admin_teams = user.teams.filter(access=ADMIN_ACCESS).select_related("organization")
-            for team in admin_teams:
-                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
-                    projects |= team.projects.all()
+        # Internal cache to avoid hitting the database/cache multiple times.
+        organizations_with_allauth_sso = {}
+        def _has_sso_enabled(org):
+            if org.pk not in organizations_with_allauth_sso:
+                organizations_with_allauth_sso[org.pk] = cls.has_sso_enabled(
+                    org,
+                    SSOIntegration.PROVIDER_ALLAUTH,
+                )
+            return organizations_with_allauth_sso[org.pk]
 
+        # Projects from teams
+        filter = Q()
+        if admin:
+            filter |= Q(access=ADMIN_ACCESS)
+        if member:
+            filter |= Q(access=READ_ONLY_ACCESS)
+
+        teams = user.teams.filter(filter).select_related("organization")
+        for team in teams:
+            if not _has_sso_enabled(team.organization):
+                projects |= team.projects.all()
+
+        if admin:
             # Org Admin
             for org in user.owner_organizations.all():
-                if not cls.has_sso_enabled(org, SSOIntegration.PROVIDER_ALLAUTH):
+                if not _has_sso_enabled(org):
                     # Do not grant admin access on projects for owners if the
                     # organization has SSO enabled with Authorization on the provider.
                     projects |= org.projects.all()
@@ -62,12 +78,6 @@ class AdminPermissionBase:
             projects |= cls._get_projects_for_sso_user(user, admin=True)
 
         if member:
-            # Project Team Member
-            member_teams = user.teams.filter(access=READ_ONLY_ACCESS)
-            for team in member_teams:
-                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
-                    projects |= team.projects.all()
-
             projects |= cls._get_projects_for_sso_user(user, admin=False)
 
         return projects
