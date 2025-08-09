@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -18,7 +19,9 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
         Build API keys are valid for 3 hours,
         and can be revoked at any time by hitting the /api/v2/revoke/ endpoint.
         """
-        expiry_date = timezone.now() + timedelta(hours=3)
+        # Use the project or default build time limit + 25% for the API token
+        delta = (project.container_time_limit or settings.BUILD_TIME_LIMIT) * 1.25
+        expiry_date = timezone.now() + timedelta(seconds=delta)
         name_max_length = self.model._meta.get_field("name").max_length
         return super().create_key(
             # Name is required, so we use the project slug for it.
