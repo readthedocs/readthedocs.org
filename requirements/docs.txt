@@ -6,7 +6,7 @@
 #
 alabaster==1.0.0
     # via sphinx
-anyio==4.9.0
+anyio==4.10.0
     # via
     #   starlette
     #   watchfiles
@@ -14,11 +14,11 @@ babel==2.17.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2025.7.14
+certifi==2025.8.3
     # via
     #   requests
     #   sphinx-prompt
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via requests
 click==8.2.1
     # via
@@ -61,7 +61,7 @@ markdown-it-py==3.0.0
     #   myst-parser
 markupsafe==3.0.2
     # via jinja2
-matplotlib==3.10.3
+matplotlib==3.10.5
     # via -r requirements/docs.in
 mdit-py-plugins==0.4.2
     # via myst-parser
@@ -128,7 +128,7 @@ sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
 sphinx-design==0.6.1
     # via -r requirements/docs.in
-sphinx-intl==2.3.1
+sphinx-intl==2.3.2
     # via -r requirements/docs.in
 sphinx-multiproject==1.0.0
     # via -r requirements/docs.in
@@ -160,7 +160,7 @@ sphinxcontrib-video @ git+https://github.com/readthedocs/sphinxcontrib-video/
     # via -r requirements/docs.in
 sphinxemoji==0.3.1
     # via -r requirements/docs.in
-sphinxext-opengraph==0.10.0
+sphinxext-opengraph==0.12.0
     # via -r requirements/docs.in
 starlette==0.47.2
     # via sphinx-autobuild
