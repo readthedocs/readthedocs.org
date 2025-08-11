@@ -12,7 +12,7 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 {% if diff.files %}
 <details>
-<summary>Show files changed (({{ diff.files|length }} files total): 📝 {{ diff.modified|length }} | ➕ {{ diff.added|length }} | ➖ {{ diff.deleted|length }}</summary>
+<summary>Show files changed ({{ diff.files|length }} files in total): 📝 {{ diff.modified|length }} modified | ➕ {{ diff.added|length }} added | ➖ {{ diff.deleted|length }} deleted</summary>
 
 | File | Status |
 | --- | --- |
