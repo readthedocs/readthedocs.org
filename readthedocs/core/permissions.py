@@ -47,6 +47,7 @@ class AdminPermissionBase:
 
         # Internal cache to avoid hitting the database/cache multiple times.
         _organizations_with_allauth_sso = {}
+
         def _has_sso_with_allauth_enabled(org):
             if org.pk not in _organizations_with_allauth_sso:
                 _organizations_with_allauth_sso[org.pk] = cls.has_sso_enabled(
@@ -63,7 +64,9 @@ class AdminPermissionBase:
             if member:
                 filter |= Q(access=READ_ONLY_ACCESS)
 
-            teams = user.teams.filter(filter).select_related("organization", "organization__ssointegration")
+            teams = user.teams.filter(filter).select_related(
+                "organization", "organization__ssointegration"
+            )
             for team in teams:
                 if not _has_sso_with_allauth_enabled(team.organization):
                     projects |= team.projects.all()
