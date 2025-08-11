@@ -3,6 +3,8 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Count
+from django.db.models import Exists
+from django.db.models import OuterRef
 from django.db.models import Prefetch
 from django.db.models import Q
 
@@ -146,7 +148,13 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
             Build.internal.select_related("version").order_by("-date")[:1],
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
-        return self.prefetch_related(latest_build)
+        query = self.prefetch_related(latest_build)
+
+        # Annotate whether the project has a successful build or not,
+        # to avoid N+1 queries when showing the build status.
+        return query.annotate(
+            _has_good_build=Exists(Build.internal.filter(project=OuterRef("pk"), success=True))
+        )
 
     # Aliases
 
