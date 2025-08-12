@@ -15,7 +15,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_COMPOSE_NETWORK = "community_readthedocs"
     RTD_DOCKER_COMPOSE_VOLUME = "community_build-user-builds"
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
-    DOCKER_LIMITS = {"memory": "2g", "time": 900}
+    BUILD_MEMORY_LIMIT = "2g"
 
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")

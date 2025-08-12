@@ -25,7 +25,6 @@ from readthedocs.projects.models import Feature
 
 from .constants import DOCKER_HOSTNAME_MAX_LEN
 from .constants import DOCKER_IMAGE
-from .constants import DOCKER_LIMITS
 from .constants import DOCKER_OOM_EXIT_CODE
 from .constants import DOCKER_SOCKET
 from .constants import DOCKER_TIMEOUT_EXIT_CODE
@@ -594,8 +593,6 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
     command_class = DockerBuildCommand
     container_image = DOCKER_IMAGE
-    container_mem_limit = DOCKER_LIMITS.get("memory")
-    container_time_limit = DOCKER_LIMITS.get("time")
 
     def __init__(self, *args, **kwargs):
         container_image = kwargs.pop("container_image", None)
@@ -622,10 +619,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         if container_image:
             self.container_image = container_image
 
-        if self.project.container_mem_limit:
-            self.container_mem_limit = self.project.container_mem_limit
-        if self.project.container_time_limit:
-            self.container_time_limit = self.project.container_time_limit
+        self.container_mem_limit = self.project.container_mem_limit or settings.BUILD_MEMORY_LIMIT
+        self.container_time_limit = self.project.container_time_limit or settings.BUILD_TIME_LIMIT
 
         structlog.contextvars.bind_contextvars(
             project_slug=self.project.slug,
