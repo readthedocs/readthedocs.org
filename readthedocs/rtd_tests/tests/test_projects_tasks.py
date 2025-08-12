@@ -58,7 +58,8 @@ class SendBuildStatusTests(TestCase):
 
 class TestFinishInactiveBuildsTask(TestCase):
 
-    def test_finish_unhealthy_builds_task(self):
+    @patch("readthedocs.projects.tasks.utils.app")
+    def test_finish_unhealthy_builds_task(self, mocked_app):
         project = get(Project)
         feature = get(Feature, feature_id=Feature.BUILD_HEALTHCHECK)
         feature.projects.add(project)

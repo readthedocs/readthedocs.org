@@ -124,8 +124,7 @@ def finish_unhealthy_builds():
         build.save()
 
         # Tell Celery to cancel this task in case it's in a zombie state.
-        if not settings.IS_TESTING:
-            app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
 
         Notification.objects.add(
             message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,

@@ -49,7 +49,6 @@ class CommunityBaseSettings(Settings):
     # Debug settings
     DEBUG = True
     RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
-    IS_TESTING = False
 
     # Build FTD index for all versions
     RTD_FILETREEDIFF_ALL = False
