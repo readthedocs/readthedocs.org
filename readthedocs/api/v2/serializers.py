@@ -225,7 +225,9 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     command = serializers.SerializerMethodField()
 
     def get_command(self, obj):
-        return normalize_build_command(obj.command, obj.build.project.slug, obj.build.get_version_slug())
+        return normalize_build_command(
+            obj.command, obj.build.project.slug, obj.build.get_version_slug()
+        )
 
 
 class BuildSerializer(serializers.ModelSerializer):
