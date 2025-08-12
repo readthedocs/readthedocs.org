@@ -1,4 +1,8 @@
-"""Receiver signals for the Builds app."""
+"""
+Receiver signals for the Builds app.
+
+NOTE: Done in a separate file to avoid circular imports.
+"""
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver

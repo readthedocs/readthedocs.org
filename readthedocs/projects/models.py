@@ -638,7 +638,8 @@ class Project(models.Model):
     latest_build = models.OneToOneField(
         "builds.Build",
         verbose_name=_("Latest build"),
-        related_name="latest_build_for_project",
+        # No reverse relation needed.
+        related_name="+",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

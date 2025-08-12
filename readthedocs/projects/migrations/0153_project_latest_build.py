@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="latest_build_for_project",
+                related_name="+",
                 to="builds.build",
                 verbose_name="Latest build",
             ),
