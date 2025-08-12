@@ -127,7 +127,7 @@ class ProjectSortOrderingFilter(OrderingFilter):
             field = field_ordered.lstrip("-")
 
             if field == self.SORT_BUILD_DATE:
-                annotations[self.SORT_BUILD_DATE] = F("latest_build__date")
+                annotations[self.SORT_BUILD_DATE] = Max("builds__date")
             elif field == self.SORT_BUILD_COUNT:
                 annotations[self.SORT_BUILD_COUNT] = Count("builds")
 
