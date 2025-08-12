@@ -162,17 +162,13 @@ def finish_inactive_builds():
 
     A build is consider inactive if it's not in a final state and it has been
     "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
+    or ``BUILD_TIME_LIMIT`` plus a 20% of it).
 
     These inactive builds will be marked as ``success`` and ``CANCELLED`` with an
     ``error`` to be communicated to the user.
     """
-    # TODO similar to the celery task time limit, we can't infer this from
-    # Docker settings anymore, because Docker settings are determined on the
-    # build servers dynamically.
-    # time_limit = int(DOCKER_LIMITS['time'] * 1.2)
-    # Set time as maximum celery task time limit + 5m
-    time_limit = 7200 + 300
+    # TODO: delete this task once we are fully migrated to ``BUILD_HEALTHCHECK``
+    time_limit = settings.BUILD_TIME_LIMIT * 1.2
     delta = datetime.timedelta(seconds=time_limit)
     query = (
         ~Q(state__in=BUILD_FINAL_STATES)
