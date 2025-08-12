@@ -355,7 +355,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
                         buildcommand["command"] = normalize_build_command(
                             buildcommand["command"],
                             instance.project.slug,
-                            instance.version.slug,
+                            instance.get_version_slug(),
                         )
                 except Exception:
                     log.exception(
