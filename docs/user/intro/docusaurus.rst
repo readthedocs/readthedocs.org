@@ -35,6 +35,13 @@ build the site, and copy the output to $READTHEDOCS_OUTPUT:
 
 .. _Docusaurus: https://docusaurus.io/
 
+.. note::
+
+   On Read the Docs, Docusaurus should set 'trailingSlash: true' in
+   'docusaurus.config.js' to avoid routing issues. If you set it to
+   'false', you will  need to define appropriate redirects.
+
+
 Limitations
 -----------
 
