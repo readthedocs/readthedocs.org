@@ -3,10 +3,10 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Count
+from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Prefetch
 from django.db.models import Q
-from django.db.models import Subquery
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
@@ -143,17 +143,18 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         from readthedocs.builds.models import Build
 
         # Prefetch the latest build for each project.
-        subquery = Subquery(
-            Build.internal.filter(project=OuterRef("project_id"))
-            .order_by("-date")
-            .values_list("id", flat=True)[:1]
-        )
         latest_build = Prefetch(
             "builds",
-            Build.internal.filter(pk__in=subquery),
+            Build.internal.select_related("version").order_by("-date")[:1],
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
-        return self.prefetch_related(latest_build)
+        query = self.prefetch_related(latest_build)
+
+        # Annotate whether the project has a successful build or not,
+        # to avoid N+1 queries when showing the build status.
+        return query.annotate(
+            _has_good_build=Exists(Build.internal.filter(project=OuterRef("pk"), success=True))
+        )
 
     # Aliases
 

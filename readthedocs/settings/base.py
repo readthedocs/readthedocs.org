@@ -589,6 +589,33 @@ class CommunityBaseSettings(Settings):
     USE_I18N = True
     USE_L10N = True
 
+    BUILD_TIME_LIMIT = 900  # seconds
+
+    @property
+    def BUILD_MEMORY_LIMIT(self):
+        """
+        Set build memory limit dynamically, if in production, based on system memory.
+
+        We do this to avoid having separate build images. This assumes 1 build
+        process per server, which will be allowed to consume all available
+        memory.
+        """
+        # Our normal default
+        default_memory_limit = "7g"
+
+        # Only run on our servers
+        if self.RTD_IS_PRODUCTION:
+            total_memory, memory_limit = self._get_build_memory_limit()
+
+        memory_limit = memory_limit or default_memory_limit
+        log.info(
+            "Using dynamic build limits.",
+            hostname=socket.gethostname(),
+            memory=memory_limit,
+        )
+        return memory_limit
+
+
     # Celery
     CELERY_APP_NAME = "readthedocs"
     CELERY_ALWAYS_EAGER = True
@@ -605,7 +632,7 @@ class CommunityBaseSettings(Settings):
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
     BROKER_TRANSPORT_OPTIONS = {
-        'visibility_timeout': 18000,  # 5 hours
+        'visibility_timeout': BUILD_TIME_LIMIT * 1.15,  # 15% more than the build time limit
     }
 
     CELERY_DEFAULT_QUEUE = "celery"
@@ -721,7 +748,13 @@ class CommunityBaseSettings(Settings):
     # since we can't read their config file image choice before cloning
     RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-22.04"]
 
-    def _get_docker_memory_limit(self):
+    def _get_build_memory_limit(self):
+        """
+        Return the buld memory limit based on available system memory.
+
+        We subtract ~1000Mb for overhead of processes and base system, and set
+        the build time as proportional to the memory limit.
+        """
         try:
             total_memory = int(
                 subprocess.check_output(
@@ -734,47 +767,6 @@ class CommunityBaseSettings(Settings):
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
             log.exception("Failed to get memory size, using defaults Docker limits.")
-
-    # Coefficient used to determine build time limit, as a percentage of total
-    # memory. Historical values here were 0.225 to 0.3.
-    DOCKER_TIME_LIMIT_COEFF = 0.25
-
-    @property
-    def DOCKER_LIMITS(self):
-        """
-        Set docker limits dynamically, if in production, based on system memory.
-
-        We do this to avoid having separate build images. This assumes 1 build
-        process per server, which will be allowed to consume all available
-        memory.
-
-        We subtract 750MiB for overhead of processes and base system, and set
-        the build time as proportional to the memory limit.
-        """
-        # Our normal default
-        limits = {
-            "memory": "2g",
-            "time": 900,
-        }
-
-        # Only run on our servers
-        if self.RTD_IS_PRODUCTION:
-            total_memory, memory_limit = self._get_docker_memory_limit()
-            if memory_limit:
-                limits = {
-                    "memory": f"{memory_limit}m",
-                    "time": max(
-                        limits["time"],
-                        round(total_memory * self.DOCKER_TIME_LIMIT_COEFF, -2),
-                    ),
-                }
-        log.info(
-            "Using dynamic docker limits.",
-            hostname=socket.gethostname(),
-            memory=limits["memory"],
-            time=limits["time"],
-        )
-        return limits
 
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
