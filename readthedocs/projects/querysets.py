@@ -5,7 +5,6 @@ from django.db import models
 from django.db.models import Count
 from django.db.models import Exists
 from django.db.models import OuterRef
-from django.db.models import Prefetch
 from django.db.models import Q
 
 from readthedocs.core.permissions import AdminPermission
@@ -134,7 +133,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
     def prefetch_latest_build(self):
         """
-        Prefetch "latest build" for each project.
+        Prefetch and annotate to avoid N+1 queries.
 
         .. note::
 
@@ -142,17 +141,18 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         """
         from readthedocs.builds.models import Build
 
-        # Prefetch the latest build for each project.
-        latest_build = Prefetch(
-            "builds",
-            Build.internal.select_related("version").order_by("-date")[:1],
-            to_attr=self.model.LATEST_BUILD_CACHE,
-        )
-        query = self.prefetch_related(latest_build)
+        # NOTE: prefetching the latest build will perform worse than just
+        # accessing the latest build for each project.
+        # While prefetching reduces the number of queries,
+        # the query used to fetch the latest build can be quite expensive,
+        # specially in projects with lots of builds.
+        # Not prefetching here is fine, as this query is paginated by 15
+        # items per page, so it will generate at most 15 queries.
 
+        # This annotation performs fine in all cases.
         # Annotate whether the project has a successful build or not,
         # to avoid N+1 queries when showing the build status.
-        return query.annotate(
+        return self.annotate(
             _has_good_build=Exists(Build.internal.filter(project=OuterRef("pk"), success=True))
         )
 
