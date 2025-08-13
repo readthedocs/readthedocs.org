@@ -161,7 +161,11 @@ def prepare_build(
     # At 1h exactly, the task is grabbed by another worker and re-executed,
     # even while it's still running on the original worker.
     # https://github.com/readthedocs/readthedocs.org/issues/12317
-    if project.has_feature(Feature.BUILD_NO_ACKS_LATE) or project.container_time_limit >= 3600:
+    if (
+        project.has_feature(Feature.BUILD_NO_ACKS_LATE)
+        or project.container_time_limit
+        and project.container_time_limit >= 3600
+    ):
         log.info("Disabling ACKS_LATE for this particular build.")
         options["acks_late"] = False
 
