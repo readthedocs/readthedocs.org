@@ -1098,17 +1098,10 @@ class Project(models.Model):
                 matches.append(os.path.join(root, match))
         return matches
 
-    @lru_cache(maxsize=1)
-    def get_latest_build(self, finished=True):
-        """
-        Get latest build for project.
-
-        :param finished: Return only builds that are in a finished state
-        """
-        kwargs = {}
-        if finished:
-            kwargs["state"] = "finished"
-        return self.builds(manager=INTERNAL).filter(**kwargs).select_related("version").first()
+    @cached_property
+    def latest_internal_build(self):
+        """Get the latest internal build for the project."""
+        return self.builds(manager=INTERNAL).select_related("version").first()
 
     def active_versions(self):
         from readthedocs.builds.models import Version
