@@ -1,11 +1,11 @@
 """Project models."""
 
 import fnmatch
-from functools import lru_cache
 import hashlib
 import hmac
 import os
 import re
+from functools import lru_cache
 from shlex import quote
 from urllib.parse import urlparse
 
