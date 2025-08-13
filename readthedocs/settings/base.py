@@ -606,8 +606,10 @@ class CommunityBaseSettings(Settings):
         # Only run on our servers
         if self.RTD_IS_PRODUCTION:
             total_memory, memory_limit = self._get_build_memory_limit()
+            memory_limit = f"{memory_limit}m"
+        else:
+            memory_limit = default_memory_limit
 
-        memory_limit = memory_limit or default_memory_limit
         log.info(
             "Using dynamic build limits.",
             hostname=socket.gethostname(),
@@ -692,11 +694,14 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute="*/30", hour="*"),
             "options": {"queue": "web"},
         },
-        "every-day-resync-remote-repositories": {
-            "task": "readthedocs.oauth.tasks.sync_active_users_remote_repositories",
-            "schedule": crontab(minute=30, hour=2),
-            "options": {"queue": "web"},
-        },
+        # Stop running this task,
+        # it was rerunning multiple times per day,
+        # and causing celery instances to freeze up.
+        # "every-day-resync-remote-repositories": {
+        #     "task": "readthedocs.oauth.tasks.sync_active_users_remote_repositories",
+        #     "schedule": crontab(minute=30, hour=2),
+        #     "options": {"queue": "web"},
+        # },
         "every-day-email-pending-custom-domains": {
             "task": "readthedocs.domains.tasks.email_pending_custom_domains",
             "schedule": crontab(minute=0, hour=3),
