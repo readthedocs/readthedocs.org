@@ -164,7 +164,7 @@ def prepare_build(
     if (
         project.has_feature(Feature.BUILD_NO_ACKS_LATE)
         or project.container_time_limit
-        and project.container_time_limit >= 3600
+        and project.container_time_limit >= settings.BUILD_TIME_LIMIT
     ):
         log.info("Disabling ACKS_LATE for this particular build.")
         options["acks_late"] = False
