@@ -694,11 +694,14 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute="*/30", hour="*"),
             "options": {"queue": "web"},
         },
-        "every-day-resync-remote-repositories": {
-            "task": "readthedocs.oauth.tasks.sync_active_users_remote_repositories",
-            "schedule": crontab(minute=30, hour=2),
-            "options": {"queue": "web"},
-        },
+        # Stop running this task,
+        # it was rerunning multiple times per day,
+        # and causing celery instances to freeze up.
+        # "every-day-resync-remote-repositories": {
+        #     "task": "readthedocs.oauth.tasks.sync_active_users_remote_repositories",
+        #     "schedule": crontab(minute=30, hour=2),
+        #     "options": {"queue": "web"},
+        # },
         "every-day-email-pending-custom-domains": {
             "task": "readthedocs.domains.tasks.email_pending_custom_domains",
             "schedule": crontab(minute=0, hour=3),
