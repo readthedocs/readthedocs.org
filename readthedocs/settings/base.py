@@ -606,8 +606,10 @@ class CommunityBaseSettings(Settings):
         # Only run on our servers
         if self.RTD_IS_PRODUCTION:
             total_memory, memory_limit = self._get_build_memory_limit()
+            memory_limit = f"{memory_limit}m"
+        else:
+            memory_limit = default_memory_limit
 
-        memory_limit = memory_limit or default_memory_limit
         log.info(
             "Using dynamic build limits.",
             hostname=socket.gethostname(),
