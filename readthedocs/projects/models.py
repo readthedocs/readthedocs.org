@@ -2040,6 +2040,8 @@ class Feature(models.Model):
             _(
                 "Build: Don't clean the build directory. Only for Enterprise users with dedicated builders."
             ),
+        ),
+        (
             BUILD_HEALTHCHECK,
             _("Build: Use background cURL healthcheck."),
         ),
