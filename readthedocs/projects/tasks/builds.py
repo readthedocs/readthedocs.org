@@ -168,7 +168,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         # because they just build the latest commit for that version
         self.data.build_commit = kwargs.get("build_commit")
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=self.data.project.slug,
             version_slug=self.data.version.slug,
         )
@@ -371,7 +371,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # required arguments.
         self.data.version_pk, self.data.build_pk = args
 
-        log.bind(build_id=self.data.build_pk)
+        structlog.contextvars.bind_contextvars(build_id=self.data.build_pk)
         log.info("Running task.", name=self.name)
 
         self.data.start_time = timezone.now()
@@ -400,7 +400,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             data=self.data,
         )
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             # NOTE: ``self.data.build`` is just a regular dict, not an APIBuild :'(
             builder=self.data.build["builder"],
             commit=self.data.build_commit,
@@ -496,10 +496,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # It may happens the director is not created because the API failed to retrieve
         # required data to initialize it on ``before_start``.
         if self.data.build_director:
+            self.data.build_director.attach_notification(
+                attached_to=f"build/{self.data.build['id']}",
+                message_id=message_id,
+                format_values=format_values,
+            )
+        else:
             log.warning(
                 "We couldn't attach a notification to the build since it failed on an early stage."
             )
-            self.data.build_director.attach_notification(message_id, format_values)
 
         # Send notifications for unhandled errors
         if message_id not in self.exceptions_without_notifications:
@@ -709,7 +714,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Grab the format values from the exception in case it contains
             format_values = exc.format_values if hasattr(exc, "format_values") else None
             self.data.build_director.attach_notification(
-                BuildMaxConcurrencyError.LIMIT_REACHED,
+                attached_to=f"build/{self.data.build['id']}",
+                message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
                 format_values=format_values,
             )
             self.update_build(state=BUILD_STATE_TRIGGERED)
@@ -899,7 +905,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(state=BUILD_STATE_UPLOADING)
 
         valid_artifacts = self.get_valid_artifact_types()
-        log.bind(artifacts=valid_artifacts)
+        structlog.contextvars.bind_contextvars(artifacts=valid_artifacts)
 
         types_to_copy = []
         types_to_delete = []

@@ -16,7 +16,8 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff.dataclasses import (
     FileTreeDiff,
-    FileTreeDiffFile,
+    FileTreeDiffManifestFile,
+    FileTreeDiffFileStatus,
     FileTreeDiffManifest,
 )
 from readthedocs.projects.constants import (
@@ -383,6 +384,36 @@ class TestReadTheDocsConfigJson(TestCase):
         }
         assert r.json()["versions"]["current"]["downloads"] == expected
 
+    def test_number_of_queries_versions_with_downloads(self):
+        for i in range(10):
+            fixture.get(
+                Version,
+                project=self.project,
+                privacy_level=PUBLIC,
+                slug=f"offline-{i}",
+                verbose_name=f"offline-{i}",
+                built=True,
+                has_pdf=True,
+                has_epub=True,
+                has_htmlzip=True,
+                active=True,
+            )
+
+        with self.assertNumQueries(13):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project.dev.readthedocs.io/en/offline/",
+                    "client-version": "0.6.0",
+                    "api-version": "1.0.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+            assert r.status_code == 200
+
     def test_flyout_single_version_project(self):
         self.version.has_pdf = True
         self.version.has_epub = True
@@ -741,6 +772,7 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         expected = {
             "enabled": True,
+            "selector": None,
         }
 
         assert r.status_code == 200
@@ -783,7 +815,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(14):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -812,7 +844,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(22):
+        with self.assertNumQueries(15):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -848,7 +880,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(18):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -864,7 +896,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         # Test parent project has fewer queries
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(14):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -890,7 +922,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(42):
+        with self.assertNumQueries(24):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -920,9 +952,18 @@ class TestReadTheDocsConfigJson(TestCase):
         self.project.addons.save()
 
         get_diff.return_value = FileTreeDiff(
-            added=["tags/newtag.html"],
-            modified=["ignored.html", "archives/2025.html", "changelog/2025.2.html"],
-            deleted=["deleted.html"],
+            current_version=self.version,
+            current_version_build=self.build,
+            base_version=self.version,
+            base_version_build=self.build,
+            files=[
+                ("tags/newtag.html", FileTreeDiffFileStatus.added),
+                ("ignored.html", FileTreeDiffFileStatus.modified),
+                ("archives/2025.html", FileTreeDiffFileStatus.modified),
+                ("changelog/2025.2.html", FileTreeDiffFileStatus.modified),
+                ("deleted.html", FileTreeDiffFileStatus.deleted),
+            ],
+            outdated=False,
         )
 
         r = self.client.get(
@@ -999,15 +1040,15 @@ class TestReadTheDocsConfigJson(TestCase):
             FileTreeDiffManifest(
                 build_id=pr_build.id,
                 files=[
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="index.html",
                         main_content_hash="hash1",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="tutorial/index.html",
                         main_content_hash="hash1",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="new-file.html",
                         main_content_hash="hash1",
                     ),
@@ -1016,22 +1057,22 @@ class TestReadTheDocsConfigJson(TestCase):
             FileTreeDiffManifest(
                 build_id=self.build.id,
                 files=[
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="index.html",
                         main_content_hash="hash1",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="tutorial/index.html",
                         main_content_hash="hash-changed",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="deleted.html",
                         main_content_hash="hash-deleted",
                     ),
                 ],
             ),
         ]
-        with self.assertNumQueries(25):
+        with self.assertNumQueries(19):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

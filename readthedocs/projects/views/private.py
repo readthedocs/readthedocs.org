@@ -1,7 +1,8 @@
 """Project views for authenticated users."""
 
+from functools import lru_cache
+
 import structlog
-from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -15,7 +16,6 @@ from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView
 from django.views.generic import TemplateView
@@ -47,7 +47,6 @@ from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.services import GitHubService
-from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
@@ -71,7 +70,6 @@ from readthedocs.projects.forms import WebHookForm
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable
-from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
@@ -119,6 +117,8 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
             template_name = "example-projects.html"
+        elif n_projects and not settings.RTD_ALLOW_ORGANIZATIONS:
+            template_name = "github-app.html"
         elif n_projects and not projects.filter(external_builds_enabled=True).exists():
             template_name = "pull-request-previews.html"
         elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
@@ -151,6 +151,10 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 dismissable=True,
             )
 
+    # NOTE: This method is called twice, on .org it doesn't matter,
+    # as the queryset is straightforward, but on .com it
+    # does some extra work that results in several queries.
+    @lru_cache(maxsize=1)
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
 
@@ -374,7 +378,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     def post(self, *args, **kwargs):
         self._set_initial_dict()
 
-        log.bind(user_username=self.request.user.username)
+        structlog.contextvars.bind_contextvars(user_username=self.request.user.username)
 
         if self.request.user.profile.banned:
             log.info("Rejecting project POST from shadowbanned user.")
@@ -433,34 +437,6 @@ class ImportView(PrivateViewMixin, TemplateView):
     template_name = "projects/project_import.html"
     wizard_class = ImportWizardView
 
-    def get(self, request, *args, **kwargs):
-        """
-        Display list of repositories to import.
-
-        Adds a warning to the listing if any of the accounts connected for the
-        user are not supported accounts.
-        """
-        deprecated_accounts = SocialAccount.objects.filter(
-            user=self.request.user
-        ).exclude(
-            provider__in=[service.allauth_provider.id for service in registry],
-        )  # yapf: disable
-        for account in deprecated_accounts:
-            provider_account = account.get_provider_account()
-            messages.error(
-                request,
-                format_html(
-                    _(
-                        "There is a problem with your {service} account, "
-                        "try reconnecting your account on your "
-                        '<a href="{url}">connected services page</a>.',
-                    ),
-                    service=provider_account.get_brand()["name"],
-                    url=reverse("socialaccount_connections"),
-                ),
-            )
-        return super().get(request, *args, **kwargs)
-
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data["basics"] = {}
@@ -479,6 +455,7 @@ class ImportView(PrivateViewMixin, TemplateView):
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
         context["form_manual"] = ProjectManualForm(user=self.request.user)
+        context["GITHUB_APP_NAME"] = settings.GITHUB_APP_NAME
 
         return context
 
@@ -908,7 +885,18 @@ class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
         return self.get_integration_queryset()
 
     def get_object(self):
+        integration = self.get_integration()
+        # Don't allow an integration detail page if the integration subclass
+        # does not support configuration
+        if integration.is_remote_only:
+            raise Http404
         return self.get_integration()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if "object_list" in context:
+            context["subclassed_object_list"] = context["object_list"].subclass()
+        return context
 
     def get_integration_queryset(self):
         self.project = self.get_project()
@@ -1215,15 +1203,12 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
         # Count of views for top pages over the month
         top_pages_200 = PageView.top_viewed_pages(project, limit=25)
-        track_404 = project.has_feature(Feature.RECORD_404_PAGE_VIEWS)
-        top_pages_404 = []
-        if track_404:
-            top_pages_404 = PageView.top_viewed_pages(
-                project,
-                limit=25,
-                status=404,
-                per_version=True,
-            )
+        top_pages_404 = PageView.top_viewed_pages(
+            project,
+            limit=25,
+            status=404,
+            per_version=True,
+        )
 
         # Aggregate pageviews grouped by day
         page_data = PageView.page_views_by_date(
@@ -1235,7 +1220,6 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 "top_pages_200": top_pages_200,
                 "page_data": page_data,
                 "top_pages_404": top_pages_404,
-                "track_404": track_404,
             }
         )
 

@@ -82,7 +82,7 @@ class GitLabService(UserService):
 
         See https://docs.gitlab.com/api/projects/#list-a-users-projects.
         """
-        remote_repositories = []
+        remote_ids = []
         try:
             repos = self.paginate(
                 f"{self.base_api_url}/api/v4/users/{self.account.uid}/projects",
@@ -94,7 +94,8 @@ class GitLabService(UserService):
 
             for repo in repos:
                 remote_repository = self.create_repository(repo)
-                remote_repositories.append(remote_repository)
+                if remote_repository:
+                    remote_ids.append(remote_repository.remote_id)
         except (TypeError, ValueError):
             log.warning("Error syncing GitLab repositories")
             raise SyncServiceError(
@@ -103,11 +104,11 @@ class GitLabService(UserService):
                 )
             )
 
-        return remote_repositories
+        return remote_ids
 
     def sync_organizations(self):
-        remote_organizations = []
-        remote_repositories = []
+        organization_remote_ids = []
+        repository_remote_ids = []
 
         try:
             orgs = self.paginate(
@@ -130,7 +131,7 @@ class GitLabService(UserService):
                     sort="asc",
                 )
 
-                remote_organizations.append(remote_organization)
+                organization_remote_ids.append(remote_organization.remote_id)
 
                 for repo in org_repos:
                     # TODO: Optimize this so that we don't re-fetch project data
@@ -151,7 +152,8 @@ class GitLabService(UserService):
                             remote_repository = self.create_repository(
                                 repo_details, organization=remote_organization
                             )
-                            remote_repositories.append(remote_repository)
+                            if remote_repository:
+                                repository_remote_ids.append(remote_repository.remote_id)
                         else:
                             log.warning(
                                 "GitLab project does not exist or user does not have permissions.",
@@ -172,7 +174,7 @@ class GitLabService(UserService):
                 )
             )
 
-        return remote_organizations, remote_repositories
+        return organization_remote_ids, repository_remote_ids
 
     def create_repository(
         self, fields, privacy=None, organization: RemoteOrganization | None = None
@@ -321,7 +323,7 @@ class GitLabService(UserService):
         if repo_id is None:
             return None
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
         )
@@ -381,7 +383,7 @@ class GitLabService(UserService):
         if repo_id is None:
             return False
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
             url=url,
@@ -393,7 +395,7 @@ class GitLabService(UserService):
                 data=data,
                 headers={"content-type": "application/json"},
             )
-            log.bind(http_status_code=resp.status_code)
+            structlog.contextvars.bind_contextvars(http_status_code=resp.status_code)
 
             if resp.status_code == 201:
                 integration.provider_data = resp.json()
@@ -439,7 +441,7 @@ class GitLabService(UserService):
 
         data = self.get_webhook_data(repo_id, project, integration)
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
         )
@@ -523,7 +525,7 @@ class GitLabService(UserService):
         }
         url = f"{self.base_api_url}/api/v4/projects/{repo_id}/statuses/{commit}"
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             commit_status=gitlab_build_state,
             user_username=self.user.username,
@@ -536,7 +538,7 @@ class GitLabService(UserService):
                 headers={"content-type": "application/json"},
             )
 
-            log.bind(http_status_code=resp.status_code)
+            structlog.contextvars.bind_contextvars(http_status_code=resp.status_code)
             if resp.status_code == 201:
                 log.debug("GitLab commit status created for project.")
                 return True

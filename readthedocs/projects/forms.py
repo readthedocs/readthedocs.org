@@ -606,13 +606,20 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
     class Meta:
         model = Project
-        fields = ["external_builds_enabled", "external_builds_privacy_level"]
+        fields = [
+            "external_builds_enabled",
+            "external_builds_privacy_level",
+            "show_build_overview_in_comment",
+        ]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
         self.setup_external_builds_option()
+
+        if not self.instance.is_github_app_project:
+            self.fields.pop("show_build_overview_in_comment")
 
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("external_builds_privacy_level")
@@ -680,6 +687,7 @@ class AddonsConfigForm(forms.ModelForm):
             "hotkeys_enabled",
             "search_enabled",
             "linkpreviews_enabled",
+            "linkpreviews_selector",
             "notifications_enabled",
             "notifications_show_on_latest",
             "notifications_show_on_non_stable",
@@ -694,6 +702,7 @@ class AddonsConfigForm(forms.ModelForm):
             "notifications_show_on_non_stable": _("Show a notification on non-stable versions"),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
+            "linkpreviews_selector": _("CSS link previews selector"),
             "options_root_selector": _("CSS main content selector"),
         }
 

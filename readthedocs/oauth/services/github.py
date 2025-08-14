@@ -38,13 +38,14 @@ class GitHubService(UserService):
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
-        remote_repositories = []
+        remote_ids = []
 
         try:
             repos = self.paginate(f"{self.base_api_url}/user/repos", per_page=100)
             for repo in repos:
                 remote_repository = self.create_repository(repo)
-                remote_repositories.append(remote_repository)
+                if remote_repository:
+                    remote_ids.append(remote_repository.remote_id)
         except (TypeError, ValueError):
             log.warning("Error syncing GitHub repositories")
             raise SyncServiceError(
@@ -52,12 +53,12 @@ class GitHubService(UserService):
                     provider=self.vcs_provider_slug
                 )
             )
-        return remote_repositories
+        return remote_ids
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
-        remote_organizations = []
-        remote_repositories = []
+        organization_remote_ids = []
+        repository_remote_ids = []
 
         try:
             orgs = self.paginate(f"{self.base_api_url}/user/orgs", per_page=100)
@@ -67,7 +68,7 @@ class GitHubService(UserService):
                     org_details,
                     create_user_relationship=True,
                 )
-                remote_organizations.append(remote_organization)
+                organization_remote_ids.append(remote_organization.remote_id)
 
                 org_url = org["url"]
                 org_repos = self.paginate(
@@ -76,7 +77,8 @@ class GitHubService(UserService):
                 )
                 for repo in org_repos:
                     remote_repository = self.create_repository(repo)
-                    remote_repositories.append(remote_repository)
+                    if remote_repository:
+                        repository_remote_ids.append(remote_repository.remote_id)
 
         except (TypeError, ValueError):
             log.warning("Error syncing GitHub organizations")
@@ -86,7 +88,7 @@ class GitHubService(UserService):
                 )
             )
 
-        return remote_organizations, remote_repositories
+        return organization_remote_ids, repository_remote_ids
 
     def create_repository(self, fields, privacy=None):
         """
@@ -105,23 +107,10 @@ class GitHubService(UserService):
                 (fields["private"] is False and privacy == "public"),
             ]
         ):
-            repo, created = RemoteRepository.objects.get_or_create(
+            repo, _ = RemoteRepository.objects.get_or_create(
                 remote_id=str(fields["id"]),
                 vcs_provider=self.vcs_provider_slug,
             )
-
-            # TODO: For debugging: https://github.com/readthedocs/readthedocs.org/pull/9449.
-            if created:
-                _old_remote_repository = RemoteRepository.objects.filter(
-                    full_name=fields["full_name"], vcs_provider=self.vcs_provider_slug
-                ).first()
-                if _old_remote_repository:
-                    log.warning(
-                        "GitHub repository created with different remote_id but exact full_name.",
-                        fields=fields,
-                        old_remote_repository=_old_remote_repository.__dict__,
-                        imported=_old_remote_repository.projects.exists(),
-                    )
 
             owner_type = fields["owner"]["type"]
             organization = None
@@ -246,7 +235,7 @@ class GitHubService(UserService):
 
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
         url = f"{self.base_api_url}/repos/{owner}/{repo}/hooks"
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             url=url,
             project_slug=project.slug,
             integration_id=integration.pk,
@@ -299,7 +288,7 @@ class GitHubService(UserService):
 
         data = self.get_webhook_data(project, integration)
         url = f"{self.base_api_url}/repos/{owner}/{repo}/hooks"
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             url=url,
             project_slug=project.slug,
             integration_id=integration.pk,
@@ -311,7 +300,7 @@ class GitHubService(UserService):
                 data=data,
                 headers={"content-type": "application/json"},
             )
-            log.bind(http_status_code=resp.status_code)
+            structlog.contextvars.bind_contextvars(http_status_code=resp.status_code)
 
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
@@ -354,7 +343,7 @@ class GitHubService(UserService):
         resp = None
 
         provider_data = self.get_provider_data(project, integration)
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
         )
@@ -371,7 +360,7 @@ class GitHubService(UserService):
                 data=data,
                 headers={"content-type": "application/json"},
             )
-            log.bind(
+            structlog.contextvars.bind_contextvars(
                 http_status_code=resp.status_code,
                 url=url,
             )
@@ -497,7 +486,7 @@ class GitHubService(UserService):
             "context": context,
         }
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             commit_status=github_build_status,
             user_username=self.user.username,
@@ -512,7 +501,7 @@ class GitHubService(UserService):
                 data=json.dumps(data),
                 headers={"content-type": "application/json"},
             )
-            log.bind(http_status_code=resp.status_code)
+            structlog.contextvars.bind_contextvars(http_status_code=resp.status_code)
             if resp.status_code == 201:
                 log.debug("GitHub commit status created for project.")
                 return True

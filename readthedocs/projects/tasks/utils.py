@@ -17,6 +17,7 @@ from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.notifications.models import Notification
+from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -26,6 +27,18 @@ log = structlog.get_logger(__name__)
 
 def clean_build(version):
     """Clean the files used in the build of the given version."""
+    from readthedocs.projects.models import Feature
+
+    if version.project.has_feature(
+        Feature.DONT_CLEAN_BUILD,
+    ):
+        log.info(
+            "Skipping cleaning build files for project with DONT_CLEAN_BUILD feature.",
+            project_slug=version.project.slug,
+            version_slug=version.slug,
+        )
+        return
+
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
         for dir_ in ("checkouts", "envs", "conda", "artifacts")
@@ -96,28 +109,72 @@ def clean_project_resources(project, version=None, version_slug=None):
 
 
 @app.task()
+def finish_unhealthy_builds():
+    """
+    Finish inactive builds.
+
+    A build is consider inactive if the last healthcheck reported was more than
+    RTD_BUILD_HEALTHCHECK_TIMEOUT seconds ago.
+
+    These inactive builds will be marked as ``success=False`` and
+    ``state=CANCELLED`` with an ``error`` to be communicated to the user.
+    """
+    log.debug("Running task to finish inactive builds (no healtcheck received).")
+    delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
+    query = (
+        ~Q(state__in=BUILD_FINAL_STATES)
+        & Q(healthcheck__lt=timezone.now() - delta)
+        & Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
+    )
+
+    projects_finished = set()
+    builds_finished = []
+    builds = Build.objects.filter(query)[:50]
+    for build in builds:
+        build.success = False
+        build.state = BUILD_STATE_CANCELLED
+        build.save()
+
+        # Tell Celery to cancel this task in case it's in a zombie state.
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
+
+        Notification.objects.add(
+            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
+            attached_to=build,
+        )
+
+        builds_finished.append(build.pk)
+        projects_finished.add(build.project.slug)
+
+    if builds_finished:
+        log.info(
+            'Builds marked as "Terminated due inactivity" (not healthcheck received).',
+            count=len(builds_finished),
+            project_slugs=projects_finished,
+            build_pks=builds_finished,
+        )
+
+
+@app.task()
 def finish_inactive_builds():
     """
     Finish inactive builds.
 
     A build is consider inactive if it's not in a final state and it has been
     "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
+    or ``BUILD_TIME_LIMIT`` plus a 20% of it).
 
     These inactive builds will be marked as ``success`` and ``CANCELLED`` with an
     ``error`` to be communicated to the user.
     """
-    # TODO similar to the celery task time limit, we can't infer this from
-    # Docker settings anymore, because Docker settings are determined on the
-    # build servers dynamically.
-    # time_limit = int(DOCKER_LIMITS['time'] * 1.2)
-    # Set time as maximum celery task time limit + 5m
-    time_limit = 7200 + 300
+    # TODO: delete this task once we are fully migrated to ``BUILD_HEALTHCHECK``
+    time_limit = settings.BUILD_TIME_LIMIT * 1.2
     delta = datetime.timedelta(seconds=time_limit)
     query = (
         ~Q(state__in=BUILD_FINAL_STATES)
         & Q(date__lt=timezone.now() - delta)
         & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
+        & ~Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
     )
 
     projects_finished = set()
@@ -177,7 +234,10 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in):
     This way, AWS will not scale-in this builder while it's building the documentation.
     This is pretty useful for long running tasks.
     """
-    log.bind(builder=builder, protected_from_scale_in=protected_from_scale_in)
+    structlog.contextvars.bind_contextvars(
+        builder=builder,
+        protected_from_scale_in=protected_from_scale_in,
+    )
 
     if settings.DEBUG or settings.RTD_DOCKER_COMPOSE:
         log.info(
@@ -216,7 +276,7 @@ class BuildRequest(Request):
     def on_timeout(self, soft, timeout):
         super().on_timeout(soft, timeout)
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             task_name=self.task.name,
             project_slug=self.task.data.project.slug,
             build_id=self.task.data.build["id"],

@@ -355,19 +355,14 @@ class VersionSerializer(serializers.ModelSerializer):
             "privacy_level",
         ]
 
-    def __init__(self, *args, resolver=None, version_serializer=None, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def __init__(self, *args, resolver=None, **kwargs):
         # Use a shared resolver to reduce the amount of DB queries while
         # resolving version URLs.
-        self.resolver = kwargs.pop("resolver", Resolver())
-
-        # Allow passing a specific serializer when initializing it.
-        # This is required to pass ``VersionSerializerNoLinks`` from the addons API.
-        self.version_serializer = version_serializer or VersionSerializer
+        self.resolver = resolver or Resolver()
+        super().__init__(*args, **kwargs)
 
     def get_downloads(self, obj):
-        downloads = obj.get_downloads()
+        downloads = obj.get_downloads(resolver=self.resolver)
         data = {}
 
         for k, v in downloads.items():
@@ -387,7 +382,8 @@ class VersionSerializer(serializers.ModelSerializer):
             if obj.slug == LATEST:
                 alias_version = obj.project.get_original_latest_version()
             if alias_version and alias_version.active:
-                return [self.version_serializer(alias_version).data]
+                # NOTE: we use __class__, as this serializer can be subclassed.
+                return [self.__class__(alias_version).data]
         return []
 
 
@@ -472,9 +468,9 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return None
 
     def get_documentation(self, obj):
-        version_slug = getattr(self.parent, "version_slug", None)
+        version = getattr(self.parent, "version", None)
         resolver = getattr(self.parent, "resolver", Resolver())
-        return obj.get_docs_url(version_slug=version_slug, resolver=resolver)
+        return resolver.resolve_version(project=obj, version=version)
 
 
 class RepositorySerializer(serializers.Serializer):
@@ -837,13 +833,13 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             ),
         }
 
-    def __init__(self, *args, **kwargs):
-        # Receive a `Version.slug` here to build URLs properly
-        self.version_slug = kwargs.pop("version_slug", None)
+    def __init__(self, *args, resolver=None, **kwargs):
+        # Receive a `Version` here to build URLs properly
+        self.version = kwargs.pop("version", None)
 
         # Use a shared resolver to reduce the amount of DB queries while
         # resolving version URLs.
-        self.resolver = kwargs.pop("resolver", Resolver())
+        self.resolver = resolver or Resolver()
 
         super().__init__(*args, **kwargs)
         # When using organizations, projects don't have the concept of users.
@@ -864,10 +860,15 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         return None
 
     def get_subproject_of(self, obj):
-        parent_relationship = obj.superprojects.first()
-        if parent_relationship:
+        if obj.main_language_project:
+            # If the project is a translation, it can't be a subproject,
+            # so it doesn't have a superproject.
+            return None
+
+        superproject = obj.superproject
+        if superproject:
             # Since the related project can be private, we use a restricted serializer.
-            return self.related_project_serializer(parent_relationship.parent).data
+            return self.related_project_serializer(superproject).data
         return None
 
 

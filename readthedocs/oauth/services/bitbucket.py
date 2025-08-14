@@ -34,7 +34,7 @@ class BitbucketService(UserService):
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
-        remote_repositories = []
+        remote_ids = []
 
         # Get user repos
         try:
@@ -44,7 +44,8 @@ class BitbucketService(UserService):
             )
             for repo in repos:
                 remote_repository = self.create_repository(repo)
-                remote_repositories.append(remote_repository)
+                if remote_repository:
+                    remote_ids.append(remote_repository.remote_id)
 
         except (TypeError, ValueError):
             log.warning("Error syncing Bitbucket repositories")
@@ -74,12 +75,12 @@ class BitbucketService(UserService):
         except (TypeError, ValueError):
             pass
 
-        return remote_repositories
+        return remote_ids
 
     def sync_organizations(self):
         """Sync Bitbucket workspaces(our RemoteOrganization) and workspace repositories."""
-        remote_organizations = []
-        remote_repositories = []
+        organization_remote_ids = []
+        repository_remote_ids = []
 
         try:
             workspaces = self.paginate(
@@ -90,14 +91,15 @@ class BitbucketService(UserService):
                 remote_organization = self.create_organization(workspace)
                 repos = self.paginate(workspace["links"]["repositories"]["href"])
 
-                remote_organizations.append(remote_organization)
+                organization_remote_ids.append(remote_organization.remote_id)
 
                 for repo in repos:
                     remote_repository = self.create_repository(
                         repo,
                         organization=remote_organization,
                     )
-                    remote_repositories.append(remote_repository)
+                    if remote_repository:
+                        repository_remote_ids.append(remote_repository.remote_id)
 
         except ValueError:
             log.warning("Error syncing Bitbucket organizations")
@@ -107,7 +109,7 @@ class BitbucketService(UserService):
                 )
             )
 
-        return remote_organizations, remote_repositories
+        return organization_remote_ids, repository_remote_ids
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -241,7 +243,7 @@ class BitbucketService(UserService):
 
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
             url=url,
@@ -293,7 +295,7 @@ class BitbucketService(UserService):
 
         data = self.get_webhook_data(project, integration)
         resp = None
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
             url=url,
@@ -344,7 +346,7 @@ class BitbucketService(UserService):
         :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
         """
-        log.bind(project_slug=project.slug)
+        structlog.contextvars.bind_contextvars(project_slug=project.slug)
         provider_data = self.get_provider_data(project, integration)
 
         # Handle the case where we don't have a proper provider_data set

@@ -223,11 +223,11 @@ class TestProject(ProjectMixin, TestCase):
         # Test that External Version is not considered for has_good_build.
         self.assertFalse(self.pip.has_good_build)
 
-    def test_get_latest_build_excludes_external_versions(self):
+    def test_latest_internal_build_excludes_external_versions(self):
         # Delete all versions excluding External Versions.
         self.pip.versions.exclude(type=EXTERNAL).delete()
-        # Test that External Version is not considered for get_latest_build.
-        self.assertEqual(self.pip.get_latest_build(), None)
+        # Test that External Version is not considered for latest_internal_build.
+        self.assertEqual(self.pip.latest_internal_build, None)
 
     def test_git_provider_github(self):
         self.pip.repo = "https://github.com/pypa/pip"
@@ -577,62 +577,3 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, "There is already a")
-
-
-class TestFinishInactiveBuildsTask(TestCase):
-    fixtures = ["eric", "test_data"]
-
-    def setUp(self):
-        self.client.login(username="eric", password="test")
-        self.pip = Project.objects.get(slug="pip")
-
-        self.taggit = Project.objects.get(slug="taggit")
-        self.taggit.container_time_limit = 7200  # 2 hours
-        self.taggit.save()
-
-        # Build just started with the default time
-        self.build_1 = Build.objects.create(
-            project=self.pip,
-            version=self.pip.get_stable_version(),
-            state=BUILD_STATE_CLONING,
-        )
-
-        # Build started an hour ago with default time
-        self.build_2 = Build.objects.create(
-            project=self.pip,
-            version=self.pip.get_stable_version(),
-            state=BUILD_STATE_TRIGGERED,
-        )
-        self.build_2.date = timezone.now() - datetime.timedelta(hours=1)
-        self.build_2.save()
-
-        # Build started an hour ago with custom time (2 hours)
-        self.build_3 = Build.objects.create(
-            project=self.taggit,
-            version=self.taggit.get_stable_version(),
-            state=BUILD_STATE_TRIGGERED,
-        )
-        self.build_3.date = timezone.now() - datetime.timedelta(hours=1)
-        self.build_3.save()
-
-    @pytest.mark.xfail(reason="Fails while we work out Docker time limits", strict=True)
-    def test_finish_inactive_builds_task(self):
-        finish_inactive_builds()
-
-        # Legitimate build (just started) not finished
-        self.build_1.refresh_from_db()
-        self.assertTrue(self.build_1.success)
-        self.assertEqual(self.build_1.error, "")
-        self.assertEqual(self.build_1.state, BUILD_STATE_CLONING)
-
-        # Build with default time finished
-        self.build_2.refresh_from_db()
-        self.assertFalse(self.build_2.success)
-        self.assertNotEqual(self.build_2.error, "")
-        self.assertEqual(self.build_2.state, BUILD_STATE_FINISHED)
-
-        # Build with custom time not finished
-        self.build_3.refresh_from_db()
-        self.assertTrue(self.build_3.success)
-        self.assertEqual(self.build_3.error, "")
-        self.assertEqual(self.build_3.state, BUILD_STATE_TRIGGERED)

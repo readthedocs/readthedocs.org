@@ -464,6 +464,7 @@ class OrganizationSignupTestCase(TestCase):
         data = {
             "name": "Testing Organization",
             "email": "billing@email.com",
+            "slug": "testing-organization",
         }
         resp = self.client.post(reverse("organization_create"), data=data)
         self.assertEqual(Organization.objects.count(), 1)

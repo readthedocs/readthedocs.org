@@ -1,17 +1,18 @@
 """Views for hosting features."""
 
-import fnmatch
 from functools import lru_cache
 
 import packaging
 import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.db.models import Q
 from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
@@ -21,6 +22,7 @@ from readthedocs.api.v3.serializers import ProjectSerializer
 from readthedocs.api.v3.serializers import RelatedProjectSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -173,6 +175,8 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         project_slug = request.GET.get("project-slug")
         version_slug = request.GET.get("version-slug")
         if not url and (not project_slug or not version_slug):
+            # NOTE: we don't use Response because we can't return it from
+            # the dispatch method, we shuould refactor this to raise a subclass of APIException instead.
             return JsonResponse(
                 {
                     "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
@@ -185,7 +189,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         url = request.GET.get("url")
         addons_version = request.GET.get("api-version")
         if not addons_version:
-            return JsonResponse(
+            return Response(
                 {"error": "'api-version' GET attribute is required"},
                 status=400,
             )
@@ -194,14 +198,14 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             if addons_version.major not in ADDONS_VERSIONS_SUPPORTED:
                 raise ClientError
         except packaging.version.InvalidVersion:
-            return JsonResponse(
+            return Response(
                 {
                     "error": ClientError.VERSION_INVALID,
                 },
                 status=400,
             )
         except ClientError:
-            return JsonResponse(
+            return Response(
                 {"error": ClientError.VERSION_NOT_CURRENTLY_SUPPORTED},
                 status=400,
             )
@@ -217,13 +221,13 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             filename=filename,
             url=url,
         )
-        return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
+        return Response(data)
 
 
-class NoLinksMixin:
-    """Mixin to remove conflicting fields from serializers."""
+class RemoveFieldsMixin:
+    """Mixin to remove fields from serializers."""
 
-    FIELDS_TO_REMOVE = ("_links",)
+    FIELDS_TO_REMOVE = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -242,35 +246,32 @@ class NoLinksMixin:
 # on El Proxito.
 #
 # See https://github.com/readthedocs/readthedocs-ops/issues/1323
-class RelatedProjectSerializerNoLinks(NoLinksMixin, RelatedProjectSerializer):
-    pass
+class RelatedProjectAddonsSerializer(RemoveFieldsMixin, RelatedProjectSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+    ]
 
 
-class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
-    related_project_serializer = RelatedProjectSerializerNoLinks
-
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            **kwargs,
-        )
+class ProjectAddonsSerializer(RemoveFieldsMixin, ProjectSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+        # users and tags result in additional queries for fields that we don't use.
+        "users",
+        "tags",
+    ]
+    related_project_serializer = RelatedProjectAddonsSerializer
 
 
-class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
-    def __init__(self, *args, **kwargs):
-        resolver = kwargs.pop("resolver", Resolver())
-        super().__init__(
-            *args,
-            resolver=resolver,
-            version_serializer=VersionSerializerNoLinks,
-            **kwargs,
-        )
+class VersionAddonsSerializer(RemoveFieldsMixin, VersionSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+    ]
 
 
-class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
-    pass
+class BuildAddonsSerializer(RemoveFieldsMixin, BuildSerializer):
+    FIELDS_TO_REMOVE = [
+        "_links",
+    ]
 
 
 class AddonsResponseBase:
@@ -307,7 +308,9 @@ class AddonsResponseBase:
         - They are active
         - They are not hidden
         """
-        return Version.internal.public(
+        # NOTE: Use project.versions, not Version.objects,
+        # so all results share the same instance of project.
+        return project.versions(manager=INTERNAL).public(
             project=project,
             user=request.user,
             only_active=True,
@@ -339,11 +342,8 @@ class AddonsResponseBase:
         resolver = Resolver()
         versions_active_built_not_hidden = Version.objects.none()
         sorted_versions_active_built_not_hidden = Version.objects.none()
-        user = request.user
 
-        versions_active_built_not_hidden = (
-            self._get_versions(request, project).select_related("project").order_by("-slug")
-        )
+        versions_active_built_not_hidden = self._get_versions(request, project).order_by("-slug")
         sorted_versions_active_built_not_hidden = versions_active_built_not_hidden
         if not project.supports_multiple_versions:
             # Return only one version when the project doesn't support multiple versions.
@@ -378,53 +378,27 @@ class AddonsResponseBase:
                     project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
 
-        main_project = project.main_language_project or project
-
-        # Exclude the current project since we don't want to return itself as a translation
-        project_translations = (
-            Project.objects.public(user=user)
-            .filter(pk__in=main_project.translations.all())
-            .exclude(slug=project.slug)
-        )
-
-        # Include main project as translation if the current project is one of the translations
-        if project != main_project:
-            project_translations |= Project.objects.public(user=user).filter(slug=main_project.slug)
-        project_translations = project_translations.order_by("language").select_related(
-            "main_language_project"
-        )
-
         data = {
             "api_version": "1",
-            "projects": {
-                "current": ProjectSerializerNoLinks(
-                    project,
-                    resolver=resolver,
-                    version_slug=version.slug if version else None,
-                ).data,
-                "translations": ProjectSerializerNoLinks(
-                    project_translations,
-                    resolver=resolver,
-                    version_slug=version.slug if version else None,
-                    many=True,
-                ).data,
-            },
+            "projects": self._get_projects_response(
+                request=request, project=project, version=version, resolver=resolver
+            ),
             "versions": {
-                "current": VersionSerializerNoLinks(
+                "current": VersionAddonsSerializer(
                     version,
                     resolver=resolver,
                 ).data
                 if version
                 else None,
                 # These are "sorted active, built, not hidden versions"
-                "active": VersionSerializerNoLinks(
+                "active": VersionAddonsSerializer(
                     sorted_versions_active_built_not_hidden,
                     resolver=resolver,
                     many=True,
                 ).data,
             },
             "builds": {
-                "current": BuildSerializerNoLinks(build).data if build else None,
+                "current": BuildAddonsSerializer(build).data if build else None,
             },
             # TODO: consider creating one serializer per field here.
             # The resulting JSON will be the same, but maybe it's easier/cleaner?
@@ -508,6 +482,7 @@ class AddonsResponseBase:
                 },
                 "linkpreviews": {
                     "enabled": project.addons.linkpreviews_enabled,
+                    "selector": project.addons.linkpreviews_selector,
                 },
                 "hotkeys": {
                     "enabled": project.addons.hotkeys_enabled,
@@ -546,6 +521,7 @@ class AddonsResponseBase:
                     [
                         "Include subprojects",
                         f"subprojects:{project.slug}/{version.slug}",
+                        True,
                     ]
                 )
             elif project.superprojects.exists():
@@ -554,6 +530,7 @@ class AddonsResponseBase:
                     [
                         "Include subprojects",
                         f"subprojects:{superproject.slug}/{version.slug}",
+                        True,
                     ]
                 )
 
@@ -612,6 +589,48 @@ class AddonsResponseBase:
 
         return data
 
+    def _get_projects_response(self, *, request, project, version, resolver):
+        main_project = project.main_language_project or project
+
+        translation_filter = Q(pk__in=main_project.translations.all())
+        # Include main project as translation if the current project is one of the translations
+        if main_project != project:
+            translation_filter |= Q(pk=main_project.pk)
+
+        translations_qs = (
+            Project.objects.public(user=request.user)
+            .filter(translation_filter)
+            # Exclude the current project since we don't want to return itself as a translation
+            .exclude(pk=project.pk)
+            .order_by("language")
+            .select_related("main_language_project")
+            # NOTE: there is no need to prefetch superprojects,
+            # as translations are not expected to have superprojects,
+            # and the serializer already checks for that.
+        )
+        # NOTE: we check if there are translations first,
+        # otherwise evaluating the queryset will be more expensive
+        # even if there are no results. Django optimizes the queryset
+        # if only we need to check if there are results or not.
+        if translations_qs.exists():
+            translations = ProjectAddonsSerializer(
+                translations_qs,
+                resolver=resolver,
+                version=version,
+                many=True,
+            ).data
+        else:
+            translations = []
+
+        return {
+            "current": ProjectAddonsSerializer(
+                project,
+                resolver=resolver,
+                version=version,
+            ).data,
+            "translations": translations,
+        }
+
     def _get_filetreediff_response(self, *, request, project, version, resolver):
         """
         Get the file tree diff response for the given version.
@@ -629,48 +648,36 @@ class AddonsResponseBase:
         if not base_version or not self._has_permission(request=request, version=base_version):
             return None
 
-        diff = get_diff(version_a=version, version_b=base_version)
+        diff = get_diff(current_version=version, base_version=base_version)
         if not diff:
             return None
 
-        def _filter_diff_files(files):
-            # Filter out all the files that match the ignored patterns
-            ignore_patterns = project.addons.filetreediff_ignored_files or []
-            files = [
-                filename
-                for filename in files
-                if not any(
-                    fnmatch.fnmatch(filename, ignore_pattern) for ignore_pattern in ignore_patterns
-                )
+        def _serialize_files(files):
+            return [
+                {
+                    "filename": file.path,
+                    "urls": {
+                        "current": resolver.resolve_version(
+                            project=project,
+                            filename=file.path,
+                            version=version,
+                        ),
+                        "base": resolver.resolve_version(
+                            project=project,
+                            filename=file.path,
+                            version=base_version,
+                        ),
+                    },
+                }
+                for file in files
             ]
-
-            result = []
-            for filename in files:
-                result.append(
-                    {
-                        "filename": filename,
-                        "urls": {
-                            "current": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=version,
-                            ),
-                            "base": resolver.resolve_version(
-                                project=project,
-                                filename=filename,
-                                version=base_version,
-                            ),
-                        },
-                    }
-                )
-            return result
 
         return {
             "outdated": diff.outdated,
             "diff": {
-                "added": _filter_diff_files(diff.added),
-                "deleted": _filter_diff_files(diff.deleted),
-                "modified": _filter_diff_files(diff.modified),
+                "added": _serialize_files(diff.added),
+                "deleted": _serialize_files(diff.deleted),
+                "modified": _serialize_files(diff.modified),
             },
         }
 

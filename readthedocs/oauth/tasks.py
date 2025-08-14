@@ -142,11 +142,11 @@ def sync_active_users_remote_repositories():
     )
 
     users_count = users.count()
-    log.bind(total_users=users_count)
+    structlog.contextvars.bind_contextvars(total_users=users_count)
     log.info("Triggering re-sync of RemoteRepository for active users.")
 
     for i, user in enumerate(users):
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             user_username=user.username,
             progress=f"{i}/{users_count}",
         )
@@ -272,7 +272,7 @@ class GitHubAppWebhookHandler:
         # Most of the events have an installation object and action.
         installation_id = self.data.get("installation", {}).get("id", "unknown")
         action = self.data.get("action", "unknown")
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             installation_id=installation_id,
             action=action,
             event=self.event,
@@ -281,7 +281,7 @@ class GitHubAppWebhookHandler:
             log.debug("Unsupported event")
             raise ValueError(f"Unsupported event: {self.event}")
 
-        log.debug("Handling event")
+        log.info("Handling event")
         self.event_handlers[self.event]()
 
     def _handle_installation_event(self):
@@ -743,12 +743,17 @@ class GitHubAppWebhookHandler:
 
 
 @app.task(queue="web")
-def handle_github_app_webhook(data: dict, event: str):
+def handle_github_app_webhook(data: dict, event: str, event_id: str = "unknown"):
     """
     Handle GitHub App webhooks asynchronously.
 
     :param data: The webhook payload data.
     :param event: The event type of the webhook.
     """
+    structlog.contextvars.bind_contextvars(
+        event=event,
+        event_id=event_id,
+    )
+    log.info("Handling GitHub App webhook")
     handler = GitHubAppWebhookHandler(data, event)
     handler.handle()

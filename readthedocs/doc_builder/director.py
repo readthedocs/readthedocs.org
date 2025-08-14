@@ -28,6 +28,7 @@ from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.notifications import MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS
 from readthedocs.projects.signals import after_build
 from readthedocs.projects.signals import before_build
 from readthedocs.projects.signals import before_vcs
@@ -205,6 +206,23 @@ class BuildDirector:
         log.info("Cloning and fetching.")
         self.vcs_repository.update()
 
+        # Check if the key has write access to the repository (RTD Business only).
+        # This check is done immediately after clone step, and before running any
+        # commands that make use of user given input (like the post_checkout job).
+        has_ssh_key_with_write_access = False
+        if settings.ALLOW_PRIVATE_REPOS:
+            has_ssh_key_with_write_access = self.vcs_repository.has_ssh_key_with_write_access()
+            if has_ssh_key_with_write_access != self.data.project.has_ssh_key_with_write_access:
+                self.data.api_client.project(self.data.project.pk).patch(
+                    {"ssh_key_with_write_access": has_ssh_key_with_write_access}
+                )
+            if has_ssh_key_with_write_access:
+                self.attach_notification(
+                    attached_to=f"project/{self.data.project.pk}",
+                    message_id=MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS,
+                    dismissable=True,
+                )
+
         identifier = self.data.build_commit or self.data.version.identifier
         log.info("Checking out.", identifier=identifier)
         self.vcs_repository.checkout(identifier)
@@ -261,6 +279,13 @@ class BuildDirector:
             raise BuildUserError(BuildUserError.BUILD_OS_REQUIRED)
 
         self.vcs_repository.update_submodules(self.data.config)
+
+        # If the config has a post_checkout job, we stop the build,
+        # as it could be abused to write to the repository.
+        if has_ssh_key_with_write_access and get_dotted_attribute(
+            self.data.config, "build.jobs.post_checkout", None
+        ):
+            raise BuildUserError(BuildUserError.SSH_KEY_WITH_WRITE_ACCESS)
 
     # System dependencies (``build.apt_packages``)
     # NOTE: `system_dependencies` should not be possible to override by the
@@ -794,20 +819,26 @@ class BuildDirector:
 
     def attach_notification(
         self,
+        attached_to,
         message_id,
         format_values=None,
         state="unread",
         dismissable=False,
         news=False,
     ):
-        """Attach a notification to build in progress using the APIv2."""
+        """
+        Attach a notification to build in progress using the APIv2.
+
+        :param attached_to: The object to which the notification is attached.
+         It should have the form of `project/{project_id}` or `build/{build_id}`.
+        """
 
         format_values = format_values or {}
         # NOTE: we are using APIv2 here because it uses BuildAPIKey authentication,
         # which is not currently supported by APIv3.
         self.data.api_client.notifications.post(
             {
-                "attached_to": f"build/{self.data.build['id']}",
+                "attached_to": attached_to,
                 "message_id": message_id,
                 "state": state,  # Optional
                 "dismissable": dismissable,

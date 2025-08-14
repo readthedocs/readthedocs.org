@@ -9,6 +9,7 @@ from datetime import datetime
 
 import structlog
 from django.conf import settings
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from docker import APIClient
 from docker.errors import APIError as DockerAPIError
@@ -16,7 +17,7 @@ from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
-from requests_toolbelt.multipart.encoder import MultipartEncoder
+from slumber.exceptions import HttpNotFoundError
 
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
@@ -24,7 +25,6 @@ from readthedocs.projects.models import Feature
 
 from .constants import DOCKER_HOSTNAME_MAX_LEN
 from .constants import DOCKER_IMAGE
-from .constants import DOCKER_LIMITS
 from .constants import DOCKER_OOM_EXIT_CODE
 from .constants import DOCKER_SOCKET
 from .constants import DOCKER_TIMEOUT_EXIT_CODE
@@ -109,7 +109,7 @@ class BuildCommand(BuildCommandResultMixin):
             # When using `project.vcs_repo` on tests we are passing `environment=False`.
             # See https://github.com/readthedocs/readthedocs.org/pull/6482#discussion_r367694530
             if self.build_env.project and self.build_env.version:
-                log.bind(
+                structlog.contextvars.bind_contextvars(
                     project_slug=self.build_env.project.slug,
                     version_slug=self.build_env.version.slug,
                 )
@@ -117,7 +117,7 @@ class BuildCommand(BuildCommandResultMixin):
             # NOTE: `self.build_env.build` is not available when using this class
             # from `sync_repository_task` since it's not associated to any build
             if self.build_env.build:
-                log.bind(
+                structlog.contextvars.bind_contextvars(
                     build_id=self.build_env.build.get("id"),
                 )
 
@@ -199,6 +199,8 @@ class BuildCommand(BuildCommandResultMixin):
             2. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
                over the API call request
 
+            3. Obfuscate private environment variables.
+
         :param output: stdout/stderr to be sanitized
 
         :returns: sanitized output as string
@@ -230,6 +232,17 @@ class BuildCommand(BuildCommandResultMixin):
                 f"Output is too big. Truncated at {allowed_length} bytes.\n\n\n"
                 f"{truncated_output}"
             )
+
+        # Obfuscate private environment variables.
+        if self.build_env:
+            # NOTE: we can't use `self._environment` here because we don't know
+            # which variable is public/private since it's just a name/value
+            # dictionary. We need to check with the APIProject object (`self.build_env.project`).
+            for name, spec in self.build_env.project._environment_variables.items():
+                if not spec["public"]:
+                    value = spec["value"]
+                    obfuscated_value = f"{value[:4]}****"
+                    sanitized = sanitized.replace(value, obfuscated_value)
 
         return sanitized
 
@@ -270,35 +283,21 @@ class BuildCommand(BuildCommandResultMixin):
 
         # If the command has an id, it means it has been saved before,
         # so we update it instead of creating a new one.
-        if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
-            # Don't use slumber directly here. Slumber tries to enforce a string,
-            # which will break our multipart encoding here.
-            encoder = MultipartEncoder({key: str(value) for key, value in data.items()})
-            if self.id:
-                resource = api_client.command(self.id).patch
-                resp = resource._store["session"].patch(
-                    resource._store["url"],
-                    data=encoder,
-                    headers={
-                        "Content-Type": encoder.content_type,
-                    },
-                )
-            else:
-                resource = api_client.command.post
-                resp = resource._store["session"].post(
-                    resource._store["base_url"],
-                    data=encoder,
-                    headers={
-                        "Content-Type": encoder.content_type,
-                    },
-                )
-            log.debug("Response via multipart form.", response=resp)
-        else:
-            if self.id:
+        if self.id:
+            try:
                 resp = api_client.command(self.id).patch(data)
-            else:
+            except HttpNotFoundError:
+                # TODO don't do this, address builds restarting instead.
+                # We try to post the buildcommand again as a temporary fix
+                # for projects that restart the build process. There seems to be
+                # something that causes a 404 during `patch()` in some biulds,
+                # so we assume retrying `post()` for the build command is okay.
+                log.exception("Build command has an id but doesn't exist in the database.")
                 resp = api_client.command.post(data)
-            log.debug("Response via JSON encoded data.", response=resp)
+        else:
+            resp = api_client.command.post(data)
+
+        log.debug("Response via JSON encoded data.", response=resp)
 
         self.id = resp.get("id")
 
@@ -594,8 +593,6 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
     command_class = DockerBuildCommand
     container_image = DOCKER_IMAGE
-    container_mem_limit = DOCKER_LIMITS.get("memory")
-    container_time_limit = DOCKER_LIMITS.get("time")
 
     def __init__(self, *args, **kwargs):
         container_image = kwargs.pop("container_image", None)
@@ -622,12 +619,10 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         if container_image:
             self.container_image = container_image
 
-        if self.project.container_mem_limit:
-            self.container_mem_limit = self.project.container_mem_limit
-        if self.project.container_time_limit:
-            self.container_time_limit = self.project.container_time_limit
+        self.container_mem_limit = self.project.container_mem_limit or settings.BUILD_MEMORY_LIMIT
+        self.container_time_limit = self.project.container_time_limit or settings.BUILD_TIME_LIMIT
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=self.project.slug,
             version_slug=self.version.slug,
         )
@@ -635,7 +630,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         # NOTE: as this environment is used for `sync_repository_task` it may
         # not have a build associated
         if self.build:
-            log.bind(
+            structlog.contextvars.bind_contextvars(
                 build_id=self.build.get("id"),
             )
 
@@ -835,7 +830,20 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 "Creating Docker container.",
                 container_image=self.container_image,
                 container_id=self.container_id,
+                container_time_limit=self.container_time_limit,
+                container_mem_limit=self.container_mem_limit,
             )
+
+            networking_config = None
+            if settings.RTD_DOCKER_COMPOSE:
+                # Create the container in the same network the web container is
+                # running, so we can hit its healthcheck API.
+                networking_config = client.create_networking_config(
+                    {
+                        settings.RTD_DOCKER_COMPOSE_NETWORK: client.create_endpoint_config(),
+                    }
+                )
+
             self.container = client.create_container(
                 image=self.container_image,
                 command=(
@@ -850,9 +858,45 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
                 runtime="runsc",  # gVisor runtime
+                networking_config=networking_config,
             )
             client.start(container=self.container_id)
+
+            if self.project.has_feature(Feature.BUILD_HEALTHCHECK):
+                self._run_background_healthcheck()
+
         except (DockerAPIError, ConnectionError) as exc:
             raise BuildAppError(
                 BuildAppError.GENERIC_WITH_BUILD_ID, exception_messag=exc.explanation
             ) from exc
+
+    def _run_background_healthcheck(self):
+        """
+        Run a cURL command in the background to ping the healthcheck API.
+
+        The API saves the last ping timestamp on each call. Then a periodic Celery task
+        checks this value for all the running builds and decide if the build is stalled or not.
+        If it's stalled, it terminates those builds and mark them as fail.
+        """
+        log.debug("Running build with healthcheck.")
+
+        build_id = self.build.get("id")
+        build_builder = self.build.get("builder")
+        healthcheck_url = reverse("build-healthcheck", kwargs={"pk": build_id})
+        url = f"{settings.SLUMBER_API_HOST}{healthcheck_url}?builder={build_builder}"
+
+        # We use --insecure because we are hitting the internal load balancer here that doesn't have a SSL certificate
+        # The -H "Host: " header is required because of internal load balancer URL
+        cmd = f"/bin/bash -c 'while true; do curl --insecure --max-time 2 -H \"Host: {settings.PRODUCTION_DOMAIN}\" -X POST {url}; sleep {settings.RTD_BUILD_HEALTHCHECK_DELAY}; done;'"
+        log.info("Healthcheck command to run.", command=cmd)
+
+        client = self.get_client()
+        exec_cmd = client.exec_create(
+            container=self.container_id,
+            cmd=cmd,
+            user=settings.RTD_DOCKER_USER,
+            stdout=True,
+            stderr=True,
+        )
+        # `detach=True` allows us to run this command in the background
+        client.exec_start(exec_id=exec_cmd["Id"], stream=False, detach=True)

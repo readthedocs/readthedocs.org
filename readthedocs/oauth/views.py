@@ -36,19 +36,24 @@ class GitHubAppWebhookView(APIView):
         installation_id = request.data.get("installation", {}).get("id", "unknown")
         action = request.data.get("action", "unknown")
         event = self.request.headers.get(GITHUB_EVENT_HEADER)
-        log.bind(
+        # Unique identifiers for the event, useful to keep track of the event for debugging.
+        # https://docs.github.com/en/webhooks/webhook-events-and-payloads#delivery-headers.
+        event_id = self.request.headers.get("X-GitHub-Delivery", "unknown")
+        structlog.contextvars.bind_contextvars(
             installation_id=installation_id,
             action=action,
             event=event,
+            event_id=event_id,
         )
         if event not in GitHubAppWebhookHandler(request.data, event).event_handlers:
-            log.debug("Unsupported event")
+            log.info("Unsupported event")
             raise ValidationError(f"Unsupported event: {event}")
 
-        log.debug("Handling event")
+        log.info("Handling event")
         handle_github_app_webhook.delay(
             data=request.data,
             event=event,
+            event_id=event_id,
         )
         return Response(status=200)
 

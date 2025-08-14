@@ -8,7 +8,7 @@ from django_dynamic_fixture import get
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.constants import GITHUB_APP
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import GitHubAppInstallation, RemoteRepository
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import (
     DOWNLOADABLE_MEDIA_TYPES,
@@ -85,7 +85,14 @@ class TestExternalBuildOption(TestCase):
 
     def test_github_app_integration(self):
         Integration.objects.all().delete()
-        remote_repository = get(RemoteRepository, vcs_provider=GITHUB_APP)
+        github_app_installation = get(
+            GitHubAppInstallation,
+        )
+        remote_repository = get(
+            RemoteRepository,
+            vcs_provider=GITHUB_APP,
+            github_app_installation=github_app_installation,
+        )
         self.project.remote_repository = remote_repository
         self.project.save()
 

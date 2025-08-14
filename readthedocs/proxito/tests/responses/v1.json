@@ -28,7 +28,6 @@
       "versioning_scheme": "multiple_versions_with_translations",
       "slug": "project",
       "subproject_of": null,
-      "tags": ["project", "tag", "test"],
       "translation_of": null,
       "urls": {
         "builds": "https://readthedocs.org/projects/project/builds/",
@@ -36,12 +35,7 @@
         "home": "https://readthedocs.org/projects/project/",
         "versions": "https://readthedocs.org/projects/project/versions/",
         "downloads": null
-      },
-      "users": [
-        {
-          "username": "testuser"
-        }
-      ]
+      }
     }
   },
   "versions": {
@@ -171,7 +165,8 @@
       "src": null
     },
     "linkpreviews": {
-      "enabled": false
+      "enabled": false,
+      "selector": null
     }
   }
 }

@@ -12,7 +12,6 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.views import View
 
-from readthedocs.analytics.models import PageView
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import LATEST
@@ -27,11 +26,9 @@ from readthedocs.core.unresolver import TranslationWithoutVersionError
 from readthedocs.core.unresolver import VersionNotFoundError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.core.utils.requests import is_suspicious_request
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain
-from readthedocs.projects.models import Feature
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
@@ -291,7 +288,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 # A false positive was detected, continue with our normal serve.
                 pass
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             version_slug=version.slug,
             filename=filename,
@@ -309,7 +306,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # All public versions can be cached.
         self.cache_response = version.is_public
 
-        log.bind(cache_response=self.cache_response)
+        structlog.contextvars.bind_contextvars(cache_response=self.cache_response)
         log.debug("Serving docs.")
 
         # Verify if the project is marked as spam and return a 401 in that case
@@ -393,7 +390,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         with the default version and finally, if none of them are found, the Read
         the Docs default page (Maze Found) is rendered by Django and served.
         """
-        log.bind(proxito_path=proxito_path)
+        structlog.contextvars.bind_contextvars(proxito_path=proxito_path)
         log.debug("Executing 404 handler.")
         unresolved_domain = request.unresolved_domain
         # We force all storage calls to use the external versions storage,
@@ -458,7 +455,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             filename = exc.path
             # TODO: Use a contextualized 404
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             version_slug=version_slug,
         )
@@ -506,15 +503,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 # and we don't want to issue infinite redirects.
                 pass
 
-        # Register 404 pages into our database for user's analytics.
-        if not unresolved_domain.is_from_external_domain:
-            self._register_broken_link(
-                project=project,
-                version=version,
-                filename=filename,
-                path=proxito_path,
-            )
-
         response = self._get_custom_404_page(
             request=request,
             project=project,
@@ -530,37 +518,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             project=project,
             path_not_found=proxito_path,
         )
-
-    def _register_broken_link(self, project, version, filename, path):
-        try:
-            if not project.has_feature(Feature.RECORD_404_PAGE_VIEWS):
-                return
-
-            if is_suspicious_request(self.request):
-                log.info(
-                    "Suspicious request, not recording 404.",
-                )
-                return
-
-            # If we don't have a version, the filename is the path,
-            # otherwise it would be empty.
-            if not version:
-                filename = path
-            PageView.objects.register_page_view(
-                project=project,
-                version=version,
-                filename=filename,
-                path=path,
-                status=404,
-            )
-        except Exception:
-            # Don't break doc serving if there was an error
-            # while recording the broken link.
-            log.exception(
-                "Error while recording the broken link",
-                project_slug=project.slug,
-                path=path,
-            )
 
     def _get_custom_404_page(self, request, project, version=None):
         """
@@ -720,7 +677,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
             # ... we do return a 404
             raise Http404()
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             version_slug=version.slug,
         )
