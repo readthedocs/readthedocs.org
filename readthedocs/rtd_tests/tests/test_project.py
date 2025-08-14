@@ -223,11 +223,11 @@ class TestProject(ProjectMixin, TestCase):
         # Test that External Version is not considered for has_good_build.
         self.assertFalse(self.pip.has_good_build)
 
-    def test_get_latest_build_excludes_external_versions(self):
+    def test_latest_internal_build_excludes_external_versions(self):
         # Delete all versions excluding External Versions.
         self.pip.versions.exclude(type=EXTERNAL).delete()
-        # Test that External Version is not considered for get_latest_build.
-        self.assertEqual(self.pip.get_latest_build(), None)
+        # Test that External Version is not considered for latest_internal_build.
+        self.assertEqual(self.pip.latest_internal_build, None)
 
     def test_git_provider_github(self):
         self.pip.repo = "https://github.com/pypa/pip"
