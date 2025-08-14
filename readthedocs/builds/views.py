@@ -15,9 +15,9 @@ from django.views.generic import ListView
 from requests.utils import quote
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build
-from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
@@ -55,9 +55,8 @@ class BuildList(
     filterset_class = BuildListFilter
 
     def _get_versions(self, project):
-        return Version.internal.public(
+        project.versions(manager=INTERNAL).public(
             user=self.request.user,
-            project=project,
         )
 
     def get_project(self):
