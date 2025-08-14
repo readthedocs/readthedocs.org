@@ -102,7 +102,7 @@ class ProjectSpamMixin:
 
     def is_show_dashboard_denied_wrapper(self):
         """
-        Determine if the project has reached dashboard denied treshold.
+        Determine if the project has reached dashboard denied threshold.
 
         This function is wrapped just for testing purposes,
         so we are able to mock it from outside.

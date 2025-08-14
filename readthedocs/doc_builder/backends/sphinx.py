@@ -44,7 +44,7 @@ class BaseSphinx(BaseBuilder):
         # `absolute_host_output_dir` because it's not defined in the host. So,
         # we have to re-calculate its value. We will remove this limitation
         # when we execute the whole building from inside the Docker container
-        # (instead behing a hybrid as it is now)
+        # (instead being a hybrid as it is now)
         #
         # We need to have two different paths that point to the exact same
         # directory. How is that? The directory is mounted into a different
@@ -95,7 +95,7 @@ class BaseSphinx(BaseBuilder):
             #
             # IMO, if there are multiple config files,
             # the build should fail immediately communicating this to the user.
-            # This can be achived by unhandle the exception here
+            # This can be achieved by unhandle the exception here
             # and leaving `on_failure` Celery handle to deal with it.
             #
             # In case there is no config file, we should continue the build
@@ -152,7 +152,7 @@ class BaseSphinx(BaseBuilder):
                 f"language={language}",
                 # Sphinx's source directory (SOURCEDIR).
                 # We are executing this command at the location of the `conf.py` file (CWD).
-                # TODO: ideally we should execute it from where the repository was clonned,
+                # TODO: ideally we should execute it from where the repository was cloned,
                 # but that could lead unexpected behavior to some users:
                 # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
                 ".",
@@ -321,7 +321,7 @@ class PdfBuilder(BaseSphinx):
             f"language={language}",
             # Sphinx's source directory (SOURCEDIR).
             # We are executing this command at the location of the `conf.py` file (CWD).
-            # TODO: ideally we should execute it from where the repository was clonned,
+            # TODO: ideally we should execute it from where the repository was cloned,
             # but that could lead unexpected behavior to some users:
             # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
             ".",

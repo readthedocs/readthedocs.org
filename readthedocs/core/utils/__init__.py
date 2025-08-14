@@ -386,7 +386,7 @@ def extract_valid_attributes_for_model(model, attributes):
     attributes = attributes.copy()
     valid_field_names = {field.name for field in model._meta.get_fields()}
     valid_attributes = {}
-    # We can't change a dictionary while interating over its keys,
+    # We can't change a dictionary while iterating over its keys,
     # so we make a copy of its keys.
     keys = list(attributes.keys())
     for key in keys:

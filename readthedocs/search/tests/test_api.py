@@ -526,7 +526,7 @@ class BaseTestDocumentSearch:
         search_params = {
             "project": project.slug,
             "version": version.slug,
-            "q": "indx",
+            "q": "abracadabra",
         }
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
@@ -539,7 +539,7 @@ class BaseTestDocumentSearch:
         search_params = {
             "project": project.slug,
             "version": version.slug,
-            "q": '"indx"',
+            "q": '"abracadabra"',
         }
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
