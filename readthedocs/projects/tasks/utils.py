@@ -101,11 +101,13 @@ def clean_project_resources(project, version=None, version_slug=None):
         version_slug=version_slug,
     )
 
-    # Remove imported files
+    # Remove imported files and pageviews faster
     if version:
         version.imported_files.all().delete()
+        version.page_views.all().delete()
     else:
         project.imported_files.all().delete()
+        project.page_views.all().delete()
 
 
 @app.task()
