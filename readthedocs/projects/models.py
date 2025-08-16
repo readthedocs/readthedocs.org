@@ -300,6 +300,18 @@ class Project(models.Model):
         blank=True,
         help_text=_("Short description of this project"),
     )
+
+    # Example:
+    # [
+    #     "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+    #     "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+    # ]
+    git_checkout_command = models.JSONField(
+        _("Custom command to execute before Git checkout"),
+        null=True,
+        blank=True,
+    )
+
     repo = models.CharField(
         _("Repository URL"),
         max_length=255,

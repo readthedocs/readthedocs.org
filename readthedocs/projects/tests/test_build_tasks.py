@@ -1656,6 +1656,42 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_project_with_custom_git_checkout_command(self, load_yaml_config):
+        git_checkout_command = [
+            "env",
+            "echo $READTHEDOCS_GIT_CLONE_URL",
+            "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+            "git sparse-checkout init --cone",
+            "git sparse-checkout set projects/project",
+            "git checkout $READTHEDOCS_GIT_IDENTIFIER" ,
+        ]
+        self.project.git_checkout_command = git_checkout_command
+        self.project.save()
+
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "3",
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks["git.Backend.run"].assert_has_calls(
+            [
+                mock.call(*cmd.split(), escape_command=False) for cmd in git_checkout_command
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_install_apt_packages(self, load_yaml_config):
         config = BuildConfigV2(
             {
