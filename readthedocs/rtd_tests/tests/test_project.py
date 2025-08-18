@@ -30,7 +30,6 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.utils import finish_inactive_builds
 
 
 class ProjectMixin:
