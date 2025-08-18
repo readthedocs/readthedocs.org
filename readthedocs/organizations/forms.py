@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.permissions import AdminPermission
@@ -36,7 +37,7 @@ class OrganizationForm(SimpleHistoryModelForm):
 
     class Meta:
         model = Organization
-        fields = ["name", "email", "description", "url"]
+        fields = ["name", "email", "avatar", "description", "url"]
         labels = {
             "name": _("Organization Name"),
             "email": _("Billing Email"),
@@ -84,6 +85,22 @@ class OrganizationForm(SimpleHistoryModelForm):
         if Organization.objects.filter(slug=slug).exists():
             raise forms.ValidationError(_("Slug is already used by another organization"))
         return slug
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get("avatar")
+        if avatar:
+            if avatar.size > 750 * 1024:
+                raise forms.ValidationError(
+                    _("Avatar image size must not exceed 750KB."),
+                )
+            try:
+                img = Image.open(avatar)
+            except Exception:
+                raise ValidationError("Could not process image. Please upload a valid image file.")
+            width, height = img.size
+            if width > 500 or height > 500:
+                raise ValidationError("The image dimensions cannot exceed 500x500 pixels.")
+        return avatar
 
 
 class OrganizationSignupFormBase(OrganizationForm):

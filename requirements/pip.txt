@@ -213,6 +213,8 @@ packaging==25.0
     #   drf-extensions
     #   gunicorn
     #   kombu
+pillow==11.2.1
+    # via -r requirements/pip.in
 platformdirs==4.3.8
     # via virtualenv
 prompt-toolkit==3.0.51
