@@ -128,6 +128,11 @@ class CommunityBaseSettings(Settings):
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = "DENY"
 
+    # Pagination
+    # Only show 1 page on either side of the current page
+    PAGINATION_DEFAULT_WINDOW = 1
+    # Only show 1 page at the beginning and end 
+    PAGINATION_DEFAULT_MARGIN = 1
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
