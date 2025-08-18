@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import structlog
 from autoslug import AutoSlugField
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -278,7 +279,9 @@ class Organization(models.Model):
         """
         if self.avatar:
             return self.avatar.url
-        return get_gravatar_url(self.email, size=100)
+        if self.email:
+            return get_gravatar_url(self.email, size=100)
+        return settings.GRAVATAR_DEFAULT_IMAGE
 
     def delete(self, *args, **kwargs):
         """Override delete method to clean up related resources."""
