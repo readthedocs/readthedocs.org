@@ -71,6 +71,7 @@ def clean_project_resources(project, version=None, version_slug=None):
     - Artifacts from storage.
     - Search indexes from ES.
     - Imported files.
+    - Analytics data (``Pageview``s)
 
     :param version: Version instance. If isn't given,
      all resources of `project` will be deleted.
@@ -101,10 +102,10 @@ def clean_project_resources(project, version=None, version_slug=None):
         version_slug=version_slug,
     )
 
-    # Remove imported files and pageviews faster
+    # Try to speed up deletion by calling delete directly
+    # We can try ``bulk_delete`` if this doesn't work.
     if version:
         version.imported_files.all().delete()
-        version.page_views.all().delete()
     else:
         project.imported_files.all().delete()
         project.page_views.all().delete()
