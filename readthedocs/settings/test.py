@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import textwrap
 
 from .base import CommunityBaseSettings
@@ -140,6 +141,13 @@ class CommunityTestSettings(CommunityBaseSettings):
             },
             "staticfiles": {
                 "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            },
+            "usercontent": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+                "OPTIONS": {
+                    "location": Path(self.MEDIA_ROOT) / "usercontent",
+                    "allow_overwrite": True,
+                },
             },
         }
 
