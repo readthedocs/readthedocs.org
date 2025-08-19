@@ -92,6 +92,10 @@ class TestReadTheDocsConfigJson(TestCase):
         try:
             obj["projects"]["current"]["created"] = "2019-04-29T10:00:00Z"
             obj["projects"]["current"]["modified"] = "2019-04-29T12:00:00Z"
+        except:
+            pass
+
+        try:
             obj["builds"]["current"]["created"] = "2019-04-29T10:00:00Z"
             obj["builds"]["current"]["finished"] = "2019-04-29T10:01:00Z"
         except:
