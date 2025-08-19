@@ -12,6 +12,7 @@ from django.db.models import Case
 from django.db.models import Value
 from django.db.models import When
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
 from rest_framework import decorators
@@ -307,7 +308,12 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         methods=["post"],
     )
     def healthcheck(self, request, **kwargs):
-        build = self.get_object()
+        # We can't use `self.get_object()` here because it uses `get_queryset()` method that it's filtered by build API key and/or user access.
+        # Since we don't want to check for permissions here (only based on `?builder=` GET attribute) we need to query the db manually here.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        build = get_object_or_404(Build.objects.all(), **filter_kwargs)
+
         builder_hostname = request.GET.get("builder")
         structlog.contextvars.bind_contextvars(
             build_id=build.pk,
