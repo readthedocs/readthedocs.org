@@ -27,7 +27,6 @@ log = structlog.get_logger(__name__)
 
 def clean_build(version):
     """Clean the files used in the build of the given version."""
-    from readthedocs.projects.models import Feature
 
     if version.project.has_feature(
         Feature.DONT_CLEAN_BUILD,
@@ -121,11 +120,7 @@ def finish_unhealthy_builds():
     """
     log.debug("Running task to finish inactive builds (no healtcheck received).")
     delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
-    query = (
-        ~Q(state__in=BUILD_FINAL_STATES)
-        & Q(healthcheck__lt=timezone.now() - delta)
-        & Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
-    )
+    query = ~Q(state__in=BUILD_FINAL_STATES) & Q(healthcheck__lt=timezone.now() - delta)
 
     projects_finished = set()
     builds_finished = []
