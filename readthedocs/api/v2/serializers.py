@@ -95,6 +95,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             "readthedocs_yaml_path",
             "clone_token",
             "has_ssh_key_with_write_access",
+            "git_checkout_command",
         )
 
 
@@ -225,7 +226,9 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     command = serializers.SerializerMethodField()
 
     def get_command(self, obj):
-        return normalize_build_command(obj.command, obj.build.project.slug, obj.build.version.slug)
+        return normalize_build_command(
+            obj.command, obj.build.project.slug, obj.build.get_version_slug()
+        )
 
 
 class BuildSerializer(serializers.ModelSerializer):

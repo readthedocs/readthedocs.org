@@ -707,6 +707,29 @@ class APIBuildTests(TestCase):
         build = resp.data
         self.assertEqual(len(build["results"]), 1)
 
+    def test_build_without_version(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=None,
+            state=BUILD_STATE_FINISHED,
+            exit_code=0,
+        )
+        command = "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0"
+        get(
+            BuildCommandResult,
+            build=build,
+            command=command,
+            output="Running...",
+            exit_code=0,
+        )
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        r = client.get(reverse("build-detail", args=(build.pk,)))
+        assert r.status_code == 200
+        assert r.data["version"] is None
+        assert r.data["commands"][0]["command"] == command
+
 
 class APITests(TestCase):
     fixtures = ["eric.json", "test_data.json"]
@@ -3425,6 +3448,7 @@ class APIVersionTests(TestCase):
                 "documentation_type": "sphinx",
                 "environment_variables": {},
                 "features": [],
+                "git_checkout_command": None,
                 "has_valid_clone": False,
                 "has_valid_webhook": False,
                 "id": 6,

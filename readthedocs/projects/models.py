@@ -300,6 +300,18 @@ class Project(models.Model):
         blank=True,
         help_text=_("Short description of this project"),
     )
+
+    # Example:
+    # [
+    #     "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+    #     "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+    # ]
+    git_checkout_command = models.JSONField(
+        _("Custom command to execute before Git checkout"),
+        null=True,
+        blank=True,
+    )
+
     repo = models.CharField(
         _("Repository URL"),
         max_length=255,
@@ -644,9 +656,6 @@ class Project(models.Model):
         null=True,
         blank=True,
     )
-
-    # Property used for storing the latest build for a project when prefetching
-    LATEST_BUILD_CACHE = "_latest_build"
 
     class Meta:
         ordering = ("slug",)
@@ -1100,23 +1109,10 @@ class Project(models.Model):
                 matches.append(os.path.join(root, match))
         return matches
 
-    def get_latest_build(self, finished=True):
-        """
-        Get latest build for project.
-
-        :param finished: Return only builds that are in a finished state
-        """
-        # Check if there is `_latest_build` attribute in the Queryset.
-        # Used for Database optimization.
-        if hasattr(self, self.LATEST_BUILD_CACHE):
-            if self._latest_build:
-                return self._latest_build[0]
-            return None
-
-        kwargs = {"type": "html"}
-        if finished:
-            kwargs["state"] = "finished"
-        return self.builds(manager=INTERNAL).filter(**kwargs).first()
+    @cached_property
+    def latest_internal_build(self):
+        """Get the latest internal build for the project."""
+        return self.builds(manager=INTERNAL).select_related("version").first()
 
     def active_versions(self):
         from readthedocs.builds.models import Version
