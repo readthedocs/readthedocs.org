@@ -3425,6 +3425,7 @@ class APIVersionTests(TestCase):
                 "documentation_type": "sphinx",
                 "environment_variables": {},
                 "features": [],
+                "git_checkout_command": None,
                 "has_valid_clone": False,
                 "has_valid_webhook": False,
                 "id": 6,
