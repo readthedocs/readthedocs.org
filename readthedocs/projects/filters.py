@@ -138,11 +138,7 @@ class ProjectSortOrderingFilter(OrderingFilter):
             else:
                 order_bys.append(field_ordered)
 
-        # Prefetch here not only prefetches the query, but it also changes how `get_latest_build`
-        # works. Normally from templates `project.get_latest_build` only returns
-        # the latest _finished_ build. But with prefetch, _all_ builds are
-        # considered and `get_latest_build` will pop the first off this list of
-        # _all_ builds.
+        # prefetch_latest_build does some extra optimizations to avoid additional queries.
         return qs.prefetch_latest_build().annotate(**annotations).order_by(*order_bys)
 
 

@@ -194,13 +194,14 @@ class GitHubOAuthSyncTests(TestCase):
         self.assertEqual(RemoteRepository.objects.count(), 0)
         self.assertEqual(RemoteOrganization.objects.count(), 0)
 
-        remote_repositories = self.service.sync_repositories()
+        repository_remote_ids = self.service.sync_repositories()
 
         self.assertEqual(RemoteRepository.objects.count(), 1)
         self.assertEqual(RemoteOrganization.objects.count(), 0)
-        self.assertEqual(len(remote_repositories), 1)
-        remote_repository = remote_repositories[0]
-        self.assertIsInstance(remote_repository, RemoteRepository)
+        self.assertEqual(len(repository_remote_ids), 1)
+
+        remote_repository = RemoteRepository.objects.first()
+        self.assertEqual(repository_remote_ids[0], remote_repository.remote_id)
         self.assertEqual(remote_repository.full_name, "organization/repository")
         self.assertEqual(remote_repository.name, "repository")
         self.assertFalse(remote_repository.remote_repository_relations.first().admin)
@@ -234,15 +235,15 @@ class GitHubOAuthSyncTests(TestCase):
             organization=remote_organization,
             vcs_provider="github",
         )
-        remote_repositories = self.service.sync_repositories()
+        repository_remote_ids = self.service.sync_repositories()
 
         self.assertEqual(RemoteRepository.objects.count(), 1)
         self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
 
-        self.assertEqual(len(remote_repositories), 1)
-        remote_repository = remote_repositories[0]
-        self.assertIsInstance(remote_repository, RemoteRepository)
+        self.assertEqual(len(repository_remote_ids), 1)
+        remote_repository = RemoteRepository.objects.first()
+        self.assertEqual(repository_remote_ids[0], remote_repository.remote_id)
         self.assertEqual(remote_repository.full_name, "organization/repository")
         self.assertEqual(remote_repository.name, "repository")
         self.assertEqual(remote_repository.organization.slug, "organization")
@@ -276,15 +277,15 @@ class GitHubOAuthSyncTests(TestCase):
             organization=remote_organization,
             vcs_provider="github",
         )
-        remote_repositories = self.service.sync_repositories()
+        repository_remote_ids = self.service.sync_repositories()
 
         self.assertEqual(RemoteRepository.objects.count(), 1)
         self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
 
-        self.assertEqual(len(remote_repositories), 1)
-        remote_repository = remote_repositories[0]
-        self.assertIsInstance(remote_repository, RemoteRepository)
+        self.assertEqual(len(repository_remote_ids), 1)
+        remote_repository = RemoteRepository.objects.first()
+        self.assertEqual(repository_remote_ids[0], remote_repository.remote_id)
         self.assertEqual(remote_repository.full_name, "organization/repository")
         self.assertEqual(remote_repository.name, "repository")
         self.assertIsNone(remote_repository.organization)
@@ -407,14 +408,13 @@ class GitHubOAuthSyncTests(TestCase):
         self.assertEqual(RemoteOrganization.objects.count(), 0)
         self.assertEqual(RemoteOrganizationRelation.objects.count(), 0)
 
-        remote_organizations, remote_repositories = self.service.sync_organizations()
+        organization_remote_ids, repository_remote_ids = self.service.sync_organizations()
 
         self.assertEqual(RemoteRepository.objects.count(), 1)
         self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
         self.assertEqual(RemoteOrganizationRelation.objects.count(), 1)
-        self.assertEqual(len(remote_organizations), 1)
-        self.assertEqual(len(remote_repositories), 1)
-        remote_organization = remote_organizations[0]
-        self.assertIsInstance(remote_organization, RemoteOrganization)
-        self.assertEqual(remote_organization.name, "Organization")
+        self.assertEqual(len(organization_remote_ids), 1)
+        self.assertEqual(len(repository_remote_ids), 1)
+        remote_organization = RemoteOrganization.objects.first()
+        self.assertEqual(organization_remote_ids[0], remote_organization.remote_id)

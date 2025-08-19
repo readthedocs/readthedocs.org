@@ -399,7 +399,10 @@ class TestPrivateViews(TestCase):
                     state=BUILD_STATE_FINISHED,
                 )
 
-        with self.assertNumQueries(12):
+        # This number is bit higher, but for projects with lots of builds
+        # is better to have more queries than optimizing with a prefetch,
+        # see comment in prefetch_latest_build.
+        with self.assertNumQueries(26):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 

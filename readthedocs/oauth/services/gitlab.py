@@ -82,7 +82,7 @@ class GitLabService(UserService):
 
         See https://docs.gitlab.com/api/projects/#list-a-users-projects.
         """
-        remote_repositories = []
+        remote_ids = []
         try:
             repos = self.paginate(
                 f"{self.base_api_url}/api/v4/users/{self.account.uid}/projects",
@@ -94,7 +94,8 @@ class GitLabService(UserService):
 
             for repo in repos:
                 remote_repository = self.create_repository(repo)
-                remote_repositories.append(remote_repository)
+                if remote_repository:
+                    remote_ids.append(remote_repository.remote_id)
         except (TypeError, ValueError):
             log.warning("Error syncing GitLab repositories")
             raise SyncServiceError(
@@ -103,11 +104,11 @@ class GitLabService(UserService):
                 )
             )
 
-        return remote_repositories
+        return remote_ids
 
     def sync_organizations(self):
-        remote_organizations = []
-        remote_repositories = []
+        organization_remote_ids = []
+        repository_remote_ids = []
 
         try:
             orgs = self.paginate(
@@ -130,7 +131,7 @@ class GitLabService(UserService):
                     sort="asc",
                 )
 
-                remote_organizations.append(remote_organization)
+                organization_remote_ids.append(remote_organization.remote_id)
 
                 for repo in org_repos:
                     # TODO: Optimize this so that we don't re-fetch project data
@@ -151,7 +152,8 @@ class GitLabService(UserService):
                             remote_repository = self.create_repository(
                                 repo_details, organization=remote_organization
                             )
-                            remote_repositories.append(remote_repository)
+                            if remote_repository:
+                                repository_remote_ids.append(remote_repository.remote_id)
                         else:
                             log.warning(
                                 "GitLab project does not exist or user does not have permissions.",
@@ -172,7 +174,7 @@ class GitLabService(UserService):
                 )
             )
 
-        return remote_organizations, remote_repositories
+        return organization_remote_ids, repository_remote_ids
 
     def create_repository(
         self, fields, privacy=None, organization: RemoteOrganization | None = None

@@ -155,61 +155,6 @@ def finish_unhealthy_builds():
         )
 
 
-@app.task()
-def finish_inactive_builds():
-    """
-    Finish inactive builds.
-
-    A build is consider inactive if it's not in a final state and it has been
-    "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``BUILD_TIME_LIMIT`` plus a 20% of it).
-
-    These inactive builds will be marked as ``success`` and ``CANCELLED`` with an
-    ``error`` to be communicated to the user.
-    """
-    # TODO: delete this task once we are fully migrated to ``BUILD_HEALTHCHECK``
-    time_limit = settings.BUILD_TIME_LIMIT * 1.2
-    delta = datetime.timedelta(seconds=time_limit)
-    query = (
-        ~Q(state__in=BUILD_FINAL_STATES)
-        & Q(date__lt=timezone.now() - delta)
-        & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
-        & ~Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
-    )
-
-    projects_finished = set()
-    builds_finished = []
-    builds = Build.objects.filter(query)[:50]
-    for build in builds:
-        if build.project.container_time_limit:
-            custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit),
-            )
-            if build.date + custom_delta > timezone.now():
-                # Do not mark as CANCELLED builds with a custom time limit that wasn't
-                # expired yet (they are still building the project version)
-                continue
-
-        build.success = False
-        build.state = BUILD_STATE_CANCELLED
-        build.save()
-
-        Notification.objects.add(
-            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
-            attached_to=build,
-        )
-
-        builds_finished.append(build.pk)
-        projects_finished.add(build.project.slug)
-
-    log.info(
-        'Builds marked as "Terminated due inactivity".',
-        count=len(builds_finished),
-        project_slugs=projects_finished,
-        build_pks=builds_finished,
-    )
-
-
 def send_external_build_status(version_type, build_pk, commit, status):
     """
     Check if build is external and Send Build Status for project external versions.
