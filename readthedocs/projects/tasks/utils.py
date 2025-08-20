@@ -126,6 +126,10 @@ def finish_unhealthy_builds():
     builds_finished = []
     builds = Build.objects.filter(query)[:50]
     for build in builds:
+        if build.commands.exists():
+            # Try to update the build length if there is at least one command
+            build.length = (timezone.now() - build.commands.first().start_time).seconds
+
         build.success = False
         build.state = BUILD_STATE_CANCELLED
         build.save()
