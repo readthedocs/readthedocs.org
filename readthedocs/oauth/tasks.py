@@ -22,10 +22,12 @@ from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.clients import get_gh_app_client
 from readthedocs.oauth.models import GitHubAppInstallation
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
 from readthedocs.oauth.services.base import SyncServiceError
+from readthedocs.oauth.services.base import UserService
 from readthedocs.oauth.utils import SERVICE_MAP
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
@@ -115,6 +117,38 @@ def sync_remote_repositories_organizations(organization_slugs=None):
             )
 
 
+@app.task(queue="web")
+def sync_remote_repositories_from_sso_organizations():
+    repositories = RemoteRepository.objects.filter(
+        project__organizations__sso_integration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+    ).select_related("project")
+
+    for repository in repositories:
+        project = repository.project
+        service_class = repository.get_service_class()
+        if issubclass(service_class, UserService):
+            members = AdminPermission.members(project)
+            for user in members:
+                for service in service_class.for_user(user):
+                    try:
+                        service.update_repository(repository)
+                    except Exception:
+                        log.info(
+                            "There was a problem updating RemoteRepository for user.",
+                            user_username=user.username,
+                            repository_slug=repository.slug,
+                        )
+        else:
+            for service in service_class.for_project(project):
+                try:
+                    service.update_repository(repository)
+                except Exception:
+                    log.info(
+                        "There was a problem updating RemoteRepository.",
+                        repository_slug=repository.slug,
+                    )
+
+
 @app.task(
     queue="web",
     time_limit=60 * 60 * 3,  # 3h
@@ -145,7 +179,7 @@ def sync_active_users_remote_repositories():
     structlog.contextvars.bind_contextvars(total_users=users_count)
     log.info("Triggering re-sync of RemoteRepository for active users.")
 
-    for i, user in enumerate(users):
+    for i, user in enumerate(users.iterator()):
         structlog.contextvars.bind_contextvars(
             user_username=user.username,
             progress=f"{i}/{users_count}",
