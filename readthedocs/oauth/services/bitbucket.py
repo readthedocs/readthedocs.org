@@ -181,7 +181,6 @@ class BitbucketService(UserService):
 
         repo.save()
 
-        return repo
     def create_organization(self, fields):
         """
         Update or create remote organization from Bitbucket API response.
