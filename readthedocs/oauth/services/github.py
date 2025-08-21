@@ -82,58 +82,6 @@ class GitHubService(UserService):
 
         return organization_remote_ids, []
 
-    def _has_access_to_repository(self, fields):
-        permissions = fields.get("permissions", {})
-        # If the repo is public, the user can still access it,
-        # so wee need to check if the user has any access
-        # to the repository, even if they are not an admin.
-        has_access = any(
-            permissions.get(key, False) for key in ["admin", "maintain", "push", "triage"]
-        )
-        is_admin = permissions.get("admin", False)
-        return has_access, is_admin
-
-    def update_repository(self, remote_repository: RemoteRepository):
-        resp = self.session.get(f"{self.base_api_url}/repositories/{remote_repository.remote_id}")
-
-        # The repo was deleted, or the user does not have access to it.
-        # In any case, we remove the user relationship.
-        if resp.status_code in [403, 404]:
-            log.info(
-                "User no longer has access to the repository, removing remote relationship.",
-                remote_repository=remote_repository.remote_id,
-            )
-            remote_repository.get_remote_repository_relation(self.user, self.account).delete()
-            return
-
-        if resp.status_code != 200:
-            log.warning(
-                "Error fetching repository from GitHub",
-                remote_repository=remote_repository.remote_id,
-                status_code=resp.status_code,
-            )
-            return
-
-        data = resp.json()
-        self._update_repository_from_fields(remote_repository, data)
-
-        has_access, is_admin = self._has_access_to_repository(data)
-        relation = remote_repository.get_remote_repository_relation(
-            self.user,
-            self.account,
-        )
-        if not has_access:
-            # If the user no longer has access to the repository,
-            # we remove the remote relationship.
-            log.info(
-                "User no longer has access to the repository, removing remote relationship.",
-                remote_repository=remote_repository.remote_id,
-            )
-            relation.delete()
-        else:
-            relation.admin = is_admin
-            relation.save()
-
     def create_repository(self, fields, privacy=None):
         """
         Update or create a repository from GitHub API response.
@@ -158,8 +106,7 @@ class GitHubService(UserService):
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
             )
-            _, is_admin = self._has_access_to_repository(fields)
-            remote_repository_relation.admin = is_admin
+            remote_repository_relation.admin = fields.get("permissions", {}).get("admin", False)
             remote_repository_relation.save()
 
             return repo

@@ -132,65 +132,6 @@ class GitLabService(UserService):
 
         return organization_remote_ids, []
 
-    def _has_access_to_repository(self, fields):
-        project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
-
-        project_access = fields.get("permissions", {}).get("project_access", {})
-        if project_access:
-            project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
-
-        group_access = fields.get("permissions", {}).get("group_access", {})
-        if group_access:
-            group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
-
-        has_access = (
-            group_access != self.PERMISSION_NO_ACCESS or project_access != self.PERMISSION_NO_ACCESS
-        )
-        project_admin = project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER)
-        group_admin = group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER)
-        return has_access, project_admin or group_admin
-
-    def update_repository(self, remote_repository: RemoteRepository):
-        resp = self.session.get(
-            f"{self.base_api_url}/api/v4/projects/{remote_repository.remote_id}"
-        )
-
-        if resp.status_code in [403, 404]:
-            log.info(
-                "User no longer has access to the repository, removing remote relationship.",
-                remote_repository_id=remote_repository.remote_id,
-            )
-            remote_repository.get_remote_repository_relation(self.user, self.account).delete()
-            return
-
-        if resp.status_code != 200:
-            log.warning(
-                "Error fetching repository from GitLab",
-                remote_repository_id=remote_repository.remote_id,
-                status_code=resp.status_code,
-            )
-            return
-
-        data = resp.json()
-        self._update_repository_from_fields(remote_repository, data)
-
-        has_access, is_admin = self._has_access_to_repository(data)
-        relation = remote_repository.get_remote_repository_relation(
-            self.user,
-            self.account,
-        )
-        if not has_access:
-            # If the user no longer has access to the repository,
-            # we remove the remote relationship.
-            log.info(
-                "User no longer has access to the repository, removing remote relationship.",
-                remote_repository=remote_repository.remote_id,
-            )
-            relation.delete()
-        else:
-            relation.admin = is_admin
-            relation.save()
-
     def create_repository(self, fields, privacy=None):
         """
         Update or create a repository from GitLab API response.
@@ -220,8 +161,23 @@ class GitLabService(UserService):
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
             )
-            _, is_admin = self._has_access_to_repository(fields)
-            remote_repository_relation.admin = is_admin
+
+            project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
+
+            project_access = fields.get("permissions", {}).get("project_access", {})
+            if project_access:
+                project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
+
+            group_access = fields.get("permissions", {}).get("group_access", {})
+            if group_access:
+                group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
+
+            remote_repository_relation.admin = any(
+                [
+                    project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                    group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                ]
+            )
             remote_repository_relation.save()
 
             return repo
