@@ -82,7 +82,6 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
     def public(
         self,
         user=None,
-        project=None,
         only_active=True,
         include_hidden=True,
         only_built=False,
@@ -101,8 +100,6 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
                 queryset = self.all()
             else:
                 queryset = self._add_from_user_projects(queryset, user, admin=True, member=True)
-        if project:
-            queryset = queryset.filter(project=project)
         if only_active:
             queryset = queryset.filter(active=True)
         if only_built:
