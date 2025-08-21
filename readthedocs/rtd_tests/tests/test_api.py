@@ -114,7 +114,7 @@ class APIBuildTests(TestCase):
         self.assertIsNone(build.healthcheck)
 
         client = APIClient()
-        r = client.post(reverse("build-healthcheck", args=(build.pk,)) + "?builder=build-a1b2c3")
+        r = client.post(reverse("build-healthcheck", args=(build.pk,), query={"builder": "build-a1b2c3"}))
         build.refresh_from_db()
 
         self.assertEqual(r.status_code, 204)
@@ -125,7 +125,7 @@ class APIBuildTests(TestCase):
         build.save()
 
         client = APIClient()
-        r = client.post(reverse("build-healthcheck", args=(build.pk,)) + "?builder=build-invalid")
+        r = client.post(reverse("build-healthcheck", args=(build.pk,), query={"builder": "build-invalid"}))
         build.refresh_from_db()
 
         self.assertEqual(r.status_code, 404)
@@ -137,7 +137,7 @@ class APIBuildTests(TestCase):
         build.save()
 
         client = APIClient()
-        r = client.post(reverse("build-healthcheck", args=(build.pk,)) + "?builder=build-a1b2c3")
+        r = client.post(reverse("build-healthcheck", args=(build.pk,), query={"builder": "build-a1b2c3"}))
         build.refresh_from_db()
 
         self.assertEqual(r.status_code, 404)
