@@ -119,16 +119,17 @@ def sync_remote_repositories_organizations(organization_slugs=None):
 
 @app.task(queue="web")
 def sync_remote_repositories_from_sso_organizations():
+    # TODO: check if we need distinct or not.
     repositories = RemoteRepository.objects.filter(
         project__organizations__sso_integration__provider=SSOIntegration.PROVIDER_ALLAUTH,
-    ).select_related("project")
+    ).select_related("project").distinct()
 
-    for repository in repositories:
+    for repository in repositories.iterator():
         project = repository.project
         service_class = repository.get_service_class()
         if issubclass(service_class, UserService):
             members = AdminPermission.members(project)
-            for user in members:
+            for user in members.iterator():
                 for service in service_class.for_user(user):
                     try:
                         service.update_repository(repository)
