@@ -134,7 +134,7 @@ class BitbucketService(UserService):
             )
             self._update_repository_from_fields(repo, fields)
 
-            # The respositories API doesn't return the admin status of the user,
+            # The repositories API doesn't return the admin status of the user,
             # so we default to False, and then update it later using another API call.
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
