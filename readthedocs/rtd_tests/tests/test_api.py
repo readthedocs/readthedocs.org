@@ -101,6 +101,49 @@ class APIBuildTests(TestCase):
         self.project = get(Project, users=[self.user])
         self.version = self.project.versions.get(slug=LATEST)
 
+    def test_healthcheck(self):
+        # Build cloning state
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_CLONING,
+            builder="build-a1b2c3",
+            success=False,
+        )
+        self.assertIsNone(build.healthcheck)
+
+        client = APIClient()
+        r = client.post(reverse("build-healthcheck", args=(build.pk,), query={"builder": "build-a1b2c3"}))
+        build.refresh_from_db()
+
+        self.assertEqual(r.status_code, 204)
+        self.assertIsNotNone(build.healthcheck)
+
+        # Build invalid builder
+        build.healthcheck = None
+        build.save()
+
+        client = APIClient()
+        r = client.post(reverse("build-healthcheck", args=(build.pk,), query={"builder": "build-invalid"}))
+        build.refresh_from_db()
+
+        self.assertEqual(r.status_code, 404)
+        self.assertIsNone(build.healthcheck)
+
+        # Build finished state
+        build.state = BUILD_STATE_FINISHED
+        build.healthcheck = None
+        build.save()
+
+        client = APIClient()
+        r = client.post(reverse("build-healthcheck", args=(build.pk,), query={"builder": "build-a1b2c3"}))
+        build.refresh_from_db()
+
+        self.assertEqual(r.status_code, 404)
+        self.assertIsNone(build.healthcheck)
+
+
     def test_reset_build(self):
         build = get(
             Build,
