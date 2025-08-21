@@ -2319,6 +2319,44 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket webhook Listing failed for project.",
         )
 
+    def test_project_moved_between_groups(self):
+        repo = self.service.create_repository(self.repo_response_data)
+        assert repo.organization == self.org
+        assert repo.name == "tutorials.bitbucket.org"
+        assert repo.full_name == "tutorials/tutorials.bitbucket.org"
+        assert not repo.private
+        assert repo.remote_repository_relations.count() == 1
+        relationship = repo.remote_repository_relations.first()
+        assert not relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
+        self.repo_response_data["workspace"] = {
+            "kind": "workspace",
+            "slug": "testorg",
+            "name": "Test Org",
+            "uuid": "6",
+            "links": {
+                "html": {"href": "https://bitbucket.org/testorg"},
+                "avatar": {
+                    "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png",
+                },
+            },
+        }
+
+        repo_b = self.service.create_repository(self.repo_response_data)
+        assert repo_b == repo
+        repo.refresh_from_db()
+        another_group = RemoteOrganization.objects.get(
+            remote_id="6",
+            vcs_provider=BITBUCKET,
+        )
+        assert repo.organization == another_group
+        relationship = repo.remote_repository_relations.first()
+        assert not relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
 
 class GitLabOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
