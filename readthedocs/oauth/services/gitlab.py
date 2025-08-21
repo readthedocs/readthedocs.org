@@ -112,6 +112,13 @@ class GitLabService(UserService):
         return remote_ids
 
     def sync_organizations(self):
+        """
+        Sync GitLab groups (organizations).
+
+        This method only creates the relationships between the
+        organizations and the user, as all the repositories
+        are already created in the sync_repositories method.
+        """
         organization_remote_ids = []
 
         try:

@@ -80,10 +80,10 @@ class BitbucketService(UserService):
 
     def sync_organizations(self):
         """
-        Sync Bitbucket workspaces(our RemoteOrganization) and workspace repositories.
+        Sync Bitbucket workspaces (organizations).
 
-        This method basically only creates the relationships between the
-        workspace (organization) and the user, as all the repositories
+        This method only creates the relationships between the
+        organizations and the user, as all the repositories
         are already created in the sync_repositories method.
         """
         organization_remote_ids = []

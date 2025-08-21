@@ -63,9 +63,9 @@ class GitHubService(UserService):
         """
         Sync organizations from GitHub API.
 
-        This method basically only creates the relationships between the
-        organization and the user, as all the repositories are already
-        created in the sync_repositories method.
+        This method only creates the relationships between the
+        organizations and the user, as all the repositories
+        are already created in the sync_repositories method.
         """
         organization_remote_ids = []
 
