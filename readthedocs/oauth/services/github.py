@@ -36,6 +36,10 @@ class GitHubService(UserService):
     url_pattern = re.compile(r"github\.com")
     supports_build_status = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._organizations_cache = {}
+
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
         remote_ids = []
@@ -163,9 +167,19 @@ class GitHubService(UserService):
          organization and the current user. If `False`, only the `RemoteOrganization` object
          will be created/updated.
         :rtype: RemoteOrganization
+
+        .. note::
+
+           This method caches organizations by their remote ID to avoid
+           unnecessary database queries, specially when creating
+           multiple repositories that belong to the same organization.
         """
+        organization_id = str(fields["id"])
+        if organization_id in self._organizations_cache:
+            return self._organizations_cache[organization_id]
+
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=str(fields["id"]),
+            remote_id=organization_id,
             vcs_provider=self.vcs_provider_slug,
         )
 
@@ -181,6 +195,7 @@ class GitHubService(UserService):
 
         organization.save()
 
+        self._organizations_cache[organization_id] = organization
         return organization
 
     def get_next_url_to_paginate(self, response):

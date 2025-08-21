@@ -32,6 +32,10 @@ class BitbucketService(UserService):
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._organizations_cache = {}
+
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
         remote_ids = []
@@ -185,9 +189,20 @@ class BitbucketService(UserService):
 
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
+
+        .. note::
+
+           This method caches organizations by their remote ID to avoid
+           unnecessary database queries, specially when creating
+           multiple repositories that belong to the same organization.
         """
+        organization_id = fields["uuid"]
+        if organization_id in self._organizations_cache:
+            return self._organizations_cache[organization_id]
+
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields["uuid"], vcs_provider=self.vcs_provider_slug
+            remote_id=organization_id,
+            vcs_provider=self.vcs_provider_slug,
         )
 
         organization.slug = fields.get("slug")
@@ -199,6 +214,7 @@ class BitbucketService(UserService):
 
         organization.save()
 
+        self._organizations_cache[organization_id] = organization
         return organization
 
     def get_next_url_to_paginate(self, response):

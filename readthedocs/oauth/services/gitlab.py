@@ -51,6 +51,10 @@ class GitLabService(UserService):
 
     vcs_provider_slug = GITLAB
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._organizations_cache = {}
+
     def _get_repo_id(self, project):
         """
         Get the ID or URL-encoded path of the project.
@@ -236,9 +240,20 @@ class GitLabService(UserService):
 
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
+
+        .. note::
+
+           This method caches organizations by their remote ID to avoid
+           unnecessary database queries, specially when creating
+           multiple repositories that belong to the same organization.
         """
+        organization_id = fields["id"]
+        if organization_id in self._organizations_cache:
+            return self._organizations_cache[organization_id]
+
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields["id"], vcs_provider=self.vcs_provider_slug
+            remote_id=organization_id,
+            vcs_provider=self.vcs_provider_slug,
         )
 
         organization.name = fields.get("name")
@@ -251,6 +266,7 @@ class GitLabService(UserService):
 
         organization.save()
 
+        self._organizations_cache[organization_id] = organization
         return organization
 
     def get_webhook_data(self, repo_id, project, integration):
