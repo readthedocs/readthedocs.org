@@ -191,9 +191,7 @@ class GitLabService(UserService):
             relation.admin = is_admin
             relation.save()
 
-    def create_repository(
-        self, fields, privacy=None, organization: RemoteOrganization | None = None
-    ):
+    def create_repository(self, fields, privacy=None):
         """
         Update or create a repository from GitLab API response.
 
@@ -209,7 +207,6 @@ class GitLabService(UserService):
 
         :param fields: dictionary of response data from API
         :param privacy: privacy level to support
-        :param organization: remote organization to associate with
         :rtype: RemoteRepository
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
@@ -218,7 +215,7 @@ class GitLabService(UserService):
             repo, _ = RemoteRepository.objects.get_or_create(
                 remote_id=fields["id"], vcs_provider=self.vcs_provider_slug
             )
-            self._update_repository_from_fields(repo, fields, organization=organization)
+            self._update_repository_from_fields(repo, fields)
 
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
@@ -235,12 +232,10 @@ class GitLabService(UserService):
             visibility=fields["visibility"],
         )
 
-    def _update_repository_from_fields(self, repo, fields, organization=None):
+    def _update_repository_from_fields(self, repo, fields):
         # If the namespace is a group, we can use it as the organization
         if fields.get("namespace", {}).get("kind") == "group":
-            # If an organization was passed, use it, so we save one query.
-            if not organization:
-                organization = self.create_organization(fields["namespace"])
+            organization = self.create_organization(fields["namespace"])
             repo.organization = organization
         else:
             repo.organization = None
