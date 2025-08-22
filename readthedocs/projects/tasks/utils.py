@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
-from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
@@ -127,7 +127,7 @@ def finish_unhealthy_builds():
     builds = Build.objects.filter(query)[:50]
     for build in builds:
         build.success = False
-        build.state = BUILD_STATE_CANCELLED
+        build.state = BUILD_STATE_FINISHED
         build.save()
 
         # Tell Celery to cancel this task in case it's in a zombie state.
