@@ -106,7 +106,7 @@ def sort_versions(version_list):
 
     :returns: sorted list in descending order (latest version first) of versions
 
-    :rtype: list(tupe(readthedocs.builds.models.Version,
+    :rtype: list(tuple(readthedocs.builds.models.Version,
             packaging.version.Version))
     """
     versions = []

@@ -81,11 +81,11 @@ log = structlog.get_logger(__name__)
 @dataclass(slots=True)
 class TaskData:
     """
-    Object to store all data related to a Celery task excecution.
+    Object to store all data related to a Celery task execution.
 
-    We use this object from inside the task to store data while we are runnig
+    We use this object from inside the task to store data while we are running
     the task. This is to avoid using `self.` inside the task due to its
-    limitations: it's instanciated once and that instance is re-used for all
+    limitations: it's instantiated once and that instance is reused for all
     the tasks ran. This could produce sharing instance state between two
     different and unrelated tasks.
 
@@ -789,7 +789,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Error while updating the build object.", state=state)
 
     def execute(self):
-        # Clonning
+        # Cloning
         self.update_build(state=BUILD_STATE_CLONING)
 
         # TODO: remove the ``create_vcs_environment`` hack. Ideally, this should be

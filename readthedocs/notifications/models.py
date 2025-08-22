@@ -22,7 +22,7 @@ class Notification(TimeStampedModel):
     message_id = models.CharField(max_length=128)
 
     # UNREAD: the notification was not shown to the user
-    # READ: the notifiation was shown
+    # READ: the notification was shown
     # DISMISSED: the notification was shown and the user dismissed it
     # CANCELLED: removed automatically because the user has done the action required (e.g. paid the subscription)
     state = models.CharField(
@@ -37,7 +37,7 @@ class Notification(TimeStampedModel):
         db_index=True,
     )
 
-    # Makes the notification imposible to dismiss (useful for Build notifications)
+    # Makes the notification impossible to dismiss (useful for Build notifications)
     dismissable = models.BooleanField(default=False)
 
     # Show the notification under the bell icon for the user

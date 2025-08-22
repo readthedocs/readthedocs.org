@@ -173,7 +173,7 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
         If an API key is present, we filter by the project associated with the key.
         Otherwise, we filter using our API manager method.
 
-        With this we check if the user/api key is authorized to acccess the object.
+        With this we check if the user/api key is authorized to access the object.
         """
         api_key = getattr(self.request, "build_api_key", None)
         if api_key:
@@ -263,7 +263,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         """
         Return the proper serializer for UI and Admin.
 
-        This ViewSet has a sligtly different pattern since we want to
+        This ViewSet has a slightly different pattern since we want to
         pre-process the `command` field before returning it to the user, and we
         also want to have a specific serializer for admins.
         """
@@ -373,7 +373,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         methods=["post"],
     )
     def reset(self, request, **kwargs):
-        """Reset the build so it can be re-used when re-trying."""
+        """Reset the build so it can be reused when re-trying."""
         instance = self.get_object()
         instance.reset()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -455,7 +455,7 @@ class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
     This endpoint is currently used only internally by the builder.
     Notifications are attached to `Build` objects only when using this endpoint.
-    This limitation will change in the future when re-implementing this on APIv3 if neeed.
+    This limitation will change in the future when re-implementing this on APIv3 if needed.
     """
 
     parser_classes = [JSONParser, MultiPartParser]

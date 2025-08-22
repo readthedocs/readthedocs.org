@@ -76,7 +76,7 @@ def sync_remote_repositories_organizations(organization_slugs=None):
 
     It will trigger one `sync_remote_repositories` task per user.
 
-    :param organization_slugs: list containg organization's slugs to sync. If
+    :param organization_slugs: list containing organization's slugs to sync. If
     not passed, all organizations with ALLAUTH SSO enabled will be synced
 
     :type organization_slugs: list

@@ -200,7 +200,7 @@ class TestFullDocServing(BaseDocServing):
         """
         Test external version serving with projects with `--` in their slug.
 
-        Some old projects may have been created with a slug containg `--`,
+        Some old projects may have been created with a slug containing `--`,
         our current code doesn't allow these type of slugs.
         """
         fixture.get(

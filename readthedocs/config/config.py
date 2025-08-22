@@ -579,7 +579,7 @@ class BuildConfigV2(BuildConfigBase):
         Validates that the user only have one type of documentation.
 
         This should be called before validating ``sphinx`` or ``mkdocs`` to
-        avoid innecessary validations.
+        avoid unnecessary validations.
         """
         with self.catch_validation_error("."):
             if "sphinx" in self._raw_config and "mkdocs" in self._raw_config:

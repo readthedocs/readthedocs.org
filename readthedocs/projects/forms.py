@@ -1058,7 +1058,7 @@ class DomainForm(forms.ModelForm):
 
         # If the domain has a CNAME pointing to the APEX domain, that's not good.
         # This check isn't perfect, but it's a good enoug heuristic
-        # to dectect CNAMES like www.example.com -> example.com.
+        # to detect CNAMES like www.example.com -> example.com.
         if f"{domain}.".endswith(f".{cname}"):
             raise forms.ValidationError(
                 _(

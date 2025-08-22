@@ -17,7 +17,7 @@ class BuildDataCollector:
     """
     Build data collector.
 
-    Collect data from a runnig build.
+    Collect data from a running build.
     """
 
     def __init__(self, environment):
@@ -58,7 +58,7 @@ class BuildDataCollector:
 
     def collect(self):
         """
-        Collect all relevant data from the runnig build.
+        Collect all relevant data from the running build.
 
         Data that can be extracted from the database (project/organization)
         isn't collected here.
