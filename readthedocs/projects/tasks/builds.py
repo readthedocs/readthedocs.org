@@ -418,9 +418,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 protected_from_scale_in=True,
             )
 
-        # Clean the build paths completely to avoid conflicts with previous run
+        # Clean DOCROOT path completely to avoid conflicts with previous run
         # (e.g. cleanup task failed for some reason)
-        clean_build(self.data.version)
+        clean_build()
 
         # NOTE: this is never called. I didn't find anything in the logs, so we
         # can probably remove it
