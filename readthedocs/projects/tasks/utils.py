@@ -25,7 +25,7 @@ from readthedocs.worker import app
 log = structlog.get_logger(__name__)
 
 
-def clean_build(version):
+def clean_build(version=None):
     """Clean the files used in the build of the given version."""
 
     if version.project.has_feature(
@@ -38,15 +38,22 @@ def clean_build(version):
         )
         return
 
-    del_dirs = [
-        os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ("checkouts", "envs", "conda", "artifacts")
-    ]
-    del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
+    if version:
+        del_dirs = [
+            os.path.join(version.project.doc_path, dir_, version.slug)
+            for dir_ in ("checkouts", "envs", "conda", "artifacts")
+        ]
+        del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
 
-    log.info("Removing directories.", directories=del_dirs)
-    for path in del_dirs:
-        safe_rmtree(path, ignore_errors=True)
+        log.info("Removing directories.", directories=del_dirs)
+        for path in del_dirs:
+            safe_rmtree(path, ignore_errors=True)
+
+    # Clean up DOCROOT (e.g. `user_builds/`) completely
+    else:
+        safe_rmtree(settings.DOCROOT, ignore_errors=True)
+        os.mkdirs(settings.DOCROOT)
+        return
 
 
 @app.task(queue="web")
