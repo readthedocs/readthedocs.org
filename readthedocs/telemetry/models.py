@@ -110,6 +110,10 @@ class BuildDataManager(models.Manager):
 class BuildData(TimeStampedModel):
     class Meta:
         verbose_name_plural = "Build data"
+        indexes = [
+            # Speeds up `delete_old_build_data` task.
+            models.Index(fields=["created"]),
+        ]
 
     data = models.JSONField()
     objects = BuildDataManager()
