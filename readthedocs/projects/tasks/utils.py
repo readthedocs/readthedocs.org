@@ -120,7 +120,12 @@ def finish_unhealthy_builds():
     """
     log.debug("Running task to finish inactive builds (no healtcheck received).")
     delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
-    query = ~Q(state__in=BUILD_FINAL_STATES) & Q(healthcheck__lt=timezone.now() - delta)
+    query = (
+        # Grab 3 days old at most to use a fast DB index
+        Q(date__gt=timezone.now() - datetime.timedelta(days=3))
+        & ~Q(state__in=BUILD_FINAL_STATES)
+        & Q(healthcheck__lt=timezone.now() - delta)
+    )
 
     projects_finished = set()
     builds_finished = []
