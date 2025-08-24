@@ -25,11 +25,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.39.14
+boto3==1.40.16
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.39.14
+botocore==1.40.16
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -43,7 +43,7 @@ celery==5.5.3
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2025.7.14
+certifi==2025.8.3
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -55,7 +55,7 @@ cffi==1.17.1
     #   pynacl
 chardet==5.2.0
     # via tox
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -88,7 +88,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==45.0.5
+cryptography==45.0.6
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -103,10 +103,6 @@ decorator==5.2.1
     # via
     #   ipdb
     #   ipython
-deprecated==1.2.18
-    # via
-    #   -r requirements/pip.txt
-    #   pygithub
 distlib==0.4.0
     # via
     #   -r requirements/pip.txt
@@ -115,7 +111,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.4
+django==5.2.5
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -138,7 +134,7 @@ django==5.2.4
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.10.0
+django-allauth[mfa,saml,socialaccount]==65.11.0
     # via -r requirements/pip.txt
 django-annoying==0.10.8
     # via -r requirements/pip.txt
@@ -188,7 +184,7 @@ django-timezone-field==7.1
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.16.0
+djangorestframework==3.16.1
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -201,7 +197,7 @@ dnspython==2.7.0
     # via -r requirements/pip.txt
 docker==7.1.0
     # via -r requirements/pip.txt
-docutils==0.21.2
+docutils==0.22
     # via -r requirements/pip.txt
 dparse==0.6.4
     # via -r requirements/pip.txt
@@ -214,7 +210,7 @@ elastic-transport==8.17.1
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.18.1
+elasticsearch==8.19.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -229,7 +225,7 @@ fido2==2.0.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.18.0
+filelock==3.19.1
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -275,7 +271,7 @@ lxml==5.3.2
     #   xmlsec
 markdown==3.8.2
     # via -r requirements/pip.txt
-markdown-it-py==3.0.0
+markdown-it-py==4.0.0
     # via rich
 matplotlib-inline==0.1.7
     # via ipython
@@ -286,7 +282,7 @@ oauthlib==3.3.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.1
+orjson==3.11.2
     # via -r requirements/pip.txt
 packaging==25.0
     # via
@@ -298,13 +294,13 @@ packaging==25.0
     #   kombu
     #   pyproject-api
     #   tox
-parso==0.8.4
+parso==0.8.5
     # via jedi
 pdbpp==0.11.7
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
-pillow==11.2.1
+pillow==11.3.0
     # via -r requirements/pip.txt
 platformdirs==4.3.8
     # via
@@ -342,7 +338,7 @@ pydantic-core==2.33.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
-pygithub==2.6.1
+pygithub==2.7.0
     # via -r requirements/pip.txt
 pygments==2.19.2
     # via
@@ -393,11 +389,11 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==6.2.0
+redis==6.4.0
     # via -r requirements/pip.txt
-regex==2024.11.6
+regex==2025.7.34
     # via -r requirements/pip.txt
-requests==2.32.4
+requests==2.32.5
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -419,7 +415,7 @@ s3transfer==0.13.1
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.32
+selectolax==0.3.33
     # via -r requirements/pip.txt
 six==1.17.0
     # via
@@ -449,7 +445,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tox==4.28.3
+tox==4.28.4
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -506,7 +502,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.32.0
+virtualenv==20.34.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -514,10 +510,6 @@ wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-wrapt==1.17.2
-    # via
-    #   -r requirements/pip.txt
-    #   deprecated
 xmlsec==1.3.14
     # via
     #   -r requirements/pip.txt
