@@ -209,8 +209,6 @@ class GitHubService(UserService):
 
         repo.save()
 
-        return repo
-
     def create_organization(self, fields):
         """
         Update or create remote organization from GitHub API response.

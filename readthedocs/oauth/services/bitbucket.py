@@ -32,10 +32,6 @@ class BitbucketService(UserService):
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._organizations_cache = {}
-
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
         remote_ids = []
@@ -134,7 +130,7 @@ class BitbucketService(UserService):
             )
             self._update_repository_from_fields(repo, fields)
 
-            # The respositories API doesn't return the admin status of the user,
+            # The repositories API doesn't return the admin status of the user,
             # so we default to False, and then update it later using another API call.
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
@@ -237,8 +233,6 @@ class BitbucketService(UserService):
             repo.avatar_url = self.default_user_avatar_url
 
         repo.save()
-
-        return repo
 
     def create_organization(self, fields):
         """

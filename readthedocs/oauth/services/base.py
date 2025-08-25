@@ -158,6 +158,10 @@ class UserService(Service):
     def __init__(self, user, account):
         self.user = user
         self.account = account
+        # Cache organizations to avoid multiple DB hits
+        # when syncing repositories that belong to the same organization.
+        # Used by `create_organization` method in subclasses.
+        self._organizations_cache = {}
         structlog.contextvars.bind_contextvars(
             user_username=self.user.username,
             social_provider=self.allauth_provider.id,
