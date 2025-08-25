@@ -36,10 +36,6 @@ class GitHubService(UserService):
     url_pattern = re.compile(r"github\.com")
     supports_build_status = True
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._organizations_cache = {}
-
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
         remote_ids = []

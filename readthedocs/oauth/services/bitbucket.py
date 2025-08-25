@@ -32,10 +32,6 @@ class BitbucketService(UserService):
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._organizations_cache = {}
-
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
         remote_ids = []
