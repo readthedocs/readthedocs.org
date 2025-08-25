@@ -809,6 +809,7 @@ class APITests(TestCase):
         self.assertEqual(resp.status_code, 204)
         self.assertFalse(BuildAPIKey.objects.is_valid(build_api_key))
 
+    @override_settings(BUILD_TIME_LIMIT=900)
     def test_expiricy_key(self):
         project = get(Project)
         build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
