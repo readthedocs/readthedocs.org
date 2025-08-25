@@ -63,24 +63,26 @@ class BitbucketService(UserService):
                 "https://bitbucket.org/api/2.0/repositories/",
                 role="admin",
             )
-            admin_repo_relations = RemoteRepositoryRelation.objects.filter(
+            RemoteRepositoryRelation.objects.filter(
                 user=self.user,
                 account=self.account,
                 remote_repository__vcs_provider=self.vcs_provider_slug,
                 remote_repository__remote_id__in=[r["uuid"] for r in resp],
-            )
-            for remote_repository_relation in admin_repo_relations:
-                remote_repository_relation.admin = True
-                remote_repository_relation.save()
+            ).update(admin=True)
         except (TypeError, ValueError):
-            pass
+            log.warning("Error syncing Bitbucket admin repositories")
 
         return remote_ids
 
     def sync_organizations(self):
-        """Sync Bitbucket workspaces(our RemoteOrganization) and workspace repositories."""
+        """
+        Sync Bitbucket workspaces (organizations).
+
+        This method only creates the relationships between the
+        organizations and the user, as all the repositories
+        are already created in the sync_repositories method.
+        """
         organization_remote_ids = []
-        repository_remote_ids = []
 
         try:
             workspaces = self.paginate(
@@ -89,18 +91,8 @@ class BitbucketService(UserService):
             )
             for workspace in workspaces:
                 remote_organization = self.create_organization(workspace)
-                repos = self.paginate(workspace["links"]["repositories"]["href"])
-
+                remote_organization.get_remote_organization_relation(self.user, self.account)
                 organization_remote_ids.append(remote_organization.remote_id)
-
-                for repo in repos:
-                    remote_repository = self.create_repository(
-                        repo,
-                        organization=remote_organization,
-                    )
-                    if remote_repository:
-                        repository_remote_ids.append(remote_repository.remote_id)
-
         except ValueError:
             log.warning("Error syncing Bitbucket organizations")
             raise SyncServiceError(
@@ -109,9 +101,9 @@ class BitbucketService(UserService):
                 )
             )
 
-        return organization_remote_ids, repository_remote_ids
+        return organization_remote_ids, []
 
-    def create_repository(self, fields, privacy=None, organization=None):
+    def create_repository(self, fields, privacy=None):
         """
         Update or create a repository from Bitbucket API response.
 
@@ -136,42 +128,15 @@ class BitbucketService(UserService):
             repo, _ = RemoteRepository.objects.get_or_create(
                 remote_id=fields["uuid"], vcs_provider=self.vcs_provider_slug
             )
-            repo.get_remote_repository_relation(self.user, self.account)
+            self._update_repository_from_fields(repo, fields)
 
-            if repo.organization and repo.organization != organization:
-                log.debug(
-                    "Not importing repository because mismatched orgs.",
-                    repository=fields["name"],
-                )
-                return None
-
-            repo.organization = organization
-            repo.name = fields["name"]
-            repo.full_name = fields["full_name"]
-            repo.description = fields["description"]
-            repo.private = fields["is_private"]
-
-            # Default to HTTPS, use SSH for private repositories
-            clone_urls = {u["name"]: u["href"] for u in fields["links"]["clone"]}
-            repo.clone_url = self.https_url_pattern.sub(
-                "https://bitbucket.org/",
-                clone_urls.get("https"),
+            # The repositories API doesn't return the admin status of the user,
+            # so we default to False, and then update it later using another API call.
+            remote_repository_relation = repo.get_remote_repository_relation(
+                self.user, self.account
             )
-            repo.ssh_url = clone_urls.get("ssh")
-            if repo.private:
-                repo.clone_url = repo.ssh_url
-
-            repo.html_url = fields["links"]["html"]["href"]
-            repo.vcs = fields["scm"]
-            mainbranch = fields.get("mainbranch") or {}
-            repo.default_branch = mainbranch.get("name")
-
-            avatar_url = fields["links"]["avatar"]["href"] or ""
-            repo.avatar_url = re.sub(r"\/16\/$", r"/32/", avatar_url)
-            if not repo.avatar_url:
-                repo.avatar_url = self.default_user_avatar_url
-
-            repo.save()
+            remote_repository_relation.admin = False
+            remote_repository_relation.save()
 
             return repo
 
@@ -180,17 +145,59 @@ class BitbucketService(UserService):
             repository=fields["name"],
         )
 
+    def _update_repository_from_fields(self, repo, fields):
+        # All repositories are created under a workspace,
+        # which we consider an organization.
+        organization = self.create_organization(fields["workspace"])
+        repo.organization = organization
+        repo.name = fields["name"]
+        repo.full_name = fields["full_name"]
+        repo.description = fields["description"]
+        repo.private = fields["is_private"]
+
+        # Default to HTTPS, use SSH for private repositories
+        clone_urls = {u["name"]: u["href"] for u in fields["links"]["clone"]}
+        repo.clone_url = self.https_url_pattern.sub(
+            "https://bitbucket.org/",
+            clone_urls.get("https"),
+        )
+        repo.ssh_url = clone_urls.get("ssh")
+        if repo.private:
+            repo.clone_url = repo.ssh_url
+
+        repo.html_url = fields["links"]["html"]["href"]
+        repo.vcs = fields["scm"]
+        mainbranch = fields.get("mainbranch") or {}
+        repo.default_branch = mainbranch.get("name")
+
+        avatar_url = fields["links"]["avatar"]["href"] or ""
+        repo.avatar_url = re.sub(r"\/16\/$", r"/32/", avatar_url)
+        if not repo.avatar_url:
+            repo.avatar_url = self.default_user_avatar_url
+
+        repo.save()
+
     def create_organization(self, fields):
         """
         Update or create remote organization from Bitbucket API response.
 
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
+
+        .. note::
+
+           This method caches organizations by their remote ID to avoid
+           unnecessary database queries, specially when creating
+           multiple repositories that belong to the same organization.
         """
+        organization_id = fields["uuid"]
+        if organization_id in self._organizations_cache:
+            return self._organizations_cache[organization_id]
+
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields["uuid"], vcs_provider=self.vcs_provider_slug
+            remote_id=organization_id,
+            vcs_provider=self.vcs_provider_slug,
         )
-        organization.get_remote_organization_relation(self.user, self.account)
 
         organization.slug = fields.get("slug")
         organization.name = fields.get("name")
@@ -201,6 +208,7 @@ class BitbucketService(UserService):
 
         organization.save()
 
+        self._organizations_cache[organization_id] = organization
         return organization
 
     def get_next_url_to_paginate(self, response):
