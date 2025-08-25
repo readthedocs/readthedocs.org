@@ -641,6 +641,9 @@ class CommunityBaseSettings(Settings):
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
     BROKER_TRANSPORT_OPTIONS = {
         'visibility_timeout': BUILD_TIME_LIMIT * 1.15,  # 15% more than the build time limit
+        'socket_timeout': BUILD_TIME_LIMIT * 1.15,
+        'retry_on_timeout': True,
+        'health_check_interval': 30,
     }
 
     CELERY_DEFAULT_QUEUE = "celery"
