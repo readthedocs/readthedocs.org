@@ -146,61 +146,34 @@ class BitbucketService(UserService):
         )
 
     def update_repository(self, remote_repository: RemoteRepository):
-        if not remote_repository.organization:
-            log.warning(
-                "Cannot update repository without organization.",
-                repository=remote_repository.name,
-            )
-            return
-
-        resp = self.session.get(
-            f"{self.base_api_url}/2.0/repositories/{remote_repository.organization.remote_id}/{remote_repository.remote_id}",
-        )
-
-        # NOTE: this could also happen if the repotitory was moved to a different workspace,
-        # as bitbucket requires the workspace UUID to access the repository.
-        # In that case after the user triggers a sync, the repository will be updated accordingly.
-        if resp.status_code in [403, 404]:
-            log.info(
-                "User no longer has access to the repository, removing remote relationship.",
-                remote_repository_id=remote_repository.remote_id,
-            )
-            remote_repository.get_remote_repository_relation(self.user, self.account).delete()
-            return
-
-        if resp.status_code != 200:
-            log.warning(
-                "Error fetching repository from Bitbucket",
-                remote_repository_id=remote_repository.remote_id,
-                status_code=resp.status_code,
-            )
-            return
-
-        data = resp.json()
-        self._update_repository_from_fields(remote_repository, data)
-
         # Bitbucket doesn't return the admin status of the user,
         # so we need to infer it by filtering the repositories the user has admin/read access to.
-        is_admin = self._has_access_to_repository(remote_repository, role="admin")
-        has_read_access = self._has_access_to_repository(remote_repository, role="member")
+        repo_from_admin_access = self._get_repository(remote_repository, role="admin")
+        repo_from_member_access = self._get_repository(remote_repository, role="member")
+        repo = repo_from_admin_access or repo_from_member_access
         relation = remote_repository.get_remote_repository_relation(self.user, self.account)
-        if not has_read_access and not is_admin:
+        if not repo:
             log.info(
                 "User no longer has access to the repository, removing remote relationship.",
                 remote_repository_id=remote_repository.remote_id,
             )
             relation.delete()
-        else:
-            relation.admin = is_admin
-            relation.save()
+            return
 
-    def _has_access_to_repository(self, remote_repository, role):
+        self._update_repository_from_fields(remote_repository, repo)
+        relation.admin = bool(repo_from_admin_access)
+        relation.save()
+
+    def _get_repository(self, remote_repository, role):
         repos = self.paginate(
             f"{self.base_api_url}/2.0/repositories/",
             role=role,
             q=f'uuid="{remote_repository.remote_id}"',
         )
-        return any(repo["uuid"] == remote_repository.remote_id for repo in repos)
+        for repo in repos:
+            if repo["uuid"] == remote_repository.remote_id:
+                return repo
+        return None
 
     def _update_repository_from_fields(self, repo, fields):
         # All repositories are created under a workspace,

@@ -36,10 +36,6 @@ class GitHubService(UserService):
     url_pattern = re.compile(r"github\.com")
     supports_build_status = True
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._organizations_cache = {}
-
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
         remote_ids = []
@@ -89,7 +85,7 @@ class GitHubService(UserService):
     def _has_access_to_repository(self, fields):
         permissions = fields.get("permissions", {})
         # If the repo is public, the user can still access it,
-        # so wee need to check if the user has any access
+        # so we need to check if the user has any access
         # to the repository, even if they are not an admin.
         has_access = any(
             permissions.get(key, False) for key in ["admin", "maintain", "push", "triage"]
