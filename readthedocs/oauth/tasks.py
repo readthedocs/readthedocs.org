@@ -34,7 +34,7 @@ from readthedocs.sso.models import SSOIntegration
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
 from readthedocs.worker import app
 
-from .services import registry, GitHubAppService
+from .services import registry
 
 
 log = structlog.get_logger(__name__)
@@ -50,16 +50,13 @@ log = structlog.get_logger(__name__)
     time_limit=900,
     soft_time_limit=600,
 )
-def sync_remote_repositories(user_id, skip_githubapp=False):
+def sync_remote_repositories(user_id):
     user = User.objects.filter(pk=user_id).first()
     if not user:
         return
 
     failed_services = set()
     for service_cls in registry:
-        if skip_githubapp and service_cls == GitHubAppService:
-            continue
-
         try:
             service_cls.sync_user_access(user)
         except SyncServiceError:
@@ -191,9 +188,9 @@ def sync_active_users_remote_repositories():
     and it will require a pretty high ``time_limit`` and ``soft_time_limit``.
     """
     today_weekday = timezone.now().isoweekday()
-    one_month_ago = timezone.now() - datetime.timedelta(days=30)
+    three_months_ago = timezone.now() - datetime.timedelta(days=90)
     users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
-        last_login__gt=one_month_ago,
+        last_login__gt=three_months_ago,
         socialaccount__isnull=False,
         weekday=today_weekday,
     )
@@ -202,7 +199,7 @@ def sync_active_users_remote_repositories():
     structlog.contextvars.bind_contextvars(total_users=users_count)
     log.info("Triggering re-sync of RemoteRepository for active users.")
 
-    for i, user in enumerate(users.iterator()):
+    for i, user in enumerate(users):
         structlog.contextvars.bind_contextvars(
             user_username=user.username,
             progress=f"{i}/{users_count}",
@@ -215,14 +212,7 @@ def sync_active_users_remote_repositories():
         try:
             # NOTE: sync all the users/repositories in the same Celery process.
             # Do not trigger a new task per user.
-            # NOTE: We skip the GitHub App, since all the repositories
-            # and permissions are keep up to date via webhooks.
-            # Triggering a sync per-user, will re-sync the same installation
-            # multiple times.
-            sync_remote_repositories(
-                user.pk,
-                skip_githubapp=True,
-            )
+            sync_remote_repositories(user.pk)
         except Exception:
             log.exception("There was a problem re-syncing RemoteRepository.")
 
