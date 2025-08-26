@@ -162,7 +162,7 @@ def sync_active_users_remote_repositories():
             # NOTE: sync all the users/repositories in the same Celery process.
             # Do not trigger a new task per user.
             # NOTE: We skip the GitHub App, since all the repositories
-            # and permissions are keep up to date via webhooks.
+            # and permissions are kept up to date via webhooks.
             # Triggering a sync per-user, will re-sync the same installation
             # multiple times.
             sync_remote_repositories(
