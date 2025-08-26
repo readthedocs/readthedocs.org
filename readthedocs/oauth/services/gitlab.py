@@ -51,10 +51,6 @@ class GitLabService(UserService):
 
     vcs_provider_slug = GITLAB
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._organizations_cache = {}
-
     def _get_repo_id(self, project):
         """
         Get the ID or URL-encoded path of the project.
