@@ -51,6 +51,7 @@ def clean_build(version=None):
 
     # Clean up DOCROOT (e.g. `user_builds/`) completely
     else:
+        log.info("Removing DOCROOT directory.", docroot=settings.DOCROOT)
         safe_rmtree(settings.DOCROOT, ignore_errors=True)
         os.makedirs(settings.DOCROOT)
         return
