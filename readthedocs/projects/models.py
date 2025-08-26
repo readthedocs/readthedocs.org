@@ -691,7 +691,7 @@ class Project(models.Model):
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
 
-        # Remove extra resources
+        # Remove HTML files, analytics data, etc.
         clean_project_resources(self)
 
         super().delete(*args, **kwargs)
