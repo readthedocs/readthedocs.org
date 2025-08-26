@@ -27,7 +27,6 @@ from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
 from readthedocs.oauth.services.base import SyncServiceError
-from readthedocs.oauth.services.base import UserService
 from readthedocs.oauth.utils import SERVICE_MAP
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
@@ -119,39 +118,55 @@ def sync_remote_repositories_organizations(organization_slugs=None):
 
 @app.task(queue="web")
 def sync_remote_repositories_from_sso_organizations():
-    # TODO: check if we need distinct or not.
-    repositories = (
-        RemoteRepository.objects.filter(
-            project__organizations__sso_integration__provider=SSOIntegration.PROVIDER_ALLAUTH,
-        )
-        .select_related("project")
-        .distinct()
-    )
+    """
+    Re-sync all remote repositories from organizations with SSO enabled.
 
+    This is useful, so all the remote repositories are up to date with the
+    latest permissions from their providers.
+    """
+    repositories = RemoteRepository.objects.filter(
+        projects__organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+    ).distinct()
     for repository in repositories.iterator():
-        project = repository.project
+        _sync_remote_repository(repository)
+
+
+def _sync_remote_repository(repository):
+    """
+    Sync a single remote repository with the permissions of its users.
+
+    For GitHub App repositories, we only need to sync it once,
+    since we have access to all collaborators via the installation.
+
+    For all the other services, we need to sync the repository
+    for each user that has access to it, since we need to check for
+    their permissions individually.
+    """
+    if repository.github_app_installation:
+        service = repository.github_app_installation.service
+        try:
+            service.update_repository(repository)
+        except Exception:
+            log.info(
+                "There was a problem updating the repository.",
+                repository_remote_id=repository.remote_id,
+                repository_name=repository.full_name,
+            )
+    else:
         service_class = repository.get_service_class()
-        if issubclass(service_class, UserService):
-            members = AdminPermission.members(project)
-            for user in members.iterator():
-                for service in service_class.for_user(user):
-                    try:
-                        service.update_repository(repository)
-                    except Exception:
-                        log.info(
-                            "There was a problem updating RemoteRepository for user.",
-                            user_username=user.username,
-                            repository_slug=repository.slug,
-                        )
-        else:
-            for service in service_class.for_project(project):
-                try:
-                    service.update_repository(repository)
-                except Exception:
-                    log.info(
-                        "There was a problem updating RemoteRepository.",
-                        repository_slug=repository.slug,
-                    )
+        relations = repository.remote_repository_relations.select_related("user", "account")
+        for relation in relations.iterator():
+            service = service_class(user=relation.user, account=relation.account)
+            try:
+                service.update_repository(repository)
+            except Exception:
+                log.info(
+                    "There was a problem updating repository for user.",
+                    user_username=relation.user.username,
+                    account_uid=relation.account.uid,
+                    repository_remote_id=repository.remote_id,
+                    repository_name=repository.full_name,
+                )
 
 
 @app.task(
@@ -173,9 +188,9 @@ def sync_active_users_remote_repositories():
     and it will require a pretty high ``time_limit`` and ``soft_time_limit``.
     """
     today_weekday = timezone.now().isoweekday()
-    three_months_ago = timezone.now() - datetime.timedelta(days=90)
+    one_month_ago = timezone.now() - datetime.timedelta(days=30)
     users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
-        last_login__gt=three_months_ago,
+        last_login__gt=one_month_ago,
         socialaccount__isnull=False,
         weekday=today_weekday,
     )
