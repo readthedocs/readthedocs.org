@@ -86,7 +86,7 @@ def sync_remote_repositories_from_sso_organizations():
         RemoteRepository.objects.filter(
             projects__organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
         )
-        .exlude(vcs_provider=GITHUB_APP)
+        .exclude(vcs_provider=GITHUB_APP)
         .distinct()
     )
     for repository in repositories.iterator():
