@@ -25,10 +25,10 @@ from readthedocs.worker import app
 log = structlog.get_logger(__name__)
 
 
-def clean_build(version):
+def clean_build(version=None):
     """Clean the files used in the build of the given version."""
 
-    if version.project.has_feature(
+    if version and version.project.has_feature(
         Feature.DONT_CLEAN_BUILD,
     ):
         log.info(
@@ -38,15 +38,23 @@ def clean_build(version):
         )
         return
 
-    del_dirs = [
-        os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ("checkouts", "envs", "conda", "artifacts")
-    ]
-    del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
+    if version:
+        del_dirs = [
+            os.path.join(version.project.doc_path, dir_, version.slug)
+            for dir_ in ("checkouts", "envs", "conda", "artifacts")
+        ]
+        del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
 
-    log.info("Removing directories.", directories=del_dirs)
-    for path in del_dirs:
-        safe_rmtree(path, ignore_errors=True)
+        log.info("Removing directories.", directories=del_dirs)
+        for path in del_dirs:
+            safe_rmtree(path, ignore_errors=True)
+
+    # Clean up DOCROOT (e.g. `user_builds/`) completely
+    else:
+        log.info("Removing DOCROOT directory.", docroot=settings.DOCROOT)
+        safe_rmtree(settings.DOCROOT, ignore_errors=True)
+        os.makedirs(settings.DOCROOT)
+        return
 
 
 @app.task(queue="web")
@@ -120,7 +128,12 @@ def finish_unhealthy_builds():
     """
     log.debug("Running task to finish inactive builds (no healtcheck received).")
     delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
-    query = ~Q(state__in=BUILD_FINAL_STATES) & Q(healthcheck__lt=timezone.now() - delta)
+    query = (
+        # Grab 3 days old at most to use a fast DB index
+        Q(date__gt=timezone.now() - datetime.timedelta(days=3))
+        & ~Q(state__in=BUILD_FINAL_STATES)
+        & Q(healthcheck__lt=timezone.now() - delta)
+    )
 
     projects_finished = set()
     builds_finished = []
