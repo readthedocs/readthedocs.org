@@ -80,8 +80,12 @@ class S3StaticStorageMixin:
                 "AWS S3 not configured correctly. Ensure S3_STATIC_STORAGE_BUCKET is defined.",
             )
 
-        self.bucket_acl = "public-read"
-        self.default_acl = "public-read"
+        # Fix botocore.exceptions.ClientError:
+        # An error occurred (AccessControlListNotSupported)
+        # when calling the PutObject operation:
+        # The bucket does not allow ACLs
+        self.bucket_acl = None
+        self.default_acl = None
         self.querystring_auth = False
 
 
