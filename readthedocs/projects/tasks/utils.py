@@ -28,7 +28,7 @@ log = structlog.get_logger(__name__)
 def clean_build(version=None):
     """Clean the files used in the build of the given version."""
 
-    if version.project.has_feature(
+    if version and version.project.has_feature(
         Feature.DONT_CLEAN_BUILD,
     ):
         log.info(
@@ -52,7 +52,7 @@ def clean_build(version=None):
     # Clean up DOCROOT (e.g. `user_builds/`) completely
     else:
         safe_rmtree(settings.DOCROOT, ignore_errors=True)
-        os.mkdirs(settings.DOCROOT)
+        os.makedirs(settings.DOCROOT)
         return
 
 
