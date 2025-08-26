@@ -34,7 +34,7 @@ from readthedocs.sso.models import SSOIntegration
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
 from readthedocs.worker import app
 
-from .services import registry
+from .services import registry, GitHubAppService
 
 
 log = structlog.get_logger(__name__)
@@ -50,13 +50,16 @@ log = structlog.get_logger(__name__)
     time_limit=900,
     soft_time_limit=600,
 )
-def sync_remote_repositories(user_id):
+def sync_remote_repositories(user_id, skip_githubapp=False):
     user = User.objects.filter(pk=user_id).first()
     if not user:
         return
 
     failed_services = set()
     for service_cls in registry:
+        if skip_githubapp and service_cls == GitHubAppService:
+            continue
+
         try:
             service_cls.sync_user_access(user)
         except SyncServiceError:
@@ -212,7 +215,14 @@ def sync_active_users_remote_repositories():
         try:
             # NOTE: sync all the users/repositories in the same Celery process.
             # Do not trigger a new task per user.
-            sync_remote_repositories(user.pk)
+            # NOTE: We skip the GitHub App, since all the repositories
+            # and permissions are keep up to date via webhooks.
+            # Triggering a sync per-user, will re-sync the same installation
+            # multiple times.
+            sync_remote_repositories(
+                user.pk,
+                skip_githubapp=True,
+            )
         except Exception:
             log.exception("There was a problem re-syncing RemoteRepository.")
 
