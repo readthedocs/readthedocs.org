@@ -101,6 +101,49 @@ class APIBuildTests(TestCase):
         self.project = get(Project, users=[self.user])
         self.version = self.project.versions.get(slug=LATEST)
 
+    def test_healthcheck(self):
+        # Build cloning state
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_CLONING,
+            builder="build-a1b2c3",
+            success=False,
+        )
+        self.assertIsNone(build.healthcheck)
+
+        client = APIClient()
+        r = client.post(reverse("build-healthcheck", args=(build.pk,), query={"builder": "build-a1b2c3"}))
+        build.refresh_from_db()
+
+        self.assertEqual(r.status_code, 204)
+        self.assertIsNotNone(build.healthcheck)
+
+        # Build invalid builder
+        build.healthcheck = None
+        build.save()
+
+        client = APIClient()
+        r = client.post(reverse("build-healthcheck", args=(build.pk,), query={"builder": "build-invalid"}))
+        build.refresh_from_db()
+
+        self.assertEqual(r.status_code, 404)
+        self.assertIsNone(build.healthcheck)
+
+        # Build finished state
+        build.state = BUILD_STATE_FINISHED
+        build.healthcheck = None
+        build.save()
+
+        client = APIClient()
+        r = client.post(reverse("build-healthcheck", args=(build.pk,), query={"builder": "build-a1b2c3"}))
+        build.refresh_from_db()
+
+        self.assertEqual(r.status_code, 404)
+        self.assertIsNone(build.healthcheck)
+
+
     def test_reset_build(self):
         build = get(
             Build,
@@ -765,6 +808,20 @@ class APITests(TestCase):
         resp = client.post(revoke_url, HTTP_AUTHORIZATION=f"Token {build_api_key}")
         self.assertEqual(resp.status_code, 204)
         self.assertFalse(BuildAPIKey.objects.is_valid(build_api_key))
+
+    @override_settings(BUILD_TIME_LIMIT=600)
+    def test_expiricy_key(self):
+        project = get(Project)
+        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
+        expected = (build_api_key_obj.expiry_date - timezone.now()).seconds
+        self.assertAlmostEqual(expected, 8250, delta=5)
+
+        # Project with a custom containe time limit
+        project.container_time_limit = 1200
+        project.save()
+        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
+        expected = (build_api_key_obj.expiry_date - timezone.now()).seconds
+        self.assertAlmostEqual(expected, 9000, delta=5)
 
     def test_user_doesnt_get_full_api_return(self):
         user_normal = get(User, is_staff=False)
