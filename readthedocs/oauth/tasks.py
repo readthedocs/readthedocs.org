@@ -25,6 +25,8 @@ from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
+from readthedocs.oauth.services import GitHubAppService
+from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
 from readthedocs.organizations.models import Organization
@@ -32,8 +34,6 @@ from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
 from readthedocs.worker import app
-
-from .services import registry
 
 
 log = structlog.get_logger(__name__)
@@ -49,13 +49,16 @@ log = structlog.get_logger(__name__)
     time_limit=900,
     soft_time_limit=600,
 )
-def sync_remote_repositories(user_id):
+def sync_remote_repositories(user_id, skip_githubapp=False):
     user = User.objects.filter(pk=user_id).first()
     if not user:
         return
 
     failed_services = set()
     for service_cls in registry:
+        if skip_githubapp and service_cls == GitHubAppService:
+            continue
+
         try:
             service_cls.sync_user_access(user)
         except SyncServiceError:
@@ -124,7 +127,7 @@ def sync_active_users_remote_repositories():
     """
     Sync ``RemoteRepository`` for active users.
 
-    We consider active users those that logged in at least once in the last 90 days.
+    We consider active users those that logged in at least once in the last 30 days.
 
     This task is thought to be executed daily. It checks the weekday of the
     last login of the user with today's weekday. If they match, the re-sync is
@@ -134,9 +137,9 @@ def sync_active_users_remote_repositories():
     and it will require a pretty high ``time_limit`` and ``soft_time_limit``.
     """
     today_weekday = timezone.now().isoweekday()
-    three_months_ago = timezone.now() - datetime.timedelta(days=90)
+    one_month_ago = timezone.now() - datetime.timedelta(days=30)
     users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
-        last_login__gt=three_months_ago,
+        last_login__gt=one_month_ago,
         socialaccount__isnull=False,
         weekday=today_weekday,
     )
@@ -145,7 +148,7 @@ def sync_active_users_remote_repositories():
     structlog.contextvars.bind_contextvars(total_users=users_count)
     log.info("Triggering re-sync of RemoteRepository for active users.")
 
-    for i, user in enumerate(users):
+    for i, user in enumerate(users.iterator()):
         structlog.contextvars.bind_contextvars(
             user_username=user.username,
             progress=f"{i}/{users_count}",
@@ -158,7 +161,14 @@ def sync_active_users_remote_repositories():
         try:
             # NOTE: sync all the users/repositories in the same Celery process.
             # Do not trigger a new task per user.
-            sync_remote_repositories(user.pk)
+            # NOTE: We skip the GitHub App, since all the repositories
+            # and permissions are keep up to date via webhooks.
+            # Triggering a sync per-user, will re-sync the same installation
+            # multiple times.
+            sync_remote_repositories(
+                user.pk,
+                skip_githubapp=True,
+            )
         except Exception:
             log.exception("There was a problem re-syncing RemoteRepository.")
 
