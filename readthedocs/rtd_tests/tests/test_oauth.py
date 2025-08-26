@@ -1908,7 +1908,8 @@ class BitbucketOAuthTests(TestCase):
         self.project.repo = "https://bitbucket.org/testuser/testrepo/"
         self.project.save()
         self.org = RemoteOrganization.objects.create(
-            slug="rtfd",
+            remote_id="{61fc5cf6-d054-47d2-b4a9-061ccf858379}",
+            slug="teamsinspace",
             vcs_provider=BITBUCKET,
         )
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
@@ -1927,6 +1928,41 @@ class BitbucketOAuthTests(TestCase):
                     "url": "https://readthedocs.io/api/v2/webhook/test/99999999/",
                 },
             ]
+        }
+        self.team_response_data = {
+            "slug": self.org.slug,
+            "name": "Teams In Space",
+            "uuid": self.org.remote_id,
+            "links": {
+                "self": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace",
+                },
+                "repositories": {
+                    "href": "https://api.bitbucket.org/2.0/repositories/teamsinspace",
+                },
+                "html": {"href": "https://bitbucket.org/teamsinspace"},
+                "avatar": {
+                    "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png",
+                },
+                "members": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/members",
+                },
+                "owners": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/members?q=permission%3D%22owner%22",
+                },
+                "hooks": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/hooks",
+                },
+                "snippets": {
+                    "href": "https://api.bitbucket.org/2.0/snippets/teamsinspace/",
+                },
+                "projects": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/projects",
+                },
+            },
+            "created_on": "2014-04-08T00:00:14.070969+00:00",
+            "type": "workspace",
+            "is_private": True,
         }
         self.repo_response_data = {
             "scm": "hg",
@@ -1971,6 +2007,7 @@ class BitbucketOAuthTests(TestCase):
             "created_on": "2011-12-20T16:35:06.480042+00:00",
             "full_name": "tutorials/tutorials.bitbucket.org",
             "has_issues": True,
+            "workspace": self.team_response_data,
             "owner": {
                 "username": "tutorials",
                 "display_name": "tutorials account",
@@ -1997,46 +2034,9 @@ class BitbucketOAuthTests(TestCase):
             },
         }
 
-        self.team_response_data = {
-            "slug": "teamsinspace",
-            "name": "Teams In Space",
-            "uuid": "{61fc5cf6-d054-47d2-b4a9-061ccf858379}",
-            "links": {
-                "self": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace",
-                },
-                "repositories": {
-                    "href": "https://api.bitbucket.org/2.0/repositories/teamsinspace",
-                },
-                "html": {"href": "https://bitbucket.org/teamsinspace"},
-                "avatar": {
-                    "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png",
-                },
-                "members": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/members",
-                },
-                "owners": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/members?q=permission%3D%22owner%22",
-                },
-                "hooks": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/hooks",
-                },
-                "snippets": {
-                    "href": "https://api.bitbucket.org/2.0/snippets/teamsinspace/",
-                },
-                "projects": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/projects",
-                },
-            },
-            "created_on": "2014-04-08T00:00:14.070969+00:00",
-            "type": "workspace",
-            "is_private": True,
-        }
-
     def test_make_project_pass(self):
         repo = self.service.create_repository(
             self.repo_response_data,
-            organization=self.org,
             privacy=self.privacy,
         )
         self.assertIsInstance(repo, RemoteRepository)
@@ -2072,7 +2072,6 @@ class BitbucketOAuthTests(TestCase):
         self.repo_response_data["mainbranch"] = None
         repo = self.service.create_repository(
             self.repo_response_data,
-            organization=self.org,
             privacy=self.privacy,
         )
         self.assertIsInstance(repo, RemoteRepository)
@@ -2107,7 +2106,6 @@ class BitbucketOAuthTests(TestCase):
         data["is_private"] = True
         repo = self.service.create_repository(
             data,
-            organization=self.org,
             privacy=self.privacy,
         )
         self.assertIsNone(repo)
@@ -2119,7 +2117,7 @@ class BitbucketOAuthTests(TestCase):
         """
         data = self.repo_response_data.copy()
         data["is_private"] = False
-        repo = self.service.create_repository(data, organization=self.org)
+        repo = self.service.create_repository(data)
         self.assertIsNotNone(repo)
 
     def test_make_organization(self):
@@ -2321,6 +2319,44 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket webhook Listing failed for project.",
         )
 
+    def test_project_moved_between_groups(self):
+        repo = self.service.create_repository(self.repo_response_data)
+        assert repo.organization == self.org
+        assert repo.name == "tutorials.bitbucket.org"
+        assert repo.full_name == "tutorials/tutorials.bitbucket.org"
+        assert not repo.private
+        assert repo.remote_repository_relations.count() == 1
+        relationship = repo.remote_repository_relations.first()
+        assert not relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
+        self.repo_response_data["workspace"] = {
+            "kind": "workspace",
+            "slug": "testorg",
+            "name": "Test Org",
+            "uuid": "6",
+            "links": {
+                "html": {"href": "https://bitbucket.org/testorg"},
+                "avatar": {
+                    "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png",
+                },
+            },
+        }
+
+        repo_b = self.service.create_repository(self.repo_response_data)
+        assert repo_b == repo
+        repo.refresh_from_db()
+        another_group = RemoteOrganization.objects.get(
+            remote_id="6",
+            vcs_provider=BITBUCKET,
+        )
+        assert repo.organization == another_group
+        relationship = repo.remote_repository_relations.first()
+        assert not relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
 
 class GitLabOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
@@ -2466,11 +2502,14 @@ class GitLabOAuthTests(TestCase):
         self.assertEqual(repo_id, "testorga%2Fsubgroup%2Ftestrepo")
 
     def test_make_project_pass(self):
-        repo = self.service.create_repository(
-            self.repo_response_data,
-            organization=self.org,
-            privacy=self.privacy,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo = self.service.create_repository(self.repo_response_data, privacy=self.privacy)
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, "testrepo")
         self.assertEqual(repo.full_name, "testorga/testrepo")
@@ -2493,19 +2532,20 @@ class GitLabOAuthTests(TestCase):
         self.assertFalse(repo.private)
 
     def test_make_private_project_fail(self):
-        repo = self.service.create_repository(
-            self.get_private_repo_data(),
-            organization=self.org,
-            privacy=self.privacy,
-        )
+        data = self.get_private_repo_data()
+        repo = self.service.create_repository(data, privacy=self.privacy)
         self.assertIsNone(repo)
 
     def test_make_private_project_success(self):
-        repo = self.service.create_repository(
-            self.get_private_repo_data(),
-            organization=self.org,
-            privacy=constants.PRIVATE,
-        )
+        data = self.get_private_repo_data()
+        data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo = self.service.create_repository(data, privacy=constants.PRIVATE)
         self.assertIsInstance(repo, RemoteRepository)
         self.assertTrue(repo.private, True)
 
@@ -2527,7 +2567,7 @@ class GitLabOAuthTests(TestCase):
         """
         data = self.repo_response_data.copy()
         data["visibility"] = "public"
-        repo = self.service.create_repository(data, organization=self.org)
+        repo = self.service.create_repository(data)
         self.assertIsNotNone(repo)
 
     @mock.patch("readthedocs.oauth.services.gitlab.structlog")
@@ -2797,10 +2837,7 @@ class GitLabOAuthTests(TestCase):
         )
 
     def test_project_moved_from_user_to_group(self):
-        repo = self.service.create_repository(
-            self.repo_response_data,
-            organization=None,
-        )
+        repo = self.service.create_repository(self.repo_response_data)
         assert repo.organization is None
         assert repo.full_name == "testorga/testrepo"
         assert not repo.private
@@ -2810,10 +2847,14 @@ class GitLabOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
-        repo_b = self.service.create_repository(
-            self.repo_response_data,
-            organization=self.org,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo_b = self.service.create_repository(self.repo_response_data)
         assert repo_b == repo
         repo.refresh_from_db()
         assert repo.organization == self.org
@@ -2823,10 +2864,14 @@ class GitLabOAuthTests(TestCase):
         assert relationship.account == self.service.account
 
     def test_project_moved_from_group_to_user(self):
-        repo = self.service.create_repository(
-            self.repo_response_data,
-            organization=self.org,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo = self.service.create_repository(self.repo_response_data)
         assert repo.organization == self.org
         assert repo.full_name == "testorga/testrepo"
         assert not repo.private
@@ -2836,10 +2881,14 @@ class GitLabOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
-        repo_b = self.service.create_repository(
-            self.repo_response_data,
-            organization=None,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "user",
+            "name": "Test User",
+            "path": "testuser",
+            "id": 1,
+            "full_path": "testuser",
+        }
+        repo_b = self.service.create_repository(self.repo_response_data)
         assert repo_b == repo
         repo.refresh_from_db()
         assert repo.organization is None
@@ -2849,10 +2898,14 @@ class GitLabOAuthTests(TestCase):
         assert relationship.account == self.service.account
 
     def test_project_moved_between_groups(self):
-        repo = self.service.create_repository(
-            self.repo_response_data,
-            organization=self.org,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo = self.service.create_repository(self.repo_response_data)
         assert repo.organization == self.org
         assert repo.full_name == "testorga/testrepo"
         assert not repo.private
@@ -2862,19 +2915,21 @@ class GitLabOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
-        another_group = RemoteOrganization.objects.create(
-            slug="anothergroup",
-            name="Another Group",
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Another Group",
+            "path": "anothergroup",
+            "id": "2",
+            "full_path": "anothergroup",
+        }
+
+        repo_b = self.service.create_repository(self.repo_response_data)
+        assert repo_b == repo
+        repo.refresh_from_db()
+        another_group = RemoteOrganization.objects.get(
             remote_id="2",
             vcs_provider=GITLAB,
         )
-
-        repo_b = self.service.create_repository(
-            self.repo_response_data,
-            organization=another_group,
-        )
-        assert repo_b == repo
-        repo.refresh_from_db()
         assert repo.organization == another_group
         relationship = repo.remote_repository_relations.first()
         assert relationship.admin
