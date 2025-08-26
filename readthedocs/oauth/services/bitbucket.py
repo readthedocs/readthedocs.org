@@ -165,6 +165,13 @@ class BitbucketService(UserService):
         relation.save()
 
     def _get_repository(self, remote_repository, role):
+        """
+        Get a single repository by its remote ID where the user has a specific role.
+
+        Bitbucket doesn't provide an endpoint to get a single repository by its ID (it requires the group ID as well),
+        and it also doesn't return the user's role in the repository, so we filter the repositories by role
+        and then look for the repository with the matching ID.
+        """
         repos = self.paginate(
             f"{self.base_api_url}/2.0/repositories/",
             role=role,

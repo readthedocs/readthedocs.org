@@ -83,6 +83,7 @@ class GitHubService(UserService):
         return organization_remote_ids, []
 
     def _has_access_to_repository(self, fields):
+        """Check if the user has access to the repository, and if they are an admin."""
         permissions = fields.get("permissions", {})
         # If the repo is public, the user can still access it,
         # so we need to check if the user has any access

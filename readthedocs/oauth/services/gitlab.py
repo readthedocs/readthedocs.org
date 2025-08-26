@@ -140,6 +140,7 @@ class GitLabService(UserService):
         return organization_remote_ids, []
 
     def _has_access_to_repository(self, fields):
+        """Check if the user has access to the repository, and if they are an admin."""
         project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
 
         project_access = fields.get("permissions", {}).get("project_access", {})

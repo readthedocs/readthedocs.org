@@ -20,6 +20,7 @@ from readthedocs.core.views.hooks import get_or_create_external_version
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.clients import get_gh_app_client
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
@@ -75,36 +76,20 @@ def sync_remote_repositories_from_sso_organizations():
 
     This is useful, so all the remote repositories are up to date with the
     latest permissions from their providers.
-    """
-    repositories = RemoteRepository.objects.filter(
-        projects__organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
-    ).distinct()
-    for repository in repositories.iterator():
-        _sync_remote_repository(repository)
 
-
-def _sync_remote_repository(repository):
-    """
-    Sync a single remote repository with the permissions of its users.
-
-    For GitHub App repositories, we only need to sync it once,
-    since we have access to all collaborators via the installation.
-
-    For all the other services, we need to sync the repository
-    for each user that has access to it, since we need to check for
+    We ignore repositories from GitHub App installations, since they are kept
+    up to date via webhooks. For all the other services, we need to sync the
+    repository for each user that has access to it, since we need to check for
     their permissions individually.
     """
-    if repository.github_app_installation:
-        service = repository.github_app_installation.service
-        try:
-            service.update_repository(repository)
-        except Exception:
-            log.info(
-                "There was a problem updating the repository.",
-                repository_remote_id=repository.remote_id,
-                repository_name=repository.full_name,
-            )
-    else:
+    repositories = (
+        RemoteRepository.objects.filter(
+            projects__organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+        )
+        .exlude(vcs_provider=GITHUB_APP)
+        .distinct()
+    )
+    for repository in repositories.iterator():
         service_class = repository.get_service_class()
         relations = repository.remote_repository_relations.select_related("user", "account")
         for relation in relations.iterator():
