@@ -127,7 +127,7 @@ def sync_active_users_remote_repositories():
     """
     Sync ``RemoteRepository`` for active users.
 
-    We consider active users those that logged in at least once in the last 30 days.
+    We consider active users those that logged in at least once in the last 45 days.
 
     This task is thought to be executed daily. It checks the weekday of the
     last login of the user with today's weekday. If they match, the re-sync is
@@ -137,9 +137,9 @@ def sync_active_users_remote_repositories():
     and it will require a pretty high ``time_limit`` and ``soft_time_limit``.
     """
     today_weekday = timezone.now().isoweekday()
-    one_month_ago = timezone.now() - datetime.timedelta(days=30)
+    days_ago = timezone.now() - datetime.timedelta(days=45)
     users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
-        last_login__gt=one_month_ago,
+        last_login__gt=days_ago,
         socialaccount__isnull=False,
         weekday=today_weekday,
     )
