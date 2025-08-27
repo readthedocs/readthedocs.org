@@ -212,7 +212,7 @@ class UserService(Service):
             # ``create_session`` method since it could be used from outside, but
             # I didn't find a generic way to make a test request to each
             # provider.
-            if resp.status_code == 401:
+            if resp.status_code in [401, 403]:
                 # Bad credentials: the token we have in our database is not
                 # valid. Probably the user has revoked the access to our App. He
                 # needs to reconnect his account
