@@ -168,7 +168,7 @@ class SyncRemoteRepositoriesTests(TestCase):
         update_repository_gh.assert_called_once_with(gh_repository)
         update_repository_gl.assert_called_once_with(gl_repository)
         update_repository_bb.assert_called_once_with(bb_repository)
-        update_repository_ghapp.asssert_not_called()
+        update_repository_ghapp.assert_not_called()
 
 
     @patch("readthedocs.oauth.services.githubapp.GitHubAppService.sync_user_access")
