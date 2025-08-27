@@ -93,6 +93,12 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
 
            External versions use the `Project.external_builds_privacy_level`
            field instead of its `privacy_level` field.
+
+        .. note::
+
+           Avoid filtering by reverse relationships in this method (like project),
+           and instead user project.builds or similar, so the same object is shared
+           between the results.
         """
         queryset = self._public_only()
         if user:
