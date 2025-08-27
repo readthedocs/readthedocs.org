@@ -304,6 +304,9 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         # We make this endpoint public because we don't want to expose the build API key inside the user's container.
         # To emulate "auth" we check for the builder hostname to match the `Build.builder` defined in the database.
         permission_classes=[],
+        # We can't use the default `get_queryset()` method because it's filtered by build API key and/or user access.
+        # Since we don't want to check for permissions here we need to use a custom queryset here.
+        get_queryset=lambda: Build.objects.all(),
         methods=["post"],
     )
     def healthcheck(self, request, **kwargs):
@@ -355,7 +358,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
                         buildcommand["command"] = normalize_build_command(
                             buildcommand["command"],
                             instance.project.slug,
-                            instance.version.slug,
+                            instance.get_version_slug(),
                         )
                 except Exception:
                     log.exception(

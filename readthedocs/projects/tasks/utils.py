@@ -25,11 +25,10 @@ from readthedocs.worker import app
 log = structlog.get_logger(__name__)
 
 
-def clean_build(version):
+def clean_build(version=None):
     """Clean the files used in the build of the given version."""
-    from readthedocs.projects.models import Feature
 
-    if version.project.has_feature(
+    if version and version.project.has_feature(
         Feature.DONT_CLEAN_BUILD,
     ):
         log.info(
@@ -39,15 +38,23 @@ def clean_build(version):
         )
         return
 
-    del_dirs = [
-        os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ("checkouts", "envs", "conda", "artifacts")
-    ]
-    del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
+    if version:
+        del_dirs = [
+            os.path.join(version.project.doc_path, dir_, version.slug)
+            for dir_ in ("checkouts", "envs", "conda", "artifacts")
+        ]
+        del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
 
-    log.info("Removing directories.", directories=del_dirs)
-    for path in del_dirs:
-        safe_rmtree(path, ignore_errors=True)
+        log.info("Removing directories.", directories=del_dirs)
+        for path in del_dirs:
+            safe_rmtree(path, ignore_errors=True)
+
+    # Clean up DOCROOT (e.g. `user_builds/`) completely
+    else:
+        log.info("Removing DOCROOT directory.", docroot=settings.DOCROOT)
+        safe_rmtree(settings.DOCROOT, ignore_errors=True)
+        os.makedirs(settings.DOCROOT)
+        return
 
 
 @app.task(queue="web")
@@ -122,9 +129,10 @@ def finish_unhealthy_builds():
     log.debug("Running task to finish inactive builds (no healtcheck received).")
     delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
     query = (
-        ~Q(state__in=BUILD_FINAL_STATES)
+        # Grab 3 days old at most to use a fast DB index
+        Q(date__gt=timezone.now() - datetime.timedelta(days=3))
+        & ~Q(state__in=BUILD_FINAL_STATES)
         & Q(healthcheck__lt=timezone.now() - delta)
-        & Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
     )
 
     projects_finished = set()
@@ -153,61 +161,6 @@ def finish_unhealthy_builds():
             project_slugs=projects_finished,
             build_pks=builds_finished,
         )
-
-
-@app.task()
-def finish_inactive_builds():
-    """
-    Finish inactive builds.
-
-    A build is consider inactive if it's not in a final state and it has been
-    "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``BUILD_TIME_LIMIT`` plus a 20% of it).
-
-    These inactive builds will be marked as ``success`` and ``CANCELLED`` with an
-    ``error`` to be communicated to the user.
-    """
-    # TODO: delete this task once we are fully migrated to ``BUILD_HEALTHCHECK``
-    time_limit = settings.BUILD_TIME_LIMIT * 1.2
-    delta = datetime.timedelta(seconds=time_limit)
-    query = (
-        ~Q(state__in=BUILD_FINAL_STATES)
-        & Q(date__lt=timezone.now() - delta)
-        & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
-        & ~Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
-    )
-
-    projects_finished = set()
-    builds_finished = []
-    builds = Build.objects.filter(query)[:50]
-    for build in builds:
-        if build.project.container_time_limit:
-            custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit),
-            )
-            if build.date + custom_delta > timezone.now():
-                # Do not mark as CANCELLED builds with a custom time limit that wasn't
-                # expired yet (they are still building the project version)
-                continue
-
-        build.success = False
-        build.state = BUILD_STATE_CANCELLED
-        build.save()
-
-        Notification.objects.add(
-            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
-            attached_to=build,
-        )
-
-        builds_finished.append(build.pk)
-        projects_finished.add(build.project.slug)
-
-    log.info(
-        'Builds marked as "Terminated due inactivity".',
-        count=len(builds_finished),
-        project_slugs=projects_finished,
-        build_pks=builds_finished,
-    )
 
 
 def send_external_build_status(version_type, build_pk, commit, status):

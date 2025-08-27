@@ -64,9 +64,9 @@ ogp_site_name = "Read the Docs Documentation"
 ogp_use_first_image = True  # https://github.com/readthedocs/blog/pull/118
 ogp_image = "https://docs.readthedocs.io/en/latest/_static/img/logo-opengraph.png"
 # Inspired by https://github.com/executablebooks/MyST-Parser/pull/404/
-ogp_custom_meta_tags = [
+ogp_custom_meta_tags = (
     '<meta name="twitter:card" content="summary_large_image" />',
-]
+)
 ogp_enable_meta_description = True
 ogp_description_length = 300
 
@@ -81,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "15.0.0"
+version = "15.2.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"

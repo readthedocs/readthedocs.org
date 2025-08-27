@@ -1,14 +1,21 @@
 """Organizations models."""
 
+from pathlib import Path
+from uuid import uuid4
+
 import structlog
 from autoslug import AutoSlugField
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.storage import storages
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
 from django.utils.translation import gettext_lazy as _
+from django_gravatar.helpers import get_gravatar_url
 from djstripe.enums import SubscriptionStatus
 
 from readthedocs.core.history import ExtraHistoricalRecords
@@ -26,6 +33,36 @@ from .utils import send_team_add_email
 log = structlog.get_logger(__name__)
 
 
+def _upload_organization_avatar_to(instance, filename):
+    """
+    Generate the upload path for the organization avatar.
+
+    The name of the file is an UUID, and the extension is preserved.
+    If the instance already has an avatar, we use its name to keep the same UUID.
+    """
+    extension = filename.split(".")[-1].lower()
+    try:
+        previous_avatar = Organization.objects.get(pk=instance.pk).avatar
+    except Organization.DoesNotExist:
+        previous_avatar = None
+
+    if not previous_avatar:
+        uuid = uuid4().hex
+    else:
+        uuid = Path(previous_avatar.name).stem
+    return f"avatars/organizations/{uuid}.{extension}"
+
+
+def _get_user_content_storage():
+    """
+    Get the storage for user content.
+
+    Use a function for storage instead of directly assigning the instance
+    to avoid hardcoding the backend in the migration file.
+    """
+    return storages["usercontent"]
+
+
 class Organization(models.Model):
     """Organization model."""
 
@@ -38,6 +75,7 @@ class Organization(models.Model):
         "projects.Project",
         verbose_name=_("Projects"),
         related_name="organizations",
+        blank=True,
     )
     owners = models.ManyToManyField(
         User,
@@ -129,6 +167,16 @@ class Organization(models.Model):
         object_id_field="attached_to_id",
     )
 
+    avatar = models.ImageField(
+        _("Avatar"),
+        upload_to=_upload_organization_avatar_to,
+        storage=_get_user_content_storage,
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
+        blank=True,
+        null=True,
+        help_text="Avatar for your organization (JPG or PNG format, max 500x500px, 750KB)",
+    )
+
     # Managers
     objects = OrganizationQuerySet.as_manager()
     history = ExtraHistoricalRecords()
@@ -190,6 +238,14 @@ class Organization(models.Model):
         if self.stripe_customer:
             self.stripe_id = self.stripe_customer.id
 
+        # If the avatar is being changed, delete the previous one.
+        try:
+            previous_avatar = Organization.objects.get(pk=self.pk).avatar
+        except Organization.DoesNotExist:
+            previous_avatar = None
+        if previous_avatar and previous_avatar != self.avatar:
+            previous_avatar.delete(save=False)
+
         super().save(*args, **kwargs)
 
     def get_stripe_metadata(self):
@@ -213,6 +269,26 @@ class Organization(models.Model):
         if not member:
             member = TeamMember.objects.create(team=team, member=user)
         return member
+
+    def get_avatar_url(self):
+        """
+        Get the URL of the organization's avatar.
+
+        Use the `avatar` field if it exists, otherwise use
+        the gravatar from the organization's email.
+        """
+        if self.avatar:
+            return self.avatar.url
+        if self.email:
+            return get_gravatar_url(self.email, size=100)
+        return settings.GRAVATAR_DEFAULT_IMAGE
+
+    def delete(self, *args, **kwargs):
+        """Override delete method to clean up related resources."""
+        # Delete the avatar file.
+        if self.avatar:
+            self.avatar.delete(save=False)
+        super().delete(*args, **kwargs)
 
 
 class OrganizationOwner(models.Model):

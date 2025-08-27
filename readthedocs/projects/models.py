@@ -300,6 +300,18 @@ class Project(models.Model):
         blank=True,
         help_text=_("Short description of this project"),
     )
+
+    # Example:
+    # [
+    #     "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+    #     "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+    # ]
+    git_checkout_command = models.JSONField(
+        _("Custom command to execute before Git checkout"),
+        null=True,
+        blank=True,
+    )
+
     repo = models.CharField(
         _("Repository URL"),
         max_length=255,
@@ -1961,6 +1973,7 @@ class Feature(models.Model):
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
+    BUILD_FULL_CLEAN = "build_full_clean"
     DONT_CLEAN_BUILD = "dont_clean_build"
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
@@ -2022,6 +2035,10 @@ class Feature(models.Model):
             _(
                 "Build: Don't clean the build directory. Only for Enterprise users with dedicated builders."
             ),
+        ),
+        (
+            BUILD_FULL_CLEAN,
+            _("Build: Clean all build directories to avoid leftovers from other projects."),
         ),
         (
             BUILD_HEALTHCHECK,

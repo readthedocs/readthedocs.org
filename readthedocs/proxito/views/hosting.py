@@ -134,7 +134,10 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         else:
             # When not sending "url", we require "project-slug" and "version-slug".
             project = get_object_or_404(Project, slug=project_slug)
-            version = get_object_or_404(project.versions.all(), slug=version_slug)
+            # We do allow hitting this URL without a valid version.
+            # This is the same case than sending `?url=` with a partial match
+            # (eg. invalid URL path).
+            version = project.versions.filter(slug=version_slug).first()
 
         # A project is always required.
         if not project:
@@ -375,6 +378,10 @@ class AddonsResponseBase:
                     project.addons.flyout_sorting_latest_stable_at_beginning,
                 )
 
+        search_default_filter = f"project:{project.slug}"
+        if version:
+            search_default_filter = f"project:{project.slug}/{version.slug}"
+
         data = {
             "api_version": "1",
             "projects": self._get_projects_response(
@@ -475,7 +482,7 @@ class AddonsResponseBase:
                         #     f"subprojects:{project.slug}/{version.slug}",
                         # ],
                     ],
-                    "default_filter": f"project:{project.slug}/{version.slug}" if version else None,
+                    "default_filter": search_default_filter,
                 },
                 "linkpreviews": {
                     "enabled": project.addons.linkpreviews_enabled,
