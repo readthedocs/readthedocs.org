@@ -141,18 +141,14 @@ class GitLabService(UserService):
 
     def _has_access_to_repository(self, fields):
         """Check if the user has access to the repository, and if they are an admin."""
-        project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
-
-        project_access = fields.get("permissions", {}).get("project_access", {})
-        if project_access:
-            project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
-
-        group_access = fields.get("permissions", {}).get("group_access", {})
-        if group_access:
-            group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
-
+        permissions = fields.get("permissions", {})
+        project_access = permissions.get("project_access", {}) or {}
+        project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
+        group_access = permissions.get("group_access", {}) or {}
+        group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
         has_access = (
-            group_access != self.PERMISSION_NO_ACCESS or project_access != self.PERMISSION_NO_ACCESS
+            group_access_level != self.PERMISSION_NO_ACCESS
+            or project_access_level != self.PERMISSION_NO_ACCESS
         )
         project_admin = project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER)
         group_admin = group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER)
@@ -228,23 +224,8 @@ class GitLabService(UserService):
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
             )
-
-            project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
-
-            project_access = fields.get("permissions", {}).get("project_access", {})
-            if project_access:
-                project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
-
-            group_access = fields.get("permissions", {}).get("group_access", {})
-            if group_access:
-                group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
-
-            remote_repository_relation.admin = any(
-                [
-                    project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
-                    group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
-                ]
-            )
+            _, is_admin = self._has_access_to_repository(fields)
+            remote_repository_relation.admin = is_admin
             remote_repository_relation.save()
 
             return repo
