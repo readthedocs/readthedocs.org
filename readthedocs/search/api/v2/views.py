@@ -9,7 +9,7 @@ from rest_framework.generics import GenericAPIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.builds.models import Version
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
@@ -116,9 +116,9 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         :param include_hidden: If hidden versions should be considered.
         """
         return (
-            Version.internal.public(
+            project.versions(manager=INTERNAL)
+            .public(
                 user=self.request.user,
-                project=project,
                 only_built=True,
                 include_hidden=include_hidden,
             )
