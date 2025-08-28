@@ -80,8 +80,6 @@ class S3StaticStorageMixin:
                 "AWS S3 not configured correctly. Ensure S3_STATIC_STORAGE_BUCKET is defined.",
             )
 
-        self.bucket_acl = "public-read"
-        self.default_acl = "public-read"
         self.querystring_auth = False
 
 
