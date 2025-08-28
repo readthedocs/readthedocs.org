@@ -9,9 +9,6 @@ it can be difficult to understand how those changes will look like in the render
 or their impact in the documentation as a whole.
 Read the Docs makes it easy to see the changes in the rendered documentation.
 
-.. figure:: /img/screenshot-viz-diff-ui.png
-   :width: 80%
-
 Show diff menu in preview
 -------------------------
 
