@@ -64,6 +64,11 @@ including the ones that were automatically created.
 Read the Docs incoming webhook
 ------------------------------
 
+.. note::
+
+   When using our :ref:`reference/git-integration:GitHub App`, Read the Docs subscribes to all required events.
+   You don't need to create a webhook on your repository.
+
 Accounts with |git_providers_and| integration automatically have Read the Docs' incoming :term:`webhook` configured on all Git repositories that are imported.
 Other setups can set up the webhook through :doc:`manual configuration </guides/setup/git-repo-manual>`.
 
@@ -109,8 +114,8 @@ We also use the token to send back build statuses and preview URLs for :doc:`pul
 
 .. note::
 
-  Access granted to Read the Docs can always be revoked.
-  This is a function offered by all Git providers.
+   Access granted to Read the Docs can always be revoked.
+   This is a function offered by all Git providers.
 
 Git provider integrations
 -------------------------
@@ -123,6 +128,12 @@ The Read the Docs user who sets up the project through the automatic import shou
 A Git provider integration is active through the authentication of the user that creates the integration.
 If this user is removed,
 make sure to verify and potentially recreate all Git integrations for the project.
+
+.. note::
+
+   When using our :ref:`reference/git-integration:GitHub App`,
+   If the original user who connected the repository to Read the Docs loses access to the project or repository,
+   the GitHub App will still have access to the repository, and the integrations will continue to work.
 
 Permissions for connected accounts
 ----------------------------------
@@ -164,6 +175,31 @@ so that you can log in to Read the Docs with your connected account credentials.
           Unfortunately, this is the permission for read/write control of the repository
           but there isn't a more granular permission
           that only allows setting up SSH keys for read access.
+
+   .. tab:: GitHub App
+
+      Read the Docs requests the following permissions when connecting your Read the Docs account to our :ref:`GitHub App <reference/git-integration:GitHub App>`.
+
+      Account email addresses (read only)
+          We ask for this so we can verify your email address and create a Read the Docs account.
+
+      When installing the Read the Docs GitHub App in a repository, you will be asked to grant the following permissions:
+
+      Repository permissions
+        Commit statuses (read and write)
+          This allows Read the Docs to report the status of the build to GitHub.
+        Contents (read only)
+          This allows Read the Docs to clone the repository and build the documentation.
+        Metadata (read only)
+          This allows Read the Docs to read the repository collaborators and the permissions they have on the repository.
+          This is used to determine if the user can connect a repository to a Read the Docs project.
+        Pull requests (read and write)
+          This allows Read the Docs to subscribe to pull request events,
+          and to create a comment on the pull request with information about the build.
+
+      Organization permissions
+        Members (read only)
+          This allows Read the Docs to read the organization members.
 
    .. tab:: Bitbucket
 
