@@ -44,7 +44,7 @@ To enable or disable this feature for your project:
 #. Check or uncheck the :guilabel:`Show build overview in a comment` option.
 #. Click on :guilabel:`Update`.
 
-When enabled, a comment is added to the pull request when changes are detected in between the pull request and the latest version of the documentation.
+When enabled, a comment is added to the pull request when changes are detected between the pull request and the latest version of the documentation.
 
 .. figure:: /img/build-overview-comment.png
 
