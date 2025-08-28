@@ -1,6 +1,8 @@
 import copy
 from unittest import mock
 
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
+from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 import requests_mock
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.github.provider import GitHubProvider
@@ -1217,6 +1219,37 @@ class GitHubAppTests(TestCase):
         assert not self.integration.is_active
         assert self.integration.get_absolute_url() is None
 
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository(self, request):
+        assert self.remote_repository.description == "Some description"
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}",
+            json=self._get_repository_json(
+                full_name="user/repo",
+                id=int(self.remote_repository.remote_id),
+                owner={"id": int(self.account.uid)},
+                description="New description",
+            ),
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/installation",
+            json=self._get_installation_json(id=1111),
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.update_repository(self.remote_repository)
+
+        self.remote_repository.refresh_from_db()
+        assert self.remote_repository.description == "New description"
+
 
 @override_settings(
     PUBLIC_API_URL="https://app.readthedocs.org",
@@ -1276,6 +1309,7 @@ class GitHubOAuthTests(TestCase):
                 "type": "User",
                 "id": 1234,
             },
+            "permissions": {"admin": True, "push": True, "pull": True},
         }
         self.repo_with_org_response_data = copy.deepcopy(self.repo_response_data)
         self.repo_with_org_response_data["owner"] = {
@@ -1897,6 +1931,82 @@ class GitHubOAuthTests(TestCase):
         )
         assert self.service.remove_webhook(self.project) is True
 
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITHUB,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://api.github.com/repositories/{remote_repo.remote_id}", json=self.repo_response_data)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.name == "testrepo"
+        assert remote_repo.full_name == "testuser/testrepo"
+        assert remote_repo.description == "Test Repo"
+        assert remote_repo.users.filter(id=self.user.id).exists()
+        relation = remote_repo.remote_repository_relations.get(user=self.user)
+        assert relation.account == self.social_github_account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_remove_user_relation(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITHUB,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_github_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://api.github.com/repositories/{remote_repo.remote_id}", status_code=404)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.full_name == "testuser/testrepo"
+        assert not remote_repo.description
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_remove_user_relation_public_repo(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITHUB,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_github_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        for k in self.repo_response_data["permissions"]:
+            self.repo_response_data["permissions"][k] = False
+
+        request.get(f"https://api.github.com/repositories/{remote_repo.remote_id}", json=self.repo_response_data)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.name == "testrepo"
+        assert remote_repo.full_name == "testuser/testrepo"
+        assert remote_repo.description == "Test Repo"
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
 
 class BitbucketOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
@@ -1913,8 +2023,17 @@ class BitbucketOAuthTests(TestCase):
             vcs_provider=BITBUCKET,
         )
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
+        self.social_account = get(
+            SocialAccount,
+            user=self.user,
+            provider=BitbucketOAuth2Provider.id,
+        )
+        get(
+            SocialToken,
+            account=self.social_account,
+        )
         self.service = BitbucketService(
-            user=self.user, account=get(SocialAccount, user=self.user)
+            user=self.user, account=self.social_account,
         )
         self.integration = get(
             GitHubWebhook,
@@ -2357,6 +2476,55 @@ class BitbucketOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=BITBUCKET,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["uuid"],
+        )
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=admin", json={"values": [self.repo_response_data]})
+        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=member", json={"values": [self.repo_response_data]})
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.name == "tutorials.bitbucket.org"
+        assert remote_repo.full_name == "tutorials/tutorials.bitbucket.org"
+        assert remote_repo.description == "Site for tutorial101 files"
+        assert remote_repo.users.filter(id=self.user.id).exists()
+        relation = remote_repo.remote_repository_relations.get(user=self.user)
+        assert relation.account == self.social_account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_remove_user_relation(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=BITBUCKET,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["uuid"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=admin", json={"values": []})
+        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=member", json={"values": []})
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.full_name == "testuser/testrepo"
+        assert not remote_repo.description
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
 
 class GitLabOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
@@ -2462,8 +2630,17 @@ class GitLabOAuthTests(TestCase):
             vcs_provider=GITLAB,
         )
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
+        self.social_account = get(
+            SocialAccount,
+            user=self.user,
+            provider=GitLabProvider.id,
+        )
+        get(
+            SocialToken,
+            account=self.social_account,
+        )
         self.service = GitLabService(
-            user=self.user, account=get(SocialAccount, user=self.user)
+            user=self.user, account=self.social_account
         )
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
@@ -2935,3 +3112,79 @@ class GitLabOAuthTests(TestCase):
         assert relationship.admin
         assert relationship.user == self.user
         assert relationship.account == self.service.account
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_gl(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITLAB,
+            full_name="testorga/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://gitlab.com/api/v4/projects/{remote_repo.remote_id}", json=self.repo_response_data)
+        self.service.update_repository(remote_repo)
+
+        remote_repo.refresh_from_db()
+        assert remote_repo.name == "testrepo"
+        assert remote_repo.full_name == "testorga/testrepo"
+        assert remote_repo.description == "Test Repo"
+        assert remote_repo.users.filter(id=self.user.id).exists()
+        relation = remote_repo.remote_repository_relations.get(user=self.user)
+        assert relation.account == self.social_account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_remove_user_relation(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITLAB,
+            full_name="testorga/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://gitlab.com/api/v4/projects/{remote_repo.remote_id}", status_code=404)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.full_name == "testorga/testrepo"
+        assert not remote_repo.description
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_remove_user_relation_public_repo(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITLAB,
+            full_name="testorga/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        for k in self.repo_response_data["permissions"]:
+            self.repo_response_data["permissions"][k] = None
+
+        request.get(f"https://gitlab.com/api/v4/projects/{remote_repo.remote_id}", json=self.repo_response_data)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.name == "testrepo"
+        assert remote_repo.full_name == "testorga/testrepo"
+        assert remote_repo.description == "Test Repo"
+        assert not remote_repo.users.filter(id=self.user.id).exists()

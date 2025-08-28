@@ -15,6 +15,7 @@ from requests.exceptions import RequestException
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.oauth.clients import get_oauth2_client
+from readthedocs.oauth.models import RemoteRepository
 
 
 log = structlog.get_logger(__name__)
@@ -65,6 +66,19 @@ class Service:
         - Updates fields for existing RemoteRepository/Organization
         - Deletes old RemoteRepository/Organization that are no longer present
           in this provider.
+        """
+        raise NotImplementedError
+
+    def update_repository(self, remote_repository: RemoteRepository):
+        """
+        Update a repository using the service API.
+
+        This also updates the user relationship with the repository,
+        if user is an admin or not, and in case the user no longer has access
+        to the repository, the relationship is removed.
+        In the case of services that aren't linked to a user (GitHub Apps),
+        this method will update the permissions of all users that have access
+        to the repository.
         """
         raise NotImplementedError
 

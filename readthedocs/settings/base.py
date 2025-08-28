@@ -671,8 +671,8 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(day_of_week="wed", minute=0, hour=7),
             "options": {"queue": "web"},
         },
-        "every-day-resync-sso-organization-users": {
-            "task": "readthedocs.oauth.tasks.sync_remote_repositories_organizations",
+        "every-day-resync-repositories-from-sso-organizations": {
+            "task": "readthedocs.oauth.tasks.sync_remote_repositories_from_sso_organizations",
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
         },
