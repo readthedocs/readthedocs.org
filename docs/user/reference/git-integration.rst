@@ -178,7 +178,7 @@ so that you can log in to Read the Docs with your connected account credentials.
 
    .. tab:: GitHub App
 
-      Read the Docs requests the following permissions when connecting your Read the Docs account to our :ref:`GitHub App <reference/git-integration:GitHub App>`_.
+      Read the Docs requests the following permissions when connecting your Read the Docs account to our :ref:`GitHub App <reference/git-integration:GitHub App>`.
 
       Account email addresses (read only)
           We ask for this so we can verify your email address and create a Read the Docs account.
