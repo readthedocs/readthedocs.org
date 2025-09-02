@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
+from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import user_id_matches_or_superuser
@@ -122,8 +123,9 @@ def sync_remote_repositories_organizations(organization_slugs=None):
     queue="web",
     time_limit=60 * 60 * 3,  # 3h
     soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+    bind=True,
 )
-def sync_active_users_remote_repositories():
+def sync_active_users_remote_repositories(self):
     """
     Sync ``RemoteRepository`` for active users.
 
@@ -136,41 +138,50 @@ def sync_active_users_remote_repositories():
     Note this is a long running task syncronizhing all the users in the same Celery process,
     and it will require a pretty high ``time_limit`` and ``soft_time_limit``.
     """
-    today_weekday = timezone.now().isoweekday()
-    days_ago = timezone.now() - datetime.timedelta(days=45)
-    users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
-        last_login__gt=days_ago,
-        socialaccount__isnull=False,
-        weekday=today_weekday,
-    )
+    # This task is expensive, and we run it daily.
+    # We have had issues with it being triggered multiple times per day,
+    # so we use a lock (12 hours) to avoid that.
+    lock_id = "{0}-lock".format(self.name)
+    with memcache_lock(lock_id, 60 * 60 * 12, self.app.oid) as acquired:
+        if acquired:
+            log.exception("Task has already been run recently, exiting.")
+            return
 
-    users_count = users.count()
-    structlog.contextvars.bind_contextvars(total_users=users_count)
-    log.info("Triggering re-sync of RemoteRepository for active users.")
-
-    for i, user in enumerate(users.iterator()):
-        structlog.contextvars.bind_contextvars(
-            user_username=user.username,
-            progress=f"{i}/{users_count}",
+        today_weekday = timezone.now().isoweekday()
+        days_ago = timezone.now() - datetime.timedelta(days=45)
+        users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
+            last_login__gt=days_ago,
+            socialaccount__isnull=False,
+            weekday=today_weekday,
         )
 
-        # Log an update every 50 users
-        if i % 50 == 0:
-            log.info("Progress on re-syncing RemoteRepository for active users.")
+        users_count = users.count()
+        structlog.contextvars.bind_contextvars(total_users=users_count)
+        log.info("Triggering re-sync of RemoteRepository for active users.")
 
-        try:
-            # NOTE: sync all the users/repositories in the same Celery process.
-            # Do not trigger a new task per user.
-            # NOTE: We skip the GitHub App, since all the repositories
-            # and permissions are kept up to date via webhooks.
-            # Triggering a sync per-user, will re-sync the same installation
-            # multiple times.
-            sync_remote_repositories(
-                user.pk,
-                skip_githubapp=True,
+        for i, user in enumerate(users.iterator()):
+            structlog.contextvars.bind_contextvars(
+                user_username=user.username,
+                progress=f"{i}/{users_count}",
             )
-        except Exception:
-            log.exception("There was a problem re-syncing RemoteRepository.")
+
+            # Log an update every 50 users
+            if i % 50 == 0:
+                log.info("Progress on re-syncing RemoteRepository for active users.")
+
+            try:
+                # NOTE: sync all the users/repositories in the same Celery process.
+                # Do not trigger a new task per user.
+                # NOTE: We skip the GitHub App, since all the repositories
+                # and permissions are kept up to date via webhooks.
+                # Triggering a sync per-user, will re-sync the same installation
+                # multiple times.
+                sync_remote_repositories(
+                    user.pk,
+                    skip_githubapp=True,
+                )
+            except Exception:
+                log.exception("There was a problem re-syncing RemoteRepository.")
 
 
 # TODO: remove user_pk from the signature on the next release.
