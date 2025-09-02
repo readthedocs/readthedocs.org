@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 
+from readthedocs.analytics.tasks.pageviews import delete_project_pageviews
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import EXTERNAL
@@ -113,6 +114,10 @@ def clean_project_resources(project, version=None, version_slug=None):
         version.imported_files.all().delete()
     else:
         project.imported_files.all().delete()
+
+    # Remove PageViews for this project async,
+    # since they can be very slow to delete.
+    delete_project_pageviews.delay(project_slug=project.slug, version_slug=version_slug)
 
 
 @app.task()
