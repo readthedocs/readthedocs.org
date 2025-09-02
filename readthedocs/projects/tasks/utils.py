@@ -110,9 +110,12 @@ def clean_project_resources(project, version=None, version_slug=None):
 
     # Remove imported files
     if version:
-        version.imported_files.all().delete()
+        qs = version.imported_files.all()
+        qs._raw_delete(qs.db)
     else:
-        project.imported_files.all().delete()
+        qs = project.imported_files.all()
+        qs._raw_delete(qs.db)
+        # project.imported_files.all().delete()
 
 
 @app.task()

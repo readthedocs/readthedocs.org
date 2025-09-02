@@ -3,7 +3,10 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.projects.models import Feature, Project
+from readthedocs.analytics.models import PageView
+from readthedocs.builds.models import Build, Version
+from readthedocs.projects.models import Feature, ImportedFile, Project
+from readthedocs.search.models import SearchQuery
 
 
 class TestURLPatternsUtils(TestCase):
@@ -137,3 +140,17 @@ class TestURLPatternsUtils(TestCase):
         self.assertEqual(self.project.proxied_api_url, "prefix/_/")
         self.assertEqual(self.project.proxied_api_host, "/prefix/_")
         self.assertEqual(self.project.proxied_api_prefix, "/prefix/")
+
+    def test_number_of_queries_on_project_deletion(self):
+        for i in range(5):
+            version = get(Version, project=self.project, slug=f"subproject-{i}", active=True, built=True)
+            for _ in range(50):
+                get(PageView, project=self.project, version=version)
+                get(ImportedFile, project=self.project, version=version)
+                get(SearchQuery, project=self.project, version=version)
+                # TODO: we should also see if we can delete buildss/buildcommand results efficiently.
+                get(Build, project=self.project, version=version)
+
+        # This used to be 57 queries!
+        with self.assertNumQueries(51):
+            self.project.delete()
