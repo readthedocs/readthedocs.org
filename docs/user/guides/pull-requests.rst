@@ -67,7 +67,7 @@ Troubleshooting
 
 No new builds are started when I open a pull request
    The most common cause when using GitHub is that your Read the Docs project is not
-   :ref:`connected to the corresponding repository on GitHub <reference:git-integration:Connect a repository to an existing project>`.
+   :ref:`connected to the corresponding repository on GitHub <reference/git-integration:Connect a repository to an existing project>`.
 
    If you are using our old GitHub integration,
    make sure that your repository's webhook is configured to
