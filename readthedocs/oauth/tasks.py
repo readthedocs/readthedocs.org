@@ -10,7 +10,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
-from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import user_id_matches_or_superuser
 from readthedocs.core.views.hooks import VersionInfo
@@ -21,13 +20,14 @@ from readthedocs.core.views.hooks import get_or_create_external_version
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.clients import get_gh_app_client
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAppInstallation
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
-from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
@@ -70,49 +70,40 @@ def sync_remote_repositories(user_id):
 
 
 @app.task(queue="web")
-def sync_remote_repositories_organizations(organization_slugs=None):
+def sync_remote_repositories_from_sso_organizations():
     """
-    Re-sync users member of organizations.
+    Re-sync all remote repositories from organizations with SSO enabled.
 
-    It will trigger one `sync_remote_repositories` task per user.
+    This is useful, so all the remote repositories are up to date with the
+    latest permissions from their providers.
 
-    :param organization_slugs: list containg organization's slugs to sync. If
-    not passed, all organizations with ALLAUTH SSO enabled will be synced
-
-    :type organization_slugs: list
+    We ignore repositories from GitHub App installations, since they are kept
+    up to date via webhooks. For all the other services, we need to sync the
+    repository for each user that has access to it, since we need to check for
+    their permissions individually.
     """
-    if organization_slugs:
-        query = Organization.objects.filter(slug__in=organization_slugs)
-        log.info(
-            "Triggering SSO re-sync for organizations.",
-            organization_slugs=organization_slugs,
-            count=query.count(),
+    repositories = (
+        RemoteRepository.objects.filter(
+            projects__organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
         )
-    else:
-        organization_ids = SSOIntegration.objects.filter(
-            provider=SSOIntegration.PROVIDER_ALLAUTH
-        ).values_list("organization", flat=True)
-        query = Organization.objects.filter(id__in=organization_ids)
-        log.info(
-            "Triggering SSO re-sync for all organizations.",
-            count=query.count(),
-        )
-
-    n_task = -1
-    for organization in query:
-        members = AdminPermission.members(organization)
-        log.info(
-            "Triggering SSO re-sync for organization.",
-            organization_slug=organization.slug,
-            count=members.count(),
-        )
-        for user in members:
-            n_task += 1
-            sync_remote_repositories.apply_async(
-                args=[user.pk],
-                # delay the task by 0, 5, 10, 15, ... seconds
-                countdown=n_task * 5,
-            )
+        .exclude(vcs_provider=GITHUB_APP)
+        .distinct()
+    )
+    for repository in repositories.iterator():
+        service_class = repository.get_service_class()
+        relations = repository.remote_repository_relations.select_related("user", "account")
+        for relation in relations.iterator():
+            service = service_class(user=relation.user, account=relation.account)
+            try:
+                service.update_repository(repository)
+            except Exception:
+                log.info(
+                    "There was a problem updating repository for user.",
+                    user_username=relation.user.username,
+                    account_uid=relation.account.uid,
+                    repository_remote_id=repository.remote_id,
+                    repository_name=repository.full_name,
+                )
 
 
 @app.task(
