@@ -1,6 +1,7 @@
 """This module contains the logic to help users migrate from the GitHub OAuth App to the GitHub App."""
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Iterator
 from urllib.parse import urlencode
 
@@ -14,6 +15,7 @@ from readthedocs.integrations.models import Integration
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAccountType
+from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.oauth.services import GitHubService
@@ -29,6 +31,13 @@ class GitHubAccountTarget:
     type: GitHubAccountType
     avatar_url: str
     profile_url: str
+
+    @cached_property
+    def has_installation(self) -> bool:
+        """Check if the GitHub App is installed in this account."""
+        return GitHubAppInstallation.objects.filter(
+            target_id=self.id, target_type=self.type
+        ).exists()
 
 
 @dataclass
