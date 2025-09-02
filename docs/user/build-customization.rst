@@ -422,7 +422,6 @@ Projects managed with `Poetry <https://python-poetry.org/>`__,
 can use the ``post_create_environment`` user-defined job to use Poetry for installing Python dependencies.
 Take a look at the following example:
 
-
 .. code-block:: yaml
    :caption: .readthedocs.yaml
 
@@ -464,7 +463,6 @@ extras are required they can be added with the `--extra attribute <https://docs.
 If a ``uv.lock`` file exists it is respected.
 
 .. code-block:: yaml
-
    :caption: .readthedocs.yaml
 
    version: 2
