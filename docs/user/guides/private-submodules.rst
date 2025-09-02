@@ -8,9 +8,8 @@ How to use private Git submodules
 If you are using private Git repositories and they also contain private Git submodules,
 you need to follow a few special steps.
 
-Read the Docs uses SSH keys (with read only permissions) in order to clone private repositories.
-A SSH key is automatically generated and added to your main repository, but not to your submodules.
-In order to give Read the Docs access to clone your submodules you'll need to add the public SSH key to each repository of your submodules.
+When a project is created, a SSH key is automatically generated.
+You can use this SSH key to give Read the Docs access to clone your private submodules.
 
 .. note::
 
@@ -34,6 +33,11 @@ you'll need to use `machine users <https://developer.github.com/v3/guides/managi
 to give read access to several repositories using only one SSH key.
 
 #. Remove the SSH deploy key that was added to the main repository on GitHub
+
+   .. note::
+
+      If you are using our :ref:`reference/git-integration:GitHub App` to connect your repository to Read the Docs,
+      you can skip this step, because access to your repository is controlled through the App instead of a deploy key.
 
    #. Go to your project on GitHub
    #. Click on :guilabel:`Settings`
