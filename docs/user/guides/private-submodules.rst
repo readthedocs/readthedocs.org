@@ -37,7 +37,7 @@ to give read access to several repositories using only one SSH key.
    .. note::
 
       If you are using our :ref:`reference/git-integration:GitHub App` to connect your repository to Read the Docs,
-      You can skip this step, as we don't add a deploy key to your repository in that case.
+      you can skip this step, because access to your repository is controlled through the App instead of a deploy key. 
 
    #. Go to your project on GitHub
    #. Click on :guilabel:`Settings`
