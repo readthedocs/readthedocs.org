@@ -27,11 +27,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.40.16
+boto3==1.40.21
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.40.16
+botocore==1.40.21
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -81,9 +81,9 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.10.5
+coverage[toml]==7.10.6
     # via pytest-cov
-cron-descriptor==1.4.5
+cron-descriptor==2.0.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -131,7 +131,7 @@ django==5.2.5
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.11.0
+django-allauth[mfa,saml,socialaccount]==65.11.1
     # via -r requirements/pip.txt
 django-annoying==0.10.8
     # via -r requirements/pip.txt
@@ -274,7 +274,7 @@ oauthlib==3.3.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.2
+orjson==3.11.3
     # via -r requirements/pip.txt
 packaging==25.0
     # via
@@ -288,7 +288,7 @@ packaging==25.0
     #   sphinx
 pillow==11.3.0
     # via -r requirements/pip.txt
-platformdirs==4.3.8
+platformdirs==4.4.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -296,7 +296,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-prompt-toolkit==3.0.51
+prompt-toolkit==3.0.52
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -388,7 +388,7 @@ qrcode==8.2
     #   django-allauth
 redis==6.4.0
     # via -r requirements/pip.txt
-regex==2025.7.34
+regex==2025.8.29
     # via -r requirements/pip.txt
 requests==2.32.5
     # via
@@ -416,7 +416,7 @@ s3transfer==0.13.1
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.33
+selectolax==0.3.34
     # via -r requirements/pip.txt
 six==1.17.0
     # via
@@ -460,9 +460,10 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
     #   -r requirements/pip.txt
+    #   cron-descriptor
     #   elasticsearch
     #   elasticsearch-dsl
     #   psycopg
