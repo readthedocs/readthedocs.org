@@ -142,9 +142,9 @@ class GitLabService(UserService):
     def _has_access_to_repository(self, fields):
         """Check if the user has access to the repository, and if they are an admin."""
         permissions = fields.get("permissions", {})
-        project_access = permissions.get("project_access", {}) or {}
+        project_access = permissions.get("project_access") or {}
         project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
-        group_access = permissions.get("group_access", {}) or {}
+        group_access = permissions.get("group_access") or {}
         group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
         has_access = (
             group_access_level != self.PERMISSION_NO_ACCESS
