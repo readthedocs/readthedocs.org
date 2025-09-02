@@ -695,9 +695,6 @@ class Project(models.Model):
         qs = self.page_views.all()
         qs._raw_delete(qs.db)
 
-        qs = self.imported_files.all()
-        qs._raw_delete(qs.db)
-
         qs = self.search_queries.all()
         qs._raw_delete(qs.db)
 
