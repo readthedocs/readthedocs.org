@@ -609,7 +609,6 @@ class Build(models.Model):
         related_name="builds",
         on_delete=models.CASCADE,
     )
-    # TODO: optmize deletion.
     version = models.ForeignKey(
         Version,
         verbose_name=_("Version"),

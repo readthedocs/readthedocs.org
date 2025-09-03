@@ -151,6 +151,5 @@ class TestURLPatternsUtils(TestCase):
                 # TODO: we should also see if we can delete buildss/buildcommand results efficiently.
                 get(Build, project=self.project, version=version)
 
-        # This used to be 57 queries!
-        with self.assertNumQueries(51):
+        with self.assertNumQueries(48):
             self.project.delete()

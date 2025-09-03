@@ -168,7 +168,6 @@ class AddonsConfig(TimeStampedModel):
     # https://github.com/readthedocs/addons/pull/415
     options_load_when_embedded = models.BooleanField(default=False)
 
-    # TODO: see how wen can optimize deletion when the project is deleted.
     options_base_version = models.ForeignKey(
         "builds.Version",
         verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
@@ -692,9 +691,12 @@ class Project(models.Model):
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
 
+        # NOTE: We use _raw_delete to avoid Django fetching all objects
+        # before the deletion. Be careful when using _raw_delete, signals
+        # won't be sent, and can cause integrity problems if the model
+        # has relations with other models.
         qs = self.page_views.all()
         qs._raw_delete(qs.db)
-
         qs = self.search_queries.all()
         qs._raw_delete(qs.db)
 

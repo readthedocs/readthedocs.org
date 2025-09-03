@@ -87,6 +87,13 @@ def clean_project_resources(project, version=None, version_slug=None):
      sometimes to clean old resources.
 
     .. note::
+
+       This function shouldn't delete objects that can't be recreated
+       by re-activating the version (e.g. page views, search queries),
+       as it's used when a version is deactivated.
+
+    .. note::
+
        This function is usually called just before deleting project.
        Make sure to not depend on the project object inside the tasks.
     """
@@ -108,14 +115,16 @@ def clean_project_resources(project, version=None, version_slug=None):
         version_slug=version_slug,
     )
 
-    # Remove imported files
+    # NOTE: We use _raw_delete to avoid Django fetching all objects
+    # before the deletion. Be careful when using _raw_delete, signals
+    # won't be sent, and can cause integrity problems if the model
+    # has relations with other models.
     if version:
         qs = version.imported_files.all()
         qs._raw_delete(qs.db)
     else:
         qs = project.imported_files.all()
         qs._raw_delete(qs.db)
-        # project.imported_files.all().delete()
 
 
 @app.task()
