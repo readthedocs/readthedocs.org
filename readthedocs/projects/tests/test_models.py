@@ -148,7 +148,6 @@ class TestURLPatternsUtils(TestCase):
                 get(PageView, project=self.project, version=version)
                 get(ImportedFile, project=self.project, version=version)
                 get(SearchQuery, project=self.project, version=version)
-                # TODO: we should also see if we can delete buildss/buildcommand results efficiently.
                 get(Build, project=self.project, version=version)
 
         with self.assertNumQueries(48):
