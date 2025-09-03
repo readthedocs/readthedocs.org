@@ -35,7 +35,7 @@ class VersionMixin:
         )
         self.tag_version = get(
             Version,
-            identifier="origin/master",
+            identifier="master",
             verbose_name="latest",
             slug="latest",
             project=self.pip,
