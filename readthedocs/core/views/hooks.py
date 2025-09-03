@@ -102,7 +102,7 @@ def trigger_sync_versions(project):
         return None
 
     try:
-        version = project.get_original_latest_version() or project.get_latest_version()
+        version = project.get_latest_version()
         if not version:
             log.info("Unable to sync versions, project doesn't have a valid latest version.")
             return None
