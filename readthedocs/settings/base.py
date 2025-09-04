@@ -640,7 +640,7 @@ class CommunityBaseSettings(Settings):
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
     BROKER_TRANSPORT_OPTIONS = {
-        'visibility_timeout': BUILD_TIME_LIMIT * 1.15,  # 15% more than the build time limit
+        'visibility_timeout': 18000, # 5 hours
     }
 
     CELERY_DEFAULT_QUEUE = "celery"
@@ -671,8 +671,8 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(day_of_week="wed", minute=0, hour=7),
             "options": {"queue": "web"},
         },
-        "every-day-resync-sso-organization-users": {
-            "task": "readthedocs.oauth.tasks.sync_remote_repositories_organizations",
+        "every-day-resync-repositories-from-sso-organizations": {
+            "task": "readthedocs.oauth.tasks.sync_remote_repositories_from_sso_organizations",
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
         },

@@ -240,6 +240,18 @@ class GitHubAppService(Service):
         ).values_list("remote_id", flat=True)
         self.installation.delete_repositories(repos_to_delete)
 
+    def update_repository(self, remote_repository: RemoteRepository):
+        """
+        Update a single repository from the given remote repository.
+
+        .. note::
+
+           Unlike the other providers, this method doesn't update the
+           `remote_repository` object itself. If you need the updated object,
+           fetch it again from the database.
+        """
+        self.update_or_create_repositories([remote_repository.remote_id])
+
     def update_or_create_repositories(self, repository_ids: list[int]):
         """Update or create repositories from the given list of repository IDs."""
         repositories_to_delete = []

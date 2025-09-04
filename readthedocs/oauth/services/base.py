@@ -15,6 +15,7 @@ from requests.exceptions import RequestException
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.oauth.clients import get_oauth2_client
+from readthedocs.oauth.models import RemoteRepository
 
 
 log = structlog.get_logger(__name__)
@@ -65,6 +66,19 @@ class Service:
         - Updates fields for existing RemoteRepository/Organization
         - Deletes old RemoteRepository/Organization that are no longer present
           in this provider.
+        """
+        raise NotImplementedError
+
+    def update_repository(self, remote_repository: RemoteRepository):
+        """
+        Update a repository using the service API.
+
+        This also updates the user relationship with the repository,
+        if user is an admin or not, and in case the user no longer has access
+        to the repository, the relationship is removed.
+        In the case of services that aren't linked to a user (GitHub Apps),
+        this method will update the permissions of all users that have access
+        to the repository.
         """
         raise NotImplementedError
 
@@ -212,7 +226,7 @@ class UserService(Service):
             # ``create_session`` method since it could be used from outside, but
             # I didn't find a generic way to make a test request to each
             # provider.
-            if resp.status_code == 401:
+            if resp.status_code in [401, 403]:
                 # Bad credentials: the token we have in our database is not
                 # valid. Probably the user has revoked the access to our App. He
                 # needs to reconnect his account

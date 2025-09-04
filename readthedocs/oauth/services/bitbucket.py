@@ -145,6 +145,43 @@ class BitbucketService(UserService):
             repository=fields["name"],
         )
 
+    def update_repository(self, remote_repository: RemoteRepository):
+        # Bitbucket doesn't return the admin status of the user,
+        # so we need to infer it by filtering the repositories the user has admin/read access to.
+        repo_from_admin_access = self._get_repository(remote_repository, role="admin")
+        repo_from_member_access = self._get_repository(remote_repository, role="member")
+        repo = repo_from_admin_access or repo_from_member_access
+        relation = remote_repository.get_remote_repository_relation(self.user, self.account)
+        if not repo:
+            log.info(
+                "User no longer has access to the repository, removing remote relationship.",
+                remote_repository_id=remote_repository.remote_id,
+            )
+            relation.delete()
+            return
+
+        self._update_repository_from_fields(remote_repository, repo)
+        relation.admin = bool(repo_from_admin_access)
+        relation.save()
+
+    def _get_repository(self, remote_repository, role):
+        """
+        Get a single repository by its remote ID where the user has a specific role.
+
+        Bitbucket doesn't provide an endpoint to get a single repository by its ID (it requires the group ID as well),
+        and it also doesn't return the user's role in the repository, so we filter the repositories by role
+        and then look for the repository with the matching ID.
+        """
+        repos = self.paginate(
+            f"{self.base_api_url}/2.0/repositories/",
+            role=role,
+            q=f'uuid="{remote_repository.remote_id}"',
+        )
+        for repo in repos:
+            if repo["uuid"] == remote_repository.remote_id:
+                return repo
+        return None
+
     def _update_repository_from_fields(self, repo, fields):
         # All repositories are created under a workspace,
         # which we consider an organization.
