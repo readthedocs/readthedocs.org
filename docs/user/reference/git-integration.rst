@@ -196,6 +196,9 @@ so that you can log in to Read the Docs with your connected account credentials.
         Pull requests (read and write)
           This allows Read the Docs to subscribe to pull request events,
           and to create a comment on the pull request with information about the build.
+        Checks (read and write)
+          This allows Read the Docs to use the GitHub Checks API to report the status of the build.
+          This isn't used yet, but we may use it in the future.
 
       Organization permissions
         Members (read only)
