@@ -25,11 +25,11 @@ billiard==4.2.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.40.16
+boto3==1.40.25
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.40.16
+botocore==1.40.25
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -80,11 +80,11 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-cron-descriptor==1.4.5
+cron-descriptor==2.0.6
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==45.0.6
+cryptography==45.0.7
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -103,7 +103,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.5
+django==5.2.6
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -126,7 +126,7 @@ django==5.2.5
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.11.0
+django-allauth[mfa,saml,socialaccount]==65.11.1
     # via -r requirements/pip.txt
 django-annoying==0.10.8
     # via -r requirements/pip.txt
@@ -207,7 +207,7 @@ elasticsearch==8.19.0
     #   elasticsearch-dsl
 elasticsearch-dsl==8.18.0
     # via -r requirements/pip.txt
-executing==2.2.0
+executing==2.2.1
     # via stack-data
 fido2==2.0.0
     # via
@@ -223,7 +223,7 @@ idna==3.10
     # via
     #   -r requirements/pip.txt
     #   requests
-ipython==9.4.0
+ipython==9.5.0
     # via -r requirements/deploy.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -254,7 +254,7 @@ lxml==5.3.2
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.8.2
+markdown==3.9
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.7
     # via ipython
@@ -265,7 +265,7 @@ oauthlib==3.3.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.2
+orjson==3.11.3
     # via -r requirements/pip.txt
 packaging==25.0
     # via
@@ -281,11 +281,11 @@ pexpect==4.9.0
     # via ipython
 pillow==11.3.0
     # via -r requirements/pip.txt
-platformdirs==4.3.8
+platformdirs==4.4.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-prompt-toolkit==3.0.51
+prompt-toolkit==3.0.52
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -314,7 +314,7 @@ pydantic-core==2.33.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
-pygithub==2.7.0
+pygithub==2.8.1
     # via -r requirements/pip.txt
 pygments==2.19.2
     # via
@@ -361,7 +361,7 @@ qrcode==8.2
     #   django-allauth
 redis==6.4.0
     # via -r requirements/pip.txt
-regex==2025.7.34
+regex==2025.9.1
     # via -r requirements/pip.txt
 requests==2.32.5
     # via
@@ -383,9 +383,9 @@ s3transfer==0.13.1
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.33
+selectolax==0.3.34
     # via -r requirements/pip.txt
-sentry-sdk==2.35.0
+sentry-sdk==2.37.0
     # via structlog-sentry
 six==1.17.0
     # via
@@ -422,9 +422,10 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
     #   -r requirements/pip.txt
+    #   cron-descriptor
     #   elasticsearch
     #   elasticsearch-dsl
     #   psycopg
