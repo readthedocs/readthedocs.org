@@ -102,12 +102,9 @@ def trigger_sync_versions(project):
         return None
 
     try:
-        version_identifier = project.get_default_branch()
-        version = project.versions.filter(
-            identifier=version_identifier,
-        ).first()
+        version = project.get_latest_version()
         if not version:
-            log.info("Unable to sync from version.", version_identifier=version_identifier)
+            log.info("Unable to sync versions, project doesn't have a valid latest version.")
             return None
 
         if project.has_feature(Feature.SKIP_SYNC_VERSIONS):

@@ -261,18 +261,10 @@ class Version(TimeStampedModel):
 
     @property
     def vcs_url(self):
-        version_name = self.verbose_name
-        if self.slug == STABLE and self.machine:
-            stable_version = self.project.get_original_stable_version()
-            if stable_version:
-                version_name = stable_version.verbose_name
-        elif self.slug == LATEST and self.machine:
-            version_name = self.project.get_default_branch()
-
         return get_vcs_url(
             project=self.project,
             version_type=self.type,
-            version_name=version_name,
+            version_name=self.git_identifier,
         )
 
     @property
@@ -329,9 +321,10 @@ class Version(TimeStampedModel):
         - If the version is stable (machine created), we resolve to the branch that the stable version points to.
         - If the version is external, we return the PR identifier, since we don't have access to the name of the branch.
         """
-        # Latest is special as it doesn't contain the actual name in verbose_name.
+        # Latest is special as it doesn't contain the actual name in verbose_name,
+        # but in the identifier field.
         if self.slug == LATEST and self.machine:
-            return self.project.get_default_branch()
+            return self.identifier
 
         # Stable is special as it doesn't contain the actual name in verbose_name.
         if self.slug == STABLE and self.machine:

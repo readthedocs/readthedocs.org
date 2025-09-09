@@ -4,15 +4,13 @@ How to configure pull request builds
 In this section, you can learn how to configure :doc:`pull request builds </pull-requests>`.
 
 To enable pull request builds for your project,
-your Read the Docs account needs to be connected to an account with a supported Git provider, with a webhook configured to send information on pull requests for your repository.
+your Read the Docs project needs to be connected to a repository from a supported Git provider.
 See `Limitations`_ for more information.
 
-If your account is already connected:
-
 #. Go to your project dashboard
-#. Go to :guilabel:`Admin`, then :guilabel:`Settings`
+#. Go to :guilabel:`Settings`, then :guilabel:`Pull request builds`
 #. Enable the :guilabel:`Build pull requests for this project` option
-#. Click on :guilabel:`Save`
+#. Click on :guilabel:`Update`
 
 .. tip::
 
@@ -44,9 +42,9 @@ while private previews are only available to users with access to the Read the D
 To change the privacy level:
 
 #. Go to your project dashboard
-#. Go to :guilabel:`Admin`, then :guilabel:`Settings`
+#. Go to :guilabel:`Settings`, then :guilabel:`Pull request builds`
 #. Select your option in :guilabel:`Privacy level of builds from pull requests`
-#. Click on :guilabel:`Save`
+#. Click on :guilabel:`Update`
 
 Privacy levels work the same way as :ref:`normal versions <versions:Version states>`.
 
@@ -54,8 +52,9 @@ Limitations
 -----------
 
 - Pull requests are only available for **GitHub** and **GitLab** currently. Bitbucket is not yet supported.
-- To enable this feature, your Read the Docs account needs to be connected to an
-  account with your Git provider, *and* the connecting webhook must be configured to send on creation of a pull request, not just on pushes to your main branch.
+- To enable this feature, your Read the Docs project needs to be connected to a repository from a supported Git provider.
+- If your project is using our :ref:`reference/git-integration:GitHub App`, you don't need to configure a webhook.
+  For GitLab, and projects using our old GitHub integration, you need to make sure that your webhook is configured to send pull request events, not just push events.
 - Builds from pull requests have the same memory and time limitations
   :doc:`as regular builds </builds>`.
 - Additional formats like PDF aren't built in order to reduce build time.
@@ -67,8 +66,12 @@ Troubleshooting
 ---------------
 
 No new builds are started when I open a pull request
-   The most common cause is that your repository's webhook is not configured to
-   send Read the Docs pull request events. You'll need to re-sync your project's
+   The most common cause when using GitHub is that your Read the Docs project is not
+   :ref:`connected to the corresponding repository on GitHub <reference/git-integration:Connect a repository to an existing project>`.
+
+   If you are using our old GitHub integration,
+   make sure that your repository's webhook is configured to
+   send pull request events. You can re-sync your project's
    webhook integration to reconfigure the Read the Docs webhook.
 
    To re-sync your project's webhook, go to your project's admin dashboard,

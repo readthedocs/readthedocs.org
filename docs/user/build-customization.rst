@@ -379,7 +379,7 @@ It's possible to use ``post_checkout`` user-defined job for this.
          # Download and uncompress the binary
          # https://git-lfs.github.com/
          - wget https://github.com/git-lfs/git-lfs/releases/download/v3.1.4/git-lfs-linux-amd64-v3.1.4.tar.gz
-         - tar xvfz git-lfs-linux-amd64-v3.1.4.tar.gz
+         - tar xvfz git-lfs-linux-amd64-v3.1.4.tar.gz git-lfs
          # Modify LFS config paths to point where git-lfs binary was downloaded
          - git config filter.lfs.process "`pwd`/git-lfs filter-process"
          - git config filter.lfs.smudge  "`pwd`/git-lfs smudge -- %f"
