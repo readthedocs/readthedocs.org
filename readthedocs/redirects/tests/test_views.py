@@ -7,6 +7,7 @@ from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.redirects.constants import (
     CLEAN_URL_TO_HTML_REDIRECT,
+    CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
     EXACT_REDIRECT,
     HTML_TO_CLEAN_URL_REDIRECT,
     PAGE_REDIRECT,
@@ -208,6 +209,20 @@ class TestViews(TestCase):
         self.assertContains(
             resp,
             "Only one redirect of type `clean_url_to_html` is allowed per project.",
+        )
+
+        get(Redirect, redirect_type=CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT, project=self.project)
+        resp = self.client.post(
+            url,
+            data={
+                "redirect_type": CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
+                "http_status": 302,
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(
+            resp,
+            "Only one redirect of type `clean_url_without_trailing_slash_to_html` is allowed per project.",
         )
 
         get(Redirect, redirect_type=HTML_TO_CLEAN_URL_REDIRECT, project=self.project)

@@ -9,11 +9,16 @@ HTTP_STATUS_CHOICES = (
 PAGE_REDIRECT = "page"
 EXACT_REDIRECT = "exact"
 CLEAN_URL_TO_HTML_REDIRECT = "clean_url_to_html"
+CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT = "clean_url_without_trailing_slash_to_html"
 HTML_TO_CLEAN_URL_REDIRECT = "html_to_clean_url"
 
 TYPE_CHOICES = (
     (PAGE_REDIRECT, _("Page Redirect")),
     (EXACT_REDIRECT, _("Exact Redirect")),
     (CLEAN_URL_TO_HTML_REDIRECT, _("Clean URL to HTML (file/ to file.html)")),
+    (
+        CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
+        _("Clean URL, without trailing slash, to HTML (file to file.html)"),
+    ),
     (HTML_TO_CLEAN_URL_REDIRECT, _("HTML to clean URL (file.html to file/)")),
 )
