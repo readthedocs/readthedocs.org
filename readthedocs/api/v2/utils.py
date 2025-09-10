@@ -15,6 +15,7 @@ from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.constants import TAG
+from readthedocs.builds.datatypes import VersionData
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 
@@ -168,10 +169,13 @@ def _set_or_create_version(project, slug, version_id, verbose_name, type_):
 
 
 def _get_deleted_versions_qs(project, tags_data, branches_data):
+    # Convert to VersionData if not already
+    tags_data = [VersionData(**v) if not isinstance(v, VersionData) else v for v in tags_data]
+    branches_data = [VersionData(**v) if not isinstance(v, VersionData) else v for v in branches_data]
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
-    versions_tags = [version["verbose_name"] for version in tags_data]
-    versions_branches = [version["identifier"] for version in branches_data]
+    versions_tags = [version.verbose_name for version in tags_data]
+    versions_branches = [version.identifier for version in branches_data]
 
     to_delete_qs = (
         project.versions(manager=INTERNAL)
@@ -196,6 +200,9 @@ def delete_versions_from_db(project, tags_data, branches_data):
 
     :returns: The slug of the deleted versions from the database.
     """
+    # Convert to VersionData if not already
+    tags_data = [VersionData(**v) if not isinstance(v, VersionData) else v for v in tags_data]
+    branches_data = [VersionData(**v) if not isinstance(v, VersionData) else v for v in branches_data]
     to_delete_qs = _get_deleted_versions_qs(
         project=project,
         tags_data=tags_data,
@@ -212,6 +219,9 @@ def delete_versions_from_db(project, tags_data, branches_data):
 
 def get_deleted_active_versions(project, tags_data, branches_data):
     """Return the slug of active versions that were deleted from the repository."""
+    # Convert to VersionData if not already
+    tags_data = [VersionData(**v) if not isinstance(v, VersionData) else v for v in tags_data]
+    branches_data = [VersionData(**v) if not isinstance(v, VersionData) else v for v in branches_data]
     to_delete_qs = _get_deleted_versions_qs(
         project=project,
         tags_data=tags_data,
