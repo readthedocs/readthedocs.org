@@ -5,7 +5,6 @@ from rest_framework_api_key.permissions import BaseHasAPIKey
 from rest_framework_api_key.permissions import KeyParser
 
 from readthedocs.api.v2.models import BuildAPIKey
-from readthedocs.builds.models import Version
 
 
 class IsOwner(permissions.BasePermission):
@@ -39,9 +38,8 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
         project = view._get_project()
         version = view._get_version()
         has_access = (
-            Version.objects.public(
+            project.versions.public(
                 user=request.user,
-                project=project,
                 only_active=False,
             )
             .filter(pk=version.pk)
