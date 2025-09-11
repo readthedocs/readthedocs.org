@@ -821,7 +821,7 @@ class APITests(TestCase):
         project.save()
         build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
         expected = (build_api_key_obj.expiry_date - timezone.now()).seconds
-        self.assertAlmostEqual(expected, 9000, delta=5)
+        self.assertAlmostEqual(expected, 86400, delta=5)
 
     def test_user_doesnt_get_full_api_return(self):
         user_normal = get(User, is_staff=False)
