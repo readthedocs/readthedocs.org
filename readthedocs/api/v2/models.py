@@ -29,6 +29,10 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
         #
         # Use 24 hours for now since we are hitting the expiry date and we shouldn't
         # https://github.com/readthedocs/readthedocs.org/issues/12467
+        #
+        # NOTE: this is the maximum time this token will be valid, since the
+        # default behavior is to revoke from the builder itself when the build
+        # at `after_return` immediately before the build finishes
         delta = 60 * 60 * 24  # 24h
         expiry_date = timezone.now() + timedelta(seconds=delta)
         name_max_length = self.model._meta.get_field("name").max_length
