@@ -15,7 +15,7 @@ import structlog
 import yaml
 from django.conf import settings
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.config.config import CONFIG_FILENAME_REGEX
 from readthedocs.config.find import find_one
 from readthedocs.core.utils.filesystem import safe_open
@@ -223,7 +223,15 @@ class BuildDirector:
                     dismissable=True,
                 )
 
-        identifier = self.data.build_commit or self.data.version.identifier
+        commit = self.data.build_commit
+        is_rtd_latest = self.data.version.slug == LATEST and self.data.version.machine
+        # If Feature.DONT_CLEAN_BUILD is enabled, we need to explicitly call checkout
+        # with the default branch, otherwise we could end up in the wrong branch.
+        if not commit and is_rtd_latest and not self.data.project.default_branch:
+            log.info("Using default branch for checkout.")
+            identifier = self.vcs_repository.get_default_branch()
+        else:
+            identifier = commit or self.data.version.identifier
         log.info("Checking out.", identifier=identifier)
         self.vcs_repository.checkout(identifier)
 

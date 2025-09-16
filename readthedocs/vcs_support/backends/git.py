@@ -291,12 +291,13 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        remote_reference = self.get_remote_fetch_refspec()
-
-        if remote_reference:
-            # TODO: We are still fetching the latest 50 commits.
-            # A PR might have another commit added after the build has started...
-            cmd.append(remote_reference)
+        omit_remote_reference = self.version.is_machine_latest and not self.project.default_branch
+        if not omit_remote_reference:
+            remote_reference = self.get_remote_fetch_refspec()
+            if remote_reference:
+                # TODO: We are still fetching the latest 50 commits.
+                # A PR might have another commit added after the build has started...
+                cmd.append(remote_reference)
 
         # Log a warning, except for machine versions since it's a known bug that
         # we haven't stored a remote refspec in Version for those "stable" versions.
@@ -387,6 +388,25 @@ class Backend(BaseVCS):
                     "revision": revision,
                 },
             ) from exc
+
+    def get_default_branch(self):
+        """
+        Return the default branch of the repository.
+
+        The default branch is the branch that is checked out when cloning the
+        repository. This is usually master or main, it can be configured
+        in the repository settings.
+
+        The ``git symbolic-ref`` command will produce an output like:
+
+        .. code-block:: text
+
+           origin/main
+        """
+        cmd = ["git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD"]
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        default_branch = stdout.strip().removeprefix("origin/")
+        return default_branch
 
     def lsremote(self, include_tags=True, include_branches=True):
         """
