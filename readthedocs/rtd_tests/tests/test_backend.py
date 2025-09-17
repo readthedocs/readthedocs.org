@@ -145,7 +145,7 @@ class TestGitBackend(TestCase):
             {branch: branch for branch in default_branches + branches},
             {branch.verbose_name: branch.identifier for branch in repo_branches},
         )
-    
+
     def test_get_default_branch(self):
         version = self.project.versions.first()
         repo = self.project.vcs_repo(environment=self.build_environment, version=version)
