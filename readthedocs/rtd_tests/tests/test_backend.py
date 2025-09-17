@@ -145,6 +145,26 @@ class TestGitBackend(TestCase):
             {branch: branch for branch in default_branches + branches},
             {branch.verbose_name: branch.identifier for branch in repo_branches},
         )
+    
+    def test_get_default_branch(self):
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+        repo.update()
+        default_branch = repo.get_default_branch()
+        assert default_branch == "master"
+
+        version = get(
+            Version,
+            project=self.project,
+            type=BRANCH,
+            identifier="submodule",
+            verbose_name="submodule",
+        )
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+        repo.update()
+        repo.checkout("submodule")
+        default_branch = repo.get_default_branch()
+        assert default_branch == "master"
 
     def test_git_update_and_checkout(self):
         version = self.project.versions.first()
