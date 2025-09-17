@@ -1456,14 +1456,6 @@ class TestBuildTask(BuildEnvironmentBase):
         python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3"]
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
-                # TODO: check for this in the VCS environment.
-                # We can't check it here because this is the build environment.
-                #
-                # mock.call(
-                #     "cat",
-                #     "readthedocs.yml",
-                #     cwd="/tmp/readthedocs-tests/git-repository",
-                # ),
                 mock.call("asdf", "install", "python", python_version),
                 mock.call("asdf", "global", "python", python_version),
                 mock.call("asdf", "reshim", "python", record=False),
@@ -1505,15 +1497,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),
-                # FIXME: shouldn't this one be present here? It's not now because
-                # we are mocking `append_conf` which is the one that triggers this
-                # command.
-                #
-                # mock.call(
-                #     'cat',
-                #     'docs/conf.py',
-                #     cwd=mock.ANY,
-                # ),
                 mock.call(
                     mock.ANY,
                     "-m",
@@ -1644,8 +1627,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                     cwd=mock.ANY,
                 ),
-                # FIXME: I think we are hitting this issue here:
-                # https://github.com/pytest-dev/pytest-mock/issues/234
                 mock.call("lsb_release", "--description", record=False, demux=True),
                 mock.call("python", "--version", record=False, demux=True),
                 mock.call(
