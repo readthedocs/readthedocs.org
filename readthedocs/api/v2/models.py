@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -24,9 +23,17 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
 
         and can be revoked at any time by hitting the /api/v2/revoke/ endpoint.
         """
-        delta = (
-            project.container_time_limit or settings.BUILD_TIME_LIMIT
-        ) * 1.25 + settings.RTD_BUILDS_RETRY_DELAY * settings.RTD_BUILDS_MAX_RETRIES
+        # delta = (
+        #     project.container_time_limit or settings.BUILD_TIME_LIMIT
+        # ) * 1.25 + settings.RTD_BUILDS_RETRY_DELAY * settings.RTD_BUILDS_MAX_RETRIES
+        #
+        # Use 24 hours for now since we are hitting the expiry date and we shouldn't
+        # https://github.com/readthedocs/readthedocs.org/issues/12467
+        #
+        # NOTE: this is the maximum time this token will be valid, since the
+        # default behavior is to revoke from the builder itself when the build
+        # at `after_return` immediately before the build finishes
+        delta = 60 * 60 * 24  # 24h
         expiry_date = timezone.now() + timedelta(seconds=delta)
         name_max_length = self.model._meta.get_field("name").max_length
         return super().create_key(
