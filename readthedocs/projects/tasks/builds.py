@@ -16,6 +16,7 @@ from pathlib import Path
 
 import structlog
 from celery import Task
+from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.utils import timezone
 from slumber import API
@@ -483,6 +484,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Set build state as cancelled if the user cancelled the build
             if isinstance(exc, BuildCancelled):
                 self.data.build["state"] = BUILD_STATE_CANCELLED
+
+        elif isinstance(exc, SoftTimeLimitExceeded):
+            log.info("Soft time limit exceeded.")
+            message_id = BuildUserError.BUILD_TIME_OUT
 
         else:
             # We don't know what happened in the build. Log the exception and
