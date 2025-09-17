@@ -812,15 +812,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         with self.data.build_director.vcs_environment:
             self.data.build_director.setup_vcs()
 
-            # Get the default branch of the repository if the project doesn't
-            # have an explicit default branch set and we are building latest.
-            # The identifier from latest will be updated with this value
-            # if the build succeeds.
-            if self.data.version.is_machine_latest and not self.data.project.default_branch:
-                self.data.default_branch = (
-                    self.data.build_director.vcs_repository.get_default_branch()
-                )
-
             # Sync tags/branches from VCS repository into Read the Docs'
             # `Version` objects in the database. This method runs commands
             # (e.g. "hg tags") inside the VCS environment, so it requires to be

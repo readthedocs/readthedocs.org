@@ -1148,7 +1148,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "refs/remotes/origin/a1b2c3",
                     record=False,
                 ),
-                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call(
                     "git",
                     "symbolic-ref",
@@ -1157,6 +1156,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     demux=True,
                     record=False,
                 ),
+                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call(
                     "git",
                     "ls-remote",
@@ -1720,7 +1720,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "refs/remotes/origin/a1b2c3",
                     record=False,
                 ),
-                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call(
                     "git",
                     "symbolic-ref",
@@ -1729,6 +1728,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     demux=True,
                     record=False,
                 ),
+                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call(
                     "git",
                     "ls-remote",

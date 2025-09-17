@@ -223,6 +223,17 @@ class BuildDirector:
                     dismissable=True,
                 )
 
+        # Get the default branch of the repository if the project doesn't
+        # have an explicit default branch set and we are building latest.
+        # The identifier from latest will be updated with this value
+        # if the build succeeds.
+        if self.data.version.is_machine_latest and not self.data.project.default_branch:
+            self.data.default_branch = self.data.build_director.vcs_repository.get_default_branch()
+            log.info(
+                "Default branch for the repository detected.",
+                default_branch=self.data.default_branch,
+            )
+
         # We can't skip the checkout step.
         # If Feature.DONT_CLEAN_BUILD is enabled, we need to explicitly call checkout
         # with the default branch, otherwise we could end up in the wrong branch.
