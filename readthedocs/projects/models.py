@@ -1211,9 +1211,9 @@ class Project(models.Model):
         # default_branch can be a tag or a branch name!
         default_version_name = self.get_default_branch(fallback_to_vcs=False)
         # If the default_branch is not set, it means that the user
-        # wants to use the default branch of the respository,
-        # but we don't know what it is here, latest will be updated
-        # on the next build, when we have cloned the repository.
+        # wants to use the default branch of the respository, but
+        # we don't know what that is here, `latest` will be updated
+        # on the next build.
         if not default_version_name:
             return
 

@@ -116,9 +116,9 @@ class TaskData:
     config: BuildConfigV2 = None
     project: APIProject = None
     version: APIVersion = None
-    # Default branch for the project.
-    # This is used to update the latest version in case the project doesn't
-    # have an explicit default branch set.
+    # Default branch for the repository.
+    # Only set when building the latest version, and the project
+    # doesn't have an explicit default branch.
     default_branch: str | None = None
 
     # Dictionary returned from the API.
@@ -660,11 +660,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             }
             # Update the latest version to point to the current VCS default branch
             # if the project doesn't have an explicit default branch set.
-            if (
-                self.data.version.is_machine_latest
-                and not self.data.project.default_branch
-                and self.data.default_branch
-            ):
+            if self.data.default_branch:
                 data["identifier"] = self.data.default_branch
                 data["type"] = BRANCH
             try:
