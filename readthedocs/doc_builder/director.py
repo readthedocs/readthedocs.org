@@ -15,7 +15,8 @@ import structlog
 import yaml
 from django.conf import settings
 
-from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import LATEST
 from readthedocs.config.config import CONFIG_FILENAME_REGEX
 from readthedocs.config.find import find_one
 from readthedocs.core.utils.filesystem import safe_open

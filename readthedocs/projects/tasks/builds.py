@@ -23,8 +23,9 @@ from slumber.exceptions import HttpClientError
 
 from readthedocs.api.v2.client import setup_api
 from readthedocs.builds import tasks as build_tasks
-from readthedocs.builds.constants import ARTIFACT_TYPES, BRANCH
+from readthedocs.builds.constants import ARTIFACT_TYPES
 from readthedocs.builds.constants import ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT
+from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
@@ -820,7 +821,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # The identifier from latest will be updated with this value
             # if the build succeeds.
             if self.data.version.is_machine_latest and not self.data.project.default_branch:
-                self.data.default_branch = self.data.build_director.vcs_repository.get_default_branch()
+                self.data.default_branch = (
+                    self.data.build_director.vcs_repository.get_default_branch()
+                )
 
             # Sync tags/branches from VCS repository into Read the Docs'
             # `Version` objects in the database. This method runs commands
