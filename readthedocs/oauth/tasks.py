@@ -134,7 +134,7 @@ def sync_active_users_remote_repositories(self):
     # so we use a lock (12 hours) to avoid that.
     lock_id = "{0}-lock".format(self.name)
     with memcache_lock(lock_id, 60 * 60 * 12, self.app.oid) as acquired:
-        if acquired:
+        if not acquired:
             log.exception("Task has already been run recently, exiting.")
             return
 
