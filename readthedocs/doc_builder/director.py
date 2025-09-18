@@ -214,7 +214,7 @@ class BuildDirector:
             has_ssh_key_with_write_access = self.vcs_repository.has_ssh_key_with_write_access()
             if has_ssh_key_with_write_access != self.data.project.has_ssh_key_with_write_access:
                 self.data.api_client.project(self.data.project.pk).patch(
-                    {"ssh_key_with_write_access": has_ssh_key_with_write_access}
+                    {"has_ssh_key_with_write_access": has_ssh_key_with_write_access}
                 )
             if has_ssh_key_with_write_access:
                 self.attach_notification(
