@@ -1,5 +1,6 @@
 """Django models for the redirects app."""
 
+import os
 import re
 
 import structlog
@@ -11,6 +12,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
+from readthedocs.redirects.constants import CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT
 from readthedocs.redirects.constants import EXACT_REDIRECT
 from readthedocs.redirects.constants import HTML_TO_CLEAN_URL_REDIRECT
 from readthedocs.redirects.constants import HTTP_STATUS_CHOICES
@@ -134,6 +136,7 @@ class Redirect(models.Model):
         self.from_url_without_rest = None
         if self.redirect_type in [
             CLEAN_URL_TO_HTML_REDIRECT,
+            CLEAN_URL_WITHOUT_TRAILING_SLASH_TO_HTML_REDIRECT,
             HTML_TO_CLEAN_URL_REDIRECT,
         ]:
             # These redirects don't make use of the ``from_url``/``to_url`` fields.
@@ -323,6 +326,20 @@ class Redirect(models.Model):
                     version_slug=version_slug,
                     allow_crossdomain=False,
                 )
+
+    def redirect_clean_url_without_trailing_slash_to_html(
+        self, filename, path, language=None, version_slug=None
+    ):
+        log.debug("Redirecting...", redirect=self)
+        name, ext = os.path.splitext(filename)
+        if not ext:
+            to = name + ".html"
+            return self.get_full_path(
+                filename=to,
+                language=language,
+                version_slug=version_slug,
+                allow_crossdomain=False,
+            )
 
     def redirect_html_to_clean_url(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
