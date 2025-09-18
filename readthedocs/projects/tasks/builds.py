@@ -282,6 +282,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         MkDocsYAMLParseError,
         ProjectConfigurationError,
         BuildMaxConcurrencyError,
+        SoftTimeLimitExceeded,
     )
 
     # Do not send notifications on failure builds for these exceptions.
