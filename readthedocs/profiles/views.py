@@ -3,6 +3,7 @@
 from enum import StrEnum
 from enum import auto
 
+import structlog
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
 from allauth.socialaccount.providers.github.provider import GitHubProvider
@@ -52,8 +53,29 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
 
 
+log = structlog.get_logger(__name__)
+
+
 class LoginViewBase(AllAuthLoginView):
-    pass
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        last_login_method = self.request.COOKIES.get("last-login-method")
+        context_data["last_login_method"] = last_login_method
+
+        last_login_tab = None
+        if last_login_method == "email":
+            last_login_tab = "email"
+        if last_login_method in ("githubapp", "github", "gitlab", "bitbucket_oauth2", "google"):
+            last_login_tab = "vcs"
+        if last_login_method == "sso":
+            last_login_tab = "sso"
+        log.debug(
+            "Login method.",
+            last_login_method=last_login_method,
+            last_login_tab=last_login_tab,
+        )
+        context_data["last_login_tab"] = last_login_tab
+        return context_data
 
 
 class LoginView(SettingsOverrideObject):
