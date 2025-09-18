@@ -223,6 +223,10 @@ class Version(TimeStampedModel):
         return self.type == EXTERNAL
 
     @property
+    def is_machine_latest(self):
+        return self.machine and self.slug == LATEST
+
+    @property
     def explicit_name(self):
         """
         Version name that is explicit about external origins.
