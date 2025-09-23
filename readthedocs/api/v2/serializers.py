@@ -279,8 +279,11 @@ class BuildAdminSerializer(BuildSerializer):
     commands = BuildCommandSerializer(many=True, read_only=True)
 
     class Meta(BuildSerializer.Meta):
-        # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ("_config",)
+        # `_config` should be excluded to avoid conflicts with `config`.
+        #
+        # `healthcheck` is excluded to avoid updating it to `None` again during building.
+        # See https://github.com/readthedocs/readthedocs.org/issues/12474
+        exclude = ("_config", "healthcheck")
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):
