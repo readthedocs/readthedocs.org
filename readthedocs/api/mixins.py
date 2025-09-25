@@ -18,7 +18,9 @@ class CDNCacheTagsMixin:
     Add cache tags for project and version to the response of this view.
 
     The view inheriting this mixin should implement the
-    `self._get_project` and `self._get_version` methods.
+    `self._get_project` and `self._get_version` methods,
+    or set `self._cache_tags` to a list of cache tags if the project/version is
+    not a class/instance variable.
 
     If `self._get_version` returns `None`,
     only the project level tags are added.
@@ -30,7 +32,7 @@ class CDNCacheTagsMixin:
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
-        cache_tags = self._get_cache_tags()
+        cache_tags = getattr(self, "_cache_tags", self._get_cache_tags())
         if cache_tags:
             add_cache_tags(response, cache_tags)
         return response

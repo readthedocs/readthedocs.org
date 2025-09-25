@@ -23,6 +23,7 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from taggit.models import Tag
 
+from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
@@ -32,6 +33,7 @@ from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
+from readthedocs.core.utils import get_cache_tag
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.filters import ProjectVersionListFilterSet
@@ -299,7 +301,7 @@ class ProjectBadgeView(View):
 project_badge = never_cache(ProjectBadgeView.as_view())
 
 
-class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
+class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
 
@@ -381,6 +383,12 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                 project__slug=project_slug,
                 slug=version_slug,
             )
+
+        # For cache tag mixin
+        self._cache_tags = [
+            project.slug,
+            get_cache_tag(project.slug, version.slug),
+        ]
 
         return self._serve_dowload(
             request=request,
