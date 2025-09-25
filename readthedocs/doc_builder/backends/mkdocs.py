@@ -13,7 +13,7 @@ from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
-
+from readthedocs.doc_builder.exceptions import ProjectConfigurationError
 
 
 
@@ -102,10 +102,7 @@ class BaseMkdocs(BaseBuilder):
         ]
 
         if not os.path.exists(self.yaml_file):
-            raise BuildUserError(
-                f"MkDocs configuration file is missing — we could not find a 'mkdocs.yml' file at {self.yaml_file}. "
-                "Please make sure your repository includes one and try again."
-            )
+            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
         if self.config.mkdocs.fail_on_warning:
             build_command.append("--strict")
