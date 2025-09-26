@@ -45,44 +45,26 @@ class AdminPermissionBase:
             # when we aren't using organizations.
             return user.projects.all()
 
-        # Internal cache to avoid hitting the database/cache multiple times.
-        _organizations_with_allauth_sso = {}
-
-        def _has_sso_with_allauth_enabled(org):
-            if org.pk not in _organizations_with_allauth_sso:
-                _organizations_with_allauth_sso[org.pk] = cls.has_sso_enabled(
-                    org,
-                    SSOIntegration.PROVIDER_ALLAUTH,
-                )
-            return _organizations_with_allauth_sso[org.pk]
-
-        # Projects from teams
         if admin or member:
+            # Projects from VCS SSO.
+            projects |= cls._get_projects_for_sso_user(user, admin=admin, member=member)
+
+            # Projects from teams that don't have VCS SSO enabled.
             filter = Q()
             if admin:
-                filter |= Q(access=ADMIN_ACCESS)
+                filter |= Q(teams__access=ADMIN_ACCESS)
             if member:
-                filter |= Q(access=READ_ONLY_ACCESS)
-
-            teams = user.teams.filter(filter).select_related(
-                "organization", "organization__ssointegration"
+                filter |= Q(teams__access=READ_ONLY_ACCESS)
+            projects |= Project.objects.filter(filter, teams__members=user).exclude(
+                organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
             )
-            for team in teams:
-                if not _has_sso_with_allauth_enabled(team.organization):
-                    projects |= team.projects.all()
 
+        # Projects from organizations that don't have VCS SSO enabled,
+        # where the user is an owner.
         if admin:
-            # Org Admin
-            for org in user.owner_organizations.all():
-                if not _has_sso_with_allauth_enabled(org):
-                    # Do not grant admin access on projects for owners if the
-                    # organization has SSO enabled with Authorization on the provider.
-                    projects |= org.projects.all()
-
-            projects |= cls._get_projects_for_sso_user(user, admin=True)
-
-        if member:
-            projects |= cls._get_projects_for_sso_user(user, admin=False)
+            projects |= Project.objects.filter(organizations__owners=user).exclude(
+                organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+            )
 
         return projects
 
@@ -107,7 +89,7 @@ class AdminPermissionBase:
         return False
 
     @classmethod
-    def _get_projects_for_sso_user(cls, user, admin=False):
+    def _get_projects_for_sso_user(cls, user, admin=False, member=False):
         from readthedocs.projects.models import Project
 
         return Project.objects.none()
