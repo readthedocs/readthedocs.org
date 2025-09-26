@@ -383,7 +383,7 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDoc
                 slug=version_slug,
             )
 
-        self.set_cache_tags(project=project, version=version)
+        self.set_cache_tags(project=version.project, version=version)
 
         return self._serve_dowload(
             request=request,
