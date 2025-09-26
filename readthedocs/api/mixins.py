@@ -17,13 +17,8 @@ class CDNCacheTagsMixin:
     """
     Add cache tags for project and version to the response of this view.
 
-    The view inheriting this mixin should implement the
-    `self._get_project` and `self._get_version` methods,
-    or set `self._cache_tags` to a list of cache tags if the project/version is
-    not a class/instance variable.
-
-    If `self._get_version` returns `None`,
-    only the project level tags are added.
+    The view inheriting this mixin can either call :py:method:`set_cache_tags` or
+    implement the ``self._get_project`` and ``self._get_version`` methods.
 
     You can add an extra per-project tag by overriding the `project_cache_tag` attribute.
     """
@@ -37,9 +32,19 @@ class CDNCacheTagsMixin:
             add_cache_tags(response, cache_tags)
         return response
 
-    def _get_cache_tags(self):
+    def _get_cache_tags(self, project=None, version=None):
         """
         Get cache tags for this view.
+
+        This returns an array of tag identifiers used to tag the response at CDN.
+
+        If project or version are not passed in, these values will come from the
+        methods ``_get_project()`` and ``_get_version()``.
+        If ``_get_version()`` returns ``None``, only the project level tags are added.
+
+        It's easier to use :py:method:`set_cache_tags` if project/version aren't
+        set at the instance level, or if they are passed in through a method
+        like `get()`.
 
         .. warning::
 
@@ -47,8 +52,8 @@ class CDNCacheTagsMixin:
            so any exceptions like 404 should be caught.
         """
         try:
-            project = self._get_project()
-            version = self._get_version()
+            project = project if project is not None else self._get_project()
+            version = version if version is not None else self._get_version()
         except Exception:
             log.warning(
                 "Error while retrieving project or version for this view.",
@@ -64,6 +69,19 @@ class CDNCacheTagsMixin:
         if project and self.project_cache_tag:
             tags.append(get_cache_tag(project.slug, self.project_cache_tag))
         return tags
+
+    def set_cache_tags(self, project=None, version=None):
+        """
+        Store cache tags to be added to response.
+
+        This method can be used if project/version do not exist on the view
+        instance or if they are passed into the view through a method like
+        ``get()``.
+
+        The attribute methods ``_get_project()``/``_get_version()`` aren`t used
+        in this pattern.
+        """
+        self._cache_tags = self._get_cache_tags(project, version)
 
 
 class EmbedAPIMixin:

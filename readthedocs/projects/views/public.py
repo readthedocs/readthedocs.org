@@ -33,7 +33,6 @@ from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
-from readthedocs.core.utils import get_cache_tag
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.filters import ProjectVersionListFilterSet
@@ -384,11 +383,7 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDoc
                 slug=version_slug,
             )
 
-        # For cache tag mixin
-        self._cache_tags = [
-            project.slug,
-            get_cache_tag(project.slug, version.slug),
-        ]
+        self.set_cache_tags(project=project, version=version)
 
         return self._serve_dowload(
             request=request,
