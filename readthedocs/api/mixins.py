@@ -38,28 +38,29 @@ class CDNCacheTagsMixin:
 
         This returns an array of tag identifiers used to tag the response at CDN.
 
-        If project or version are not passed in, these values will come from the
+        If project and version are not passed in, these values will come from the
         methods ``_get_project()`` and ``_get_version()``.
         If ``_get_version()`` returns ``None``, only the project level tags are added.
 
         It's easier to use :py:method:`set_cache_tags` if project/version aren't
         set at the instance level, or if they are passed in through a method
-        like `get()`.
+        like ``get()``.
 
         .. warning::
 
            This method is run at the end of the request,
            so any exceptions like 404 should be caught.
         """
-        try:
-            project = project if project is not None else self._get_project()
-            version = version if version is not None else self._get_version()
-        except Exception:
-            log.warning(
-                "Error while retrieving project or version for this view.",
-                exc_info=True,
-            )
-            return []
+        if project is None and version is None:
+            try:
+                project = self._get_project()
+                version = self._get_version()
+            except Exception:
+                log.warning(
+                    "Error while retrieving project or version for this view.",
+                    exc_info=True,
+                )
+                return []
 
         tags = []
         if project:
