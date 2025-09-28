@@ -14,7 +14,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
-asgiref==3.9.1
+asgiref==3.9.2
     # via
     #   -r requirements/pip.txt
     #   django
@@ -27,11 +27,11 @@ billiard==4.2.2
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.40.35
+boto3==1.40.40
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.40.35
+botocore==1.40.40
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -81,7 +81,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.10.6
+coverage[toml]==7.10.7
     # via pytest-cov
 cron-descriptor==2.0.6
     # via
@@ -267,7 +267,7 @@ lxml==5.3.2
     #   xmlsec
 markdown==3.9
     # via -r requirements/pip.txt
-markupsafe==3.0.2
+markupsafe==3.0.3
     # via jinja2
 oauthlib==3.3.1
     # via
@@ -380,7 +380,7 @@ python3-saml==1.16.0
     #   django-allauth
 pytz==2025.2
     # via -r requirements/pip.txt
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via -r requirements/pip.txt
 qrcode==8.2
     # via
@@ -515,7 +515,7 @@ vine==5.1.0
     #   kombu
 virtualenv==20.34.0
     # via -r requirements/pip.txt
-wcwidth==0.2.13
+wcwidth==0.2.14
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
