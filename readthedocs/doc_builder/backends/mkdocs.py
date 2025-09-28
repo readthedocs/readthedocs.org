@@ -13,7 +13,7 @@ from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
-from readthedocs.doc_builder.exceptions import ProjectConfigurationError
+from readthedocs.projects.exceptions import ProjectConfigurationError
 
 
 
