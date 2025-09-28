@@ -6,6 +6,7 @@ MkDocs_ backend for building docs.
 
 import os
 import structlog
+import yaml
 from django.conf import settings
 
 from readthedocs.core.utils.filesystem import safe_open
