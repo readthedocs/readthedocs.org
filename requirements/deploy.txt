@@ -12,7 +12,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
-asgiref==3.9.1
+asgiref==3.9.2
     # via
     #   -r requirements/pip.txt
     #   django
@@ -25,11 +25,11 @@ billiard==4.2.2
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.40.35
+boto3==1.40.40
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.40.35
+botocore==1.40.40
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -353,7 +353,7 @@ python3-saml==1.16.0
     #   django-allauth
 pytz==2025.2
     # via -r requirements/pip.txt
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via -r requirements/pip.txt
 qrcode==8.2
     # via
@@ -385,7 +385,7 @@ s3transfer==0.14.0
     #   boto3
 selectolax==0.3.34
     # via -r requirements/pip.txt
-sentry-sdk==2.38.0
+sentry-sdk==2.39.0
     # via structlog-sentry
 six==1.17.0
     # via
@@ -477,7 +477,7 @@ vine==5.1.0
     #   kombu
 virtualenv==20.34.0
     # via -r requirements/pip.txt
-wcwidth==0.2.13
+wcwidth==0.2.14
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
