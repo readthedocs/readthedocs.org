@@ -526,7 +526,7 @@ Take a look at the following example:
    build:
       os: ubuntu-24.04
       tools:
-          python: "latest" # so RTD stops complaining, see issue xxx
+          python: "latest"
       jobs:
          create_environment:
             - asdf plugin add pixi
