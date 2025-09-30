@@ -15,6 +15,7 @@ from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
 from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.doc_builder.exceptions import UserFileNotFound
 
 
 
@@ -82,6 +83,13 @@ class BaseMkdocs(BaseBuilder):
 
     def show_conf(self):
         """Show the current ``mkdocs.yaml`` being used."""
+        if not os.path.exists(self.yaml_file):
+            raise UserFileNotFound(
+                message_id=UserFileNotFound.FILE_NOT_FOUND,
+                format_values={
+                    "filename": os.path.relpath(self.yaml_file, self.project_path),
+                },
+            )
         # Write the mkdocs.yml to the build logs
         self.run(
             "cat",
@@ -101,10 +109,7 @@ class BaseMkdocs(BaseBuilder):
             "--config-file",
             os.path.relpath(self.yaml_file, self.project_path),
         ]
-
-        if not os.path.exists(self.yaml_file):
-            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
-
+            
         if self.config.mkdocs.fail_on_warning:
             build_command.append("--strict")
         cmd_ret = self.run(
