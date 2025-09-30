@@ -126,7 +126,7 @@ messages = [
         type=ERROR,
     ),
     Message(
-        id=ProjectConfigurationError.MKDOCS_YAML_NOT_FOUND,,
+        id=ProjectConfigurationError.MKDOCS_YAML_NOT_FOUND,
         header=_("MkDocs configuration file is missing"),
         body=_(
             textwrap.dedent(
