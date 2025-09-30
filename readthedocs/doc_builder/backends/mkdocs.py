@@ -15,8 +15,7 @@ from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
 from readthedocs.projects.exceptions import ProjectConfigurationError
-from readthedocs.doc_builder.exceptions import UserFileNotFound
-
+from readthedocs.projects.exceptions import UserFileNotFound
 
 
 log = structlog.get_logger(__name__)
