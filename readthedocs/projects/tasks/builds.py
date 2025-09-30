@@ -5,6 +5,7 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
+import datetime
 import os
 import shutil
 import signal
@@ -410,6 +411,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        # Save when the task was executed by a builder and log a warning if it took more than 10 minutes
+        task_executed_or_created_at = datetime.datetime.fromisoformat(
+            self.data.build["task_executed_at"] or self.data.build["date"]
+        )
+        log.error("Test", t=task_executed_or_created_at)
+        delta = timezone.now() - task_executed_or_created_at
+        if task_executed_or_created_at and delta > timezone.timedelta(minutes=10):
+            log.warning(
+                "This task waited more than 10 minutes to be executed.",
+                delta_minutes=round(delta.seconds / 60, 1),
+            )
+        self.data.build["task_executed_at"] = timezone.now()
+
         # Enable scale-in protection on this instance
         #
         # TODO: move this to the beginning of this method
@@ -727,7 +741,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
                 format_values=format_values,
             )
-            self.update_build(state=BUILD_STATE_TRIGGERED)
+
+        # Always update the build on retry
+        self.update_build(state=BUILD_STATE_TRIGGERED)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         """
