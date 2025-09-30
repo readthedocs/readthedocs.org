@@ -47,9 +47,7 @@ class BaseMkdocs(BaseBuilder):
 
         # This is the *MkDocs* yaml file
         self.yaml_file = self.get_yaml_config()
-        if not os.path.exists(self.yaml_file):
-            raise ProjectConfigurationError(ProjectConfigurationError.MKDOCS_NOT_FOUND)
-
+        
     def get_final_doctype(self):
         """
         Select a doctype based on the ``use_directory_urls`` setting.
