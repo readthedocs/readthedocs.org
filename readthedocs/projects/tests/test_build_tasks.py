@@ -282,7 +282,10 @@ class TestBuildTask(BuildEnvironmentBase):
             validate=True,
         )
 
-        mkdocs_path = os.path.join(self.project_path, "mkdocs.yml")
+        mkdocs_path = os.path.join(
+            self.project.checkout_path(self.version.slug), 
+            "mkdocs.yml"
+        )
         with open(mkdocs_path, "w") as f:
             f.write("site_name: Test Project\n")
 
@@ -2583,10 +2586,15 @@ class TestBuildTask(BuildEnvironmentBase):
             validate=True,
         )
 
-        mkdocs_path = os.path.join(self.project_path, "docs", "mkdocs.yaml")
+        mkdocs_path = os.path.join(
+            self.project.checkout_path(self.version.slug),
+            "docs", 
+            "mkdocs.yaml"
+        )
         os.makedirs(os.path.dirname(mkdocs_path), exist_ok=True)
         with open(mkdocs_path, "w") as f:
             f.write("site_name: Test Project\n")
+
 
         self._trigger_update_docs_task()
 
