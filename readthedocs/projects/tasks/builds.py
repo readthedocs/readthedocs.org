@@ -347,7 +347,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             concurrency_limit_reached = False
             max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
 
-        if concurrency_limit_reached:
+        if True: # concurrency_limit_reached:
             # By calling ``retry`` Celery will raise an exception and call ``on_retry``.
             # NOTE: autoretry_for doesn't work with exceptions raised from before_start,
             # it only works if they are raised from the run/execute method.
@@ -411,17 +411,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
-        # Save when the task was executed by a builder and log a warning if it took more than 10 minutes
-        task_executed_or_created_at = datetime.datetime.fromisoformat(
-            self.data.build["task_executed_at"] or self.data.build["date"]
-        )
-        log.error("Test", t=task_executed_or_created_at)
-        delta = timezone.now() - task_executed_or_created_at
-        if task_executed_or_created_at and delta > timezone.timedelta(minutes=10):
-            log.warning(
-                "This task waited more than 10 minutes to be executed.",
-                delta_minutes=round(delta.seconds / 60, 1),
-            )
+        # Log a warning if the task took more than 10 minutes to be retried
+        if self.data.build["task_executed_at"]:
+            task_executed_at = datetime.datetime.fromisoformat(self.data.build["task_executed_at"])
+            delta = timezone.now() - task_executed_at
+            if delta > timezone.timedelta(minutes=10):
+                log.warning(
+                    "This task waited more than 10 minutes to be retried.",
+                    delta_minutes=round(delta.seconds / 60, 1),
+                )
+
+        # Save when the task was executed by a builder
         self.data.build["task_executed_at"] = timezone.now()
 
         # Enable scale-in protection on this instance
