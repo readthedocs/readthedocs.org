@@ -640,6 +640,10 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
         """
         project = request.unresolved_domain.project
 
+        # Set cache tag only for project for now, for responses that don't use a
+        # specific version instance.
+        self.set_cache_tags(project=project)
+
         if project.delisted:
             return render(
                 request,
@@ -690,7 +694,8 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
                 filename="robots.txt",
                 check_if_exists=True,
             )
-            # Cache tags for project and version
+            # Set project and version cache tags, override project only tag as
+            # we want to purge this file each time the version changes too.
             self.set_cache_tags(project=project, version=version)
             log.info("Serving custom robots.txt file.")
             return response
@@ -706,9 +711,6 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
             "sitemap_url": sitemap_url,
             "hidden_paths": self._get_hidden_paths(project),
         }
-
-        # Cache tag only for project, don't include version cache tag
-        self.set_cache_tags(project=project)
 
         return render(
             request,
