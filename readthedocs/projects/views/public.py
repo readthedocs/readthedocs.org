@@ -23,6 +23,7 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from taggit.models import Tag
 
+from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
@@ -299,7 +300,7 @@ class ProjectBadgeView(View):
 project_badge = never_cache(ProjectBadgeView.as_view())
 
 
-class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
+class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
 
@@ -382,12 +383,27 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                 slug=version_slug,
             )
 
+        # TODO don't do this, it's a leftover of trying to use CDNCacheTagsMixin
+        # without class level variables. See proxito.views.serve for
+        # other instances of this pattern to update.
+        # See: https://github.com/readthedocs/readthedocs.org/pull/12495
+        self.project = version.project
+        self.version = version
+
         return self._serve_dowload(
             request=request,
             project=version.project,
             version=version,
             type_=type_,
         )
+
+    def _get_project(self):
+        """Hack for CDNCacheTagsMixin, get project set in `get()`."""
+        return self.project
+
+    def _get_version(self):
+        """Hack for CDNCacheTagsMixin, get version set in `get()`."""
+        return self.version
 
 
 class ProjectDownloadMedia(SettingsOverrideObject):
