@@ -430,6 +430,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # once we don't need to rely on `self.data.project`.
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
+                build_id=self.data.build_pk,
                 builder=socket.gethostname(),
                 protected_from_scale_in=True,
             )
@@ -783,6 +784,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Disable scale-in protection on this instance
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
+                build_id=self.data.build_pk,
                 builder=socket.gethostname(),
                 protected_from_scale_in=False,
             )
