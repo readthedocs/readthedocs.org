@@ -690,6 +690,8 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
                 filename="robots.txt",
                 check_if_exists=True,
             )
+            # Cache tags for project and version
+            self.set_cache_tags(project=project, version=version)
             log.info("Serving custom robots.txt file.")
             return response
         except StorageFileNotFound:
