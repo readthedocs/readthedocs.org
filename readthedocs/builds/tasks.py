@@ -1,5 +1,6 @@
 import json
 from io import BytesIO
+import dataclasses
 
 import requests
 import structlog
@@ -25,6 +26,7 @@ from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import LOCK_EXPIRE
 from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import TAG
+from readthedocs.builds.datatypes import VersionData
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.reporting import get_build_overview
@@ -294,6 +296,8 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
                       ].
     :returns: `True` or `False` if the task succeeded.
     """
+    tags_data = [VersionData(**d) for d in tags_data]
+    branches_data = [VersionData(**d) for d in branches_data]
     project = Project.objects.get(pk=project_pk)
 
     # If the currently highest non-prerelease version is active, then make
@@ -309,27 +313,27 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         added_versions = set()
         result = sync_versions_to_db(
             project=project,
-            versions=tags_data,
+            versions=[dataclasses.asdict(v) for v in tags_data],
             type=TAG,
         )
         added_versions.update(result)
 
         result = sync_versions_to_db(
             project=project,
-            versions=branches_data,
+            versions=[dataclasses.asdict(v) for v in branches_data],
             type=BRANCH,
         )
         added_versions.update(result)
 
         delete_versions_from_db(
             project=project,
-            tags_data=tags_data,
-            branches_data=branches_data,
+            tags_data=[dataclasses.asdict(v) for v in tags_data],
+            branches_data=[dataclasses.asdict(v) for v in branches_data],
         )
         deleted_active_versions = get_deleted_active_versions(
             project=project,
-            tags_data=tags_data,
-            branches_data=branches_data,
+            tags_data=[dataclasses.asdict(v) for v in tags_data],
+            branches_data=[dataclasses.asdict(v) for v in branches_data],
         )
     except Exception:
         log.exception("Sync Versions Error")
