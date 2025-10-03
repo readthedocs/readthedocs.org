@@ -5,15 +5,17 @@ MkDocs_ backend for building docs.
 """
 
 import os
-
 import structlog
 import yaml
 from django.conf import settings
 
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
+from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.exceptions import UserFileNotFound
 
 
 log = structlog.get_logger(__name__)
@@ -45,7 +47,7 @@ class BaseMkdocs(BaseBuilder):
 
         # This is the *MkDocs* yaml file
         self.yaml_file = self.get_yaml_config()
-
+        
     def get_final_doctype(self):
         """
         Select a doctype based on the ``use_directory_urls`` setting.
@@ -80,6 +82,13 @@ class BaseMkdocs(BaseBuilder):
 
     def show_conf(self):
         """Show the current ``mkdocs.yaml`` being used."""
+        if not os.path.exists(self.yaml_file):
+            raise UserFileNotFound(
+                message_id=UserFileNotFound.FILE_NOT_FOUND,
+                format_values={
+                    "filename": os.path.relpath(self.yaml_file, self.project_path),
+                },
+            )
         # Write the mkdocs.yml to the build logs
         self.run(
             "cat",
@@ -99,6 +108,7 @@ class BaseMkdocs(BaseBuilder):
             "--config-file",
             os.path.relpath(self.yaml_file, self.project_path),
         ]
+            
         if self.config.mkdocs.fail_on_warning:
             build_command.append("--strict")
         cmd_ret = self.run(
