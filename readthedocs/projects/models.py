@@ -1124,9 +1124,7 @@ class Project(models.Model):
         return self.builds(manager=INTERNAL).select_related("version").first()
 
     def active_versions(self):
-        from readthedocs.builds.models import Version
-
-        versions = Version.internal.public(project=self, only_active=True)
+        versions = self.versions(manager=INTERNAL).public(only_active=True)
         return versions.filter(built=True, active=True) | versions.filter(
             active=True, uploaded=True
         )

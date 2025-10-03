@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
@@ -122,7 +122,7 @@ class VersionQuerySetTests(TestVersionQuerySetBase):
         self.assertEqual(set(query), versions)
 
     def test_public_project(self):
-        query = Version.objects.public(user=self.user, project=self.project)
+        query = self.project.versions.public(user=self.user)
         versions = {
             self.version,
             self.version_latest,
@@ -243,7 +243,7 @@ class VersionQuerySetWithInternalManagerTest(TestVersionQuerySetWithManagerBase)
         self.assertEqual(set(query), versions)
 
     def test_public_project(self):
-        query = Version.internal.public(user=self.user, project=self.project)
+        query = self.project.versions(manager=INTERNAL).public(user=self.user)
         versions = {
             self.version,
             self.version_latest,
@@ -341,7 +341,7 @@ class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase)
         self.assertEqual(set(query), versions)
 
     def test_public_project(self):
-        query = Version.external.public(user=self.user, project=self.project)
+        query = self.project.versions(manager=EXTERNAL).public(user=self.user)
         versions = {
             self.external_version_public,
             self.external_version_private,
