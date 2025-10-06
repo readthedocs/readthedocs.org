@@ -110,7 +110,7 @@ class VersionCommitNameTests(TestCase):
         version = new(
             Version,
             project=git_project,
-            identifier="origin/master",
+            identifier="master",
             slug=LATEST,
             verbose_name=LATEST,
             type=BRANCH,

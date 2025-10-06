@@ -159,7 +159,7 @@ class GitHubAppService(Service):
         queryset = RemoteRepository.objects.filter(
             remote_repository_relations__user=user,
             vcs_provider=cls.vcs_provider_slug,
-        )
+        ).select_related("github_app_installation")
         # Group by github_app_installation, so we don't create multiple clients.
         grouped_installations = groupby(
             queryset,
@@ -177,7 +177,9 @@ class GitHubAppService(Service):
             vcs_provider=cls.vcs_provider_slug,
         )
         for remote_organization in queryset:
-            remote_repo = remote_organization.repositories.first()
+            remote_repo = remote_organization.repositories.select_related(
+                "github_app_installation"
+            ).first()
             # NOTE: this should never happen, unless our data is out of sync
             # (we delete orphaned organizations when deleting projects).
             if not remote_repo:
@@ -239,6 +241,18 @@ class GitHubAppService(Service):
             pk__in=[repo.pk for repo in remote_repositories],
         ).values_list("remote_id", flat=True)
         self.installation.delete_repositories(repos_to_delete)
+
+    def update_repository(self, remote_repository: RemoteRepository):
+        """
+        Update a single repository from the given remote repository.
+
+        .. note::
+
+           Unlike the other providers, this method doesn't update the
+           `remote_repository` object itself. If you need the updated object,
+           fetch it again from the database.
+        """
+        self.update_or_create_repositories([remote_repository.remote_id])
 
     def update_or_create_repositories(self, repository_ids: list[int]):
         """Update or create repositories from the given list of repository IDs."""
