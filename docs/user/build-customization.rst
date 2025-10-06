@@ -491,6 +491,7 @@ Python `Dependency Groups <https://packaging.python.org/en/latest/specifications
 are a way of storing lists of dependencies in your ``pyproject.toml``.
 
 ``pip`` version 25.1+ as well as many other tools support Dependency Groups.
+If you override the `install` step, `pip` is not automatically updated.
 This example uses ``pip`` and installs from a group named ``docs``:
 
 .. code-block:: yaml
@@ -504,6 +505,7 @@ This example uses ``pip`` and installs from a group named ``docs``:
          python: "3.13"
       jobs:
          install:
+            - pip install --upgrade pip
             - pip install --group 'docs'
 
 For more information on relevant ``pip`` usage, see the
