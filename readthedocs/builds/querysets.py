@@ -97,7 +97,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
         .. note::
 
            Avoid filtering by reverse relationships in this method (like project),
-           and instead user project.builds or similar, so the same object is shared
+           and instead use project.builds or similar, so the same object is shared
            between the results.
         """
         queryset = self._public_only()
