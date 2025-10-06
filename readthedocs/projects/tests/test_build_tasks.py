@@ -537,6 +537,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "commit": "a1b2c3",
             "error": "",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
         }
 
         # Update build state: installing
@@ -545,6 +546,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "installing",
             "commit": "a1b2c3",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "readthedocs_yaml_path": None,
             "error": "",
             # We update the `config` field at the same time we send the
@@ -618,6 +620,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
         # Update build state: uploading
@@ -628,6 +631,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
         # Update version state
@@ -654,6 +658,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "length": mock.ANY,
             "success": True,
             "error": "",
@@ -811,6 +816,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "commit": "a1b2c3",
             "error": "",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
         }
 
         # Update build state: installing
@@ -819,6 +825,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "installing",
             "commit": "a1b2c3",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "readthedocs_yaml_path": None,
             "error": "",
             # We update the `config` field at the same time we send the
@@ -900,6 +907,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
         # Update build state: uploading
@@ -910,6 +918,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
 
@@ -944,6 +953,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "length": mock.ANY,
             "success": True,
             "error": "",
@@ -1031,6 +1041,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert build_status_request.path == "/api/v2/build/1/"
         assert build_status_request.json() == {
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "commit": self.build.commit,
             "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
@@ -1085,6 +1096,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert build_status_request.path == "/api/v2/build/1/"
         assert build_status_request.json() == {
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "commit": self.build.commit,
             "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
@@ -2968,6 +2980,7 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
             "error": "",  # We not sending "error" anymore
             "success": False,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "length": 0,
         }
 
