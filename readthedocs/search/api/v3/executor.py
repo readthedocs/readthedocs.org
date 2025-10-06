@@ -1,7 +1,7 @@
 from functools import cached_property
 from itertools import islice
 
-from readthedocs.builds.models import Version
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.projects.models import Project
 from readthedocs.search.api.v3.queryparser import SearchQueryParser
 from readthedocs.search.faceted_search import PageSearch
@@ -168,9 +168,9 @@ class SearchExecutor:
         :param include_hidden: If hidden versions should be considered.
         """
         return (
-            Version.internal.public(
+            project.versions(manager=INTERNAL)
+            .public(
                 user=self.request.user,
-                project=project,
                 only_built=True,
                 include_hidden=include_hidden,
             )

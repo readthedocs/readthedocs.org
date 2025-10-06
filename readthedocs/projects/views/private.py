@@ -28,6 +28,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import AutomationRuleMatch
@@ -234,10 +235,13 @@ class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class ProjectVersionEditMixin(ProjectVersionMixin):
     def get_queryset(self):
-        return Version.internal.public(
-            user=self.request.user,
-            project=self.get_project(),
-            only_active=False,
+        return (
+            self.get_project()
+            .versions(manager=INTERNAL)
+            .public(
+                user=self.request.user,
+                only_active=False,
+            )
         )
 
     def form_valid(self, form):
