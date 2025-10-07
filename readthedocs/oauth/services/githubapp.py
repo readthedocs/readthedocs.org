@@ -159,7 +159,7 @@ class GitHubAppService(Service):
         queryset = RemoteRepository.objects.filter(
             remote_repository_relations__user=user,
             vcs_provider=cls.vcs_provider_slug,
-        )
+        ).select_related("github_app_installation")
         # Group by github_app_installation, so we don't create multiple clients.
         grouped_installations = groupby(
             queryset,
@@ -177,7 +177,9 @@ class GitHubAppService(Service):
             vcs_provider=cls.vcs_provider_slug,
         )
         for remote_organization in queryset:
-            remote_repo = remote_organization.repositories.first()
+            remote_repo = remote_organization.repositories.select_related(
+                "github_app_installation"
+            ).first()
             # NOTE: this should never happen, unless our data is out of sync
             # (we delete orphaned organizations when deleting projects).
             if not remote_repo:

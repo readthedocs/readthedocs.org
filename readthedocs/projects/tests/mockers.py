@@ -186,6 +186,7 @@ class BuildEnvironmentMocker:
                 "id": self.build.pk,
                 "state": BUILD_STATE_TRIGGERED,
                 "commit": self.build.commit,
+                "task_executed_at": self.build.task_executed_at,
             },
             headers=headers,
         )

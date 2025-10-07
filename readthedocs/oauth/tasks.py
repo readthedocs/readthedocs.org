@@ -73,7 +73,12 @@ def sync_remote_repositories(user_id, skip_githubapp=False):
         )
 
 
-@app.task(queue="web")
+@app.task(
+    queue="web",
+    # This is a long running task, since it syncs all repositories one by one.
+    time_limit=60 * 60 * 3,  # 3h
+    soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+)
 def sync_remote_repositories_from_sso_organizations():
     """
     Re-sync all remote repositories from organizations with SSO enabled.
