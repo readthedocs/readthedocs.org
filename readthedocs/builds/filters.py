@@ -7,7 +7,7 @@ from django_filters import ChoiceFilter
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.builds.models import Version
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.filters import FilteredModelChoiceFilter
 from readthedocs.core.filters import ModelFilterSet
 
@@ -67,9 +67,8 @@ class BuildListFilter(ModelFilterSet):
         # Copied from the version listing view. We need this here as this is
         # what allows the build version list to populate. Otherwise the
         # ``all()`` queryset method is used.
-        return Version.internal.public(
+        return self.project.versions(manager=INTERNAL).public(
             user=self.request.user,
-            project=self.project,
         )
 
     def get_state(self, queryset, _, value):
