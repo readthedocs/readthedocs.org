@@ -106,9 +106,8 @@ class ProjectDetailViewBase(
     filterset_class = ProjectVersionListFilterSet
 
     def _get_versions(self, project):
-        return Version.internal.public(
+        return project.versions(manager=INTERNAL).public(
             user=self.request.user,
-            project=project,
         )
 
     def get_queryset(self):
@@ -423,9 +422,8 @@ def project_versions(request, project_slug):
         slug=project_slug,
     )
 
-    versions = Version.internal.public(
+    versions = project.versions(manager=INTERNAL).public(
         user=request.user,
-        project=project,
         only_active=False,
     )
     active_versions = versions.filter(active=True)
