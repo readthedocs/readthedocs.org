@@ -461,6 +461,12 @@ class ImportView(PrivateViewMixin, TemplateView):
         context["form_manual"] = ProjectManualForm(user=self.request.user)
         context["GITHUB_APP_NAME"] = settings.GITHUB_APP_NAME
 
+        # Provider list for simple lookup of connected services, used for
+        # conditional content
+        context["socialaccount_providers"] = self.request.user.socialaccount_set.values_list(
+            "provider", flat=True
+        )
+
         return context
 
 
