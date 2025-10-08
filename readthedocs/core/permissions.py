@@ -74,7 +74,9 @@ class AdminPermissionBase:
         # (e.g projects_from_sso | projects_from_teams | projects_from_owners),
         # as the latter can generate a very complex and slow query.
         return Project.objects.filter(
-            Q(id__in=projects_from_sso) | Q(id__in=projects_from_teams) | Q(id__in=projects_from_owners)
+            Q(id__in=projects_from_sso)
+            | Q(id__in=projects_from_teams)
+            | Q(id__in=projects_from_owners)
         )
 
     @classmethod
