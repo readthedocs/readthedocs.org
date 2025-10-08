@@ -45,9 +45,13 @@ class AdminPermissionBase:
             # when we aren't using organizations.
             return user.projects.all()
 
+        projects_from_sso = Project.objects.none()
+        projects_from_teams = Project.objects.none()
+        projects_from_owners = Project.objects.none()
+
         if admin or member:
             # Projects from VCS SSO.
-            projects |= cls._get_projects_for_sso_user(user, admin=admin, member=member)
+            projects_from_sso = cls._get_projects_for_sso_user(user, admin=admin, member=member)
 
             # Projects from teams that don't have VCS SSO enabled.
             filter = Q()
@@ -55,18 +59,23 @@ class AdminPermissionBase:
                 filter |= Q(teams__access=ADMIN_ACCESS)
             if member:
                 filter |= Q(teams__access=READ_ONLY_ACCESS)
-            projects |= Project.objects.filter(filter, teams__members=user).exclude(
+            projects_from_teams = Project.objects.filter(filter, teams__members=user).exclude(
                 organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
             )
 
         # Projects from organizations that don't have VCS SSO enabled,
         # where the user is an owner.
         if admin:
-            projects |= Project.objects.filter(organizations__owners=user).exclude(
+            projects_from_owners = Project.objects.filter(organizations__owners=user).exclude(
                 organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
             )
 
-        return projects
+        # NOTE: We use a filter with Q objects instead of several union operations
+        # (e.g projects_from_sso | projects_from_teams | projects_from_owners),
+        # as the latter can generate a very complex and slow query.
+        return Project.objects.filter(
+            Q(id__in=projects_from_sso) | Q(id__in=projects_from_teams) | Q(id__in=projects_from_owners)
+        )
 
     @classmethod
     def organizations(cls, user, owner=False, member=False):
