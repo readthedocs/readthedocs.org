@@ -192,7 +192,7 @@ def send_external_build_status(version_type, build_pk, commit, status):
 
 
 @app.task(queue="web")
-def set_builder_scale_in_protection(build_id, builder, protected_from_scale_in):
+def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=None):
     """
     Set scale-in protection on this builder ``builder``.
 
