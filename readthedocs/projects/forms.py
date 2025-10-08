@@ -120,6 +120,14 @@ class ProjectForm(SimpleHistoryModelForm):
                 raise forms.ValidationError(
                     _("Invalid project name"),
                 )
+            if len(potential_slug) > 55:
+                raise forms.ValidationError(
+                    _(
+                        "Project name is too long, the generated slug must be 55 characters or less. "
+                        "The current slug would be: %(slug)s"
+                    ),
+                    params={"slug": potential_slug},
+                )
 
         return name
 

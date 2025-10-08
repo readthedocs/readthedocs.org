@@ -293,8 +293,9 @@ class Project(models.Model):
         related_name="projects",
     )
     # A DNS label can contain up to 63 characters.
-    name = models.CharField(_("Name"), max_length=63)
-    slug = models.SlugField(_("Slug"), max_length=63, unique=True)
+    # We limit to 55 to account for PR build suffixes (--{pr_number}).
+    name = models.CharField(_("Name"), max_length=55)
+    slug = models.SlugField(_("Slug"), max_length=55, unique=True)
     description = models.TextField(
         _("Description"),
         blank=True,

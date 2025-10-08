@@ -119,6 +119,34 @@ class TestProjectForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("name", form.errors)
 
+    def test_slug_too_long(self):
+        """Test that project names that generate slugs longer than 55 chars are rejected."""
+        # Test with a name that generates a 56-character slug
+        long_name = "a" * 56
+        initial = {
+            "name": long_name,
+            "repo_type": "git",
+            "repo": "https://github.com/user/repository",
+            "language": "en",
+        }
+        form = ProjectBasicsForm(initial)
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+        self.assertIn("slug must be 55 characters or less", str(form.errors["name"]))
+
+    def test_slug_max_length(self):
+        """Test that project names that generate exactly 55-character slugs are accepted."""
+        # Test with a name that generates exactly 55-character slug
+        max_name = "a" * 55
+        initial = {
+            "name": max_name,
+            "repo_type": "git",
+            "repo": "https://github.com/user/repository",
+            "language": "en",
+        }
+        form = ProjectBasicsForm(initial)
+        self.assertTrue(form.is_valid())
+
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_length_of_tags(self):
         project = get(Project)

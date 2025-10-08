@@ -32,7 +32,7 @@ class OrganizationForm(SimpleHistoryModelForm):
 
     # We use the organization slug + project name
     # to form the final project slug.
-    # A valid project slug is 63 chars long.
+    # A valid project slug is 55 chars long.
     name = forms.CharField(max_length=32)
 
     class Meta:
