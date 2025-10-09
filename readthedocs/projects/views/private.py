@@ -459,7 +459,6 @@ class ImportView(PrivateViewMixin, TemplateView):
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
         context["form_manual"] = ProjectManualForm(user=self.request.user)
-        context["GITHUB_APP_NAME"] = settings.GITHUB_APP_NAME
 
         return context
 
