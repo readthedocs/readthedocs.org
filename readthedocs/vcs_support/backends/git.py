@@ -53,14 +53,6 @@ class Backend(BaseVCS):
                     code, stdout, stderr = self.run(*cmd.split(), escape_command=False)
                 return
 
-        # Check for existing checkout and skip clone if it exists.
-        from readthedocs.projects.models import Feature
-
-        if self.project.has_feature(Feature.DONT_CLEAN_BUILD) and os.path.exists(
-            os.path.join(self.working_dir, ".git")
-        ):
-            return self.fetch()
-
         self.clone()
         # TODO: We are still using return values in this function that are legacy.
         # This should be either explained or removed.
