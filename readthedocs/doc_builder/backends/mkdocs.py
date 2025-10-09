@@ -14,6 +14,7 @@ from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
+from readthedocs.projects.exceptions import UserFileNotFound
 
 
 log = structlog.get_logger(__name__)
@@ -52,7 +53,12 @@ class BaseMkdocs(BaseBuilder):
 
         https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
         """
-
+        # Check if the mkdocs.yml file exists before trying to open it.
+        if not os.path.exists(self.yaml_file):
+            raise UserFileNotFound(
+                "MkDocs configuration file is missing. "
+                "A configuration file named `mkdocs.yml` was not found in your repository."
+            )
         # TODO: we should eventually remove this method completely and stop
         # relying on "loading the `mkdocs.yml` file in a safe way just to know
         # if it's a MKDOCS or MKDOCS_HTML documentation type".
