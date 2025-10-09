@@ -120,7 +120,7 @@ class TestProjectForms(TestCase):
         self.assertIn("name", form.errors)
 
     def test_slug_too_long(self):
-        """Test that project names that generate slugs longer than 55 chars are rejected."""
+        """Test that project names that generate slugs longer than 55 chars are truncated."""
         # Test with a name that generates a 56-character slug
         long_name = "a" * 56
         initial = {
@@ -130,9 +130,7 @@ class TestProjectForms(TestCase):
             "language": "en",
         }
         form = ProjectBasicsForm(initial)
-        self.assertFalse(form.is_valid())
-        self.assertIn("name", form.errors)
-        self.assertIn("slug must be 55 characters or less", str(form.errors["name"]))
+        self.assertTrue(form.is_valid())
 
     def test_slug_max_length(self):
         """Test that project names that generate exactly 55-character slugs are accepted."""

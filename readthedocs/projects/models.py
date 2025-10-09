@@ -669,6 +669,9 @@ class Project(models.Model):
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
+            # Truncate slug to 55 characters to accommodate PR build suffixes
+            if len(self.slug) > 55:
+                self.slug = self.slug[:55]
             if not self.slug:
                 raise Exception(  # pylint: disable=broad-exception-raised
                     _("Model must have slug")

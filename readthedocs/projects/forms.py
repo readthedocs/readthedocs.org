@@ -111,6 +111,9 @@ class ProjectForm(SimpleHistoryModelForm):
         name = self.cleaned_data.get("name", "")
         if not self.instance.pk:
             potential_slug = slugify(name)
+            # Truncate slug to 55 characters to accommodate PR build suffixes
+            if len(potential_slug) > 55:
+                potential_slug = potential_slug[:55]
             if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
                     _("Invalid project name, a project already exists with that name"),
@@ -119,14 +122,6 @@ class ProjectForm(SimpleHistoryModelForm):
                 # Check the generated slug won't be empty
                 raise forms.ValidationError(
                     _("Invalid project name"),
-                )
-            if len(potential_slug) > 55:
-                raise forms.ValidationError(
-                    _(
-                        "Project name is too long, the generated slug must be 55 characters or less. "
-                        "The current slug would be: %(slug)s"
-                    ),
-                    params={"slug": potential_slug},
                 )
 
         return name
