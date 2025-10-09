@@ -27,17 +27,6 @@ log = structlog.get_logger(__name__)
 
 def clean_build(version=None):
     """Clean the files used in the build of the given version."""
-
-    if version and version.project.has_feature(
-        Feature.DONT_CLEAN_BUILD,
-    ):
-        log.info(
-            "Skipping cleaning build files for project with DONT_CLEAN_BUILD feature.",
-            project_slug=version.project.slug,
-            version_slug=version.slug,
-        )
-        return
-
     if version:
         del_dirs = [
             os.path.join(version.project.doc_path, dir_, version.slug)
