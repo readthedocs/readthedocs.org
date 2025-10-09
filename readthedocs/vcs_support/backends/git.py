@@ -291,6 +291,8 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
+        # Skip adding a remote reference if we are building "latest",
+        # and the user hasn't defined a default branch (which means we need to use the default branch from the repo).
         omit_remote_reference = self.version.is_machine_latest and not self.project.default_branch
         if not omit_remote_reference:
             remote_reference = self.get_remote_fetch_refspec()
