@@ -1161,16 +1161,6 @@ class TestBuildTask(BuildEnvironmentBase):
                 ),
                 mock.call(
                     "git",
-                    "show-ref",
-                    "--verify",
-                    "--quiet",
-                    "--",
-                    "refs/remotes/origin/a1b2c3",
-                    record=False,
-                ),
-                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
-                mock.call(
-                    "git",
                     "ls-remote",
                     "--tags",
                     "--heads",
@@ -1731,16 +1721,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     demux=True,
                     record=False,
                 ),
-                mock.call(
-                    "git",
-                    "show-ref",
-                    "--verify",
-                    "--quiet",
-                    "--",
-                    "refs/remotes/origin/a1b2c3",
-                    record=False,
-                ),
-                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call(
                     "git",
                     "ls-remote",
