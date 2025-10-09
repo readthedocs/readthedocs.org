@@ -293,8 +293,9 @@ class Project(models.Model):
         related_name="projects",
     )
     # A DNS label can contain up to 63 characters.
-    name = models.CharField(_("Name"), max_length=63)
-    slug = models.SlugField(_("Slug"), max_length=63, unique=True)
+    # We limit to 55 to account for PR build suffixes (--{pr_number}).
+    name = models.CharField(_("Name"), max_length=55)
+    slug = models.SlugField(_("Slug"), max_length=55, unique=True)
     description = models.TextField(
         _("Description"),
         blank=True,
@@ -668,6 +669,9 @@ class Project(models.Model):
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
+            # Truncate slug to 55 characters to accommodate PR build suffixes
+            if len(self.slug) > 55:
+                self.slug = self.slug[:55]
             if not self.slug:
                 raise Exception(  # pylint: disable=broad-exception-raised
                     _("Model must have slug")

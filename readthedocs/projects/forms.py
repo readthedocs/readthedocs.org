@@ -111,6 +111,9 @@ class ProjectForm(SimpleHistoryModelForm):
         name = self.cleaned_data.get("name", "")
         if not self.instance.pk:
             potential_slug = slugify(name)
+            # Truncate slug to 55 characters to accommodate PR build suffixes
+            if len(potential_slug) > 55:
+                potential_slug = potential_slug[:55]
             if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
                     _("Invalid project name, a project already exists with that name"),

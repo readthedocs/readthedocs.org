@@ -145,7 +145,7 @@ class AuditLog(TimeStampedModel):
     )
     log_project_slug = models.CharField(
         _("Project slug"),
-        max_length=63,
+        max_length=55,
         blank=True,
         null=True,
         db_index=True,
