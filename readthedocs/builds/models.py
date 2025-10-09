@@ -718,6 +718,11 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
+    task_executed_at = models.DateTimeField(
+        _("Task executed at datetime"),
+        null=True,
+        blank=True,
+    )
 
     notifications = GenericRelation(
         Notification,
@@ -783,7 +788,7 @@ class Build(models.Model):
         """
         # TODO: now that we are using a proper JSONField here, we could
         # probably change this field to be a ForeignKey to avoid repeating the
-        # config file over and over again and re-use them to save db data as
+        # config file over and over again and reuse them to save db data as
         # well
         if self._config and self.CONFIG_KEY in self._config:
             return Build.objects.only("_config").get(pk=self._config[self.CONFIG_KEY])._config
@@ -981,7 +986,7 @@ class BuildCommandResultMixin:
     Mixin for common command result methods/properties.
 
     Shared methods between the database model :py:class:`BuildCommandResult` and
-    non-model respresentations of build command results from the API
+    non-model representations of build command results from the API
     """
 
     @property

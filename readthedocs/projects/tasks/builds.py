@@ -5,6 +5,7 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
+import datetime
 import os
 import shutil
 import signal
@@ -16,6 +17,7 @@ from pathlib import Path
 
 import structlog
 from celery import Task
+from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.utils import timezone
 from slumber import API
@@ -286,6 +288,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         MkDocsYAMLParseError,
         ProjectConfigurationError,
         BuildMaxConcurrencyError,
+        SoftTimeLimitExceeded,
     )
 
     # Do not send notifications on failure builds for these exceptions.
@@ -413,12 +416,26 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        # Log a warning if the task took more than 10 minutes to be retried
+        if self.data.build["task_executed_at"]:
+            task_executed_at = datetime.datetime.fromisoformat(self.data.build["task_executed_at"])
+            delta = timezone.now() - task_executed_at
+            if delta > timezone.timedelta(minutes=10):
+                log.warning(
+                    "This task waited more than 10 minutes to be retried.",
+                    delta_minutes=round(delta.seconds / 60, 1),
+                )
+
+        # Save when the task was executed by a builder
+        self.data.build["task_executed_at"] = timezone.now()
+
         # Enable scale-in protection on this instance
         #
         # TODO: move this to the beginning of this method
         # once we don't need to rely on `self.data.project`.
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
+                build_id=self.data.build_pk,
                 builder=socket.gethostname(),
                 protected_from_scale_in=True,
             )
@@ -488,6 +505,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Set build state as cancelled if the user cancelled the build
             if isinstance(exc, BuildCancelled):
                 self.data.build["state"] = BUILD_STATE_CANCELLED
+
+        elif isinstance(exc, SoftTimeLimitExceeded):
+            log.info("Soft time limit exceeded.")
+            message_id = BuildUserError.BUILD_TIME_OUT
 
         else:
             # We don't know what happened in the build. Log the exception and
@@ -730,7 +751,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
                 format_values=format_values,
             )
-            self.update_build(state=BUILD_STATE_TRIGGERED)
+
+        # Always update the build on retry
+        self.update_build(state=BUILD_STATE_TRIGGERED)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         """
@@ -770,6 +793,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Disable scale-in protection on this instance
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
+                build_id=self.data.build_pk,
                 builder=socket.gethostname(),
                 protected_from_scale_in=False,
             )

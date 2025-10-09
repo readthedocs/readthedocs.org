@@ -73,7 +73,12 @@ def sync_remote_repositories(user_id, skip_githubapp=False):
         )
 
 
-@app.task(queue="web")
+@app.task(
+    queue="web",
+    # This is a long running task, since it syncs all repositories one by one.
+    time_limit=60 * 60 * 3,  # 3h
+    soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+)
 def sync_remote_repositories_from_sso_organizations():
     """
     Re-sync all remote repositories from organizations with SSO enabled.
@@ -134,7 +139,7 @@ def sync_active_users_remote_repositories(self):
     # so we use a lock (12 hours) to avoid that.
     lock_id = "{0}-lock".format(self.name)
     with memcache_lock(lock_id, 60 * 60 * 12, self.app.oid) as acquired:
-        if acquired:
+        if not acquired:
             log.exception("Task has already been run recently, exiting.")
             return
 
