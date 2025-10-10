@@ -14,9 +14,9 @@ from django.views import View
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
-from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import InvalidExternalVersionError
@@ -721,7 +721,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
 
     def _get_hidden_paths(self, project):
         """Get the absolute paths of the public hidden versions of `project`."""
-        hidden_versions = Version.internal.public(project=project).filter(hidden=True)
+        hidden_versions = project.versions(manager=INTERNAL).public().filter(hidden=True)
         resolver = Resolver()
         hidden_paths = [
             resolver.resolve_path(project, version_slug=version.slug) for version in hidden_versions
@@ -800,8 +800,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             yield from itertools.chain(changefreqs, itertools.repeat("monthly"))
 
         project = request.unresolved_domain.project
-        public_versions = Version.internal.public(
-            project=project,
+        public_versions = project.versions(manager=INTERNAL).public(
             only_active=True,
             include_hidden=False,
         )
@@ -848,7 +847,8 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             if project.translations.exists():
                 for translation in project.translations.all():
                     translated_version = (
-                        Version.internal.public(project=translation)
+                        translation.versions(manager=INTERNAL)
+                        .public()
                         .filter(slug=version.slug)
                         .first()
                     )

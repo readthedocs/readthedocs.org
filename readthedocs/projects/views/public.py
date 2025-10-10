@@ -106,9 +106,8 @@ class ProjectDetailViewBase(
     filterset_class = ProjectVersionListFilterSet
 
     def _get_versions(self, project):
-        return Version.internal.public(
+        return project.versions(manager=INTERNAL).public(
             user=self.request.user,
-            project=project,
         )
 
     def get_queryset(self):
@@ -392,6 +391,14 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDoc
             type_=type_,
         )
 
+    def _get_project(self):
+        """Hack for CDNCacheTagsMixin, get project set in `get()`."""
+        return self.project
+
+    def _get_version(self):
+        """Hack for CDNCacheTagsMixin, get version set in `get()`."""
+        return self.version
+
 
 class ProjectDownloadMedia(SettingsOverrideObject):
     _default_class = ProjectDownloadMediaBase
@@ -410,9 +417,8 @@ def project_versions(request, project_slug):
         slug=project_slug,
     )
 
-    versions = Version.internal.public(
+    versions = project.versions(manager=INTERNAL).public(
         user=request.user,
-        project=project,
         only_active=False,
     )
     active_versions = versions.filter(active=True)

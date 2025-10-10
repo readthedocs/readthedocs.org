@@ -691,6 +691,15 @@ class Project(models.Model):
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
 
+        # NOTE: We use _raw_delete to avoid Django fetching all objects
+        # before the deletion. Be careful when using _raw_delete, signals
+        # won't be sent, and can cause integrity problems if the model
+        # has relations with other models.
+        qs = self.page_views.all()
+        qs._raw_delete(qs.db)
+        qs = self.search_queries.all()
+        qs._raw_delete(qs.db)
+
         # Remove extra resources
         clean_project_resources(self)
 
@@ -1115,9 +1124,7 @@ class Project(models.Model):
         return self.builds(manager=INTERNAL).select_related("version").first()
 
     def active_versions(self):
-        from readthedocs.builds.models import Version
-
-        versions = Version.internal.public(project=self, only_active=True)
+        versions = self.versions(manager=INTERNAL).public(only_active=True)
         return versions.filter(built=True, active=True) | versions.filter(
             active=True, uploaded=True
         )

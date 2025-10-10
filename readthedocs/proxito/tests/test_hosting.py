@@ -73,6 +73,8 @@ class TestReadTheDocsConfigJson(TestCase):
             identifier="a1b2c3",
         )
         self.version = self.project.versions.get(slug=LATEST)
+        self.version.identifier = "master"
+        self.version.save()
         self.build = fixture.get(
             Build,
             project=self.project,

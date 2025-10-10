@@ -300,9 +300,16 @@ class TestProjectAdvancedForm(TestCase):
     @mock.patch("readthedocs.projects.forms.trigger_build")
     def test_trigger_build_on_save(self, trigger_build):
         latest_version = self.project.get_latest_version()
-        default_branch = get(Version, project=self.project, slug="main", active=True)
-
-        self.project.default_branch = default_branch.slug
+        default_branch = get(
+            Version,
+            project=self.project,
+            slug="main",
+            active=True,
+            type=BRANCH,
+            verbose_name="main",
+            identifier="main",
+        )
+        self.project.default_branch = default_branch.verbose_name
         self.project.save()
 
         data = {

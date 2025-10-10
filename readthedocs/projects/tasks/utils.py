@@ -87,6 +87,13 @@ def clean_project_resources(project, version=None, version_slug=None):
      sometimes to clean old resources.
 
     .. note::
+
+       This function shouldn't delete objects that can't be recreated
+       by re-activating the version (e.g. page views, search queries),
+       as it's used when a version is deactivated.
+
+    .. note::
+
        This function is usually called just before deleting project.
        Make sure to not depend on the project object inside the tasks.
     """
@@ -108,11 +115,16 @@ def clean_project_resources(project, version=None, version_slug=None):
         version_slug=version_slug,
     )
 
-    # Remove imported files
+    # NOTE: We use _raw_delete to avoid Django fetching all objects
+    # before the deletion. Be careful when using _raw_delete, signals
+    # won't be sent, and can cause integrity problems if the model
+    # has relations with other models.
     if version:
-        version.imported_files.all().delete()
+        qs = version.imported_files.all()
+        qs._raw_delete(qs.db)
     else:
-        project.imported_files.all().delete()
+        qs = project.imported_files.all()
+        qs._raw_delete(qs.db)
 
 
 @app.task()
@@ -180,7 +192,7 @@ def send_external_build_status(version_type, build_pk, commit, status):
 
 
 @app.task(queue="web")
-def set_builder_scale_in_protection(builder, protected_from_scale_in):
+def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=None):
     """
     Set scale-in protection on this builder ``builder``.
 
@@ -188,6 +200,7 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in):
     This is pretty useful for long running tasks.
     """
     structlog.contextvars.bind_contextvars(
+        build_id=build_id,
         builder=builder,
         protected_from_scale_in=protected_from_scale_in,
     )
