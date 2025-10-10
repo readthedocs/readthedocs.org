@@ -1,122 +1,86 @@
 """
 MkDocs_ backend for building docs.
-
-.. _MkDocs: http://www.mkdocs.org/
 """
 
 import os
+
 import structlog
 import yaml
 from django.conf import settings
 
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
-from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
-from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.exceptions import UserFileNotFound
 
 
-log = structlog.get_logger(__name__)
-
-
-def get_absolute_static_url():
-    """
-    Get the fully qualified static URL from settings.
-
-    Mkdocs needs a full domain because it tries to link to local files.
-    """
-    static_url = settings.STATIC_URL
-
-    if not static_url.startswith("http"):
-        domain = settings.PRODUCTION_DOMAIN
-        static_url = "http://{}{}".format(domain, static_url)
-
-    return static_url
-
-
 class BaseMkdocs(BaseBuilder):
-    """Mkdocs builder."""
+    """
+    MkDocs builder.
 
-    # The default theme for mkdocs is the 'mkdocs' theme
-    DEFAULT_THEME_NAME = "mkdocs"
+    This class and the following class use a different build method
+    than the Sphinx builders. We don't use `make` and instead call
+    the Python module directly.
+    """
+
+    type = "mkdocs"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.old_artifact_path = os.path.join(
+            self.project_path, self.config.mkdocs.build_dir
+        )
 
         # This is the *MkDocs* yaml file
         self.yaml_file = self.get_yaml_config()
-        
+
     def get_final_doctype(self):
         """
         Select a doctype based on the ``use_directory_urls`` setting.
 
-        https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
+        MkDocs produces a different style of html depending on the
+        ``use_directory_urls`` setting. We use this to set the doctype.
         """
+        with safe_open(self.yaml_file, "r") as f:
+            config = yaml.safe_load(f)
 
-        # TODO: we should eventually remove this method completely and stop
-        # relying on "loading the `mkdocs.yml` file in a safe way just to know
-        # if it's a MKDOCS or MKDOCS_HTML documentation type".
-
-        # Allow symlinks, but only the ones that resolve inside the base directory.
-        with safe_open(
-            self.yaml_file,
-            "r",
-            allow_symlinks=True,
-            base_path=self.project_path,
-        ) as fh:
-            config = yaml_load_safely(fh)
-            use_directory_urls = config.get("use_directory_urls", True)
-            return MKDOCS if use_directory_urls else MKDOCS_HTML
+        if config.get("use_directory_urls"):
+            return MKDOCS_HTML
+        return MKDOCS
 
     def get_yaml_config(self):
-        """Find the ``mkdocs.yml`` file in the project root."""
-        mkdocs_path = self.config.mkdocs.configuration
-        if not mkdocs_path:
-            mkdocs_path = "mkdocs.yml"
-        return os.path.join(
-            self.project_path,
-            mkdocs_path,
-        )
-
-    def show_conf(self):
-        """Show the current ``mkdocs.yaml`` being used."""
-        if not os.path.exists(self.yaml_file):
-            raise UserFileNotFound(
-                message_id=UserFileNotFound.FILE_NOT_FOUND,
-                format_values={
-                    "filename": os.path.relpath(self.yaml_file, self.project_path),
-                },
+        """Find the MkDocs yaml configuration file."""
+        # We support both `.yml` and `.yaml` extensions
+        for extension in ["yml", "yaml"]:
+            config_file = os.path.join(
+                self.project_path, f"mkdocs.{extension}"
             )
-        # Write the mkdocs.yml to the build logs
-        self.run(
-            "cat",
-            os.path.relpath(self.yaml_file, self.project_path),
-            cwd=self.project_path,
-        )
+            if os.path.exists(config_file):
+                return config_file
+
+        # If we didn't find any, return the default one
+        return os.path.join(self.project_path, "mkdocs.yml")
 
     def build(self):
         build_command = [
             self.python_env.venv_bin(filename="python"),
             "-m",
             "mkdocs",
-            self.builder,
+            "build",
             "--clean",
             "--site-dir",
-            os.path.join("$READTHEDOCS_OUTPUT", "html"),
+            self.old_artifact_path,
             "--config-file",
             os.path.relpath(self.yaml_file, self.project_path),
         ]
-            
+
         if self.config.mkdocs.fail_on_warning:
             build_command.append("--strict")
         cmd_ret = self.run(
-            *build_command,
-            cwd=self.project_path,
-            bin_path=self.python_env.venv_bin(),
+            *build_command, cwd=self.project_path, bin_path=self.python_env.venv_bin()
         )
-        return cmd_ret.successful
+        return cmd_ret.success
 
 
 class MkdocsHTML(BaseMkdocs):
