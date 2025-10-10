@@ -283,12 +283,11 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
         mkdocs_path = os.path.join(
-            self.project.checkout_path(self.version.slug), 
+            self.project.checkout_path(self.version.slug),
             "mkdocs.yml"
         )
         with open(mkdocs_path, "w") as f:
             f.write("site_name: Test Project\n")
-
 
         # Create the artifact paths, so that `store_build_artifacts`
         # properly runs: https://github.com/readthedocs/readthedocs.org/blob/faa611fad689675f81101ea643770a6b669bf529/readthedocs/projects/tasks/builds.py#L798-L804
@@ -2588,13 +2587,12 @@ class TestBuildTask(BuildEnvironmentBase):
 
         mkdocs_path = os.path.join(
             self.project.checkout_path(self.version.slug),
-            "docs", 
+            "docs",
             "mkdocs.yaml"
         )
         os.makedirs(os.path.dirname(mkdocs_path), exist_ok=True)
         with open(mkdocs_path, "w") as f:
             f.write("site_name: Test Project\n")
-
 
         self._trigger_update_docs_task()
 
