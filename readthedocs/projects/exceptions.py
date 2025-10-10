@@ -14,7 +14,7 @@ class ProjectConfigurationError(BuildUserError):
 
 class UserFileNotFound(BuildUserError):
     FILE_NOT_FOUND = "project:file:not-found"
-
+    
 class RepositoryError(BuildUserError):
     """Failure during repository operation."""
 
