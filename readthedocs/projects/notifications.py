@@ -129,13 +129,19 @@ messages = [
         id=ProjectConfigurationError.MULTIPLE_CONF_FILES,
         header=_("Multiple Sphinx configuration files found"),
         body=_(
-            textwrap.dedent(
-                """
-            We found more than one <code>conf.py</code> and are not sure which one to use.
-            Please, specify the correct file under the Advanced settings tab
-            in the project's Admin.
-            """
-            ).strip(),
+            "We found multiple Sphinx configuration files in your repository. "
+            "Please, remove one of them and specify the correct one in your "
+            "configuration file."
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ProjectConfigurationError.MKDOCS_YAML_NOT_FOUND,
+        header=_("MkDocs configuration file not found"),
+        body=_(
+            "We could not find a MkDocs configuration file in your repository. "
+            "Please, make sure you have a 'mkdocs.yml' file in your repository "
+            "and try again."
         ),
         type=ERROR,
     ),
