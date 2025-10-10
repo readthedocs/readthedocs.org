@@ -5,17 +5,15 @@ from readthedocs.doc_builder.exceptions import BuildUserError
 
 
 class ProjectConfigurationError(BuildUserError):
-    """Error raised trying to configure a project for build."""
-
-    NOT_FOUND = "project:sphinx:conf-py-not-found"
-    MULTIPLE_CONF_FILES = "project:sphinx:multiple-conf-py-files-found"
+    NOT_FOUND = "project:configuration:not-found"
+    MULTIPLE_CONF_FILES = "project:configuration:multiple-conf-files"
+    INVALID_VERSION = "project:configuration:invalid-version"
+    INVALID = "project:configuration:invalid"
     MKDOCS_YAML_NOT_FOUND = "project:configuration:mkdocs-yaml-not-found"
-
 
 
 class UserFileNotFound(BuildUserError):
     FILE_NOT_FOUND = "project:file:not-found"
-
 
 class RepositoryError(BuildUserError):
     """Failure during repository operation."""
