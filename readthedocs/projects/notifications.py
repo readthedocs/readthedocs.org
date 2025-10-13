@@ -101,7 +101,7 @@ messages = [
     ),
     Message(
         id=RepositoryError.UNSUPPORTED_VCS,
-        header=_("Repository type not suported"),
+        header=_("Repository type not supported"),
         body=_(
             textwrap.dedent(
                 """
@@ -126,7 +126,7 @@ messages = [
         type=ERROR,
     ),
     Message(
-        id=ProjectConfigurationError.MKDOCS_NOT_FOUND,
+        id=ProjectConfigurationError.MKDOCS_YAML_NOT_FOUND,
         header=_("MkDocs configuration file is missing"),
         body=_(
             textwrap.dedent(
@@ -138,7 +138,6 @@ messages = [
         ),
         type=ERROR,
     ),
-
     Message(
         id=ProjectConfigurationError.MULTIPLE_CONF_FILES,
         header=_("Multiple Sphinx configuration files found"),

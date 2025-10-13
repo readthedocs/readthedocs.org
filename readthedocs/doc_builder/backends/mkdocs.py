@@ -5,17 +5,17 @@ MkDocs_ backend for building docs.
 """
 
 import os
+
 import structlog
 import yaml
 from django.conf import settings
 
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
-from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
 from readthedocs.projects.exceptions import ProjectConfigurationError
-
+from readthedocs.projects.exceptions import UserFileNotFound
 
 
 log = structlog.get_logger(__name__)
@@ -46,9 +46,12 @@ class BaseMkdocs(BaseBuilder):
         super().__init__(*args, **kwargs)
 
         # This is the *MkDocs* yaml file
-        self.yaml_file = self.get_yaml_config()
-        if not os.path.exists(self.yaml_file):
-            raise ProjectConfigurationError(ProjectConfigurationError.MKDOCS_NOT_FOUND)
+        self.config_file = None
+        if self.config.mkdocs.configuration:
+            self.config_file = os.path.join(
+                self.project_path,
+                self.config.mkdocs.configuration,
+            )
 
     def get_final_doctype(self):
         """
@@ -63,7 +66,7 @@ class BaseMkdocs(BaseBuilder):
 
         # Allow symlinks, but only the ones that resolve inside the base directory.
         with safe_open(
-            self.yaml_file,
+            self.config_file,
             "r",
             allow_symlinks=True,
             base_path=self.project_path,
@@ -72,22 +75,23 @@ class BaseMkdocs(BaseBuilder):
             use_directory_urls = config.get("use_directory_urls", True)
             return MKDOCS if use_directory_urls else MKDOCS_HTML
 
-    def get_yaml_config(self):
-        """Find the ``mkdocs.yml`` file in the project root."""
-        mkdocs_path = self.config.mkdocs.configuration
-        if not mkdocs_path:
-            mkdocs_path = "mkdocs.yml"
-        return os.path.join(
-            self.project_path,
-            mkdocs_path,
-        )
-
     def show_conf(self):
         """Show the current ``mkdocs.yaml`` being used."""
+        if self.config_file is None:
+            raise ProjectConfigurationError(ProjectConfigurationError.MKDOCS_YAML_NOT_FOUND)
+
+        if not os.path.exists(self.config_file):
+            raise UserFileNotFound(
+                message_id=UserFileNotFound.FILE_NOT_FOUND,
+                format_values={
+                    "filename": os.path.relpath(self.config_file, self.project_path),
+                },
+            )
+
         # Write the mkdocs.yml to the build logs
         self.run(
             "cat",
-            os.path.relpath(self.yaml_file, self.project_path),
+            os.path.relpath(self.config_file, self.project_path),
             cwd=self.project_path,
         )
 
@@ -101,11 +105,8 @@ class BaseMkdocs(BaseBuilder):
             "--site-dir",
             os.path.join("$READTHEDOCS_OUTPUT", "html"),
             "--config-file",
-            os.path.relpath(self.yaml_file, self.project_path),
+            os.path.relpath(self.config_file, self.project_path),
         ]
-
-        if not os.path.exists(self.yaml_file):
-            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
         if self.config.mkdocs.fail_on_warning:
             build_command.append("--strict")
