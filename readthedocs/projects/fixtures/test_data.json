@@ -1004,5 +1004,26 @@
         "has_htmlzip": false,
         "documentation_type": "sphinx"
     }
+},
+{
+  "model": "projects.project",
+  "pk": 28,
+  "fields": {
+    "pub_date": "2022-02-22T12:00:00.000Z",
+    "modified_date": "2022-02-22T12:00:00.000Z",
+    "name": "Test Builds",
+    "slug": "test-builds",
+    "repo": "https://github.com/readthedocs/test-builds",
+    "repo_type": "git",
+    "single_version": false,
+    "default_version": "latest",
+    "documentation_type": "sphinx",
+    "privacy_level": "public",
+    "language": "en",
+    "programming_language": "words",
+    "users": []
+  }
 }
+]
+
 ]
