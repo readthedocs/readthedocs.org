@@ -348,7 +348,6 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         user = self.request.user
 
         context["step_connect_completed"] = self._has_new_accounts_for_old_accounts()
-        context["github_app_name"] = settings.GITHUB_APP_NAME
         context["migrated_projects"] = get_migrated_projects(user)
         context["old_application_link"] = get_old_app_link()
         context["step_revoke_completed"] = self._is_access_to_old_github_accounts_revoked()

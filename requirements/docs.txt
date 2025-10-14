@@ -14,7 +14,7 @@ babel==2.17.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2025.8.3
+certifi==2025.10.5
     # via
     #   requests
     #   sphinx-prompt
@@ -61,7 +61,7 @@ markdown-it-py==3.0.0
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
-matplotlib==3.10.6
+matplotlib==3.10.7
     # via -r requirements/docs.in
 mdit-py-plugins==0.5.0
     # via myst-parser

@@ -14,7 +14,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
-asgiref==3.9.2
+asgiref==3.10.0
     # via
     #   -r requirements/pip.txt
     #   django
@@ -27,11 +27,11 @@ billiard==4.2.2
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.40.45
+boto3==1.40.50
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.40.45
+botocore==1.40.50
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -43,7 +43,7 @@ celery==5.5.3
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2025.8.3
+certifi==2025.10.5
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -131,7 +131,7 @@ django==5.2.7
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.11.2
+django-allauth[mfa,saml,socialaccount]==65.12.0
     # via -r requirements/pip.txt
 django-annoying==0.10.8
     # via -r requirements/pip.txt
@@ -153,7 +153,7 @@ django-elasticsearch-dsl==8.2
     # via -r requirements/pip.txt
 django-extensions==4.1
     # via -r requirements/pip.txt
-django-filter==25.1
+django-filter==25.2
     # via -r requirements/pip.txt
 django-formtools==2.5.1
     # via -r requirements/pip.txt
@@ -224,7 +224,7 @@ fido2==2.0.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.19.1
+filelock==3.20.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -288,7 +288,7 @@ packaging==25.0
     #   sphinx
 pillow==11.3.0
     # via -r requirements/pip.txt
-platformdirs==4.4.0
+platformdirs==4.5.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -316,9 +316,9 @@ pycparser==2.23
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.11.10
+pydantic==2.12.0
     # via -r requirements/pip.txt
-pydantic-core==2.33.2
+pydantic-core==2.41.1
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -513,7 +513,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.34.0
+virtualenv==20.35.3
     # via -r requirements/pip.txt
 wcwidth==0.2.14
     # via
