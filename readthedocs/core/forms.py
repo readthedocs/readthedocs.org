@@ -1,5 +1,7 @@
 """Forms for core app."""
 
+from dataclasses import dataclass
+
 import structlog
 from django import forms
 from django.conf import settings
@@ -161,6 +163,61 @@ class RichValidationError(forms.ValidationError):
         super().__init__(message, code, params)
         self.header = header
         self.message_class = message_class
+
+
+@dataclass
+class RichChoice:
+    """
+    Data class for rich content dropdowns.
+
+    Instead of just value and text, :py:class:`RichSelect` displays multiple
+    attributes in each item content display. Choices can be passed as an array,
+    however with the default :py:class:`django.forms.fields.ChoiceField`
+    you should still pass in a tuple of ``(value, RichChoice(...))`` as the
+    tuple values are used in field validation:
+
+        choices = [
+            RichChoice(name="Foo", value="foo", ...),
+            RichChoice(name="Bar", value="bar", ...),
+        ]
+        field = forms.ChoiceField(
+            ...,
+            widget=RichSelect(),
+            choices=[(choice.value, choice) for choice in choices],
+        )
+    """
+
+    #: Choice verbose text display
+    text: str
+    #: Choice input value
+    value: str
+    #: Right floated content for dropdown item
+    description: str
+    #: Optional image URL for item
+    image_url: str = None
+    #: Optional image alt text
+    image_alt: str = None
+    #: Error string to display next to text
+    error: str = None
+    #: Is choice disabled?
+    disabled: bool = False
+
+
+class RichSelect(forms.Select):
+    """
+    Rich content dropdown field widget type used for complex content.
+
+    This class is mostly used for special casing in Crispy form templates, it
+    doesn't do anything special. This widget type requires use of the
+    :py:class:`RichChoice` data class. Usage might look something comparable to:
+
+        choice = RichChoice(...)
+        field = forms.ChoiceField(
+            ...,
+            widget=RichSelect(),
+            choices=[(choice.value, choice)]
+        )
+    """
 
 
 class FacetField(forms.MultipleChoiceField):
