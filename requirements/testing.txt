@@ -27,11 +27,11 @@ billiard==4.2.2
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.40.50
+boto3==1.40.55
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.40.50
+botocore==1.40.55
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -53,7 +53,7 @@ cffi==2.0.0
     #   -r requirements/pip.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.3
+charset-normalizer==3.4.4
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -81,13 +81,13 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.10.7
+coverage[toml]==7.11.0
     # via pytest-cov
 cron-descriptor==2.0.6
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==46.0.2
+cryptography==46.0.3
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -131,7 +131,7 @@ django==5.2.7
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.12.0
+django-allauth[mfa,saml,socialaccount]==65.12.1
     # via -r requirements/pip.txt
 django-annoying==0.10.8
     # via -r requirements/pip.txt
@@ -230,13 +230,13 @@ filelock==3.20.0
     #   virtualenv
 gunicorn==23.0.0
     # via -r requirements/pip.txt
-idna==3.10
+idna==3.11
     # via
     #   -r requirements/pip.txt
     #   requests
 imagesize==1.4.1
     # via sphinx
-iniconfig==2.1.0
+iniconfig==2.3.0
     # via pytest
 isodate==0.7.2
     # via
@@ -286,7 +286,7 @@ packaging==25.0
     #   kombu
     #   pytest
     #   sphinx
-pillow==11.3.0
+pillow==12.0.0
     # via -r requirements/pip.txt
 platformdirs==4.5.0
     # via
@@ -302,9 +302,9 @@ prompt-toolkit==3.0.52
     #   click-repl
 psutil==7.1.0
     # via pytest-xdist
-psycopg[binary,pool]==3.2.10
+psycopg[binary,pool]==3.2.11
     # via -r requirements/pip.txt
-psycopg-binary==3.2.10
+psycopg-binary==3.2.11
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -316,9 +316,9 @@ pycparser==2.23
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.12.0
+pydantic==2.12.3
     # via -r requirements/pip.txt
-pydantic-core==2.41.1
+pydantic-core==2.41.4
     # via
     #   -r requirements/pip.txt
     #   pydantic

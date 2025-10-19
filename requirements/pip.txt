@@ -16,9 +16,9 @@ asgiref==3.10.0
     #   django-structlog
 billiard==4.2.2
     # via celery
-boto3==1.40.50
+boto3==1.40.55
     # via django-storages
-botocore==1.40.50
+botocore==1.40.55
     # via
     #   boto3
     #   s3transfer
@@ -37,7 +37,7 @@ cffi==2.0.0
     # via
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.3
+charset-normalizer==3.4.4
     # via requests
 click==8.3.0
     # via
@@ -56,7 +56,7 @@ colorama==0.4.6
     # via bumpver
 cron-descriptor==2.0.6
     # via django-celery-beat
-cryptography==46.0.2
+cryptography==46.0.3
     # via
     #   fido2
     #   pyjwt
@@ -91,7 +91,7 @@ django==5.2.7
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.12.0
+django-allauth[mfa,saml,socialaccount]==65.12.1
     # via -r requirements/pip.in
 django-annoying==0.10.8
     # via -r requirements/pip.in
@@ -173,7 +173,7 @@ filelock==3.20.0
     # via virtualenv
 gunicorn==23.0.0
     # via -r requirements/pip.in
-idna==3.10
+idna==3.11
     # via requests
 isodate==0.7.2
     # via python3-saml
@@ -209,23 +209,23 @@ packaging==25.0
     #   drf-extensions
     #   gunicorn
     #   kombu
-pillow==11.3.0
+pillow==12.0.0
     # via -r requirements/pip.in
 platformdirs==4.5.0
     # via virtualenv
 prompt-toolkit==3.0.52
     # via click-repl
-psycopg[binary,pool]==3.2.10
+psycopg[binary,pool]==3.2.11
     # via -r requirements/pip.in
-psycopg-binary==3.2.10
+psycopg-binary==3.2.11
     # via psycopg
 psycopg-pool==3.2.6
     # via psycopg
 pycparser==2.23
     # via cffi
-pydantic==2.12.0
+pydantic==2.12.3
     # via -r requirements/pip.in
-pydantic-core==2.41.1
+pydantic-core==2.41.4
     # via pydantic
 pygithub==2.8.1
     # via -r requirements/pip.in
