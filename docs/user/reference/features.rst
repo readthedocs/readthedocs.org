@@ -63,3 +63,20 @@ Feature reference
   `robots.txt` files allow you to customize how your documentation is indexed in search engines.
   We provide a default robots.txt file,
   but you can also customize it.
+
+Content filtering with Tags
+---------------------------
+Sphinx allows you to include content based on tags. This is useful if you want to show specific
+ content only for certain output formats (like HTML or PDF) or under other custom conditions.
+  This is controlled with the .. only:: directive.
+
+.. code-block:: rst
+   :caption: Example of tag-based content
+
+   .. only:: html
+
+      This paragraph is only included in the HTML documentation.
+
+   .. only:: latex
+
+      This paragraph is only included in the PDF (LaTeX) documentation.
