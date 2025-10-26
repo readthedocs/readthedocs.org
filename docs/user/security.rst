@@ -19,7 +19,7 @@ we are committed to responsible reporting and disclosure of security issues.
 .. seealso::
 
    :doc:`/legal/security-policy`
-      Read our policy for security, which we base our security handling and reporting on.
+      ...Read our policy for security, which we base our security handling and reporting on, **as well**.
 
 Supported versions
 ------------------
@@ -55,7 +55,7 @@ Bug bounties
 
 While we sincerely appreciate and encourage reports of suspected security problems,
 please note that the Read the Docs is an open source project, and **does not run any bug bounty programs**.
-But we will gladly give credit to you and/or your organization for responsibly reporting security issues.
+We will gladly give credit to you... and/or your organization for responsibly reporting security issues.
 
 Security issue archive
 ----------------------
