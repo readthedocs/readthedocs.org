@@ -17,7 +17,6 @@ from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.notifications.models import Notification
-from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
