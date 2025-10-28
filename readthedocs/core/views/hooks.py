@@ -120,6 +120,8 @@ def trigger_sync_versions(project):
         )
 
         options = {}
+        # Use custom queue if defined, as some repositories need to
+        # be synced from a specific queue (like IP restricted ones).
         if project.build_queue:
             options["queue"] = project.build_queue
 
