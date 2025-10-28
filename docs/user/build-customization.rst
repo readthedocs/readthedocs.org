@@ -379,7 +379,7 @@ It's possible to use ``post_checkout`` user-defined job for this.
          # Download and uncompress the binary
          # https://git-lfs.github.com/
          - wget https://github.com/git-lfs/git-lfs/releases/download/v3.1.4/git-lfs-linux-amd64-v3.1.4.tar.gz
-         - tar xvfz git-lfs-linux-amd64-v3.1.4.tar.gz
+         - tar xvfz git-lfs-linux-amd64-v3.1.4.tar.gz git-lfs
          # Modify LFS config paths to point where git-lfs binary was downloaded
          - git config filter.lfs.process "`pwd`/git-lfs filter-process"
          - git config filter.lfs.smudge  "`pwd`/git-lfs smudge -- %f"
@@ -422,7 +422,6 @@ Projects managed with `Poetry <https://python-poetry.org/>`__,
 can use the ``post_create_environment`` user-defined job to use Poetry for installing Python dependencies.
 Take a look at the following example:
 
-
 .. code-block:: yaml
    :caption: .readthedocs.yaml
 
@@ -464,7 +463,6 @@ extras are required they can be added with the `--extra attribute <https://docs.
 If a ``uv.lock`` file exists it is respected.
 
 .. code-block:: yaml
-
    :caption: .readthedocs.yaml
 
    version: 2
@@ -492,8 +490,7 @@ Install dependencies from Dependency Groups
 Python `Dependency Groups <https://packaging.python.org/en/latest/specifications/dependency-groups/>`_
 are a way of storing lists of dependencies in your ``pyproject.toml``.
 
-``pip`` version 25.1 and later, which is the default for Read the Docs builds,
-as well as many other tools support Dependency Groups.
+``pip`` version 25.1+ as well as many other tools support Dependency Groups.
 This example uses ``pip`` and installs from a group named ``docs``:
 
 .. code-block:: yaml
@@ -507,6 +504,8 @@ This example uses ``pip`` and installs from a group named ``docs``:
          python: "3.13"
       jobs:
          install:
+            # Since the install step is overridden, pip is no longer updated automatically.
+            - pip install --upgrade pip
             - pip install --group 'docs'
 
 For more information on relevant ``pip`` usage, see the
@@ -527,6 +526,8 @@ Take a look at the following example:
 
    build:
       os: ubuntu-24.04
+      tools:
+          python: "latest"
       jobs:
          create_environment:
             - asdf plugin add pixi

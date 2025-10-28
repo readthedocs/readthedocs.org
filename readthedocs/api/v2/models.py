@@ -15,10 +15,26 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
         """
         Create a new API key for a project.
 
-        Build API keys are valid for 3 hours,
+        Build API keys are valid for
+
+        - project or default build time limit
+        - plus 25% to cleanup task once build is finished
+        - plus extra time to allow multiple retries (concurrency limit reached)
+
         and can be revoked at any time by hitting the /api/v2/revoke/ endpoint.
         """
-        expiry_date = timezone.now() + timedelta(hours=3)
+        # delta = (
+        #     project.container_time_limit or settings.BUILD_TIME_LIMIT
+        # ) * 1.25 + settings.RTD_BUILDS_RETRY_DELAY * settings.RTD_BUILDS_MAX_RETRIES
+        #
+        # Use 24 hours for now since we are hitting the expiry date and we shouldn't
+        # https://github.com/readthedocs/readthedocs.org/issues/12467
+        #
+        # NOTE: this is the maximum time this token will be valid, since the
+        # default behavior is to revoke from the builder itself when the build
+        # at `after_return` immediately before the build finishes
+        delta = 60 * 60 * 24  # 24h
+        expiry_date = timezone.now() + timedelta(seconds=delta)
         name_max_length = self.model._meta.get_field("name").max_length
         return super().create_key(
             # Name is required, so we use the project slug for it.

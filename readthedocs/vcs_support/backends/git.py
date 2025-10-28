@@ -1,6 +1,5 @@
 """Git-related utilities."""
 
-import os
 import re
 from typing import Iterable
 from urllib.parse import urlparse
@@ -44,13 +43,14 @@ class Backend(BaseVCS):
         """Clone and/or fetch remote repository."""
         super().update()
 
-        # Check for existing checkout and skip clone if it exists.
-        from readthedocs.projects.models import Feature
-
-        if self.project.has_feature(Feature.DONT_CLEAN_BUILD) and os.path.exists(
-            os.path.join(self.working_dir, ".git")
-        ):
-            return self.fetch()
+        if self.project.git_checkout_command:
+            # Run custom checkout step if defined
+            if isinstance(self.project.git_checkout_command, list):
+                for cmd in self.project.git_checkout_command:
+                    # NOTE: we need to pass ``escape_command=False`` here to be
+                    # able to expand environment variables.
+                    code, stdout, stderr = self.run(*cmd.split(), escape_command=False)
+                return
 
         self.clone()
         # TODO: We are still using return values in this function that are legacy.
@@ -499,6 +499,11 @@ class Backend(BaseVCS):
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
         super().checkout()
+
+        # Do not checkout anything else if the project has a custom Git checkout command.
+        # The ``git checkout`` command has to be executed inside the ``update()`` method.
+        if self.project.git_checkout_command:
+            return
 
         # NOTE: if there is no identifier, we default to default branch cloned
         if not identifier:

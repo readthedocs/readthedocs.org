@@ -300,6 +300,18 @@ class Project(models.Model):
         blank=True,
         help_text=_("Short description of this project"),
     )
+
+    # Example:
+    # [
+    #     "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+    #     "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+    # ]
+    git_checkout_command = models.JSONField(
+        _("Custom command to execute before Git checkout"),
+        null=True,
+        blank=True,
+    )
+
     repo = models.CharField(
         _("Repository URL"),
         max_length=255,
@@ -634,8 +646,16 @@ class Project(models.Model):
         null=True,
     )
 
-    # Property used for storing the latest build for a project when prefetching
-    LATEST_BUILD_CACHE = "_latest_build"
+    # Denormalized fields
+    latest_build = models.OneToOneField(
+        "builds.Build",
+        verbose_name=_("Latest build"),
+        # No reverse relation needed.
+        related_name="+",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = ("slug",)
@@ -670,6 +690,15 @@ class Project(models.Model):
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
+
+        # NOTE: We use _raw_delete to avoid Django fetching all objects
+        # before the deletion. Be careful when using _raw_delete, signals
+        # won't be sent, and can cause integrity problems if the model
+        # has relations with other models.
+        qs = self.page_views.all()
+        qs._raw_delete(qs.db)
+        qs = self.search_queries.all()
+        qs._raw_delete(qs.db)
 
         # Remove extra resources
         clean_project_resources(self)
@@ -980,10 +1009,10 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
-        # Check if there is `_good_build` annotation in the Queryset.
-        # Used for Database optimization.
-        if hasattr(self, "_good_build"):
-            return self._good_build
+        # Check if there is `_has_good_build` annotation in the queryset.
+        # Used for database optimization.
+        if hasattr(self, "_has_good_build"):
+            return self._has_good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def vcs_repo(self, environment, version):
@@ -1089,28 +1118,13 @@ class Project(models.Model):
                 matches.append(os.path.join(root, match))
         return matches
 
-    def get_latest_build(self, finished=True):
-        """
-        Get latest build for project.
-
-        :param finished: Return only builds that are in a finished state
-        """
-        # Check if there is `_latest_build` attribute in the Queryset.
-        # Used for Database optimization.
-        if hasattr(self, self.LATEST_BUILD_CACHE):
-            if self._latest_build:
-                return self._latest_build[0]
-            return None
-
-        kwargs = {"type": "html"}
-        if finished:
-            kwargs["state"] = "finished"
-        return self.builds(manager=INTERNAL).filter(**kwargs).first()
+    @cached_property
+    def latest_internal_build(self):
+        """Get the latest internal build for the project."""
+        return self.builds(manager=INTERNAL).select_related("version").first()
 
     def active_versions(self):
-        from readthedocs.builds.models import Version
-
-        versions = Version.internal.public(project=self, only_active=True)
+        versions = self.versions(manager=INTERNAL).public(only_active=True)
         return versions.filter(built=True, active=True) | versions.filter(
             active=True, uploaded=True
         )
@@ -1968,7 +1982,7 @@ class Feature(models.Model):
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
-    DONT_CLEAN_BUILD = "dont_clean_build"
+    BUILD_FULL_CLEAN = "build_full_clean"
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
 
@@ -2025,10 +2039,10 @@ class Feature(models.Model):
             _("Build: Use S3 scoped credentials for uploading build artifacts."),
         ),
         (
-            DONT_CLEAN_BUILD,
-            _(
-                "Build: Don't clean the build directory. Only for Enterprise users with dedicated builders."
-            ),
+            BUILD_FULL_CLEAN,
+            _("Build: Clean all build directories to avoid leftovers from other projects."),
+        ),
+        (
             BUILD_HEALTHCHECK,
             _("Build: Use background cURL healthcheck."),
         ),

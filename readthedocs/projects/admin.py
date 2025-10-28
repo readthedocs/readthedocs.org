@@ -240,7 +240,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         "feature_flags",
         "matching_spam_rules",
     )
-    raw_id_fields = ("users", "main_language_project", "remote_repository")
+    raw_id_fields = ("users", "main_language_project", "remote_repository", "latest_build")
     actions = [
         "ban_owner",
         "run_spam_rule_checks",

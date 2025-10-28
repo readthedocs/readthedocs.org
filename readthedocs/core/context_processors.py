@@ -27,6 +27,7 @@ def readthedocs_processor(request):
         "SUPPORT_EMAIL": settings.SUPPORT_EMAIL,
         "PUBLIC_API_URL": settings.PUBLIC_API_URL,
         "ADMIN_URL": settings.ADMIN_URL,
+        "GITHUB_APP_NAME": settings.GITHUB_APP_NAME,
     }
     return exports
 

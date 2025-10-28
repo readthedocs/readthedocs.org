@@ -6,6 +6,7 @@ import socket
 import subprocess
 
 import structlog
+from pathlib import Path
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 from django.conf.global_settings import PASSWORD_HASHERS
@@ -127,6 +128,11 @@ class CommunityBaseSettings(Settings):
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = "DENY"
 
+    # Pagination
+    # Only show 1 page on either side of the current page
+    PAGINATION_DEFAULT_WINDOW = 1
+    # Only show 1 page at the beginning and end 
+    PAGINATION_DEFAULT_MARGIN = 1
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -589,6 +595,35 @@ class CommunityBaseSettings(Settings):
     USE_I18N = True
     USE_L10N = True
 
+    BUILD_TIME_LIMIT = 900  # seconds
+
+    @property
+    def BUILD_MEMORY_LIMIT(self):
+        """
+        Set build memory limit dynamically, if in production, based on system memory.
+
+        We do this to avoid having separate build images. This assumes 1 build
+        process per server, which will be allowed to consume all available
+        memory.
+        """
+        # Our normal default
+        default_memory_limit = "7g"
+
+        # Only run on our servers
+        if self.RTD_IS_PRODUCTION:
+            total_memory, memory_limit = self._get_build_memory_limit()
+            memory_limit = f"{memory_limit}m"
+        else:
+            memory_limit = default_memory_limit
+
+        log.info(
+            "Using dynamic build limits.",
+            hostname=socket.gethostname(),
+            memory=memory_limit,
+        )
+        return memory_limit
+
+
     # Celery
     CELERY_APP_NAME = "readthedocs"
     CELERY_ALWAYS_EAGER = True
@@ -605,7 +640,7 @@ class CommunityBaseSettings(Settings):
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
     BROKER_TRANSPORT_OPTIONS = {
-        'visibility_timeout': 18000,  # 5 hours
+        'visibility_timeout': 18000, # 5 hours
     }
 
     CELERY_DEFAULT_QUEUE = "celery"
@@ -614,13 +649,6 @@ class CommunityBaseSettings(Settings):
         "every-minute-finish-unhealthy-builds": {
             "task": "readthedocs.projects.tasks.utils.finish_unhealthy_builds",
             "schedule": crontab(minute="*"),
-            "options": {"queue": "web"},
-        },
-        # TODO: delete `quarter-finish-inactive-builds` once we are fully
-        # migrated into build healthcheck
-        "quarter-finish-inactive-builds": {
-            "task": "readthedocs.projects.tasks.utils.finish_inactive_builds",
-            "schedule": crontab(minute="*/15"),
             "options": {"queue": "web"},
         },
         "every-day-delete-old-search-queries": {
@@ -643,8 +671,8 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(day_of_week="wed", minute=0, hour=7),
             "options": {"queue": "web"},
         },
-        "every-day-resync-sso-organization-users": {
-            "task": "readthedocs.oauth.tasks.sync_remote_repositories_organizations",
+        "every-day-resync-repositories-from-sso-organizations": {
+            "task": "readthedocs.oauth.tasks.sync_remote_repositories_from_sso_organizations",
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
         },
@@ -721,7 +749,13 @@ class CommunityBaseSettings(Settings):
     # since we can't read their config file image choice before cloning
     RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-22.04"]
 
-    def _get_docker_memory_limit(self):
+    def _get_build_memory_limit(self):
+        """
+        Return the buld memory limit based on available system memory.
+
+        We subtract ~1000Mb for overhead of processes and base system, and set
+        the build time as proportional to the memory limit.
+        """
         try:
             total_memory = int(
                 subprocess.check_output(
@@ -734,47 +768,6 @@ class CommunityBaseSettings(Settings):
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
             log.exception("Failed to get memory size, using defaults Docker limits.")
-
-    # Coefficient used to determine build time limit, as a percentage of total
-    # memory. Historical values here were 0.225 to 0.3.
-    DOCKER_TIME_LIMIT_COEFF = 0.25
-
-    @property
-    def DOCKER_LIMITS(self):
-        """
-        Set docker limits dynamically, if in production, based on system memory.
-
-        We do this to avoid having separate build images. This assumes 1 build
-        process per server, which will be allowed to consume all available
-        memory.
-
-        We subtract 750MiB for overhead of processes and base system, and set
-        the build time as proportional to the memory limit.
-        """
-        # Our normal default
-        limits = {
-            "memory": "2g",
-            "time": 900,
-        }
-
-        # Only run on our servers
-        if self.RTD_IS_PRODUCTION:
-            total_memory, memory_limit = self._get_docker_memory_limit()
-            if memory_limit:
-                limits = {
-                    "memory": f"{memory_limit}m",
-                    "time": max(
-                        limits["time"],
-                        round(total_memory * self.DOCKER_TIME_LIMIT_COEFF, -2),
-                    ),
-                }
-        log.info(
-            "Using dynamic docker limits.",
-            hostname=socket.gethostname(),
-            memory=limits["memory"],
-            time=limits["time"],
-        )
-        return limits
 
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
@@ -1172,6 +1165,13 @@ class CommunityBaseSettings(Settings):
         return {
             "staticfiles": {
                 "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
+            },
+            "usercontent": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+                "OPTIONS": {
+                    "location": Path(self.MEDIA_ROOT) / "usercontent",
+                    "allow_overwrite": True,
+                }
             },
         }
 

@@ -17,7 +17,6 @@ from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.notifications.models import Notification
-from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -25,29 +24,25 @@ from readthedocs.worker import app
 log = structlog.get_logger(__name__)
 
 
-def clean_build(version):
+def clean_build(version=None):
     """Clean the files used in the build of the given version."""
-    from readthedocs.projects.models import Feature
+    if version:
+        del_dirs = [
+            os.path.join(version.project.doc_path, dir_, version.slug)
+            for dir_ in ("checkouts", "envs", "conda", "artifacts")
+        ]
+        del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
 
-    if version.project.has_feature(
-        Feature.DONT_CLEAN_BUILD,
-    ):
-        log.info(
-            "Skipping cleaning build files for project with DONT_CLEAN_BUILD feature.",
-            project_slug=version.project.slug,
-            version_slug=version.slug,
-        )
+        log.info("Removing directories.", directories=del_dirs)
+        for path in del_dirs:
+            safe_rmtree(path, ignore_errors=True)
+
+    # Clean up DOCROOT (e.g. `user_builds/`) completely
+    else:
+        log.info("Removing DOCROOT directory.", docroot=settings.DOCROOT)
+        safe_rmtree(settings.DOCROOT, ignore_errors=True)
+        os.makedirs(settings.DOCROOT)
         return
-
-    del_dirs = [
-        os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ("checkouts", "envs", "conda", "artifacts")
-    ]
-    del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
-
-    log.info("Removing directories.", directories=del_dirs)
-    for path in del_dirs:
-        safe_rmtree(path, ignore_errors=True)
 
 
 @app.task(queue="web")
@@ -80,6 +75,13 @@ def clean_project_resources(project, version=None, version_slug=None):
      sometimes to clean old resources.
 
     .. note::
+
+       This function shouldn't delete objects that can't be recreated
+       by re-activating the version (e.g. page views, search queries),
+       as it's used when a version is deactivated.
+
+    .. note::
+
        This function is usually called just before deleting project.
        Make sure to not depend on the project object inside the tasks.
     """
@@ -101,11 +103,16 @@ def clean_project_resources(project, version=None, version_slug=None):
         version_slug=version_slug,
     )
 
-    # Remove imported files
+    # NOTE: We use _raw_delete to avoid Django fetching all objects
+    # before the deletion. Be careful when using _raw_delete, signals
+    # won't be sent, and can cause integrity problems if the model
+    # has relations with other models.
     if version:
-        version.imported_files.all().delete()
+        qs = version.imported_files.all()
+        qs._raw_delete(qs.db)
     else:
-        project.imported_files.all().delete()
+        qs = project.imported_files.all()
+        qs._raw_delete(qs.db)
 
 
 @app.task()
@@ -122,9 +129,10 @@ def finish_unhealthy_builds():
     log.debug("Running task to finish inactive builds (no healtcheck received).")
     delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
     query = (
-        ~Q(state__in=BUILD_FINAL_STATES)
+        # Grab 3 days old at most to use a fast DB index
+        Q(date__gt=timezone.now() - datetime.timedelta(days=3))
+        & ~Q(state__in=BUILD_FINAL_STATES)
         & Q(healthcheck__lt=timezone.now() - delta)
-        & Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
     )
 
     projects_finished = set()
@@ -155,65 +163,6 @@ def finish_unhealthy_builds():
         )
 
 
-@app.task()
-def finish_inactive_builds():
-    """
-    Finish inactive builds.
-
-    A build is consider inactive if it's not in a final state and it has been
-    "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
-
-    These inactive builds will be marked as ``success`` and ``CANCELLED`` with an
-    ``error`` to be communicated to the user.
-    """
-    # TODO similar to the celery task time limit, we can't infer this from
-    # Docker settings anymore, because Docker settings are determined on the
-    # build servers dynamically.
-    # time_limit = int(DOCKER_LIMITS['time'] * 1.2)
-    # Set time as maximum celery task time limit + 5m
-    time_limit = 7200 + 300
-    delta = datetime.timedelta(seconds=time_limit)
-    query = (
-        ~Q(state__in=BUILD_FINAL_STATES)
-        & Q(date__lt=timezone.now() - delta)
-        & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
-        & ~Q(project__feature__feature_id=Feature.BUILD_HEALTHCHECK)
-    )
-
-    projects_finished = set()
-    builds_finished = []
-    builds = Build.objects.filter(query)[:50]
-    for build in builds:
-        if build.project.container_time_limit:
-            custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit),
-            )
-            if build.date + custom_delta > timezone.now():
-                # Do not mark as CANCELLED builds with a custom time limit that wasn't
-                # expired yet (they are still building the project version)
-                continue
-
-        build.success = False
-        build.state = BUILD_STATE_CANCELLED
-        build.save()
-
-        Notification.objects.add(
-            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
-            attached_to=build,
-        )
-
-        builds_finished.append(build.pk)
-        projects_finished.add(build.project.slug)
-
-    log.info(
-        'Builds marked as "Terminated due inactivity".',
-        count=len(builds_finished),
-        project_slugs=projects_finished,
-        build_pks=builds_finished,
-    )
-
-
 def send_external_build_status(version_type, build_pk, commit, status):
     """
     Check if build is external and Send Build Status for project external versions.
@@ -231,7 +180,7 @@ def send_external_build_status(version_type, build_pk, commit, status):
 
 
 @app.task(queue="web")
-def set_builder_scale_in_protection(builder, protected_from_scale_in):
+def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=None):
     """
     Set scale-in protection on this builder ``builder``.
 
@@ -239,6 +188,7 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in):
     This is pretty useful for long running tasks.
     """
     structlog.contextvars.bind_contextvars(
+        build_id=build_id,
         builder=builder,
         protected_from_scale_in=protected_from_scale_in,
     )

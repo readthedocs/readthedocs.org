@@ -537,6 +537,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "commit": "a1b2c3",
             "error": "",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
         }
 
         # Update build state: installing
@@ -545,6 +546,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "installing",
             "commit": "a1b2c3",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "readthedocs_yaml_path": None,
             "error": "",
             # We update the `config` field at the same time we send the
@@ -618,6 +620,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
         # Update build state: uploading
@@ -628,6 +631,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
         # Update version state
@@ -654,6 +658,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "length": mock.ANY,
             "success": True,
             "error": "",
@@ -811,6 +816,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "commit": "a1b2c3",
             "error": "",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
         }
 
         # Update build state: installing
@@ -819,6 +825,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "installing",
             "commit": "a1b2c3",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "readthedocs_yaml_path": None,
             "error": "",
             # We update the `config` field at the same time we send the
@@ -900,6 +907,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
         # Update build state: uploading
@@ -910,6 +918,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
 
@@ -944,6 +953,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "length": mock.ANY,
             "success": True,
             "error": "",
@@ -1031,6 +1041,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert build_status_request.path == "/api/v2/build/1/"
         assert build_status_request.json() == {
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "commit": self.build.commit,
             "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
@@ -1085,6 +1096,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert build_status_request.path == "/api/v2/build/1/"
         assert build_status_request.json() == {
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "commit": self.build.commit,
             "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
@@ -1652,6 +1664,42 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                     demux=True,
                 ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_project_with_custom_git_checkout_command(self, load_yaml_config):
+        git_checkout_command = [
+            "env",
+            "echo $READTHEDOCS_GIT_CLONE_URL",
+            "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+            "git sparse-checkout init --cone",
+            "git sparse-checkout set projects/project",
+            "git checkout $READTHEDOCS_GIT_IDENTIFIER" ,
+        ]
+        self.project.git_checkout_command = git_checkout_command
+        self.project.save()
+
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "3",
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks["git.Backend.run"].assert_has_calls(
+            [
+                mock.call(*cmd.split(), escape_command=False) for cmd in git_checkout_command
             ]
         )
 
@@ -2932,6 +2980,7 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
             "error": "",  # We not sending "error" anymore
             "success": False,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "length": 0,
         }
 

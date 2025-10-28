@@ -86,18 +86,7 @@ def prepare_build(
         options["queue"] = project.build_queue
 
     # Set per-task time limit
-    # TODO remove the use of Docker limits or replace the logic here. This
-    # was pulling the Docker limits that were set on each stack, but we moved
-    # to dynamic setting of the Docker limits. This sets a failsafe higher
-    # limit, but if no builds hit this limit, it should be safe to remove and
-    # rely on Docker to terminate things on time.
-    # time_limit = DOCKER_LIMITS['time']
-    time_limit = 7200
-    try:
-        if project.container_time_limit:
-            time_limit = int(project.container_time_limit)
-    except ValueError:
-        log.warning("Invalid time_limit for project.")
+    time_limit = project.container_time_limit or settings.BUILD_TIME_LIMIT
 
     # Add 20% overhead to task, to ensure the build can timeout and the task
     # will cleanly finish.
@@ -172,7 +161,11 @@ def prepare_build(
     # At 1h exactly, the task is grabbed by another worker and re-executed,
     # even while it's still running on the original worker.
     # https://github.com/readthedocs/readthedocs.org/issues/12317
-    if project.has_feature(Feature.BUILD_NO_ACKS_LATE):
+    if (
+        project.has_feature(Feature.BUILD_NO_ACKS_LATE)
+        or project.container_time_limit
+        and project.container_time_limit > settings.BUILD_TIME_LIMIT
+    ):
         log.info("Disabling ACKS_LATE for this particular build.")
         options["acks_late"] = False
 

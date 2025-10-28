@@ -38,13 +38,14 @@ class GitHubService(UserService):
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
-        remote_repositories = []
+        remote_ids = []
 
         try:
             repos = self.paginate(f"{self.base_api_url}/user/repos", per_page=100)
             for repo in repos:
                 remote_repository = self.create_repository(repo)
-                remote_repositories.append(remote_repository)
+                if remote_repository:
+                    remote_ids.append(remote_repository.remote_id)
         except (TypeError, ValueError):
             log.warning("Error syncing GitHub repositories")
             raise SyncServiceError(
@@ -52,32 +53,25 @@ class GitHubService(UserService):
                     provider=self.vcs_provider_slug
                 )
             )
-        return remote_repositories
+        return remote_ids
 
     def sync_organizations(self):
-        """Sync organizations from GitHub API."""
-        remote_organizations = []
-        remote_repositories = []
+        """
+        Sync organizations from GitHub API.
+
+        This method only creates the relationships between the
+        organizations and the user, as all the repositories
+        are already created in the sync_repositories method.
+        """
+        organization_remote_ids = []
 
         try:
             orgs = self.paginate(f"{self.base_api_url}/user/orgs", per_page=100)
             for org in orgs:
                 org_details = self.session.get(org["url"]).json()
-                remote_organization = self.create_organization(
-                    org_details,
-                    create_user_relationship=True,
-                )
-                remote_organizations.append(remote_organization)
-
-                org_url = org["url"]
-                org_repos = self.paginate(
-                    f"{org_url}/repos",
-                    per_page=100,
-                )
-                for repo in org_repos:
-                    remote_repository = self.create_repository(repo)
-                    remote_repositories.append(remote_repository)
-
+                remote_organization = self.create_organization(org_details)
+                remote_organization.get_remote_organization_relation(self.user, self.account)
+                organization_remote_ids.append(remote_organization.remote_id)
         except (TypeError, ValueError):
             log.warning("Error syncing GitHub organizations")
             raise SyncServiceError(
@@ -86,7 +80,60 @@ class GitHubService(UserService):
                 )
             )
 
-        return remote_organizations, remote_repositories
+        return organization_remote_ids, []
+
+    def _has_access_to_repository(self, fields):
+        """Check if the user has access to the repository, and if they are an admin."""
+        permissions = fields.get("permissions", {})
+        # If the repo is public, the user can still access it,
+        # so we need to check if the user has any access
+        # to the repository, even if they are not an admin.
+        has_access = any(
+            permissions.get(key, False) for key in ["admin", "maintain", "push", "triage"]
+        )
+        is_admin = permissions.get("admin", False)
+        return has_access, is_admin
+
+    def update_repository(self, remote_repository: RemoteRepository):
+        resp = self.session.get(f"{self.base_api_url}/repositories/{remote_repository.remote_id}")
+
+        # The repo was deleted, or the user does not have access to it.
+        # In any case, we remove the user relationship.
+        if resp.status_code in [403, 404]:
+            log.info(
+                "User no longer has access to the repository, removing remote relationship.",
+                remote_repository=remote_repository.remote_id,
+            )
+            remote_repository.get_remote_repository_relation(self.user, self.account).delete()
+            return
+
+        if resp.status_code != 200:
+            log.warning(
+                "Error fetching repository from GitHub",
+                remote_repository=remote_repository.remote_id,
+                status_code=resp.status_code,
+            )
+            return
+
+        data = resp.json()
+        self._update_repository_from_fields(remote_repository, data)
+
+        has_access, is_admin = self._has_access_to_repository(data)
+        relation = remote_repository.get_remote_repository_relation(
+            self.user,
+            self.account,
+        )
+        if not has_access:
+            # If the user no longer has access to the repository,
+            # we remove the remote relationship.
+            log.info(
+                "User no longer has access to the repository, removing remote relationship.",
+                remote_repository=remote_repository.remote_id,
+            )
+            relation.delete()
+        else:
+            relation.admin = is_admin
+            relation.save()
 
     def create_repository(self, fields, privacy=None):
         """
@@ -94,8 +141,6 @@ class GitHubService(UserService):
 
         :param fields: dictionary of response data from API
         :param privacy: privacy level to support
-        :param organization: remote organization to associate with
-        :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
@@ -105,69 +150,17 @@ class GitHubService(UserService):
                 (fields["private"] is False and privacy == "public"),
             ]
         ):
-            repo, created = RemoteRepository.objects.get_or_create(
+            repo, _ = RemoteRepository.objects.get_or_create(
                 remote_id=str(fields["id"]),
                 vcs_provider=self.vcs_provider_slug,
             )
-
-            # TODO: For debugging: https://github.com/readthedocs/readthedocs.org/pull/9449.
-            if created:
-                _old_remote_repository = RemoteRepository.objects.filter(
-                    full_name=fields["full_name"], vcs_provider=self.vcs_provider_slug
-                ).first()
-                if _old_remote_repository:
-                    log.warning(
-                        "GitHub repository created with different remote_id but exact full_name.",
-                        fields=fields,
-                        old_remote_repository=_old_remote_repository.__dict__,
-                        imported=_old_remote_repository.projects.exists(),
-                    )
-
-            owner_type = fields["owner"]["type"]
-            organization = None
-            if owner_type == "Organization":
-                # We aren't creating a remote relationship between the current user
-                # and the organization, since the user can have access to the repository,
-                # but not to the organization.
-                organization = self.create_organization(
-                    fields=fields["owner"],
-                    create_user_relationship=False,
-                )
-
-            # If there is an organization associated with this repository,
-            # attach the organization to the repository.
-            if organization and owner_type == "Organization":
-                repo.organization = organization
-
-            # If the repository belongs to a user,
-            # remove the organization linked to the repository.
-            if owner_type == "User":
-                repo.organization = None
-
-            repo.name = fields["name"]
-            repo.full_name = fields["full_name"]
-            repo.description = fields["description"]
-            repo.ssh_url = fields["ssh_url"]
-            repo.html_url = fields["html_url"]
-            repo.private = fields["private"]
-            repo.vcs = "git"
-            repo.avatar_url = fields.get("owner", {}).get("avatar_url")
-            repo.default_branch = fields.get("default_branch")
-
-            if repo.private:
-                repo.clone_url = fields["ssh_url"]
-            else:
-                repo.clone_url = fields["clone_url"]
-
-            if not repo.avatar_url:
-                repo.avatar_url = self.default_user_avatar_url
-
-            repo.save()
+            self._update_repository_from_fields(repo, fields)
 
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
             )
-            remote_repository_relation.admin = fields.get("permissions", {}).get("admin", False)
+            _, is_admin = self._has_access_to_repository(fields)
+            remote_repository_relation.admin = is_admin
             remote_repository_relation.save()
 
             return repo
@@ -177,7 +170,43 @@ class GitHubService(UserService):
             repository=fields["name"],
         )
 
-    def create_organization(self, fields, create_user_relationship=False):
+    def _update_repository_from_fields(self, repo, fields):
+        owner_type = fields["owner"]["type"]
+        organization = None
+        if owner_type == "Organization":
+            organization = self.create_organization(fields=fields["owner"])
+
+        # If there is an organization associated with this repository,
+        # attach the organization to the repository.
+        if organization and owner_type == "Organization":
+            repo.organization = organization
+
+        # If the repository belongs to a user,
+        # remove the organization linked to the repository.
+        if owner_type == "User":
+            repo.organization = None
+
+        repo.name = fields["name"]
+        repo.full_name = fields["full_name"]
+        repo.description = fields["description"]
+        repo.ssh_url = fields["ssh_url"]
+        repo.html_url = fields["html_url"]
+        repo.private = fields["private"]
+        repo.vcs = "git"
+        repo.avatar_url = fields.get("owner", {}).get("avatar_url")
+        repo.default_branch = fields.get("default_branch")
+
+        if repo.private:
+            repo.clone_url = fields["ssh_url"]
+        else:
+            repo.clone_url = fields["clone_url"]
+
+        if not repo.avatar_url:
+            repo.avatar_url = self.default_user_avatar_url
+
+        repo.save()
+
+    def create_organization(self, fields):
         """
         Update or create remote organization from GitHub API response.
 
@@ -186,13 +215,21 @@ class GitHubService(UserService):
          organization and the current user. If `False`, only the `RemoteOrganization` object
          will be created/updated.
         :rtype: RemoteOrganization
+
+        .. note::
+
+           This method caches organizations by their remote ID to avoid
+           unnecessary database queries, specially when creating
+           multiple repositories that belong to the same organization.
         """
+        organization_id = str(fields["id"])
+        if organization_id in self._organizations_cache:
+            return self._organizations_cache[organization_id]
+
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=str(fields["id"]),
+            remote_id=organization_id,
             vcs_provider=self.vcs_provider_slug,
         )
-        if create_user_relationship:
-            organization.get_remote_organization_relation(self.user, self.account)
 
         organization.url = fields.get("html_url")
         # fields['login'] contains GitHub Organization slug
@@ -206,6 +243,7 @@ class GitHubService(UserService):
 
         organization.save()
 
+        self._organizations_cache[organization_id] = organization
         return organization
 
     def get_next_url_to_paginate(self, response):

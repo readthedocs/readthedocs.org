@@ -16,10 +16,6 @@ djangorestframework
 djangorestframework-api-key
 rest-framework-generic-relations
 
-# Embed v1 still uses docutils.
-# Remove this dependency once we deprecate this API.
-docutils
-
 # Filtering for the REST API
 django-filter
 
@@ -38,6 +34,9 @@ django-safemigrate
 # Impersonate users in the Django admin for support.
 django-impersonate
 
+# For ImageField
+Pillow
+
 requests
 requests-toolbelt
 slumber
@@ -55,10 +54,7 @@ redis
 celery
 django-celery-beat
 
-# 65.10.0 includes a fix that changes when clean_email is called,
-# we were relying on that method not being called on auto-signup for SAML and Google.
-# https://codeberg.org/allauth/django-allauth/commit/a5782aca5e373a48e7408e02d68211d934e821f3
-django-allauth[socialaccount,saml,mfa]==65.9.0
+django-allauth[socialaccount,saml,mfa]
 
 requests-oauthlib
 
@@ -138,7 +134,7 @@ gunicorn
 bumpver
 
 
-# xmlsec is a dependecy from python3-saml which is required by django-allauth.
+# xmlsec is a dependency from python3-saml which is required by django-allauth.
 # We have to pin it because the underlying `libxml2-dev` package installed at
 # system level is incompatible with the Python version
 # https://github.com/xmlsec/python-xmlsec/issues/324

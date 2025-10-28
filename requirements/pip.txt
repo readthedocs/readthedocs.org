@@ -8,17 +8,17 @@ amqp==5.3.1
     # via kombu
 annotated-types==0.7.0
     # via pydantic
-asgiref==3.9.1
+asgiref==3.10.0
     # via
     #   django
     #   django-allauth
     #   django-cors-headers
     #   django-structlog
-billiard==4.2.1
+billiard==4.2.2
     # via celery
-boto3==1.39.14
+boto3==1.40.55
     # via django-storages
-botocore==1.39.14
+botocore==1.40.55
     # via
     #   boto3
     #   s3transfer
@@ -29,17 +29,17 @@ celery==5.5.3
     #   -r requirements/pip.in
     #   django-celery-beat
     #   django-structlog
-certifi==2025.7.14
+certifi==2025.10.5
     # via
     #   elastic-transport
     #   requests
-cffi==1.17.1
+cffi==2.0.0
     # via
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.2
+charset-normalizer==3.4.4
     # via requests
-click==8.2.1
+click==8.3.0
     # via
     #   bumpver
     #   celery
@@ -54,23 +54,21 @@ click-repl==0.3.0
     # via celery
 colorama==0.4.6
     # via bumpver
-cron-descriptor==1.4.5
+cron-descriptor==2.0.6
     # via django-celery-beat
-cryptography==45.0.5
+cryptography==46.0.3
     # via
     #   fido2
     #   pyjwt
 cssselect==1.3.0
     # via pyquery
-deprecated==1.2.18
-    # via pygithub
 distlib==0.4.0
     # via virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.9.0
     # via -r requirements/pip.in
-django==5.2.4
+django==5.2.7
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -93,7 +91,7 @@ django==5.2.4
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.9.0
+django-allauth[mfa,saml,socialaccount]==65.12.1
     # via -r requirements/pip.in
 django-annoying==0.10.8
     # via -r requirements/pip.in
@@ -101,7 +99,7 @@ django-autoslug==1.9.9
     # via -r requirements/pip.in
 django-celery-beat==2.8.1
     # via -r requirements/pip.in
-django-cors-headers==4.7.0
+django-cors-headers==4.9.0
     # via -r requirements/pip.in
 django-crispy-forms==1.14.0
     # via -r requirements/pip.in
@@ -113,7 +111,7 @@ django-elasticsearch-dsl==8.2
     # via -r requirements/pip.in
 django-extensions==4.1
     # via -r requirements/pip.in
-django-filter==25.1
+django-filter==25.2
     # via -r requirements/pip.in
 django-formtools==2.5.1
     # via -r requirements/pip.in
@@ -139,7 +137,7 @@ django-timezone-field==7.1
     # via django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.in
-djangorestframework==3.16.0
+djangorestframework==3.16.1
     # via
     #   -r requirements/pip.in
     #   drf-extensions
@@ -148,11 +146,9 @@ djangorestframework-api-key==3.1.0
     # via -r requirements/pip.in
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.in
-dnspython==2.7.0
+dnspython==2.8.0
     # via -r requirements/pip.in
 docker==7.1.0
-    # via -r requirements/pip.in
-docutils==0.21.2
     # via -r requirements/pip.in
 dparse==0.6.4
     # via -r requirements/pip.in
@@ -164,7 +160,7 @@ elastic-transport==8.17.1
     # via
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.18.1
+elasticsearch==8.19.1
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -173,11 +169,11 @@ elasticsearch-dsl==8.18.0
     # via -r requirements/pip.in
 fido2==2.0.0
     # via django-allauth
-filelock==3.18.0
+filelock==3.20.0
     # via virtualenv
 gunicorn==23.0.0
     # via -r requirements/pip.in
-idna==3.10
+idna==3.11
     # via requests
 isodate==0.7.2
     # via python3-saml
@@ -197,11 +193,13 @@ lxml==5.3.2
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.8.2
+markdown==3.9
     # via -r requirements/pip.in
 oauthlib==3.3.1
-    # via requests-oauthlib
-orjson==3.11.1
+    # via
+    #   django-allauth
+    #   requests-oauthlib
+orjson==3.11.3
     # via -r requirements/pip.in
 packaging==25.0
     # via
@@ -211,23 +209,25 @@ packaging==25.0
     #   drf-extensions
     #   gunicorn
     #   kombu
-platformdirs==4.3.8
-    # via virtualenv
-prompt-toolkit==3.0.51
-    # via click-repl
-psycopg[binary,pool]==3.2.9
+pillow==12.0.0
     # via -r requirements/pip.in
-psycopg-binary==3.2.9
+platformdirs==4.5.0
+    # via virtualenv
+prompt-toolkit==3.0.52
+    # via click-repl
+psycopg[binary,pool]==3.2.11
+    # via -r requirements/pip.in
+psycopg-binary==3.2.11
     # via psycopg
 psycopg-pool==3.2.6
     # via psycopg
-pycparser==2.22
+pycparser==2.23
     # via cffi
-pydantic==2.11.7
+pydantic==2.12.3
     # via -r requirements/pip.in
-pydantic-core==2.33.2
+pydantic-core==2.41.4
     # via pydantic
-pygithub==2.6.1
+pygithub==2.8.1
     # via -r requirements/pip.in
 pygments==2.19.2
     # via -r requirements/pip.in
@@ -235,7 +235,7 @@ pyjwt[crypto]==2.10.1
     # via
     #   django-allauth
     #   pygithub
-pynacl==1.5.0
+pynacl==1.6.0
     # via pygithub
 pyquery==2.0.1
     # via -r requirements/pip.in
@@ -254,15 +254,15 @@ python3-saml==1.16.0
     # via django-allauth
 pytz==2025.2
     # via -r requirements/pip.in
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via -r requirements/pip.in
 qrcode==8.2
     # via django-allauth
-redis==6.2.0
+redis==6.4.0
     # via -r requirements/pip.in
-regex==2024.11.6
+regex==2025.9.18
     # via -r requirements/pip.in
-requests==2.32.4
+requests==2.32.5
     # via
     #   -r requirements/pip.in
     #   django-allauth
@@ -273,16 +273,14 @@ requests==2.32.4
     #   slumber
     #   stripe
 requests-oauthlib==2.0.0
-    # via
-    #   -r requirements/pip.in
-    #   django-allauth
+    # via -r requirements/pip.in
 requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
-s3transfer==0.13.1
+s3transfer==0.14.0
     # via boto3
-selectolax==0.3.32
+selectolax==0.4.0
     # via -r requirements/pip.in
 six==1.17.0
     # via
@@ -306,8 +304,9 @@ structlog==25.4.0
     #   django-structlog
 toml==0.10.2
     # via bumpver
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
+    #   cron-descriptor
     #   elasticsearch
     #   elasticsearch-dsl
     #   psycopg
@@ -317,7 +316,7 @@ typing-extensions==4.14.1
     #   pygithub
     #   stripe
     #   typing-inspection
-typing-inspection==0.4.1
+typing-inspection==0.4.2
     # via pydantic
 tzdata==2025.2
     # via
@@ -345,12 +344,10 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.32.0
+virtualenv==20.35.3
     # via -r requirements/pip.in
-wcwidth==0.2.13
+wcwidth==0.2.14
     # via prompt-toolkit
-wrapt==1.17.2
-    # via deprecated
 xmlsec==1.3.14
     # via
     #   -r requirements/pip.in

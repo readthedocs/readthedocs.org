@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
-from readthedocs.core.permissions import AdminPermission
+from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import user_id_matches_or_superuser
 from readthedocs.core.views.hooks import VersionInfo
@@ -21,19 +21,20 @@ from readthedocs.core.views.hooks import get_or_create_external_version
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.clients import get_gh_app_client
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAppInstallation
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
+from readthedocs.oauth.services import GitHubAppService
+from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
-from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
 from readthedocs.worker import app
-
-from .services import registry
 
 
 log = structlog.get_logger(__name__)
@@ -49,13 +50,16 @@ log = structlog.get_logger(__name__)
     time_limit=900,
     soft_time_limit=600,
 )
-def sync_remote_repositories(user_id):
+def sync_remote_repositories(user_id, skip_githubapp=False):
     user = User.objects.filter(pk=user_id).first()
     if not user:
         return
 
     failed_services = set()
     for service_cls in registry:
+        if skip_githubapp and service_cls == GitHubAppService:
+            continue
+
         try:
             service_cls.sync_user_access(user)
         except SyncServiceError:
@@ -69,62 +73,59 @@ def sync_remote_repositories(user_id):
         )
 
 
-@app.task(queue="web")
-def sync_remote_repositories_organizations(organization_slugs=None):
+@app.task(
+    queue="web",
+    # This is a long running task, since it syncs all repositories one by one.
+    time_limit=60 * 60 * 3,  # 3h
+    soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+)
+def sync_remote_repositories_from_sso_organizations():
     """
-    Re-sync users member of organizations.
+    Re-sync all remote repositories from organizations with SSO enabled.
 
-    It will trigger one `sync_remote_repositories` task per user.
+    This is useful, so all the remote repositories are up to date with the
+    latest permissions from their providers.
 
-    :param organization_slugs: list containg organization's slugs to sync. If
-    not passed, all organizations with ALLAUTH SSO enabled will be synced
-
-    :type organization_slugs: list
+    We ignore repositories from GitHub App installations, since they are kept
+    up to date via webhooks. For all the other services, we need to sync the
+    repository for each user that has access to it, since we need to check for
+    their permissions individually.
     """
-    if organization_slugs:
-        query = Organization.objects.filter(slug__in=organization_slugs)
-        log.info(
-            "Triggering SSO re-sync for organizations.",
-            organization_slugs=organization_slugs,
-            count=query.count(),
+    repositories = (
+        RemoteRepository.objects.filter(
+            projects__organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
         )
-    else:
-        organization_ids = SSOIntegration.objects.filter(
-            provider=SSOIntegration.PROVIDER_ALLAUTH
-        ).values_list("organization", flat=True)
-        query = Organization.objects.filter(id__in=organization_ids)
-        log.info(
-            "Triggering SSO re-sync for all organizations.",
-            count=query.count(),
-        )
-
-    n_task = -1
-    for organization in query:
-        members = AdminPermission.members(organization)
-        log.info(
-            "Triggering SSO re-sync for organization.",
-            organization_slug=organization.slug,
-            count=members.count(),
-        )
-        for user in members:
-            n_task += 1
-            sync_remote_repositories.apply_async(
-                args=[user.pk],
-                # delay the task by 0, 5, 10, 15, ... seconds
-                countdown=n_task * 5,
-            )
+        .exclude(vcs_provider=GITHUB_APP)
+        .distinct()
+    )
+    for repository in repositories.iterator():
+        service_class = repository.get_service_class()
+        relations = repository.remote_repository_relations.select_related("user", "account")
+        for relation in relations.iterator():
+            service = service_class(user=relation.user, account=relation.account)
+            try:
+                service.update_repository(repository)
+            except Exception:
+                log.info(
+                    "There was a problem updating repository for user.",
+                    user_username=relation.user.username,
+                    account_uid=relation.account.uid,
+                    repository_remote_id=repository.remote_id,
+                    repository_name=repository.full_name,
+                )
 
 
 @app.task(
     queue="web",
     time_limit=60 * 60 * 3,  # 3h
     soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+    bind=True,
 )
-def sync_active_users_remote_repositories():
+def sync_active_users_remote_repositories(self):
     """
     Sync ``RemoteRepository`` for active users.
 
-    We consider active users those that logged in at least once in the last 90 days.
+    We consider active users those that logged in at least once in the last 45 days.
 
     This task is thought to be executed daily. It checks the weekday of the
     last login of the user with today's weekday. If they match, the re-sync is
@@ -133,34 +134,50 @@ def sync_active_users_remote_repositories():
     Note this is a long running task syncronizhing all the users in the same Celery process,
     and it will require a pretty high ``time_limit`` and ``soft_time_limit``.
     """
-    today_weekday = timezone.now().isoweekday()
-    three_months_ago = timezone.now() - datetime.timedelta(days=90)
-    users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
-        last_login__gt=three_months_ago,
-        socialaccount__isnull=False,
-        weekday=today_weekday,
-    )
+    # This task is expensive, and we run it daily.
+    # We have had issues with it being triggered multiple times per day,
+    # so we use a lock (12 hours) to avoid that.
+    lock_id = "{0}-lock".format(self.name)
+    with memcache_lock(lock_id, 60 * 60 * 12, self.app.oid) as acquired:
+        if not acquired:
+            log.exception("Task has already been run recently, exiting.")
+            return
 
-    users_count = users.count()
-    structlog.contextvars.bind_contextvars(total_users=users_count)
-    log.info("Triggering re-sync of RemoteRepository for active users.")
-
-    for i, user in enumerate(users):
-        structlog.contextvars.bind_contextvars(
-            user_username=user.username,
-            progress=f"{i}/{users_count}",
+        today_weekday = timezone.now().isoweekday()
+        days_ago = timezone.now() - datetime.timedelta(days=45)
+        users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
+            last_login__gt=days_ago,
+            socialaccount__isnull=False,
+            weekday=today_weekday,
         )
 
-        # Log an update every 50 users
-        if i % 50 == 0:
-            log.info("Progress on re-syncing RemoteRepository for active users.")
+        users_count = users.count()
+        structlog.contextvars.bind_contextvars(total_users=users_count)
+        log.info("Triggering re-sync of RemoteRepository for active users.")
 
-        try:
-            # NOTE: sync all the users/repositories in the same Celery process.
-            # Do not trigger a new task per user.
-            sync_remote_repositories(user.pk)
-        except Exception:
-            log.exception("There was a problem re-syncing RemoteRepository.")
+        for i, user in enumerate(users.iterator()):
+            structlog.contextvars.bind_contextvars(
+                user_username=user.username,
+                progress=f"{i}/{users_count}",
+            )
+
+            # Log an update every 50 users
+            if i % 50 == 0:
+                log.info("Progress on re-syncing RemoteRepository for active users.")
+
+            try:
+                # NOTE: sync all the users/repositories in the same Celery process.
+                # Do not trigger a new task per user.
+                # NOTE: We skip the GitHub App, since all the repositories
+                # and permissions are kept up to date via webhooks.
+                # Triggering a sync per-user, will re-sync the same installation
+                # multiple times.
+                sync_remote_repositories(
+                    user.pk,
+                    skip_githubapp=True,
+                )
+            except Exception:
+                log.exception("There was a problem re-syncing RemoteRepository.")
 
 
 # TODO: remove user_pk from the signature on the next release.

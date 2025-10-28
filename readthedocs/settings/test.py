@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import textwrap
 
 from .base import CommunityBaseSettings
@@ -26,7 +27,8 @@ class CommunityTestSettings(CommunityBaseSettings):
     CELERY_ALWAYS_EAGER = True
 
     # Skip automatic detection of Docker limits for testing
-    DOCKER_LIMITS = {"memory": "200m", "time": 600}
+    BUILD_TIME_LIMIT = 600
+    BUILD_MEMORY_LIMIT = "200m"
 
     CACHES = {
         "default": {
@@ -139,6 +141,13 @@ class CommunityTestSettings(CommunityBaseSettings):
             },
             "staticfiles": {
                 "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            },
+            "usercontent": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+                "OPTIONS": {
+                    "location": Path(self.MEDIA_ROOT) / "usercontent",
+                    "allow_overwrite": True,
+                },
             },
         }
 

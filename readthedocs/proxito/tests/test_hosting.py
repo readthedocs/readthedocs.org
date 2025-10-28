@@ -73,6 +73,8 @@ class TestReadTheDocsConfigJson(TestCase):
             identifier="a1b2c3",
         )
         self.version = self.project.versions.get(slug=LATEST)
+        self.version.identifier = "master"
+        self.version.save()
         self.build = fixture.get(
             Build,
             project=self.project,
@@ -89,10 +91,17 @@ class TestReadTheDocsConfigJson(TestCase):
         return json.load(open(filename))
 
     def _normalize_datetime_fields(self, obj):
-        obj["projects"]["current"]["created"] = "2019-04-29T10:00:00Z"
-        obj["projects"]["current"]["modified"] = "2019-04-29T12:00:00Z"
-        obj["builds"]["current"]["created"] = "2019-04-29T10:00:00Z"
-        obj["builds"]["current"]["finished"] = "2019-04-29T10:01:00Z"
+        try:
+            obj["projects"]["current"]["created"] = "2019-04-29T10:00:00Z"
+            obj["projects"]["current"]["modified"] = "2019-04-29T12:00:00Z"
+        except:
+            pass
+
+        try:
+            obj["builds"]["current"]["created"] = "2019-04-29T10:00:00Z"
+            obj["builds"]["current"]["finished"] = "2019-04-29T10:01:00Z"
+        except:
+            pass
         return obj
 
     def test_get_config_v1(self):
@@ -726,6 +735,33 @@ class TestReadTheDocsConfigJson(TestCase):
         assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
             "v1"
         )
+
+    def test_send_project_slug_and_notfound_version_slug(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "1.0.0",
+                "client-version": "0.6.0",
+                "project-slug": self.project.slug,
+                "version-slug": "not-found",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+
+        expected_response = self._get_response_dict("v1")
+
+        # Since there is no version, there are some fields that we need to change from the default response
+        del expected_response["addons"]["doc_diff"]
+        expected_response["builds"]["current"] = None
+        expected_response["versions"]["current"] = None
+        expected_response["readthedocs"]["resolver"]["filename"] = None
+        expected_response["addons"]["search"]["default_filter"] = f"project:{self.project.slug}"
+        assert self._normalize_datetime_fields(r.json()) == expected_response
+
 
     def test_custom_domain_url(self):
         fixture.get(

@@ -302,6 +302,7 @@ class TestSyncVersions(TestCase):
         )
 
         latest_version = self.pip.versions.get(slug=LATEST)
+        self.assertIsNone(self.pip.default_branch)
         self.assertEqual(latest_version.type, BRANCH)
         self.assertEqual(latest_version.identifier, "master")
         self.assertEqual(latest_version.verbose_name, "latest")
@@ -769,11 +770,35 @@ class TestSyncVersions(TestCase):
 
         # The latest isn't stuck with the previous commit
         version_latest = self.pip.versions.get(slug="latest")
+        self.assertIsNone(self.pip.default_branch)
+        self.assertTrue(version_latest.machine)
         self.assertEqual(
             "master",
             version_latest.identifier,
         )
         self.assertTrue(version_latest.machine)
+
+        # Test with an explicit default branch (tag).
+        self.pip.default_branch = "default-tag"
+        self.pip.save()
+
+        tags_data = [
+            {
+                "identifier": "1abc2def3",
+                "verbose_name": "default-tag",
+            }
+        ]
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=tags_data,
+        )
+
+        version_latest = self.pip.versions.get(slug="latest")
+        self.assertTrue(version_latest.machine)
+        self.assertEqual(version_latest.identifier, "default-tag")
+        self.assertEqual(version_latest.type, TAG)
 
     def test_machine_attr_when_user_define_latest_branch_and_delete_it(self):
         """The user creates a branch named ``latest`` on an existing repo, when
@@ -802,6 +827,8 @@ class TestSyncVersions(TestCase):
 
         # The branch is the new latest
         version_latest = self.pip.versions.get(slug="latest")
+        self.assertIsNone(self.pip.default_branch)
+        self.assertFalse(version_latest.machine)
         self.assertEqual(
             "origin/latest",
             version_latest.identifier,
@@ -823,11 +850,37 @@ class TestSyncVersions(TestCase):
 
         # The latest isn't stuck with the previous branch
         version_latest = self.pip.versions.get(slug="latest")
+        self.assertIsNone(self.pip.default_branch)
+        self.assertTrue(version_latest.machine)
         self.assertEqual(
             "master",
             version_latest.identifier,
         )
         self.assertTrue(version_latest.machine)
+
+        # Test with an explicit default branch.
+        branches_data = [
+            {
+                "identifier": "origin/master",
+                "verbose_name": "master",
+            },
+            {
+                "identifier": "origin/default-branch",
+                "verbose_name": "default-branch",
+            },
+        ]
+        self.pip.default_branch = "default-branch"
+        self.pip.save()
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=[],
+        )
+
+        version_latest = self.pip.versions.get(slug="latest")
+        self.assertTrue(version_latest.machine)
+        self.assertEqual(version_latest.identifier, "default-branch")
+        self.assertEqual(version_latest.type, BRANCH)
 
     def test_deletes_version_with_same_identifier(self):
         branches_data = [
