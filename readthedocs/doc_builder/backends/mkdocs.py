@@ -10,10 +10,7 @@ import structlog
 import yaml
 from django.conf import settings
 
-from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
-from readthedocs.projects.constants import MKDOCS
-from readthedocs.projects.constants import MKDOCS_HTML
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.exceptions import UserFileNotFound
 
@@ -52,28 +49,6 @@ class BaseMkdocs(BaseBuilder):
                 self.project_path,
                 self.config.mkdocs.configuration,
             )
-
-    def get_final_doctype(self):
-        """
-        Select a doctype based on the ``use_directory_urls`` setting.
-
-        https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
-        """
-
-        # TODO: we should eventually remove this method completely and stop
-        # relying on "loading the `mkdocs.yml` file in a safe way just to know
-        # if it's a MKDOCS or MKDOCS_HTML documentation type".
-
-        # Allow symlinks, but only the ones that resolve inside the base directory.
-        with safe_open(
-            self.config_file,
-            "r",
-            allow_symlinks=True,
-            base_path=self.project_path,
-        ) as fh:
-            config = yaml_load_safely(fh)
-            use_directory_urls = config.get("use_directory_urls", True)
-            return MKDOCS if use_directory_urls else MKDOCS_HTML
 
     def show_conf(self):
         """Show the current ``mkdocs.yaml`` being used."""
