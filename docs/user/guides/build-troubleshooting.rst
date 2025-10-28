@@ -18,7 +18,7 @@ terminal prompts disabled
 
    fatal: could not read Username for 'https://github.com': terminal prompts disabled
 
-**Resolution:** This error can be quite misleading. It usually occurs when a repository could not be found because of a typo in the reposistory name or because the repository has been deleted. Verify your repository URL in :guilabel:`Admin > Settings`.
+**Resolution:** This error can be quite misleading. It usually occurs when a repository could not be found because of a typo in the repository name or because the repository has been deleted. Verify your repository URL in :guilabel:`Admin > Settings`.
 
 This error also occurs if you have changed a ``public`` repository to ``private`` and you are using ``https://`` in your git repository URL.
 

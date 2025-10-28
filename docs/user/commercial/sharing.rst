@@ -119,7 +119,7 @@ you need to authenticate those users against your own system first.
 The simplest way to do this is to create an authenticated redirect on your site,
 which then redirects to the Read the Docs :ref:`commercial/sharing:secret link`.
 
-This should require very little customization,
+This should require minimal customization,
 and will ensure that only authenticated users can access the documentation.
 The downside is that users won't be able to access the documentation directly from a bookmark,
 and will have to go through your site first.

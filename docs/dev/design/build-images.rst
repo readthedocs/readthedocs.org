@@ -39,7 +39,7 @@ on each image without asking the users to change the image selected in their con
 Then, when a completely different image appeared and after testing ``testing`` image enough,
 we discarded ``stable``, old ``latest`` became the new ``stable`` and old ``testing`` became the new ``latest``.
 This produced issues to people pinning their images to any of these names because after this change,
-*we changed all the images for all the users* and many build issues arrised!
+*we changed all the images for all the users* and many build issues arose!
 
 
 Goals
@@ -222,7 +222,7 @@ Python versions can be pre-compiled once and expose the output on the S3 for the
 .. tip::
 
    Since we are building a special cache for pre-compiled Python versions,
-   we could use the same method for all the other languages instead of creating a full mirror (many Gigabyes)
+   we could use the same method for all the other languages instead of creating a full mirror (many Gigabytes)
    This simple `bash script`_ download the language sources, compiles it and upload it to S3 without requiring a mirror.
    Note that it works in the same way for all the languages, not just for Python.
 

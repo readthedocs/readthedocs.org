@@ -147,7 +147,7 @@ Configuring repository webhooks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Your repository will also need to be configured to push updates via webhooks to Read the Docs on repository events.
-Webhook updates are used to automatically trigger new builds for your project and syncronize your repository's branches and tags.
+Webhook updates are used to automatically trigger new builds for your project and synchronize your repository's branches and tags.
 
 This step is the same for public repositories,
 follow the directions for :doc:`manually configuring a Git repository integration </guides/setup/git-repo-manual>`.

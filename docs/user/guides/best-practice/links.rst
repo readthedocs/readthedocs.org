@@ -61,7 +61,7 @@ Good practice ✅
   keep original file names rather than going for low-impact URL renaming.
   Renaming an article's title is great for the reader and great for SEO,
   but this does not have to involve the URL.
-* Establish your understanding of the *latest* and :term:`default version` of your documentation at the beginning. Changing their meaning is very disruptive to incoming links.
+* Establish your understanding of the *latest* and :term:`default version` of your documentation at the beginning. Changing their meaning is disruptive to incoming links.
 * Keep development versions :ref:`hidden <versions:Version states>` so people do not find them on search engines by mistake.
   This is the best way to ensure that nobody links to URLs that are intended for development purposes.
 * Use a :ref:`version warning notifications <versions:Version warning notifications>` to ensure the reader is aware in case they are reading an old (archived) version.
