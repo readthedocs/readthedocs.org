@@ -219,7 +219,9 @@ class BuildDirector:
                 )
 
             now = datetime.datetime.now(tz=datetime.timezone.utc)
-            hard_failure = now >= datetime.datetime(2025, 12, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+            hard_failure = now >= datetime.datetime(
+                2025, 12, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+            )
             if has_ssh_key_with_write_access:
                 if hard_failure and settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
                     raise BuildUserError(BuildUserError.SSH_KEY_WITH_WRITE_ACCESS)
