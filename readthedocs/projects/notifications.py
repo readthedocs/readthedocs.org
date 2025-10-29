@@ -101,7 +101,7 @@ messages = [
     ),
     Message(
         id=RepositoryError.UNSUPPORTED_VCS,
-        header=_("Repository type not suported"),
+        header=_("Repository type not supported"),
         body=_(
             textwrap.dedent(
                 """
@@ -120,6 +120,19 @@ messages = [
                 """
             A configuration file was not found.
             Make sure you have a <code>conf.py</code> file in your repository.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ProjectConfigurationError.MKDOCS_YAML_NOT_FOUND,
+        header=_("MkDocs configuration file is missing"),
+        body=_(
+            textwrap.dedent(
+                """
+            A configuration file was not found.
+            Make sure you have a <code>mkdocs.yml</code> file in your repository.
             """
             ).strip(),
         ),
