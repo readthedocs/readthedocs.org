@@ -12,7 +12,6 @@ import datetime
 import os
 import tarfile
 
-import pytz
 import structlog
 import yaml
 from django.conf import settings
@@ -219,9 +218,8 @@ class BuildDirector:
                     {"has_ssh_key_with_write_access": has_ssh_key_with_write_access}
                 )
 
-            tzinfo = pytz.timezone("America/Los_Angeles")
-            now = datetime.datetime.now(tz=tzinfo)
-            hard_failure = now >= datetime.datetime(2025, 12, 1, 0, 0, 0, tzinfo=tzinfo)
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
+            hard_failure = now >= datetime.datetime(2025, 12, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
             if has_ssh_key_with_write_access:
                 if hard_failure and settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
                     raise BuildUserError(BuildUserError.SSH_KEY_WITH_WRITE_ACCESS)
