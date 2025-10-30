@@ -74,6 +74,7 @@ from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEPRECATED_WEBHOOK
 from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.projects.views.base import ProjectAdminMixin
@@ -966,6 +967,22 @@ class IntegrationDetail(IntegrationMixin, DetailView):
 class IntegrationDelete(IntegrationMixin, DeleteViewWithMessage):
     success_message = _("Integration deleted")
     http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        resp = super().post(request, *args, **kwargs)
+        # Dismiss notification about removing the GitHub webhook.
+        project = self.get_project()
+        if (
+            project.is_github_app_project
+            and not project.integrations.filter(
+                integration_type=Integration.GITHUB_WEBHOOK
+            ).exists()
+        ):
+            Notification.objects.cancel(
+                attached_to=project,
+                message_id=MESSAGE_PROJECT_DEPRECATED_WEBHOOK,
+            )
+        return resp
 
 
 class IntegrationExchangeDetail(IntegrationMixin, DetailView):
