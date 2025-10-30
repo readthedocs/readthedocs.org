@@ -32,7 +32,9 @@ from readthedocs.core.views.hooks import get_or_create_external_version
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEPRECATED_WEBHOOK
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
 
 
@@ -448,6 +450,29 @@ class GitHubWebhookView(WebhookMixin, APIView):
         See https://developer.github.com/v3/activity/events/types/
 
         """
+        if self.project.is_github_app_project:
+            Notification.objects.add(
+                message_id=MESSAGE_PROJECT_DEPRECATED_WEBHOOK,
+                attached_to=self.project,
+                dismissable=True,
+            )
+            return Response(
+                {
+                    "detail": " ".join(
+                        dedent(
+                            """
+                            This project is connected to our GitHub App and doesn't require a separate webhook, ignoring webhook event.
+                            Remove the deprecated webhook from your repository to avoid duplicate events,
+                            see https://docs.readthedocs.com/platform/stable/reference/git-integration.html#manually-migrating-a-project.
+                            """
+                        )
+                        .strip()
+                        .splitlines()
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Get event and trigger other webhook events
         action = self.data.get("action", None)
         created = self.data.get("created", False)
