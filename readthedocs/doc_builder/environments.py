@@ -38,6 +38,15 @@ from .exceptions import BuildUserError
 log = structlog.get_logger(__name__)
 
 
+def _truncate_output(output):
+    if output is None:
+        return ""
+    output_lines = output.split("\n")
+    if len(output_lines) <= 20:
+        return output
+    return "\n".join(output_lines[:10] + [" ..Output Truncated.. "] + output_lines[-10:])
+
+
 class BuildCommand(BuildCommandResultMixin):
     """
     Wrap command execution for execution in build environments.
@@ -548,15 +557,11 @@ class BaseBuildEnvironment:
         if build_cmd.failed:
             if warn_only:
                 msg = "Command failed"
-                build_output = ""
-                if build_cmd.output:
-                    build_output += "\n".join(build_cmd.output.split("\n")[:10])
-                    build_output += "\n ..Output Truncated.. \n"
-                    build_output += "\n".join(build_cmd.output.split("\n")[-10:])
                 log.warning(
                     msg,
                     command=build_cmd.get_command(),
-                    output=build_output,
+                    output=_truncate_output(build_cmd.output),
+                    stderr=_truncate_output(build_cmd.error),
                     exit_code=build_cmd.exit_code,
                     project_slug=self.project.slug if self.project else "",
                     version_slug=self.version.slug if self.version else "",
