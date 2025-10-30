@@ -463,7 +463,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                             """
                             This project is connected to our GitHub App and doesn't require a separate webhook, ignoring webhook event.
                             Remove the deprecated webhook from your repository to avoid duplicate events,
-                            see https://docs.readthedocs.com/platform/stable/reference/git-integration.html#manually-migrating-a-project."
+                            see https://docs.readthedocs.com/platform/stable/reference/git-integration.html#manually-migrating-a-project.
                             """
                         )
                         .strip()
