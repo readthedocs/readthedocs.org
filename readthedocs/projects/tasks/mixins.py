@@ -51,7 +51,7 @@ class SyncRepositoryMixin:
             )
         except RepositoryError:
             log.warning(
-                "Error getting versions from the repository.",
+                "Error running lsremote to get versions from the repository.",
                 exc_info=True,
             )
             return
