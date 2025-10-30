@@ -2032,7 +2032,7 @@ class IntegrationsTests(TestCase):
         self, sync_repository_task, trigger_build
     ):
         """
-        Check that the custom queue isn't used for sync_repository_task.
+        Check that the custom queue is used for sync_repository_task.
         """
         client = APIClient()
         self.project.build_queue = "specific-build-queue"
@@ -2064,7 +2064,7 @@ class IntegrationsTests(TestCase):
             kwargs={
                 "build_api_key": mock.ANY,
             },
-            # No queue
+            queue="specific-build-queue",
         )
 
     def test_github_webhook_for_branches(self, trigger_build):

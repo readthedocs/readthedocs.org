@@ -118,9 +118,17 @@ def trigger_sync_versions(project):
             project_slug=version.project.slug,
             version_slug=version.slug,
         )
+
+        options = {}
+        # Use custom queue if defined, as some repositories need to
+        # be synced from a specific queue (like IP restricted ones).
+        if project.build_queue:
+            options["queue"] = project.build_queue
+
         sync_repository_task.apply_async(
             args=[version.pk],
             kwargs={"build_api_key": build_api_key},
+            **options,
         )
         return version.slug
     except Exception:

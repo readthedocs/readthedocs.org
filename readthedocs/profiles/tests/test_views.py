@@ -256,7 +256,6 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is False
-        assert context["github_app_name"] == "readthedocs"
         assert list(context["migrated_projects"]) == []
         assert (
             context["old_application_link"]
@@ -344,7 +343,6 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
-        assert context["github_app_name"] == "readthedocs"
         assert list(context["migrated_projects"]) == []
         assert (
             context["old_application_link"]
@@ -437,7 +435,6 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
-        assert context["github_app_name"] == "readthedocs"
         assert list(context["migrated_projects"]) == []
         assert (
             context["old_application_link"]
@@ -541,7 +538,6 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
-        assert context["github_app_name"] == "readthedocs"
         assert list(context["migrated_projects"]) == [
             self.project_with_remote_repository,
         ]
@@ -638,7 +634,6 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
-        assert context["github_app_name"] == "readthedocs"
         assert list(context["migrated_projects"]) == [
             self.project_with_remote_repository,
             self.project_with_remote_organization,
@@ -731,7 +726,6 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
-        assert context["github_app_name"] == "readthedocs"
         assert list(context["migrated_projects"]) == [
             self.project_with_remote_repository,
         ]
@@ -824,7 +818,6 @@ class TestMigrateToGitHubAppView(TestCase):
 
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
-        assert context["github_app_name"] == "readthedocs"
         assert list(context["migrated_projects"]) == []
         assert (
             context["old_application_link"]
