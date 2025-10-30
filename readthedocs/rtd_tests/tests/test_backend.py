@@ -146,6 +146,23 @@ class TestGitBackend(TestCase):
             {branch.verbose_name: branch.identifier for branch in repo_branches},
         )
 
+    def test_git_lsremote_fails(self):
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+        with mock.patch(
+            "readthedocs.vcs_support.backends.git.Backend.run",
+            return_value=(1, "Error", ""),
+        ):
+            with self.assertRaises(RepositoryError) as e:
+                repo.lsremote(
+                    include_tags=True,
+                    include_branches=True,
+                )
+            self.assertEqual(
+                e.exception.message_id,
+                RepositoryError.FAILED_TO_GET_VERSIONS,
+            )
+
     def test_git_update_and_checkout(self):
         version = self.project.versions.first()
         repo = self.project.vcs_repo(environment=self.build_environment, version=version)

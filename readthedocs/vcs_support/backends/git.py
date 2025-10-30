@@ -397,7 +397,10 @@ class Backend(BaseVCS):
         cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        exit_code, stdout, _ = self.run(*cmd, demux=True, record=False)
+
+        if exit_code != 0:
+            raise RepositoryError(message_id=RepositoryError.FAILED_TO_GET_VERSIONS)
 
         branches = []
         # Git has two types of tags: lightweight and annotated.

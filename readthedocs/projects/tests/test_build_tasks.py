@@ -3040,3 +3040,10 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
         exception = on_failure.call_args[0][0]
         assert isinstance(exception, RepositoryError) == True
         assert exception.message_id == RepositoryError.DUPLICATED_RESERVED_VERSIONS
+
+    @mock.patch("readthedocs.builds.tasks.sync_versions_task")
+    @mock.patch("readthedocs.vcs_support.backends.git.Backend.lsremote")
+    def test_skip_sync_version_task_if_lsremote_fails(self, lsremote, sync_versions_task):
+        lsremote.side_effect = RepositoryError(RepositoryError.FAILED_TO_GET_VERSIONS)
+        self._trigger_sync_repository_task()
+        sync_versions_task.assert_not_called()
