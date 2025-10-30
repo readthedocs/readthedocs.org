@@ -16,9 +16,9 @@ asgiref==3.10.0
     #   django-structlog
 billiard==4.2.2
     # via celery
-boto3==1.40.55
+boto3==1.40.59
     # via django-storages
-botocore==1.40.55
+botocore==1.40.59
     # via
     #   boto3
     #   s3transfer
@@ -129,7 +129,7 @@ django-simple-history==3.10.1
     # via -r requirements/pip.in
 django-storages[s3]==1.14.6
     # via -r requirements/pip.in
-django-structlog[celery]==9.1.1
+django-structlog[celery]==10.0.0
     # via -r requirements/pip.in
 django-taggit==6.1.0
     # via -r requirements/pip.in
@@ -199,7 +199,7 @@ oauthlib==3.3.1
     # via
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.3
+orjson==3.11.4
     # via -r requirements/pip.in
 packaging==25.0
     # via
@@ -258,9 +258,9 @@ pyyaml==6.0.3
     # via -r requirements/pip.in
 qrcode==8.2
     # via django-allauth
-redis==6.4.0
+redis==7.0.0
     # via -r requirements/pip.in
-regex==2025.9.18
+regex==2025.10.23
     # via -r requirements/pip.in
 requests==2.32.5
     # via
