@@ -86,7 +86,7 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
     to delete, without timing out the request.
 
     :param model_name: The model name in the format 'app_label.ModelName'.
-    :param object_id: The primary key of the object to delete.
+    :param pk: The primary key of the object to delete.
     :param user_id: The ID of the user performing the deletion.
      Just for logging purposes.
     """
