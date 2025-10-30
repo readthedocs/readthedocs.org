@@ -2,9 +2,11 @@
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
 from vanilla import DeleteView
 from vanilla import ListView
 
+from readthedocs.core.tasks import delete_object
 from readthedocs.proxito.cache import cache_response
 from readthedocs.proxito.cache import private_response
 
@@ -82,3 +84,19 @@ class DeleteViewWithMessage(DeleteView):
         if resp.status_code == 302 and self.success_message:
             messages.success(self.request, self.success_message)
         return resp
+
+
+class AsyncDeleteViewWithMessage(DeleteView):
+    """Delete view that shows a message after queuing an object for deletion."""
+
+    success_message = None
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        delete_object.delay(
+            model_name=self.object._meta.label,
+            pk=self.object.pk,
+            user_id=request.user.pk,
+        )
+        messages.success(request, self.success_message)
+        return HttpResponseRedirect(self.get_success_url())
