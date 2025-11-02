@@ -16,9 +16,9 @@ asgiref==3.10.0
     #   django-structlog
 billiard==4.2.2
     # via celery
-boto3==1.40.55
+boto3==1.40.64
     # via django-storages
-botocore==1.40.55
+botocore==1.40.64
     # via
     #   boto3
     #   s3transfer
@@ -91,7 +91,7 @@ django==5.2.7
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.12.1
+django-allauth[mfa,saml,socialaccount]==65.13.0
     # via -r requirements/pip.in
 django-annoying==0.10.8
     # via -r requirements/pip.in
@@ -105,7 +105,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.in
 django-csp==3.8
     # via -r requirements/pip.in
-django-debug-toolbar==6.0.0
+django-debug-toolbar==6.1.0
     # via -r requirements/pip.in
 django-elasticsearch-dsl==8.2
     # via -r requirements/pip.in
@@ -129,7 +129,7 @@ django-simple-history==3.10.1
     # via -r requirements/pip.in
 django-storages[s3]==1.14.6
     # via -r requirements/pip.in
-django-structlog[celery]==9.1.1
+django-structlog[celery]==10.0.0
     # via -r requirements/pip.in
 django-taggit==6.1.0
     # via -r requirements/pip.in
@@ -160,7 +160,7 @@ elastic-transport==8.17.1
     # via
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.19.1
+elasticsearch==8.19.2
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -199,7 +199,7 @@ oauthlib==3.3.1
     # via
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.3
+orjson==3.11.4
     # via -r requirements/pip.in
 packaging==25.0
     # via
@@ -215,11 +215,11 @@ platformdirs==4.5.0
     # via virtualenv
 prompt-toolkit==3.0.52
     # via click-repl
-psycopg[binary,pool]==3.2.11
+psycopg[binary,pool]==3.2.12
     # via -r requirements/pip.in
-psycopg-binary==3.2.11
+psycopg-binary==3.2.12
     # via psycopg
-psycopg-pool==3.2.6
+psycopg-pool==3.2.7
     # via psycopg
 pycparser==2.23
     # via cffi
@@ -258,9 +258,9 @@ pyyaml==6.0.3
     # via -r requirements/pip.in
 qrcode==8.2
     # via django-allauth
-redis==6.4.0
+redis==7.0.1
     # via -r requirements/pip.in
-regex==2025.9.18
+regex==2025.10.23
     # via -r requirements/pip.in
 requests==2.32.5
     # via
@@ -298,7 +298,7 @@ stripe==11.6.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-structlog==25.4.0
+structlog==25.5.0
     # via
     #   -r requirements/pip.in
     #   django-structlog
@@ -344,7 +344,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.35.3
+virtualenv==20.35.4
     # via -r requirements/pip.in
 wcwidth==0.2.14
     # via prompt-toolkit
