@@ -25,11 +25,11 @@ billiard==4.2.2
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.40.55
+boto3==1.40.64
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.40.55
+botocore==1.40.64
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -148,7 +148,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==6.0.0
+django-debug-toolbar==6.1.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==8.2
     # via -r requirements/pip.txt
@@ -174,7 +174,7 @@ django-simple-history==3.10.1
     # via -r requirements/pip.txt
 django-storages[s3]==1.14.6
     # via -r requirements/pip.txt
-django-structlog[celery]==9.1.1
+django-structlog[celery]==10.0.0
     # via -r requirements/pip.txt
 django-taggit==6.1.0
     # via -r requirements/pip.txt
@@ -208,7 +208,7 @@ elastic-transport==8.17.1
     #   -r requirements/pip.txt
     #   elasticsearch
     #   elasticsearch-dsl
-elasticsearch==8.19.1
+elasticsearch==8.19.2
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -271,7 +271,7 @@ markdown==3.9
     # via -r requirements/pip.txt
 markdown-it-py==4.0.0
     # via rich
-matplotlib-inline==0.1.7
+matplotlib-inline==0.2.1
     # via ipython
 mdurl==0.1.2
     # via markdown-it-py
@@ -280,7 +280,7 @@ oauthlib==3.3.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.3
+orjson==3.11.4
     # via -r requirements/pip.txt
 packaging==25.0
     # via
@@ -312,13 +312,13 @@ prompt-toolkit==3.0.52
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.2.11
+psycopg[binary,pool]==3.2.12
     # via -r requirements/pip.txt
-psycopg-binary==3.2.11
+psycopg-binary==3.2.12
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.2.6
+psycopg-pool==3.2.7
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -387,9 +387,9 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==6.4.0
+redis==7.0.1
     # via -r requirements/pip.txt
-regex==2025.9.18
+regex==2025.10.23
     # via -r requirements/pip.txt
 requests==2.32.5
     # via
@@ -435,7 +435,7 @@ stripe==11.6.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==25.4.0
+structlog==25.5.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -443,7 +443,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tox==4.31.0
+tox==4.32.0
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -501,7 +501,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.35.3
+virtualenv==20.35.4
     # via
     #   -r requirements/pip.txt
     #   tox
