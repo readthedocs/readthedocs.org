@@ -19,6 +19,7 @@ from readthedocs.audit.filters import OrganizationSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
+from readthedocs.core.mixins import AsyncDeleteViewWithMessage
 from readthedocs.core.mixins import DeleteViewWithMessage
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.invitations.models import Invitation
@@ -119,10 +120,10 @@ class DeleteOrganization(
     PrivateViewMixin,
     UpdateChangeReasonPostView,
     OrganizationView,
-    DeleteViewWithMessage,
+    AsyncDeleteViewWithMessage,
 ):
     http_method_names = ["post"]
-    success_message = _("Organization deleted")
+    success_message = _("Organization queued for deletion")
 
     def get_success_url(self):
         return reverse_lazy("organization_list")

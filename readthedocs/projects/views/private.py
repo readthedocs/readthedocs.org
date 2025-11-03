@@ -37,6 +37,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
+from readthedocs.core.mixins import AsyncDeleteViewWithMessage
 from readthedocs.core.mixins import DeleteViewWithMessage
 from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.core.mixins import PrivateViewMixin
@@ -192,8 +193,8 @@ class ProjectUpdate(ProjectMixin, UpdateView):
         return super().get_form(data, files, **kwargs)
 
 
-class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteViewWithMessage):
-    success_message = _("Project deleted")
+class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, AsyncDeleteViewWithMessage):
+    success_message = _("Project queued for deletion")
     template_name = "projects/project_delete.html"
 
     def get_context_data(self, **kwargs):
