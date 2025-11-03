@@ -8,6 +8,7 @@ It "directs" all of the high-level build jobs:
 * fetching instructions etc.
 """
 
+import datetime
 import os
 import tarfile
 
@@ -216,12 +217,20 @@ class BuildDirector:
                 self.data.api_client.project(self.data.project.pk).patch(
                     {"has_ssh_key_with_write_access": has_ssh_key_with_write_access}
                 )
+
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
+            hard_failure = now >= datetime.datetime(
+                2025, 12, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+            )
             if has_ssh_key_with_write_access:
-                self.attach_notification(
-                    attached_to=f"project/{self.data.project.pk}",
-                    message_id=MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS,
-                    dismissable=True,
-                )
+                if hard_failure and settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
+                    raise BuildUserError(BuildUserError.SSH_KEY_WITH_WRITE_ACCESS)
+                else:
+                    self.attach_notification(
+                        attached_to=f"project/{self.data.project.pk}",
+                        message_id=MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS,
+                        dismissable=True,
+                    )
 
         identifier = self.data.build_commit or self.data.version.identifier
         log.info("Checking out.", identifier=identifier)
