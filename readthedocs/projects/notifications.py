@@ -18,6 +18,7 @@ from readthedocs.projects.exceptions import UserFileNotFound
 MESSAGE_PROJECT_SKIP_BUILDS = "project:invalid:skip-builds"
 MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
 MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS = "project:ssh-key-with-write-access"
+MESSAGE_PROJECT_DEPRECATED_WEBHOOK = "project:webhooks:deprecated"
 
 messages = [
     Message(
@@ -192,6 +193,20 @@ messages = [
             ).strip(),
         ),
         type=WARNING,
+    ),
+    Message(
+        id=MESSAGE_PROJECT_DEPRECATED_WEBHOOK,
+        header=_("Remove deprecated webhook"),
+        body=_(
+            textwrap.dedent(
+                """
+                This project is connected to our GitHub App and doesn't require a separate webhook.
+                <a href="https://docs.readthedocs.com/platform/stable/reference/git-integration.html#manually-migrating-a-project">Remove the deprecated webhook from your repository</a>
+                to avoid duplicate events.
+                """
+            ).strip(),
+        ),
+        type=INFO,
     ),
 ]
 registry.add(messages)
