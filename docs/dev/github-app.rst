@@ -4,7 +4,7 @@ GitHub App
 Our GitHub App integration consists of a GitHub App (one for each platform, readthedocs.org and readthedocs.com),
 which can be installed on a user's account or organization.
 
-After installing the GitHub App, users can grant acccess to all repositories or select specific repositories,
+After installing the GitHub App, users can grant access to all repositories or select specific repositories,
 this allows Read the Docs to access the repositories and perform actions on them, such as reporting build statuses,
 and subscribe to events like push and pull request events.
 
@@ -42,5 +42,5 @@ Security
 - Since we make use of the installation to perform actions on the repositories instead of the user's OAuth2 token,
   we make sure that only users with admin permissions on the repository can link the repository to a Read the Docs project.
 - Once we lose access to a repository (e.g. the installation is uninstalled or revoked, or the project was deselected from the installation),
-  we remove the remote repository from the database, as we don't want to keep the relation bettween the project and the repository.
+  we remove the remote repository from the database, as we don't want to keep the relation between the project and the repository.
   This is to prevent connecting the repository to the project again without the user's consent if they grant access to the repository again.
