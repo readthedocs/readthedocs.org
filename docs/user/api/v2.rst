@@ -121,7 +121,9 @@ Project details
     :>json array users: Array of ``User`` IDs who are maintainers of the project.
 
     :statuscode 200: no error
-    :statuscode 404: There is no ``Project`` with this ID
+   :>json string verbose_name: The display name of the version (for example, "stable" or "v1.0").
+
+:statuscode 404: There is no ``Project`` with this ID
 
 Project versions
 ++++++++++++++++
@@ -215,7 +217,23 @@ Version detail
     :>json object project: Details of the ``Project`` for this version.
 
     :statuscode 200: no error
-    :statuscode 404: There is no ``Version`` with this ID
+    :statuscode 404: There is no ``Version`` with this I
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Builds
@@ -417,3 +435,4 @@ These include:
   (``/api/v2/footer_html``)
 * Endpoints used for advertising (``/api/v2/sustainability/``)
 * Any other endpoints not detailed above.
+
