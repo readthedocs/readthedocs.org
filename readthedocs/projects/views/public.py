@@ -82,13 +82,7 @@ def project_redirect(request, invalid_project_slug):
     Underscores are replaced by ``-`` and then redirected to that URL.
     """
     new_project_slug = invalid_project_slug.replace("_", "-")
-    new_path = request.path.replace(invalid_project_slug, new_project_slug)
-    return redirect(
-        "{}?{}".format(
-            new_path,
-            request.GET.urlencode(),
-        )
-    )
+    return redirect(reverse("projects_detail", args=[new_project_slug], query=request.GET))
 
 
 class ProjectDetailViewBase(
