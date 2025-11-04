@@ -98,6 +98,36 @@ class CommunityBaseSettings(Settings):
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
 
+    @property
+    def RTD_RESTRICTED_DOMAINS(self):
+        """
+        Domains that are restricted for users to use as custom domains.
+
+        This is to avoid users hijacking our domains.
+        We return the last two parts of our public domains to cover all subdomains,
+        e.g, if our domain is "app.readthedocs.org", we restrict all subdomains from "readthedocs.org".
+
+        If your domain is like "readthedocs.co.uk", you might want to override this property.
+
+        We recommend disallowing:
+
+        - Dashboard domain
+        - Public domain (from where documentation pages are served)
+        - External version domain (from where PR previews are served)
+        - Any public domains that point to the validation record (e.g., CNAME to readthedocs.io)
+        """
+        domains = [
+            self.PRODUCTION_DOMAIN,
+            self.PUBLIC_DOMAIN,
+            self.RTD_EXTERNAL_VERSION_DOMAIN,
+            "rtfd.io",
+            "rtfd.org",
+        ]
+        return [
+            ".".join(domain.split(".")[-2:])
+            for domain in domains
+        ]
+
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
     SPHINX_BACKEND = "readthedocs.doc_builder.backends.sphinx"
