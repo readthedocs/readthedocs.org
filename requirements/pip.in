@@ -54,7 +54,9 @@ redis
 celery
 django-celery-beat
 
-django-allauth[socialaccount,saml,mfa]
+# 65.13.0 performs some breaking changes to Okta that we need to review before upgrading.
+# https://docs.allauth.org/en/latest/release-notes/recent.html#id1
+django-allauth[socialaccount,saml,mfa]==65.12.1
 
 requests-oauthlib
 

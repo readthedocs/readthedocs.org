@@ -18,6 +18,7 @@ from readthedocs.projects.exceptions import UserFileNotFound
 MESSAGE_PROJECT_SKIP_BUILDS = "project:invalid:skip-builds"
 MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
 MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS = "project:ssh-key-with-write-access"
+MESSAGE_PROJECT_DEPRECATED_WEBHOOK = "project:webhooks:deprecated"
 
 messages = [
     Message(
@@ -186,12 +187,26 @@ messages = [
                 """
                 This project has a deploy key with write access to the repository.
                 For protection against abuse we've restricted use of these deploy keys.
-                A read-only deploy key will need to be set up <b>before July 31, 2025</b> to continue building this project.
+                A read-only deploy key will need to be set up <b>before December 1st, 2025</b> to continue building this project.
                 Read more about this in our <a href="https://about.readthedocs.com/blog/2025/07/ssh-keys-with-write-access/">blog post</a>.
                 """
             ).strip(),
         ),
         type=WARNING,
+    ),
+    Message(
+        id=MESSAGE_PROJECT_DEPRECATED_WEBHOOK,
+        header=_("Remove deprecated webhook"),
+        body=_(
+            textwrap.dedent(
+                """
+                This project is connected to our GitHub App and doesn't require a separate webhook.
+                <a href="https://docs.readthedocs.com/platform/stable/reference/git-integration.html#manually-migrating-a-project">Remove the deprecated webhook from your repository</a>
+                to avoid duplicate events.
+                """
+            ).strip(),
+        ),
+        type=INFO,
     ),
 ]
 registry.add(messages)
