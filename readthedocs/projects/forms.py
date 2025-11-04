@@ -1012,20 +1012,11 @@ class DomainForm(forms.ModelForm):
         if not parsed.scheme:
             parsed = self._safe_urlparse(f"https://{domain}")
 
-        if not parsed.netloc:
+        domain_string = parsed.netloc.strip()
+        if not domain_string:
             raise forms.ValidationError(f"{domain} is not a valid domain.")
 
-        domain_string = parsed.netloc
-
-        # Don't allow internal domains to be added, we have:
-        # - Dashboard domain
-        # - Public domain (from where documentation pages are served)
-        # - External version domain (from where PR previews are served)
-        for invalid_domain in [
-            settings.PRODUCTION_DOMAIN,
-            settings.PUBLIC_DOMAIN,
-            settings.RTD_EXTERNAL_VERSION_DOMAIN,
-        ]:
+        for invalid_domain in settings.RTD_RESTRICTED_DOMAINS:
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(f"{invalid_domain} is not a valid domain.")
 
