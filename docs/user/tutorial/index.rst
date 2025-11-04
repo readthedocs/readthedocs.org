@@ -81,7 +81,7 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
 open your :term:`dashboard`.
 
-When you have clicked the link in your emaill from Read the Docs to "verify your email address" and finalize the process, your Read the Docs account will be ready to create your first project.
+When you have clicked the link in your email from Read the Docs to "verify your email address" and finalize the process, your Read the Docs account will be ready to create your first project.
 
 .. figure:: /_static/images/tutorial/rtd-empty-dashboard.png
    :width: 80%
@@ -301,7 +301,7 @@ Making build warnings more visible
 If you navigate to your HTML documentation,
 you will notice that the index page looks correct
 but the API section is empty.
-This is a very common issue with Sphinx,
+This is a common issue with Sphinx,
 and the reason is stated in the build logs.
 On the build page you opened before,
 click on the :guilabel:`View raw` link on the top right,
