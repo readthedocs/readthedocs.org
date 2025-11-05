@@ -11,7 +11,6 @@ import yaml
 from django.conf import settings
 
 from readthedocs.doc_builder.base import BaseBuilder
-from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.exceptions import UserFileNotFound
 
 
@@ -43,18 +42,13 @@ class BaseMkdocs(BaseBuilder):
         super().__init__(*args, **kwargs)
 
         # This is the *MkDocs* yaml file
-        self.config_file = None
-        if self.config.mkdocs.configuration:
-            self.config_file = os.path.join(
-                self.project_path,
-                self.config.mkdocs.configuration,
-            )
+        self.config_file = self.config_file = os.path.join(
+            self.project_path,
+            self.config.mkdocs.configuration,
+        )
 
     def show_conf(self):
         """Show the current ``mkdocs.yaml`` being used."""
-        if self.config_file is None:
-            raise ProjectConfigurationError(ProjectConfigurationError.MKDOCS_YAML_NOT_FOUND)
-
         if not os.path.exists(self.config_file):
             raise UserFileNotFound(
                 message_id=UserFileNotFound.FILE_NOT_FOUND,

@@ -9,7 +9,6 @@ class ProjectConfigurationError(BuildUserError):
 
     NOT_FOUND = "project:sphinx:conf-py-not-found"
     MULTIPLE_CONF_FILES = "project:sphinx:multiple-conf-py-files-found"
-    MKDOCS_YAML_NOT_FOUND = "project:mkdocs:yaml-not-found"
 
 
 class UserFileNotFound(BuildUserError):

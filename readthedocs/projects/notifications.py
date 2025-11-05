@@ -126,19 +126,6 @@ messages = [
         type=ERROR,
     ),
     Message(
-        id=ProjectConfigurationError.MKDOCS_YAML_NOT_FOUND,
-        header=_("MkDocs configuration file is missing"),
-        body=_(
-            textwrap.dedent(
-                """
-            A configuration file was not found.
-            Make sure you have a <code>mkdocs.yml</code> file in your repository.
-            """
-            ).strip(),
-        ),
-        type=ERROR,
-    ),
-    Message(
         id=ProjectConfigurationError.MULTIPLE_CONF_FILES,
         header=_("Multiple Sphinx configuration files found"),
         body=_(
