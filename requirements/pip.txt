@@ -68,7 +68,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.9.0
     # via -r requirements/pip.in
-django==5.2.7
+django==5.2.8
     # via
     #   -r requirements/pip.in
     #   dj-stripe
