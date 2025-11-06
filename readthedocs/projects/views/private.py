@@ -303,8 +303,8 @@ def show_config_step(wizard):
         # This is a problem for us because we perform external calls here and add messages to the request.
         # Due to that, we are adding this instance variable to prevent this function to run multiple times.
         # Maybe related to https://github.com/jazzband/django-formtools/issues/134
-        if hasattr(wizard, "_show_config_step_executed"):
-            return False
+        if hasattr(wizard, "_show_config_step_result"):
+            return wizard._show_config_step_result
 
         remote_repository_relations = (
             remote_repository.remote_repository_relations.filter(
@@ -341,7 +341,7 @@ def show_config_step(wizard):
                                 "We detected a configuration file in your repository and started your project's first build."
                             ),
                         )
-                        wizard._show_config_step_executed = True
+                        wizard._show_config_step_result = False
                         return False
                 except Exception:
                     log.warning(
@@ -349,6 +349,10 @@ def show_config_step(wizard):
                         filename=yaml,
                     )
                     continue
+
+        # Cache the result for consistency
+        wizard._show_config_step_result = True
+        return True
     return True
 
 
