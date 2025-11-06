@@ -314,7 +314,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         builder_hostname = request.GET.get("builder")
         structlog.contextvars.bind_contextvars(
             build_id=build.pk,
-            project_slug=build.version.project.slug,
+            project_slug=build.project.slug,
             builder_hostname=builder_hostname,
         )
 
