@@ -1,5 +1,6 @@
 import structlog
 from django.conf import settings
+from django.core.exceptions import TooManyFieldsSent
 from django.http import HttpResponse
 
 
@@ -21,7 +22,19 @@ class NullCharactersMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        for key, value in request.GET.items():
+        try:
+            query_params = request.GET.items()
+        except TooManyFieldsSent:
+            log.warning(
+                "Too many GET parameters in request.",
+                url=request.build_absolute_uri(),
+            )
+            return HttpResponse(
+                "The number of GET parameters exceeded the maximum allowed.",
+                status=400,
+            )
+
+        for key, value in query_params:
             if "\x00" in value:
                 log.info(
                     "NULL (0x00) characters in GET attributes.",
