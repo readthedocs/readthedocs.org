@@ -25,7 +25,7 @@ class NullCharactersMiddleware:
         try:
             query_params = request.GET.items()
         except TooManyFieldsSent:
-            log.warning(
+            log.info(
                 "Too many GET parameters in request.",
                 url=request.build_absolute_uri(),
             )
