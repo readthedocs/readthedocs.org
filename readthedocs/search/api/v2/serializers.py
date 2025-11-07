@@ -8,7 +8,6 @@ Serializers for the ES's search result object.
 
 import re
 from functools import namedtuple
-from operator import attrgetter
 from urllib.parse import urlparse
 
 from rest_framework import serializers
