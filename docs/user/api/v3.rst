@@ -744,6 +744,21 @@ Build details
             "success": true,
             "error": null,
             "commit": "6f808d743fd6f6907ad3e2e969c88a549e76db30",
+            "commit_url": "https://github.com/pypa/pip/commit/6f808d743fd6f6907ad3e2e969c88a549e76db30",
+            "docs_url": "https://pip.readthedocs.io/en/latest/",
+            "builder": "build-default-6fccbf5cb-xtzkc",
+            "commands": [
+                {
+                    "id": 1,
+                    "command": "git clone --depth 1 https://github.com/pypa/pip .",
+                    "description": "Clone repository",
+                    "output": "Cloning into '.'...",
+                    "exit_code": 0,
+                    "start_time": "2018-06-19T15:16:01+00:00",
+                    "end_time": "2018-06-19T15:16:05+00:00",
+                    "run_time": 4
+                }
+            ],
             "config": {
                 "version": "1",
                 "formats": [
@@ -791,9 +806,22 @@ Build details
     :>json integer duration: The length of the build in seconds.
     :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, ``finished`` or ``cancelled``)
     :>json string error: An error message if the build was unsuccessful
+    :>json string commit_url: URL to the commit in the version control system
+    :>json string docs_url: URL to the built documentation for this build
+    :>json string builder: Identifier of the builder instance that executed this build (useful for debugging)
+    :>json array commands: List of build commands executed during the build process. Each command includes:
+        
+        * ``id`` - Command identifier
+        * ``command`` - The actual command that was executed
+        * ``description`` - Human-readable description of the command
+        * ``output`` - Output from the command execution
+        * ``exit_code`` - Exit code of the command (0 for success)
+        * ``start_time`` - ISO-8601 datetime when the command started
+        * ``end_time`` - ISO-8601 datetime when the command finished
+        * ``run_time`` - Duration of the command in seconds
 
     :query string expand: Add additional fields in the response.
-                          Allowed value is ``config``.
+                          Allowed values are ``config`` and ``notifications``.
 
 
 Builds listing

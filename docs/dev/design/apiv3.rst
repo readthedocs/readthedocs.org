@@ -125,14 +125,6 @@ This iteration will include:
 * Trigger Build for default version
 * Allow CRUD for Redirect, Environment Variables and Notifications (``WebHook`` and ``EmailHook``)
 * Create/Delete a Project as subproject of another Project
-* Build endpoint enhancements:
-
-  * Build commands (``commands`` field)
-  * Documentation URL (``docs_url`` field)
-  * Commit URL (``commit_url`` field)
-  * Builder information (``builder`` field)
-  * Expandable notifications (``?expand=notifications``)
-
 * Documentation
 
 
