@@ -399,6 +399,7 @@ class BuildsViewSet(
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
     permit_list_expands = [
         "config",
+        "notifications",
     ]
 
 
