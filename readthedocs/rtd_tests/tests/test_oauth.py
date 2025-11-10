@@ -984,6 +984,43 @@ class GitHubAppTests(TestCase):
         }
 
     @requests_mock.Mocker(kw="request")
+    def test_send_build_status_success_when_not_built(self, request):
+        """Test that when status is SUCCESS but version is not built, it links to build detail page."""
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        # Note: version.built is False (default)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build succeeded!",
+            "state": "success",
+            # Should link to build detail page, not version docs
+            "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
+        }
+
+    @requests_mock.Mocker(kw="request")
     def test_send_build_status_failure(self, request):
         commit = "1234abc"
         version = self.project.versions.get(slug=LATEST)
@@ -1560,6 +1597,38 @@ class GitHubOAuthTests(TestCase):
         mock_logger.debug.assert_called_with(
             "GitHub commit status created for project.",
         )
+
+    @mock.patch("readthedocs.oauth.services.github.structlog")
+    @mock.patch("readthedocs.oauth.services.github.log")
+    @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
+    def test_send_build_status_success_when_not_built(self, session, mock_logger, mock_structlog):
+        """Test that when status is SUCCESS but version is not built, it links to build detail page.
+
+        This happens when a build has exit code 183 (skipped) - it reports SUCCESS
+        to GitHub so the PR can be merged, but the version is never marked as built.
+        """
+        # external_version.built is False by default
+        session.post.return_value.status_code = 201
+        success = self.service.send_build_status(
+            build=self.external_build,
+            commit=self.external_build.commit,
+            status=BUILD_STATUS_SUCCESS,
+        )
+
+        self.assertTrue(success)
+        # Verify that the target_url points to the build detail page, not the version docs
+        call_args = mock_structlog.contextvars.bind_contextvars.call_args_list
+        # Find the call with target_url
+        target_url = None
+        for call in call_args:
+            if 'target_url' in call[1]:
+                target_url = call[1]['target_url']
+                break
+
+        self.assertIsNotNone(target_url)
+        # Should link to build detail page, not version URL
+        self.assertIn(f'/projects/{self.project.slug}/builds/{self.external_build.pk}/', target_url)
+        self.assertNotIn('.readthedocs.io', target_url)
 
     @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
