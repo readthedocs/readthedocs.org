@@ -541,9 +541,8 @@ class GitLabService(UserService):
         gitlab_build_state = SELECT_BUILD_STATUS[status]["gitlab"]
         description = SELECT_BUILD_STATUS[status]["description"]
 
-        if status == BUILD_STATUS_SUCCESS and (build.version.built or build.version.uploaded):
+        if status == BUILD_STATUS_SUCCESS:
             # Link to the documentation for this version
-            # Only link to docs if the version was actually built/uploaded
             target_url = build.version.get_absolute_url()
         else:
             # Link to the build detail's page

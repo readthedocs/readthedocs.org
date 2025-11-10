@@ -985,10 +985,14 @@ class GitHubAppTests(TestCase):
 
     @requests_mock.Mocker(kw="request")
     def test_send_build_status_success_when_not_built(self, request):
-        """Test that when status is SUCCESS but version is not built, it links to build detail page."""
+        """Test that when status is SUCCESS but version is not built, it links to build detail page.
+
+        This is specifically for external versions (PR builds) which are read-only and should
+        always link to the build detail page when not built.
+        """
         commit = "1234abc"
-        version = self.project.versions.get(slug=LATEST)
-        # Note: version.built is False (default)
+        # Create an external version (PR build) that is not built
+        version = get(Version, project=self.project, type=EXTERNAL, built=False)
         build = get(
             Build,
             project=self.project,

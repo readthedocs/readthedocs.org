@@ -451,9 +451,7 @@ class GitHubAppService(Service):
         project = build.project
         remote_repo = project.remote_repository
 
-        if status == BUILD_STATUS_SUCCESS and (build.version.built or build.version.uploaded):
-            # Link to the documentation for this version
-            # Only link to docs if the version was actually built/uploaded
+        if status == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
         else:
             target_url = build.get_full_url()
