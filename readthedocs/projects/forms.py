@@ -1020,7 +1020,9 @@ class DomainForm(forms.ModelForm):
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(f"{invalid_domain} is not a valid domain.")
 
-        self._check_for_suspicious_cname(domain_string)
+        # Run this check only on domain creation.
+        if not self.instance.pk:
+            self._check_for_suspicious_cname(domain_string)
 
         return domain_string
 
