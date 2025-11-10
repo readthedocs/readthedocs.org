@@ -354,7 +354,7 @@ class Version(TimeStampedModel):
             # External versions (PR builds) should link to the build detail page
             # since they're read-only and we can't "edit" them
             if self.type == EXTERNAL:
-                latest_build = self.builds.order_by("-date").first()
+                latest_build = self.latest_build
                 if latest_build:
                     return latest_build.get_full_url()
 
