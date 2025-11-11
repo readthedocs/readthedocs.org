@@ -8,7 +8,6 @@ Serializers for the ES's search result object.
 
 import re
 from functools import namedtuple
-from operator import attrgetter
 from urllib.parse import urlparse
 
 from rest_framework import serializers
@@ -55,6 +54,25 @@ class PageHighlightSerializer(serializers.Serializer):
         return list(getattr(obj, "title", []))
 
 
+class SectionHighlightSerializer(serializers.Serializer):
+    title = serializers.SerializerMethodField()
+    content = serializers.SerializerMethodField()
+
+    def get_title(self, obj):
+        return list(getattr(obj, "sections.title", []))
+
+    def get_content(self, obj):
+        return list(getattr(obj, "sections.content", []))
+
+
+class SectionSearchSerializer(serializers.Serializer):
+    type = serializers.CharField(default="section", source=None, read_only=True)
+    id = serializers.CharField()
+    title = serializers.CharField()
+    content = serializers.CharField()
+    highlights = SectionHighlightSerializer(source="meta.highlight", default=dict)
+
+
 class PageSearchSerializer(serializers.Serializer):
     """
     Page serializer.
@@ -74,7 +92,7 @@ class PageSearchSerializer(serializers.Serializer):
     path = serializers.SerializerMethodField()
     domain = serializers.SerializerMethodField()
     highlights = PageHighlightSerializer(source="meta.highlight", default=dict)
-    blocks = serializers.SerializerMethodField()
+    blocks = SectionSearchSerializer(source="meta.inner_hits.sections", many=True, default=list)
 
     def __init__(self, *args, projects=None, **kwargs):
         if projects:
@@ -152,33 +170,3 @@ class PageSearchSerializer(serializers.Serializer):
 
             return docs_url.rstrip("/") + "/" + path.lstrip("/")
         return None
-
-    def get_blocks(self, obj):
-        """Combine and sort inner results (domains and sections)."""
-        sections = obj.meta.inner_hits.sections or []
-        sorted_results = sorted(
-            sections,
-            key=attrgetter("meta.score"),
-            reverse=True,
-        )
-        sorted_results = [SectionSearchSerializer(hit).data for hit in sorted_results]
-        return sorted_results
-
-
-class SectionHighlightSerializer(serializers.Serializer):
-    title = serializers.SerializerMethodField()
-    content = serializers.SerializerMethodField()
-
-    def get_title(self, obj):
-        return list(getattr(obj, "sections.title", []))
-
-    def get_content(self, obj):
-        return list(getattr(obj, "sections.content", []))
-
-
-class SectionSearchSerializer(serializers.Serializer):
-    type = serializers.CharField(default="section", source=None, read_only=True)
-    id = serializers.CharField()
-    title = serializers.CharField()
-    content = serializers.CharField()
-    highlights = SectionHighlightSerializer(source="meta.highlight", default=dict)
