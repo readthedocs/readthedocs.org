@@ -794,6 +794,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             "urls",
             "tags",
             "privacy_level",
+            "readthedocs_yaml_path",
             "external_builds_privacy_level",
             "versioning_scheme",
             # Kept for backwards compatibility,
