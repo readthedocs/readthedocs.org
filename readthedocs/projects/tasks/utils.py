@@ -223,7 +223,9 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=N
             ProtectedFromScaleIn=protected_from_scale_in,
         )
     except Exception:
-        log.exception("Failed when trying to set instance protection.")
+        # Don't log these as exceptions,
+        # since there isn't much we can do about it here.
+        log.info("Failed when trying to set instance protection.")
 
 
 class BuildRequest(Request):
