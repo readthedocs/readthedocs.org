@@ -1605,7 +1605,7 @@ class GitHubOAuthTests(TestCase):
     @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_send_build_status_success_when_not_built(self, session, mock_logger, mock_structlog):
+    def test_send_build_status_on_pr_builds(self, session, mock_logger, mock_structlog):
         """Test that when status is SUCCESS but version is not built, it links to build detail page.
 
         This happens when a build has exit code 183 (skipped) - it reports SUCCESS
