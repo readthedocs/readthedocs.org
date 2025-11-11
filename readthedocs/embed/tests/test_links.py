@@ -149,3 +149,19 @@ def test_two_links():
         firsturl.expected,
         secondurl.expected,
     )
+
+
+def test_missing_href_attribute():
+    """Test that links without href attribute don't cause errors."""
+    pq = PyQuery('<body><a>Link without href</a></body>')
+    response = clean_references(pq, html_base_url)
+    # Should not raise KeyError, just skip the link
+    assert response.find("a") is not None
+
+
+def test_missing_src_attribute():
+    """Test that images without src attribute don't cause errors."""
+    pq = PyQuery('<body><img alt="image without src"></img></body>')
+    response = clean_references(pq, html_base_url)
+    # Should not raise KeyError, just skip the image
+    assert response.find("img") is not None
