@@ -147,7 +147,11 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     def _find_main_node(self, html, selector):
         if selector:
-            return html.css_first(selector)
+            try:
+                return html.css_first(selector)
+            except ValueError:
+                log.warning("Invalid CSS selector provided.", selector=selector)
+                return None
 
         main_node = html.css_first("[role=main]")
         if main_node:
@@ -183,7 +187,11 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             # characters as the `id=` HTML attribute
             # https://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
             selector = f'[id="{fragment}"]'
-            node = HTMLParser(page_content).css_first(selector)
+            try:
+                node = HTMLParser(page_content).css_first(selector)
+            except ValueError:
+                log.warning("Invalid CSS selector from fragment.", fragment=fragment)
+                node = None
         else:
             html = HTMLParser(page_content)
             node = self._find_main_node(html, selector)
