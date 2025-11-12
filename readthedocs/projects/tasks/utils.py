@@ -227,7 +227,7 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=N
     except (ValidationError, ClientError):
         # Don't log these as exceptions,
         # since there isn't much we can do about it here.
-        pass
+        log.info("Failed when trying to set instance protection.")
     except Exception:
         log.exception("Unexpected error when trying to set instance protection.")
 
