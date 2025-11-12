@@ -93,10 +93,11 @@ class BuildDataManager(models.Manager):
             "success": build.success,
         }
         data["project"] = {"id": build.project.id, "slug": build.project.slug}
-        data["version"] = {
-            "id": build.version.id,
-            "slug": build.version.slug,
-        }
+        if build.version:
+            data["version"] = {
+                "id": build.version.id,
+                "slug": build.version.slug,
+            }
         org = build.project.organizations.first()
         if org:
             data["organization"] = {
