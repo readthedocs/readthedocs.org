@@ -599,6 +599,21 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
     command_class = DockerBuildCommand
     container_image = DOCKER_IMAGE
 
+    @staticmethod
+    def _get_docker_exception_message(exc):
+        """Return a human readable message from a Docker exception."""
+
+        # ``docker.errors.DockerException`` usually exposes ``explanation`` but
+        # some subclasses created when wrapping other libraries (``requests``,
+        # ``urllib3``) do not. Accessing it blindly raises ``AttributeError``.
+        # Fallback to ``str(exc)`` so we always have a useful message.
+        message = getattr(exc, "explanation", None)
+        if not message:
+            message = str(exc)
+        if not message:
+            message = repr(exc)
+        return message
+
     def __init__(self, *args, **kwargs):
         container_image = kwargs.pop("container_image", None)
         super().__init__(*args, **kwargs)
@@ -663,7 +678,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 client.remove_container(self.container_id)
         except (DockerAPIError, ConnectionError) as exc:
             raise BuildAppError(
-                BuildAppError.GENERIC_WITH_BUILD_ID, exception_message=exc.explanation
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message=self._get_docker_exception_message(exc),
             ) from exc
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
@@ -739,7 +755,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             return self.client
         except DockerException as exc:
             raise BuildAppError(
-                BuildAppError.GENERIC_WITH_BUILD_ID, exception_message=exc.explanation
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message=self._get_docker_exception_message(exc),
             ) from exc
 
     def _get_binds(self):
@@ -874,7 +891,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
         except (DockerAPIError, ConnectionError) as exc:
             raise BuildAppError(
-                BuildAppError.GENERIC_WITH_BUILD_ID, exception_message=exc.explanation
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message=self._get_docker_exception_message(exc),
             ) from exc
 
     def _run_background_healthcheck(self):
