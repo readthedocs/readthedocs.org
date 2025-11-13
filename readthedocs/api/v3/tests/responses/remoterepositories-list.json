@@ -43,6 +43,7 @@
         "subproject_of": null,
         "tags": ["project", "tag", "test"],
         "translation_of": null,
+        "readthedocs_yaml_path": null,
         "urls": {
           "builds": "https://readthedocs.org/projects/project/builds/",
           "documentation": "http://project.readthedocs.io/en/latest/",
