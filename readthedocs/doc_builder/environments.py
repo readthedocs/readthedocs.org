@@ -874,7 +874,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
         except (DockerAPIError, ConnectionError) as exc:
             raise BuildAppError(
-                BuildAppError.GENERIC_WITH_BUILD_ID, exception_messag=exc.explanation
+                BuildAppError.GENERIC_WITH_BUILD_ID, exception_message=exc.explanation
             ) from exc
 
     def _run_background_healthcheck(self):
