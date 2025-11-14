@@ -41,6 +41,7 @@ from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
+from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -1079,6 +1080,24 @@ class Project(models.Model):
     @property
     def is_github_app_project(self):
         return self.remote_repository and self.remote_repository.vcs_provider == GITHUB_APP
+
+    @property
+    def old_github_remote_repository(self):
+        """
+        Get the old GitHub OAuth repository for GitHub App projects.
+
+        This is mainly used for projects that migrated to the new GitHub App,
+        but its users have not yet connected their accounts to the new GitHub App.
+        We still need to reference the old repository for permissions when using GH as SSO method.
+        """
+        from readthedocs.oauth.models import RemoteRepository
+
+        if self.is_github_app_project:
+            return RemoteRepository.objects.filter(
+                vcs_provider=GITHUB,
+                remote_id=self.remote_repository.remote_id,
+            ).first()
+        return None
 
     @property
     def is_gitlab_project(self):
