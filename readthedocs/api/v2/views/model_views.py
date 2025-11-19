@@ -58,6 +58,7 @@ from ..serializers import RemoteRepositorySerializer
 from ..serializers import SocialAccountSerializer
 from ..serializers import VersionAdminSerializer
 from ..serializers import VersionSerializer
+from ..utils import get_commands_from_cold_storage
 from ..utils import ProjectPagination
 from ..utils import RemoteOrganizationPagination
 from ..utils import RemoteProjectPagination
@@ -342,29 +343,12 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
-        if instance.cold_storage:
-            storage_path = "{date}/{id}.json".format(
-                date=str(instance.date.date()),
-                id=instance.id,
-            )
-            if build_commands_storage.exists(storage_path):
-                try:
-                    json_resp = build_commands_storage.open(storage_path).read()
-                    data["commands"] = json.loads(json_resp)
 
-                    # Normalize commands in the same way than when returning
-                    # them using the serializer
-                    for buildcommand in data["commands"]:
-                        buildcommand["command"] = normalize_build_command(
-                            buildcommand["command"],
-                            instance.project.slug,
-                            instance.get_version_slug(),
-                        )
-                except Exception:
-                    log.exception(
-                        "Failed to read build data from storage.",
-                        path=storage_path,
-                    )
+        # Load commands from cold storage if available
+        commands_from_storage = get_commands_from_cold_storage(instance)
+        if commands_from_storage is not None:
+            data["commands"] = commands_from_storage
+
         return Response(data)
 
     @decorators.action(

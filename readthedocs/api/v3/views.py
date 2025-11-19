@@ -1,4 +1,5 @@
 import django_filters.rest_framework as filters
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Exists
@@ -28,6 +29,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
+from readthedocs.api.v2.utils import get_commands_from_cold_storage
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -401,6 +403,27 @@ class BuildsViewSet(
         "config",
         "notifications",
     ]
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Retrieve build details with commands from cold storage if available.
+
+        This uses files from storage to get the JSON for cold storage builds,
+        and replaces the ``commands`` part of the response data.
+        """
+        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+            return super().retrieve(request, *args, **kwargs)
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+
+        # Load commands from cold storage if available
+        commands_from_storage = get_commands_from_cold_storage(instance)
+        if commands_from_storage is not None:
+            data["commands"] = commands_from_storage
+
+        return Response(data)
 
 
 class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
