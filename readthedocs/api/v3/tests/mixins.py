@@ -13,7 +13,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import LATEST, TAG
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.doc_builder.exceptions import BuildCancelled
 from readthedocs.notifications.models import Notification
@@ -110,6 +110,18 @@ class APIEndpointMixin(TestCase):
             builder="builder01",
             commit="a1b2c3",
             length=60,
+        )
+
+        # Create some build commands for testing
+        self.build_command = fixture.get(
+            BuildCommandResult,
+            build=self.build,
+            command="python setup.py install",
+            description="Install",
+            output="Successfully installed",
+            exit_code=0,
+            start_time=self.created,
+            end_time=self.created + datetime.timedelta(seconds=5),
         )
 
         self.other = fixture.get(User, projects=[])
