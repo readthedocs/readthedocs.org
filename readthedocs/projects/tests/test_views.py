@@ -343,7 +343,7 @@ class TestProjectEditView(TestCase):
         form = resp.context["form"]
         assert "search_indexing_enabled" in form.fields
 
-        data={
+        data = {
             "name": self.project.name,
             "repo": self.project.repo,
             "language": self.project.language,
