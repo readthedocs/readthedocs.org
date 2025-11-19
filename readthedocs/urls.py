@@ -15,6 +15,8 @@ from impersonate.views import stop_impersonate
 
 from readthedocs.core.views import ErrorView
 from readthedocs.core.views import HomepageView
+from readthedocs.core.views import NewRelicOperationsView
+from readthedocs.core.views import SentryOperationsView
 from readthedocs.core.views import SupportView
 from readthedocs.core.views import WelcomeView
 from readthedocs.core.views import do_not_track
@@ -144,6 +146,11 @@ dnt_urls = [
     ),
 ]
 
+operations_urls = [
+    path("operations/sentry/", SentryOperationsView.as_view(), name="operations_sentry"),
+    path("operations/newrelic/", NewRelicOperationsView.as_view(), name="operations_newrelic"),
+]
+
 debug_urls = []
 for build_format in ("epub", "htmlzip", "json", "pdf"):
     debug_urls += static(
@@ -189,6 +196,7 @@ if settings.READ_THE_DOCS_EXTENSIONS:
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
     groups.append(impersonate_urls)
+    groups.append(operations_urls)
 
 if settings.SHOW_DEBUG_TOOLBAR:
     import debug_toolbar
