@@ -65,17 +65,16 @@ For optimal integration with Read the Docs, make the following optional configur
 Configure trailing slashes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Docusaurus uses ``trailingSlash: true`` by default, which is required for proper operation on Read the Docs.
+For proper operation on Read the Docs, you need to set ``trailingSlash: true`` in your Docusaurus configuration.
 This ensures that URLs like ``/docs/intro`` are handled as ``/docs/intro/`` and the corresponding ``index.html`` file is served correctly.
 
-If you need to set ``trailingSlash: false``, you will need to configure redirects to ensure proper URL resolution.
-We recommend keeping the default value of ``true`` for seamless integration with Read the Docs.
+Without this setting (or if set to ``false``), you will need to configure redirects to ensure proper URL resolution.
 
 .. code-block:: js
     :caption: docusaurus.config.js
 
     export default {
-        // Keep the default value for compatibility with Read the Docs
+        // Required for compatibility with Read the Docs
         trailingSlash: true,
     };
 
