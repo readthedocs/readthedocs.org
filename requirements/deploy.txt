@@ -199,14 +199,10 @@ elastic-transport==8.17.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-    #   elasticsearch-dsl
 elasticsearch==8.19.2
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-    #   elasticsearch-dsl
-elasticsearch-dsl==8.18.0
-    # via -r requirements/pip.txt
 executing==2.2.1
     # via stack-data
 fido2==2.0.0
@@ -342,7 +338,6 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-    #   elasticsearch-dsl
 python-ipware==3.0.0
     # via
     #   -r requirements/pip.txt
@@ -427,7 +422,6 @@ typing-extensions==4.15.0
     #   -r requirements/pip.txt
     #   cron-descriptor
     #   elasticsearch
-    #   elasticsearch-dsl
     #   psycopg
     #   psycopg-pool
     #   pydantic
