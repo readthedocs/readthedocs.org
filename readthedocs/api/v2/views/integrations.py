@@ -7,7 +7,6 @@ from functools import namedtuple
 from textwrap import dedent
 
 import structlog
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import constant_time_compare
 from rest_framework import permissions
@@ -204,22 +203,11 @@ class WebhookMixin:
         # in `WebhookView`
         if self.integration is not None:
             return self.integration
-        
-        integrations = Integration.objects.filter(
+        self.integration = get_object_or_404(
+            Integration,
             project=self.project,
             integration_type=self.integration_type,
         )
-        
-        count = integrations.count()
-        if count == 0:
-            raise Http404("No Integration matches the given query.")
-        elif count > 1:
-            raise ParseError(
-                "Multiple integrations found for this project. "
-                "Please use the webhook URL specific to your integration."
-            )
-        
-        self.integration = integrations.first()
         return self.integration
 
     def get_response_push(self, project, versions_info: list[VersionInfo]):
