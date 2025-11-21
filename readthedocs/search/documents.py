@@ -59,7 +59,13 @@ class ProjectDocument(RTDDocTypeMixin, Document):
         but it's not a priority to find a solution for this as long as "delisted" projects are
         understood to be projects with a negative reason for being delisted.
         """
-        return super().get_queryset().exclude(delisted=True).exclude(is_spam=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(search_indexing_enabled=True)
+            .exclude(delisted=True)
+            .exclude(is_spam=True)
+        )
 
     class Django:
         model = Project
@@ -122,7 +128,8 @@ class PageDocument(RTDDocTypeMixin, Document):
         """Don't include ignored files and delisted projects."""
         queryset = super().get_queryset()
         queryset = (
-            queryset.exclude(ignore=True)
+            queryset.filter(project__search_indexing_enabled=True)
+            .exclude(ignore=True)
             .exclude(project__delisted=True)
             .exclude(project__is_spam=True)
             .select_related("version", "project")

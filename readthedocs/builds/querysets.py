@@ -131,6 +131,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
         - It's active and has been built at least once successfully.
           Since that means that it has files to be indexed.
         - Its project is not delisted or marked as spam.
+        - Its project has search indexing enabled.
         """
         return (
             self.filter(
@@ -138,6 +139,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
                 built=True,
                 builds__state=BUILD_STATE_FINISHED,
                 builds__success=True,
+                project__search_indexing_enabled=True,
             )
             .exclude(project__delisted=True)
             .exclude(project__is_spam=True)
