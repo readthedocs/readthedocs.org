@@ -199,7 +199,7 @@ class Resolver:
         if external_version_slug:
             domain = self._get_external_subdomain(canonical_project, external_version_slug)
         elif use_canonical_domain and self._use_cname(canonical_project):
-            domain_object = canonical_project.get_canonical_custom_domain()
+            domain_object = canonical_project.canonical_custom_domain
             if domain_object:
                 use_https = domain_object.https
                 domain = domain_object.domain

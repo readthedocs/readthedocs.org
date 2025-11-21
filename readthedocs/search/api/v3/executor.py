@@ -1,8 +1,10 @@
 from functools import cached_property
 from itertools import islice
 
+from django.db.models import Prefetch
+
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.search.api.v3.queryparser import SearchQueryParser
 from readthedocs.search.faceted_search import PageSearch
 
@@ -111,6 +113,7 @@ class SearchExecutor:
             yield from self._get_projects_from_user()
 
     def _get_projects_from_user(self):
+        # Cache here?
         for project in Project.objects.for_user(user=self.request.user):
             version = self._get_project_version(
                 project=project,
@@ -128,8 +131,16 @@ class SearchExecutor:
         the default version will be used.
         If `version_slug` is None, we will always use the default version.
         """
-        subprojects = Project.objects.filter(superprojects__parent=project)
+        # subprojects = Project.objects.filter(superprojects__parent=project)
+        subprojects = Project.objects.filter(superprojects__parent=project).prefetch_related(
+            Prefetch(
+                "superprojects",
+                ProjectRelationship.objects.all().select_related("parent"),
+                to_attr="_superprojects",
+            ),
+        )
         for subproject in subprojects:
+            subproject._superprojects[0].parent = project
             version = None
             if version_slug:
                 version = self._get_project_version(
