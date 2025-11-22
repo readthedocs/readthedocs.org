@@ -276,8 +276,10 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
 
 
 @app.task(max_retries=1, default_retry_delay=60, queue="web")
+@ProjectVersionInfo.parse_many("tags_data", "branches_data")
 def sync_versions_task(
     project_pk: int,
+    *,
     tags_data: list[ProjectVersionInfo],
     branches_data: list[ProjectVersionInfo],
     **kwargs: object,

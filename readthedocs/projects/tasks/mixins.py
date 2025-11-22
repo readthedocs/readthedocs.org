@@ -82,8 +82,8 @@ class SyncRepositoryMixin:
 
         build_tasks.sync_versions_task.delay(
             project_pk=self.data.project.pk,
-            tags_data=tags_data,
-            branches_data=branches_data,
+            tags_data=ProjectVersionInfo.serialize_many(tags_data),
+            branches_data=ProjectVersionInfo.serialize_many(branches_data),
         )
 
     def validate_duplicate_reserved_versions(
