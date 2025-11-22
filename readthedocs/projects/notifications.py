@@ -103,7 +103,7 @@ messages = [
     ),
     Message(
         id=RepositoryError.UNSUPPORTED_VCS,
-        header=_("Repository type not suported"),
+        header=_("Repository type not supported"),
         body=_(
             textwrap.dedent(
                 """
