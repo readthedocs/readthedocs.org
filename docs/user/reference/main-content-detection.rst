@@ -62,8 +62,8 @@ Examples of good selectors:
 - ``div#content`` (an id that wraps all page content)
 - ``div[role="main"]`` (ARIA role usage)
 
-.. warning:: 
-   
+.. warning::
+
    Avoid overly broad selectors like ``body`` or ones matching multiple nodes (e.g. a class applied to multiple elements).
 
 Example structures
