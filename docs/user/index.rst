@@ -79,6 +79,7 @@ Read the Docs: documentation simplified
    /explanation/documentation-structure
    /guides/best-practice/links
    /security-implications
+   /reference/main-content-detection
 
 .. toctree::
    :maxdepth: 1
@@ -111,7 +112,6 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Reference
 
-   /reference/main-content-detection
    /api/index
    /faq
    /changelog
