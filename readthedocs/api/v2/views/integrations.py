@@ -236,7 +236,7 @@ class WebhookMixin:
         elif len(integrations) > 1:
             raise ParseError(
                 "Multiple integrations found for this project. "
-                "Please use the webhook URL specific to your integration."
+                "Please use the webhook URL with an explicit integration ID."
             )
 <<<<<<< HEAD
         
