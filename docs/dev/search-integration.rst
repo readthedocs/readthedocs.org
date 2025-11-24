@@ -32,14 +32,74 @@ Main content node
 
 The main content should be inside a ``<main>`` tag or an element with ``role=main``,
 and there should only be one per page.
-This node is the one that contains all the page content to be indexed.
+This node is the one that contains all the page content to be indexed. Example:
 
-For details on how the main content node is detected,
-see :ref:`reference/main-content-detection:detection logic`.
+.. code-block:: html
+   :emphasize-lines: 10-12
 
-.. note::
+   <html>
+      <head>
+         ...
+      </head>
+      <body>
+         <div>
+            This content isn't processed
+         </div>
 
-   The ``CSS main content selector`` setting in Project > Addons is ignored by Server Side Search. Search always relies on the heuristics described here (``role=main``, ``<main>``, parent of first ``h1``, or ``body``).
+         <div role="main">
+            All content inside the main node is processed
+         </div>
+
+         <footer>
+            This content isn't processed
+         </footer>
+      </body>
+   </html>
+
+If a main node isn't found,
+we try to infer the main node from the parent of the first section with a ``h1`` tag.
+Example:
+
+.. code-block:: html
+   :emphasize-lines: 10-20
+
+   <html>
+      <head>
+         ...
+      </head>
+      <body>
+         <div>
+            This content isn't processed
+         </div>
+
+         <div id="parent">
+            <h1>First title</h1>
+            <p>
+               The parent of the h1 title will
+               be taken as the main node,
+               this is the div tag.
+            </p>
+
+            <h2>Second title</h2>
+            <p>More content</p>
+         </div>
+      </body>
+   </html>
+
+If a section title isn't found, we default to the ``body`` tag.
+Example:
+
+.. code-block:: html
+   :emphasize-lines: 5-7
+
+   <html>
+      <head>
+         ...
+      </head>
+      <body>
+         <p>Content</p>
+      </body>
+   </html>
 
 Irrelevant content
 ~~~~~~~~~~~~~~~~~~
