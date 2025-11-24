@@ -3505,7 +3505,7 @@ class IntegrationsTests(TestCase):
     def test_multiple_integrations_error(self, trigger_build):
         """Test that multiple integrations with same type returns a 400 error."""
         client = APIClient()
-        
+
         # Create a second GitHub integration for the same project with the same secret
         secret = self.github_integration.secret
         Integration.objects.create(
