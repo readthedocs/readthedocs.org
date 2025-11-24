@@ -111,7 +111,6 @@ class SearchExecutor:
             yield from self._get_projects_from_user()
 
     def _get_projects_from_user(self):
-        # Cache here?
         for project in Project.objects.for_user(user=self.request.user):
             version = self._get_project_version(
                 project=project,
