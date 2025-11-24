@@ -320,6 +320,10 @@ class TestProjectDownloads(TestCase):
             )
 
 
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
 class TestProjectEditView(TestCase):
     def setUp(self):
         self.user = get(User)
