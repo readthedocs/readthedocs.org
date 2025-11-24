@@ -5,7 +5,7 @@ Read the Docs detects the main content area of HTML pages
 to focus on the documentation content itself,
 ignoring headers, footers, navigation, and other page elements.
 
-This detection is used by features like :doc:`/user/visual-diff` and :doc:`/dev/search-integration`
+This detection is used by features like :doc:`/visual-diff` and :doc:`/server-side-search/index`
 to ensure accurate comparison and indexing of your documentation.
 
 Detection logic
