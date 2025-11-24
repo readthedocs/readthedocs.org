@@ -37,6 +37,10 @@ This node is the one that contains all the page content to be indexed.
 For details on how the main content node is detected,
 see :ref:`reference/main-content-detection:detection logic`.
 
+.. note::
+
+   The ``CSS main content selector`` setting in Project > Addons is ignored by Server Side Search. Search always relies on the heuristics described here (``role=main``, ``<main>``, parent of first ``h1``, or ``body``).
+
 Irrelevant content
 ~~~~~~~~~~~~~~~~~~
 

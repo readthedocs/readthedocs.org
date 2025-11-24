@@ -92,6 +92,10 @@ This helps avoid false positives, like all pages being marked as changed because
 For details on how the main content area is detected,
 see :ref:`reference/main-content-detection:detection logic`.
 
+.. tip::
+
+  If the heuristic root element picked by Visual Diff is wrong for your project theme, set the :guilabel:`CSS main content selector` under Project > Addons. Visual Diff honors this override; other features like Server Side Search do not.
+
 Limitations and known issues
 ----------------------------
 

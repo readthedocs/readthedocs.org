@@ -5,8 +5,14 @@ Read the Docs detects the main content area of HTML pages
 to focus on the documentation content itself,
 ignoring headers, footers, navigation, and other page elements.
 
-This detection is used by features like :doc:`/visual-diff` and :doc:`/server-side-search/index`
-to ensure accurate comparison and indexing of your documentation.
+Feature usage
+-------------
+
+Different features use this detection in different ways:
+
+* :doc:`/visual-diff`: Uses a documentation-tool specific heuristic first. If you configure a custom selector it overrides that heuristic.
+* :doc:`/link-previews`: Uses the custom selector (if set) to scope links; otherwise falls back to heuristics here.
+* :doc:`/server-side-search/index`: Always uses heuristics; it ignores any configured custom selector.
 
 Detection logic
 ---------------
@@ -48,8 +54,8 @@ If the automatic detection does not work for your project, you can explicitly se
 #. Fill in the :guilabel:`CSS main content selector` field (for example: ``div#main`` or ``my-content``). Leave it blank to use automatic detection.
 #. Save the settings and rebuild your documentation.
 
-When this selector is configured, it overrides the heuristic detection for features that rely on the main content (visual diff, server side search, link previews).
-Choose a stable container whose structure does not change between builds to avoid spurious diffs or missed search content.
+When this selector is configured, it overrides the heuristic detection only for addons that honor it (currently Visual Diff and Link Previews). Search ignores this setting.
+Choose a stable container whose structure does not change between builds to avoid spurious diffs or missed link previews. It will not affect search indexing unless we add support in the future.
 
 Examples of good selectors:
 
