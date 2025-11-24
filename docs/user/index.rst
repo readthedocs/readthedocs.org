@@ -111,6 +111,7 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Reference
 
+   /reference/main-content-detection
    /api/index
    /faq
    /changelog

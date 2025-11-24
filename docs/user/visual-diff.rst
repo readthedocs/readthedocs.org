@@ -89,15 +89,8 @@ The visual diff compares the "main content" of HTML pages,
 ignoring headers, footers, navigation, and other page elements that aren't part of the documentation content itself.
 This helps avoid false positives, like all pages being marked as changed because of a date or commit hash being updated in the footer.
 
-Read the Docs detects the main content node using the following logic, in order of priority:
-
-#. **Elements with** ``role="main"`` **attribute**: This ARIA role is used by many static site generators and themes to indicate the main content area.
-#. **The** ``<main>`` **HTML tag**: The semantic HTML5 element for main content.
-#. **Parent of the first** ``<h1>`` **tag**: If no explicit main content markers are found, the system assumes all sections are siblings under a common parent, and uses the parent of the first heading as the main content container.
-#. **The** ``<body>`` **tag**: As a last resort, if none of the above are found, the entire body is used.
-
-If your documentation uses a non-standard structure, the visual diff may not correctly identify the main content area.
-To improve detection, consider adding a ``role="main"`` attribute or using a ``<main>`` tag in your theme.
+For details on how the main content area is detected,
+see :ref:`reference/main-content-detection:detection logic`.
 
 Limitations and known issues
 ----------------------------
