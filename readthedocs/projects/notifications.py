@@ -19,6 +19,7 @@ MESSAGE_PROJECT_SKIP_BUILDS = "project:invalid:skip-builds"
 MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
 MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS = "project:ssh-key-with-write-access"
 MESSAGE_PROJECT_DEPRECATED_WEBHOOK = "project:webhooks:deprecated"
+MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED = "project:search:indexing-disabled"
 
 messages = [
     Message(
@@ -203,6 +204,20 @@ messages = [
                 This project is connected to our GitHub App and doesn't require a separate webhook.
                 <a href="https://docs.readthedocs.com/platform/stable/reference/git-integration.html#manually-migrating-a-project">Remove the deprecated webhook from your repository</a>
                 to avoid duplicate events.
+                """
+            ).strip(),
+        ),
+        type=INFO,
+    ),
+    # NOTE: Disabling search for projects and notifying users is done manually for now.
+    Message(
+        id=MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED,
+        header=_("Search indexing has been disabled for this project"),
+        body=_(
+            textwrap.dedent(
+                """
+                Your project hasn't received any searches recently, to optimize resources, we've disabled search indexing for this project.
+                If you want to re-enable search indexing, check the "Enable search indexing" option from <a href="{% url 'projects_edit' instance.slug %}">the project settings</a>.
                 """
             ).strip(),
         ),
