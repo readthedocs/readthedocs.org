@@ -12,11 +12,11 @@ from urllib.parse import urlparse
 
 from rest_framework import serializers
 
+from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import SPHINX_HTMLDIR
-from readthedocs.projects.models import Project
 
 
 # Structures used for storing cached data of a version mostly.
@@ -104,24 +104,17 @@ class PageSearchSerializer(serializers.Serializer):
             }
         super().__init__(*args, **kwargs)
 
-    def _build_project_data(self, project, version_slug=None, version=None):
+    def _build_project_data(self, project, version):
         """Build a `ProjectData` object given a project and its version."""
         # NOTE: re-using the resolver doesn't help here,
         # as this method is called just once per project,
         # re-using the resolver is useful when resolving the same project multiple times.
-        resolver = Resolver()
-        if version:
-            url = resolver.resolve_version(project, version)
-        elif version_slug:
-            url = resolver.resolve(project, version_slug=version_slug)
-        else:
-            raise ValueError("Either version_slug or version must be provided.")
-
+        url = Resolver().resolve_version(project, version)
         project_alias = None
         if project.parent_relationship:
             project_alias = project.parent_relationship.alias
         version_data = VersionData(
-            slug=version_slug,
+            slug=version.slug,
             docs_url=url,
         )
         return ProjectData(
@@ -142,10 +135,15 @@ class PageSearchSerializer(serializers.Serializer):
         if project_data:
             return project_data
 
-        project = Project.objects.filter(slug=obj.project).first()
-        if project:
+        version = (
+            Version.objects.filter(project__slug=obj.project, slug=obj.version)
+            .select_related("project")
+            .first()
+        )
+        if version:
+            project = version.project
             projects_data = self.context.setdefault("projects_data", {})
-            projects_data[obj.project] = self._build_project_data(project, version_slug=obj.version)
+            projects_data[obj.project] = self._build_project_data(project, version=version)
             return projects_data[obj.project]
         return None
 
