@@ -3513,11 +3513,11 @@ class IntegrationsTests(TestCase):
             integration_type=Integration.GITHUB_WEBHOOK,
             secret=secret,
         )
-        
+
         # Now there are two integrations, so the webhook should return a 400 error
         payload = {"ref": "refs/heads/master"}
         signature = get_signature(self.github_integration, payload)
-        
+
         resp = client.post(
             f"/api/v2/webhook/github/{self.project.slug}/",
             payload,
@@ -3526,7 +3526,7 @@ class IntegrationsTests(TestCase):
                 GITHUB_SIGNATURE_HEADER: signature,
             },
         )
-        
+
         # Should return 400 Bad Request
         self.assertEqual(resp.status_code, 400)
         self.assertIn("Multiple integrations found", resp.data["detail"])
