@@ -153,12 +153,20 @@ class WebhookMixin:
         """If the project was set on POST, store an HTTP exchange."""
         resp = super().finalize_response(req, *args, **kwargs)
         if hasattr(self, "project") and self.project:
-            HttpExchange.objects.from_exchange(
-                req,
-                resp,
-                related_object=self.get_integration(),
-                payload=self.data,
-            )
+            try:
+                integration = self.get_integration()
+            except (Http404, ParseError):
+                # If we can't get a single integration (either none or multiple exist),
+                # we can't store the HTTP exchange
+                integration = None
+            
+            if integration:
+                HttpExchange.objects.from_exchange(
+                    req,
+                    resp,
+                    related_object=integration,
+                    payload=self.data,
+                )
         return resp
 
     def get_data(self):

@@ -3502,6 +3502,35 @@ class IntegrationsTests(TestCase):
         # and return a 400 if it doesn't.
         self.assertEqual(resp.status_code, 404)
 
+    def test_multiple_integrations_error(self, trigger_build):
+        """Test that multiple integrations with same type returns a 400 error."""
+        client = APIClient()
+        
+        # Create a second GitHub integration for the same project with the same secret
+        secret = self.github_integration.secret
+        Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+            secret=secret,
+        )
+        
+        # Now there are two integrations, so the webhook should return a 400 error
+        payload = {"ref": "refs/heads/master"}
+        signature = get_signature(self.github_integration, payload)
+        
+        resp = client.post(
+            f"/api/v2/webhook/github/{self.project.slug}/",
+            payload,
+            format="json",
+            headers={
+                GITHUB_SIGNATURE_HEADER: signature,
+            },
+        )
+        
+        # Should return 400 Bad Request
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Multiple integrations found", resp.data["detail"])
+
 
 @override_settings(PUBLIC_DOMAIN="readthedocs.io")
 class APIVersionTests(TestCase):
