@@ -4,7 +4,8 @@ from itertools import islice
 from django.db.models import Prefetch
 
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.projects.models import Domain, Project, ProjectRelationship
+from readthedocs.projects.models import Project
+from readthedocs.projects.models import ProjectRelationship
 from readthedocs.search.api.v3.queryparser import SearchQueryParser
 from readthedocs.search.faceted_search import PageSearch
 
