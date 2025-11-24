@@ -1369,9 +1369,6 @@ class Project(models.Model):
 
     @cached_property
     def canonical_custom_domain(self):
-        return self.get_canonical_custom_domain()
-
-    def get_canonical_custom_domain(self):
         """Get the canonical custom domain or None."""
         if hasattr(self, "_canonical_domains"):
             # Cached custom domains
