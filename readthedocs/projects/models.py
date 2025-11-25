@@ -538,6 +538,13 @@ class Project(models.Model):
         ),
     )
 
+    search_indexing_enabled = models.BooleanField(
+        _("Enable search indexing"),
+        default=True,
+        db_default=True,
+        help_text=_("Enable/disable search indexing for this project"),
+    )
+
     privacy_level = models.CharField(
         _("Privacy Level"),
         max_length=20,
