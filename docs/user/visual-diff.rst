@@ -94,7 +94,7 @@ see :ref:`reference/main-content-detection:detection logic`.
 
 .. tip::
 
-  If the heuristic root element picked by Visual Diff is wrong for your project theme, set the :guilabel:`CSS main content selector` under Project > Addons. Visual Diff honors this override; other features like Server Side Search do not.
+  If the heuristic root element picked by Visual Diff is wrong for your project theme, set the :guilabel:`CSS main content selector` under :guilabel:`Settings > Addons`. Visual Diff honors this override; other features like Server Side Search do not.
 
 Limitations and known issues
 ----------------------------

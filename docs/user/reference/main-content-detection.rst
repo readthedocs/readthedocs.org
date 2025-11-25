@@ -51,11 +51,10 @@ If the automatic detection does not work for your project, you can explicitly se
 #. Go to your project's :guilabel:`Settings`.
 #. Click :guilabel:`Addons`.
 #. Open :guilabel:`Advanced`
-#. Fill in the :guilabel:`CSS main content selector` field (for example: ``div#main`` or ``my-content``). Leave it blank to use automatic detection.
-#. Save the settings and rebuild your documentation.
+#. Fill in the :guilabel:`CSS main content selector` field (for example: ``div#main`` or ``.my-content``). Leave it blank to use automatic detection.
+#. Save the settings.
 
-When this selector is configured, it overrides the heuristic detection only for addons that honor it (currently Visual Diff and Link Previews). Search ignores this setting.
-Choose a stable container whose structure does not change between builds to avoid spurious diffs or missed link previews. It will not affect search indexing unless we add support in the future.
+When this selector is configured, it overrides the heuristic detection only for addons that honor it (currently Visual Diff and Link Previews). Choose a stable container whose structure does not change between builds to avoid spurious diffs or missed link previews. It will not affect search indexing unless we add support in the future.
 
 Examples of good selectors:
 
