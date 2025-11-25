@@ -62,7 +62,6 @@ requests-oauthlib
 
 # Search
 elasticsearch~=8.0
-elasticsearch-dsl~=8.0
 django-elasticsearch-dsl~=8.0
 
 selectolax

@@ -3,16 +3,16 @@ import re
 import structlog
 from django.conf import settings
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import FacetedSearch
-from elasticsearch_dsl import TermsFacet
-from elasticsearch_dsl.query import Bool
-from elasticsearch_dsl.query import FunctionScore
-from elasticsearch_dsl.query import MultiMatch
-from elasticsearch_dsl.query import Nested
-from elasticsearch_dsl.query import SimpleQueryString
-from elasticsearch_dsl.query import Term
-from elasticsearch_dsl.query import Terms
-from elasticsearch_dsl.query import Wildcard
+from elasticsearch.dsl import FacetedSearch
+from elasticsearch.dsl import TermsFacet
+from elasticsearch.dsl.query import Bool
+from elasticsearch.dsl.query import FunctionScore
+from elasticsearch.dsl.query import MultiMatch
+from elasticsearch.dsl.query import Nested
+from elasticsearch.dsl.query import SimpleQueryString
+from elasticsearch.dsl.query import Term
+from elasticsearch.dsl.query import Terms
+from elasticsearch.dsl.query import Wildcard
 
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.documents import ProjectDocument

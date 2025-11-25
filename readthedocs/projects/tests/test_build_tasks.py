@@ -583,7 +583,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.13.3",
+                            "full_version": "3.14.0",
                             "version": "3",
                         }
                     },
@@ -862,7 +862,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.13.3",
+                            "full_version": "3.14.0",
                             "version": "3",
                         }
                     },

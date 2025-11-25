@@ -25,6 +25,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
@@ -36,6 +37,8 @@ from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
+from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
+from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
 
@@ -431,6 +434,7 @@ class UpdateProjectForm(
             "versioning_scheme",
             "default_branch",
             "readthedocs_yaml_path",
+            "search_indexing_enabled",
             # Meta data
             "programming_language",
             "project_url",
@@ -452,6 +456,8 @@ class UpdateProjectForm(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.had_search_disabled = not self.instance.search_indexing_enabled
+
         # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
             (key, value) for key, value in self.fields["versioning_scheme"].choices if key
@@ -466,6 +472,11 @@ class UpdateProjectForm(
                 f'This setting is inherited from the <a href="{link}">parent translation</a>.',
             )
             self.fields["versioning_scheme"].disabled = True
+
+        # Only show this field if search is disabled for the project.
+        # We allow enabling it from the form, but not disabling it.
+        if self.instance.search_indexing_enabled:
+            self.fields.pop("search_indexing_enabled")
 
         # NOTE: we are deprecating this feature.
         # However, we will keep it available for projects that already using it.
@@ -564,6 +575,17 @@ class UpdateProjectForm(
                     ),
                 )
         return tags
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        # Trigger a reindex when enabling search from the form.
+        if self.had_search_disabled and instance.search_indexing_enabled:
+            index_project.delay(project_slug=instance.slug)
+            Notification.objects.cancel(
+                message_id=MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED,
+                attached_to=instance,
+            )
+        return instance
 
 
 class ProjectRelationshipForm(forms.ModelForm):

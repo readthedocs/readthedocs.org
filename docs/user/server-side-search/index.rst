@@ -74,7 +74,6 @@ Analytics
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 
-
 Search as you type
 ------------------
 
@@ -82,3 +81,13 @@ Search as-you-type allows users to quickly find exactly what they are looking fo
 It also saves recent searches, for future reference.
 
 Try it by pressing :guilabel:`/` (forward slash) and typing.
+
+How main content is detected
+----------------------------
+
+Server Side Search indexes the "main content" of HTML pages,
+ignoring headers, footers, navigation, and other page elements that aren't part of the documentation content itself.
+This keeps results focused and avoids repeated elements like nav menus from polluting relevance.
+
+For details on how the main content area is detected,
+see :ref:`reference/main-content-detection:detection logic`.
