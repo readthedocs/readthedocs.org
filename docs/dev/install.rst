@@ -150,9 +150,41 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.manage {command}``
     Executes a Django management command in a container.
 
+    * ``--backupdb`` creates a database backup before running the command.
+      The backup is saved to ``dump.sql`` in the current directory.
+
     .. tip::
 
        Useful when modifying models to run ``makemigrations``.
+
+    .. tip::
+
+       Use ``--backupdb`` when running ``migrate`` to create a backup before applying migrations:
+
+       .. code-block:: bash
+
+          inv docker.manage --backupdb migrate
+
+       To restore from this backup, follow these steps:
+
+       .. code-block:: bash
+
+          # Start only the database container
+          inv docker.compose 'start database'
+
+          # Copy the backup file into the container
+          docker cp dump.sql community_database_1:/tmp/dump.sql
+
+          # Open a shell in the database container
+          inv docker.shell --container database
+
+       Then inside the database container:
+
+       .. code-block:: bash
+
+          dropdb -U docs_user docs_db
+          createdb -U docs_user docs_db
+          psql -U docs_user docs_db < /tmp/dump.sql
 
 ``inv docker.down``
     Stops and removes all containers running.
