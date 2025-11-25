@@ -26,6 +26,7 @@ or taking the open source Read the Docs codebase for your own custom installatio
    front-end
    i18n
    migrations
+   celery
    server-side-search
    search-integration
    aws-temporary-credentials
