@@ -151,7 +151,8 @@ save some work while typing docker compose commands. This section explains these
     Executes a Django management command in a container.
 
     * ``--backupdb`` creates a database backup before running the command.
-      The backup is saved to ``dump.sql`` in the current directory.
+      The backup is saved to the current directory with a timestamped filename:
+      ``dump_<DD-MM-YYYY>_<HH_MM_SS>__<git-hash>.sql``
 
     .. tip::
 
@@ -172,8 +173,8 @@ save some work while typing docker compose commands. This section explains these
           # Start only the database container
           inv docker.compose 'start database'
 
-          # Copy the backup file into the container
-          docker cp dump.sql community_database_1:/tmp/dump.sql
+          # Copy the backup file into the container (replace with your actual filename)
+          docker cp dump_24-11-2025_10_30_00__abc1234.sql community_database_1:/tmp/dump.sql
 
           # Open a shell in the database container
           inv docker.shell --container database
