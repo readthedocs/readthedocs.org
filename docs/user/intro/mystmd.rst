@@ -2,7 +2,7 @@ Deploying MyST Markdown on Read the Docs
 ========================================
 
 .. meta::
-   :description lang=en: Hosting MyST Markdown documentation on Read the Docs.
+   :description lang=en: Learn how to host MyST Markdown documentation on Read the Docs.
 
 `MyST Markdown`_ is a set of open-source, community-driven tools designed for scientific communication,
 including a powerful authoring framework that supports blogs, online books, scientific papers, reports and journal articles.
