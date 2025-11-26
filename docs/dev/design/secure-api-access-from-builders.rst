@@ -161,7 +161,7 @@ since it also handles authentication).
 Decision
 --------
 
-Due to the fact that the required features from knox are not released yet,
+Because the required features from knox are not released yet,
 we have decided to use DRF API key instead.
 
 Future work

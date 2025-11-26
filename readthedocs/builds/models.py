@@ -342,13 +342,23 @@ class Version(TimeStampedModel):
         """
         Get the absolute URL to the docs of the version.
 
-        If the version doesn't have a successfully uploaded build, then we return the project's
-        dashboard page.
+        For external versions (PR builds), if the version is not built, we return the
+        build detail page since these versions are ephemeral and read-only.
+
+        For internal versions, if not built, we return the project's version dashboard page.
 
         Because documentation projects can be hosted on separate domains, this function ALWAYS
         returns with a full "http(s)://<domain>/" prefix.
         """
         if not self.built and not self.uploaded:
+            # External versions (PR builds) should link to the build detail page
+            # since they're read-only and we can't "edit" them
+            if self.type == EXTERNAL:
+                latest_build = self.latest_build
+                if latest_build:
+                    return latest_build.get_full_url()
+
+            # For internal versions, fall back to the project version detail page
             # TODO: Stop assuming protocol based on settings.DEBUG
             # (this pattern is also used in builds.tasks for sending emails)
             protocol = "http" if settings.DEBUG else "https"

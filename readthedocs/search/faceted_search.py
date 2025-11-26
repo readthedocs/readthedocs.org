@@ -3,16 +3,16 @@ import re
 import structlog
 from django.conf import settings
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import FacetedSearch
-from elasticsearch_dsl import TermsFacet
-from elasticsearch_dsl.query import Bool
-from elasticsearch_dsl.query import FunctionScore
-from elasticsearch_dsl.query import MultiMatch
-from elasticsearch_dsl.query import Nested
-from elasticsearch_dsl.query import SimpleQueryString
-from elasticsearch_dsl.query import Term
-from elasticsearch_dsl.query import Terms
-from elasticsearch_dsl.query import Wildcard
+from elasticsearch.dsl import FacetedSearch
+from elasticsearch.dsl import TermsFacet
+from elasticsearch.dsl.query import Bool
+from elasticsearch.dsl.query import FunctionScore
+from elasticsearch.dsl.query import MultiMatch
+from elasticsearch.dsl.query import Nested
+from elasticsearch.dsl.query import SimpleQueryString
+from elasticsearch.dsl.query import Term
+from elasticsearch.dsl.query import Terms
+from elasticsearch.dsl.query import Wildcard
 
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.documents import ProjectDocument
@@ -113,10 +113,15 @@ class RTDFacetedSearch(FacetedSearch):
         is_advanced_query = self.use_advanced_query or self._is_advanced_query(query)
         for operator in self.operators:
             if is_advanced_query:
+                # See all valid options at:
+                # https://www.elastic.co/docs/reference/query-languages/query-dsl/query-dsl-simple-query-string-query.
                 query_string = SimpleQueryString(
                     query=query,
                     fields=fields,
                     default_operator=operator,
+                    # Restrict fuzziness to avoid timeouts with complex queries.
+                    fuzzy_prefix_length=1,
+                    fuzzy_max_expansions=15,
                 )
             else:
                 query_string = self._get_fuzzy_query(
@@ -283,13 +288,13 @@ class PageSearch(RTDFacetedSearch):
 
         if isinstance(self.projects, dict):
             versions_query = [
-                Bool(filter=[Term(project=project), Term(version=version)])
+                Bool(must=[Term(project=project), Term(version=version)])
                 for project, version in self.projects.items()
             ]
             return Bool(should=versions_query)
 
         if isinstance(self.projects, list):
-            return Bool(filter=Terms(project=self.projects))
+            return Terms(project=self.projects)
 
         raise ValueError("projects must be a list or a dict!")
 
@@ -312,13 +317,14 @@ class PageSearch(RTDFacetedSearch):
             query=query,
             path="sections",
             fields=self._section_fields,
+            limit=3,
         )
         queries.append(sections_nested_query)
         bool_query = Bool(should=queries)
 
         projects_query = self._get_projects_query()
         if projects_query:
-            bool_query = Bool(must=[bool_query, projects_query])
+            bool_query = Bool(must=[bool_query], filter=projects_query)
 
         final_query = FunctionScore(
             query=bool_query,
@@ -327,7 +333,7 @@ class PageSearch(RTDFacetedSearch):
         search = search.query(final_query)
         return search
 
-    def _get_nested_query(self, *, query, path, fields):
+    def _get_nested_query(self, *, query, path, fields, limit=3):
         """Generate a nested query with passed parameters."""
         queries = self._get_queries(
             query=query,
@@ -348,7 +354,7 @@ class PageSearch(RTDFacetedSearch):
 
         return Nested(
             path=path,
-            inner_hits={"highlight": highlight},
+            inner_hits={"highlight": highlight, "size": limit},
             query=bool_query,
         )
 

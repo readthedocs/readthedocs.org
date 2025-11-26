@@ -14,7 +14,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
-asgiref==3.10.0
+asgiref==3.11.0
     # via
     #   -r requirements/pip.txt
     #   django
@@ -23,15 +23,15 @@ asgiref==3.10.0
     #   django-structlog
 babel==2.17.0
     # via sphinx
-billiard==4.2.2
+billiard==4.2.3
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.40.55
+boto3==1.41.2
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.40.55
+botocore==1.41.2
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -43,7 +43,7 @@ celery==5.5.3
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2025.10.5
+certifi==2025.11.12
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -57,7 +57,7 @@ charset-normalizer==3.4.4
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.3.0
+click==8.3.1
     # via
     #   -r requirements/pip.txt
     #   bumpver
@@ -81,7 +81,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.11.0
+coverage[toml]==7.12.0
     # via pytest-cov
 cron-descriptor==2.0.6
     # via
@@ -96,7 +96,7 @@ cssselect==1.3.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
-cython==3.1.4
+cython==3.2.1
     # via sphinx
 defusedxml==0.7.1
     # via sphinx
@@ -108,7 +108,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.7
+django==5.2.8
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -145,7 +145,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==6.0.0
+django-debug-toolbar==6.1.0
     # via -r requirements/pip.txt
 django-dynamic-fixture==4.0.1
     # via -r requirements/testing.in
@@ -173,7 +173,7 @@ django-simple-history==3.10.1
     # via -r requirements/pip.txt
 django-storages[s3]==1.14.6
     # via -r requirements/pip.txt
-django-structlog[celery]==9.1.1
+django-structlog[celery]==10.0.0
     # via -r requirements/pip.txt
 django-taggit==6.1.0
     # via -r requirements/pip.txt
@@ -210,15 +210,11 @@ elastic-transport==8.17.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-    #   elasticsearch-dsl
-elasticsearch==8.19.1
+elasticsearch==8.19.2
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-    #   elasticsearch-dsl
-elasticsearch-dsl==8.18.0
-    # via -r requirements/pip.txt
-execnet==2.1.1
+execnet==2.1.2
     # via pytest-xdist
 fido2==2.0.0
     # via
@@ -265,7 +261,7 @@ lxml==5.3.2
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.9
+markdown==3.10
     # via -r requirements/pip.txt
 markupsafe==3.0.3
     # via jinja2
@@ -274,7 +270,7 @@ oauthlib==3.3.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.3
+orjson==3.11.4
     # via -r requirements/pip.txt
 packaging==25.0
     # via
@@ -300,15 +296,15 @@ prompt-toolkit==3.0.52
     # via
     #   -r requirements/pip.txt
     #   click-repl
-psutil==7.1.0
+psutil==7.1.3
     # via pytest-xdist
-psycopg[binary,pool]==3.2.11
+psycopg[binary,pool]==3.2.13
     # via -r requirements/pip.txt
-psycopg-binary==3.2.11
+psycopg-binary==3.2.13
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.2.6
+psycopg-pool==3.2.8
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -316,9 +312,9 @@ pycparser==2.23
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.12.3
+pydantic==2.12.4
     # via -r requirements/pip.txt
-pydantic-core==2.41.4
+pydantic-core==2.41.5
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -334,13 +330,13 @@ pyjwt[crypto]==2.10.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   pygithub
-pynacl==1.6.0
+pynacl==1.6.1
     # via
     #   -r requirements/pip.txt
     #   pygithub
 pyquery==2.0.1
     # via -r requirements/pip.txt
-pytest==8.4.2
+pytest==9.0.1
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -369,7 +365,6 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-    #   elasticsearch-dsl
 python-ipware==3.0.0
     # via
     #   -r requirements/pip.txt
@@ -386,9 +381,9 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==6.4.0
+redis==7.1.0
     # via -r requirements/pip.txt
-regex==2025.9.18
+regex==2025.11.3
     # via -r requirements/pip.txt
 requests==2.32.5
     # via
@@ -412,11 +407,11 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
 roman-numerals-py==3.1.0
     # via sphinx
-s3transfer==0.14.0
+s3transfer==0.15.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.4.0
+selectolax==0.4.3
     # via -r requirements/pip.txt
 six==1.17.0
     # via
@@ -452,7 +447,7 @@ stripe==11.6.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==25.4.0
+structlog==25.5.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -465,7 +460,6 @@ typing-extensions==4.15.0
     #   -r requirements/pip.txt
     #   cron-descriptor
     #   elasticsearch
-    #   elasticsearch-dsl
     #   psycopg
     #   psycopg-pool
     #   pydantic
@@ -513,7 +507,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.35.3
+virtualenv==20.35.4
     # via -r requirements/pip.txt
 wcwidth==0.2.14
     # via
