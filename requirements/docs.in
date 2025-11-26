@@ -16,6 +16,7 @@ sphinx-notfound-page
 # Docs
 sphinxemoji
 sphinxcontrib-httpdomain
+sphinxcontrib-openapi
 sphinx-prompt
 sphinx-autobuild
 sphinxext-opengraph

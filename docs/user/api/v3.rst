@@ -5,6 +5,8 @@ The Read the Docs API uses :abbr:`REST (Representational State Transfer)`.
 JSON is returned by all API responses including errors
 and HTTP response status codes are to designate success and failure.
 
+For an OpenAPI description of the endpoints below, see :doc:`openapi`.
+
 .. contents:: Table of contents
    :local:
    :backlinks: none

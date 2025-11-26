@@ -1,0 +1,835 @@
+openapi: 3.0.3
+info:
+  title: Read the Docs Public API
+  version: "3.0"
+  description: |
+    OpenAPI description for the Read the Docs public REST API.
+    Unless noted, endpoints are available on both the community and business sites.
+  contact:
+    name: Read the Docs Support
+    url: https://docs.readthedocs.io/
+servers:
+  - url: https://app.readthedocs.org
+    description: Community site
+  - url: https://app.readthedocs.com
+    description: Business site
+tags:
+  - name: Projects
+    description: Project metadata, versions, builds, and related resources.
+  - name: Organizations
+    description: Organization membership and teams.
+  - name: Remotes
+    description: Connected repositories and organizations from VCS providers.
+  - name: Embed
+    description: Embedded HTML snippets from built documentation.
+components:
+  securitySchemes:
+    Token:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "Use `Token <token>` to authenticate as a user."
+  schemas:
+    Link:
+      type: string
+      format: uri
+      description: Absolute or API link to a related resource.
+    PaginatedResults:
+      type: object
+      required:
+        - count
+        - results
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+          nullable: true
+          format: uri
+        previous:
+          type: string
+          nullable: true
+          format: uri
+        results:
+          type: array
+          items:
+            type: object
+    Language:
+      type: object
+      properties:
+        code:
+          type: string
+          example: en
+        name:
+          type: string
+          example: English
+    Repository:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        type:
+          type: string
+          example: git
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12345
+        name:
+          type: string
+        slug:
+          type: string
+        created:
+          type: string
+          format: date-time
+        modified:
+          type: string
+          format: date-time
+        language:
+          $ref: '#/components/schemas/Language'
+        programming_language:
+          $ref: '#/components/schemas/Language'
+        repository:
+          $ref: '#/components/schemas/Repository'
+        default_version:
+          type: string
+          example: latest
+        default_branch:
+          type: string
+          nullable: true
+          example: master
+        privacy_level:
+          type: string
+          example: public
+        tags:
+          type: array
+          items:
+            type: string
+        urls:
+          type: object
+          additionalProperties:
+            type: string
+            format: uri
+        users:
+          type: array
+          items:
+            type: object
+            properties:
+              username:
+                type: string
+              url:
+                type: string
+                format: uri
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+    Version:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        verbose_name:
+          type: string
+        type:
+          type: string
+          description: Version type such as branch, tag, external or webhook.
+        active:
+          type: boolean
+        uploaded:
+          type: boolean
+        privacy_level:
+          type: string
+          example: public
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+    Build:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        project:
+          type: string
+          description: Project slug
+        version:
+          type: string
+          description: Version slug
+        state:
+          type: string
+          example: finished
+        success:
+          type: boolean
+        date:
+          type: string
+          format: date-time
+        duration:
+          type: number
+          format: float
+          description: Seconds spent building.
+        error:
+          type: string
+          nullable: true
+        commit:
+          type: string
+          nullable: true
+        config:
+          type: object
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+    Subproject:
+      type: object
+      properties:
+        alias:
+          type: string
+        project:
+          $ref: '#/components/schemas/Project'
+    Redirect:
+      type: object
+      properties:
+        id:
+          type: integer
+        from_url:
+          type: string
+        to_url:
+          type: string
+        http_status:
+          type: integer
+        type:
+          type: string
+          example: page
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+    EnvironmentVariable:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        value:
+          type: string
+        public:
+          type: boolean
+    Organization:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        members:
+          type: array
+          items:
+            type: object
+            properties:
+              username:
+                type: string
+              url:
+                type: string
+                format: uri
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        access:
+          type: string
+          example: admin
+        users:
+          type: array
+          items:
+            type: object
+            properties:
+              username:
+                type: string
+              url:
+                type: string
+                format: uri
+    RemoteOrganization:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        url:
+          type: string
+          format: uri
+    RemoteRepository:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        full_name:
+          type: string
+        ssh_url:
+          type: string
+        clone_url:
+          type: string
+        html_url:
+          type: string
+        private:
+          type: boolean
+        organization:
+          $ref: '#/components/schemas/RemoteOrganization'
+    EmbedResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        fragment:
+          type: string
+        content:
+          type: string
+          description: Raw HTML content of the requested section.
+        external:
+          type: boolean
+paths:
+  /api/v3/projects/:
+    get:
+      tags: [Projects]
+      summary: List projects for the authenticated user.
+      security:
+        - Token: []
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Filter by project name.
+        - in: query
+          name: slug
+          schema:
+            type: string
+          description: Filter by project slug.
+        - in: query
+          name: language
+          schema:
+            type: string
+          description: Filter by project language code.
+        - in: query
+          name: programming_language
+          schema:
+            type: string
+          description: Filter by programming language code.
+      responses:
+        '200':
+          description: Paginated list of projects.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Project'
+  /api/v3/projects/{project_slug}/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Projects]
+      summary: Get details of a single project.
+      responses:
+        '200':
+          description: Project metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+  /api/v3/projects/{project_slug}/versions/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Projects]
+      summary: List versions for a project.
+      responses:
+        '200':
+          description: Paginated versions.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Version'
+  /api/v3/projects/{project_slug}/versions/{version_slug}/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: version_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Projects]
+      summary: Get details for a single version.
+      responses:
+        '200':
+          description: Version details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+  /api/v3/projects/{project_slug}/builds/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Projects]
+      summary: List builds for a project.
+      parameters:
+        - in: query
+          name: state
+          schema:
+            type: string
+          description: Filter by build state such as `building` or `finished`.
+      responses:
+        '200':
+          description: Paginated builds.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Build'
+  /api/v3/projects/{project_slug}/builds/{build_id}/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: build_id
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Projects]
+      summary: Get build details.
+      responses:
+        '200':
+          description: Build metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Build'
+  /api/v3/projects/{project_slug}/subprojects/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Projects]
+      summary: List subprojects for a project.
+      responses:
+        '200':
+          description: Subprojects attached to a project.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Subproject'
+  /api/v3/projects/{project_slug}/subprojects/{alias_slug}/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: alias_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Projects]
+      summary: Retrieve a specific subproject relationship.
+      responses:
+        '200':
+          description: Details for a subproject alias.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subproject'
+  /api/v3/projects/{project_slug}/translations/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Projects]
+      summary: List translations for a project.
+      responses:
+        '200':
+          description: Translations attached to a project.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Project'
+  /api/v3/projects/{project_slug}/redirects/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Projects]
+      summary: List redirects defined for a project.
+      responses:
+        '200':
+          description: Project redirects.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Redirect'
+  /api/v3/projects/{project_slug}/redirects/{redirect_id}/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: redirect_id
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Projects]
+      summary: Retrieve a redirect rule.
+      responses:
+        '200':
+          description: Redirect metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Redirect'
+  /api/v3/projects/{project_slug}/environmentvariables/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Projects]
+      summary: List environment variables configured for a project.
+      security:
+        - Token: []
+      responses:
+        '200':
+          description: Project environment variables.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EnvironmentVariable'
+  /api/v3/projects/{project_slug}/environmentvariables/{environmentvariable_id}/:
+    parameters:
+      - in: path
+        name: project_slug
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: environmentvariable_id
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Projects]
+      summary: Retrieve an environment variable.
+      security:
+        - Token: []
+      responses:
+        '200':
+          description: Environment variable details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentVariable'
+  /api/v3/organizations/:
+    get:
+      tags: [Organizations]
+      summary: List organizations for the authenticated user.
+      security:
+        - Token: []
+      responses:
+        '200':
+          description: Paginated organizations.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Organization'
+  /api/v3/organizations/{organization_slug}/:
+    parameters:
+      - in: path
+        name: organization_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Organizations]
+      summary: Retrieve an organization.
+      security:
+        - Token: []
+      responses:
+        '200':
+          description: Organization details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+  /api/v3/organizations/{organization_slug}/projects/:
+    parameters:
+      - in: path
+        name: organization_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Organizations]
+      summary: List projects for an organization.
+      security:
+        - Token: []
+      responses:
+        '200':
+          description: Projects inside the organization.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Project'
+  /api/v3/organizations/{organization_slug}/teams/:
+    parameters:
+      - in: path
+        name: organization_slug
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Organizations]
+      summary: List teams inside an organization.
+      security:
+        - Token: []
+      responses:
+        '200':
+          description: Teams assigned to the organization.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Team'
+  /api/v3/remote/organizations/:
+    get:
+      tags: [Remotes]
+      summary: List remote organizations connected to the user account.
+      security:
+        - Token: []
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Filter remote organizations by name.
+        - in: query
+          name: provider
+          schema:
+            type: string
+          description: Filter by VCS provider.
+      responses:
+        '200':
+          description: Connected remote organizations.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/RemoteOrganization'
+  /api/v3/remote/repositories/:
+    get:
+      tags: [Remotes]
+      summary: List repositories available to import from configured VCS providers.
+      security:
+        - Token: []
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Filter repositories by name.
+        - in: query
+          name: full_name
+          schema:
+            type: string
+          description: Filter by full repository name including owner.
+        - in: query
+          name: vcs_provider
+          schema:
+            type: string
+          description: Filter by provider such as github, gitlab, or bitbucket.
+        - in: query
+          name: organization
+          schema:
+            type: string
+          description: Filter by remote organization slug.
+      responses:
+        '200':
+          description: Remote repositories.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResults'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/RemoteRepository'
+  /api/v3/embed/:
+    get:
+      tags: [Embed]
+      summary: Retrieve HTML-formatted content from a documentation page or section.
+      parameters:
+        - in: query
+          name: url
+          required: true
+          schema:
+            type: string
+            format: uri
+          description: Fully qualified URL to a documentation page to embed.
+        - in: query
+          name: project
+          schema:
+            type: string
+          description: Project slug to embed content from.
+        - in: query
+          name: version
+          schema:
+            type: string
+          description: Version slug to embed content from.
+        - in: query
+          name: path
+          schema:
+            type: string
+          description: Path to the page inside the project/version.
+        - in: query
+          name: section
+          schema:
+            type: string
+          description: Section fragment identifier to embed.
+      responses:
+        '200':
+          description: Embedded content response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmbedResponse'

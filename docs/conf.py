@@ -32,6 +32,7 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
+    "sphinxcontrib.openapi",
     "sphinxcontrib.video",
     "sphinxemoji.sphinxemoji",
     "sphinxext.opengraph",

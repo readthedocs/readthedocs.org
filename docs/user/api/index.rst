@@ -7,6 +7,7 @@ Useful to get details of projects, builds, versions, and other resources.
 .. toctree::
    :maxdepth: 3
 
+   openapi
    v3
    v2
    /server-side-search/api
