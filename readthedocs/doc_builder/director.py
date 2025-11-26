@@ -232,9 +232,26 @@ class BuildDirector:
                         dismissable=True,
                     )
 
-        identifier = self.data.build_commit or self.data.version.identifier
-        log.info("Checking out.", identifier=identifier)
-        self.vcs_repository.checkout(identifier)
+        # Get the default branch of the repository if the project doesn't
+        # have an explicit default branch set and we are building latest.
+        # The identifier from latest will be updated with this value
+        # if the build succeeds.
+        is_latest_without_default_branch = (
+            self.data.version.is_machine_latest and not self.data.project.default_branch
+        )
+        if is_latest_without_default_branch:
+            self.data.default_branch = self.data.build_director.vcs_repository.get_default_branch()
+            log.info(
+                "Default branch for the repository detected.",
+                default_branch=self.data.default_branch,
+            )
+
+        # We can skip the checkout step since we just cloned the repository,
+        # and the default branch is already checked out.
+        if not is_latest_without_default_branch:
+            identifier = self.data.build_commit or self.data.version.identifier
+            log.info("Checking out.", identifier=identifier)
+            self.vcs_repository.checkout(identifier)
 
         # The director is responsible for understanding which config file to use for a build.
         # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build

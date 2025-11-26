@@ -294,7 +294,10 @@ class TestSyncVersions(TestCase):
         self.assertEqual(latest_version.verbose_name, "latest")
         self.assertEqual(latest_version.machine, False)
 
-        # Latest is back as machine created, and as a branch.
+        # Latest is back as machine created,
+        # but its type and identifier are not changed,
+        # as the user doesn't have a default branch set.
+        # The correct identifier and type will be set on the next build.
         sync_versions_task(
             self.pip.pk,
             branches_data=branches_data,
@@ -303,8 +306,8 @@ class TestSyncVersions(TestCase):
 
         latest_version = self.pip.versions.get(slug=LATEST)
         self.assertIsNone(self.pip.default_branch)
-        self.assertEqual(latest_version.type, BRANCH)
-        self.assertEqual(latest_version.identifier, "master")
+        self.assertEqual(latest_version.type, TAG)
+        self.assertEqual(latest_version.identifier, "abc123")
         self.assertEqual(latest_version.verbose_name, "latest")
         self.assertEqual(latest_version.machine, True)
 
@@ -729,7 +732,7 @@ class TestSyncVersions(TestCase):
 
         branches_data = [
             {
-                "identifier": "origin/master",
+                "identifier": "master",
                 "verbose_name": "master",
             },
         ]
@@ -757,7 +760,7 @@ class TestSyncVersions(TestCase):
         # Deleting the tag should return the RTD's latest
         branches_data = [
             {
-                "identifier": "origin/master",
+                "identifier": "master",
                 "verbose_name": "master",
             },
         ]
@@ -768,12 +771,15 @@ class TestSyncVersions(TestCase):
             tags_data=[],
         )
 
-        # The latest isn't stuck with the previous commit
+        # latest isn't stuck with the previous commit,
+        # but its type and identifier are not changed,
+        # as the user doesn't have a default branch set.
+        # The correct identifier and type will be set on the next build.
         version_latest = self.pip.versions.get(slug="latest")
         self.assertIsNone(self.pip.default_branch)
         self.assertTrue(version_latest.machine)
         self.assertEqual(
-            "master",
+            "1abc2def3",
             version_latest.identifier,
         )
         self.assertTrue(version_latest.machine)
@@ -801,20 +807,20 @@ class TestSyncVersions(TestCase):
         self.assertEqual(version_latest.type, TAG)
 
     def test_machine_attr_when_user_define_latest_branch_and_delete_it(self):
-        """The user creates a branch named ``latest`` on an existing repo, when
-        syncing the versions, the RTD's ``latest`` is lost (set to
-                                                            machine=False) and doesn't update automatically anymore, when the branch
-        is deleted on the user repository, the RTD's ``latest`` is back (set to
-                                                                         machine=True).
+        """
+        The user creates a branch named ``latest`` on an existing repo, when
+        syncing the versions, the RTD's ``latest`` is lost (set to machine=False)
+        and doesn't update automatically anymore, when the branch is deleted on
+        the user repository, the RTD's ``latest`` is back (set to machine=True).
         """
         branches_data = [
             {
-                "identifier": "origin/master",
+                "identifier": "master",
                 "verbose_name": "master",
             },
             # User new latest
             {
-                "identifier": "origin/latest",
+                "identifier": "latest",
                 "verbose_name": "latest",
             },
         ]
@@ -830,14 +836,14 @@ class TestSyncVersions(TestCase):
         self.assertIsNone(self.pip.default_branch)
         self.assertFalse(version_latest.machine)
         self.assertEqual(
-            "origin/latest",
+            "latest",
             version_latest.identifier,
         )
 
         # Deleting the branch should return the RTD's latest
         branches_data = [
             {
-                "identifier": "origin/master",
+                "identifier": "master",
                 "verbose_name": "master",
             },
         ]
@@ -848,12 +854,15 @@ class TestSyncVersions(TestCase):
             tags_data=[],
         )
 
-        # The latest isn't stuck with the previous branch
+        # The latest isn't stuck with the previous branch,
+        # but the identifier is still `latest`,
+        # as the user doesn't have a default branch set.
+        # The correct identifier will be set on the next build.
         version_latest = self.pip.versions.get(slug="latest")
         self.assertIsNone(self.pip.default_branch)
         self.assertTrue(version_latest.machine)
         self.assertEqual(
-            "master",
+            "latest",
             version_latest.identifier,
         )
         self.assertTrue(version_latest.machine)
@@ -861,11 +870,11 @@ class TestSyncVersions(TestCase):
         # Test with an explicit default branch.
         branches_data = [
             {
-                "identifier": "origin/master",
+                "identifier": "master",
                 "verbose_name": "master",
             },
             {
-                "identifier": "origin/default-branch",
+                "identifier": "default-branch",
                 "verbose_name": "default-branch",
             },
         ]
