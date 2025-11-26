@@ -42,7 +42,7 @@ class BaseMkdocs(BaseBuilder):
         super().__init__(*args, **kwargs)
 
         # This is the *MkDocs* yaml file
-        self.config_file = self.config_file = os.path.join(
+        self.config_file = os.path.join(
             self.project_path,
             self.config.mkdocs.configuration,
         )
