@@ -2,7 +2,7 @@ Deploying Zensical on Read the Docs
 ===================================
 
 .. meta::
-   :description lang=en: Hosting Zensical sites on Read the Docs.
+   :description lang=en: Learn how to host Zensical sites on Read the Docs.
 
 Zensical_ is a modern static site generator designed to simplify building and
 maintaining project documentation. It's built by the creators of Material for MkDocs
