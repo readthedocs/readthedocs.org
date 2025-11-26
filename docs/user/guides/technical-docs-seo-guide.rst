@@ -56,7 +56,7 @@ as they apply to technical documentation, your site should:
   Sphinx uses the source filename without the file extension as the URL.
 * Make sure the words your readers would search for to find your site
   are actually included on your pages.
-* Avoid low content pages or pages with very little original content.
+* Avoid low content pages or pages with minimal original content.
 * Avoid tactics that attempt to increase your search engine ranking
   without actually improving content.
 * Google specifically `warns about automatically generated content`_

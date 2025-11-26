@@ -200,7 +200,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
 
     version = (
         Version.objects.filter(slug=version_slug, project__slug=project_slug)
-        .prefetch_related("project")
+        .select_related("project")
         .first()
     )
     if not version:

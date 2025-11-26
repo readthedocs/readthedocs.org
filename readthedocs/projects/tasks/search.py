@@ -161,8 +161,16 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
     # This is because saving the objects in the DB will give them an id,
     # and we neeed this id to be `None` when indexing the objects in ES.
     # ES will generate a unique id for each document.
-    # NOTE: If the version is external, we don't create a search index for it.
-    if not version.is_external:
+    # NOTE: We don't create a search indexer for:
+    # - External versions
+    # - Versions from projects with search indexing disabled
+    # - Versions from delisted projects
+    skip_search_indexing = (
+        not version.project.search_indexing_enabled
+        or version.is_external
+        or version.project.delisted
+    )
+    if not skip_search_indexing:
         search_indexer = SearchIndexer(
             project=version.project,
             version=version,

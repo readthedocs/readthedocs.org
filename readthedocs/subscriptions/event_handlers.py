@@ -309,6 +309,7 @@ def customer_updated_event(event, **kwargs):
     organization = Organization.objects.filter(stripe_id=stripe_customer["id"]).first()
     if not organization:
         log.error("Customer isn't attached to an organization.")
+        return
 
     new_email = stripe_customer["email"]
     if organization.email != new_email:

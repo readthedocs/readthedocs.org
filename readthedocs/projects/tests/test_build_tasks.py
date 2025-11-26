@@ -302,6 +302,14 @@ class TestBuildTask(BuildEnvironmentBase):
             )
         ).touch()
 
+        # Create "mkdocs.yml" for the "cat" command to find it
+        pathlib.Path(
+            os.path.join(
+                self.project.checkout_path(self.version.slug),
+                "mkdocs.yml",
+            )
+        ).touch()
+
         self._trigger_update_docs_task()
 
         # Update version state
@@ -585,7 +593,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.13.3",
+                            "full_version": "3.14.0",
                             "version": "3",
                         }
                     },
@@ -866,7 +874,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.13.3",
+                            "full_version": "3.14.0",
                             "version": "3",
                         }
                     },
@@ -1681,7 +1689,7 @@ class TestBuildTask(BuildEnvironmentBase):
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
 
-        get_clone_token.return_value = "toke:1234"
+        get_clone_token.return_value = "token:1234"
         github_app_installation = get(
             GitHubAppInstallation,
             installation_id=1234,
@@ -2890,6 +2898,16 @@ class TestBuildTask(BuildEnvironmentBase):
             },
             validate=True,
         )
+
+        # Create "mkdocs.yaml" for the "cat" command to find it
+        os.makedirs(os.path.join(self.project.checkout_path(version=self.version.slug), "docs"))
+        pathlib.Path(
+            os.path.join(
+                self.project.checkout_path(self.version.slug),
+                "docs",
+                "mkdocs.yaml",
+            )
+        ).touch()
 
         self._trigger_update_docs_task()
 

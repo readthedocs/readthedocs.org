@@ -7,6 +7,7 @@ from functools import namedtuple
 from textwrap import dedent
 
 import structlog
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import constant_time_compare
 from rest_framework import permissions
@@ -33,7 +34,9 @@ from readthedocs.core.views.hooks import get_or_create_external_version
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEPRECATED_WEBHOOK
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
 
 
@@ -151,12 +154,20 @@ class WebhookMixin:
         """If the project was set on POST, store an HTTP exchange."""
         resp = super().finalize_response(req, *args, **kwargs)
         if hasattr(self, "project") and self.project:
-            HttpExchange.objects.from_exchange(
-                req,
-                resp,
-                related_object=self.get_integration(),
-                payload=self.data,
-            )
+            try:
+                integration = self.get_integration()
+            except (Http404, ParseError):
+                # If we can't get a single integration (either none or multiple exist),
+                # we can't store the HTTP exchange
+                integration = None
+
+            if integration:
+                HttpExchange.objects.from_exchange(
+                    req,
+                    resp,
+                    related_object=integration,
+                    payload=self.data,
+                )
         return resp
 
     def get_data(self):
@@ -202,11 +213,21 @@ class WebhookMixin:
         # in `WebhookView`
         if self.integration is not None:
             return self.integration
-        self.integration = get_object_or_404(
-            Integration,
+
+        integrations = Integration.objects.filter(
             project=self.project,
             integration_type=self.integration_type,
         )
+
+        if not integrations.exists():
+            raise Http404("No Integration matches the given query.")
+        elif integrations.count() > 1:
+            raise ParseError(
+                "Multiple integrations found for this project. "
+                "Please use the webhook URL with an explicit integration ID."
+            )
+
+        self.integration = integrations.first()
         return self.integration
 
     def get_response_push(self, project, versions_info: list[VersionInfo]):
@@ -451,6 +472,29 @@ class GitHubWebhookView(WebhookMixin, APIView):
         See https://developer.github.com/v3/activity/events/types/
 
         """
+        if self.project.is_github_app_project:
+            Notification.objects.add(
+                message_id=MESSAGE_PROJECT_DEPRECATED_WEBHOOK,
+                attached_to=self.project,
+                dismissable=True,
+            )
+            return Response(
+                {
+                    "detail": " ".join(
+                        dedent(
+                            """
+                            This project is connected to our GitHub App and doesn't require a separate webhook, ignoring webhook event.
+                            Remove the deprecated webhook from your repository to avoid duplicate events,
+                            see https://docs.readthedocs.com/platform/stable/reference/git-integration.html#manually-migrating-a-project.
+                            """
+                        )
+                        .strip()
+                        .splitlines()
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Get event and trigger other webhook events
         action = self.data.get("action", None)
         created = self.data.get("created", False)
