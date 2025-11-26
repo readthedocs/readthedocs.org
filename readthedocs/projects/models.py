@@ -1953,8 +1953,8 @@ class HTTPHeader(TimeStampedModel, models.Model):
         ("x_content_type_options", "X-Content-Type-Options"),
     )
 
-    domain = models.ForeignKey(
-        Domain,
+    project = models.ForeignKey(
+        Project,
         related_name="http_headers",
         on_delete=models.CASCADE,
     )

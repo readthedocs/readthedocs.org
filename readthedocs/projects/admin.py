@@ -87,6 +87,10 @@ class DomainInline(admin.TabularInline):
     model = Domain
 
 
+class HTTPHeaderInline(admin.TabularInline):
+    model = HTTPHeader
+
+
 class ProjectOwnerBannedFilter(admin.SimpleListFilter):
     """
     Filter for projects with banned owners.
@@ -232,6 +236,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         ProjectRelationshipInline,
         RedirectInline,
         DomainInline,
+        HTTPHeaderInline,
         VersionInline,
     ]
     readonly_fields = (
@@ -387,10 +392,6 @@ class ImportedFileAdmin(admin.ModelAdmin):
     search_fields = ("project__slug", "version__slug", "path", "build")
 
 
-class HTTPHeaderInline(admin.TabularInline):
-    model = HTTPHeader
-
-
 @admin.register(Domain)
 class DomainAdmin(admin.ModelAdmin):
     list_display = (
@@ -403,7 +404,6 @@ class DomainAdmin(admin.ModelAdmin):
         "created",
         "modified",
     )
-    inlines = (HTTPHeaderInline,)
     search_fields = ("domain", "project__slug")
     raw_id_fields = ("project",)
     list_filter = ("canonical", "https", "ssl_status")
@@ -415,18 +415,14 @@ class HTTPHeaderAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "value",
-        "domain_name",
         "project_slug",
     )
-    raw_id_fields = ("domain",)
-    search_fields = ("name", "domain__name", "project__slug")
+    raw_id_fields = ("project",)
+    search_fields = ("name", "project__slug")
     model = HTTPHeader
 
-    def domain_name(self, http_header):
-        return http_header.domain.domain
-
     def project_slug(self, http_header):
-        return http_header.domain.project.slug
+        return http_header.project.slug
 
 
 @admin.register(Feature)

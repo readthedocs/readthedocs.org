@@ -152,7 +152,7 @@ class ProxitoHeaderTests(BaseDocServing):
             r["X-RTD-Path"], "/proxito/media/html/project/latest/index.html"
         )
 
-    def test_user_domain_headers(self):
+    def test_user_project_headers(self):
         hostname = "docs.domain.com"
         self.domain = fixture.get(
             Domain,
@@ -165,14 +165,14 @@ class ProxitoHeaderTests(BaseDocServing):
         http_header_value = "Header Value; Another Value;"
         fixture.get(
             HTTPHeader,
-            domain=self.domain,
+            project=self.project,
             name=http_header,
             value=http_header_value,
             only_if_secure_request=False,
         )
         fixture.get(
             HTTPHeader,
-            domain=self.domain,
+            project=self.project,
             name=http_header_secure,
             value=http_header_value,
             only_if_secure_request=True,
@@ -187,6 +187,15 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r[http_header], http_header_value)
         self.assertEqual(r[http_header_secure], http_header_value)
+
+        # Custom headers should not be added to non-documentation endpoints.
+        r = self.client.get(
+            "/api/v2/search/",
+            headers={"host": hostname},
+            secure=True,
+        )
+        self.assertFalse(r.has_header(http_header))
+        self.assertFalse(r.has_header(http_header_secure))
 
     def test_force_addons_header(self):
         r = self.client.get(

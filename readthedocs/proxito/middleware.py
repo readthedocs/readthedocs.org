@@ -93,21 +93,28 @@ class ProxitoMiddleware(MiddlewareMixin):
         The headers added come from ``projects.models.HTTPHeader`` associated
         with the ``Domain`` object.
         """
+        project_slug = getattr(request, "path_project_slug", "")
+        version_slug = getattr(request, "path_version_slug", "")
+
+        # Only add user headers for documentation pages.
+        if not (project_slug and version_slug):
+            return
+
         unresolved_domain = request.unresolved_domain
-        if unresolved_domain and unresolved_domain.is_from_custom_domain:
+        if unresolved_domain:
             response_headers = [header.lower() for header in response.headers.keys()]
-            domain = unresolved_domain.domain
-            for http_header in domain.http_headers.all():
+            project = unresolved_domain.project
+            for http_header in project.http_headers.all():
                 if http_header.name.lower() in response_headers:
                     log.error(
                         "Overriding an existing response HTTP header.",
                         http_header=http_header.name,
-                        domain=domain.domain,
+                        project=project.slug,
                     )
                 log.debug(
                     "Adding custom response HTTP header.",
                     http_header=http_header.name,
-                    domain=domain.domain,
+                    project=project.slug,
                 )
 
                 if http_header.only_if_secure_request and not request.is_secure():
