@@ -1,0 +1,4 @@
+# Delisted project, blocking large language model crawlers
+# See: https://docs.readthedocs.io/en/stable/unofficial-projects.html
+User-agent: *
+Disallow: /
