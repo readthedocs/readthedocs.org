@@ -13,6 +13,7 @@ from django.db.models import Value
 from django.db.models import When
 from django.http import Http404
 from django.template.loader import render_to_string
+from django.utils import timezone
 from rest_framework import decorators
 from rest_framework import status
 from rest_framework import viewsets
@@ -31,6 +32,7 @@ from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
 from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
 from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
@@ -297,6 +299,36 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         }
         return Response(data)
 
+    @decorators.action(
+        detail=True,
+        # We make this endpoint public because we don't want to expose the build API key inside the user's container.
+        # To emulate "auth" we check for the builder hostname to match the `Build.builder` defined in the database.
+        permission_classes=[],
+        # We can't use the default `get_queryset()` method because it's filtered by build API key and/or user access.
+        # Since we don't want to check for permissions here we need to use a custom queryset here.
+        get_queryset=lambda: Build.objects.all(),
+        methods=["post"],
+    )
+    def healthcheck(self, request, **kwargs):
+        build = self.get_object()
+        builder_hostname = request.GET.get("builder")
+        structlog.contextvars.bind_contextvars(
+            build_id=build.pk,
+            project_slug=build.project.slug,
+            builder_hostname=builder_hostname,
+        )
+
+        log.info("Healthcheck received.")
+        if build.state in BUILD_FINAL_STATES or build.builder != builder_hostname:
+            log.warning(
+                "Build is not running anymore or builder hostname doesn't match.",
+            )
+            raise Http404()
+
+        build.healthcheck = timezone.now()
+        build.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def retrieve(self, *args, **kwargs):
         """
         Retrieves command data from storage.
@@ -326,7 +358,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
                         buildcommand["command"] = normalize_build_command(
                             buildcommand["command"],
                             instance.project.slug,
-                            instance.version.slug,
+                            instance.get_version_slug(),
                         )
                 except Exception:
                     log.exception(

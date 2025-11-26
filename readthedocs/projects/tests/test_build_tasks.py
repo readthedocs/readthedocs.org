@@ -302,6 +302,14 @@ class TestBuildTask(BuildEnvironmentBase):
             )
         ).touch()
 
+        # Create "mkdocs.yml" for the "cat" command to find it
+        pathlib.Path(
+            os.path.join(
+                self.project.checkout_path(self.version.slug),
+                "mkdocs.yml",
+            )
+        ).touch()
+
         self._trigger_update_docs_task()
 
         # Update version state
@@ -537,6 +545,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "commit": "a1b2c3",
             "error": "",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
         }
 
         # Update build state: installing
@@ -545,6 +554,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "installing",
             "commit": "a1b2c3",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "readthedocs_yaml_path": None,
             "error": "",
             # We update the `config` field at the same time we send the
@@ -581,7 +591,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.13.3",
+                            "full_version": "3.14.0",
                             "version": "3",
                         }
                     },
@@ -618,6 +628,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
         # Update build state: uploading
@@ -628,6 +639,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
         # Update version state
@@ -654,6 +666,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "length": mock.ANY,
             "success": True,
             "error": "",
@@ -811,6 +824,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "commit": "a1b2c3",
             "error": "",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
         }
 
         # Update build state: installing
@@ -819,6 +833,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "installing",
             "commit": "a1b2c3",
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "readthedocs_yaml_path": None,
             "error": "",
             # We update the `config` field at the same time we send the
@@ -855,7 +870,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.13.3",
+                            "full_version": "3.14.0",
                             "version": "3",
                         }
                     },
@@ -900,6 +915,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
         # Update build state: uploading
@@ -910,6 +926,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "error": "",
         }
 
@@ -944,6 +961,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "length": mock.ANY,
             "success": True,
             "error": "",
@@ -1031,6 +1049,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert build_status_request.path == "/api/v2/build/1/"
         assert build_status_request.json() == {
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "commit": self.build.commit,
             "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
@@ -1085,6 +1104,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert build_status_request.path == "/api/v2/build/1/"
         assert build_status_request.json() == {
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "commit": self.build.commit,
             "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
@@ -1401,7 +1421,7 @@ class TestBuildTask(BuildEnvironmentBase):
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
 
-        get_clone_token.return_value = "toke:1234"
+        get_clone_token.return_value = "token:1234"
         github_app_installation = get(
             GitHubAppInstallation,
             installation_id=1234,
@@ -1652,6 +1672,42 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                     demux=True,
                 ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_project_with_custom_git_checkout_command(self, load_yaml_config):
+        git_checkout_command = [
+            "env",
+            "echo $READTHEDOCS_GIT_CLONE_URL",
+            "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+            "git sparse-checkout init --cone",
+            "git sparse-checkout set projects/project",
+            "git checkout $READTHEDOCS_GIT_IDENTIFIER" ,
+        ]
+        self.project.git_checkout_command = git_checkout_command
+        self.project.save()
+
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "3",
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks["git.Backend.run"].assert_has_calls(
+            [
+                mock.call(*cmd.split(), escape_command=False) for cmd in git_checkout_command
             ]
         )
 
@@ -2578,6 +2634,16 @@ class TestBuildTask(BuildEnvironmentBase):
             validate=True,
         )
 
+        # Create "mkdocs.yaml" for the "cat" command to find it
+        os.makedirs(os.path.join(self.project.checkout_path(version=self.version.slug), "docs"))
+        pathlib.Path(
+            os.path.join(
+                self.project.checkout_path(self.version.slug),
+                "docs",
+                "mkdocs.yaml",
+            )
+        ).touch()
+
         self._trigger_update_docs_task()
 
         self.mocker.mocks["environment.run"].assert_has_calls(
@@ -2932,6 +2998,7 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
             "error": "",  # We not sending "error" anymore
             "success": False,
             "builder": mock.ANY,
+            "task_executed_at": mock.ANY,
             "length": 0,
         }
 
@@ -2991,3 +3058,10 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
         exception = on_failure.call_args[0][0]
         assert isinstance(exception, RepositoryError) == True
         assert exception.message_id == RepositoryError.DUPLICATED_RESERVED_VERSIONS
+
+    @mock.patch("readthedocs.builds.tasks.sync_versions_task")
+    @mock.patch("readthedocs.vcs_support.backends.git.Backend.lsremote")
+    def test_skip_sync_version_task_if_lsremote_fails(self, lsremote, sync_versions_task):
+        lsremote.side_effect = RepositoryError(RepositoryError.FAILED_TO_GET_VERSIONS)
+        self._trigger_sync_repository_task()
+        sync_versions_task.assert_not_called()

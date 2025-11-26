@@ -95,6 +95,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             "readthedocs_yaml_path",
             "clone_token",
             "has_ssh_key_with_write_access",
+            "git_checkout_command",
         )
 
 
@@ -225,7 +226,9 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     command = serializers.SerializerMethodField()
 
     def get_command(self, obj):
-        return normalize_build_command(obj.command, obj.build.project.slug, obj.build.version.slug)
+        return normalize_build_command(
+            obj.command, obj.build.project.slug, obj.build.get_version_slug()
+        )
 
 
 class BuildSerializer(serializers.ModelSerializer):
@@ -276,8 +279,11 @@ class BuildAdminSerializer(BuildSerializer):
     commands = BuildCommandSerializer(many=True, read_only=True)
 
     class Meta(BuildSerializer.Meta):
-        # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ("_config",)
+        # `_config` should be excluded to avoid conflicts with `config`.
+        #
+        # `healthcheck` is excluded to avoid updating it to `None` again during building.
+        # See https://github.com/readthedocs/readthedocs.org/issues/12474
+        exclude = ("_config", "healthcheck")
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):

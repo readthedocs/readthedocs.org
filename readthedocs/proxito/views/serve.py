@@ -12,12 +12,11 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.views import View
 
-from readthedocs.analytics.models import PageView
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
-from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import InvalidExternalVersionError
@@ -27,11 +26,9 @@ from readthedocs.core.unresolver import TranslationWithoutVersionError
 from readthedocs.core.unresolver import VersionNotFoundError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.core.utils.requests import is_suspicious_request
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain
-from readthedocs.projects.models import Feature
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
@@ -506,15 +503,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 # and we don't want to issue infinite redirects.
                 pass
 
-        # Register 404 pages into our database for user's analytics.
-        if not unresolved_domain.is_from_external_domain:
-            self._register_broken_link(
-                project=project,
-                version=version,
-                filename=filename,
-                path=proxito_path,
-            )
-
         response = self._get_custom_404_page(
             request=request,
             project=project,
@@ -530,37 +518,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             project=project,
             path_not_found=proxito_path,
         )
-
-    def _register_broken_link(self, project, version, filename, path):
-        try:
-            if not project.has_feature(Feature.RECORD_404_PAGE_VIEWS):
-                return
-
-            if is_suspicious_request(self.request):
-                log.info(
-                    "Suspicious request, not recording 404.",
-                )
-                return
-
-            # If we don't have a version, the filename is the path,
-            # otherwise it would be empty.
-            if not version:
-                filename = path
-            PageView.objects.register_page_view(
-                project=project,
-                version=version,
-                filename=filename,
-                path=path,
-                status=404,
-            )
-        except Exception:
-            # Don't break doc serving if there was an error
-            # while recording the broken link.
-            log.exception(
-                "Error while recording the broken link",
-                project_slug=project.slug,
-                path=path,
-            )
 
     def _get_custom_404_page(self, request, project, version=None):
         """
@@ -756,7 +713,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
 
     def _get_hidden_paths(self, project):
         """Get the absolute paths of the public hidden versions of `project`."""
-        hidden_versions = Version.internal.public(project=project).filter(hidden=True)
+        hidden_versions = project.versions(manager=INTERNAL).public().filter(hidden=True)
         resolver = Resolver()
         hidden_paths = [
             resolver.resolve_path(project, version_slug=version.slug) for version in hidden_versions
@@ -846,8 +803,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             yield from itertools.chain(changefreqs, itertools.repeat("monthly"))
 
         project = request.unresolved_domain.project
-        public_versions = Version.internal.public(
-            project=project,
+        public_versions = project.versions(manager=INTERNAL).public(
             only_active=True,
             include_hidden=False,
         )
@@ -894,7 +850,8 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             if project.translations.exists():
                 for translation in project.translations.all():
                     translated_version = (
-                        Version.internal.public(project=translation)
+                        translation.versions(manager=INTERNAL)
+                        .public()
                         .filter(slug=version.slug)
                         .first()
                     )

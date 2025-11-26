@@ -41,6 +41,7 @@ from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
+from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -259,6 +260,12 @@ class AddonsConfig(TimeStampedModel):
 
     # Link Previews
     linkpreviews_enabled = models.BooleanField(default=False)
+    linkpreviews_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector to select links you want enabled for link previews. Leave it blank for auto-detect all links in your main page content.",
+    )
 
 
 class AddonSearchFilter(TimeStampedModel):
@@ -294,6 +301,18 @@ class Project(models.Model):
         blank=True,
         help_text=_("Short description of this project"),
     )
+
+    # Example:
+    # [
+    #     "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+    #     "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+    # ]
+    git_checkout_command = models.JSONField(
+        _("Custom command to execute before Git checkout"),
+        null=True,
+        blank=True,
+    )
+
     repo = models.CharField(
         _("Repository URL"),
         max_length=255,
@@ -519,6 +538,13 @@ class Project(models.Model):
         ),
     )
 
+    search_indexing_enabled = models.BooleanField(
+        _("Enable search indexing"),
+        default=True,
+        db_default=True,
+        help_text=_("Enable/disable search indexing for this project"),
+    )
+
     privacy_level = models.CharField(
         _("Privacy Level"),
         max_length=20,
@@ -628,8 +654,16 @@ class Project(models.Model):
         null=True,
     )
 
-    # Property used for storing the latest build for a project when prefetching
-    LATEST_BUILD_CACHE = "_latest_build"
+    # Denormalized fields
+    latest_build = models.OneToOneField(
+        "builds.Build",
+        verbose_name=_("Latest build"),
+        # No reverse relation needed.
+        related_name="+",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = ("slug",)
@@ -664,6 +698,15 @@ class Project(models.Model):
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
+
+        # NOTE: We use _raw_delete to avoid Django fetching all objects
+        # before the deletion. Be careful when using _raw_delete, signals
+        # won't be sent, and can cause integrity problems if the model
+        # has relations with other models.
+        qs = self.page_views.all()
+        qs._raw_delete(qs.db)
+        qs = self.search_queries.all()
+        qs._raw_delete(qs.db)
 
         # Remove extra resources
         clean_project_resources(self)
@@ -757,11 +800,11 @@ class Project(models.Model):
             )
         return folder_path
 
-    def get_production_media_url(self, type_, version_slug):
+    def get_production_media_url(self, type_, version_slug, resolver=None):
         """Get the URL for downloading a specific media file."""
         # Use project domain for full path --same domain as docs
         # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
-        domain = self.subdomain()
+        domain = self.subdomain(resolver=resolver)
 
         # NOTE: we can't use ``reverse('project_download_media')`` here
         # because this URL only exists in El Proxito and this method is
@@ -879,13 +922,12 @@ class Project(models.Model):
         """Return whether or not this project supports translations."""
         return self.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 
-    def subdomain(self, use_canonical_domain=True):
+    def subdomain(self, use_canonical_domain=True, resolver=None):
         """Get project subdomain from resolver."""
-        return Resolver().get_domain_without_protocol(
-            self, use_canonical_domain=use_canonical_domain
-        )
+        resolver = resolver or Resolver()
+        return resolver.get_domain_without_protocol(self, use_canonical_domain=use_canonical_domain)
 
-    def get_downloads(self):
+    def get_downloads(self, resolver=None):
         downloads = {}
         default_version = self.get_default_version()
 
@@ -893,6 +935,7 @@ class Project(models.Model):
             downloads[type_] = self.get_production_media_url(
                 type_,
                 default_version,
+                resolver=resolver,
             )
 
         return downloads
@@ -974,10 +1017,10 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
-        # Check if there is `_good_build` annotation in the Queryset.
-        # Used for Database optimization.
-        if hasattr(self, "_good_build"):
-            return self._good_build
+        # Check if there is `_has_good_build` annotation in the queryset.
+        # Used for database optimization.
+        if hasattr(self, "_has_good_build"):
+            return self._has_good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def vcs_repo(self, environment, version):
@@ -1046,6 +1089,24 @@ class Project(models.Model):
         return self.remote_repository and self.remote_repository.vcs_provider == GITHUB_APP
 
     @property
+    def old_github_remote_repository(self):
+        """
+        Get the old GitHub OAuth repository for GitHub App projects.
+
+        This is mainly used for projects that migrated to the new GitHub App,
+        but its users have not yet connected their accounts to the new GitHub App.
+        We still need to reference the old repository for permissions when using GH as SSO method.
+        """
+        from readthedocs.oauth.models import RemoteRepository
+
+        if self.is_github_app_project:
+            return RemoteRepository.objects.filter(
+                vcs_provider=GITHUB,
+                remote_id=self.remote_repository.remote_id,
+            ).first()
+        return None
+
+    @property
     def is_gitlab_project(self):
         from readthedocs.oauth.services import GitLabService
 
@@ -1083,28 +1144,13 @@ class Project(models.Model):
                 matches.append(os.path.join(root, match))
         return matches
 
-    def get_latest_build(self, finished=True):
-        """
-        Get latest build for project.
-
-        :param finished: Return only builds that are in a finished state
-        """
-        # Check if there is `_latest_build` attribute in the Queryset.
-        # Used for Database optimization.
-        if hasattr(self, self.LATEST_BUILD_CACHE):
-            if self._latest_build:
-                return self._latest_build[0]
-            return None
-
-        kwargs = {"type": "html"}
-        if finished:
-            kwargs["state"] = "finished"
-        return self.builds(manager=INTERNAL).filter(**kwargs).first()
+    @cached_property
+    def latest_internal_build(self):
+        """Get the latest internal build for the project."""
+        return self.builds(manager=INTERNAL).select_related("version").first()
 
     def active_versions(self):
-        from readthedocs.builds.models import Version
-
-        versions = Version.internal.public(project=self, only_active=True)
+        versions = self.versions(manager=INTERNAL).public(only_active=True)
         return versions.filter(built=True, active=True) | versions.filter(
             active=True, uploaded=True
         )
@@ -1227,11 +1273,9 @@ class Project(models.Model):
                     return new_stable
             else:
                 log.info(
-                    "Creating new stable version: %(project)s:%(version)s",
-                    {
-                        "project": self.slug,
-                        "version": new_stable.identifier,
-                    },
+                    "Creating new stable version",
+                    project_slug=self.slug,
+                    version_identifier=new_stable.identifier,
                 )
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
@@ -1323,7 +1367,8 @@ class Project(models.Model):
 
         return self.superprojects.select_related("parent").first()
 
-    def get_canonical_custom_domain(self):
+    @cached_property
+    def canonical_custom_domain(self):
         """Get the canonical custom domain or None."""
         if hasattr(self, "_canonical_domains"):
             # Cached custom domains
@@ -1944,7 +1989,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
@@ -1958,24 +2002,18 @@ class Feature(models.Model):
 
     # Dependencies related features
     PIP_ALWAYS_UPGRADE = "pip_always_upgrade"
-    USE_NEW_PIP_RESOLVER = "use_new_pip_resolver"
-    DONT_INSTALL_LATEST_PIP = "dont_install_latest_pip"
-    USE_SPHINX_RTD_EXT_LATEST = "rtd_sphinx_ext_latest"
-    INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
 
     # Search related features
-    ENABLE_MKDOCS_SERVER_SIDE_SEARCH = "enable_mkdocs_server_side_search"
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
     USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
+    BUILD_FULL_CLEAN = "build_full_clean"
+    BUILD_HEALTHCHECK = "build_healthcheck"
+    BUILD_NO_ACKS_LATE = "build_no_acks_late"
 
     FEATURES = (
-        (
-            RECORD_404_PAGE_VIEWS,
-            _("Proxito: Record 404s page views."),
-        ),
         (
             DISABLE_PAGEVIEWS,
             _("Proxito: Disable all page views"),
@@ -2013,24 +2051,7 @@ class Feature(models.Model):
         ),
         # Dependencies related features
         (PIP_ALWAYS_UPGRADE, _("Build: Always run pip install --upgrade")),
-        (USE_NEW_PIP_RESOLVER, _("Build: Use new pip resolver")),
-        (
-            DONT_INSTALL_LATEST_PIP,
-            _("Build: Don't install the latest version of pip"),
-        ),
-        (
-            USE_SPHINX_RTD_EXT_LATEST,
-            _("Sphinx: Use latest version of the Read the Docs Sphinx extension"),
-        ),
-        (
-            INSTALL_LATEST_CORE_REQUIREMENTS,
-            _("Build: Install all the latest versions of Read the Docs core requirements"),
-        ),
         # Search related features.
-        (
-            ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
-            _("Search: Enable server side search for MkDocs projects"),
-        ),
         (
             DEFAULT_TO_FUZZY_SEARCH,
             _("Search: Default to fuzzy search for simple search queries"),
@@ -2043,6 +2064,18 @@ class Feature(models.Model):
         (
             USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS,
             _("Build: Use S3 scoped credentials for uploading build artifacts."),
+        ),
+        (
+            BUILD_FULL_CLEAN,
+            _("Build: Clean all build directories to avoid leftovers from other projects."),
+        ),
+        (
+            BUILD_HEALTHCHECK,
+            _("Build: Use background cURL healthcheck."),
+        ),
+        (
+            BUILD_NO_ACKS_LATE,
+            _("Build: Do not use Celery ASK_LATE config for this project."),
         ),
     )
 

@@ -1,5 +1,6 @@
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
+from unittest import mock
 from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -8,7 +9,7 @@ from django_dynamic_fixture import get
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.constants import GITHUB_APP
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import GitHubAppInstallation, RemoteRepository
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import (
     DOWNLOADABLE_MEDIA_TYPES,
@@ -85,7 +86,14 @@ class TestExternalBuildOption(TestCase):
 
     def test_github_app_integration(self):
         Integration.objects.all().delete()
-        remote_repository = get(RemoteRepository, vcs_provider=GITHUB_APP)
+        github_app_installation = get(
+            GitHubAppInstallation,
+        )
+        remote_repository = get(
+            RemoteRepository,
+            vcs_provider=GITHUB_APP,
+            github_app_installation=github_app_installation,
+        )
         self.project.remote_repository = remote_repository
         self.project.save()
 
@@ -310,3 +318,59 @@ class TestProjectDownloads(TestCase):
                 resp["X-Accel-Redirect"],
                 f"/proxito/media/{type_}/project/latest/project.{extension}",
             )
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
+class TestProjectEditView(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug="project", users=[self.user], repo="https://github.com/user/repo")
+        self.url = reverse("projects_edit", args=[self.project.slug])
+        self.client.force_login(self.user)
+
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    @mock.patch("readthedocs.projects.forms.index_project")
+    def test_search_indexing_enabled(self, index_project, trigger_build):
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
+        form = resp.context["form"]
+        assert "search_indexing_enabled" not in form.fields
+
+        self.project.search_indexing_enabled = False
+        self.project.save()
+
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
+        form = resp.context["form"]
+        assert "search_indexing_enabled" in form.fields
+
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+        }
+
+        data["search_indexing_enabled"] = False
+        resp = self.client.post(
+            self.url,
+            data=data,
+        )
+        assert resp.status_code == 302
+        self.project.refresh_from_db()
+        assert not self.project.search_indexing_enabled
+        index_project.delay.assert_not_called()
+
+        data["search_indexing_enabled"] = True
+        resp = self.client.post(
+            self.url,
+            data=data,
+        )
+        assert resp.status_code == 302
+        self.project.refresh_from_db()
+        assert self.project.search_indexing_enabled
+        index_project.delay.assert_called_once_with(project_slug=self.project.slug)

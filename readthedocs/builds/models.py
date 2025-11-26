@@ -261,18 +261,10 @@ class Version(TimeStampedModel):
 
     @property
     def vcs_url(self):
-        version_name = self.verbose_name
-        if self.slug == STABLE and self.machine:
-            stable_version = self.project.get_original_stable_version()
-            if stable_version:
-                version_name = stable_version.verbose_name
-        elif self.slug == LATEST and self.machine:
-            version_name = self.project.get_default_branch()
-
         return get_vcs_url(
             project=self.project,
             version_type=self.type,
-            version_name=version_name,
+            version_name=self.git_identifier,
         )
 
     @property
@@ -329,9 +321,10 @@ class Version(TimeStampedModel):
         - If the version is stable (machine created), we resolve to the branch that the stable version points to.
         - If the version is external, we return the PR identifier, since we don't have access to the name of the branch.
         """
-        # Latest is special as it doesn't contain the actual name in verbose_name.
+        # Latest is special as it doesn't contain the actual name in verbose_name,
+        # but in the identifier field.
         if self.slug == LATEST and self.machine:
-            return self.project.get_default_branch()
+            return self.identifier
 
         # Stable is special as it doesn't contain the actual name in verbose_name.
         if self.slug == STABLE and self.machine:
@@ -349,13 +342,23 @@ class Version(TimeStampedModel):
         """
         Get the absolute URL to the docs of the version.
 
-        If the version doesn't have a successfully uploaded build, then we return the project's
-        dashboard page.
+        For external versions (PR builds), if the version is not built, we return the
+        build detail page since these versions are ephemeral and read-only.
+
+        For internal versions, if not built, we return the project's version dashboard page.
 
         Because documentation projects can be hosted on separate domains, this function ALWAYS
         returns with a full "http(s)://<domain>/" prefix.
         """
         if not self.built and not self.uploaded:
+            # External versions (PR builds) should link to the build detail page
+            # since they're read-only and we can't "edit" them
+            if self.type == EXTERNAL:
+                latest_build = self.latest_build
+                if latest_build:
+                    return latest_build.get_full_url()
+
+            # For internal versions, fall back to the project version detail page
             # TODO: Stop assuming protocol based on settings.DEBUG
             # (this pattern is also used in builds.tasks for sending emails)
             protocol = "http" if settings.DEBUG else "https"
@@ -489,7 +492,7 @@ class Version(TimeStampedModel):
             external=external,
         )
 
-    def get_downloads(self, pretty=False):
+    def get_downloads(self, pretty=False, resolver=None):
         project = self.project
         data = {}
 
@@ -500,17 +503,20 @@ class Version(TimeStampedModel):
             data[prettify("PDF")] = project.get_production_media_url(
                 "pdf",
                 self.slug,
+                resolver=resolver,
             )
 
         if self.has_htmlzip:
             data[prettify("HTML")] = project.get_production_media_url(
                 "htmlzip",
                 self.slug,
+                resolver=resolver,
             )
         if self.has_epub:
             data[prettify("Epub")] = project.get_production_media_url(
                 "epub",
                 self.slug,
+                resolver=resolver,
             )
         return data
 
@@ -644,6 +650,7 @@ class Build(models.Model):
         blank=True,
     )
     date = models.DateTimeField(_("Date"), auto_now_add=True, db_index=True)
+    healthcheck = models.DateTimeField(_("Healthcheck"), null=True, blank=True)
     success = models.BooleanField(_("Success"), default=True)
 
     # TODO: remove these fields (setup, setup_error, output, error, exit_code)
@@ -717,6 +724,11 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
+    task_executed_at = models.DateTimeField(
+        _("Task executed at datetime"),
+        null=True,
+        blank=True,
+    )
 
     notifications = GenericRelation(
         Notification,
@@ -782,7 +794,7 @@ class Build(models.Model):
         """
         # TODO: now that we are using a proper JSONField here, we could
         # probably change this field to be a ForeignKey to avoid repeating the
-        # config file over and over again and re-use them to save db data as
+        # config file over and over again and reuse them to save db data as
         # well
         if self._config and self.CONFIG_KEY in self._config:
             return Build.objects.only("_config").get(pk=self._config[self.CONFIG_KEY])._config
@@ -980,7 +992,7 @@ class BuildCommandResultMixin:
     Mixin for common command result methods/properties.
 
     Shared methods between the database model :py:class:`BuildCommandResult` and
-    non-model respresentations of build command results from the API
+    non-model representations of build command results from the API
     """
 
     @property

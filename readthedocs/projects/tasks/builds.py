@@ -5,6 +5,7 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
+import datetime
 import os
 import shutil
 import signal
@@ -16,6 +17,7 @@ from pathlib import Path
 
 import structlog
 from celery import Task
+from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.utils import timezone
 from slumber import API
@@ -81,11 +83,11 @@ log = structlog.get_logger(__name__)
 @dataclass(slots=True)
 class TaskData:
     """
-    Object to store all data related to a Celery task excecution.
+    Object to store all data related to a Celery task execution.
 
-    We use this object from inside the task to store data while we are runnig
+    We use this object from inside the task to store data while we are running
     the task. This is to avoid using `self.` inside the task due to its
-    limitations: it's instanciated once and that instance is re-used for all
+    limitations: it's instantiated once and that instance is re-used for all
     the tasks ran. This could produce sharing instance state between two
     different and unrelated tasks.
 
@@ -281,6 +283,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         MkDocsYAMLParseError,
         ProjectConfigurationError,
         BuildMaxConcurrencyError,
+        SoftTimeLimitExceeded,
     )
 
     # Do not send notifications on failure builds for these exceptions.
@@ -408,19 +411,36 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        # Log a warning if the task took more than 10 minutes to be retried
+        if self.data.build["task_executed_at"]:
+            task_executed_at = datetime.datetime.fromisoformat(self.data.build["task_executed_at"])
+            delta = timezone.now() - task_executed_at
+            if delta > timezone.timedelta(minutes=10):
+                log.warning(
+                    "This task waited more than 10 minutes to be retried.",
+                    delta_minutes=round(delta.seconds / 60, 1),
+                )
+
+        # Save when the task was executed by a builder
+        self.data.build["task_executed_at"] = timezone.now()
+
         # Enable scale-in protection on this instance
         #
         # TODO: move this to the beginning of this method
         # once we don't need to rely on `self.data.project`.
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
+                build_id=self.data.build_pk,
                 builder=socket.gethostname(),
                 protected_from_scale_in=True,
             )
 
-        # Clean the build paths completely to avoid conflicts with previous run
-        # (e.g. cleanup task failed for some reason)
-        clean_build(self.data.version)
+        if self.data.project.has_feature(Feature.BUILD_FULL_CLEAN):
+            # Clean DOCROOT path completely to avoid conflicts other projects
+            clean_build()
+        else:
+            # Clean the build paths for this version to avoid conflicts with previous run
+            clean_build(self.data.version)
 
         # NOTE: this is never called. I didn't find anything in the logs, so we
         # can probably remove it
@@ -480,6 +500,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Set build state as cancelled if the user cancelled the build
             if isinstance(exc, BuildCancelled):
                 self.data.build["state"] = BUILD_STATE_CANCELLED
+
+        elif isinstance(exc, SoftTimeLimitExceeded):
+            log.info("Soft time limit exceeded.")
+            message_id = BuildUserError.BUILD_TIME_OUT
 
         else:
             # We don't know what happened in the build. Log the exception and
@@ -558,7 +582,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         TODO: remove the limitation of only 1 file.
         Add support for multiple PDF files in the output directory and
-        grab them by using glob syntaxt between other files that could be garbage.
+        grab them by using glob syntax between other files that could be garbage.
         """
         valid_artifacts = []
         for artifact_type in ARTIFACT_TYPES:
@@ -718,7 +742,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
                 format_values=format_values,
             )
-            self.update_build(state=BUILD_STATE_TRIGGERED)
+
+        # Always update the build on retry
+        self.update_build(state=BUILD_STATE_TRIGGERED)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         """
@@ -758,6 +784,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Disable scale-in protection on this instance
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
+                build_id=self.data.build_pk,
                 builder=socket.gethostname(),
                 protected_from_scale_in=False,
             )
@@ -789,7 +816,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Error while updating the build object.", state=state)
 
     def execute(self):
-        # Clonning
+        # Cloning
         self.update_build(state=BUILD_STATE_CLONING)
 
         # TODO: remove the ``create_vcs_environment`` hack. Ideally, this should be

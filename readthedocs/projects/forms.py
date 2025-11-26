@@ -25,6 +25,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
@@ -36,6 +37,8 @@ from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
+from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
+from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
 
@@ -145,8 +148,8 @@ class ProjectTriggerBuildMixin:
     """
     Mixin to trigger build on form save.
 
-    We trigger a build to the default branch and the LATEST version of the project,
-    since both are related, latest is an alias of the default version.
+    We trigger a build to LATEST version of the project, and the version
+    that LATEST points to, since latest is just an alias.
 
     This should be replaced with signals instead of calling trigger_build
     explicitly.
@@ -156,11 +159,11 @@ class ProjectTriggerBuildMixin:
         """Trigger build on commit save."""
         project = super().save(commit)
         if commit:
-            default_branch = project.versions.filter(slug=project.get_default_branch()).first()
-            if default_branch and default_branch.active:
-                trigger_build(project=project, version=default_branch)
+            original_latest_version = project.get_original_latest_version()
+            if original_latest_version and original_latest_version.active:
+                trigger_build(project=project, version=original_latest_version)
             latest_version = project.get_latest_version()
-            if latest_version and latest_version != default_branch and latest_version.active:
+            if latest_version and latest_version.active:
                 trigger_build(project=project, version=latest_version)
         return project
 
@@ -431,6 +434,7 @@ class UpdateProjectForm(
             "versioning_scheme",
             "default_branch",
             "readthedocs_yaml_path",
+            "search_indexing_enabled",
             # Meta data
             "programming_language",
             "project_url",
@@ -452,6 +456,8 @@ class UpdateProjectForm(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.had_search_disabled = not self.instance.search_indexing_enabled
+
         # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
             (key, value) for key, value in self.fields["versioning_scheme"].choices if key
@@ -466,6 +472,11 @@ class UpdateProjectForm(
                 f'This setting is inherited from the <a href="{link}">parent translation</a>.',
             )
             self.fields["versioning_scheme"].disabled = True
+
+        # Only show this field if search is disabled for the project.
+        # We allow enabling it from the form, but not disabling it.
+        if self.instance.search_indexing_enabled:
+            self.fields.pop("search_indexing_enabled")
 
         # NOTE: we are deprecating this feature.
         # However, we will keep it available for projects that already using it.
@@ -564,6 +575,17 @@ class UpdateProjectForm(
                     ),
                 )
         return tags
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        # Trigger a reindex when enabling search from the form.
+        if self.had_search_disabled and instance.search_indexing_enabled:
+            index_project.delay(project_slug=instance.slug)
+            Notification.objects.cancel(
+                message_id=MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED,
+                attached_to=instance,
+            )
+        return instance
 
 
 class ProjectRelationshipForm(forms.ModelForm):
@@ -687,6 +709,7 @@ class AddonsConfigForm(forms.ModelForm):
             "hotkeys_enabled",
             "search_enabled",
             "linkpreviews_enabled",
+            "linkpreviews_selector",
             "notifications_enabled",
             "notifications_show_on_latest",
             "notifications_show_on_non_stable",
@@ -701,6 +724,7 @@ class AddonsConfigForm(forms.ModelForm):
             "notifications_show_on_non_stable": _("Show a notification on non-stable versions"),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
+            "linkpreviews_selector": _("CSS link previews selector"),
             "options_root_selector": _("CSS main content selector"),
         }
 
@@ -1010,24 +1034,17 @@ class DomainForm(forms.ModelForm):
         if not parsed.scheme:
             parsed = self._safe_urlparse(f"https://{domain}")
 
-        if not parsed.netloc:
+        domain_string = parsed.netloc.strip()
+        if not domain_string:
             raise forms.ValidationError(f"{domain} is not a valid domain.")
 
-        domain_string = parsed.netloc
-
-        # Don't allow internal domains to be added, we have:
-        # - Dashboard domain
-        # - Public domain (from where documentation pages are served)
-        # - External version domain (from where PR previews are served)
-        for invalid_domain in [
-            settings.PRODUCTION_DOMAIN,
-            settings.PUBLIC_DOMAIN,
-            settings.RTD_EXTERNAL_VERSION_DOMAIN,
-        ]:
+        for invalid_domain in settings.RTD_RESTRICTED_DOMAINS:
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(f"{invalid_domain} is not a valid domain.")
 
-        self._check_for_suspicious_cname(domain_string)
+        # Run this check only on domain creation.
+        if not self.instance.pk:
+            self._check_for_suspicious_cname(domain_string)
 
         return domain_string
 

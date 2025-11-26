@@ -1,8 +1,6 @@
 from unittest import mock
 
-import pytest
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
@@ -379,6 +377,34 @@ class TestPrivateViews(TestCase):
         self.user.save()
         self.client.login(username="eric", password="test")
         self.project = get(Project, slug="pip", users=[self.user])
+
+    def test_dashboard_number_of_queries(self):
+        # NOTE: create more than 15 projects, as we paginate by 15.
+        for i in range(30):
+            project = get(
+                Project,
+                slug=f"project-{i}",
+                users=[self.user],
+            )
+            version = project.versions.first()
+            version.active = True
+            version.built = True
+            version.save()
+            for _ in range(3):
+                get(
+                    Build,
+                    project=project,
+                    version=version,
+                    success=True,
+                    state=BUILD_STATE_FINISHED,
+                )
+
+        # This number is bit higher, but for projects with lots of builds
+        # is better to have more queries than optimizing with a prefetch,
+        # see comment in prefetch_latest_build.
+        with self.assertNumQueries(26):
+            r = self.client.get(reverse(("projects_dashboard")))
+        assert r.status_code == 200
 
     def test_versions_page(self):
         self.project.versions.create(verbose_name="1.0")

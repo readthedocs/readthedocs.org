@@ -38,6 +38,7 @@ media/json
 media/man
 media/pdf
 media/static
+media/usercontent
 /static
 node_modules
 nodeenv
@@ -59,6 +60,9 @@ tags
 *.pyo
 .pytest_cache/
 scripts/travis/elasticsearch*
+
+# django-silk
+media/*.prof
 
 # Secrets
 /docs/user/img/screenshots/auth*.json

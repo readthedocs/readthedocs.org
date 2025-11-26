@@ -12,9 +12,10 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
+    RTD_DOCKER_COMPOSE_NETWORK = "community_readthedocs"
     RTD_DOCKER_COMPOSE_VOLUME = "community_build-user-builds"
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
-    DOCKER_LIMITS = {"memory": "2g", "time": 900}
+    BUILD_MEMORY_LIMIT = "2g"
 
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
@@ -238,6 +239,22 @@ class DockerBaseSettings(CommunityBaseSettings):
     SUPPORT_EMAIL = "support@example.com"
 
     RTD_FILETREEDIFF_ALL = "RTD_FILETREEDIFF_ALL" in os.environ
+
+    @property
+    def STORAGES(self):
+        return {
+            "staticfiles": {
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
+            },
+            "usercontent": {
+                "BACKEND": "storages.backends.s3.S3Storage",
+                "OPTIONS": {
+                    "bucket_name": os.environ.get("RTD_S3_USER_CONTENT_STORAGE_BUCKET", "usercontent"),
+                    "url_protocol": "http:",
+                    "custom_domain": self.PRODUCTION_DOMAIN + "/usercontent",
+                },
+            },
+        }
 
 
 DockerBaseSettings.load_settings(__name__)

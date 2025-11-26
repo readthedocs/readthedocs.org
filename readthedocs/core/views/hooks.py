@@ -102,12 +102,9 @@ def trigger_sync_versions(project):
         return None
 
     try:
-        version_identifier = project.get_default_branch()
-        version = project.versions.filter(
-            identifier=version_identifier,
-        ).first()
+        version = project.get_latest_version()
         if not version:
-            log.info("Unable to sync from version.", version_identifier=version_identifier)
+            log.info("Unable to sync versions, project doesn't have a valid latest version.")
             return None
 
         if project.has_feature(Feature.SKIP_SYNC_VERSIONS):
@@ -121,9 +118,17 @@ def trigger_sync_versions(project):
             project_slug=version.project.slug,
             version_slug=version.slug,
         )
+
+        options = {}
+        # Use custom queue if defined, as some repositories need to
+        # be synced from a specific queue (like IP restricted ones).
+        if project.build_queue:
+            options["queue"] = project.build_queue
+
         sync_repository_task.apply_async(
             args=[version.pk],
             kwargs={"build_api_key": build_api_key},
+            **options,
         )
         return version.slug
     except Exception:

@@ -15,6 +15,7 @@ from requests.exceptions import RequestException
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.oauth.clients import get_oauth2_client
+from readthedocs.oauth.models import RemoteRepository
 
 
 log = structlog.get_logger(__name__)
@@ -68,6 +69,19 @@ class Service:
         """
         raise NotImplementedError
 
+    def update_repository(self, remote_repository: RemoteRepository):
+        """
+        Update a repository using the service API.
+
+        This also updates the user relationship with the repository,
+        if user is an admin or not, and in case the user no longer has access
+        to the repository, the relationship is removed.
+        In the case of services that aren't linked to a user (GitHub Apps),
+        this method will update the permissions of all users that have access
+        to the repository.
+        """
+        raise NotImplementedError
+
     def setup_webhook(self, project, integration=None) -> bool:
         """
         Setup webhook for project.
@@ -111,8 +125,12 @@ class Service:
         """Get a token used for cloning the repository."""
         raise NotImplementedError
 
-    def post_comment(self, build, comment: str):
-        """Post a comment on the pull request attached to the build."""
+    def post_comment(self, build, comment: str, create_new: bool = True):
+        """
+        Post a comment on the pull request attached to the build.
+
+        :param create_new: Create a new comment if one doesn't exist.
+        """
         raise NotImplementedError
 
     @classmethod
@@ -140,6 +158,10 @@ class UserService(Service):
     def __init__(self, user, account):
         self.user = user
         self.account = account
+        # Cache organizations to avoid multiple DB hits
+        # when syncing repositories that belong to the same organization.
+        # Used by `create_organization` method in subclasses.
+        self._organizations_cache = {}
         structlog.contextvars.bind_contextvars(
             user_username=self.user.username,
             social_provider=self.allauth_provider.id,
@@ -204,7 +226,7 @@ class UserService(Service):
             # ``create_session`` method since it could be used from outside, but
             # I didn't find a generic way to make a test request to each
             # provider.
-            if resp.status_code == 401:
+            if resp.status_code in [401, 403]:
                 # Bad credentials: the token we have in our database is not
                 # valid. Probably the user has revoked the access to our App. He
                 # needs to reconnect his account
@@ -251,16 +273,15 @@ class UserService(Service):
         - deletes old RemoteRepository/Organization that are not present
           for this user in the current provider
         """
-        remote_repositories = self.sync_repositories()
+        repository_remote_ids = self.sync_repositories()
         (
-            remote_organizations,
-            remote_repositories_organizations,
+            organization_remote_ids,
+            organization_repositories_remote_ids,
         ) = self.sync_organizations()
 
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
-        all_remote_repositories = remote_repositories + remote_repositories_organizations
-        repository_remote_ids = [r.remote_id for r in all_remote_repositories if r is not None]
+        repository_remote_ids += organization_repositories_remote_ids
         (
             self.user.remote_repository_relations.filter(
                 account=self.account,
@@ -273,7 +294,6 @@ class UserService(Service):
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
         (
             self.user.remote_organization_relations.filter(
                 account=self.account,

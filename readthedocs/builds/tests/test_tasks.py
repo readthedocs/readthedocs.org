@@ -202,22 +202,20 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            ## Documentation build overview
+            ### Documentation build overview
 
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) (5678abcd) | 🔍 [preview](http://my-project--1.readthedocs.build/en/1/)
+            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
 
-            ### Files changed
-
-            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd...5678abcd)
+            [<kbd><br />🔍 Preview build <br /></kbd>](http://my-project--1.readthedocs.build/en/1/)
 
 
             <details>
-            <summary>Show files (3) | 1 modified | 1 added | 1 deleted</summary>
+            <summary>Show files changed (3 files in total): 📝 1 modified | ➕ 1 added | ➖ 1 deleted</summary>
 
             | File | Status |
             | --- | --- |
             | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
-            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ❌ deleted |
+            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ➖ deleted |
             | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
 
 
@@ -228,6 +226,7 @@ class TestPostBuildOverview(TestCase):
         post_comment.assert_called_once_with(
             build=self.current_version_build,
             comment=expected_comment,
+            create_new=True,
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
@@ -251,22 +250,20 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            ## Documentation build overview
+            ### Documentation build overview
 
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) (5678abcd) | 🔍 [preview](http://my-project--1.readthedocs.build/en/1/)
+            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
 
-            ### Files changed
-
-            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd...5678abcd)
+            [<kbd><br />🔍 Preview build <br /></kbd>](http://my-project--1.readthedocs.build/en/1/)
 
 
             <details>
-            <summary>Show files (6) | 4 modified | 1 added | 1 deleted</summary>
+            <summary>Show files changed (6 files in total): 📝 4 modified | ➕ 1 added | ➖ 1 deleted</summary>
 
             | File | Status |
             | --- | --- |
             | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
-            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ❌ deleted |
+            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ➖ deleted |
             | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
             | [one.html](http://my-project--1.readthedocs.build/en/1/one.html) | 📝 modified |
             | [three.html](http://my-project--1.readthedocs.build/en/1/three.html) | 📝 modified |
@@ -277,9 +274,11 @@ class TestPostBuildOverview(TestCase):
 
             """
         )
+
         post_comment.assert_called_once_with(
             build=self.current_version_build,
             comment=expected_comment,
+            create_new=True,
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
@@ -296,22 +295,22 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            ## Documentation build overview
+            ### Documentation build overview
 
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) (5678abcd) | 🔍 [preview](http://my-project--1.readthedocs.build/en/1/)
+            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
 
-            ### Files changed
-
-            > Comparing with [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd...5678abcd)
+            [<kbd><br />🔍 Preview build <br /></kbd>](http://my-project--1.readthedocs.build/en/1/)
 
 
             No files changed.
 
             """
         )
+
         post_comment.assert_called_once_with(
             build=self.current_version_build,
             comment=expected_comment,
+            create_new=False,
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")

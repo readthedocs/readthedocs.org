@@ -10,7 +10,6 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
-from readthedocs.analytics.models import PageView
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
@@ -548,6 +547,7 @@ class TestDocServingBackends(BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp["Cache-Tag"], "project,project:latest")
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
                 resp["X-Accel-Redirect"],
@@ -561,6 +561,7 @@ class TestDocServingBackends(BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp["Cache-Tag"], "translation,translation:latest")
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
                 resp["X-Accel-Redirect"],
@@ -605,6 +606,7 @@ class TestDocServingBackends(BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp["Cache-Tag"], "project,project:latest")
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
                 resp["X-Accel-Redirect"],
@@ -1354,170 +1356,6 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(r.status_code, 404)
         storage_open.assert_not_called()
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
-    def test_track_broken_link(self, storage_exists):
-        storage_exists.return_value = False
-        get(
-            Feature,
-            feature_id=Feature.RECORD_404_PAGE_VIEWS,
-            projects=[self.project],
-        )
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-        paths = [
-            "/en/latest/not-found/",
-            "/en/latest/not-found/",
-            "/not-found",
-            "/en/not-found/",
-        ]
-        for path in paths:
-            resp = self.client.get(
-                reverse(
-                    "proxito_404_handler",
-                    kwargs={"proxito_path": path},
-                ),
-                headers={"host": "project.readthedocs.io"},
-            )
-            self.assertEqual(resp.status_code, 404)
-
-        self.assertEqual(PageView.objects.all().count(), 3)
-
-        version = self.project.versions.get(slug="latest")
-
-        pageview = PageView.objects.get(full_path="/en/latest/not-found/")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, version)
-        self.assertEqual(pageview.path, "/not-found/")
-        self.assertEqual(pageview.view_count, 2)
-        self.assertEqual(pageview.status, 404)
-
-        pageview = PageView.objects.get(full_path="/not-found")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, None)
-        self.assertEqual(pageview.path, "/not-found")
-        self.assertEqual(pageview.view_count, 1)
-        self.assertEqual(pageview.status, 404)
-
-        pageview = PageView.objects.get(full_path="/en/not-found/")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, None)
-        self.assertEqual(pageview.path, "/en/not-found/")
-        self.assertEqual(pageview.view_count, 1)
-        self.assertEqual(pageview.status, 404)
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
-    def test_dont_track_external_domains(self, storage_exists):
-        storage_exists.return_value = False
-        get(
-            Feature,
-            feature_id=Feature.RECORD_404_PAGE_VIEWS,
-            projects=[self.project],
-        )
-        get(
-            Version,
-            slug="123",
-            type=EXTERNAL,
-            built=True,
-            active=True,
-        )
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-        resp = self.client.get(
-            reverse(
-                "proxito_404_handler",
-                kwargs={"proxito_path": "/en/123/"},
-            ),
-            headers={"host": "project--123.dev.readthedocs.build"},
-        )
-        self.assertEqual(resp.status_code, 404)
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_track_broken_link_custom_404(self, storage_open):
-        get(
-            Feature,
-            feature_id=Feature.RECORD_404_PAGE_VIEWS,
-            projects=[self.project],
-        )
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-        get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path="404.html",
-            name="404.html",
-        )
-
-        paths = [
-            "/en/latest/not-found",
-            "/en/latest/not-found",
-            "/en/latest/not-found/",
-        ]
-        for path in paths:
-            storage_open.reset_mock()
-            resp = self.client.get(
-                reverse(
-                    "proxito_404_handler",
-                    kwargs={"proxito_path": path},
-                ),
-                headers={"host": "project.readthedocs.io"},
-            )
-            self.assertEqual(resp.status_code, 404)
-            storage_open.assert_called_once()
-
-        self.assertEqual(PageView.objects.all().count(), 2)
-        version = self.project.versions.get(slug="latest")
-
-        pageview = PageView.objects.get(path="/not-found")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, version)
-        self.assertEqual(pageview.full_path, "/en/latest/not-found")
-        self.assertEqual(pageview.view_count, 2)
-        self.assertEqual(pageview.status, 404)
-
-        pageview = PageView.objects.get(path="/not-found/")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, version)
-        self.assertEqual(pageview.full_path, "/en/latest/not-found/")
-        self.assertEqual(pageview.view_count, 1)
-        self.assertEqual(pageview.status, 404)
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
-    def test_track_broken_link_threat_score(self, storage_exists):
-        storage_exists.return_value = False
-        get(
-            Feature,
-            feature_id=Feature.RECORD_404_PAGE_VIEWS,
-            projects=[self.project],
-        )
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-        paths = [
-            ("/en/latest/one", 1),
-            ("/en/latest/two", 7),
-            ("/en/latest/three", 13),
-            ("/en/latest/four", 57),
-        ]
-        for path, score in paths:
-            resp = self.client.get(
-                reverse(
-                    "proxito_404_handler",
-                    kwargs={"proxito_path": path},
-                ),
-                headers={
-                    "host": "project.readthedocs.io",
-                    "x-cloudflare-threat-score": score,
-                },
-            )
-            self.assertEqual(resp.status_code, 404)
-
-        # Only requests with threat score below 10 are recorded.
-        self.assertEqual(
-            {"/en/latest/one", "/en/latest/two"},
-            {pageview.full_path for pageview in PageView.objects.all()},
-        )
 
     def test_sitemap_xml(self):
         self.project.versions.update(active=True)

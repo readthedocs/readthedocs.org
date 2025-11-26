@@ -1,6 +1,6 @@
 """URL resolver for documentation."""
 
-from functools import lru_cache
+from functools import cache
 from urllib.parse import urlunparse
 
 import structlog
@@ -56,6 +56,16 @@ class Resolver:
         /docs/<project_slug>/projects/<subproject_slug>/<lang>/<version>/<filename>
         # Subproject Single Version
         /docs/<project_slug>/projects/<subproject_slug>/<filename>
+
+    .. note::
+
+       Several methods ara cached per each instance of the resolver
+       to avoid hitting the database multiple times for the same project.
+
+       A global instance of the resolver shouldn't be used,
+       as resources can change, and results from the resolver will be out of date.
+       Instead, a shared instance of the resolver should be used
+       when doing multiple resolutions for the same set of projects/versions.
     """
 
     def base_resolve_path(
@@ -169,7 +179,7 @@ class Resolver:
         protocol = "https" if use_https else "http"
         return urlunparse((protocol, domain, filename, "", "", ""))
 
-    @lru_cache(maxsize=1)
+    @cache
     def _get_project_domain(self, project, external_version_slug=None, use_canonical_domain=True):
         """
         Get the domain from where the documentation of ``project`` is served from.
@@ -178,7 +188,7 @@ class Resolver:
         :param bool use_canonical_domain: If `True` use its canonical custom domain if available.
         :returns: Tuple of ``(domain, use_https)``.
 
-        Note that we are using ``lru_cache`` decorator on this function.
+        Note that we are using ``cache`` decorator on this function.
         This is useful when generating the flyout addons response since we call
         ``resolver.resolve`` multi times for the same ``Project``.
         This cache avoids hitting the DB to get the canonical custom domain over and over again.
@@ -189,7 +199,7 @@ class Resolver:
         if external_version_slug:
             domain = self._get_external_subdomain(canonical_project, external_version_slug)
         elif use_canonical_domain and self._use_cname(canonical_project):
-            domain_object = canonical_project.get_canonical_custom_domain()
+            domain_object = canonical_project.canonical_custom_domain
             if domain_object:
                 use_https = domain_object.https
                 domain = domain_object.domain
@@ -267,7 +277,7 @@ class Resolver:
         path = project.subproject_prefix
         return urlunparse((protocol, domain, path, "", "", ""))
 
-    @lru_cache(maxsize=1)
+    @cache
     def _get_canonical_project(self, project):
         """
         Get the parent project and subproject relationship from the canonical project of `project`.
@@ -339,7 +349,7 @@ class Resolver:
         subdomain_slug = project.slug.replace("_", "-")
         return "{}.{}".format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
-    @lru_cache(maxsize=1)
+    @cache
     def _is_external(self, project, version_slug):
         type_ = project.versions.values_list("type", flat=True).filter(slug=version_slug).first()
         return type_ == EXTERNAL

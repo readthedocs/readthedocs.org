@@ -43,6 +43,15 @@ class Backend(BaseVCS):
         """Clone and/or fetch remote repository."""
         super().update()
 
+        if self.project.git_checkout_command:
+            # Run custom checkout step if defined
+            if isinstance(self.project.git_checkout_command, list):
+                for cmd in self.project.git_checkout_command:
+                    # NOTE: we need to pass ``escape_command=False`` here to be
+                    # able to expand environment variables.
+                    code, stdout, stderr = self.run(*cmd.split(), escape_command=False)
+                return
+
         self.clone()
         # TODO: We are still using return values in this function that are legacy.
         # This should be either explained or removed.
@@ -220,6 +229,9 @@ class Backend(BaseVCS):
                 "ERROR: The repository owner has an IP allow list enabled",
                 # Gitlab:
                 "ERROR: This deploy key does not have write access to this project.",
+                "remote: This deploy key does not have write access to this project.",
+                # Bitbucket:
+                "fatal: Could not read from remote repository.",
             ]
             for pattern in errors_read_access_only:
                 if pattern in stderr:
@@ -385,7 +397,10 @@ class Backend(BaseVCS):
         cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        exit_code, stdout, _ = self.run(*cmd, demux=True, record=False)
+
+        if exit_code != 0:
+            raise RepositoryError(message_id=RepositoryError.FAILED_TO_GET_VERSIONS)
 
         branches = []
         # Git has two types of tags: lightweight and annotated.
@@ -487,6 +502,11 @@ class Backend(BaseVCS):
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
         super().checkout()
+
+        # Do not checkout anything else if the project has a custom Git checkout command.
+        # The ``git checkout`` command has to be executed inside the ``update()`` method.
+        if self.project.git_checkout_command:
+            return
 
         # NOTE: if there is no identifier, we default to default branch cloned
         if not identifier:

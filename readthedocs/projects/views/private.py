@@ -1,7 +1,8 @@
 """Project views for authenticated users."""
 
+from functools import lru_cache
+
 import structlog
-from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -15,7 +16,6 @@ from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView
 from django.views.generic import TemplateView
@@ -28,6 +28,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import AutomationRuleMatch
@@ -36,6 +37,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
+from readthedocs.core.mixins import AsyncDeleteViewWithMessage
 from readthedocs.core.mixins import DeleteViewWithMessage
 from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.core.mixins import PrivateViewMixin
@@ -47,7 +49,6 @@ from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.services import GitHubService
-from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
@@ -71,10 +72,10 @@ from readthedocs.projects.forms import WebHookForm
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable
-from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEPRECATED_WEBHOOK
 from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.projects.views.base import ProjectAdminMixin
@@ -119,7 +120,7 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
             template_name = "example-projects.html"
-        elif n_projects and not settings.RTD_ALLOW_ORGANIZATIONS:
+        elif n_projects:
             template_name = "github-app.html"
         elif n_projects and not projects.filter(external_builds_enabled=True).exists():
             template_name = "pull-request-previews.html"
@@ -153,6 +154,10 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
                 dismissable=True,
             )
 
+    # NOTE: This method is called twice, on .org it doesn't matter,
+    # as the queryset is straightforward, but on .com it
+    # does some extra work that results in several queries.
+    @lru_cache(maxsize=1)
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
 
@@ -188,8 +193,8 @@ class ProjectUpdate(ProjectMixin, UpdateView):
         return super().get_form(data, files, **kwargs)
 
 
-class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteViewWithMessage):
-    success_message = _("Project deleted")
+class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, AsyncDeleteViewWithMessage):
+    success_message = _("Project queued for deletion")
     template_name = "projects/project_delete.html"
 
     def get_context_data(self, **kwargs):
@@ -232,10 +237,13 @@ class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class ProjectVersionEditMixin(ProjectVersionMixin):
     def get_queryset(self):
-        return Version.internal.public(
-            user=self.request.user,
-            project=self.get_project(),
-            only_active=False,
+        return (
+            self.get_project()
+            .versions(manager=INTERNAL)
+            .public(
+                user=self.request.user,
+                only_active=False,
+            )
         )
 
     def form_valid(self, form):
@@ -435,34 +443,6 @@ class ImportView(PrivateViewMixin, TemplateView):
     template_name = "projects/project_import.html"
     wizard_class = ImportWizardView
 
-    def get(self, request, *args, **kwargs):
-        """
-        Display list of repositories to import.
-
-        Adds a warning to the listing if any of the accounts connected for the
-        user are not supported accounts.
-        """
-        deprecated_accounts = SocialAccount.objects.filter(
-            user=self.request.user
-        ).exclude(
-            provider__in=[service.allauth_provider.id for service in registry],
-        )  # yapf: disable
-        for account in deprecated_accounts:
-            provider_account = account.get_provider_account()
-            messages.error(
-                request,
-                format_html(
-                    _(
-                        "There is a problem with your {service} account, "
-                        "try reconnecting your account on your "
-                        '<a href="{url}">connected services page</a>.',
-                    ),
-                    service=provider_account.get_brand()["name"],
-                    url=reverse("socialaccount_connections"),
-                ),
-            )
-        return super().get(request, *args, **kwargs)
-
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data["basics"] = {}
@@ -481,6 +461,12 @@ class ImportView(PrivateViewMixin, TemplateView):
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
         context["form_manual"] = ProjectManualForm(user=self.request.user)
+
+        # Provider list for simple lookup of connected services, used for
+        # conditional content
+        context["socialaccount_providers"] = self.request.user.socialaccount_set.values_list(
+            "provider", flat=True
+        )
 
         return context
 
@@ -983,6 +969,22 @@ class IntegrationDelete(IntegrationMixin, DeleteViewWithMessage):
     success_message = _("Integration deleted")
     http_method_names = ["post"]
 
+    def post(self, request, *args, **kwargs):
+        resp = super().post(request, *args, **kwargs)
+        # Dismiss notification about removing the GitHub webhook.
+        project = self.get_project()
+        if (
+            project.is_github_app_project
+            and not project.integrations.filter(
+                integration_type=Integration.GITHUB_WEBHOOK
+            ).exists()
+        ):
+            Notification.objects.cancel(
+                attached_to=project,
+                message_id=MESSAGE_PROJECT_DEPRECATED_WEBHOOK,
+            )
+        return resp
+
 
 class IntegrationExchangeDetail(IntegrationMixin, DetailView):
     model = HttpExchange
@@ -1228,15 +1230,12 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
         # Count of views for top pages over the month
         top_pages_200 = PageView.top_viewed_pages(project, limit=25)
-        track_404 = project.has_feature(Feature.RECORD_404_PAGE_VIEWS)
-        top_pages_404 = []
-        if track_404:
-            top_pages_404 = PageView.top_viewed_pages(
-                project,
-                limit=25,
-                status=404,
-                per_version=True,
-            )
+        top_pages_404 = PageView.top_viewed_pages(
+            project,
+            limit=25,
+            status=404,
+            per_version=True,
+        )
 
         # Aggregate pageviews grouped by day
         page_data = PageView.page_views_by_date(
@@ -1248,7 +1247,6 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 "top_pages_200": top_pages_200,
                 "page_data": page_data,
                 "top_pages_404": top_pages_404,
-                "track_404": track_404,
             }
         )
 
