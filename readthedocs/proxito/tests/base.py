@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from readthedocs.storage import get_storage_class
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.constants import PUBLIC, SSL_STATUS_VALID
@@ -13,8 +14,16 @@ from readthedocs.projects.models import Domain, Project
 from readthedocs.proxito.views import serve
 
 
+proxito_middleware = list(settings.MIDDLEWARE) + [
+    "readthedocs.proxito.middleware.ProxitoMiddleware",
+]
+
+
 @pytest.mark.proxito
+@override_settings(ROOT_URLCONF="readthedocs.proxito.urls", MIDDLEWARE=proxito_middleware)
 class BaseDocServing(TestCase):
+    urls = "readthedocs.proxito.urls"
+
     def setUp(self):
         # Re-initialize storage
         # Various tests override either this setting or various aspects of the storage engine

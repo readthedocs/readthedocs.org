@@ -144,6 +144,8 @@ What can/can't be cached?
 
 - ServeRobotsTXT: can be cached, we don't serve a custom robots.txt
   to any user if the default version is private.
+- ServeLLMSTXT: can be cached, we don't serve a custom llms.txt
+  to any user if the default version is private.
 - ServeSitemapXML: can be cached. It displays only public versions, for everyone.
 - ServeStaticFiles: can be cached, all files are the same for all projects and users.
 - Embed API: can be cached for public versions.

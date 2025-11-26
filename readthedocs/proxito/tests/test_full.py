@@ -952,6 +952,44 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_default_llms_txt(self, storage_exists):
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 200)
+        expected = dedent(
+            """
+            User-agent: *
+
+            Disallow: # Allow everything
+
+            Sitemap: https://project.readthedocs.io/sitemap.xml
+            """
+        ).lstrip()
+        self.assertContains(response, expected)
+
+    def test_custom_llms_txt(self):
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(
+            response["x-accel-redirect"],
+            "/proxito/media/html/project/latest/llms.txt",
+        )
+
+    def test_custom_llms_txt_private_version(self):
+        self.project.versions.update(
+            active=True, built=True, privacy_level=constants.PRIVATE
+        )
+        response = self.client.get(
+            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_directory_indexes(self):
         self.project.versions.update(active=True, built=True)
 

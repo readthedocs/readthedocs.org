@@ -736,6 +736,107 @@ class ServeRobotsTXT(SettingsOverrideObject):
     _default_class = ServeRobotsTXTBase
 
 
+class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
+    """Serve llms.txt from the domain's root."""
+
+    cache_response = True
+    project_cache_tag = "llms.txt"
+
+    def get(self, request):
+        """
+        Serve custom user's defined ``/llms.txt``.
+
+        If the project is delisted or is a spam project, we force a special llms.txt.
+
+        If the user added a ``llms.txt`` in the "default version" of the
+        project, we serve it directly.
+        """
+
+        project = request.unresolved_domain.project
+
+        if project.delisted:
+            return render(
+                request,
+                "llms.delisted.txt",
+                content_type="text/plain",
+            )
+
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
+
+            if is_robotstxt_denied(project):
+                return render(
+                    request,
+                    "llms.spam.txt",
+                    content_type="text/plain",
+                )
+
+        version_slug = project.get_default_version()
+        version = project.versions.get(slug=version_slug)
+
+        no_serve_llms_txt = any(
+            [
+                version.privacy_level == PRIVATE,
+                not version.active,
+                not version.built,
+            ]
+        )
+
+        if no_serve_llms_txt:
+            raise Http404()
+
+        structlog.contextvars.bind_contextvars(
+            project_slug=project.slug,
+            version_slug=version.slug,
+        )
+
+        try:
+            response = self._serve_docs(
+                request=request,
+                project=project,
+                version=version,
+                filename="llms.txt",
+                check_if_exists=True,
+            )
+            log.info("Serving custom llms.txt file.")
+            return response
+        except StorageFileNotFound:
+            pass
+
+        sitemap_url = "{scheme}://{domain}/sitemap.xml".format(
+            scheme="https",
+            domain=project.subdomain(),
+        )
+        context = {
+            "sitemap_url": sitemap_url,
+            "hidden_paths": self._get_hidden_paths(project),
+        }
+        return render(
+            request,
+            "llms.txt",
+            context,
+            content_type="text/plain",
+        )
+
+    def _get_hidden_paths(self, project):
+        hidden_versions = project.versions(manager=INTERNAL).public().filter(hidden=True)
+        resolver = Resolver()
+        hidden_paths = [
+            resolver.resolve_path(project, version_slug=version.slug) for version in hidden_versions
+        ]
+        return hidden_paths
+
+    def _get_project(self):
+        return self.request.unresolved_domain.project
+
+    def _get_version(self):
+        return None
+
+
+class ServeLLMSTXT(SettingsOverrideObject):
+    _default_class = ServeLLMSTXTBase
+
+
 class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
     """Serve sitemap.xml from the domain's root."""
 

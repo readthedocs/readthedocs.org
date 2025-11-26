@@ -59,6 +59,11 @@ Feature reference
   We provide a default 404 page,
   but you can also customize it.
 
+⏩️ :doc:`/reference/llms`
+  ``llms.txt`` files communicate expectations to LLM-focused crawlers.
+  We provide a default file,
+  but you can also customize it.
+
 ⏩️ :doc:`/reference/robots`
   `robots.txt` files allow you to customize how your documentation is indexed in search engines.
   We provide a default robots.txt file,

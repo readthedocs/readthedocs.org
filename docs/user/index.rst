@@ -51,6 +51,7 @@ Read the Docs: documentation simplified
    /reference/cdn
    /reference/sitemaps
    /reference/404-not-found
+   /reference/llms
    /reference/robots
 
 .. toctree::
