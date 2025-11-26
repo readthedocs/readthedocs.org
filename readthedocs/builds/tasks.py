@@ -34,6 +34,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
+from readthedocs.projects.datatypes import ProjectVersionInfo
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import WebHookEvent
 from readthedocs.storage import build_commands_storage
@@ -275,22 +276,35 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
 
 
 @app.task(max_retries=1, default_retry_delay=60, queue="web")
-def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
+@ProjectVersionInfo.parse_many("tags_data", "branches_data")
+def sync_versions_task(
+    project_pk: int,
+    *,
+    tags_data: list[ProjectVersionInfo],
+    branches_data: list[ProjectVersionInfo],
+    **kwargs: object,
+):
     """
     Sync the version data in the repo (from build server) into our database.
 
-    Creates new Version objects for tags/branches that aren't tracked in the database,
-    and deletes Version objects for tags/branches that don't exists in the repository.
+    Creates new Version objects for tags/branches that aren't tracked in the
+    database, and deletes Version objects for tags/branches that don't exists
+    in the repository.
 
-    :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``
+    :param tags_data: List of version descriptions
                       Example: [
-                          {"verbose_name": "v1.0.0",
-                           "identifier": "67a9035990f44cb33091026d7453d51606350519"},
+                          ProjectVersionInfo(
+                              verbose_name="v1.0.0",
+                              identifier="67a9035990f44cb33091026d7453d51606350519",
+                          )
                       ].
-    :param branches_data: Same as ``tags_data`` but for branches (branch name, branch identifier).
+    :param branches_data: Same as ``tags_data`` but for branches (branch name,
+        branch identifier).
                       Example: [
-                          {"verbose_name": "latest",
-                           "identifier": "main"},
+                          ProjectVersionInfo(
+                              verbose_name="latest",
+                              identifier="main",
+                          )
                       ].
     :returns: `True` or `False` if the task succeeded.
     """
