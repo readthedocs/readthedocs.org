@@ -15,21 +15,21 @@ Minimal configuration is required to build an existing MyST Markdown project on 
     version: 2
 
     build:
-        os: ubuntu-lts-latest
-        tools:
-            nodejs: "latest"
-        jobs:
-            install:
-                # Install mystmd dependencies
-                - npm install -g mystmd
-            build:
-                html:
-                    # Build the site
-                    - cd docs/ && myst build --html
-                post_build:
-                    # Copy generated files into Read the Docs directory
-                    - mkdir --parents $READTHEDOCS_OUTPUT/html/
-                    - cp --recursive docs/_build/html/* $READTHEDOCS_OUTPUT/html/
+      os: ubuntu-lts-latest
+      tools:
+        nodejs: "latest"
+      jobs:
+        install:
+          # Install mystmd dependencies
+          - npm install -g mystmd
+        build:
+          html:
+            # Build the site
+            - cd docs/ && myst build --html
+          post_build:
+            # Copy generated files into Read the Docs directory
+            - mkdir --parents $READTHEDOCS_OUTPUT/html/
+            - cp --recursive docs/_build/html/* $READTHEDOCS_OUTPUT/html/
 
 .. _MyST Markdown: https://mystmd.org/
 
