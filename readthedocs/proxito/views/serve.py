@@ -67,7 +67,20 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         # Use the project from the domain, or use the subproject slug.
         if subproject_slug:
-            project = get_object_or_404(project.subprojects, alias=subproject_slug).child
+            if project.slug == subproject_slug:
+                subproject = project
+            else:
+                relationship = project.subprojects.filter(alias=subproject_slug).first()
+
+                if not relationship:
+                    relationship = project.subprojects.filter(child__slug=subproject_slug).first()
+
+                if not relationship:
+                    raise Http404
+
+                subproject = relationship.child
+
+            project = subproject
 
         # Get the default version from the current project,
         # or the version from the external domain.
