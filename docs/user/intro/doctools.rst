@@ -32,7 +32,7 @@ Below is a list of popular documentation tools that you can use to write your do
         Supported formats
              :bdg-success:`md`
         Written in
-             :bdg-info:`rust/python`
+             :bdg-info:`rust` :bdg-info:`python`
 
     .. grid-item-card::  Sphinx
         :link: sphinx.html
