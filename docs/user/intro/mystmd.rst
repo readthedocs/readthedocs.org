@@ -1,5 +1,5 @@
-MyST Markdown
-=============
+Deploying MyST Markdown on Read the Docs
+========================================
 
 .. meta::
    :description lang=en: Hosting MyST Markdown documentation on Read the Docs.
@@ -20,9 +20,6 @@ Minimal configuration is required to build an existing MyST Markdown project on 
             nodejs: "latest"
         jobs:
             install:
-                # "docs/" directory was created cloning the example repository
-                # https://github.com/jupyter-book/mystmd-quickstart.git
-                #
                 # Install mystmd dependencies
                 - npm install -g mystmd
             build:
@@ -43,26 +40,6 @@ Getting started
 - If you're new to MyST Markdown, check out the official `MyST quickstart guide`_.
 
 .. _MyST quickstart guide: https://mystmd.org/guide/quickstart
-
-Configuring MyST Markdown and Read the Docs Addons
---------------------------------------------------
-
-For optimal integration with Read the Docs, make the following optional configuration changes to your MyST project.
-
-.. contents::
-   :depth: 1
-   :local:
-   :backlinks: none
-
-Configure URL style
-~~~~~~~~~~~~~~~~~~~
-
-MyST Markdown outputs clean URLs (without a trailing ``.html`` extension).
-Read the Docs handles this out of the box.
-
-If you encounter issues with URL resolution,
-you can create a *Clean URL to HTML* redirect in your project's dashboard.
-See :doc:`/user-defined-redirects` for more information.
 
 Example repository and demo
 ---------------------------
