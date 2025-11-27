@@ -1367,7 +1367,8 @@ class Project(models.Model):
 
         return self.superprojects.select_related("parent").first()
 
-    def get_canonical_custom_domain(self):
+    @cached_property
+    def canonical_custom_domain(self):
         """Get the canonical custom domain or None."""
         if hasattr(self, "_canonical_domains"):
             # Cached custom domains

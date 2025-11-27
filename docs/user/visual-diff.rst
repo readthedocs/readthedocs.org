@@ -82,16 +82,26 @@ This is useful if your ``latest`` version doesn't point the default branch of yo
 
    This option can be changed by contacting :doc:`/support`.
 
+How main content is detected
+----------------------------
+
+The visual diff compares the "main content" of HTML pages,
+ignoring headers, footers, navigation, and other page elements that aren't part of the documentation content itself.
+This helps avoid false positives, like all pages being marked as changed because of a date or commit hash being updated in the footer.
+
+For details on how the main content area is detected,
+see :ref:`reference/main-content-detection:detection logic`.
+
+.. tip::
+
+  If the heuristic root element picked by Visual Diff is wrong for your project theme, set the :guilabel:`CSS main content selector` under :guilabel:`Settings > Addons`. Visual Diff honors this override; other features like Server Side Search do not.
+
 Limitations and known issues
 ----------------------------
 
 - The diff considers HTML files only.
 - The diff is done between the files from the latest successful build of the pull request and the default base version (latest by default).
   If your pull request gets out of sync with its base branch, the diff may not be accurate, and may show unrelated files and sections as changed.
-- The diff is done by comparing the "main content" of the HTML files.
-  This means that some changes outside the main content, like header or footer, may not be detected.
-  This is done to avoid showing changes that are not relevant to the documentation content itself.
-  Like all pages being marked as changed because of a date or commit hash being updated in the footer.
 - Invisible changes. Some sections may be highlighted as changed, even when they haven't actually visually changed.
   This can happen when the underlying HTML changes without a corresponding visual change, for example, if a link's URL is updated
 - Tables may be shown to have changes when they have not actually changed.
