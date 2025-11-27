@@ -24,6 +24,16 @@ Below is a list of popular documentation tools that you can use to write your do
         Written in
              :bdg-info:`python`
 
+    .. grid-item-card::  Zensical
+        :link: zensical.html
+
+        Zensical is a static-site generator built by the creators of Material for MkDocs.
+
+        Supported formats
+             :bdg-success:`md`
+        Written in
+             :bdg-info:`rust` :bdg-info:`python`
+
     .. grid-item-card::  Sphinx
         :link: sphinx.html
 
@@ -107,4 +117,5 @@ Below is a list of popular documentation tools that you can use to write your do
    /intro/mdbook
    /intro/vitepress
    /intro/antora
+   /intro/zensical
    /intro/mystmd
