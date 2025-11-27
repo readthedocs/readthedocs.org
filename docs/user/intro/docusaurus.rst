@@ -1,5 +1,6 @@
-Docusaurus
-==========
+
+Deploying Docusaurus on Read the Docs
+=====================================
 
 .. meta::
    :description lang=en: Hosting Docusaurus sites on Read the Docs.
