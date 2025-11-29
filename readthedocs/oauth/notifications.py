@@ -82,8 +82,12 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Failed to add deploy key to {{provider_name}} project, ensure you have the correct permissions and try importing again.
-            """
+                Failed to add deploy key to {{provider_name}} project,
+                ensure you have the correct permissions and try
+                <a href="https://docs.readthedocs.com/platform/stable/guides/creating-project-private-repository.html#configuring-your-repository">
+                  adding the key manually
+                </a>.
+                """
             ).strip(),
         ),
         type=ERROR,
