@@ -24,11 +24,6 @@ from readthedocs.projects.notifications import (
 log = structlog.get_logger(__name__)
 
 
-# Number of consecutive failed builds on the default version
-# before we disable the project.
-RTD_BUILDS_MAX_CONSECUTIVE_FAILURES = getattr(settings, "RTD_BUILDS_MAX_CONSECUTIVE_FAILURES", 50)
-
-
 @receiver(post_save, sender=Build)
 def update_latest_build_for_project(sender, instance, created, **kwargs):
     """When a build is created, update the latest build for the project."""
@@ -43,7 +38,7 @@ def disable_project_on_consecutive_failed_builds(sender, build, **kwargs):
     """
     Disable a project if it has too many consecutive failed builds on the default version.
 
-    When a project has 50+ consecutive failed builds on the default version,
+    When a project has more than RTD_BUILDS_MAX_CONSECUTIVE_FAILURES consecutive failed builds on the default version,
     we attach a notification to the project and disable builds (skip=True).
     This helps reduce resource consumption from projects that are not being monitored.
     """
@@ -79,11 +74,11 @@ def disable_project_on_consecutive_failed_builds(sender, build, **kwargs):
             state=BUILD_STATE_FINISHED,
         )
         .order_by("-date")
-        .values_list("success", flat=True)[: RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 1]
+        .values_list("success", flat=True)[: settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 1]
     )
     for success, group in groupby(builds):
         consecutive_failed_builds = len(list(group))
-        if success and consecutive_failed_builds > RTD_BUILDS_MAX_CONSECUTIVE_FAILURES:
+        if not success and consecutive_failed_builds > settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES:
             log.info(
                 "Disabling project due to consecutive failed builds.",
                 project_slug=project.slug,
