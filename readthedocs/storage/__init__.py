@@ -7,6 +7,7 @@ so doing those upfront improves performance.
 """
 
 from django.conf import settings
+from django.core.files.storage import storages
 from django.utils.functional import LazyObject
 from django.utils.module_loading import import_string
 
@@ -22,22 +23,22 @@ def get_storage_class(import_path=None):
 
 class ConfiguredBuildMediaStorage(LazyObject):
     def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        self._wrapped = storages["build-media"]
 
 
 class ConfiguredBuildCommandsStorage(LazyObject):
     def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
+        self._wrapped = storages["build-commands"]
 
 
 class ConfiguredBuildToolsStorage(LazyObject):
     def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_BUILD_TOOLS_STORAGE)()
+        self._wrapped = storages["build-tools"]
 
 
 class ConfiguredStaticStorage(LazyObject):
     def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_STATICFILES_STORAGE)()
+        self._wrapped = storages["staticfiles"]
 
 
 build_media_storage = ConfiguredBuildMediaStorage()
