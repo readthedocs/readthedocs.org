@@ -128,8 +128,6 @@ This helps ensure that projects with persistent build issues don't consume resou
    This only applies to the default version of a project.
    Builds on other versions (branches, tags, pull requests) are not counted towards this limit.
 
-**How to re-enable builds:**
-
 If your project has been disabled due to consecutive build failures, you'll need to contact support to have your project re-enabled.
 Make sure to fix the underlying issue to avoid being disabled again.
 
