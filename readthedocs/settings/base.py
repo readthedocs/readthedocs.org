@@ -656,26 +656,26 @@ class CommunityBaseSettings(Settings):
 
     # Celery
     CELERY_APP_NAME = "readthedocs"
-    CELERY_ALWAYS_EAGER = True
-    CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
-    CELERY_SEND_TASK_ERROR_EMAILS = False
-    CELERY_IGNORE_RESULT = True
-    CELERYD_HIJACK_ROOT_LOGGER = False
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
+    CELERY_TASK_SEND_ERROR_EMAILS = False
+    CELERY_TASK_IGNORE_RESULT = True
+    CELERY_WORKER_HIJACK_ROOT_LOGGER = False
     # This stops us from pre-fetching a task that then sits around on the builder
-    CELERY_ACKS_LATE = True
+    CELERY_TASK_ACKS_LATE = True
     # Don't queue a bunch of tasks in the workers
-    CELERYD_PREFETCH_MULTIPLIER = 1
-    CELERY_CREATE_MISSING_QUEUES = True
+    CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+    CELERY_TASK_CREATE_MISSING_QUEUES = True
 
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
-    BROKER_TRANSPORT_OPTIONS = {
+    CELERY_BROKER_TRANSPORT_OPTIONS = {
         'visibility_timeout': 18000, # 5 hours
     }
 
-    CELERY_DEFAULT_QUEUE = "celery"
-    CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-    CELERYBEAT_SCHEDULE = {
+    CELERY_TASK_DEFAULT_QUEUE = "celery"
+    CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+    CELERY_BEAT_SCHEDULE = {
         "every-minute-finish-unhealthy-builds": {
             "task": "readthedocs.projects.tasks.utils.finish_unhealthy_builds",
             "schedule": crontab(minute="*"),
