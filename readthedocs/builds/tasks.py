@@ -670,7 +670,7 @@ class BuildNotificationSender:
 
 
 @app.task(queue="web")
-def check_and_disable_project_for_consecutive_failed_builds(project_id, version_slug):
+def check_and_disable_project_for_consecutive_failed_builds(project_slug, version_slug):
     """
     Check if a project has too many consecutive failed builds and disable it.
 
@@ -686,7 +686,7 @@ def check_and_disable_project_for_consecutive_failed_builds(project_id, version_
     )
 
     try:
-        project = Project.objects.get(pk=project_id)
+        project = Project.objects.get(slug=project_slug)
     except Project.DoesNotExist:
         return
 

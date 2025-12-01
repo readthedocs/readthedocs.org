@@ -44,14 +44,14 @@ def disable_project_on_consecutive_failed_builds(sender, build, **kwargs):
     if build.get("success"):
         return
 
-    project_id = build.get("project")
+    project_slug = build.get("project_slug")
     version_slug = build.get("version_slug")
 
-    if not project_id or not version_slug:
+    if not project_slug or not version_slug:
         return
 
     # Trigger the Celery task to check and disable the project
     check_and_disable_project_for_consecutive_failed_builds.delay(
-        project_id=project_id,
+        project_slug=project_slug,
         version_slug=version_slug,
     )
