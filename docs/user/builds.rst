@@ -142,3 +142,35 @@ Our build limits are:
       If your business is hitting build limits hosting documentation on Read the Docs,
       please consider :doc:`Read the Docs for Business </commercial/index>`
       which has options for additional build resources.
+
+
+.. _builds:automatic-disabling:
+
+Automatic disabling of builds
+-----------------------------
+
+To reduce resource consumption and improve build queue times for all users,
+Read the Docs will automatically disable builds for projects that have too many consecutive failed builds on their default version.
+
+When a project has **50 consecutive failed builds** on its default version,
+we will:
+
+* Attach a notification to the project explaining the situation
+* Disable builds for the project by setting ``skip=True``
+
+This helps ensure that projects with persistent build issues don't consume resources that could be used by active projects.
+
+.. note::
+
+   This only applies to the default version of a project.
+   Builds on other versions (branches, tags, pull requests) are not counted towards this limit.
+
+**How to re-enable builds:**
+
+If your project has been disabled due to consecutive build failures,
+you'll need to:
+
+1. Fix the underlying build issues in your repository
+2. Contact support to have your project re-enabled
+
+Once re-enabled, we recommend triggering a manual build to verify that your documentation builds successfully.

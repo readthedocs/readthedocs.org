@@ -20,6 +20,9 @@ MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
 MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS = "project:ssh-key-with-write-access"
 MESSAGE_PROJECT_DEPRECATED_WEBHOOK = "project:webhooks:deprecated"
 MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED = "project:search:indexing-disabled"
+MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES = (
+    "project:builds:disabled-due-to-consecutive-failures"
+)
 
 messages = [
     Message(
@@ -222,6 +225,19 @@ messages = [
             ).strip(),
         ),
         type=INFO,
+    ),
+    Message(
+        id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
+        header=_("Builds disabled due to consecutive failures"),
+        body=_(
+            textwrap.dedent(
+                """
+                Your project has been automatically disabled because the default version has failed to build {{consecutive_failed_builds}} times in a row.
+                Please fix the build issues and <a href="mailto:{{SUPPORT_EMAIL}}">contact support</a> to re-enable builds.
+                """
+            ).strip(),
+        ),
+        type=WARNING,
     ),
 ]
 registry.add(messages)
