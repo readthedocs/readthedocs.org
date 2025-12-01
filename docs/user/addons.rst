@@ -415,7 +415,8 @@ Common use cases for custom scripts include:
 Accessing Addons data from your script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Custom scripts are loaded after the ``readthedocs-addons-data-ready`` event has been fired.
+Custom scripts are loaded asynchronously after the initial page load,
+which means the ``readthedocs-addons-data-ready`` event has already been fired by the time your script executes.
 To access the Addons data from your custom script,
 check the ``window.ReadTheDocsEventData`` object first,
 then subscribe to the event for future updates (for example, when the URL changes in a single-page application):
