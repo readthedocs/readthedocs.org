@@ -172,3 +172,29 @@ class PaginationTagsTestCase(TestCase):
         )
         # Should work with the aliased variable
         self.assertIn("1 2 3 4 5 6 7 8 9 10", result)
+
+    def test_multiple_paginations(self):
+        """Test multiple autopaginate tags on the same page."""
+        # Each queryset should use a unique page suffix
+        request = self.factory.get(
+            "/", {"page_items1": "2", "page_items2": "3"}
+        )
+        template_string = (
+            "{% load pagination_tags %}"
+            "{% autopaginate items1 10 %}"
+            "Items1: {% for i in items1 %}{{ i }} {% endfor %}"
+            "{% autopaginate items2 5 %}"
+            "Items2: {% for i in items2 %}{{ i }} {% endfor %}"
+        )
+        result = self._render_template(
+            template_string,
+            {
+                "items1": list(range(1, 51)),  # 50 items
+                "items2": list(range(100, 151)),  # 50 items
+                "request": request,
+            },
+        )
+        # items1 page 2 should show 11-20
+        self.assertIn("Items1: 11 12 13 14 15 16 17 18 19 20", result)
+        # items2 page 3 should show 110-114 (5 items per page)
+        self.assertIn("Items2: 110 111 112 113 114", result)
