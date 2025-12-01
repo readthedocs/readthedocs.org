@@ -45,7 +45,7 @@ class TestDisableProjectOnConsecutiveFailedBuilds(TestCase):
 
         # Call the Celery task directly
         check_and_disable_project_for_consecutive_failed_builds(
-            project_id=self.project.pk,
+            project_slug=self.project.slug,
             version_slug=self.version.slug,
         )
 
