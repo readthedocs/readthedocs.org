@@ -64,8 +64,6 @@ cssselect==1.3.0
     # via pyquery
 distlib==0.4.0
     # via virtualenv
-dj-pagination==2.5.0
-    # via -r requirements/pip.in
 dj-stripe==2.9.0
     # via -r requirements/pip.in
 django==5.2.8

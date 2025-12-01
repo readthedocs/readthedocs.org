@@ -1,0 +1,46 @@
+{% if is_paginated %}
+{% load i18n %}
+<div class="pagination">
+  {% block previouslink %}
+  {% if page_obj.has_previous %}
+  {% if disable_link_for_first_page and page_obj.previous_page_number == 1 %}
+  <a href="{{ request.path }}{% if getvars %}?{{ getvars|slice:"1:" }}{% endif %}" class="prev">{{ previous_link_decorator|safe }}{% trans "previous" %}</a>
+  {% else %}
+  <a href="?page{{ page_suffix }}={{ page_obj.previous_page_number }}{{ getvars }}" class="prev">{{ previous_link_decorator|safe }}{% trans "previous" %}</a>
+  {% endif %}
+  {% else %}
+  {% if display_disabled_previous_link %}
+  <span class="disabled prev">{{ previous_link_decorator|safe }}{% trans "previous" %}</span>
+  {% endif %}
+  {% endif %}
+  {% endblock previouslink %}
+  {% block pagelinks %}
+  {% if display_page_links %}
+  {% for page in pages %}
+  {% if page %}
+  {% if page == page_obj.number %}
+  <span class="current page">{{ page }}</span>
+  {% else %}
+  {% if disable_link_for_first_page and page == 1 %}
+  <a href="{{ request.path }}{% if getvars %}?{{ getvars|slice:"1:" }}{% endif %}" class="page">{{ page }}</a>
+  {% else %}
+  <a href="?page{{ page_suffix }}={{ page }}{{ getvars }}" class="page">{{ page }}</a>
+  {% endif %}
+  {% endif %}
+  {% else %}
+  ...
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+  {% endblock pagelinks %}
+  {% block nextlink %}
+  {% if page_obj.has_next %}
+  <a href="?page{{ page_suffix }}={{ page_obj.next_page_number }}{{ getvars }}" class="next">{% trans "next" %}{{ next_link_decorator|safe }}</a>
+  {% else %}
+  {% if display_disabled_next_link %}
+  <span class="disabled next">{% trans "next" %}{{ next_link_decorator|safe }}</span>
+  {% endif %}
+  {% endif %}
+  {% endblock nextlink %}
+</div>
+{% endif %}

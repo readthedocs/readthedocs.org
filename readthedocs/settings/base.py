@@ -268,7 +268,6 @@ class CommunityBaseSettings(Settings):
             "readthedocs.core",
             "django.contrib.staticfiles",
             # third party apps
-            "dj_pagination",
             "taggit",
             "django_gravatar",
             "rest_framework",
@@ -363,7 +362,6 @@ class CommunityBaseSettings(Settings):
             "django.contrib.auth.middleware.AuthenticationMiddleware",
             "django.contrib.messages.middleware.MessageMiddleware",
             "allauth.account.middleware.AccountMiddleware",
-            "dj_pagination.middleware.PaginationMiddleware",
             "csp.middleware.CSPMiddleware",
             "readthedocs.core.middleware.UpdateCSPMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
