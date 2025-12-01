@@ -7,6 +7,7 @@ from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.models import APIVersion
 
+from ..datatypes import ProjectVersionInfo
 from ..exceptions import RepositoryError
 from ..models import Feature
 
@@ -57,18 +58,18 @@ class SyncRepositoryMixin:
             return
 
         tags_data = [
-            {
-                "identifier": v.identifier,
-                "verbose_name": v.verbose_name,
-            }
+            ProjectVersionInfo(
+                verbose_name=v.verbose_name,
+                identifier=v.identifier,
+            )
             for v in tags
         ]
 
         branches_data = [
-            {
-                "identifier": v.identifier,
-                "verbose_name": v.verbose_name,
-            }
+            ProjectVersionInfo(
+                verbose_name=v.verbose_name,
+                identifier=v.identifier,
+            )
             for v in branches
         ]
 
@@ -81,11 +82,15 @@ class SyncRepositoryMixin:
 
         build_tasks.sync_versions_task.delay(
             project_pk=self.data.project.pk,
-            tags_data=tags_data,
-            branches_data=branches_data,
+            tags_data=ProjectVersionInfo.serialize_many(tags_data),
+            branches_data=ProjectVersionInfo.serialize_many(branches_data),
         )
 
-    def validate_duplicate_reserved_versions(self, tags_data, branches_data):
+    def validate_duplicate_reserved_versions(
+        self,
+        tags_data: list[ProjectVersionInfo],
+        branches_data: list[ProjectVersionInfo],
+    ) -> None:
         """
         Check if there are duplicated names of reserved versions.
 
@@ -95,8 +100,7 @@ class SyncRepositoryMixin:
 
         :param data: Dict containing the versions from tags and branches
         """
-        version_names = [version["verbose_name"] for version in tags_data + branches_data]
-        counter = Counter(version_names)
+        counter = Counter(v.verbose_name for v in tags_data + branches_data)
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
             if counter[reserved_name] > 1:
                 raise RepositoryError(
