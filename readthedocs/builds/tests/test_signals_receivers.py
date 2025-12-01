@@ -5,7 +5,6 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.builds.signals import build_complete
 from readthedocs.builds.signals_receivers import (
     RTD_BUILDS_MAX_CONSECUTIVE_FAILURES,
     _count_consecutive_failed_builds,
@@ -80,7 +79,9 @@ class TestDisableProjectOnConsecutiveFailedBuilds(TestCase):
 
     def test_signal_handler_does_nothing_on_success(self):
         """Test that the signal handler does nothing when build succeeds."""
-        self._create_builds(100, success=False)
+        # Create many failed builds to be at the threshold
+        many_failed_builds = RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 50
+        self._create_builds(many_failed_builds, success=False)
 
         # Simulate a successful build completion
         build_dict = {
@@ -104,7 +105,9 @@ class TestDisableProjectOnConsecutiveFailedBuilds(TestCase):
             slug="other-version",
             active=True,
         )
-        for _ in range(100):
+        # Create many failed builds on the other version
+        many_failed_builds = RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 50
+        for _ in range(many_failed_builds):
             get(
                 Build,
                 project=self.project,
@@ -131,7 +134,9 @@ class TestDisableProjectOnConsecutiveFailedBuilds(TestCase):
         self.project.skip = True
         self.project.save()
 
-        self._create_builds(100, success=False)
+        # Create many failed builds
+        many_failed_builds = RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 50
+        self._create_builds(many_failed_builds, success=False)
 
         build_dict = {
             "success": False,

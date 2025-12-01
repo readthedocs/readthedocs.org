@@ -108,7 +108,9 @@ def _count_consecutive_failed_builds(project, version_slug):
     """
     from readthedocs.builds.constants import BUILD_STATE_FINISHED
 
-    # Get the most recent finished builds for this version
+    # Get the most recent finished builds for this version.
+    # We fetch a few extra builds beyond the threshold to ensure we can
+    # accurately count consecutive failures even if there's a success just after.
     builds = (
         Build.objects.filter(
             project=project,
@@ -116,12 +118,12 @@ def _count_consecutive_failed_builds(project, version_slug):
             state=BUILD_STATE_FINISHED,
         )
         .order_by("-date")
-        .values_list("success", flat=True)[: RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 10]
+        .values_list("success", flat=True)[: RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 1]
     )
 
     consecutive_failures = 0
     for success in builds:
-        if success is False:
+        if not success:
             consecutive_failures += 1
         else:
             # First successful build breaks the streak
