@@ -62,6 +62,21 @@ def get_page_from_request(request, suffix=""):
         return 1
 
 
+def _is_autopaginate_token(tok):
+    """Check if a parser token is an autopaginate tag."""
+    try:
+        from django.template.base import TokenType
+        TOKEN_BLOCK = TokenType.BLOCK
+    except ImportError:  # Django < 2.0
+        from django.template.base import TOKEN_BLOCK
+
+    return (
+        tok.token_type == TOKEN_BLOCK
+        and len(tok.split_contents()) > 0
+        and tok.split_contents()[0] == "autopaginate"
+    )
+
+
 @register.tag
 def autopaginate(parser, token):
     """
@@ -76,6 +91,9 @@ def autopaginate(parser, token):
         {% autopaginate object_list 20 3 %}
         {% autopaginate object_list 20 as paginated_list %}
     """
+    # Check if there are more autopaginate tags later in this template
+    multiple_paginations = len([tok for tok in parser.tokens if _is_autopaginate_token(tok)]) > 0
+
     bits = token.split_contents()
     tag_name = bits.pop(0)
 
@@ -89,7 +107,6 @@ def autopaginate(parser, token):
     paginate_by = None
     orphans = None
     context_var = None
-    multiple_paginations = False
 
     # Parse remaining arguments
     i = iter(bits)
