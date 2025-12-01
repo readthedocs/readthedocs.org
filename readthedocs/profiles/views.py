@@ -6,6 +6,7 @@ from enum import auto
 import structlog
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
+from allauth.socialaccount import providers
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from django.contrib import messages
@@ -62,10 +63,10 @@ class LoginViewBase(AllAuthLoginView):
         last_login_method = self.request.COOKIES.get("last-login-method")
         context_data["last_login_method"] = last_login_method
 
-        last_login_tab = None
+        last_login_tab = "vcs"  # Default tab"
         if last_login_method == "email":
             last_login_tab = "email"
-        if last_login_method in ("githubapp", "github", "gitlab", "bitbucket_oauth2", "google"):
+        if last_login_method in providers.registry.provider_map.keys():
             last_login_tab = "vcs"
         if last_login_method == "sso":
             last_login_tab = "sso"
