@@ -661,6 +661,37 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(list(self.project.tags.names()), ["partial tags", "updated"])
         self.assertNotEqual(self.project.default_version, "updated-default-branch")
 
+    def test_partial_update_project_readthedocs_yaml_path(self):
+        """Test that readthedocs_yaml_path can be set via PATCH and is returned in GET."""
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # Verify the initial value is None
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json()["readthedocs_yaml_path"])
+
+        # Set the readthedocs_yaml_path field
+        yaml_path = "docs/.readthedocs.yaml"
+        data = {"readthedocs_yaml_path": yaml_path}
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 204)
+
+        # Verify it was saved to the database
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.readthedocs_yaml_path, yaml_path)
+
+        # Verify it's returned in the GET response
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["readthedocs_yaml_path"], yaml_path)
+
     def test_partial_update_others_project(self):
         data = {
             "name": "Updated name",
