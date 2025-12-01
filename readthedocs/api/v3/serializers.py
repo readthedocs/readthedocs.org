@@ -700,9 +700,9 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             "external_builds_enabled",
             "privacy_level",
             "external_builds_privacy_level",
+            "readthedocs_yaml_path",
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
-            "readthedocs_yaml_path",
         )
 
     def __init__(self, *args, **kwargs):
