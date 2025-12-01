@@ -47,6 +47,8 @@ def disable_project_on_consecutive_failed_builds(sender, build, **kwargs):
     project_slug = build.get("project_slug")
     version_slug = build.get("version_slug")
 
+    # These fields may not be present in the build dict if the build
+    # failed early before the project/version was properly resolved.
     if not project_slug or not version_slug:
         return
 
