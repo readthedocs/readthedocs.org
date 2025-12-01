@@ -6,8 +6,8 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Build
-from readthedocs.builds.signals_receivers import (
-    disable_project_on_consecutive_failed_builds,
+from readthedocs.builds.tasks import (
+    check_and_disable_project_for_consecutive_failed_builds,
 )
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Project
@@ -38,18 +38,15 @@ class TestDisableProjectOnConsecutiveFailedBuilds(TestCase):
         return builds
 
     @override_settings(RTD_BUILDS_MAX_CONSECUTIVE_FAILURES=50)
-    def test_signal_handler_disables_at_threshold(self):
+    def test_task_disables_at_threshold(self):
         """Test that the project is disabled at the failure threshold."""
         # Create failures at the threshold
         self._create_builds(settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 1, success=False)
 
-        build_dict = {
-            "success": False,
-            "project": self.project.pk,
-            "version_slug": self.version.slug,
-        }
-        disable_project_on_consecutive_failed_builds(
-            sender=Build, build=build_dict
+        # Call the Celery task directly
+        check_and_disable_project_for_consecutive_failed_builds(
+            project_id=self.project.pk,
+            version_slug=self.version.slug,
         )
 
         self.project.refresh_from_db()
