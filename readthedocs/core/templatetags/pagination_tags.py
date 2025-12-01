@@ -11,8 +11,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404
 from django.template import Node, TemplateSyntaxError, Variable
-from django.template.defaulttags import token_kwargs
-from django.template.loader_tags import IncludeNode
 
 register = template.Library()
 
@@ -34,6 +32,18 @@ NEXT_LINK_DECORATOR = getattr(settings, "PAGINATION_NEXT_LINK_DECORATOR", " &raq
 DISABLE_LINK_FOR_FIRST_PAGE = getattr(
     settings, "PAGINATION_DISABLE_LINK_FOR_FIRST_PAGE", False
 )
+
+
+def unescape_string_literal(s):
+    """
+    Remove surrounding quotes from a string literal if present.
+
+    Handles both single and double quotes.
+    """
+    if len(s) >= 2:
+        if (s[0] == s[-1]) and s[0] in ('"', "'"):
+            return s[1:-1]
+    return s
 
 
 def get_page_from_request(request, suffix=""):
@@ -151,7 +161,7 @@ class AutoPaginateNode(Node):
             context["multiple_paginations"] = True
 
         if context.get("multiple_paginations") or getattr(context, "paginator", None):
-            page_suffix = "_%s" % self.queryset_var
+            page_suffix = "_%s" % self.queryset_var.var
         else:
             page_suffix = ""
 
@@ -213,11 +223,7 @@ def paginate(parser, token):
     if len(bits) == 0:
         pass  # Use default template
     elif len(bits) == 2 and bits[0] == "using":
-        template_name = bits[1]
-        # Remove quotes if present
-        if (template_name.startswith('"') and template_name.endswith('"')) or \
-           (template_name.startswith("'") and template_name.endswith("'")):
-            template_name = template_name[1:-1]
+        template_name = unescape_string_literal(bits[1])
     else:
         raise TemplateSyntaxError(
             "Invalid syntax for %r tag. Use: {%% %s %%} or {%% %s using 'template.html' %%}"
@@ -283,23 +289,24 @@ def get_pagination_context(
         pages = page_range[window_start:window_end]
 
         # Figure margin and add ellipses
-        if margin > 0:
+        if margin > 0 and pages:
             tmp_pages = set(pages)
             tmp_pages = tmp_pages.union(page_range[:margin])
             tmp_pages = tmp_pages.union(page_range[-margin:])
             tmp_pages = list(tmp_pages)
             tmp_pages.sort()
-            pages = []
-            pages.append(tmp_pages[0])
-            for i in range(1, len(tmp_pages)):
-                # Figure gap size => add ellipses or fill in gap
-                gap = tmp_pages[i] - tmp_pages[i - 1]
-                if gap >= 3:
-                    pages.append(None)
-                elif gap == 2:
-                    pages.append(tmp_pages[i] - 1)
-                pages.append(tmp_pages[i])
-        else:
+            if tmp_pages:
+                pages = []
+                pages.append(tmp_pages[0])
+                for i in range(1, len(tmp_pages)):
+                    # Figure gap size => add ellipses or fill in gap
+                    gap = tmp_pages[i] - tmp_pages[i - 1]
+                    if gap >= 3:
+                        pages.append(None)
+                    elif gap == 2:
+                        pages.append(tmp_pages[i] - 1)
+                    pages.append(tmp_pages[i])
+        elif pages:
             if pages[0] != 1:
                 pages.insert(0, None)
             if pages[-1] != paginator.num_pages:
