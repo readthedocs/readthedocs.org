@@ -524,6 +524,14 @@ class Project(models.Model):
     featured = models.BooleanField(_("Featured"), default=False)
 
     skip = models.BooleanField(_("Skip (disable) building this project"), default=False)
+    n_consecutive_failed_builds = models.BooleanField(
+        _("Disable builds for this project"),
+        default=False,
+        db_default=False,
+        help_text=_(
+            "Builds on this project were automatically disabled due to N+ consecutive failures. Uncheck this field to re-enable building."
+        ),
+    )
 
     # null=True can be removed in a later migration
     # be careful if adding new queries on this, .filter(delisted=False) does not work

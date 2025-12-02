@@ -695,7 +695,7 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
         return
 
     # Skip if the project is already disabled
-    if project.skip:
+    if project.skip or project.n_consecutive_failed_builds:
         return
 
     # Count consecutive failed builds on the default version
@@ -719,7 +719,7 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
             )
 
             # Disable the project
-            project.skip = True
+            project.n_consecutive_failed_builds = True
             project.save()
 
             # Attach notification to the project

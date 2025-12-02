@@ -33,6 +33,12 @@ def project_skip_builds(instance, *args, **kwargs):
             message_id=MESSAGE_PROJECT_SKIP_BUILDS,
             attached_to=instance,
         )
+
+
+@receiver(post_save, sender=Project)
+def project_n_consecutive_failed_builds(instance, *args, **kwargs):
+    """Check if the project has not N+ consecutive failed builds anymore and cancel the notification."""
+    if not instance.n_consecutive_failed_builds:
         Notification.objects.cancel(
             message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
             attached_to=instance,
