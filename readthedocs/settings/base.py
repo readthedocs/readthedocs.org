@@ -176,7 +176,7 @@ class CommunityBaseSettings(Settings):
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
-    RTD_BUILDS_MAX_CONSECUTIVE_FAILURES = 50  # The project is disabled when hitting this limit on the default version
+    RTD_BUILDS_MAX_CONSECUTIVE_FAILURES = 25  # The project is disabled when hitting this limit on the default version
     RTD_BUILD_STATUS_API_NAME = "docs/readthedocs"
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
