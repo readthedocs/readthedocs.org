@@ -529,7 +529,7 @@ class Project(models.Model):
         default=False,
         db_default=False,
         help_text=_(
-            "Builds on this project were automatically disabled due to N+ consecutive failures. Uncheck this field to re-enable building."
+            "Builds on this project were automatically disabled due to many consecutive failures. Uncheck this field to re-enable building."
         ),
     )
 

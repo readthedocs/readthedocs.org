@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 db_default=False,
                 default=False,
-                help_text="Builds on this project were automatically disabled due to N+ consecutive failures. Uncheck this field to re-enable building.",
+                help_text="Builds on this project were automatically disabled due to many consecutive failures. Uncheck this field to re-enable building.",
                 verbose_name="Disable builds for this project",
             ),
         ),
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 db_default=False,
                 default=False,
-                help_text="Builds on this project were automatically disabled due to N+ consecutive failures. Uncheck this field to re-enable building.",
+                help_text="Builds on this project were automatically disabled due to many consecutive failures. Uncheck this field to re-enable building.",
                 verbose_name="Disable builds for this project",
             ),
         ),

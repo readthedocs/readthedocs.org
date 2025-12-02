@@ -124,6 +124,47 @@ class TestTasks(TestCase):
         self.assertEqual(Build.objects.filter(cold_storage=True).count(), 5)
         self.assertEqual(BuildCommandResult.objects.count(), 50)
 
+    def _create_builds(self, count, success=False):
+        """Helper to create a series of builds."""
+        builds = []
+        for _ in range(count):
+            build = get(
+                Build,
+                project=self.project,
+                version=self.version,
+                success=success,
+                state=BUILD_STATE_FINISHED,
+            )
+            builds.append(build)
+        return builds
+
+    @override_settings(RTD_BUILDS_MAX_CONSECUTIVE_FAILURES=50)
+    def test_task_disables_project_at_max_consecutive_failed_builds(self):
+        """Test that the project is disabled at the failure threshold."""
+        project = get(Project, slug="test-project", skip=False)
+        version = project.versions.get(slug=LATEST)
+        version.active = True
+        version.save()
+
+        # Create failures at the threshold
+        self._create_builds(settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 1, success=False)
+
+        # Call the Celery task directly
+        check_and_disable_project_for_consecutive_failed_builds(
+            project_slug=project.slug,
+            version_slug=version.slug,
+        )
+
+        project.refresh_from_db()
+        self.assertTrue(project.skip)
+
+        # Verify notification was added
+        notification = Notification.objects.filter(
+            message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES
+        ).first()
+        self.assertIsNotNone(notification)
+        self.assertEqual(notification.attached_to, project)
+
 
 @override_settings(
     PRODUCTION_DOMAIN="readthedocs.org",
