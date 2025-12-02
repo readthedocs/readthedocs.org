@@ -678,19 +678,20 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertIsNone(response.json()["readthedocs_yaml_path"])
 
         # Set the readthedocs_yaml_path field
-        yaml_path = "docs/.readthedocs.yaml"
+        yaml_path = "   docs/.readthedocs.yaml   "
+        yaml_path_expected = "docs/.readthedocs.yaml"
         data = {"readthedocs_yaml_path": yaml_path}
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 204)
 
         # Verify it was saved to the database
         self.project.refresh_from_db()
-        self.assertEqual(self.project.readthedocs_yaml_path, yaml_path)
+        self.assertEqual(self.project.readthedocs_yaml_path, yaml_path_expected)
 
         # Verify it's returned in the GET response
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["readthedocs_yaml_path"], yaml_path)
+        self.assertEqual(response.json()["readthedocs_yaml_path"], yaml_path_expected)
 
     def test_partial_update_others_project(self):
         data = {
