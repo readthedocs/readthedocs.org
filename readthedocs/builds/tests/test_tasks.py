@@ -141,7 +141,7 @@ class TestTasks(TestCase):
     @override_settings(RTD_BUILDS_MAX_CONSECUTIVE_FAILURES=50)
     def test_task_disables_project_at_max_consecutive_failed_builds(self):
         """Test that the project is disabled at the failure threshold."""
-        project = get(Project, slug="test-project", skip=False)
+        project = get(Project, slug="test-project", n_consecutive_failed_builds=False)
         version = project.versions.get(slug=LATEST)
         version.active = True
         version.save()
@@ -156,7 +156,7 @@ class TestTasks(TestCase):
         )
 
         project.refresh_from_db()
-        self.assertTrue(project.skip)
+        self.assertTrue(project.n_consecutive_failed_builds)
 
         # Verify notification was added
         notification = Notification.objects.filter(
