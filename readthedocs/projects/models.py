@@ -1201,15 +1201,21 @@ class Project(models.Model):
         When latest is machine created, it's basically an alias
         for the default branch/tag (like main/master),
 
-        Returns None if the current default version doesn't point to a valid version.
+        Returns None if latest doesn't point to a valid version,
+        or if isn't managed by RTD (machine=False).
         """
-        default_version_name = self.get_default_branch()
+        # For latest, the identifier is the name of the branch/tag.
+        latest_version_identifier = (
+            self.versions.filter(slug=LATEST, machine=True)
+            .values_list("identifier", flat=True)
+            .first()
+        )
+        if not latest_version_identifier:
+            return None
         return (
             self.versions(manager=INTERNAL)
             .exclude(slug=LATEST)
-            .filter(
-                verbose_name=default_version_name,
-            )
+            .filter(verbose_name=latest_version_identifier)
             .first()
         )
 
@@ -1227,8 +1233,22 @@ class Project(models.Model):
             return
 
         # default_branch can be a tag or a branch name!
-        default_version_name = self.get_default_branch()
-        original_latest = self.get_original_latest_version()
+        default_version_name = self.get_default_branch(fallback_to_vcs=False)
+        # If the default_branch is not set, it means that the user
+        # wants to use the default branch of the respository, but
+        # we don't know what that is here, `latest` will be updated
+        # on the next build.
+        if not default_version_name:
+            return
+
+        # Search for a branch or tag with the name of the default branch,
+        # so we can sync latest with it.
+        original_latest = (
+            self.versions(manager=INTERNAL)
+            .exclude(slug=LATEST)
+            .filter(verbose_name=default_version_name)
+            .first()
+        )
         latest.verbose_name = LATEST_VERBOSE_NAME
         latest.type = original_latest.type if original_latest else BRANCH
         # For latest, the identifier is the name of the branch/tag.
@@ -1328,13 +1348,21 @@ class Project(models.Model):
             return self.default_version
         return LATEST
 
-    def get_default_branch(self):
-        """Get the version representing 'latest'."""
+    def get_default_branch(self, fallback_to_vcs=True):
+        """
+        Get the name of the branch or tag that the user wants to use as 'latest'.
+
+        In case the user explicitly set a default branch, we use that,
+        otherwise we try to get it from the remote repository.
+        """
         if self.default_branch:
             return self.default_branch
 
         if self.remote_repository and self.remote_repository.default_branch:
             return self.remote_repository.default_branch
+
+        if not fallback_to_vcs:
+            return None
 
         vcs_class = self.vcs_class()
         if vcs_class:
@@ -1367,7 +1395,8 @@ class Project(models.Model):
 
         return self.superprojects.select_related("parent").first()
 
-    def get_canonical_custom_domain(self):
+    @cached_property
+    def canonical_custom_domain(self):
         """Get the canonical custom domain or None."""
         if hasattr(self, "_canonical_domains"):
             # Cached custom domains
