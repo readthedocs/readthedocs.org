@@ -678,6 +678,8 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
     on the default version, we attach a notification to the project and disable builds (skip=True).
     This helps reduce resource consumption from projects that are not being monitored.
     """
+    from itertools import groupby
+
     from readthedocs.builds.constants import BUILD_STATE_FINISHED
     from readthedocs.projects.notifications import (
         MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
@@ -696,54 +698,39 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
     if project.skip:
         return
 
-    # Check if the last N builds all failed by querying only the required builds
-    # and checking if any of them succeeded.
-    limit = settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES
-    has_successful_build = (
+    # Count consecutive failed builds on the default version
+    builds = (
         Build.objects.filter(
             project=project,
             version_slug=version_slug,
             state=BUILD_STATE_FINISHED,
-            success=True,
         )
-        .order_by("-date")[:limit]
-        .exists()
+        .order_by("-date")
+        .values_list("success", flat=True)[: settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 1]
     )
+    for success, group in groupby(builds):
+        consecutive_failed_builds = len(list(group))
+        if not success and consecutive_failed_builds > settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES:
+            log.info(
+                "Disabling project due to consecutive failed builds.",
+                project_slug=project.slug,
+                version_slug=version_slug,
+                consecutive_failed_builds=consecutive_failed_builds,
+            )
 
-    # If there's at least one successful build in the last N builds, don't disable
-    if has_successful_build:
-        return
+            # Disable the project
+            project.skip = True
+            project.save()
 
-    # Ensure we have at least N failed builds before disabling
-    failed_builds_count = (
-        Build.objects.filter(
-            project=project,
-            version_slug=version_slug,
-            state=BUILD_STATE_FINISHED,
-            success=False,
-        )
-        .order_by("-date")[:limit]
-        .count()
-    )
+            # Attach notification to the project
+            Notification.objects.add(
+                message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
+                attached_to=project,
+                dismissable=False,
+                format_values={
+                    "consecutive_failed_builds": consecutive_failed_builds,
+                },
+            )
 
-    if failed_builds_count >= limit:
-        log.info(
-            "Disabling project due to consecutive failed builds.",
-            project_slug=project.slug,
-            version_slug=version_slug,
-            consecutive_failed_builds=failed_builds_count,
-        )
-
-        # Disable the project
-        project.skip = True
-        project.save()
-
-        # Attach notification to the project
-        Notification.objects.add(
-            message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
-            attached_to=project,
-            dismissable=False,
-            format_values={
-                "consecutive_failed_builds": failed_builds_count,
-            },
-        )
+            # If we already detected the threshold, we can stop checking
+            break
