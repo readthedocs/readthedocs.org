@@ -698,7 +698,6 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             "analytics_disabled",
             "show_version_warning",
             "versioning_scheme",
-            "readthedocs_yaml_path",
             "external_builds_enabled",
             "privacy_level",
             "external_builds_privacy_level",
