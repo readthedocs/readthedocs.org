@@ -95,6 +95,17 @@ class InternalRedirectTests(BaseDocServing):
             "http://project.dev.readthedocs.io/projects/subproject/en/latest/test.html",
         )
 
+    def test_page_redirect_on_subproject_alias(self):
+        r = self.client.get(
+            "/projects/this-is-an-alias/page/test.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/projects/this-is-an-alias/en/latest/test.html",
+        )
+
     def test_url_with_nonexistent_slug(self):
         # Invalid URL for a not single version project
         r = self.client.get(
