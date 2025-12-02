@@ -362,6 +362,156 @@ class ProxiedSearchAPITest(SearchAPITest):
     def get(self, *args, **kwargs):
         return self.client.get(*args, HTTP_HOST=self.host, **kwargs)
 
+    def test_search_project_number_of_queries(self):
+        # Default version
+        with self.assertNumQueries(11):
+            resp = self.get(self.url, data={"q": "project:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        with self.assertNumQueries(17):
+            resp = self.get(
+                self.url, data={"q": "project:project project:another-project test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # With explicit version
+        with self.assertNumQueries(10):
+            resp = self.get(self.url, data={"q": "project:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        with self.assertNumQueries(16):
+            resp = self.get(
+                self.url, data={"q": "project:project/latest project:another-project/latest test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query.delay", new=mock.MagicMock())
+    def test_search_project_number_of_queries_without_search_recording(self):
+        # Default version
+        with self.assertNumQueries(8):
+            resp = self.get(self.url, data={"q": "project:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        with self.assertNumQueries(12):
+            resp = self.get(
+                self.url, data={"q": "project:project project:another-project test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # With explicit version
+        with self.assertNumQueries(8):
+            resp = self.get(self.url, data={"q": "project:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        with self.assertNumQueries(12):
+            resp = self.get(
+                self.url, data={"q": "project:project/latest project:another-project/latest test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+    def test_search_subprojects_number_of_queries(self):
+        subproject = get(
+            Project,
+            slug="subproject",
+            users=[self.user],
+            privacy_level=PUBLIC,
+        )
+        subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+        self.create_index(subproject.versions.first())
+        self.project.add_subproject(subproject)
+
+        # Search on default version.
+        with self.assertNumQueries(16):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        with self.assertNumQueries(14):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Add subprojects.
+        for i in range(3):
+            subproject = get(
+                Project,
+                slug=f"subproject-{i}",
+                users=[self.user],
+                privacy_level=PUBLIC,
+            )
+            subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+            self.create_index(subproject.versions.first())
+            self.project.add_subproject(subproject)
+
+        # Search on default version.
+        with self.assertNumQueries(26):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        with self.assertNumQueries(23):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query.delay", new=mock.MagicMock())
+    def test_search_subprojects_number_of_queries_without_search_recording(self):
+        subproject = get(
+            Project,
+            slug="subproject",
+            users=[self.user],
+            privacy_level=PUBLIC,
+        )
+        subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+        self.create_index(subproject.versions.first())
+        self.project.add_subproject(subproject)
+
+        # Search on default version.
+        with self.assertNumQueries(10):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        with self.assertNumQueries(10):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Add subprojects.
+        for i in range(3):
+            subproject = get(
+                Project,
+                slug=f"subproject-{i}",
+                users=[self.user],
+                privacy_level=PUBLIC,
+            )
+            subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+            self.create_index(subproject.versions.first())
+            self.project.add_subproject(subproject)
+
+        # Search on default version.
+        with self.assertNumQueries(13):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        with self.assertNumQueries(13):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
 
 @override_settings(ALLOW_PRIVATE_REPOS=True)
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

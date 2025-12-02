@@ -469,7 +469,6 @@ class TestPrivateViews(TestCase):
         attach_webhook.assert_called_once_with(
             project_pk=self.project.pk,
             integration=integration.first(),
-            user_pk=None,
         )
 
     @mock.patch("readthedocs.projects.views.private.attach_webhook")

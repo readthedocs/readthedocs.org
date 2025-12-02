@@ -128,8 +128,14 @@ class SearchExecutor:
         the default version will be used.
         If `version_slug` is None, we will always use the default version.
         """
-        subprojects = Project.objects.filter(superprojects__parent=project)
-        for subproject in subprojects:
+        relationships = project.subprojects.select_related("child")
+        for relationship in relationships:
+            subproject = relationship.child
+            # NOTE: Since we already have the superproject relationship,
+            # we can set it here to avoid an extra query later
+            # when using Project.parent_relationship property.
+            # The superproject instannce is also shared among all subprojects.
+            subproject._superprojects = [relationship]
             version = None
             if version_slug:
                 version = self._get_project_version(
