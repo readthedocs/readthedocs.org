@@ -685,10 +685,6 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
         MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
     )
 
-    # Skip disable builds for Read the Docs for Business
-    if settings.ALLOW_PRIVATE_REPOS:
-        return
-
     try:
         project = Project.objects.get(slug=project_slug)
     except Project.DoesNotExist:

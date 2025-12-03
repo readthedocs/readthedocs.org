@@ -568,11 +568,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 status=status,
             )
 
-        # Trigger the Celery task to check and disable the project
-        check_and_disable_project_for_consecutive_failed_builds.delay(
-            project_slug=self.data.project.slug,
-            version_slug=self.data.version.slug,
-        )
+        # Trigger task to check number of failed builds and disable the project if needed (only for community)
+        if not settings.ALLOW_PRIVATE_REPOS:
+            check_and_disable_project_for_consecutive_failed_builds.delay(
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
+            )
 
         # Update build object
         self.data.build["success"] = False
