@@ -678,8 +678,6 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
     on the default version, we attach a notification to the project and disable builds (skip=True).
     This helps reduce resource consumption from projects that are not being monitored.
     """
-    from itertools import groupby
-
     from readthedocs.builds.constants import BUILD_STATE_FINISHED
     from readthedocs.projects.notifications import (
         MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
@@ -706,31 +704,27 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
             state=BUILD_STATE_FINISHED,
         )
         .order_by("-date")
-        .values_list("success", flat=True)[: settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 1]
+        .values_list("success", flat=True)[: settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES]
     )
-    for success, group in groupby(builds):
-        consecutive_failed_builds = len(list(group))
-        if not success and consecutive_failed_builds > settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES:
-            log.info(
-                "Disabling project due to consecutive failed builds.",
-                project_slug=project.slug,
-                version_slug=version_slug,
-                consecutive_failed_builds=consecutive_failed_builds,
-            )
+    if not any(builds) and len(builds) >= settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES:
+        consecutive_failed_builds = builds.count(False)
+        log.info(
+            "Disabling project due to consecutive failed builds.",
+            project_slug=project.slug,
+            version_slug=version_slug,
+            consecutive_failed_builds=consecutive_failed_builds,
+        )
 
-            # Disable the project
-            project.n_consecutive_failed_builds = True
-            project.save()
+        # Disable the project
+        project.n_consecutive_failed_builds = True
+        project.save()
 
-            # Attach notification to the project
-            Notification.objects.add(
-                message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
-                attached_to=project,
-                dismissable=False,
-                format_values={
-                    "consecutive_failed_builds": consecutive_failed_builds,
-                },
-            )
-
-            # If we already detected the threshold, we can stop checking
-            break
+        # Attach notification to the project
+        Notification.objects.add(
+            message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
+            attached_to=project,
+            dismissable=False,
+            format_values={
+                "consecutive_failed_builds": consecutive_failed_builds,
+            },
+        )
