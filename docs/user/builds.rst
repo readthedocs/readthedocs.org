@@ -118,7 +118,7 @@ Automatic disabling of builds
 To reduce resource consumption and improve build queue times for all users,
 Read the Docs will automatically disable builds for projects that have too many consecutive failed builds on their default version.
 
-When a project has **50 consecutive failed builds** on its default version,
+When a project has **25 consecutive failed builds** on its default version,
 we will disable builds for the project.
 
 This helps ensure that projects with persistent build issues don't consume resources that could be used by active projects.
@@ -128,7 +128,7 @@ This helps ensure that projects with persistent build issues don't consume resou
    This only applies to the default version of a project.
    Builds on other versions (branches, tags, pull requests) are not counted towards this limit.
 
-If your project has been disabled due to consecutive build failures, you'll need to contact support to have your project re-enabled.
+If your project has been disabled due to consecutive build failures, you'll need to re-enable from your project settings.
 Make sure to fix the underlying issue to avoid being disabled again.
 
 Build resources
