@@ -53,7 +53,7 @@ def _get_storage_class(storage_type: StorageType):
     raise ValueError("Invalid storage type")
 
 
-def _get_storage_backend(alias: str):
+def _get_storage_backend_class(alias: str):
     """
     Get the storage backend class for a given alias from STORAGES setting.
 
@@ -70,7 +70,7 @@ def _get_build_media_storage_class():
 
     This is done in a separate method to make it easier to mock in tests.
     """
-    return _get_storage_backend("build-media")
+    return _get_storage_backend_class("build-media")
 
 
 def _get_build_tools_storage_class():
@@ -79,7 +79,7 @@ def _get_build_tools_storage_class():
 
     This is done in a separate method to make it easier to mock in tests.
     """
-    return _get_storage_backend("build-tools")
+    return _get_storage_backend_class("build-tools")
 
 
 def _get_s3_scoped_credentials(*, project, build_id, api_client, storage_type: StorageType):
