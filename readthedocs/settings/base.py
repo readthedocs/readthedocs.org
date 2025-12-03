@@ -1192,7 +1192,7 @@ class CommunityBaseSettings(Settings):
     @property
     def STORAGES(self):
         # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
-        # https://docs.djangoproject.com/en/5.0/ref/settings/#std-setting-STORAGES
+        # https://docs.djangoproject.com/en/5.2/ref/settings/#std-setting-STORAGES
         return {
             "default": {
                 "BACKEND": "django.core.files.storage.FileSystemStorage",
