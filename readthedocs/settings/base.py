@@ -171,11 +171,14 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE = "stable"
     RTD_STABLE_VERBOSE_NAME = "stable"
     RTD_CLEAN_AFTER_BUILD = False
-    RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
-    RTD_BUILD_HEALTHCHECK_DELAY = 15 # seconds
+    RTD_BUILD_HEALTHCHECK_TIMEOUT = 60  # seconds
+    RTD_BUILD_HEALTHCHECK_DELAY = 15  # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
-    RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
+    # Delay before retrying a build task that hit concurrency limits.
+    # NOTE: Observed retry gaps can be much larger (30m-5h) due to queue contention
+    # or Celery/Redis scheduling behavior. See issue #12472 for investigation.
+    RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds (5 minutes)
     RTD_BUILD_STATUS_API_NAME = "docs/readthedocs"
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
@@ -669,8 +672,27 @@ class CommunityBaseSettings(Settings):
 
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
+    #
+    # NOTE: Large retry timing gaps investigation (issue #12472)
+    # The visibility_timeout setting affects how long a task can remain
+    # unacknowledged before Redis considers it lost and redelivers it.
+    # With acks_late=True, tasks are only acknowledged after completion.
+    #
+    # Potential causes for retry timing gaps:
+    # 1. Redis sorted set polling: ETA/countdown tasks are stored in a sorted set
+    #    that is polled periodically. High queue contention may delay pickup.
+    # 2. visibility_timeout interaction: If set too low, tasks running longer
+    #    than visibility_timeout get redelivered (causing duplicates).
+    #    If set too high, there's no direct effect on ETA task pickup, but
+    #    stale tasks may accumulate.
+    # 3. Worker availability: If all workers are busy when the countdown expires,
+    #    the task waits until a worker becomes available.
+    # 4. Queue backlog: Tasks with countdown/ETA compete with regular tasks.
+    #
+    # The Build.task_executed_at field (added in PR #12500) helps track
+    # the actual execution time vs scheduled time for debugging.
     BROKER_TRANSPORT_OPTIONS = {
-        'visibility_timeout': 18000, # 5 hours
+        'visibility_timeout': 18000,  # 5 hours
     }
 
     CELERY_DEFAULT_QUEUE = "celery"

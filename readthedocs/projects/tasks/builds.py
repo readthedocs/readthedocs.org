@@ -271,6 +271,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     name = __name__ + ".update_docs_task"
     autoretry_for = (BuildMaxConcurrencyError,)
     max_retries = settings.RTD_BUILDS_MAX_RETRIES
+    # Default retry delay is 5 minutes (RTD_BUILDS_RETRY_DELAY = 300 seconds).
+    # NOTE: Large gaps between retries (30m-5h instead of 5m) have been observed.
+    # See https://github.com/readthedocs/readthedocs.org/issues/12472
+    # The task_executed_at field tracks when tasks are actually picked up
+    # to help diagnose timing issues. A warning is logged if the gap exceeds
+    # 10 minutes (see before_start method).
     default_retry_delay = settings.RTD_BUILDS_RETRY_DELAY
     retry_backoff = False
 
