@@ -689,8 +689,8 @@ class CommunityBaseSettings(Settings):
     #    the task waits until a worker becomes available.
     # 4. Queue backlog: Tasks with countdown/ETA compete with regular tasks.
     #
-    # The Build.task_executed_at field (added in PR #12500) helps track
-    # the actual execution time vs scheduled time for debugging.
+    # The Build.task_executed_at field tracks the actual execution time
+    # vs scheduled time for debugging retry timing issues.
     BROKER_TRANSPORT_OPTIONS = {
         'visibility_timeout': 18000,  # 5 hours
     }
