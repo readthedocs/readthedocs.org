@@ -136,7 +136,7 @@ class PageSearchSerializer(serializers.Serializer):
         if project_data:
             return project_data
 
-        resolver = self.context["resolver"]
+        resolver = self.context.get("resolver", Resolver())
         version = (
             Version.objects.filter(project__slug=obj.project, slug=obj.version)
             .select_related("project")

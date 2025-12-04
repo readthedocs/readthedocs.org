@@ -140,7 +140,7 @@ class SearchExecutor:
             # NOTE: Since we already have the organization from the parent project,
             # we can set it to each subproject to avoid an extra query later
             # when using the Project.organization property.
-            subproject._organizations = [organization]
+            subproject._organizations = [organization] if organization else []
             version = None
             if version_slug:
                 version = self._get_project_version(
