@@ -46,6 +46,7 @@ Read the Docs: documentation simplified
    /localization
    /versioning-schemes
    /custom-domains
+   /url-path-prefixes
    /doc-notifications
    /canonical-urls
    /reference/cdn
