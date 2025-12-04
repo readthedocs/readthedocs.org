@@ -1149,6 +1149,10 @@ class CommunityBaseSettings(Settings):
                 "handlers": ["null"],
                 "propagate": False,
             },
+            "django.security.DisallowedRedirect": {
+                "handlers": ["null"],
+                "propagate": False,
+            },
             "elastic_transport.transport": {
                 "handlers": ["null"],
                 "propagate": False,
