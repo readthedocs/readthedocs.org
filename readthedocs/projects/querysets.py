@@ -95,6 +95,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
         if (
             project.skip
+            or project.n_consecutive_failed_builds
             or any_owner_banned
             or (organization and organization.disabled)
             or spam_project

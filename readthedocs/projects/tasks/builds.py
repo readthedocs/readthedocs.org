@@ -43,6 +43,7 @@ from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
 from readthedocs.builds.models import APIVersion
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
+from readthedocs.builds.tasks import check_and_disable_project_for_consecutive_failed_builds
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
@@ -570,6 +571,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 build_pk=self.data.build["id"],
                 commit=self.data.build_commit,
                 status=status,
+            )
+
+        # Trigger task to check number of failed builds and disable the project if needed (only for community)
+        if not settings.ALLOW_PRIVATE_REPOS:
+            check_and_disable_project_for_consecutive_failed_builds.delay(
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
             )
 
         # Update build object

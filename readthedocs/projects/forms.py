@@ -435,6 +435,7 @@ class UpdateProjectForm(
             "default_branch",
             "readthedocs_yaml_path",
             "search_indexing_enabled",
+            "n_consecutive_failed_builds",
             # Meta data
             "programming_language",
             "project_url",
@@ -477,6 +478,11 @@ class UpdateProjectForm(
         # We allow enabling it from the form, but not disabling it.
         if self.instance.search_indexing_enabled:
             self.fields.pop("search_indexing_enabled")
+
+        # Only show this field if building for this project is disabled due to N+ consecutive builds failing
+        # We allow disabling it from the form, but not enabling it.
+        if not self.instance.n_consecutive_failed_builds:
+            self.fields.pop("n_consecutive_failed_builds")
 
         # NOTE: we are deprecating this feature.
         # However, we will keep it available for projects that already using it.
