@@ -157,7 +157,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
             _has_good_build=Exists(Build.internal.filter(project=OuterRef("pk"), success=True))
         )
 
-    def prefetch_organization(self, select_related: list[str]| None=None):
+    def prefetch_organization(self, select_related: list[str] | None = None):
         """
         Prefetch the organizations related to the projects.
 
