@@ -157,8 +157,21 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
             _has_good_build=Exists(Build.internal.filter(project=OuterRef("pk"), success=True))
         )
 
-    def prefetch_organization(self, select_related=None):
-        """Prefetch and annotate to avoid N+1 queries."""
+    def prefetch_organization(self, select_related: list[str]| None=None):
+        """
+        Prefetch the organizations related to the projects.
+
+        :param select_related: List of related fields to select_related
+         when fetching the organizations.
+
+        .. note::
+
+           This would normally be a select_related call,
+           but since our relationship is ManyToMany,
+           we need to use prefetch_related.
+        """
+        # If organizations aren't supported,
+        # we don't need to query the database.
         if not settings.RTD_ALLOW_ORGANIZATIONS:
             return self
 

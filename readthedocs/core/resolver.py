@@ -371,15 +371,17 @@ class Resolver:
 
     def _use_cname(self, project):
         """Test if to allow direct serving for project on CNAME."""
+        # If the project belongs to an organization, use the other
+        # method, to allow caching the result for that organization.
         if project.organization:
-            return self._organization_allows_cname(project.organization)
+            return self._organization_allows_custom_domain(project.organization)
 
         return bool(get_feature(project, feature_type=TYPE_CNAME))
 
     @cache
-    def _organization_allows_cname(self, organization):
+    def _organization_allows_custom_domain(self, organization):
         """
-        Test if to allow direct serving for organization on CNAME.
+        Test if the organization allows custom domains.
 
         .. note::
 

@@ -98,9 +98,8 @@ class PageSearchSerializer(serializers.Serializer):
     def __init__(self, *args, projects=None, **kwargs):
         if projects:
             context = kwargs.setdefault("context", {})
-            # NOTE: re-using the resolver doesn't help here,
-            # as this method is called just once per project,
-            # re-using the resolver is useful when resolving the same project multiple times.
+            # NOTE: re-using the resolver for different projects usually doesn't save queries,
+            # but when projects belong to the same organization, it does.
             resolver = Resolver()
             context["resolver"] = resolver
             context["projects_data"] = {
@@ -109,7 +108,7 @@ class PageSearchSerializer(serializers.Serializer):
             }
         super().__init__(*args, **kwargs)
 
-    def _build_project_data(self, project, version, resolver):
+    def _build_project_data(self, project, version, resolver: Resolver):
         """Build a `ProjectData` object given a project and its version."""
         url = resolver.resolve_version(project, version)
         project_alias = None
@@ -137,7 +136,7 @@ class PageSearchSerializer(serializers.Serializer):
         if project_data:
             return project_data
 
-        resolver = self.context.get("resolver", Resolver())
+        resolver = self.context["resolver"]
         version = (
             Version.objects.filter(project__slug=obj.project, slug=obj.version)
             .select_related("project")

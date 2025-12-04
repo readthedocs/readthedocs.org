@@ -1502,6 +1502,8 @@ class Project(models.Model):
 
     @cached_property
     def organization(self):
+        # If organizations aren't supported,
+        # we don't need to query the database.
         if not settings.RTD_ALLOW_ORGANIZATIONS:
             return None
 
