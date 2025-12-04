@@ -28,8 +28,8 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         json_data = response.json()
         self.assertEqual(len(json_data["results"]), 2)
-        self.assertEqual(json_data["results"][0]["slug"], "v1.0")
-        self.assertEqual(json_data["results"][1]["slug"], "latest")
+        self.assertEqual(json_data["results"][0]["slug"], "latest")
+        self.assertEqual(json_data["results"][1]["slug"], "v1.0")
 
         # Versions are private
         self.project.versions.update(privacy_level=PRIVATE)
@@ -54,16 +54,16 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         response = response.json()
         self.assertEqual(len(response["results"]), 2)
-        self.assertEqual(response["results"][0]["slug"], "v1.0")
-        self.assertEqual(response["results"][1]["slug"], "latest")
+        self.assertEqual(response["results"][0]["slug"], "latest")
+        self.assertEqual(response["results"][1]["slug"], "v1.0")
 
         # Versions are private
         Project.objects.filter(slug=self.project.slug).update(privacy_level=PRIVATE)
         response = self.client.get(url)
         response = response.json()
         self.assertEqual(len(response["results"]), 2)
-        self.assertEqual(response["results"][0]["slug"], "v1.0")
-        self.assertEqual(response["results"][1]["slug"], "latest")
+        self.assertEqual(response["results"][0]["slug"], "latest")
+        self.assertEqual(response["results"][1]["slug"], "v1.0")
 
     def test_projects_versions_list_other_user(self):
         url = reverse(
@@ -80,8 +80,8 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         json_data = response.json()
         self.assertEqual(len(json_data["results"]), 2)
-        self.assertEqual(json_data["results"][0]["slug"], "v1.0")
-        self.assertEqual(json_data["results"][1]["slug"], "latest")
+        self.assertEqual(json_data["results"][0]["slug"], "latest")
+        self.assertEqual(json_data["results"][1]["slug"], "v1.0")
 
         # Versions are private
         self.project.versions.update(privacy_level=PRIVATE)
