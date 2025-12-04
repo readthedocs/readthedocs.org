@@ -98,18 +98,20 @@ class PageSearchSerializer(serializers.Serializer):
     def __init__(self, *args, projects=None, **kwargs):
         if projects:
             context = kwargs.setdefault("context", {})
+            # NOTE: re-using the resolver doesn't help here,
+            # as this method is called just once per project,
+            # re-using the resolver is useful when resolving the same project multiple times.
+            resolver = Resolver()
+            context["resolver"] = resolver
             context["projects_data"] = {
-                project.slug: self._build_project_data(project, version=version)
+                project.slug: self._build_project_data(project, version=version, resolver=resolver)
                 for project, version in projects
             }
         super().__init__(*args, **kwargs)
 
-    def _build_project_data(self, project, version):
+    def _build_project_data(self, project, version, resolver):
         """Build a `ProjectData` object given a project and its version."""
-        # NOTE: re-using the resolver doesn't help here,
-        # as this method is called just once per project,
-        # re-using the resolver is useful when resolving the same project multiple times.
-        url = Resolver().resolve_version(project, version)
+        url = resolver.resolve_version(project, version)
         project_alias = None
         if project.parent_relationship:
             project_alias = project.parent_relationship.alias
@@ -135,6 +137,7 @@ class PageSearchSerializer(serializers.Serializer):
         if project_data:
             return project_data
 
+        resolver = self.context.get("resolver", Resolver())
         version = (
             Version.objects.filter(project__slug=obj.project, slug=obj.version)
             .select_related("project")
@@ -143,7 +146,7 @@ class PageSearchSerializer(serializers.Serializer):
         if version:
             project = version.project
             projects_data = self.context.setdefault("projects_data", {})
-            projects_data[obj.project] = self._build_project_data(project, version=version)
+            projects_data[obj.project] = self._build_project_data(project, version=version, resolver=resolver)
             return projects_data[obj.project]
         return None
 
