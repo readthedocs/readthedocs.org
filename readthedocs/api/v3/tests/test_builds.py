@@ -675,3 +675,79 @@ class BuildsEndpointTests(APIEndpointMixin):
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.build.notifications.first().state, "read")
+
+    def test_projects_builds_detail_has_new_fields(self):
+        """Test that build detail includes commands, docs_url, commit_url, and builder fields."""
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
+        )
+
+        self.client.logout()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+
+        # Check new fields exist
+        self.assertIn("commands", data)
+        self.assertIn("docs_url", data)
+        self.assertIn("commit_url", data)
+        self.assertIn("builder", data)
+
+        # Validate field values
+        self.assertEqual(data["builder"], "builder01")
+        self.assertEqual(data["docs_url"], "http://project.readthedocs.io/en/v1.0/")
+        self.assertEqual(data["commit_url"], "")
+        self.assertEqual(len(data["commands"]), 1)
+        self.assertEqual(data["commands"][0]["command"], "python setup.py install")
+
+    def test_projects_builds_detail_expand_config(self):
+        """Test that build detail can expand config."""
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
+        )
+        url += "?expand=config"
+
+        self.client.logout()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+
+        # Check config is expanded
+        self.assertIn("config", data)
+        self.assertEqual(data["config"]["property"], "test value")
+
+    def test_projects_builds_detail_expand_notifications(self):
+        """Test that build detail can expand notifications."""
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
+        )
+        url += "?expand=notifications"
+
+        self.client.logout()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+
+        # Check notifications are expanded
+        self.assertIn("notifications", data)
+        self.assertIsInstance(data["notifications"], list)
+        # We should have the notification created in the test setup
+        self.assertEqual(len(data["notifications"]), 1)
