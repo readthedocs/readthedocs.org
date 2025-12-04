@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Count
 from django.db.models import Exists
 from django.db.models import OuterRef
+from django.db.models import Prefetch
 from django.db.models import Q
 
 from readthedocs.core.permissions import AdminPermission
@@ -85,7 +86,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         """
         spam_project = False
         any_owner_banned = any(u.profile.banned for u in project.users.all())
-        organization = project.organizations.first()
+        organization = project.organization
 
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import spam_score  # noqa
@@ -123,7 +124,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
         max_concurrent_organization = None
-        organization = project.organizations.first()
+        organization = project.organization
         if organization:
             max_concurrent_organization = organization.max_concurrent_builds
 
@@ -154,6 +155,20 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         # to avoid N+1 queries when showing the build status.
         return self.annotate(
             _has_good_build=Exists(Build.internal.filter(project=OuterRef("pk"), success=True))
+        )
+
+    def prefetch_organization(self, select_related=None):
+        """Prefetch and annotate to avoid N+1 queries."""
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            return self
+
+        from readthedocs.organizations.models import Organization
+
+        query = Organization.objects.all()
+        if select_related:
+            query = query.select_related(*select_related)
+        return self.prefetch_related(
+            Prefetch("organizations", queryset=query, to_attr="_organizations")
         )
 
     # Aliases

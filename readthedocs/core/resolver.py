@@ -198,7 +198,13 @@ class Resolver:
         domain = self._get_project_subdomain(canonical_project)
         if external_version_slug:
             domain = self._get_external_subdomain(canonical_project, external_version_slug)
-        elif use_canonical_domain and self._use_cname(canonical_project):
+        # NOTE: call _use_cname only if the project has a canonical custom domain.
+        # Calling _use_cname is more expensive when we have organizations.
+        elif (
+            use_canonical_domain
+            and canonical_project.canonical_custom_domain
+            and self._use_cname(canonical_project)
+        ):
             domain_object = canonical_project.canonical_custom_domain
             if domain_object:
                 use_https = domain_object.https
@@ -365,4 +371,20 @@ class Resolver:
 
     def _use_cname(self, project):
         """Test if to allow direct serving for project on CNAME."""
+        if project.organization:
+            return self._organization_allows_cname(project.organization)
+
         return bool(get_feature(project, feature_type=TYPE_CNAME))
+
+    @cache
+    def _organization_allows_cname(self, organization):
+        """
+        Test if to allow direct serving for organization on CNAME.
+
+        .. note::
+
+           This is done on a separate method, so we can cache the result
+           for each organization. This is useful when resolving multiple
+           projects from the same organization.
+        """
+        return bool(get_feature(organization, feature_type=TYPE_CNAME))

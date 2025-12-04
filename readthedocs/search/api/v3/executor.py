@@ -129,6 +129,7 @@ class SearchExecutor:
         If `version_slug` is None, we will always use the default version.
         """
         relationships = project.subprojects.select_related("child")
+        organization = project.organization
         for relationship in relationships:
             subproject = relationship.child
             # NOTE: Since we already have the superproject relationship,
@@ -136,6 +137,9 @@ class SearchExecutor:
             # when using Project.parent_relationship property.
             # The superproject instannce is also shared among all subprojects.
             subproject._superprojects = [relationship]
+            # All subprojects share the same organization.
+            subproject._organizations = [organization]
+            # relationship.child._organizations = [organization]
             version = None
             if version_slug:
                 version = self._get_project_version(
@@ -214,7 +218,11 @@ class SearchExecutor:
 
     def _get_project_and_version(self, value):
         project_slug, version_slug = self._split_project_and_version(value)
-        project = Project.objects.filter(slug=project_slug).first()
+        project = (
+            Project.objects.filter(slug=project_slug)
+            .prefetch_organization(select_related=["stripe_subscription"])
+            .first()
+        )
         if not project:
             return None, None
 
