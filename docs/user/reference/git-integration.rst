@@ -305,8 +305,8 @@ Adding a project from a repository
 
 To add a project from a repository,
 you need to install the Read the Docs GitHub App and grant access to that repository.
-The installation and permission grant are done on **GitHub** using the links below,
-while the project creation happens inside your **Read the Docs account**.
+Use the links below to complete the installation and permissions,
+then create the project from your **Read the Docs account**.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
@@ -320,8 +320,8 @@ Connect a repository to an existing project
 In case you manually added a project on Read the Docs,
 or if you want to connect your project to a different repository,
 you need to install the Read the Docs GitHub App and grant access to the repository you want to connect.
-As with adding a project, installation and permissions are handled on **GitHub**,
-and selecting the repository happens from your **project settings on Read the Docs**.
+As with adding a project, complete installation and permissions via the links below,
+and select the repository from your **project settings on Read the Docs**.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
@@ -365,7 +365,7 @@ Revoking access
    you will need to :ref:`manually connect your project to the repository <reference/git-integration:Connect a repository to an existing project>`.
 
 You can revoke access to the Read the Docs GitHub App at any time from your GitHub settings.
-All revocation options are performed from your **GitHub account or organization settings**; no action is required inside Read the Docs until you decide to reconnect a project.
+All revocation options happen from your **account or organization settings**; no action is required inside Read the Docs until you decide to reconnect a project.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
