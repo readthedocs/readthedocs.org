@@ -1,4 +1,8 @@
 import itertools
+from djstripe.enums import SubscriptionStatus
+from django.utils import timezone
+from django.conf import settings
+from djstripe import models as djstripe
 from unittest import mock
 
 import pytest
@@ -11,8 +15,10 @@ from django_dynamic_fixture import get
 from readthedocs.builds.models import Version
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Domain, HTMLFile, Project
 from readthedocs.search.documents import PageDocument
+from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.products import RTDProduct, RTDProductFeature
 
 
 @pytest.mark.search
@@ -417,6 +423,163 @@ class ProxiedSearchAPITest(SearchAPITest):
             assert resp.status_code == 200
             assert resp.data["results"]
 
+    def _create_stripe_subscription(self):
+        stripe_customer = get(
+            djstripe.Customer,
+            id="cus_a1b2c3",
+        )
+        stripe_subscription = get(
+            djstripe.Subscription,
+            id="sub_a1b2c3",
+            start_date=timezone.now(),
+            current_period_end=timezone.now() + timezone.timedelta(days=30),
+            trial_end=timezone.now() + timezone.timedelta(days=30),
+            status=SubscriptionStatus.active,
+            customer=stripe_customer,
+        )
+        stripe_product = get(
+            djstripe.Product,
+            id="prod_a1b2c3",
+        )
+        stripe_price = get(
+            djstripe.Price,
+            id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE,
+            unit_amount=50000,
+            product=stripe_product,
+        )
+        get(
+            djstripe.SubscriptionItem,
+            price=stripe_price,
+            quantity=1,
+            subscription=stripe_subscription,
+        )
+        return stripe_subscription
+
+    @override_settings(
+        RTD_ALLOW_ORGANIZATIONS=True,
+        RTD_PRODUCTS=dict(
+            [
+                RTDProduct(
+                    stripe_id="prod_a1b2c3",
+                    listed=True,
+                    features=dict(
+                        [
+                            RTDProductFeature(type=TYPE_CNAME).to_item(),
+                        ]
+                    ),
+                ).to_item(),
+            ]
+        ),
+    )
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client", new=mock.MagicMock())
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query.delay", new=mock.MagicMock())
+    def test_search_project_number_of_queries_with_organizations(self):
+        org = get(
+            Organization,
+            owners=[self.user],
+            projects=[self.project, self.another_project],
+        )
+        org.stripe_subscription = self._create_stripe_subscription()
+        org.stripe_customer = org.stripe_subscription.customer
+        org.save()
+
+        # Default version
+        # It used to be 10
+        with self.assertNumQueries(9):
+            resp = self.get(self.url, data={"q": "project:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # It used to be 16
+        with self.assertNumQueries(14):
+            resp = self.get(
+                self.url, data={"q": "project:project project:another-project test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # With explicit version
+        # It used to be 10
+        with self.assertNumQueries(9):
+            resp = self.get(self.url, data={"q": "project:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # It used to be 16
+        with self.assertNumQueries(14):
+            resp = self.get(
+                self.url, data={"q": "project:project/latest project:another-project/latest test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+    @override_settings(
+        RTD_ALLOW_ORGANIZATIONS=True,
+        RTD_PRODUCTS=dict(
+            [
+                RTDProduct(
+                    stripe_id="prod_a1b2c3",
+                    listed=True,
+                    features=dict(
+                        [
+                            RTDProductFeature(type=TYPE_CNAME).to_item(),
+                        ]
+                    ),
+                ).to_item(),
+            ]
+        ),
+    )
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client", new=mock.MagicMock())
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query.delay", new=mock.MagicMock())
+    def test_search_project_number_of_queries_with_organizations_and_custom_domains(self):
+        get(
+            Domain,
+            domain="one.example.com",
+            project=self.project,
+            canonical=True,
+        )
+        get(
+            Domain,
+            domain="two.example.com",
+            project=self.another_project,
+            canonical=True,
+        )
+        org = get(
+            Organization,
+            owners=[self.user],
+            projects=[self.project, self.another_project],
+        )
+        org.stripe_subscription = self._create_stripe_subscription()
+        org.stripe_customer = org.stripe_subscription.customer
+        org.save()
+        # Default version
+        with self.assertNumQueries(10):
+            resp = self.get(self.url, data={"q": "project:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # It used to be 16
+        with self.assertNumQueries(15):
+            resp = self.get(
+                self.url, data={"q": "project:project project:another-project test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # With explicit version
+        with self.assertNumQueries(10):
+            resp = self.get(self.url, data={"q": "project:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # It used to be 16
+        with self.assertNumQueries(15):
+            resp = self.get(
+                self.url, data={"q": "project:project/latest project:another-project/latest test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
     def test_search_subprojects_number_of_queries(self):
         subproject = get(
             Project,
@@ -508,6 +671,170 @@ class ProxiedSearchAPITest(SearchAPITest):
 
         # Search on explicit version.
         with self.assertNumQueries(13):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+    @override_settings(
+        RTD_ALLOW_ORGANIZATIONS=True,
+        RTD_PRODUCTS=dict(
+            [
+                RTDProduct(
+                    stripe_id="prod_a1b2c3",
+                    listed=True,
+                    features=dict(
+                        [
+                            RTDProductFeature(type=TYPE_CNAME).to_item(),
+                        ]
+                    ),
+                ).to_item(),
+            ]
+        ),
+    )
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client", new=mock.MagicMock())
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query.delay", new=mock.MagicMock())
+    def test_search_subprojects_number_of_queries_with_organizations(self):
+        subproject = get(
+            Project,
+            slug="subproject",
+            users=[self.user],
+            privacy_level=PUBLIC,
+        )
+        subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+        self.create_index(subproject.versions.first())
+        self.project.add_subproject(subproject)
+
+        org = get(
+            Organization,
+            owners=[self.user],
+            projects=[self.project, self.another_project, subproject],
+        )
+        org.stripe_subscription = self._create_stripe_subscription()
+        org.stripe_customer = org.stripe_subscription.customer
+        org.save()
+
+        # Search on default version.
+        # It used to be 14
+        with self.assertNumQueries(11):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        # It used to be 14
+        with self.assertNumQueries(11):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Add subprojects.
+        for i in range(3):
+            subproject = get(
+                Project,
+                slug=f"subproject-{i}",
+                users=[self.user],
+                privacy_level=PUBLIC,
+            )
+            subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+            self.create_index(subproject.versions.first())
+            self.project.add_subproject(subproject)
+            org.projects.add(subproject)
+
+        # Search on default version.
+        # It used to be 23
+        with self.assertNumQueries(14):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        # It used to be 23
+        with self.assertNumQueries(14):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+    @override_settings(
+        RTD_ALLOW_ORGANIZATIONS=True,
+        RTD_PRODUCTS=dict(
+            [
+                RTDProduct(
+                    stripe_id="prod_a1b2c3",
+                    listed=True,
+                    features=dict(
+                        [
+                            RTDProductFeature(type=TYPE_CNAME).to_item(),
+                        ]
+                    ),
+                ).to_item(),
+            ]
+        ),
+    )
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client", new=mock.MagicMock())
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query.delay", new=mock.MagicMock())
+    def test_search_subprojects_number_of_queries_with_organizations_and_custom_domains(self):
+        get(
+            Domain,
+            domain="one.example.com",
+            project=self.project,
+            canonical=True,
+        )
+        subproject = get(
+            Project,
+            slug="subproject",
+            users=[self.user],
+            privacy_level=PUBLIC,
+        )
+        subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+        self.create_index(subproject.versions.first())
+        self.project.add_subproject(subproject)
+
+        org = get(
+            Organization,
+            owners=[self.user],
+            projects=[self.project, self.another_project, subproject],
+        )
+        org.stripe_subscription = self._create_stripe_subscription()
+        org.stripe_customer = org.stripe_subscription.customer
+        org.save()
+
+        # Search on default version.
+        # It used to be 14
+        with self.assertNumQueries(12):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        # It used to be 14
+        with self.assertNumQueries(12):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Add subprojects.
+        for i in range(3):
+            subproject = get(
+                Project,
+                slug=f"subproject-{i}",
+                users=[self.user],
+                privacy_level=PUBLIC,
+            )
+            subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+            self.create_index(subproject.versions.first())
+            self.project.add_subproject(subproject)
+            org.projects.add(subproject)
+
+        # Search on default version.
+        # It used to be 23
+        with self.assertNumQueries(15):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        # It used to be 23
+        with self.assertNumQueries(15):
             resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
             assert resp.status_code == 200
             assert resp.data["results"]

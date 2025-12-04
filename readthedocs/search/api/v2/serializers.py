@@ -146,7 +146,9 @@ class PageSearchSerializer(serializers.Serializer):
         if version:
             project = version.project
             projects_data = self.context.setdefault("projects_data", {})
-            projects_data[obj.project] = self._build_project_data(project, version=version, resolver=resolver)
+            projects_data[obj.project] = self._build_project_data(
+                project, version=version, resolver=resolver
+            )
             return projects_data[obj.project]
         return None
 
