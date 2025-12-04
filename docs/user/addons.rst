@@ -32,6 +32,9 @@ and can be accessed via hotkeys or on screen UI elements.
 :doc:`Search analytics </search-analytics>`
     Understand what your users are searching for
 
+:ref:`Custom script <addons:Custom script>`
+    Inject custom JavaScript into your documentation
+
 Configuring Read the Docs Addons
 --------------------------------
 
@@ -433,13 +436,15 @@ then subscribe to the event for future updates (for example, when the URL change
       }
     }
 
-    // The event has already fired when custom scripts load.
-    // Check for window.ReadTheDocsEventData first.
+    // The event "readthedocs-addons-data-ready" has been already fired when this script is run.
+    // We need to check for `window.ReadTheDocsEventData` first, and if it's available
+    // use that data to call the handler.
     if (window.ReadTheDocsEventData !== undefined) {
       handleReadTheDocsData(window.ReadTheDocsEventData.data());
     }
 
-    // Subscribe to the event for future data updates
+    // After that, we subscribe to the Read the Docs Addons event to access data
+    // on future dispatchs (e.g. when a URL changes on a SPA)
     document.addEventListener("readthedocs-addons-data-ready", function (event) {
       handleReadTheDocsData(event.detail.data());
     });
