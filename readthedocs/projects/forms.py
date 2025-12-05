@@ -40,6 +40,7 @@ from readthedocs.projects.models import WebHook
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
 from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.validators import normalize_readthedocs_yaml_path
 from readthedocs.redirects.models import Redirect
 
 
@@ -518,8 +519,7 @@ class UpdateProjectForm(
         only considered as helpful to a user, not a security measure.
         """
         filename = self.cleaned_data.get("readthedocs_yaml_path")
-        filename = (filename or "").strip()
-        return filename
+        return normalize_readthedocs_yaml_path(filename)
 
     def get_all_active_versions(self):
         """
