@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
@@ -10,6 +10,7 @@ from readthedocs.organizations.models import Organization, Team, TeamInvite
 from readthedocs.projects.models import Project
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class TestViews(TestCase):
     def setUp(self):
         self.user = get(User)

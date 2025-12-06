@@ -246,7 +246,7 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
         # If the project belongs to an organization, count all the projects
         # from this organization as well
-        organization = project.organizations.first()
+        organization = project.organization
         if organization:
             query |= Q(project__in=organization.projects.all())
 

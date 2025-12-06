@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
@@ -90,6 +90,7 @@ class ProjectQuerySetTests(TestCase):
             "ManagerFromParentRelatedProjectQuerySet",
         )
 
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
     def test_is_active(self):
         project = get(Project, skip=False)
         self.assertTrue(Project.objects.is_active(project))
@@ -109,10 +110,14 @@ class ProjectQuerySetTests(TestCase):
 
         organization = get(Organization, disabled=False)
         organization.projects.add(project)
+        # Clear cached organization
+        del project.organization
         self.assertTrue(Project.objects.is_active(project))
 
         organization.disabled = True
         organization.save()
+        # Clear cached organization
+        del project.organization
         self.assertFalse(Project.objects.is_active(project))
 
     def test_dashboard(self):
@@ -188,6 +193,7 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
     def test_only_owner(self):
         user = get(User)
         another_user = get(User)

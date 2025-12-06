@@ -98,7 +98,7 @@ class BuildDataManager(models.Manager):
                 "id": build.version.id,
                 "slug": build.version.slug,
             }
-        org = build.project.organizations.first()
+        org = build.project.organization
         if org:
             data["organization"] = {
                 "id": org.id,

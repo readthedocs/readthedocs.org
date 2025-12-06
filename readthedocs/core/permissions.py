@@ -118,7 +118,7 @@ class AdminPermissionBase:
 
         if isinstance(obj, Project):
             if settings.RTD_ALLOW_ORGANIZATIONS:
-                obj = obj.organizations.first()
+                obj = obj.organization
             else:
                 return obj.users.all()
 
