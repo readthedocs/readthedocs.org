@@ -134,7 +134,12 @@ def prepare_build(
     # If there are builds triggered/running for this particular project and version,
     # we cancel all of them and trigger a new one for the latest commit received.
     for running_build in running_builds:
-        cancel_build(running_build)
+        # Here we only revoke the Celery task and let the build's failure handler
+        # update the DB state. This way, these builds still count towards
+        # concurrency limits until the worker finishes handling them.
+        cancel_build(running_build, update_state=False)
+
+
 
     # Start the build in X minutes and mark it as limited
     limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
@@ -237,7 +242,7 @@ def trigger_build(project, version=None, commit=None):
     return task, build
 
 
-def cancel_build(build):
+def cancel_build(build, *, update_state=True):
     """
     Cancel a triggered/running build.
 
@@ -248,9 +253,11 @@ def cancel_build(build):
         Workers will know about this and will discard it.
     - Running:
         Communicate Celery to force the termination of the current build.
-        We also update the Build object here so the UI reflects the
-        cancellation immediately, instead of relying solely on the task's
-        failure handler (which doesn't always run for retried builds).
+
+    :param update_state:
+        When True (default), update the Build object immediately so the UI
+        reflects the cancellation. When False, only revoke the Celery task
+        and let the caller decide how/when to update the Build object.
     """
     # If the build is already in a final state, there is nothing to do.
     if build.state in BUILD_FINAL_STATES:
@@ -269,23 +276,22 @@ def cancel_build(build):
     # need it.
     terminate = build.state != BUILD_STATE_TRIGGERED
 
-    # Move the build out of the "active" states immediately, regardless of
-    # whether the task had started or is still pending/retrying.
-    build.state = BUILD_STATE_CANCELLED
-    build.success = False
+    if update_state:
+        # Move the build out of the "active" states immediately, regardless of
+        # whether the task had started or is still pending/retrying.
+        build.state = BUILD_STATE_CANCELLED
+        build.success = False
 
-    # Add a notification for this build (avoid duplicate notifications if you want,
-    # but it's usually fine).
-    Notification.objects.add(
-        message_id=BuildCancelled.CANCELLED_BY_USER,
-        attached_to=build,
-        dismissable=False,
-    )
+        Notification.objects.add(
+            message_id=BuildCancelled.CANCELLED_BY_USER,
+            attached_to=build,
+            dismissable=False,
+        )
 
-    if build.length is None:
-        build.length = 0
+        if build.length is None:
+            build.length = 0
 
-    build.save()
+        build.save()
 
     log.warning(
         "Canceling build.",
