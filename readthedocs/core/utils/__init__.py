@@ -139,7 +139,6 @@ def prepare_build(
         # concurrency limits until the worker finishes handling them.
         cancel_build(running_build, False)
 
-
     # Start the build in X minutes and mark it as limited
     limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
     if limit_reached:
