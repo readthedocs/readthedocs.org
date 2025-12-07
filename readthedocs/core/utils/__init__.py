@@ -137,7 +137,7 @@ def prepare_build(
         # Here we only revoke the Celery task and let the build's failure handler
         # update the DB state. This way, these builds still count towards
         # concurrency limits until the worker finishes handling them.
-        cancel_build(running_build, False)
+        cancel_build(running_build, update_state=False)
 
     # Start the build in X minutes and mark it as limited
     limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
