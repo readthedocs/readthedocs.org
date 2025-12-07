@@ -298,7 +298,6 @@ def cancel_build(build):
     app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
 
 
-
 def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):
     """Given an email object, send it using our send_email_task task."""
     from readthedocs.core.tasks import send_email_task
