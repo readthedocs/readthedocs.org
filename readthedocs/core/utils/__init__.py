@@ -247,43 +247,56 @@ def cancel_build(build):
         Update the build status and tells Celery to revoke this task.
         Workers will know about this and will discard it.
     - Running:
-        Communicate Celery to force the termination of the current build
-        and rely on the worker to update the build's status.
+        Communicate Celery to force the termination of the current build.
+        We also update the Build object here so the UI reflects the
+        cancellation immediately, instead of relying solely on the task's
+        failure handler (which doesn't always run for retried builds).
     """
+    # If the build is already in a final state, there is nothing to do.
+    if build.state in BUILD_FINAL_STATES:
+        log.info(
+            "Cancel called on build in final state.",
+            project_slug=build.project.slug,
+            version_slug=getattr(build.version, "slug", None),
+            build_id=build.pk,
+            build_state=build.state,
+        )
+        return
+
     # NOTE: `terminate=True` is required for the child to attend our call
     # immediately when it's running the build. Otherwise, it finishes the
     # task. However, to revoke a task that has not started yet, we don't
     # need it.
-    if build.state == BUILD_STATE_TRIGGERED:
-        # Since the task won't be executed at all, we need to update the
-        # Build object here.
-        terminate = False
-        build.state = BUILD_STATE_CANCELLED
-        build.success = False
+    terminate = build.state != BUILD_STATE_TRIGGERED
 
-        # Add a notification for this build
-        Notification.objects.add(
-            message_id=BuildCancelled.CANCELLED_BY_USER,
-            attached_to=build,
-            dismissable=False,
-        )
+    # Move the build out of the "active" states immediately, regardless of
+    # whether the task had started or is still pending/retrying.
+    build.state = BUILD_STATE_CANCELLED
+    build.success = False
 
+    # Add a notification for this build (avoid duplicate notifications if you want,
+    # but it's usually fine).
+    Notification.objects.add(
+        message_id=BuildCancelled.CANCELLED_BY_USER,
+        attached_to=build,
+        dismissable=False,
+    )
+
+    if build.length is None:
         build.length = 0
-        build.save()
-    else:
-        # In this case, we left the update of the Build object to the task
-        # itself to be executed in the `on_failure` handler.
-        terminate = True
+
+    build.save()
 
     log.warning(
         "Canceling build.",
         project_slug=build.project.slug,
-        version_slug=build.version.slug,
+        version_slug=getattr(build.version, "slug", None),
         build_id=build.pk,
         build_task_id=build.task_id,
         terminate=terminate,
     )
     app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
+
 
 
 def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):
