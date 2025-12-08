@@ -10,6 +10,7 @@ on:
   schedule:
     # Run weekly on day 0 at 00:00 UTC
     - cron: "0 0 * * 0"
+  workflow_dispatch:
 
 permissions:
   contents: read
