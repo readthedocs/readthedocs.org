@@ -39,6 +39,8 @@ from readthedocs.projects.models import Domain, Project
     GLOBAL_ANALYTICS_CODE=None,
     RTD_ALLOW_ORGANIZATIONS=False,
     RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
+    RTD_PRODUCTS={},
+    ALLOW_PRIVATE_REPOS=False,
 )
 @pytest.mark.proxito
 class TestReadTheDocsConfigJson(TestCase):

@@ -206,9 +206,8 @@ class Resolver:
             and self._use_cname(canonical_project)
         ):
             domain_object = canonical_project.canonical_custom_domain
-            if domain_object:
-                use_https = domain_object.https
-                domain = domain_object.domain
+            use_https = domain_object.https
+            domain = domain_object.domain
 
         return domain, use_https
 
