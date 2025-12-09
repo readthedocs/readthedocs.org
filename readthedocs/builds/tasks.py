@@ -697,7 +697,7 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
         return
 
     # Count consecutive failed builds on the default version
-    builds = (
+    builds = list(
         Build.objects.filter(
             project=project,
             version_slug=version_slug,
