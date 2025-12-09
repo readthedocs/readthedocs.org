@@ -25,11 +25,11 @@ The build will be marked as cancelled and will not consume build time or resourc
 
       >>> sum(list("skip".encode("ascii")))
       439
-      >>> 439 % 256
+      >>> 439 % 256  # Unix exit codes are limited to 0-255
       183
 
-   The 256 modulo is applied because `Unix systems automatically do this <https://tldp.org/LDP/abs/html/exitcodes.html>`_
-   for exit codes greater than 255.
+   The 256 modulo operation is necessary because `Unix exit codes are limited to 0-255 <https://tldp.org/LDP/abs/html/exitcodes.html>`_,
+   and any value larger than 255 is automatically reduced by taking the modulo 256.
 
 When to skip builds
 -------------------
@@ -139,8 +139,8 @@ such as personal development branches:
 Skip builds based on file types
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This example skips builds when the only changes are to specific file types,
-such as images or data files:
+This example skips builds when all changes are to non-documentation files,
+such as only images or data files:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -157,8 +157,10 @@ such as images or data files:
            if [ "$READTHEDOCS_VERSION_TYPE" = "external" ]; then
              # Get list of changed files
              CHANGED_FILES=$(git diff --name-only origin/main)
-             # Check if all changed files match certain extensions
-             if echo "$CHANGED_FILES" | grep -qvE "\.(rst|md|py|yaml|yml|txt|toml)$"; then
+             # Check if any changed files are documentation-related.
+             # If ALL files are non-documentation (grep finds no documentation files),
+             # then we skip the build by exiting with 183.
+             if ! echo "$CHANGED_FILES" | grep -qE "\.(rst|md|py|yaml|yml|txt|toml)$"; then
                exit 183;
              fi
            fi
