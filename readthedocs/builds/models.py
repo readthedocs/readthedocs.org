@@ -863,10 +863,11 @@ class Build(models.Model):
             if previous is not None and self._config and self._config == previous.config:
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
-            
-            # Populate the new readthedocs_yaml_data field
-            # We only create a BuildConfig when we have actual config data (not a reference)
-            if self._config and self.CONFIG_KEY not in self._config:
+                # Clear readthedocs_yaml_data when using reference style
+                self.readthedocs_yaml_data = None
+            elif self._config and self.CONFIG_KEY not in self._config:
+                # Populate the new readthedocs_yaml_data field
+                # We only create a BuildConfig when we have actual config data (not a reference)
                 # Use get_or_create to avoid duplicates and leverage the unique constraint
                 build_config, created = BuildConfig.objects.get_or_create(
                     data=self._config

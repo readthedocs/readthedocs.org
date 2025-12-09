@@ -2,9 +2,11 @@
 
 import django_dynamic_fixture as fixture
 import pytest
+from django.db import IntegrityError
 
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildConfig
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
 
@@ -28,7 +30,6 @@ class TestBuildConfig:
         BuildConfig.objects.create(data=config_data)
         
         # Try to create another with the same data - should raise IntegrityError
-        from django.db import IntegrityError
         with pytest.raises(IntegrityError):
             BuildConfig.objects.create(data=config_data)
 
@@ -117,8 +118,6 @@ class TestBuildReadthedocsYamlData:
 
     def test_build_with_config_reference_uses_same_buildconfig(self):
         """Test that a Build with config reference (old style) doesn't create a new BuildConfig."""
-        from readthedocs.builds.models import Version
-        
         project = fixture.get(Project)
         version = fixture.get(Version, project=project)
         config_data = {"build": {"os": "ubuntu-22.04"}}
