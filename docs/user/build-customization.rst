@@ -215,26 +215,14 @@ If your build also relies on the contents of other branches, it may also be nece
 Cancel build based on a condition
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a command exits with code ``183``,
-Read the Docs will cancel the build immediately.
-You can use this approach to cancel builds that you don't want to complete based on some conditional logic.
+Read the Docs allows you to programmatically cancel builds using a special exit code.
+When any command exits with code ``183``, the build will be cancelled immediately.
+This is useful for skipping builds based on conditions, such as when documentation files haven't changed.
 
-.. note:: Why 183 was chosen for the exit code?
+For a complete guide on this feature, including detailed examples, best practices, and troubleshooting,
+see :doc:`/guides/build/skip-build`.
 
-   It's the word "skip" encoded in ASCII.
-   Then it's taken the 256 modulo of it because
-   `the Unix implementation does this automatically <https://tldp.org/LDP/abs/html/exitcodes.html>`_
-   for exit codes greater than 255.
-
-   .. code-block:: pycon
-
-      >>> sum(list("skip".encode("ascii")))
-      439
-      >>> 439 % 256
-      183
-
-
-Here is an example that cancels builds from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
+Here is a quick example that cancels builds from pull requests when there are no changes to the ``docs/`` folder:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -246,10 +234,7 @@ Here is an example that cancels builds from pull requests when there are no chan
        python: "3.12"
      jobs:
        post_checkout:
-         # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
-         # You can add any other files or directories that you'd like here as well,
-         # like your docs requirements file, or other files that will change your docs build.
-         #
+         # Cancel building pull requests when there aren't changes in the docs directory or YAML file.
          # If there are no changes (git diff exits with 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
          - |
@@ -257,23 +242,6 @@ Here is an example that cancels builds from pull requests when there are no chan
            then
              exit 183;
            fi
-
-
-This other example shows how to cancel a build if the commit message contains ``skip ci`` on it:
-
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
-
-   version: 2
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       python: "3.12"
-     jobs:
-       post_checkout:
-         # Use `git log` to check if the latest commit contains "skip ci",
-         # in that case exit the command with 183 to cancel the build
-         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | paste -s -d " " | grep -viq "skip ci") || exit 183
 
 
 Generate documentation from annotated sources with Doxygen
