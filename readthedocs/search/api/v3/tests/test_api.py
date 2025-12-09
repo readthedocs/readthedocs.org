@@ -417,6 +417,7 @@ class ProxiedSearchAPITest(SearchAPITest):
             assert resp.status_code == 200
             assert resp.data["results"]
 
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client", new=mock.MagicMock())
     def test_search_subprojects_number_of_queries(self):
         subproject = get(
             Project,
