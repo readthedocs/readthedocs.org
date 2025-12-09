@@ -368,6 +368,39 @@ class TestBuildConfigV2:
         with does_not_raise(ConfigError):
             build.validate()
 
+    def test_miniforge3_python_interpreter(self, tmpdir):
+        apply_fs(
+            tmpdir,
+            {
+                "readthedocs.yml": """
+                version: 2
+                build:
+                  os: ubuntu-22.04
+                  tools:
+                    python: miniforge3-24.11
+                conda:
+                  environment: environment.yml
+                """,
+                "environment.yml": "name: test",
+            },
+        )
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "miniforge3-24.11",
+                    },
+                },
+                "conda": {
+                    "environment": "environment.yml",
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        assert build.python_interpreter == "conda"
+
     @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_conda_check_invalid_value(self, value):
         build = get_build_config({"conda": value})
