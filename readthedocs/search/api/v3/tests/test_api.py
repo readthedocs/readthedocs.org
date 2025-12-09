@@ -423,54 +423,6 @@ class ProxiedSearchAPITest(SearchAPITest):
             assert resp.status_code == 200
             assert resp.data["results"]
 
-    def _create_stripe_subscription(self):
-        stripe_customer = get(
-            djstripe.Customer,
-            id="cus_a1b2c3",
-        )
-        stripe_subscription = get(
-            djstripe.Subscription,
-            id="sub_a1b2c3",
-            start_date=timezone.now(),
-            current_period_end=timezone.now() + timezone.timedelta(days=30),
-            trial_end=timezone.now() + timezone.timedelta(days=30),
-            status=SubscriptionStatus.active,
-            customer=stripe_customer,
-        )
-        stripe_product = get(
-            djstripe.Product,
-            id="prod_a1b2c3",
-        )
-        stripe_price = get(
-            djstripe.Price,
-            id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE,
-            unit_amount=50000,
-            product=stripe_product,
-        )
-        get(
-            djstripe.SubscriptionItem,
-            price=stripe_price,
-            quantity=1,
-            subscription=stripe_subscription,
-        )
-        return stripe_subscription
-
-    @override_settings(
-        RTD_ALLOW_ORGANIZATIONS=True,
-        RTD_PRODUCTS=dict(
-            [
-                RTDProduct(
-                    stripe_id="prod_a1b2c3",
-                    listed=True,
-                    features=dict(
-                        [
-                            RTDProductFeature(type=TYPE_CNAME).to_item(),
-                        ]
-                    ),
-                ).to_item(),
-            ]
-        ),
-    )
     @mock.patch("readthedocs.subscriptions.signals.get_stripe_client", new=mock.MagicMock())
     def test_search_subprojects_number_of_queries(self):
         subproject = get(
