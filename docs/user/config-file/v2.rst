@@ -327,6 +327,9 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``mambaforge-22.9``
   - ``mambaforge-23.11``
   - ``mambaforge-latest`` (alias for the latest version available on Read the Docs)
+  - ``miniforge3-24.11``
+  - ``miniforge3-25.1``
+  - ``miniforge3-latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.nodejs
 ``````````````````
