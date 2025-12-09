@@ -1,8 +1,4 @@
 import itertools
-from djstripe.enums import SubscriptionStatus
-from django.utils import timezone
-from django.conf import settings
-from djstripe import models as djstripe
 from unittest import mock
 
 import pytest
@@ -17,8 +13,6 @@ from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.documents import PageDocument
-from readthedocs.subscriptions.constants import TYPE_CNAME
-from readthedocs.subscriptions.products import RTDProduct, RTDProductFeature
 
 
 @pytest.mark.search
