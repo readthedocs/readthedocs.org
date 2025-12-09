@@ -10,6 +10,7 @@ It "directs" all of the high-level build jobs:
 
 import datetime
 import os
+import shlex
 import tarfile
 
 import structlog
@@ -630,7 +631,7 @@ class BuildDirector:
                     cmd = [
                         "/bin/sh",
                         "-c",
-                        f"unset CONDA_ENVS_PATH ; unset CONDA_DEFAULT_ENV ; asdf install {tool} {full_version}",
+                        f"unset CONDA_ENVS_PATH ; unset CONDA_DEFAULT_ENV ; asdf install {shlex.quote(tool)} {shlex.quote(full_version)}",
                     ]
                 else:
                     cmd = [
