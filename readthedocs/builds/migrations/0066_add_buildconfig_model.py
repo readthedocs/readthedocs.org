@@ -2,7 +2,8 @@
 
 import django.db.models.deletion
 import django_extensions.db.fields
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
 from django_safemigrate import Safe
 
 
@@ -10,26 +11,56 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ('builds', '0065_task_executed_at'),
+        ("builds", "0065_task_executed_at"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BuildConfig',
+            name="BuildConfig",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('data', models.JSONField(help_text='The rendered YAML configuration used in the build', unique=True, verbose_name='Configuration data')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                (
+                    "data",
+                    models.JSONField(
+                        help_text="The rendered YAML configuration used in the build",
+                        unique=True,
+                        verbose_name="Configuration data",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Build configuration',
-                'verbose_name_plural': 'Build configurations',
+                "verbose_name": "Build configuration",
+                "verbose_name_plural": "Build configurations",
             },
         ),
         migrations.AddField(
-            model_name='build',
-            name='readthedocs_yaml_data',
-            field=models.ForeignKey(blank=True, help_text='The rendered YAML configuration used in the build', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='builds', to='builds.buildconfig', verbose_name='Build configuration data'),
+            model_name="build",
+            name="readthedocs_yaml_data",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="The rendered YAML configuration used in the build",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="builds",
+                to="builds.buildconfig",
+                verbose_name="Build configuration data",
+            ),
         ),
     ]

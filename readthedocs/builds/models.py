@@ -880,9 +880,7 @@ class Build(models.Model):
                 # Populate the new readthedocs_yaml_data field
                 # We only create a BuildConfig when we have actual config data (not a reference)
                 # Use get_or_create to avoid duplicates and leverage the unique constraint
-                build_config, created = BuildConfig.objects.get_or_create(
-                    data=self._config
-                )
+                build_config, created = BuildConfig.objects.get_or_create(data=self._config)
                 self.readthedocs_yaml_data = build_config
 
         if self.version:
