@@ -341,7 +341,7 @@ class TestBuildConfigV2:
                 "build": {
                     "os": "ubuntu-22.04",
                     "tools": {
-                        "python": "miniforge3-24.11",
+                        "python": "miniforge3-25.1",
                     },
                 },
             }
@@ -377,7 +377,7 @@ class TestBuildConfigV2:
                 build:
                   os: ubuntu-22.04
                   tools:
-                    python: miniforge3-24.11
+                    python: miniforge3-25.1
                 conda:
                   environment: environment.yml
                 """,
@@ -389,7 +389,7 @@ class TestBuildConfigV2:
                 "build": {
                     "os": "ubuntu-22.04",
                     "tools": {
-                        "python": "miniforge3-24.11",
+                        "python": "miniforge3-25.1",
                     },
                 },
                 "conda": {
