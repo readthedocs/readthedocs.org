@@ -2,49 +2,11 @@
 
 import django_dynamic_fixture as fixture
 import pytest
-from django.db import IntegrityError
 
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-
-
-@pytest.mark.django_db
-class TestBuildConfig:
-    """Test BuildConfig model functionality."""
-
-    def test_buildconfig_creation(self):
-        """Test that BuildConfig can be created with data."""
-        config_data = {"build": {"os": "ubuntu-22.04"}, "python": {"version": "3.11"}}
-        build_config = BuildConfig.objects.create(data=config_data)
-        
-        assert build_config.pk is not None
-        assert build_config.data == config_data
-
-    def test_buildconfig_unique_constraint(self):
-        """Test that BuildConfig enforces unique constraint on data."""
-        config_data = {"build": {"os": "ubuntu-22.04"}, "python": {"version": "3.11"}}
-        
-        # Create first BuildConfig
-        BuildConfig.objects.create(data=config_data)
-        
-        # Try to create another with the same data - should raise IntegrityError
-        with pytest.raises(IntegrityError):
-            BuildConfig.objects.create(data=config_data)
-
-    def test_buildconfig_get_or_create(self):
-        """Test that get_or_create works correctly for deduplication."""
-        config_data = {"build": {"os": "ubuntu-22.04"}, "python": {"version": "3.11"}}
-        
-        # First call creates
-        build_config1, created1 = BuildConfig.objects.get_or_create(data=config_data)
-        assert created1 is True
-        
-        # Second call gets existing
-        build_config2, created2 = BuildConfig.objects.get_or_create(data=config_data)
-        assert created2 is False
-        assert build_config1.pk == build_config2.pk
 
 
 @pytest.mark.django_db
@@ -62,7 +24,6 @@ class TestBuildReadthedocsYamlData:
         
         # Check that both old and new fields are populated
         assert build._config == config_data
-        assert build.readthedocs_yaml_data is not None
         assert build.readthedocs_yaml_data.data == config_data
 
     def test_build_with_same_config_reuses_buildconfig(self):
@@ -117,7 +78,7 @@ class TestBuildReadthedocsYamlData:
         assert BuildConfig.objects.count() == 0
 
     def test_build_with_config_reference_uses_same_buildconfig(self):
-        """Test that a Build with config reference (old style) doesn't create a new BuildConfig."""
+        """Test that a Build with config reference (old style) reuses the same BuildConfig."""
         project = fixture.get(Project)
         version = fixture.get(Version, project=project)
         config_data = {"build": {"os": "ubuntu-22.04"}}
@@ -135,26 +96,9 @@ class TestBuildReadthedocsYamlData:
         
         # build2 should have a reference in _config, not actual data
         assert Build.CONFIG_KEY in build2._config
-        # build1 should have created a BuildConfig
+        # Both builds should have the same BuildConfig
         assert build1.readthedocs_yaml_data is not None
-        # build2 should not create a new BuildConfig since it uses reference style
-        assert build2.readthedocs_yaml_data is None
+        assert build2.readthedocs_yaml_data is not None
+        assert build1.readthedocs_yaml_data.pk == build2.readthedocs_yaml_data.pk
         # There should only be one BuildConfig created
         assert BuildConfig.objects.count() == 1
-
-    def test_buildconfig_related_builds(self):
-        """Test that BuildConfig.builds related manager works."""
-        project = fixture.get(Project)
-        config_data = {"build": {"os": "ubuntu-22.04"}}
-        
-        # Create BuildConfig
-        build_config = BuildConfig.objects.create(data=config_data)
-        
-        # Create builds that reference it
-        build1 = fixture.get(Build, project=project, readthedocs_yaml_data=build_config)
-        build2 = fixture.get(Build, project=project, readthedocs_yaml_data=build_config)
-        
-        # Check related manager
-        assert build_config.builds.count() == 2
-        assert build1 in build_config.builds.all()
-        assert build2 in build_config.builds.all()

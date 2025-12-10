@@ -863,8 +863,19 @@ class Build(models.Model):
             if previous is not None and self._config and self._config == previous.config:
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
-                # Clear readthedocs_yaml_data when using reference style
-                self.readthedocs_yaml_data = None
+                # When using reference style, follow the reference to get the actual config
+                # and create/get the corresponding BuildConfig
+                if previous.readthedocs_yaml_data:
+                    # Previous build already has a BuildConfig, reuse it
+                    self.readthedocs_yaml_data = previous.readthedocs_yaml_data
+                else:
+                    # Previous build doesn't have BuildConfig yet, get its actual config
+                    actual_config = previous.config
+                    if actual_config:
+                        build_config, created = BuildConfig.objects.get_or_create(
+                            data=actual_config
+                        )
+                        self.readthedocs_yaml_data = build_config
             elif self._config and self.CONFIG_KEY not in self._config:
                 # Populate the new readthedocs_yaml_data field
                 # We only create a BuildConfig when we have actual config data (not a reference)
