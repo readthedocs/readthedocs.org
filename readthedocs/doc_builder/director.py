@@ -764,26 +764,11 @@ class BuildDirector:
         env["NO_COLOR"] = "1"
 
         if self.data.config.conda is not None:
-            # Check if we are using miniforge3
-            # Only add CONDA_ENVS_PATH and CONDA_DEFAULT_ENV if we are not using miniforge.
-            # See https://github.com/readthedocs/readthedocs.org/issues/11690
-            using_miniforge = False
-            for _, version in self.data.config.build.tools.items():
-                if version.full_version.startswith("miniforge"):
-                    using_miniforge = True
-                    break
-
-            if not using_miniforge:
-                env.update(
-                    {
-                        # NOTE: should these be prefixed with "READTHEDOCS_"?
-                        "CONDA_ENVS_PATH": os.path.join(self.data.project.doc_path, "conda"),
-                        "CONDA_DEFAULT_ENV": self.data.version.slug,
-                    }
-                )
-
             env.update(
                 {
+                    # NOTE: should these be prefixed with "READTHEDOCS_"?
+                    "CONDA_ENVS_PATH": os.path.join(self.data.project.doc_path, "conda"),
+                    "CONDA_DEFAULT_ENV": self.data.version.slug,
                     "BIN_PATH": os.path.join(
                         self.data.project.doc_path,
                         "conda",
