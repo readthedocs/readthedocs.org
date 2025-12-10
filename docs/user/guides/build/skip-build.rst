@@ -20,7 +20,7 @@ The build will be marked as cancelled and will not consume build time or resourc
 .. note:: Why exit code 183?
 
    The exit code 183 was chosen because it represents the word "skip" encoded in ASCII.
-   
+
    .. code-block:: pycon
 
       >>> sum(list("skip".encode("ascii")))
