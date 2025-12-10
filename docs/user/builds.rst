@@ -110,7 +110,7 @@ Read the Docs supports three different mechanisms to cancel a running build:
 
    .. tip::
 
-      Take a look at :ref:`build-customization:cancel build based on a condition` section for some examples.
+      Take a look at :doc:`skip-build` page for some examples.
 
 Automatic disabling of builds
 -----------------------------
