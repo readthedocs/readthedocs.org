@@ -10,7 +10,6 @@ It "directs" all of the high-level build jobs:
 
 import datetime
 import os
-import shlex
 import tarfile
 
 import structlog
@@ -623,28 +622,17 @@ class BuildDirector:
                 )
                 # If the tool version selected is not available from the
                 # cache we compile it at build time
-                
-                # For miniforge3, unset CONDA_ENVS_PATH and CONDA_DEFAULT_ENV
-                # environment variables to allow proper installation
-                # See https://github.com/readthedocs/readthedocs.org/issues/11690
-                if tool == "python" and full_version.startswith("miniforge3"):
-                    cmd = [
-                        "/bin/sh",
-                        "-c",
-                        f"unset CONDA_ENVS_PATH ; unset CONDA_DEFAULT_ENV ; asdf install {shlex.quote(tool)} {shlex.quote(full_version)}",
-                    ]
-                else:
-                    cmd = [
-                        # TODO: make ``PYTHON_CONFIGURE_OPTS="--enable-shared"``
-                        # environment variable to work here. Note that
-                        # ``self.build_environment.run`` does not support passing
-                        # environment for a particular command:
-                        # https://github.com/readthedocs/readthedocs.org/blob/9d2d1a2/readthedocs/doc_builder/environments.py#L430-L431
-                        "asdf",
-                        "install",
-                        tool,
-                        full_version,
-                    ]
+                cmd = [
+                    # TODO: make ``PYTHON_CONFIGURE_OPTS="--enable-shared"``
+                    # environment variable to work here. Note that
+                    # ``self.build_environment.run`` does not support passing
+                    # environment for a particular command:
+                    # https://github.com/readthedocs/readthedocs.org/blob/9d2d1a2/readthedocs/doc_builder/environments.py#L430-L431
+                    "asdf",
+                    "install",
+                    tool,
+                    full_version,
+                ]
                 self.build_environment.run(
                     *cmd,
                 )
@@ -776,11 +764,26 @@ class BuildDirector:
         env["NO_COLOR"] = "1"
 
         if self.data.config.conda is not None:
+            # Check if we are using miniforge3
+            # Only add CONDA_ENVS_PATH and CONDA_DEFAULT_ENV if we are not using miniforge.
+            # See https://github.com/readthedocs/readthedocs.org/issues/11690
+            using_miniforge = False
+            for _, version in self.data.config.build.tools.items():
+                if version.full_version.startswith("miniforge"):
+                    using_miniforge = True
+                    break
+
+            if not using_miniforge:
+                env.update(
+                    {
+                        # NOTE: should these be prefixed with "READTHEDOCS_"?
+                        "CONDA_ENVS_PATH": os.path.join(self.data.project.doc_path, "conda"),
+                        "CONDA_DEFAULT_ENV": self.data.version.slug,
+                    }
+                )
+
             env.update(
                 {
-                    # NOTE: should these be prefixed with "READTHEDOCS_"?
-                    "CONDA_ENVS_PATH": os.path.join(self.data.project.doc_path, "conda"),
-                    "CONDA_DEFAULT_ENV": self.data.version.slug,
                     "BIN_PATH": os.path.join(
                         self.data.project.doc_path,
                         "conda",
