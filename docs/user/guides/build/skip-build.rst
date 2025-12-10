@@ -197,10 +197,6 @@ Be aware of these limitations when using the skip build feature:
    Once a build is cancelled with exit code 183, the entire build stops immediately.
    You cannot selectively skip only certain parts of the build process.
 
-**Limited to user-defined jobs**
-   The skip build feature only works in :ref:`config-file/v2:build.jobs` or :ref:`config-file/v2:build.commands`.
-   You cannot use it to skip the pre-defined ``checkout`` or ``upload`` jobs.
-
 **Not available in configuration file**
    You cannot skip builds using conditions in the ``.readthedocs.yaml`` configuration syntax itself.
    All logic must be implemented in bash commands.
