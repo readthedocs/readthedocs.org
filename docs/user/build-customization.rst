@@ -212,38 +212,6 @@ If your build also relies on the contents of other branches, it may also be nece
          - git fetch --all --tags || true
 
 
-Cancel build based on a condition
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Read the Docs allows you to programmatically cancel builds using a special exit code.
-When any command exits with code ``183``, the build will be cancelled immediately.
-This is useful for skipping builds based on conditions, such as when documentation files haven't changed.
-
-For a complete guide on this feature, including detailed examples, best practices, and troubleshooting,
-see :doc:`/guides/build/skip-build`.
-
-Here is a quick example that cancels builds from pull requests when there are no changes to the ``docs/`` folder:
-
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
-
-   version: 2
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       python: "3.12"
-     jobs:
-       post_checkout:
-         # Cancel building pull requests when there aren't changes in the docs directory or YAML file.
-         # If there are no changes (git diff exits with 0) we force the command to return with 183.
-         # This is a special exit code on Read the Docs that will cancel the build immediately.
-         - |
-           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ .readthedocs.yaml;
-           then
-             exit 183;
-           fi
-
-
 Generate documentation from annotated sources with Doxygen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

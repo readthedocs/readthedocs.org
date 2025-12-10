@@ -76,9 +76,6 @@ compared to the ``main`` branch:
      jobs:
        post_checkout:
          # Cancel building pull requests when there aren't changes in the docs directory or YAML file.
-         # You can add any other files or directories that you'd like here as well,
-         # like your docs requirements file, or other files that will change your docs build.
-         #
          # If there are no changes (git diff exits with 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
          - |
@@ -108,8 +105,9 @@ This example skips builds when the commit message contains ``[skip ci]`` or ``[c
        python: "3.12"
      jobs:
        post_checkout:
-         # Check if the latest commit message contains "[skip ci]" or "[ci skip]"
-         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | grep -viq "\[skip ci\]\|\[ci skip\]") || exit 183
+         # Use `git log` to check if the latest commit contains "skip ci",
+         # in that case exit the command with 183 to cancel the build
+         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | paste -s -d " " | grep -viq "skip ci") || exit 183
 
 This pattern is commonly used in CI/CD systems to skip builds for administrative commits,
 such as version bumps or documentation typos.
@@ -188,19 +186,7 @@ When implementing skip build logic, consider these best practices:
 
 **Use environment variables**
    Leverage :doc:`Read the Docs environment variables </reference/environment-variables>`
-   like ``READTHEDOCS_VERSION_TYPE`` to make your conditions more precise:
-
-   * ``external`` - Pull request builds from external contributors
-   * ``branch`` - Builds from branches
-   * ``tag`` - Builds from Git tags
-
-**Test edge cases**
-   Consider what happens with:
-   
-   * First-time builds of a branch
-   * Branches with no merge base
-   * Empty commits
-   * Merge commits
+   like ``READTHEDOCS_VERSION_TYPE`` to make your conditions more precise.
 
 Limitations
 -----------
@@ -246,18 +232,3 @@ Troubleshooting
    * Some Git operations require a full clone. If you need Git history,
      you might need to `unshallow the clone <https://docs.readthedocs.io/en/stable/build-customization.html#unshallow-git-clone>`_
    * Ensure you're running your skip logic in ``post_checkout`` to have access to the repository
-
-Further reading
----------------
-
-* :doc:`/build-customization` - General build customization options
-* :doc:`/reference/environment-variables` - Available environment variables for build conditions
-* :ref:`config-file/v2:build.jobs` - Configuration reference for build jobs
-* :doc:`/guides/pull-requests` - Setting up pull request builds
-* :doc:`/guides/automation-rules` - Automating version management
-
-.. seealso::
-
-   **Build notifications**
-      Configure :doc:`/guides/build/webhooks` or :doc:`/guides/build/email-notifications`
-      to be notified when builds are cancelled.
