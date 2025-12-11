@@ -1,6 +1,7 @@
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
+import json
 import re
 
 import structlog
@@ -17,6 +18,7 @@ from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
+from readthedocs.storage import build_commands_storage
 
 
 log = structlog.get_logger(__name__)
@@ -287,3 +289,42 @@ class RemoteProjectPagination(PageNumberPagination):
 class ProjectPagination(PageNumberPagination):
     page_size = 100
     max_page_size = 1000
+
+
+def get_commands_from_cold_storage(build_instance):
+    """
+    Retrieve build commands from cold storage if available.
+
+    :param build_instance: Build instance to retrieve commands for
+    :returns: List of command dictionaries with normalized commands, or None if not available
+    """
+    if not build_instance.cold_storage:
+        return None
+
+    storage_path = "{date}/{id}.json".format(
+        date=str(build_instance.date.date()),
+        id=build_instance.id,
+    )
+
+    if not build_commands_storage.exists(storage_path):
+        return None
+
+    try:
+        json_resp = build_commands_storage.open(storage_path).read()
+        commands = json.loads(json_resp)
+
+        # Normalize commands in the same way as when returning them using the serializer
+        for buildcommand in commands:
+            buildcommand["command"] = normalize_build_command(
+                buildcommand["command"],
+                build_instance.project.slug,
+                build_instance.get_version_slug(),
+            )
+
+        return commands
+    except Exception:
+        log.exception(
+            "Failed to read build data from storage.",
+            path=storage_path,
+        )
+        return None
