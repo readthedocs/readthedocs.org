@@ -1,0 +1,3 @@
+# Spam project detected, blocking large language model crawlers
+User-agent: *
+Disallow: /
