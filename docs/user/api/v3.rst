@@ -288,6 +288,7 @@ Project details
             "privacy_level": "public",
             "external_builds_privacy_level": "public",
             "versioning_scheme": "multiple_versions_with_translations",
+            "readthedocs_yaml_path": null,
             "_links": {
                 "_self": "/api/v3/projects/pip/",
                 "versions": "/api/v3/projects/pip/versions/",
@@ -466,6 +467,7 @@ Project update
             "analytics_code": "UA000000",
             "analytics_disabled": false,
             "versioning_scheme": "multiple_versions_with_translations",
+            "readthedocs_yaml_path": "docs/.readthedocs.yaml",
             "external_builds_enabled": true,
             "privacy_level": "public",
             "external_builds_privacy_level": "public"

@@ -32,6 +32,7 @@ from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
+from readthedocs.projects.validators import normalize_readthedocs_yaml_path
 from readthedocs.projects.validators import validate_environment_variable_size
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
@@ -700,6 +701,7 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             "external_builds_enabled",
             "privacy_level",
             "external_builds_privacy_level",
+            "readthedocs_yaml_path",
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
         )
@@ -711,6 +713,9 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("privacy_level")
             self.fields.pop("external_builds_privacy_level")
+
+    def validate_readthedocs_yaml_path(self, value):
+        return normalize_readthedocs_yaml_path(value)
 
 
 class ProjectUpdateSerializer(SettingsOverrideObject):
@@ -794,6 +799,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             "urls",
             "tags",
             "privacy_level",
+            "readthedocs_yaml_path",
             "external_builds_privacy_level",
             "versioning_scheme",
             # Kept for backwards compatibility,
@@ -852,6 +858,9 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``
         return obj.project_url or None
+
+    def validate_readthedocs_yaml_path(self, value):
+        return normalize_readthedocs_yaml_path(value)
 
     def get_translation_of(self, obj):
         if obj.main_language_project:
