@@ -334,7 +334,7 @@ Manually migrating a project
 
 We recommend using the migration page to migrate your projects from the old OAuth application to the new GitHub App.
 
-- `Read the Docs Community <https://app.readthedocs.com/accounts/migrate-to-github-app/>`__
+- `Read the Docs Community <https://app.readthedocs.org/accounts/migrate-to-github-app/>`__
 - `Read the Docs Business <https://app.readthedocs.com/accounts/migrate-to-github-app/>`__
 
 But in case you need to manually migrate a project,
