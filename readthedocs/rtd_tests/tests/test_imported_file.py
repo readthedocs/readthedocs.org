@@ -2,8 +2,7 @@ import os
 from unittest import mock
 
 import pytest
-from django.conf import settings
-from readthedocs.storage import get_storage_class
+from django.core.files.storage import storages
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -21,7 +20,9 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 @pytest.mark.search
 @override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class ImportedFileTests(TestCase):
-    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    @property
+    def storage(self):
+        return storages["build-media"]
 
     def setUp(self):
         self.project = get(Project)

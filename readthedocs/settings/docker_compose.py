@@ -243,8 +243,20 @@ class DockerBaseSettings(CommunityBaseSettings):
     @property
     def STORAGES(self):
         return {
+            "default": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+            },
             "staticfiles": {
-                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage",
+            },
+            "build-media": {
+                "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
+            },
+            "build-commands": {
+                "BACKEND": self.RTD_BUILD_COMMANDS_STORAGE,
+            },
+            "build-tools": {
+                "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
             },
             "usercontent": {
                 "BACKEND": "storages.backends.s3.S3Storage",
