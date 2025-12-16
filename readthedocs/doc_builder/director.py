@@ -798,6 +798,17 @@ class BuildDirector:
             }
         )
 
+        if settings.ALLOW_PRIVATE_REPOS:
+            # Set GIT_SSH_COMMAND to use ssh with options that disable host key checking
+            # -o StrictHostKeyChecking=no: Don't prompt for host verification
+            # -o UserKnownHostsFile=/dev/null: Don't save host keys
+            git_ssh_command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+            env.update(
+                {
+                    "GIT_SSH_COMMAND": git_ssh_command,
+                }
+            )
+
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables
         # if the version is external (i.e. a PR build).

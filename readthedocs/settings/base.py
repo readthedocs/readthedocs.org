@@ -956,17 +956,12 @@ class CommunityBaseSettings(Settings):
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 500
 
-    # Info from Honza about this:
-    # The key to determine shard number is actually usually not the node count,
-    # but the size of your data.
-    # There are advantages to just having a single shard in an index since
-    # you don't have to do the distribute/collect steps when executing a search.
-    # If your data will allow it (not significantly larger than 40GB)
-    # I would recommend going to a single shard and one replica meaning
-    # any of the two nodes will be able to serve any search without talking to the other one.
-    # Scaling to more searches will then just mean adding a third node
-    # and a second replica resulting in immediate 50% bump in max search throughput.
-
+    # The number of shards depends on the size of the data, 30GB per shard is a good rule to follow.
+    # Everytime we need to do a re-index, make sure to check the size of the index and adjust the
+    # number of shards if needed (change on ops repos). This is a static setting, it can't be changed
+    # after the index is created. In case a change is needed, a new index must be created and data
+    # reindexed. The number of replicas can be changed dynamically, one replica is a good default.
+    # See https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/size-shards.
     ES_INDEXES = {
         "project": {
             "name": "project_index",
@@ -980,16 +975,6 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
-
-    # ANALYZER = 'analysis': {
-    #     'analyzer': {
-    #         'default_icu': {
-    #             'type': 'custom',
-    #             'tokenizer': 'icu_tokenizer',
-    #             'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
-    #         }
-    #     }
-    # }
 
     # Disable auto refresh for increasing index performance
     ELASTICSEARCH_DSL_AUTO_REFRESH = False

@@ -18,7 +18,7 @@ def mark_organization_assets_not_cleaned(build_pk):
         log.debug("Build does not exist.", build_pk=build_pk)
         return
 
-    organization = build.project.organizations.first()
+    organization = build.project.organization
     if organization and organization.artifacts_cleaned:
         log.info("Marking organization as not cleaned.", origanization_slug=organization.slug)
         organization.artifacts_cleaned = False
