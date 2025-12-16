@@ -49,6 +49,7 @@ from readthedocs.projects.querysets import ChildRelatedProjectQuerySet
 from readthedocs.projects.querysets import FeatureQuerySet
 from readthedocs.projects.querysets import ProjectQuerySet
 from readthedocs.projects.querysets import RelatedProjectQuerySet
+from readthedocs.projects.validators import normalize_readthedocs_yaml_path
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.validators import validate_custom_prefix
 from readthedocs.projects.validators import validate_custom_subproject_prefix
@@ -684,6 +685,8 @@ class Project(models.Model):
         dont_sync = self.pk and self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO)
         if self.remote_repository and not dont_sync:
             self.repo = self.remote_repository.clone_url
+
+        self.readthedocs_yaml_path = normalize_readthedocs_yaml_path(self.readthedocs_yaml_path)
 
         super().save(*args, **kwargs)
         self.update_latest_version()
