@@ -13,5 +13,9 @@ class ProxitoDevSettings(CommunityProxitoSettingsMixin, DockerBaseSettings):
             "SHOW_TOOLBAR_CALLBACK": lambda request: False,
         }
 
+    # Override the setting from base.py only in proxito.
+    # With `None` the browser redirects infinitely.
+    SESSION_COOKIE_SAMESITE = "Lax"
+
 
 ProxitoDevSettings.load_settings(__name__)
