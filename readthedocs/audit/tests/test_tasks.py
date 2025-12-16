@@ -1,7 +1,7 @@
 from unittest import mock
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from django_dynamic_fixture import get
 
@@ -11,6 +11,7 @@ from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class AuditTasksTest(TestCase):
     def setUp(self):
         self.user = get(User)

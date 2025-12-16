@@ -37,7 +37,7 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.61.0
+fonttools==4.61.1
     # via matplotlib
 h11==0.16.0
     # via uvicorn
@@ -61,7 +61,7 @@ markdown-it-py==3.0.0
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
-matplotlib==3.10.7
+matplotlib==3.10.8
     # via -r requirements/docs.in
 mdit-py-plugins==0.5.0
     # via myst-parser
@@ -166,7 +166,7 @@ typing-extensions==4.15.0
     # via
     #   anyio
     #   starlette
-urllib3==2.6.0
+urllib3==2.6.2
     # via
     #   requests
     #   sphinx-prompt
