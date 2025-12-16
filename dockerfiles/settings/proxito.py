@@ -14,7 +14,9 @@ class ProxitoDevSettings(CommunityProxitoSettingsMixin, DockerBaseSettings):
         }
 
     # Override the setting from base.py only in proxito.
-    # With `None` the browser redirects infinitely.
+    # Cookies with samesite=none are allowed over https only.
+    # On development we use http, the cookie will be rejected
+    # and produce an infinite redirect.
     SESSION_COOKIE_SAMESITE = "Lax"
 
 
