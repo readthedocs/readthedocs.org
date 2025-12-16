@@ -8,6 +8,9 @@ from urllib.parse import urlparse
 import dns.name
 import dns.resolver
 from allauth.socialaccount.models import SocialAccount
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout
+from crispy_forms.layout import MultiField
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -17,6 +20,8 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.forms import PrevalidatedForm
+from readthedocs.core.forms import RichChoice
+from readthedocs.core.forms import RichSelect
 from readthedocs.core.forms import RichValidationError
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.permissions import AdminPermission
@@ -69,13 +74,15 @@ class ProjectForm(SimpleHistoryModelForm):
             empty_value=None,
             help_text=self.fields["remote_repository"].help_text,
             label=self.fields["remote_repository"].label,
+            widget=RichSelect(),
         )
 
         # The clone URL will be set from the remote repository.
         if self.instance.remote_repository and not self.instance.has_feature(
             Feature.DONT_SYNC_WITH_REMOTE_REPO
         ):
-            self.fields["repo"].disabled = True
+            # TODO verify this is better readonly instead of disabled
+            self.fields["repo"].readonly = True
 
     def _get_remote_repository_choices(self):
         """
@@ -94,14 +101,39 @@ class ProjectForm(SimpleHistoryModelForm):
         """
         queryset = RemoteRepository.objects.for_project_linking(self.user)
         current_remote_repo = self.instance.remote_repository if self.instance.pk else None
-        options = [
-            (None, _("No connected repository")),
+        choices = [
+            (
+                None,
+                RichChoice(
+                    text=_("No connected repository"),
+                    description=_("This project is manually connected to a repository"),
+                    value=None,
+                ),
+            ),
         ]
+        # Show currently connected remote repository instance even if the
+        # maintainer does not control this remote repository through their
+        # connected account.
         if current_remote_repo and current_remote_repo not in queryset:
-            options.append((current_remote_repo.pk, str(current_remote_repo)))
+            choice = RichChoice(
+                text=current_remote_repo.full_name,
+                # TODO meta note about this repo being connected by another user
+                description=current_remote_repo.clone_url,
+                value=current_remote_repo.pk,
+                image_url=current_remote_repo.avatar_url,
+            )
+            choices.append((choice.value, choice))
 
-        options.extend((repo.pk, repo.clone_url) for repo in queryset)
-        return options
+        for repo in queryset:
+            choice = RichChoice(
+                text=repo.full_name,
+                description=repo.clone_url,
+                value=repo.pk,
+                image_url=repo.avatar_url,
+            )
+            choices.append((choice.value, choice))
+
+        return choices
 
     def save(self, commit=True):
         project = super().save(commit)
@@ -509,6 +541,42 @@ class UpdateProjectForm(
             self.fields["default_version"].widget.attrs["readonly"] = True
 
         self.setup_external_builds_option()
+
+        # The use of this field will depend on who has a connected service. If
+        # the current user does not have a connected service, we only want to
+        # make this field readonly. If none of the maintainers have a connected
+        # service, it would be more clear to disable the field though.
+
+        # TODO manage field editable/visiability at the form level? It's also
+        # happening at the front end code level already.
+        if SocialAccount.objects.filter(user=self.user).exists():
+            pass
+            # self.fields["remote_repository"].disabled = True
+            # self.fields["remote_repository"].readonly = True
+            # self.fields["remote_repository"].widget.attrs["readonly"] = True
+
+        # We use crispy layout here strictly for multifield support, which will
+        # show as a tabbed UI in the form. All other fields are displayed normally
+        self.helper = FormHelper()
+        # Let templates close form tag and add submit button
+        self.helper.form_tag = False
+        # We only care about the order of the first fields, the rest of the
+        # fields are dictated by Meta class configuration.
+        fields_other = [
+            field
+            for field in self.fields.keys()
+            if field not in ["name", "repo", "remote_repository"]
+        ]
+        self.helper.layout = Layout(
+            "name",
+            MultiField(
+                _("Repository"),
+                "repo",
+                "remote_repository",
+                template="projects/includes/crispy/repository.html",
+            ),
+            *fields_other,
+        )
 
     def clean_readthedocs_yaml_path(self):
         """
