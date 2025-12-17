@@ -968,6 +968,20 @@ class Project(models.Model):
             return f"https://{match.group('host')}/{match.group('repo')}"
         return self.repo
 
+    @property
+    def repository_full_name(self):
+        """
+        Return the full name of the repository.
+
+        If the project is linked to a remote repository,
+        it uses the remote repository full name. Otherwise,
+        it returns the it returns the path part of the repository URL.
+        """
+        if self.remote_repository:
+            return self.remote_repository.full_name
+        parsed = urlparse(self.repository_html_url)
+        return parsed.path.strip("/").removesuffix(".git")
+
     # Doc PATH:
     # MEDIA_ROOT/slug/checkouts/version/<repo>
 
