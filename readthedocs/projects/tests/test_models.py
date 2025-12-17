@@ -9,6 +9,11 @@ from readthedocs.projects.models import Feature, ImportedFile, Project
 from readthedocs.search.models import SearchQuery
 
 
+class TestProjectModel(TestCase):
+
+    pass
+
+
 class TestURLPatternsUtils(TestCase):
     def setUp(self):
         self.project = get(Project, slug="project")
