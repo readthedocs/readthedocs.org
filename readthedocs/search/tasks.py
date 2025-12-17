@@ -221,7 +221,9 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
 
 
 @app.task(queue="web")
-def record_search_query_batch(projects_and_versions: list[tuple[str, str]], query: str, total_results: int, time_string: str):
+def record_search_query_batch(
+    projects_and_versions: list[tuple[str, str]], query: str, total_results: int, time_string: str
+):
     """Record/update a search query for analytics for multiple projects/versions."""
     time = parse(time_string)
     before_10_sec = time - timezone.timedelta(seconds=10)
