@@ -743,6 +743,7 @@ class BuildDirector:
         # Don't prompt for username, this requires Git 2.3+
         env["GIT_TERMINAL_PROMPT"] = "0"
         env["READTHEDOCS_GIT_CLONE_TOKEN"] = self.data.project.clone_token
+        self._add_git_ssh_command_env_var(env)
         return env
 
     def get_rtd_env_vars(self):
@@ -766,8 +767,6 @@ class BuildDirector:
             "READTHEDOCS_GIT_COMMIT_HASH": self.data.build["commit"],
             "READTHEDOCS_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         }
-        self._add_git_ssh_command_env_var(env)
-
         return env
 
     def get_build_env_vars(self):
