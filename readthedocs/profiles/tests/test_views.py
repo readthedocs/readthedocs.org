@@ -394,18 +394,6 @@ class TestMigrateToGitHubAppView(TestCase):
         context = response.context
         assert set(context["migration_targets"]) == set([
             MigrationTarget(
-                project=self.project_with_remote_repository_no_member,
-                has_installation=False,
-                is_admin=False,
-                target_id=int(self.social_account_github.uid),
-            ),
-            MigrationTarget(
-                project=self.project_with_remote_organization,
-                has_installation=False,
-                is_admin=False,
-                target_id=int(self.remote_organization.remote_id),
-            ),
-            MigrationTarget(
                 project=self.project_with_remote_repository,
                 has_installation=False,
                 is_admin=False,
@@ -416,6 +404,18 @@ class TestMigrateToGitHubAppView(TestCase):
                 has_installation=False,
                 is_admin=False,
                 target_id=int(self.social_account_github.uid),
+            ),
+            MigrationTarget(
+                project=self.project_with_remote_repository_no_member,
+                has_installation=False,
+                is_admin=False,
+                target_id=int(self.social_account_github.uid),
+            ),
+            MigrationTarget(
+                project=self.project_with_remote_organization,
+                has_installation=False,
+                is_admin=False,
+                target_id=int(self.remote_organization.remote_id),
             ),
         ])
         assert "installation_target_groups" not in context
