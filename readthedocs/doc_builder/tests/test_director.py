@@ -45,8 +45,19 @@ class TestBuildDirectorEnvironmentVariables(TestCase):
             "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null",
         )
 
+        env_vars = self.director.get_vcs_env_vars()
+        self.assertIn("GIT_SSH_COMMAND", env_vars)
+        # Verify it contains the ssh command with proper options
+        self.assertEqual(
+            env_vars["GIT_SSH_COMMAND"],
+            "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null",
+        )
+
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_git_ssh_command_not_set_when_private_repos_disabled(self):
         """Test that GIT_SSH_COMMAND is not set when ALLOW_PRIVATE_REPOS is False."""
         env_vars = self.director.get_build_env_vars()
+        self.assertNotIn("GIT_SSH_COMMAND", env_vars)
+
+        env_vars = self.director.get_vcs_env_vars()
         self.assertNotIn("GIT_SSH_COMMAND", env_vars)
