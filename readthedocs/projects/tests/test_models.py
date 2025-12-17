@@ -24,10 +24,7 @@ class TestProjectModel(TestCase):
             repo="git@github.com:readthedocs/readthedocs.org.git",
             remote_repository=remote_repo,
         )
-        self.assertEqual(
-            project.repository_html_url,
-            "https://github.com/readthedocs/readthedocs.org",
-        )
+        assert project.repository_html_url == "https://github.com/readthedocs/readthedocs.org"
 
     def test_repository_html_url_with_ssh_url(self):
         """Test repository_html_url converts SSH URL to HTTPS."""
@@ -36,10 +33,7 @@ class TestProjectModel(TestCase):
             repo="git@github.com:readthedocs/readthedocs.org.git",
             remote_repository=None,
         )
-        self.assertEqual(
-            project.repository_html_url,
-            "https://github.com/readthedocs/readthedocs.org.git",
-        )
+        assert project.repository_html_url == "https://github.com/readthedocs/readthedocs.org.git"
 
     def test_repository_html_url_with_https_url(self):
         """Test repository_html_url with HTTPS URL."""
@@ -48,10 +42,7 @@ class TestProjectModel(TestCase):
             repo="https://github.com/readthedocs/readthedocs.org.git",
             remote_repository=None,
         )
-        self.assertEqual(
-            project.repository_html_url,
-            "https://github.com/readthedocs/readthedocs.org.git",
-        )
+        assert project.repository_html_url == "https://github.com/readthedocs/readthedocs.org.git"
 
     def test_repository_html_url_with_http_url(self):
         """Test repository_html_url with HTTP URL."""
@@ -60,10 +51,7 @@ class TestProjectModel(TestCase):
             repo="http://example.com/user/repo.git",
             remote_repository=None,
         )
-        self.assertEqual(
-            project.repository_html_url,
-            "http://example.com/user/repo.git",
-        )
+        assert project.repository_html_url == "http://example.com/user/repo.git"
 
     def test_repository_full_name_with_remote_repository(self):
         """Test repository_full_name when project has a remote_repository."""
@@ -77,10 +65,7 @@ class TestProjectModel(TestCase):
             repo="git@github.com:readthedocs/readthedocs.org.git",
             remote_repository=remote_repo,
         )
-        self.assertEqual(
-            project.repository_full_name,
-            "readthedocs/readthedocs.org",
-        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
 
     def test_repository_full_name_with_ssh_url(self):
         """Test repository_full_name extracts from SSH URL."""
@@ -89,10 +74,7 @@ class TestProjectModel(TestCase):
             repo="git@github.com:readthedocs/readthedocs.org.git",
             remote_repository=None,
         )
-        self.assertEqual(
-            project.repository_full_name,
-            "readthedocs/readthedocs.org",
-        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
 
     def test_repository_full_name_with_https_url(self):
         """Test repository_full_name extracts from HTTPS URL."""
@@ -101,10 +83,7 @@ class TestProjectModel(TestCase):
             repo="https://github.com/readthedocs/readthedocs.org.git",
             remote_repository=None,
         )
-        self.assertEqual(
-            project.repository_full_name,
-            "readthedocs/readthedocs.org",
-        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
 
     def test_repository_full_name_without_git_suffix(self):
         """Test repository_full_name with URL without .git suffix."""
@@ -113,10 +92,7 @@ class TestProjectModel(TestCase):
             repo="https://github.com/readthedocs/readthedocs.org",
             remote_repository=None,
         )
-        self.assertEqual(
-            project.repository_full_name,
-            "readthedocs/readthedocs.org",
-        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
 
 
 class TestURLPatternsUtils(TestCase):
