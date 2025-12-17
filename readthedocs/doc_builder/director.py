@@ -725,6 +725,18 @@ class BuildDirector:
         success = builder.build()
         return success
 
+    def _add_git_ssh_command_env_var(self, env):
+        if settings.ALLOW_PRIVATE_REPOS:
+            # Set GIT_SSH_COMMAND to use ssh with options that disable host key checking
+            # -o StrictHostKeyChecking=no: Don't prompt for host verification
+            # -o UserKnownHostsFile=/dev/null: Don't save host keys
+            git_ssh_command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+            env.update(
+                {
+                    "GIT_SSH_COMMAND": git_ssh_command,
+                }
+            )
+
     def get_vcs_env_vars(self):
         """Get environment variables to be included in the VCS setup step."""
         env = self.get_rtd_env_vars()
@@ -754,6 +766,8 @@ class BuildDirector:
             "READTHEDOCS_GIT_COMMIT_HASH": self.data.build["commit"],
             "READTHEDOCS_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         }
+        self._add_git_ssh_command_env_var(env)
+
         return env
 
     def get_build_env_vars(self):
@@ -798,16 +812,7 @@ class BuildDirector:
             }
         )
 
-        if settings.ALLOW_PRIVATE_REPOS:
-            # Set GIT_SSH_COMMAND to use ssh with options that disable host key checking
-            # -o StrictHostKeyChecking=no: Don't prompt for host verification
-            # -o UserKnownHostsFile=/dev/null: Don't save host keys
-            git_ssh_command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-            env.update(
-                {
-                    "GIT_SSH_COMMAND": git_ssh_command,
-                }
-            )
+        self._add_git_ssh_command_env_var(env)
 
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables
