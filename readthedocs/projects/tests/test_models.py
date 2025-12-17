@@ -5,13 +5,94 @@ from django_dynamic_fixture import get
 
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.models import Build, Version
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import Feature, ImportedFile, Project
 from readthedocs.search.models import SearchQuery
 
 
 class TestProjectModel(TestCase):
 
-    pass
+    def test_repository_html_url_with_remote_repository(self):
+        """Test repository_html_url when project has a remote_repository."""
+        remote_repo = get(
+            RemoteRepository,
+            html_url="https://github.com/readthedocs/readthedocs.org",
+            full_name="readthedocs/readthedocs.org",
+        )
+        project = get(
+            Project,
+            repo="git@github.com:readthedocs/readthedocs.org.git",
+            remote_repository=remote_repo,
+        )
+        assert project.repository_html_url == "https://github.com/readthedocs/readthedocs.org"
+
+    def test_repository_html_url_with_ssh_url(self):
+        """Test repository_html_url converts SSH URL to HTTPS."""
+        project = get(
+            Project,
+            repo="git@github.com:readthedocs/readthedocs.org.git",
+            remote_repository=None,
+        )
+        assert project.repository_html_url == "https://github.com/readthedocs/readthedocs.org.git"
+
+    def test_repository_html_url_with_https_url(self):
+        """Test repository_html_url with HTTPS URL."""
+        project = get(
+            Project,
+            repo="https://github.com/readthedocs/readthedocs.org.git",
+            remote_repository=None,
+        )
+        assert project.repository_html_url == "https://github.com/readthedocs/readthedocs.org.git"
+
+    def test_repository_html_url_with_http_url(self):
+        """Test repository_html_url with HTTP URL."""
+        project = get(
+            Project,
+            repo="http://example.com/user/repo.git",
+            remote_repository=None,
+        )
+        assert project.repository_html_url == "http://example.com/user/repo.git"
+
+    def test_repository_full_name_with_remote_repository(self):
+        """Test repository_full_name when project has a remote_repository."""
+        remote_repo = get(
+            RemoteRepository,
+            html_url="https://github.com/readthedocs/readthedocs.org",
+            full_name="readthedocs/readthedocs.org",
+        )
+        project = get(
+            Project,
+            repo="git@github.com:readthedocs/readthedocs.org.git",
+            remote_repository=remote_repo,
+        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
+
+    def test_repository_full_name_with_ssh_url(self):
+        """Test repository_full_name extracts from SSH URL."""
+        project = get(
+            Project,
+            repo="git@github.com:readthedocs/readthedocs.org.git",
+            remote_repository=None,
+        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
+
+    def test_repository_full_name_with_https_url(self):
+        """Test repository_full_name extracts from HTTPS URL."""
+        project = get(
+            Project,
+            repo="https://github.com/readthedocs/readthedocs.org.git",
+            remote_repository=None,
+        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
+
+    def test_repository_full_name_without_git_suffix(self):
+        """Test repository_full_name with URL without .git suffix."""
+        project = get(
+            Project,
+            repo="https://github.com/readthedocs/readthedocs.org",
+            remote_repository=None,
+        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
 
 
 class TestURLPatternsUtils(TestCase):
