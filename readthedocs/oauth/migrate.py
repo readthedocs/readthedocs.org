@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
+from django.db.models import Q
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.core.permissions import AdminPermission
@@ -266,6 +267,18 @@ def get_migrated_projects(user):
         .filter(remote_repository__vcs_provider=GITHUB_APP)
         .select_related(
             "remote_repository",
+        )
+    )
+
+
+def get_projects_requiring_manual_migration(user):
+    return (
+        AdminPermission.projects(user, admin=True)
+        .filter(remote_repository=None)
+        .filter(
+            Q(repo__istartswith="git@github.com:")
+            | Q(repo__istartswith="https://github.com")
+            | Q(repo__istartswith="http://github.com")
         )
     )
 
