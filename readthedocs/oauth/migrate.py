@@ -77,6 +77,9 @@ class InstallationTargetGroup:
         """
         return not bool(self.repository_ids)
 
+    def __hash__(self) -> int:
+        return hash((self.target.id, self.target.type))
+
 
 @dataclass
 class MigrationTarget:
@@ -113,6 +116,9 @@ class MigrationTarget:
         The project can be migrated if the user is an admin on the repository and the GitHub App is installed.
         """
         return self.is_admin and self.has_installation
+
+    def __hash__(self) -> int:
+        return hash(self.project.id)
 
 
 @dataclass

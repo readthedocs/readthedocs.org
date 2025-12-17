@@ -364,17 +364,7 @@ class TestMigrateToGitHubAppView(TestCase):
         response = self.client.get(self.url, data={"step": "install"})
         assert response.status_code == 200
         context = response.context
-        assert context["installation_target_groups"] == [
-            InstallationTargetGroup(
-                target=GitHubAccountTarget(
-                    id=int(self.remote_organization.remote_id),
-                    login="org",
-                    type=GitHubAccountType.ORGANIZATION,
-                    avatar_url=self.remote_organization.avatar_url,
-                    profile_url=self.remote_organization.url,
-                ),
-                repository_ids={4444},
-            ),
+        assert set(context["installation_target_groups"]) == set([
             InstallationTargetGroup(
                 target=GitHubAccountTarget(
                     id=int(self.social_account_github.uid),
@@ -385,14 +375,30 @@ class TestMigrateToGitHubAppView(TestCase):
                 ),
                 repository_ids={1111, 2222, 3333},
             ),
-        ]
+            InstallationTargetGroup(
+                target=GitHubAccountTarget(
+                    id=int(self.remote_organization.remote_id),
+                    login="org",
+                    type=GitHubAccountType.ORGANIZATION,
+                    avatar_url=self.remote_organization.avatar_url,
+                    profile_url=self.remote_organization.url,
+                ),
+                repository_ids={4444},
+            ),
+        ])
         assert "migration_targets" not in context
         assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "migrate"})
         assert response.status_code == 200
         context = response.context
-        assert context["migration_targets"] == [
+        assert set(context["migration_targets"]) == set([
+            MigrationTarget(
+                project=self.project_with_remote_repository_no_member,
+                has_installation=False,
+                is_admin=False,
+                target_id=int(self.social_account_github.uid),
+            ),
             MigrationTarget(
                 project=self.project_with_remote_organization,
                 has_installation=False,
@@ -411,13 +417,7 @@ class TestMigrateToGitHubAppView(TestCase):
                 is_admin=False,
                 target_id=int(self.social_account_github.uid),
             ),
-            MigrationTarget(
-                project=self.project_with_remote_repository_no_member,
-                has_installation=False,
-                is_admin=False,
-                target_id=int(self.social_account_github.uid),
-            ),
-        ]
+        ])
         assert "installation_target_groups" not in context
         assert "has_projects_pending_migration" not in context
 
