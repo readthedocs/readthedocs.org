@@ -391,6 +391,11 @@ class TestBuildTask(BuildEnvironmentBase):
             "READTHEDOCS_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         }
 
+        if settings.ALLOW_PRIVATE_REPOS:
+            common_env_vars.update({
+                "GIT_SSH_COMMAND": "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null",
+            })
+
         self._trigger_update_docs_task()
 
         vcs_env_vars = build_environment.call_args_list[0][1]["environment"]
