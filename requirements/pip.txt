@@ -14,17 +14,17 @@ asgiref==3.11.0
     #   django-allauth
     #   django-cors-headers
     #   django-structlog
-billiard==4.2.3
+billiard==4.2.4
     # via celery
-boto3==1.41.2
+boto3==1.42.9
     # via django-storages
-botocore==1.41.2
+botocore==1.42.9
     # via
     #   boto3
     #   s3transfer
 bumpver==2025.1131
     # via -r requirements/pip.in
-celery==5.5.3
+celery==5.6.0
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
@@ -68,7 +68,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.9.0
     # via -r requirements/pip.in
-django==5.2.8
+django==5.2.9
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -121,11 +121,11 @@ django-impersonate==1.9.5
     # via -r requirements/pip.in
 django-ipware==7.0.1
     # via django-structlog
-django-polymorphic==4.1.0
+django-polymorphic==4.3.0
     # via -r requirements/pip.in
 django-safemigrate==6.0
     # via -r requirements/pip.in
-django-simple-history==3.10.1
+django-simple-history==3.11.0
     # via -r requirements/pip.in
 django-storages[s3]==1.14.6
     # via -r requirements/pip.in
@@ -133,7 +133,7 @@ django-structlog[celery]==10.0.0
     # via -r requirements/pip.in
 django-taggit==6.1.0
     # via -r requirements/pip.in
-django-timezone-field==7.1
+django-timezone-field==7.2.1
     # via django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.in
@@ -162,6 +162,8 @@ elasticsearch==8.19.2
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
+exceptiongroup==1.3.1
+    # via celery
 fido2==2.0.0
     # via django-allauth
 filelock==3.20.0
@@ -178,7 +180,7 @@ jmespath==1.0.1
     #   botocore
 jsonfield==3.2.0
     # via -r requirements/pip.in
-kombu==5.5.4
+kombu==5.6.1
     # via celery
 lexid==2021.1006
     # via bumpver
@@ -194,7 +196,7 @@ oauthlib==3.3.1
     # via
     #   django-allauth
     #   requests-oauthlib
-orjson==3.11.4
+orjson==3.11.5
     # via -r requirements/pip.in
 packaging==25.0
     # via
@@ -206,19 +208,19 @@ packaging==25.0
     #   kombu
 pillow==12.0.0
     # via -r requirements/pip.in
-platformdirs==4.5.0
+platformdirs==4.5.1
     # via virtualenv
 prompt-toolkit==3.0.52
     # via click-repl
-psycopg[binary,pool]==3.2.13
+psycopg[binary,pool]==3.3.2
     # via -r requirements/pip.in
-psycopg-binary==3.2.13
+psycopg-binary==3.3.2
     # via psycopg
-psycopg-pool==3.2.8
+psycopg-pool==3.3.0
     # via psycopg
 pycparser==2.23
     # via cffi
-pydantic==2.12.4
+pydantic==2.12.5
     # via -r requirements/pip.in
 pydantic-core==2.41.5
     # via pydantic
@@ -272,9 +274,9 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
-s3transfer==0.15.0
+s3transfer==0.16.0
     # via boto3
-selectolax==0.4.3
+selectolax==0.4.6
     # via -r requirements/pip.in
 six==1.17.0
     # via
@@ -284,7 +286,7 @@ six==1.17.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.in
-sqlparse==0.5.3
+sqlparse==0.5.4
     # via
     #   django
     #   django-debug-toolbar
@@ -302,6 +304,7 @@ typing-extensions==4.15.0
     # via
     #   cron-descriptor
     #   elasticsearch
+    #   exceptiongroup
     #   psycopg
     #   psycopg-pool
     #   pydantic
@@ -311,10 +314,12 @@ typing-extensions==4.15.0
     #   typing-inspection
 typing-inspection==0.4.2
     # via pydantic
-tzdata==2025.2
+tzdata==2025.3
     # via
     #   django-celery-beat
     #   kombu
+tzlocal==5.3.1
+    # via celery
 ua-parser==1.0.1
     # via user-agents
 ua-parser-builtins==0.18.0.post1
@@ -323,7 +328,7 @@ unicode-slugify==0.1.5
     # via -r requirements/pip.in
 unidecode==1.4.0
     # via unicode-slugify
-urllib3==2.5.0
+urllib3==2.6.2
     # via
     #   botocore
     #   docker

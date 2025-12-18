@@ -212,7 +212,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
         response = self.client.get(url, data)
         self.assertEqual(response.status_code, 404)
 
-    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    @override_settings(
+        ALLOW_PRIVATE_REPOS=True,
+        RTD_ALLOW_ORGANIZATIONS=True,
+    )
     def test_own_projects_detail_privacy_levels_enabled(self):
         url = reverse(
             "projects-detail",
@@ -227,10 +230,12 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(url, query_params)
         self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(
-            response.json(),
-            self._get_response_dict("projects-detail"),
-        )
+
+        expected = self._get_response_dict("projects-detail")
+        # No users when organzations are enabled
+        expected.pop("users")
+
+        self.assertDictEqual(response.json(), expected)
 
         self.project.privacy_level = "private"
         self.project.external_builds_privacy_level = "private"
@@ -245,6 +250,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
         # We don't care about the modified date.
         expected.pop("modified")
         response.pop("modified")
+
+        # No users when organzations are enabled
+        expected.pop("users")
+
         self.assertDictEqual(response, expected)
 
     def test_projects_superproject_anonymous_user(self):

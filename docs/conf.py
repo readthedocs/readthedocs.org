@@ -81,9 +81,12 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "15.7.0"
+version = "15.10.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
+# Exclude design docs from dev documentation
+if docset == "dev":
+    exclude_patterns.append("design")
 default_role = "obj"
 intersphinx_cache_limit = 14  # cache for 2 weeks
 intersphinx_timeout = 3  # 3 seconds timeout

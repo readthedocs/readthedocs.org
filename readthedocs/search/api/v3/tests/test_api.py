@@ -389,7 +389,7 @@ class ProxiedSearchAPITest(SearchAPITest):
             assert resp.status_code == 200
             assert resp.data["results"]
 
-    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query.delay", new=mock.MagicMock())
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query_batch.delay", new=mock.MagicMock())
     def test_search_project_number_of_queries_without_search_recording(self):
         # Default version
         with self.assertNumQueries(8):
@@ -417,6 +417,7 @@ class ProxiedSearchAPITest(SearchAPITest):
             assert resp.status_code == 200
             assert resp.data["results"]
 
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client", new=mock.MagicMock())
     def test_search_subprojects_number_of_queries(self):
         subproject = get(
             Project,
@@ -464,7 +465,7 @@ class ProxiedSearchAPITest(SearchAPITest):
             assert resp.status_code == 200
             assert resp.data["results"]
 
-    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query.delay", new=mock.MagicMock())
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query_batch.delay", new=mock.MagicMock())
     def test_search_subprojects_number_of_queries_without_search_recording(self):
         subproject = get(
             Project,
