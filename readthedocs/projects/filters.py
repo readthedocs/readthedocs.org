@@ -138,8 +138,8 @@ class ProjectSortOrderingFilter(OrderingFilter):
             else:
                 order_bys.append(field_ordered)
 
-        # prefetch_latest_build does some extra optimizations to avoid additional queries.
-        return qs.prefetch_latest_build().annotate(**annotations).order_by(*order_bys)
+        # annotate_has_successful_build does some extra optimizations to avoid additional queries.
+        return qs.annotate_has_successful_build().annotate(**annotations).order_by(*order_bys)
 
 
 class ProjectListFilterSet(ModelFilterSet):
