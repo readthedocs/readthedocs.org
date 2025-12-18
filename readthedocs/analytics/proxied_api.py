@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.analytics.telemetry import analytics_metrics
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.unresolver import InvalidPathForVersionedProjectError
@@ -138,6 +139,16 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             )
             return
 
+        # Emit OpenTelemetry metric (per-project configuration)
+        analytics_metrics.record_page_view(
+            project=project,
+            version_slug=version.slug if version else None,
+            path=filename,
+            status_code=int(status),
+            is_external=version.is_external if version else False,
+        )
+
+        # Keep existing database storage
         PageView.objects.register_page_view(
             project=project,
             version=version,
