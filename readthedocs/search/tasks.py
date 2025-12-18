@@ -251,7 +251,7 @@ def record_search_query_batch(
             )
             if not version:
                 log.debug(
-                    "Not recording the search query because project does not exist.",
+                    "Not recording the search query because project or version does not exist.",
                     project_slug=project_slug,
                     version_slug=version_slug,
                 )
