@@ -78,6 +78,7 @@ class InstallationTargetGroup:
         return not bool(self.repository_ids)
 
     def __hash__(self) -> int:
+        """Make the object hashable, so it can be used in sets."""
         return hash((self.target.id, self.target.type))
 
 
@@ -118,6 +119,7 @@ class MigrationTarget:
         return self.is_admin and self.has_installation
 
     def __hash__(self) -> int:
+        """Make the object hashable, so it can be used in sets."""
         return hash(self.project.id)
 
 

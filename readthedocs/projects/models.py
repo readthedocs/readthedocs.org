@@ -975,7 +975,7 @@ class Project(models.Model):
 
         If the project is linked to a remote repository,
         it uses the remote repository full name. Otherwise,
-        it returns the it returns the path part of the repository URL.
+        it returns the path part of the repository URL.
         """
         if self.remote_repository:
             return self.remote_repository.full_name
