@@ -687,6 +687,11 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute=0, hour=0),
             "options": {"queue": "web"},
         },
+        "every-day-disable-search-indexing": {
+            "task": "readthedocs.search.tasks.disable_search_indexing_for_projects_without_recent_searches",
+            "schedule": crontab(minute=15, hour=0),
+            "options": {"queue": "web"},
+        },
         "every-day-delete-old-page-views": {
             "task": "readthedocs.analytics.tasks.delete_old_page_counts",
             "schedule": crontab(minute=27, hour="*/6"),

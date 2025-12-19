@@ -1,3 +1,5 @@
+import datetime
+
 import structlog
 from dateutil.parser import parse
 from django.apps import apps
@@ -6,11 +8,13 @@ from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
 
 from .utils import _get_document
 from .utils import _get_index
+from .utils import disable_search_indexing
 
 
 log = structlog.get_logger(__name__)
@@ -164,6 +168,18 @@ def delete_old_search_queries_from_db():
             total=search_queries_qs.count(),
         )
         search_queries_qs.delete()
+
+
+@app.task(queue="web")
+def disable_search_indexing_for_projects_without_recent_searches(days=90):
+    days_ago = timezone.now() - datetime.timedelta(days=days)
+    projects = (
+        Project.objects.filter(search_queries__isnull=True)
+        .filter(modified_date__lt=days_ago, latest_build__date__lt=days_ago)
+        .exclude(search_indexing_enabled=False)
+    )
+    for project in projects.iterator():
+        disable_search_indexing(project)
 
 
 # TODO: remove after deploy, this has been replaced by record_search_query_batch.
