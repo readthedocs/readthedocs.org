@@ -1,7 +1,6 @@
 """OpenTelemetry configuration for analytics."""
 
 import structlog
-from django.conf import settings
 from opentelemetry import metrics
 from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 from opentelemetry.sdk.metrics import MeterProvider
@@ -15,38 +14,33 @@ log = structlog.get_logger(__name__)
 class AnalyticsMetrics:
     """OpenTelemetry metrics for analytics tracking."""
 
-    def __init__(self):
-        self._meter = None
-        self._page_view_counter = None
-        self._page_view_histogram = None
-        self._enabled = False
-
-    def initialize(self):
-        """Initialize OpenTelemetry metrics."""
-        if not settings.OTEL_ANALYTICS_ENABLED:
-            log.info("OpenTelemetry analytics disabled")
-            return
+    def __init__(self, project):
+        self.meter = None
+        self.page_view_counter = None
+        self.page_view_histogram = None
+        self.enabled = False
 
         try:
             # Create resource with service information
             resource = Resource.create(
+                # Load these from `Project.otel_config`
                 {
-                    "service.name": "readthedocs-analytics",
-                    "service.namespace": settings.OTEL_SERVICE_NAMESPACE,
-                    "deployment.environment": settings.OTEL_ENVIRONMENT,
+                    "service.name": project.slug,
+                    "service.namespace": "readthedocs-analytics",
                 }
             )
 
             # Configure OTLP exporter for Grafana Cloud
+            # TODO: load them from `Project.otel_config`
             exporter = OTLPMetricExporter(
-                endpoint=settings.OTEL_EXPORTER_OTLP_ENDPOINT,
-                headers=settings.OTEL_EXPORTER_OTLP_HEADERS,
+                endpoint=project.otel_config.endpoint_url,
+                headers={"Authorization": f"Basic {project.otel_config.api_key}"},  #
             )
 
             # Create metric reader with export interval
             reader = PeriodicExportingMetricReader(
                 exporter,
-                export_interval_millis=settings.OTEL_METRIC_EXPORT_INTERVAL,
+                export_interval_millis=60000,  # 60 seconds
             )
 
             # Create meter provider
@@ -58,80 +52,43 @@ class AnalyticsMetrics:
             # Set global meter provider
             metrics.set_meter_provider(provider)
 
-            # Get meter instance
-            self._meter = metrics.get_meter(
+            self.meter = metrics.get_meter(
                 "readthedocs.analytics",
                 version="1.0.0",
             )
 
             # Create metrics instruments
-            self._page_view_counter = self._meter.create_counter(
-                name="rtd.pageviews.total",
+            self.page_view_counter = self.meter.create_counter(
+                name="readthedocs.pageviews.total",
                 description="Total number of page views",
                 unit="1",
             )
 
-            self._page_view_histogram = self._meter.create_histogram(
-                name="rtd.pageviews.by_path",
-                description="Page views distribution by path",
-                unit="1",
-            )
+            log.debug("OpenTelemetry analytics initialized successfully")
 
-            self._enabled = True
-            log.info("OpenTelemetry analytics initialized successfully")
-
-        except Exception as e:
-            log.exception("Failed to initialize OpenTelemetry analytics", error=str(e))
-            self._enabled = False
-
-    def is_enabled_for_project(self, project):
-        """Check if OpenTelemetry is enabled for a specific project."""
-        from readthedocs.projects.models import Feature
-
-        if not self._enabled:
-            return False
-
-        # Check if project has OpenTelemetry enabled via feature flag
-        return project.has_feature(Feature.ENABLE_OTEL_ANALYTICS)
+        except Exception:
+            log.exception("Failed to initialize OpenTelemetry analytics")
 
     def record_page_view(
         self,
         project,
-        version_slug,
+        version,
+        filename,
         path,
-        status_code,
-        is_external=False,
+        status,
     ):
         """Record a page view metric."""
-        if not self.is_enabled_for_project(project):
-            return
 
         try:
-            # Get project-specific configuration
-            otel_config = project.otel_config
-
-            # Common attributes for all metrics
             attributes = {
                 "project": project.slug,
-                "version": version_slug or "unknown",
-                "status": str(status_code),
-                "is_external": str(is_external),
+                "version": version.slug,
+                "filename": filename,
+                "path": path,
+                "status": status,
             }
 
-            # Add custom labels from project configuration
-            if otel_config and otel_config.custom_labels:
-                attributes.update(otel_config.custom_labels)
-
-            # Record counter
-            self._page_view_counter.add(1, attributes=attributes)
-
-            # Record histogram with path-specific attributes if enabled
-            if not otel_config or otel_config.include_path_metrics:
-                path_attributes = {
-                    **attributes,
-                    "path": path,
-                }
-                self._page_view_histogram.record(1, attributes=path_attributes)
+            self.page_view_counter.add(1, attributes=attributes)
 
         except Exception as e:
             log.warning(
@@ -139,7 +96,3 @@ class AnalyticsMetrics:
                 error=str(e),
                 project=project.slug,
             )
-
-
-# Global instance
-analytics_metrics = AnalyticsMetrics()
