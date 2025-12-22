@@ -25,18 +25,18 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.4
+boto3==1.42.14
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.4
+botocore==1.42.14
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2025.1131
     # via -r requirements/pip.txt
-cachetools==6.2.2
+cachetools==6.2.4
     # via tox
 celery==5.6.0
     # via
@@ -166,11 +166,11 @@ django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-polymorphic==4.2.0
+django-polymorphic==4.4.1
     # via -r requirements/pip.txt
 django-safemigrate==6.0
     # via -r requirements/pip.txt
-django-simple-history==3.10.1
+django-simple-history==3.11.0
     # via -r requirements/pip.txt
 django-storages[s3]==1.14.6
     # via -r requirements/pip.txt
@@ -223,7 +223,7 @@ fido2==2.0.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.20.0
+filelock==3.20.1
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -423,7 +423,7 @@ six==1.17.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.txt
-sqlparse==0.5.4
+sqlparse==0.5.5
     # via
     #   -r requirements/pip.txt
     #   django
@@ -465,7 +465,7 @@ typing-inspection==0.4.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
-tzdata==2025.2
+tzdata==2025.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -488,7 +488,7 @@ unidecode==1.4.0
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.6.0
+urllib3==2.6.2
     # via
     #   -r requirements/pip.txt
     #   botocore

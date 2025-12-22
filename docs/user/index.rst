@@ -65,7 +65,6 @@ Read the Docs: documentation simplified
    /server-side-search/index
    /server-side-search/syntax
    /flyout-menu
-   /custom-script
 
 .. toctree::
    :maxdepth: 2
@@ -81,6 +80,7 @@ Read the Docs: documentation simplified
    /guides/best-practice/links
    /security-implications
    /reference/main-content-detection
+   /custom-script
 
 .. toctree::
    :maxdepth: 1

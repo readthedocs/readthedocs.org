@@ -1498,7 +1498,7 @@ class Project(models.Model):
 
         Both projects need to share the same owner/admin.
         """
-        organization = self.organizations.first()
+        organization = self.organization
         queryset = (
             Project.objects.for_admin_user(user)
             .filter(organizations=organization)
@@ -1508,8 +1508,17 @@ class Project(models.Model):
         )
         return queryset
 
-    @property
+    @cached_property
     def organization(self):
+        # If organizations aren't supported,
+        # we don't need to query the database.
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            return None
+
+        if hasattr(self, "_organizations"):
+            if self._organizations:
+                return self._organizations[0]
+            return None
         return self.organizations.first()
 
     @property
@@ -1788,7 +1797,7 @@ class WebHook(Notification):
             return None
 
         project = version.project
-        organization = project.organizations.first()
+        organization = project.organization
 
         organization_name = ""
         organization_slug = ""

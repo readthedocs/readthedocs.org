@@ -148,9 +148,8 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         query = self._get_search_query().lower().strip()
 
         # Record the query with a celery task
-        tasks.record_search_query.delay(
-            project_slug,
-            version_slug,
+        tasks.record_search_query_batch.delay(
+            [(project_slug, version_slug)],
             query,
             total_results,
             time.isoformat(),
