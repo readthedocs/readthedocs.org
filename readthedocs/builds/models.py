@@ -720,7 +720,7 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
-    readthedocs_yaml_data = models.ForeignKey(
+    readthedocs_yaml_config = models.ForeignKey(
         "BuildConfig",
         verbose_name=_("Build configuration data"),
         null=True,
@@ -856,7 +856,7 @@ class Build(models.Model):
         that has the **real** config under the `CONFIG_KEY` key.
 
         Additionally, we create or get a BuildConfig object for the new
-        readthedocs_yaml_data field to facilitate the migration to the new model.
+        readthedocs_yaml_config field to facilitate the migration to the new model.
         """
         if self.pk is None or self._config_changed:
             previous = self.previous
@@ -865,9 +865,9 @@ class Build(models.Model):
                 self._config = {self.CONFIG_KEY: previous_pk}
                 # When using reference style, follow the reference to get the actual config
                 # and create/get the corresponding BuildConfig
-                if previous.readthedocs_yaml_data:
+                if previous.readthedocs_yaml_config:
                     # Previous build already has a BuildConfig, reuse it
-                    self.readthedocs_yaml_data = previous.readthedocs_yaml_data
+                    self.readthedocs_yaml_config = previous.readthedocs_yaml_config
                 else:
                     # Previous build doesn't have BuildConfig yet, get its actual config
                     actual_config = previous.config
@@ -875,13 +875,13 @@ class Build(models.Model):
                         build_config, created = BuildConfig.objects.get_or_create(
                             data=actual_config
                         )
-                        self.readthedocs_yaml_data = build_config
+                        self.readthedocs_yaml_config = build_config
             elif self._config and self.CONFIG_KEY not in self._config:
-                # Populate the new readthedocs_yaml_data field
+                # Populate the new readthedocs_yaml_config field
                 # We only create a BuildConfig when we have actual config data (not a reference)
                 # Use get_or_create to avoid duplicates and leverage the unique constraint
                 build_config, created = BuildConfig.objects.get_or_create(data=self._config)
-                self.readthedocs_yaml_data = build_config
+                self.readthedocs_yaml_config = build_config
 
         if self.version:
             self.version_name = self.version.verbose_name

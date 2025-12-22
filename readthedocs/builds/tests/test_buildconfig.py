@@ -1,4 +1,4 @@
-"""Tests for BuildConfig model and Build.readthedocs_yaml_data field."""
+"""Tests for BuildConfig model and Build.readthedocs_yaml_config field."""
 
 import django_dynamic_fixture as fixture
 import pytest
@@ -11,7 +11,7 @@ from readthedocs.projects.models import Project
 
 @pytest.mark.django_db
 class TestBuildReadthedocsYamlData:
-    """Test Build.readthedocs_yaml_data field and integration."""
+    """Test Build.readthedocs_yaml_config field and integration."""
 
     def test_build_saves_with_config_creates_buildconfig(self):
         """Test that saving a Build with config creates BuildConfig."""
@@ -24,7 +24,7 @@ class TestBuildReadthedocsYamlData:
 
         # Check that both old and new fields are populated
         assert build._config == config_data
-        assert build.readthedocs_yaml_data.data == config_data
+        assert build.readthedocs_yaml_config.data == config_data
 
     def test_build_with_same_config_reuses_buildconfig(self):
         """Test that builds with same config reuse the same BuildConfig."""
@@ -42,7 +42,7 @@ class TestBuildReadthedocsYamlData:
         build2.save()
 
         # Both should reference the same BuildConfig
-        assert build1.readthedocs_yaml_data.pk == build2.readthedocs_yaml_data.pk
+        assert build1.readthedocs_yaml_config.pk == build2.readthedocs_yaml_config.pk
         assert BuildConfig.objects.count() == 1
 
     def test_build_with_different_config_creates_new_buildconfig(self):
@@ -62,7 +62,7 @@ class TestBuildReadthedocsYamlData:
         build2.save()
 
         # Should have different BuildConfigs
-        assert build1.readthedocs_yaml_data.pk != build2.readthedocs_yaml_data.pk
+        assert build1.readthedocs_yaml_config.pk != build2.readthedocs_yaml_config.pk
         assert BuildConfig.objects.count() == 2
 
     def test_build_without_config_does_not_create_buildconfig(self):
@@ -74,7 +74,7 @@ class TestBuildReadthedocsYamlData:
         build.save()
 
         assert build._config is None
-        assert build.readthedocs_yaml_data is None
+        assert build.readthedocs_yaml_config is None
         assert BuildConfig.objects.count() == 0
 
     def test_build_with_config_reference_uses_same_buildconfig(self):
@@ -97,8 +97,8 @@ class TestBuildReadthedocsYamlData:
         # build2 should have a reference in _config, not actual data
         assert Build.CONFIG_KEY in build2._config
         # Both builds should have the same BuildConfig
-        assert build1.readthedocs_yaml_data is not None
-        assert build2.readthedocs_yaml_data is not None
-        assert build1.readthedocs_yaml_data.pk == build2.readthedocs_yaml_data.pk
+        assert build1.readthedocs_yaml_config is not None
+        assert build2.readthedocs_yaml_config is not None
+        assert build1.readthedocs_yaml_config.pk == build2.readthedocs_yaml_config.pk
         # There should only be one BuildConfig created
         assert BuildConfig.objects.count() == 1

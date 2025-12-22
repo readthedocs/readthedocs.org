@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="build",
-            name="readthedocs_yaml_data",
+            name="readthedocs_yaml_config",
             field=models.ForeignKey(
                 blank=True,
                 help_text="The rendered YAML configuration used in the build",
