@@ -1187,16 +1187,29 @@ class CommunityBaseSettings(Settings):
     @property
     def STORAGES(self):
         # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+        # https://docs.djangoproject.com/en/5.2/ref/settings/#std-setting-STORAGES
         return {
+            "default": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+            },
             "staticfiles": {
-                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage",
+            },
+            "build-media": {
+                "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
+            },
+            "build-commands": {
+                "BACKEND": self.RTD_BUILD_COMMANDS_STORAGE,
+            },
+            "build-tools": {
+                "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
             },
             "usercontent": {
                 "BACKEND": "django.core.files.storage.FileSystemStorage",
                 "OPTIONS": {
                     "location": Path(self.MEDIA_ROOT) / "usercontent",
                     "allow_overwrite": True,
-                }
+                },
             },
         }
 
