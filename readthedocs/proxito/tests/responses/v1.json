@@ -24,6 +24,7 @@
         "type": "git",
         "url": "https://github.com/readthedocs/project"
       },
+      "readthedocs_yaml_path": null,
       "single_version": false,
       "versioning_scheme": "multiple_versions_with_translations",
       "slug": "project",

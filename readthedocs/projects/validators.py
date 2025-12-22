@@ -243,3 +243,8 @@ def validate_environment_variable_size(project, new_env_value, error_class=Valid
         raise error_class(
             _("The total size of all environment variables in the project cannot exceed 256 KB.")
         )
+
+
+def normalize_readthedocs_yaml_path(value):
+    """Normalize user input for the path to ``.readthedocs.yaml``."""
+    return (value or "").strip()
