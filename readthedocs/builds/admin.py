@@ -68,7 +68,7 @@ class BuildAdmin(admin.ModelAdmin):
 
     @admin.display(description="Config File")
     def pretty_config(self, instance):
-        return pretty_json_field(instance, "config")
+        return pretty_json_field(instance, "readthedocs_yaml_config")
 
 
 @admin.register(Version)

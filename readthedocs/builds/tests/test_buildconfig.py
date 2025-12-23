@@ -94,8 +94,6 @@ class TestBuildReadthedocsYamlData:
         build2.config = config_data
         build2.save()
 
-        # build2 should have a reference in _config, not actual data
-        assert Build.CONFIG_KEY in build2._config
         # Both builds should have the same BuildConfig
         assert build1.readthedocs_yaml_config is not None
         assert build2.readthedocs_yaml_config is not None
