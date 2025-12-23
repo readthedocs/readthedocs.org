@@ -168,9 +168,9 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
-    BROKER_URL = f"redis://:redispassword@cache:6379/0"
+    CELERY_BROKER_URL = f"redis://:redispassword@cache:6379/0"
 
-    CELERY_ALWAYS_EAGER = False
+    CELERY_TASK_ALWAYS_EAGER = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
