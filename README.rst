@@ -23,9 +23,20 @@ Think of it as *Continuous Documentation*, or Docs as Code.
 Documentation for Read the Docs
 -------------------------------
 
-You will find complete documentation for setting up your project in `the Read the Docs documentation`_.
+Using a custom .readthedocs.yaml path
+-------------------------------------
 
-.. _the Read the Docs documentation: https://docs.readthedocs.com/
+The `.readthedocs.yaml` file is the main configuration file for Read the Docs projects. By default, it is recognized at the root of your repository.
+
+For monorepos containing multiple documentation projects in the same repository, it is possible to place a `.readthedocs.yaml` file in each project's subfolder. This allows each project to have its own build configuration.
+
+.. warning::
+   Changing the configuration file path will apply to all versions of your documentation. Different versions may not build correctly if the path is changed.
+
+After adding a custom configuration file in a subfolder, make sure the relevant versions of your documentation are rebuilt.
+
+For more details and step-by-step instructions, see the official Read the Docs guide:
+https://docs.readthedocs.com/platform/stable/guides/setup/monorepo.html
 
 Get in touch
 ------------
