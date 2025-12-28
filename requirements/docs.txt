@@ -86,7 +86,7 @@ pygments==2.19.2
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==3.2.5
+pyparsing==3.3.1
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
@@ -174,7 +174,7 @@ urllib3==2.6.2
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.38.0
+uvicorn==0.40.0
     # via sphinx-autobuild
 watchfiles==1.1.1
     # via sphinx-autobuild

@@ -16,9 +16,9 @@ asgiref==3.11.0
     #   django-structlog
 billiard==4.2.4
     # via celery
-boto3==1.42.14
+boto3==1.42.17
     # via django-storages
-botocore==1.42.14
+botocore==1.42.17
     # via
     #   boto3
     #   s3transfer
@@ -121,7 +121,7 @@ django-impersonate==1.9.5
     # via -r requirements/pip.in
 django-ipware==7.0.1
     # via django-structlog
-django-polymorphic==4.4.1
+django-polymorphic==4.5.1
     # via -r requirements/pip.in
 django-safemigrate==6.0
     # via -r requirements/pip.in
@@ -158,7 +158,7 @@ drf-flex-fields==1.0.2
     # via -r requirements/pip.in
 elastic-transport==8.17.1
     # via elasticsearch
-elasticsearch==8.19.2
+elasticsearch==8.19.3
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
