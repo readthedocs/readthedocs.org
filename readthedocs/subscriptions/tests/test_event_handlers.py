@@ -355,9 +355,14 @@ class TestStripeEventHandlers(PaymentMixin, TestCase):
         notification_send.assert_not_called()
 
     @mock.patch(
+        "readthedocs.subscriptions.event_handlers.send_never_disable_slack_notification"
+    )
+    @mock.patch(
         "readthedocs.subscriptions.event_handlers.SubscriptionEndedNotification.send"
     )
-    def test_subscription_canceled_on_never_disable_organization(self, notification_send):
+    def test_subscription_canceled_on_never_disable_organization(
+        self, notification_send, slack_notification
+    ):
         customer = get(djstripe.Customer)
         self.organization.stripe_customer = customer
         self.organization.never_disable = True
@@ -389,6 +394,9 @@ class TestStripeEventHandlers(PaymentMixin, TestCase):
         self.organization.refresh_from_db()
         assert not self.organization.disabled
         notification_send.assert_not_called()
+        # Verify Slack notification was called twice (once for each handler)
+        assert slack_notification.call_count == 2
+        slack_notification.assert_called_with(self.organization, stripe_subscription)
 
     def test_subscription_precedence(self):
         customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
