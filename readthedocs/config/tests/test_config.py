@@ -335,6 +335,56 @@ class TestBuildConfigV2:
         with does_not_raise(ConfigError):
             build.validate()
 
+    def test_conda_key_required_for_miniforge3(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "miniforge3-25.11",
+                    },
+                },
+            }
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.CONDA_KEY_REQUIRED
+        assert excinfo.value.format_values.get("key") == "conda"
+
+    def test_conda_key_not_required_for_miniforge3_when_build_commands(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "miniforge3-25.11",
+                    },
+                    "commands": [
+                        "conda env create --file environment.yml",
+                    ],
+                },
+            }
+        )
+        with does_not_raise(ConfigError):
+            build.validate()
+
+    def test_miniforge3_python_interpreter(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "miniforge3-25.11",
+                    },
+                },
+                "conda": {
+                    "environment": "environment.yml",
+                },
+            },
+        )
+        build.validate()
+        assert build.python_interpreter == "conda"
+
     @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_conda_check_invalid_value(self, value):
         build = get_build_config({"conda": value})

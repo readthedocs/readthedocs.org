@@ -218,7 +218,7 @@ class BuildConfigBase:
         tool = self.build.tools.get("python")
         if tool and tool.version.startswith("mamba"):
             return "mamba"
-        if tool and tool.version.startswith("miniconda"):
+        if tool and (tool.version.startswith("miniconda") or tool.version.startswith("miniforge")):
             return "conda"
         if tool:
             return "python"
