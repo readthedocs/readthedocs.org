@@ -42,7 +42,7 @@ class CancelBuildViewTests(TestCase):
             self.build.task_id, signal=mock.ANY, terminate=True
         )
         self.build.refresh_from_db()
-        self.assertEqual(self.build.state, BUILD_STATE_INSTALLING)
+        self.assertEqual(self.build.state, BUILD_STATE_CANCELLED)
 
     def test_cancel_triggered_build(self, app):
         self.build.state = BUILD_STATE_TRIGGERED

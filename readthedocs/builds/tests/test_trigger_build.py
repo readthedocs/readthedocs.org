@@ -53,7 +53,7 @@ class TestCancelOldBuilds:
         triggered_build = Build.objects.first()
         builds_count_after = Build.objects.count()
 
-        cancel_build.assert_called_once_with(build)
+        cancel_build.assert_called_once_with(build, update_state=False)
         assert result == (mock.ANY, triggered_build)
         assert builds_count_before == builds_count_after - 1
         assert update_docs_task.signature.called
