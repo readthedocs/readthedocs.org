@@ -16,15 +16,15 @@ asgiref==3.11.0
     #   django-structlog
 billiard==4.2.4
     # via celery
-boto3==1.42.17
+boto3==1.42.21
     # via django-storages
-botocore==1.42.17
+botocore==1.42.21
     # via
     #   boto3
     #   s3transfer
 bumpver==2025.1131
     # via -r requirements/pip.in
-celery==5.6.0
+celery==5.6.1
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
@@ -121,7 +121,7 @@ django-impersonate==1.9.5
     # via -r requirements/pip.in
 django-ipware==7.0.1
     # via django-structlog
-django-polymorphic==4.5.1
+django-polymorphic==4.5.2
     # via -r requirements/pip.in
 django-safemigrate==6.0
     # via -r requirements/pip.in
@@ -162,11 +162,9 @@ elasticsearch==8.19.3
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-exceptiongroup==1.3.1
-    # via celery
 fido2==2.0.0
     # via django-allauth
-filelock==3.20.1
+filelock==3.20.2
     # via virtualenv
 gunicorn==23.0.0
     # via -r requirements/pip.in
@@ -180,7 +178,7 @@ jmespath==1.0.1
     #   botocore
 jsonfield==3.2.0
     # via -r requirements/pip.in
-kombu==5.6.1
+kombu==5.6.2
     # via celery
 lexid==2021.1006
     # via bumpver
@@ -206,7 +204,7 @@ packaging==25.0
     #   drf-extensions
     #   gunicorn
     #   kombu
-pillow==12.0.0
+pillow==12.1.0
     # via -r requirements/pip.in
 platformdirs==4.5.1
     # via virtualenv
@@ -232,7 +230,7 @@ pyjwt[crypto]==2.10.1
     # via
     #   django-allauth
     #   pygithub
-pynacl==1.6.1
+pynacl==1.6.2
     # via pygithub
 pyquery==2.0.1
     # via -r requirements/pip.in
@@ -304,7 +302,6 @@ typing-extensions==4.15.0
     # via
     #   cron-descriptor
     #   elasticsearch
-    #   exceptiongroup
     #   psycopg
     #   psycopg-pool
     #   pydantic
@@ -322,7 +319,7 @@ tzlocal==5.3.1
     # via celery
 ua-parser==1.0.1
     # via user-agents
-ua-parser-builtins==0.18.0.post1
+ua-parser-builtins==202601
     # via ua-parser
 unicode-slugify==0.1.5
     # via -r requirements/pip.in
