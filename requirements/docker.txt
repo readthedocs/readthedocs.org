@@ -25,11 +25,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.17
+boto3==1.42.21
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.17
+botocore==1.42.21
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -38,7 +38,7 @@ bumpver==2025.1131
     # via -r requirements/pip.txt
 cachetools==6.2.4
     # via tox
-celery==5.6.0
+celery==5.6.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -166,7 +166,7 @@ django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-polymorphic==4.5.1
+django-polymorphic==4.5.2
     # via -r requirements/pip.txt
 django-safemigrate==6.0
     # via -r requirements/pip.txt
@@ -211,10 +211,6 @@ elasticsearch==8.19.3
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-exceptiongroup==1.3.1
-    # via
-    #   -r requirements/pip.txt
-    #   celery
 executing==2.2.1
     # via stack-data
 fancycompleter==0.11.1
@@ -223,7 +219,7 @@ fido2==2.0.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.20.1
+filelock==3.20.2
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -253,7 +249,7 @@ jmespath==1.0.1
     #   botocore
 jsonfield==3.2.0
     # via -r requirements/pip.txt
-kombu==5.6.1
+kombu==5.6.2
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -298,7 +294,7 @@ pdbpp==0.11.7
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
-pillow==12.0.0
+pillow==12.1.0
     # via -r requirements/pip.txt
 platformdirs==4.5.1
     # via
@@ -350,7 +346,7 @@ pyjwt[crypto]==2.10.1
     #   -r requirements/pip.txt
     #   django-allauth
     #   pygithub
-pynacl==1.6.1
+pynacl==1.6.2
     # via
     #   -r requirements/pip.txt
     #   pygithub
@@ -442,7 +438,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tox==4.32.0
+tox==4.33.0
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -453,7 +449,6 @@ typing-extensions==4.15.0
     #   -r requirements/pip.txt
     #   cron-descriptor
     #   elasticsearch
-    #   exceptiongroup
     #   psycopg
     #   psycopg-pool
     #   pydantic
@@ -478,7 +473,7 @@ ua-parser==1.0.1
     # via
     #   -r requirements/pip.txt
     #   user-agents
-ua-parser-builtins==0.18.0.post1
+ua-parser-builtins==202601
     # via
     #   -r requirements/pip.txt
     #   ua-parser
