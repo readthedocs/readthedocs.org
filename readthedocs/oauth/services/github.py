@@ -82,17 +82,10 @@ class GitHubService(UserService):
 
         return organization_remote_ids, []
 
-    def _has_access_to_repository(self, fields):
-        """Check if the user has access to the repository, and if they are an admin."""
+    def _has_admin_access_to_repository(self, fields):
+        """Check if the user has admin access to the repository."""
         permissions = fields.get("permissions", {})
-        # If the repo is public, the user can still access it,
-        # so we need to check if the user has any access
-        # to the repository, even if they are not an admin.
-        has_access = any(
-            permissions.get(key, False) for key in ["admin", "maintain", "push", "triage"]
-        )
-        is_admin = permissions.get("admin", False)
-        return has_access, is_admin
+        return permissions.get("admin", False)
 
     def update_repository(self, remote_repository: RemoteRepository):
         resp = self.session.get(f"{self.base_api_url}/repositories/{remote_repository.remote_id}")
@@ -118,22 +111,23 @@ class GitHubService(UserService):
         data = resp.json()
         self._update_repository_from_fields(remote_repository, data)
 
-        has_access, is_admin = self._has_access_to_repository(data)
+        # NOTE: When the repository is public, the response from the API is the same
+        # as when the user has explicit read-only access or no access at all.
+        # We can't detect if read access was revoked to a public repository here.
+        # This isn't really a problem except for projects relying on this for access (VCS SSO).
+        # However, we will eventually remove the user-repository relationship the next time
+        # the user signs in and we detect that the repository is no longer listed,
+        # and in the meantime, the user won't have write/admin access to the project.
+        # We could list all repositories the user has access to and check if
+        # this repository is in that list, but that would be inefficient,
+        # as this method is called for each repository individually in order
+        # to be efficient. This problem isn't present in the GitHub App integration.
         relation = remote_repository.get_remote_repository_relation(
             self.user,
             self.account,
         )
-        if not has_access:
-            # If the user no longer has access to the repository,
-            # we remove the remote relationship.
-            log.info(
-                "User no longer has access to the repository, removing remote relationship.",
-                remote_repository=remote_repository.remote_id,
-            )
-            relation.delete()
-        else:
-            relation.admin = is_admin
-            relation.save()
+        relation.admin = self._has_admin_access_to_repository(data)
+        relation.save()
 
     def create_repository(self, fields, privacy=None):
         """
@@ -159,8 +153,7 @@ class GitHubService(UserService):
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
             )
-            _, is_admin = self._has_access_to_repository(fields)
-            remote_repository_relation.admin = is_admin
+            remote_repository_relation.admin = self._has_admin_access_to_repository(fields)
             remote_repository_relation.save()
 
             return repo
