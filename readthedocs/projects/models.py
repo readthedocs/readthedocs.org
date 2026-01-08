@@ -2050,6 +2050,7 @@ class Feature(models.Model):
 
     # Search related features
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
+    DONT_INCLUDE_SUBPROJECTS_FILTER = "dont_include_subprojects_filter"
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
@@ -2100,6 +2101,10 @@ class Feature(models.Model):
         (
             DEFAULT_TO_FUZZY_SEARCH,
             _("Search: Default to fuzzy search for simple search queries"),
+        ),
+        (
+            DONT_INCLUDE_SUBPROJECTS_FILTER,
+            _("Search: Don't include subprojects filter by default"),
         ),
         # Build related features.
         (
