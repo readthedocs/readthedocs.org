@@ -25,23 +25,23 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.21
+boto3==1.42.25
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.21
+botocore==1.42.25
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2025.1131
     # via -r requirements/pip.txt
-celery==5.6.1
+celery==5.6.2
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -103,7 +103,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.9
+django==5.2.10
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -158,7 +158,7 @@ django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-polymorphic==4.5.2
+django-polymorphic==4.9.0
     # via -r requirements/pip.txt
 django-safemigrate==6.0
     # via -r requirements/pip.txt
@@ -209,7 +209,7 @@ fido2==2.0.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.20.2
+filelock==3.20.3
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -219,7 +219,7 @@ idna==3.11
     # via
     #   -r requirements/pip.txt
     #   requests
-ipython==9.8.0
+ipython==9.9.0
     # via -r requirements/deploy.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -380,7 +380,7 @@ s3transfer==0.16.0
     #   boto3
 selectolax==0.4.6
     # via -r requirements/pip.txt
-sentry-sdk==2.48.0
+sentry-sdk==2.49.0
     # via structlog-sentry
 six==1.17.0
     # via
@@ -456,7 +456,7 @@ unidecode==1.4.0
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.6.2
+urllib3==2.6.3
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -473,7 +473,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.35.4
+virtualenv==20.36.1
     # via -r requirements/pip.txt
 wcwidth==0.2.14
     # via
