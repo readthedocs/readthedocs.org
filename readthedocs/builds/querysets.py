@@ -82,7 +82,6 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
     def public(
         self,
         user=None,
-        project=None,
         only_active=True,
         include_hidden=True,
         only_built=False,
@@ -94,6 +93,12 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
 
            External versions use the `Project.external_builds_privacy_level`
            field instead of its `privacy_level` field.
+
+        .. note::
+
+           Avoid filtering by reverse relationships in this method (like project),
+           and instead use project.builds or similar, so the same object is shared
+           between the results.
         """
         queryset = self._public_only()
         if user:
@@ -101,8 +106,6 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
                 queryset = self.all()
             else:
                 queryset = self._add_from_user_projects(queryset, user, admin=True, member=True)
-        if project:
-            queryset = queryset.filter(project=project)
         if only_active:
             queryset = queryset.filter(active=True)
         if only_built:
@@ -128,6 +131,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
         - It's active and has been built at least once successfully.
           Since that means that it has files to be indexed.
         - Its project is not delisted or marked as spam.
+        - Its project has search indexing enabled.
         """
         return (
             self.filter(
@@ -135,6 +139,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
                 built=True,
                 builds__state=BUILD_STATE_FINISHED,
                 builds__success=True,
+                project__search_indexing_enabled=True,
             )
             .exclude(project__delisted=True)
             .exclude(project__is_spam=True)
@@ -241,7 +246,7 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
         # If the project belongs to an organization, count all the projects
         # from this organization as well
-        organization = project.organizations.first()
+        organization = project.organization
         if organization:
             query |= Q(project__in=organization.projects.all())
 

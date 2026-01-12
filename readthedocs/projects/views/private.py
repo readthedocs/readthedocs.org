@@ -28,6 +28,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import AutomationRuleMatch
@@ -36,6 +37,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
+from readthedocs.core.mixins import AsyncDeleteViewWithMessage
 from readthedocs.core.mixins import DeleteViewWithMessage
 from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.core.mixins import PrivateViewMixin
@@ -73,6 +75,7 @@ from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEPRECATED_WEBHOOK
 from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.projects.views.base import ProjectAdminMixin
@@ -117,7 +120,7 @@ class ProjectDashboard(FilterContextMixin, PrivateViewMixin, ListView):
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
             template_name = "example-projects.html"
-        elif n_projects and not settings.RTD_ALLOW_ORGANIZATIONS:
+        elif n_projects:
             template_name = "github-app.html"
         elif n_projects and not projects.filter(external_builds_enabled=True).exists():
             template_name = "pull-request-previews.html"
@@ -190,8 +193,8 @@ class ProjectUpdate(ProjectMixin, UpdateView):
         return super().get_form(data, files, **kwargs)
 
 
-class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteViewWithMessage):
-    success_message = _("Project deleted")
+class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, AsyncDeleteViewWithMessage):
+    success_message = _("Project queued for deletion")
     template_name = "projects/project_delete.html"
 
     def get_context_data(self, **kwargs):
@@ -234,10 +237,13 @@ class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class ProjectVersionEditMixin(ProjectVersionMixin):
     def get_queryset(self):
-        return Version.internal.public(
-            user=self.request.user,
-            project=self.get_project(),
-            only_active=False,
+        return (
+            self.get_project()
+            .versions(manager=INTERNAL)
+            .public(
+                user=self.request.user,
+                only_active=False,
+            )
         )
 
     def form_valid(self, form):
@@ -455,7 +461,12 @@ class ImportView(PrivateViewMixin, TemplateView):
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
         context["form_manual"] = ProjectManualForm(user=self.request.user)
-        context["GITHUB_APP_NAME"] = settings.GITHUB_APP_NAME
+
+        # Provider list for simple lookup of connected services, used for
+        # conditional content
+        context["socialaccount_providers"] = self.request.user.socialaccount_set.values_list(
+            "provider", flat=True
+        )
 
         return context
 
@@ -934,9 +945,6 @@ class IntegrationCreate(IntegrationMixin, CreateView):
             attach_webhook(
                 project_pk=self.get_project().pk,
                 integration=self.object,
-                # TODO: Remove user_pk on the next release,
-                # it's used just to keep backward compatibility with the old task signature.
-                user_pk=None,
             )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -957,6 +965,22 @@ class IntegrationDetail(IntegrationMixin, DetailView):
 class IntegrationDelete(IntegrationMixin, DeleteViewWithMessage):
     success_message = _("Integration deleted")
     http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        resp = super().post(request, *args, **kwargs)
+        # Dismiss notification about removing the GitHub webhook.
+        project = self.get_project()
+        if (
+            project.is_github_app_project
+            and not project.integrations.filter(
+                integration_type=Integration.GITHUB_WEBHOOK
+            ).exists()
+        ):
+            Notification.objects.cancel(
+                attached_to=project,
+                message_id=MESSAGE_PROJECT_DEPRECATED_WEBHOOK,
+            )
+        return resp
 
 
 class IntegrationExchangeDetail(IntegrationMixin, DetailView):
@@ -989,12 +1013,7 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
             # This is a brute force form of the webhook sync, if a project has a
             # webhook or a remote repository object, the user should be using
             # the per-integration sync instead.
-            attach_webhook(
-                project_pk=self.get_project().pk,
-                # TODO: Remove user_pk on the next release,
-                # it's used just to keep backward compatibility with the old task signature.
-                user_pk=None,
-            )
+            attach_webhook(project_pk=self.get_project().pk)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):

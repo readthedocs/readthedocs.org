@@ -10,12 +10,23 @@ from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.migrate import has_projects_pending_migration
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES
 from readthedocs.oauth.notifications import MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP
 from readthedocs.oauth.tasks import sync_remote_repositories
 from readthedocs.projects.models import Feature
 
 
 log = structlog.get_logger(__name__)
+
+
+def _sync_remote_repositories(user):
+    if user.socialaccount_set.exists():
+        Notification.objects.add(
+            attached_to=user,
+            message_id=MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES,
+            dismissable=True,
+        )
+        sync_remote_repositories.delay(user.pk)
 
 
 @receiver(user_logged_in, sender=User)
@@ -31,7 +42,7 @@ def sync_remote_repositories_on_login(sender, request, user, *args, **kwargs):
         "Triggering sync RemoteRepository in background on login.",
         user_username=user.username,
     )
-    sync_remote_repositories.delay(user.pk)
+    _sync_remote_repositories(user)
 
 
 @receiver(social_account_added, sender=SocialLogin)
@@ -41,7 +52,7 @@ def sync_remote_repositories_on_social_account_added(sender, request, sociallogi
         "Triggering remote repositories sync in background on social account added.",
         user_username=sociallogin.user.username,
     )
-    sync_remote_repositories.delay(sociallogin.user.pk)
+    _sync_remote_repositories(sociallogin.user)
 
 
 @receiver(post_save, sender=RemoteRepository)

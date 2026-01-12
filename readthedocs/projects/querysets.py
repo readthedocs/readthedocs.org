@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Count
 from django.db.models import Exists
 from django.db.models import OuterRef
+from django.db.models import Prefetch
 from django.db.models import Q
 
 from readthedocs.core.permissions import AdminPermission
@@ -85,7 +86,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         """
         spam_project = False
         any_owner_banned = any(u.profile.banned for u in project.users.all())
-        organization = project.organizations.first()
+        organization = project.organization
 
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import spam_score  # noqa
@@ -95,6 +96,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
         if (
             project.skip
+            or project.n_consecutive_failed_builds
             or any_owner_banned
             or (organization and organization.disabled)
             or spam_project
@@ -123,7 +125,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
         max_concurrent_organization = None
-        organization = project.organizations.first()
+        organization = project.organization
         if organization:
             max_concurrent_organization = organization.max_concurrent_builds
 
@@ -131,9 +133,12 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         feature_value = feature.value if feature else 1
         return project.max_concurrent_builds or max_concurrent_organization or feature_value
 
-    def prefetch_latest_build(self):
+    def annotate_has_successful_build(self):
         """
-        Prefetch and annotate to avoid N+1 queries.
+        Annotate projects with whether they have a successful build.
+
+        Adds a boolean annotation `_has_good_build` to avoid N+1 queries
+        when checking if a project has any successful builds.
 
         .. note::
 
@@ -154,6 +159,33 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         # to avoid N+1 queries when showing the build status.
         return self.annotate(
             _has_good_build=Exists(Build.internal.filter(project=OuterRef("pk"), success=True))
+        )
+
+    def prefetch_organization(self, select_related: list[str] | None = None):
+        """
+        Prefetch the organizations related to the projects.
+
+        :param select_related: List of related fields to select_related
+         when fetching the organizations.
+
+        .. note::
+
+           This would normally be a select_related call,
+           but since our relationship is ManyToMany,
+           we need to use prefetch_related.
+        """
+        # If organizations aren't supported,
+        # we don't need to query the database.
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            return self
+
+        from readthedocs.organizations.models import Organization
+
+        query = Organization.objects.all()
+        if select_related:
+            query = query.select_related(*select_related)
+        return self.prefetch_related(
+            Prefetch("organizations", queryset=query, to_attr="_organizations")
         )
 
     # Aliases

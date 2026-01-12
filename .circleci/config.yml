@@ -12,7 +12,7 @@ jobs:
           # Don't skip search tests.
           TOX_POSARGS: ''
           PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=. --cov-append
-      - image: 'docker.elastic.co/elasticsearch/elasticsearch:8.10.2'
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:8.19.7'
         name: search
         environment:
           discovery.type: single-node

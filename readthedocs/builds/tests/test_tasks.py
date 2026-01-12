@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from textwrap import dedent
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -19,10 +20,12 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.builds.tasks import (
     archive_builds_task,
+    check_and_disable_project_for_consecutive_failed_builds,
     delete_closed_external_versions,
     post_build_overview,
 )
 from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeDiffFileStatus
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import (
     GitHubAccountType,
@@ -31,6 +34,9 @@ from readthedocs.oauth.models import (
 )
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import (
+    MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
+)
 
 
 class TestTasks(TestCase):
@@ -123,6 +129,76 @@ class TestTasks(TestCase):
         self.assertEqual(Build.objects.count(), 10)
         self.assertEqual(Build.objects.filter(cold_storage=True).count(), 5)
         self.assertEqual(BuildCommandResult.objects.count(), 50)
+
+    def _create_builds(self, project, version, count, success=False):
+        """Helper to create a series of builds."""
+        builds = []
+        for _ in range(count):
+            build = get(
+                Build,
+                project=project,
+                version=version,
+                success=success,
+                state=BUILD_STATE_FINISHED,
+            )
+            builds.append(build)
+        return builds
+
+    @override_settings(RTD_BUILDS_MAX_CONSECUTIVE_FAILURES=50)
+    def test_task_disables_project_at_max_consecutive_failed_builds(self):
+        """Test that the project is disabled at the failure threshold."""
+        project = get(Project, slug="test-project", n_consecutive_failed_builds=False)
+        version = project.versions.get(slug=LATEST)
+        version.active = True
+        version.save()
+
+        # Create failures at the threshold
+        self._create_builds(project, version, settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES + 1, success=False)
+
+        # Call the Celery task directly
+        check_and_disable_project_for_consecutive_failed_builds(
+            project_slug=project.slug,
+            version_slug=version.slug,
+        )
+
+        project.refresh_from_db()
+        self.assertTrue(project.n_consecutive_failed_builds)
+
+        # Verify notification was added
+        notification = Notification.objects.filter(
+            message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES
+        ).first()
+        self.assertIsNotNone(notification)
+        self.assertEqual(notification.attached_to, project)
+
+    @override_settings(RTD_BUILDS_MAX_CONSECUTIVE_FAILURES=50)
+    def test_task_does_not_disable_project_with_successful_build(self):
+        """Test that the project is NOT disabled when there's at least one successful build."""
+        project = get(Project, slug="test-project-success", n_consecutive_failed_builds=False)
+        version = project.versions.get(slug=LATEST)
+        version.active = True
+        version.save()
+
+        # Create failures below the threshold with one successful build
+        self._create_builds(project, version, settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES - 1, success=False)
+        self._create_builds(project, version, 1, success=True)  # One successful build
+        self._create_builds(project, version, 1, success=False)  # One more failure
+
+        # Call the Celery task directly
+        check_and_disable_project_for_consecutive_failed_builds(
+            project_slug=project.slug,
+            version_slug=version.slug,
+        )
+
+        project.refresh_from_db()
+        self.assertFalse(project.n_consecutive_failed_builds)
+
+        # Verify notification was NOT added
+        self.assertFalse(
+            Notification.objects.filter(
+                message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
+            ).exists()
+        )
 
 
 @override_settings(

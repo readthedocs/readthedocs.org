@@ -212,70 +212,6 @@ If your build also relies on the contents of other branches, it may also be nece
          - git fetch --all --tags || true
 
 
-Cancel build based on a condition
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When a command exits with code ``183``,
-Read the Docs will cancel the build immediately.
-You can use this approach to cancel builds that you don't want to complete based on some conditional logic.
-
-.. note:: Why 183 was chosen for the exit code?
-
-   It's the word "skip" encoded in ASCII.
-   Then it's taken the 256 modulo of it because
-   `the Unix implementation does this automatically <https://tldp.org/LDP/abs/html/exitcodes.html>`_
-   for exit codes greater than 255.
-
-   .. code-block:: pycon
-
-      >>> sum(list("skip".encode("ascii")))
-      439
-      >>> 439 % 256
-      183
-
-
-Here is an example that cancels builds from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
-
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
-
-   version: 2
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       python: "3.12"
-     jobs:
-       post_checkout:
-         # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
-         # You can add any other files or directories that you'd like here as well,
-         # like your docs requirements file, or other files that will change your docs build.
-         #
-         # If there are no changes (git diff exits with 0) we force the command to return with 183.
-         # This is a special exit code on Read the Docs that will cancel the build immediately.
-         - |
-           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ .readthedocs.yaml;
-           then
-             exit 183;
-           fi
-
-
-This other example shows how to cancel a build if the commit message contains ``skip ci`` on it:
-
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
-
-   version: 2
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       python: "3.12"
-     jobs:
-       post_checkout:
-         # Use `git log` to check if the latest commit contains "skip ci",
-         # in that case exit the command with 183 to cancel the build
-         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | paste -s -d " " | grep -viq "skip ci") || exit 183
-
-
 Generate documentation from annotated sources with Doxygen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -379,7 +315,7 @@ It's possible to use ``post_checkout`` user-defined job for this.
          # Download and uncompress the binary
          # https://git-lfs.github.com/
          - wget https://github.com/git-lfs/git-lfs/releases/download/v3.1.4/git-lfs-linux-amd64-v3.1.4.tar.gz
-         - tar xvfz git-lfs-linux-amd64-v3.1.4.tar.gz
+         - tar xvfz git-lfs-linux-amd64-v3.1.4.tar.gz git-lfs
          # Modify LFS config paths to point where git-lfs binary was downloaded
          - git config filter.lfs.process "`pwd`/git-lfs filter-process"
          - git config filter.lfs.smudge  "`pwd`/git-lfs smudge -- %f"
@@ -422,7 +358,6 @@ Projects managed with `Poetry <https://python-poetry.org/>`__,
 can use the ``post_create_environment`` user-defined job to use Poetry for installing Python dependencies.
 Take a look at the following example:
 
-
 .. code-block:: yaml
    :caption: .readthedocs.yaml
 
@@ -464,7 +399,6 @@ extras are required they can be added with the `--extra attribute <https://docs.
 If a ``uv.lock`` file exists it is respected.
 
 .. code-block:: yaml
-
    :caption: .readthedocs.yaml
 
    version: 2
@@ -492,8 +426,7 @@ Install dependencies from Dependency Groups
 Python `Dependency Groups <https://packaging.python.org/en/latest/specifications/dependency-groups/>`_
 are a way of storing lists of dependencies in your ``pyproject.toml``.
 
-``pip`` version 25.1 and later, which is the default for Read the Docs builds,
-as well as many other tools support Dependency Groups.
+``pip`` version 25.1+ as well as many other tools support Dependency Groups.
 This example uses ``pip`` and installs from a group named ``docs``:
 
 .. code-block:: yaml
@@ -507,6 +440,8 @@ This example uses ``pip`` and installs from a group named ``docs``:
          python: "3.13"
       jobs:
          install:
+            # Since the install step is overridden, pip is no longer updated automatically.
+            - pip install --upgrade pip
             - pip install --group 'docs'
 
 For more information on relevant ``pip`` usage, see the
@@ -527,6 +462,8 @@ Take a look at the following example:
 
    build:
       os: ubuntu-24.04
+      tools:
+          python: "latest"
       jobs:
          create_environment:
             - asdf plugin add pixi

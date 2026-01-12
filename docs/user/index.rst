@@ -79,6 +79,8 @@ Read the Docs: documentation simplified
    /explanation/documentation-structure
    /guides/best-practice/links
    /security-implications
+   /reference/main-content-detection
+   /custom-script
 
 .. toctree::
    :maxdepth: 1

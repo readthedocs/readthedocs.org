@@ -18,6 +18,7 @@ MESSAGE_OAUTH_BUILD_STATUS_FAILURE = "oauth:status:send-failed"
 MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_FAILED = "oauth:deploy-key:attached-failed"
 MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED = "oauth:migration:webhook-not-removed"
 MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED = "oauth:migration:ssh-key-not-removed"
+MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES = "oauth:syncing-remote-repositories"
 MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP = "oauth:migration:projects-to-migrate-to-github-app"
 
 messages = [
@@ -82,8 +83,12 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Failed to add deploy key to {{provider_name}} project, ensure you have the correct permissions and try importing again.
-            """
+                Failed to add deploy key to {{provider_name}} project,
+                ensure you have the correct permissions and try
+                <a href="https://docs.readthedocs.com/platform/stable/guides/creating-project-private-repository.html#configuring-your-repository">
+                  adding the key manually
+                </a>.
+                """
             ).strip(),
         ),
         type=ERROR,
@@ -113,6 +118,19 @@ messages = [
             )
         ),
         type=WARNING,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES,
+        header=_("Syncing repositories from VCS providers"),
+        body=_(
+            textwrap.dedent(
+                """
+                We are syncing your repositories from your connected VCS providers.
+                Access to some projects and repositories might be temporarily unavailable until the sync is complete.
+                """
+            ).strip(),
+        ),
+        type=INFO,
     ),
     Message(
         id=MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP,

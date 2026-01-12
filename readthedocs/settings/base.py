@@ -98,6 +98,36 @@ class CommunityBaseSettings(Settings):
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
 
+    @property
+    def RTD_RESTRICTED_DOMAINS(self):
+        """
+        Domains that are restricted for users to use as custom domains.
+
+        This is to avoid users hijacking our domains.
+        We return the last two parts of our public domains to cover all subdomains,
+        e.g, if our domain is "app.readthedocs.org", we restrict all subdomains from "readthedocs.org".
+
+        If your domain is like "readthedocs.co.uk", you might want to override this property.
+
+        We recommend disallowing:
+
+        - Dashboard domain
+        - Public domain (from where documentation pages are served)
+        - External version domain (from where PR previews are served)
+        - Any public domains that point to the validation record (e.g., CNAME to readthedocs.io)
+        """
+        domains = [
+            self.PRODUCTION_DOMAIN,
+            self.PUBLIC_DOMAIN,
+            self.RTD_EXTERNAL_VERSION_DOMAIN,
+            "rtfd.io",
+            "rtfd.org",
+        ]
+        return [
+            ".".join(domain.split(".")[-2:])
+            for domain in domains
+        ]
+
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
     SPHINX_BACKEND = "readthedocs.doc_builder.backends.sphinx"
@@ -146,6 +176,7 @@ class CommunityBaseSettings(Settings):
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
+    RTD_BUILDS_MAX_CONSECUTIVE_FAILURES = 25  # The project is disabled when hitting this limit on the default version
     RTD_BUILD_STATUS_API_NAME = "docs/readthedocs"
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
@@ -659,6 +690,11 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute=0, hour=0),
             "options": {"queue": "web"},
         },
+        "every-day-disable-search-indexing": {
+            "task": "readthedocs.search.tasks.disable_search_indexing_for_projects_without_recent_searches",
+            "schedule": crontab(minute=15, hour=0),
+            "options": {"queue": "web"},
+        },
         "every-day-delete-old-page-views": {
             "task": "readthedocs.analytics.tasks.delete_old_page_counts",
             "schedule": crontab(minute=27, hour="*/6"),
@@ -674,8 +710,8 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(day_of_week="wed", minute=0, hour=7),
             "options": {"queue": "web"},
         },
-        "every-day-resync-sso-organization-users": {
-            "task": "readthedocs.oauth.tasks.sync_remote_repositories_organizations",
+        "every-day-resync-repositories-from-sso-organizations": {
+            "task": "readthedocs.oauth.tasks.sync_remote_repositories_from_sso_organizations",
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
         },
@@ -696,14 +732,11 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute="*/30", hour="*"),
             "options": {"queue": "web"},
         },
-        # Stop running this task,
-        # it was rerunning multiple times per day,
-        # and causing celery instances to freeze up.
-        # "every-day-resync-remote-repositories": {
-        #     "task": "readthedocs.oauth.tasks.sync_active_users_remote_repositories",
-        #     "schedule": crontab(minute=30, hour=2),
-        #     "options": {"queue": "web"},
-        # },
+        "every-day-resync-remote-repositories": {
+            "task": "readthedocs.oauth.tasks.sync_active_users_remote_repositories",
+            "schedule": crontab(minute=30, hour=2),
+            "options": {"queue": "web"},
+        },
         "every-day-email-pending-custom-domains": {
             "task": "readthedocs.domains.tasks.email_pending_custom_domains",
             "schedule": crontab(minute=0, hour=3),
@@ -931,17 +964,12 @@ class CommunityBaseSettings(Settings):
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 500
 
-    # Info from Honza about this:
-    # The key to determine shard number is actually usually not the node count,
-    # but the size of your data.
-    # There are advantages to just having a single shard in an index since
-    # you don't have to do the distribute/collect steps when executing a search.
-    # If your data will allow it (not significantly larger than 40GB)
-    # I would recommend going to a single shard and one replica meaning
-    # any of the two nodes will be able to serve any search without talking to the other one.
-    # Scaling to more searches will then just mean adding a third node
-    # and a second replica resulting in immediate 50% bump in max search throughput.
-
+    # The number of shards depends on the size of the data, 30GB per shard is a good rule to follow.
+    # Everytime we need to do a re-index, make sure to check the size of the index and adjust the
+    # number of shards if needed (change on ops repos). This is a static setting, it can't be changed
+    # after the index is created. In case a change is needed, a new index must be created and data
+    # reindexed. The number of replicas can be changed dynamically, one replica is a good default.
+    # See https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/size-shards.
     ES_INDEXES = {
         "project": {
             "name": "project_index",
@@ -955,16 +983,6 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
-
-    # ANALYZER = 'analysis': {
-    #     'analyzer': {
-    #         'default_icu': {
-    #             'type': 'custom',
-    #             'tokenizer': 'icu_tokenizer',
-    #             'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
-    #         }
-    #     }
-    # }
 
     # Disable auto refresh for increasing index performance
     ELASTICSEARCH_DSL_AUTO_REFRESH = False
@@ -1125,6 +1143,10 @@ class CommunityBaseSettings(Settings):
                 "handlers": ["null"],
                 "propagate": False,
             },
+            "django.security.DisallowedRedirect": {
+                "handlers": ["null"],
+                "propagate": False,
+            },
             "elastic_transport.transport": {
                 "handlers": ["null"],
                 "propagate": False,
@@ -1168,16 +1190,29 @@ class CommunityBaseSettings(Settings):
     @property
     def STORAGES(self):
         # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+        # https://docs.djangoproject.com/en/5.2/ref/settings/#std-setting-STORAGES
         return {
+            "default": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+            },
             "staticfiles": {
-                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage",
+            },
+            "build-media": {
+                "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
+            },
+            "build-commands": {
+                "BACKEND": self.RTD_BUILD_COMMANDS_STORAGE,
+            },
+            "build-tools": {
+                "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
             },
             "usercontent": {
                 "BACKEND": "django.core.files.storage.FileSystemStorage",
                 "OPTIONS": {
                     "location": Path(self.MEDIA_ROOT) / "usercontent",
                     "allow_overwrite": True,
-                }
+                },
             },
         }
 

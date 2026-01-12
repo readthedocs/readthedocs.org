@@ -5,6 +5,7 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
+import datetime
 import os
 import shutil
 import signal
@@ -16,6 +17,7 @@ from pathlib import Path
 
 import structlog
 from celery import Task
+from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.utils import timezone
 from slumber import API
@@ -25,6 +27,7 @@ from readthedocs.api.v2.client import setup_api
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import ARTIFACT_TYPES
 from readthedocs.builds.constants import ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT
+from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
@@ -40,6 +43,7 @@ from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
 from readthedocs.builds.models import APIVersion
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
+from readthedocs.builds.tasks import check_and_disable_project_for_consecutive_failed_builds
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
@@ -81,11 +85,11 @@ log = structlog.get_logger(__name__)
 @dataclass(slots=True)
 class TaskData:
     """
-    Object to store all data related to a Celery task excecution.
+    Object to store all data related to a Celery task execution.
 
-    We use this object from inside the task to store data while we are runnig
+    We use this object from inside the task to store data while we are running
     the task. This is to avoid using `self.` inside the task due to its
-    limitations: it's instanciated once and that instance is re-used for all
+    limitations: it's instantiated once and that instance is re-used for all
     the tasks ran. This could produce sharing instance state between two
     different and unrelated tasks.
 
@@ -115,6 +119,10 @@ class TaskData:
     config: BuildConfigV2 = None
     project: APIProject = None
     version: APIVersion = None
+    # Default branch for the repository.
+    # Only set when building the latest version, and the project
+    # doesn't have an explicit default branch.
+    default_branch: str | None = None
 
     # Dictionary returned from the API.
     build: dict = field(default_factory=dict)
@@ -281,6 +289,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         MkDocsYAMLParseError,
         ProjectConfigurationError,
         BuildMaxConcurrencyError,
+        SoftTimeLimitExceeded,
     )
 
     # Do not send notifications on failure builds for these exceptions.
@@ -408,19 +417,36 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        # Log a warning if the task took more than 10 minutes to be retried
+        if self.data.build["task_executed_at"]:
+            task_executed_at = datetime.datetime.fromisoformat(self.data.build["task_executed_at"])
+            delta = timezone.now() - task_executed_at
+            if delta > timezone.timedelta(minutes=10):
+                log.warning(
+                    "This task waited more than 10 minutes to be retried.",
+                    delta_minutes=round(delta.seconds / 60, 1),
+                )
+
+        # Save when the task was executed by a builder
+        self.data.build["task_executed_at"] = timezone.now()
+
         # Enable scale-in protection on this instance
         #
         # TODO: move this to the beginning of this method
         # once we don't need to rely on `self.data.project`.
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
+                build_id=self.data.build_pk,
                 builder=socket.gethostname(),
                 protected_from_scale_in=True,
             )
 
-        # Clean the build paths completely to avoid conflicts with previous run
-        # (e.g. cleanup task failed for some reason)
-        clean_build(self.data.version)
+        if self.data.project.has_feature(Feature.BUILD_FULL_CLEAN):
+            # Clean DOCROOT path completely to avoid conflicts other projects
+            clean_build()
+        else:
+            # Clean the build paths for this version to avoid conflicts with previous run
+            clean_build(self.data.version)
 
         # NOTE: this is never called. I didn't find anything in the logs, so we
         # can probably remove it
@@ -480,6 +506,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Set build state as cancelled if the user cancelled the build
             if isinstance(exc, BuildCancelled):
                 self.data.build["state"] = BUILD_STATE_CANCELLED
+
+        elif isinstance(exc, SoftTimeLimitExceeded):
+            log.info("Soft time limit exceeded.")
+            message_id = BuildUserError.BUILD_TIME_OUT
 
         else:
             # We don't know what happened in the build. Log the exception and
@@ -543,6 +573,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 status=status,
             )
 
+        # Trigger task to check number of failed builds and disable the project if needed (only for community)
+        if not settings.ALLOW_PRIVATE_REPOS:
+            check_and_disable_project_for_consecutive_failed_builds.delay(
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
+            )
+
         # Update build object
         self.data.build["success"] = False
 
@@ -558,7 +595,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         TODO: remove the limitation of only 1 file.
         Add support for multiple PDF files in the output directory and
-        grab them by using glob syntaxt between other files that could be garbage.
+        grab them by using glob syntax between other files that could be garbage.
         """
         valid_artifacts = []
         for artifact_type in ARTIFACT_TYPES:
@@ -641,18 +678,22 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # NOTE: we are updating the db version instance *only* when
         # TODO: remove this condition and *always* update the DB Version instance
         if "html" in valid_artifacts:
+            data = {
+                "built": True,
+                "documentation_type": self.data.version.documentation_type,
+                "has_pdf": "pdf" in valid_artifacts,
+                "has_epub": "epub" in valid_artifacts,
+                "has_htmlzip": "htmlzip" in valid_artifacts,
+                "build_data": self.data.version.build_data,
+                "addons": self.data.version.addons,
+            }
+            # Update the latest version to point to the current VCS default branch
+            # if the project doesn't have an explicit default branch set.
+            if self.data.default_branch:
+                data["identifier"] = self.data.default_branch
+                data["type"] = BRANCH
             try:
-                self.data.api_client.version(self.data.version.pk).patch(
-                    {
-                        "built": True,
-                        "documentation_type": self.data.version.documentation_type,
-                        "has_pdf": "pdf" in valid_artifacts,
-                        "has_epub": "epub" in valid_artifacts,
-                        "has_htmlzip": "htmlzip" in valid_artifacts,
-                        "build_data": self.data.version.build_data,
-                        "addons": self.data.version.addons,
-                    }
-                )
+                self.data.api_client.version(self.data.version.pk).patch(data)
             except HttpClientError:
                 # NOTE: I think we should fail the build if we cannot update
                 # the version at this point. Otherwise, we will have inconsistent data
@@ -718,7 +759,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
                 format_values=format_values,
             )
-            self.update_build(state=BUILD_STATE_TRIGGERED)
+
+        # Always update the build on retry
+        self.update_build(state=BUILD_STATE_TRIGGERED)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         """
@@ -758,6 +801,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Disable scale-in protection on this instance
         if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
+                build_id=self.data.build_pk,
                 builder=socket.gethostname(),
                 protected_from_scale_in=False,
             )
@@ -789,7 +833,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Error while updating the build object.", state=state)
 
     def execute(self):
-        # Clonning
+        # Cloning
         self.update_build(state=BUILD_STATE_CLONING)
 
         # TODO: remove the ``create_vcs_environment`` hack. Ideally, this should be

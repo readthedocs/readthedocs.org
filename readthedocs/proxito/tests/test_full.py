@@ -547,6 +547,7 @@ class TestDocServingBackends(BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp["Cache-Tag"], "project,project:latest")
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
                 resp["X-Accel-Redirect"],
@@ -560,6 +561,7 @@ class TestDocServingBackends(BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp["Cache-Tag"], "translation,translation:latest")
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
                 resp["X-Accel-Redirect"],
@@ -604,6 +606,7 @@ class TestDocServingBackends(BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp["Cache-Tag"], "project,project:latest")
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
                 resp["X-Accel-Redirect"],

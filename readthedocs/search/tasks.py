@@ -1,3 +1,5 @@
+import datetime
+
 import structlog
 from dateutil.parser import parse
 from django.apps import apps
@@ -6,11 +8,13 @@ from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
 
 from .utils import _get_document
 from .utils import _get_index
+from .utils import disable_search_indexing
 
 
 log = structlog.get_logger(__name__)
@@ -167,6 +171,19 @@ def delete_old_search_queries_from_db():
 
 
 @app.task(queue="web")
+def disable_search_indexing_for_projects_without_recent_searches(days=90):
+    days_ago = timezone.now() - datetime.timedelta(days=days)
+    projects = (
+        Project.objects.filter(search_queries__isnull=True)
+        .filter(modified_date__lt=days_ago, latest_build__date__lt=days_ago)
+        .exclude(search_indexing_enabled=False)
+    )
+    for project in projects.iterator():
+        disable_search_indexing(project)
+
+
+# TODO: remove after deploy, this has been replaced by record_search_query_batch.
+@app.task(queue="web")
 def record_search_query(project_slug, version_slug, query, total_results, time_string):
     """Record/update a search query for analytics."""
     if not project_slug or not version_slug or not query:
@@ -200,7 +217,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
 
     version = (
         Version.objects.filter(slug=version_slug, project__slug=project_slug)
-        .prefetch_related("project")
+        .select_related("project")
         .first()
     )
     if not version:
@@ -217,3 +234,48 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         query=query,
         total_results=total_results,
     )
+
+
+@app.task(queue="web")
+def record_search_query_batch(
+    projects_and_versions: list[tuple[str, str]], query: str, total_results: int, time_string: str
+):
+    """Record/update a search query for analytics for multiple projects/versions."""
+    time = parse(time_string)
+    before_10_sec = time - timezone.timedelta(seconds=10)
+    for project_slug, version_slug in projects_and_versions:
+        partial_query_qs = SearchQuery.objects.filter(
+            project__slug=project_slug,
+            version__slug=version_slug,
+            modified__gte=before_10_sec,
+        ).order_by("-modified")
+
+        # If a partial query exists, then just update that object.
+        # Check max 30 queries, in case there is a flood of queries.
+        max_queries = 30
+        for partial_query in partial_query_qs[:max_queries]:
+            if query.startswith(partial_query.query):
+                partial_query.query = query
+                partial_query.total_results = total_results
+                partial_query.save()
+                break
+        else:
+            version = (
+                Version.objects.filter(slug=version_slug, project__slug=project_slug)
+                .select_related("project")
+                .first()
+            )
+            if not version:
+                log.debug(
+                    "Not recording the search query because project or version does not exist.",
+                    project_slug=project_slug,
+                    version_slug=version_slug,
+                )
+                return
+
+            SearchQuery.objects.create(
+                project=version.project,
+                version=version,
+                query=query,
+                total_results=total_results,
+            )

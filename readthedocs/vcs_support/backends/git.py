@@ -1,6 +1,5 @@
 """Git-related utilities."""
 
-import os
 import re
 from typing import Iterable
 from urllib.parse import urlparse
@@ -52,14 +51,6 @@ class Backend(BaseVCS):
                     # able to expand environment variables.
                     code, stdout, stderr = self.run(*cmd.split(), escape_command=False)
                 return
-
-        # Check for existing checkout and skip clone if it exists.
-        from readthedocs.projects.models import Feature
-
-        if self.project.has_feature(Feature.DONT_CLEAN_BUILD) and os.path.exists(
-            os.path.join(self.working_dir, ".git")
-        ):
-            return self.fetch()
 
         self.clone()
         # TODO: We are still using return values in this function that are legacy.
@@ -291,12 +282,15 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        remote_reference = self.get_remote_fetch_refspec()
-
-        if remote_reference:
-            # TODO: We are still fetching the latest 50 commits.
-            # A PR might have another commit added after the build has started...
-            cmd.append(remote_reference)
+        # Skip adding a remote reference if we are building "latest",
+        # and the user hasn't defined a default branch (which means we need to use the default branch from the repo).
+        omit_remote_reference = self.version.is_machine_latest and not self.project.default_branch
+        if not omit_remote_reference:
+            remote_reference = self.get_remote_fetch_refspec()
+            if remote_reference:
+                # TODO: We are still fetching the latest 50 commits.
+                # A PR might have another commit added after the build has started...
+                cmd.append(remote_reference)
 
         # Log a warning, except for machine versions since it's a known bug that
         # we haven't stored a remote refspec in Version for those "stable" versions.
@@ -388,6 +382,25 @@ class Backend(BaseVCS):
                 },
             ) from exc
 
+    def get_default_branch(self):
+        """
+        Return the default branch of the repository.
+
+        The default branch is the branch that is checked out when cloning the
+        repository. This is usually master or main, it can be configured
+        in the repository settings.
+
+        The ``git symbolic-ref`` command will produce an output like:
+
+        .. code-block:: text
+
+           origin/main
+        """
+        cmd = ["git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD"]
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        default_branch = stdout.strip().removeprefix("origin/")
+        return default_branch
+
     def lsremote(self, include_tags=True, include_branches=True):
         """
         Use ``git ls-remote`` to list branches and tags without cloning the repository.
@@ -406,7 +419,10 @@ class Backend(BaseVCS):
         cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        exit_code, stdout, _ = self.run(*cmd, demux=True, record=False)
+
+        if exit_code != 0:
+            raise RepositoryError(message_id=RepositoryError.FAILED_TO_GET_VERSIONS)
 
         branches = []
         # Git has two types of tags: lightweight and annotated.

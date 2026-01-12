@@ -3,8 +3,10 @@
 from enum import StrEnum
 from enum import auto
 
+import structlog
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
+from allauth.socialaccount import providers
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from django.contrib import messages
@@ -52,8 +54,29 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
 
 
+log = structlog.get_logger(__name__)
+
+
 class LoginViewBase(AllAuthLoginView):
-    pass
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        last_login_method = self.request.COOKIES.get("last-login-method")
+        context_data["last_login_method"] = last_login_method
+
+        last_login_tab = "vcs"  # Default tab"
+        if last_login_method == "email":
+            last_login_tab = "email"
+        if last_login_method in providers.registry.provider_map.keys():
+            last_login_tab = "vcs"
+        if last_login_method == "sso":
+            last_login_tab = "sso"
+        log.debug(
+            "Login method.",
+            last_login_method=last_login_method,
+            last_login_tab=last_login_tab,
+        )
+        context_data["last_login_tab"] = last_login_tab
+        return context_data
 
 
 class LoginView(SettingsOverrideObject):
@@ -348,7 +371,6 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         user = self.request.user
 
         context["step_connect_completed"] = self._has_new_accounts_for_old_accounts()
-        context["github_app_name"] = settings.GITHUB_APP_NAME
         context["migrated_projects"] = get_migrated_projects(user)
         context["old_application_link"] = get_old_app_link()
         context["step_revoke_completed"] = self._is_access_to_old_github_accounts_revoked()

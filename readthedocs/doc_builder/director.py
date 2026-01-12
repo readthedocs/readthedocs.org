@@ -8,6 +8,7 @@ It "directs" all of the high-level build jobs:
 * fetching instructions etc.
 """
 
+import datetime
 import os
 import tarfile
 
@@ -214,18 +215,43 @@ class BuildDirector:
             has_ssh_key_with_write_access = self.vcs_repository.has_ssh_key_with_write_access()
             if has_ssh_key_with_write_access != self.data.project.has_ssh_key_with_write_access:
                 self.data.api_client.project(self.data.project.pk).patch(
-                    {"ssh_key_with_write_access": has_ssh_key_with_write_access}
-                )
-            if has_ssh_key_with_write_access:
-                self.attach_notification(
-                    attached_to=f"project/{self.data.project.pk}",
-                    message_id=MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS,
-                    dismissable=True,
+                    {"has_ssh_key_with_write_access": has_ssh_key_with_write_access}
                 )
 
-        identifier = self.data.build_commit or self.data.version.identifier
-        log.info("Checking out.", identifier=identifier)
-        self.vcs_repository.checkout(identifier)
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
+            hard_failure = now >= datetime.datetime(
+                2025, 12, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+            )
+            if has_ssh_key_with_write_access:
+                if hard_failure and settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
+                    raise BuildUserError(BuildUserError.SSH_KEY_WITH_WRITE_ACCESS)
+                else:
+                    self.attach_notification(
+                        attached_to=f"project/{self.data.project.pk}",
+                        message_id=MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS,
+                        dismissable=True,
+                    )
+
+        # Get the default branch of the repository if the project doesn't
+        # have an explicit default branch set and we are building latest.
+        # The identifier from latest will be updated with this value
+        # if the build succeeds.
+        is_latest_without_default_branch = (
+            self.data.version.is_machine_latest and not self.data.project.default_branch
+        )
+        if is_latest_without_default_branch:
+            self.data.default_branch = self.data.build_director.vcs_repository.get_default_branch()
+            log.info(
+                "Default branch for the repository detected.",
+                default_branch=self.data.default_branch,
+            )
+
+        # We can skip the checkout step since we just cloned the repository,
+        # and the default branch is already checked out.
+        if not is_latest_without_default_branch:
+            identifier = self.data.build_commit or self.data.version.identifier
+            log.info("Checking out.", identifier=identifier)
+            self.vcs_repository.checkout(identifier)
 
         # The director is responsible for understanding which config file to use for a build.
         # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build
@@ -699,12 +725,25 @@ class BuildDirector:
         success = builder.build()
         return success
 
+    def _add_git_ssh_command_env_var(self, env):
+        if settings.ALLOW_PRIVATE_REPOS:
+            # Set GIT_SSH_COMMAND to use ssh with options that disable host key checking
+            # -o StrictHostKeyChecking=no: Don't prompt for host verification
+            # -o UserKnownHostsFile=/dev/null: Don't save host keys
+            git_ssh_command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+            env.update(
+                {
+                    "GIT_SSH_COMMAND": git_ssh_command,
+                }
+            )
+
     def get_vcs_env_vars(self):
         """Get environment variables to be included in the VCS setup step."""
         env = self.get_rtd_env_vars()
         # Don't prompt for username, this requires Git 2.3+
         env["GIT_TERMINAL_PROMPT"] = "0"
         env["READTHEDOCS_GIT_CLONE_TOKEN"] = self.data.project.clone_token
+        self._add_git_ssh_command_env_var(env)
         return env
 
     def get_rtd_env_vars(self):
@@ -771,6 +810,8 @@ class BuildDirector:
                 "READTHEDOCS_CANONICAL_URL": self.data.version.canonical_url,
             }
         )
+
+        self._add_git_ssh_command_env_var(env)
 
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables

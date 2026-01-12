@@ -85,7 +85,8 @@ class GitLabService(UserService):
         remote_ids = []
         try:
             repos = self.paginate(
-                f"{self.base_api_url}/api/v4/users/{self.account.uid}/projects",
+                f"{self.base_api_url}/api/v4/projects",
+                membership=True,
                 per_page=100,
                 archived=False,
                 order_by="path",
@@ -107,8 +108,14 @@ class GitLabService(UserService):
         return remote_ids
 
     def sync_organizations(self):
+        """
+        Sync GitLab groups (organizations).
+
+        This method only creates the relationships between the
+        organizations and the user, as all the repositories
+        are already created in the sync_repositories method.
+        """
         organization_remote_ids = []
-        repository_remote_ids = []
 
         try:
             orgs = self.paginate(
@@ -120,52 +127,8 @@ class GitLabService(UserService):
             )
             for org in orgs:
                 remote_organization = self.create_organization(org)
-                org_repos = self.paginate(
-                    "{url}/api/v4/groups/{id}/projects".format(
-                        url=self.base_api_url,
-                        id=org["id"],
-                    ),
-                    per_page=100,
-                    archived=False,
-                    order_by="path",
-                    sort="asc",
-                )
-
+                remote_organization.get_remote_organization_relation(self.user, self.account)
                 organization_remote_ids.append(remote_organization.remote_id)
-
-                for repo in org_repos:
-                    # TODO: Optimize this so that we don't re-fetch project data
-                    # Details: https://github.com/readthedocs/readthedocs.org/issues/7743
-                    try:
-                        # The response from /groups/{id}/projects API does not contain
-                        # admin permission fields for GitLab projects.
-                        # So, fetch every single project data from the API
-                        # which contains the admin permission fields.
-                        resp = self.session.get(
-                            "{url}/api/v4/projects/{id}".format(
-                                url=self.base_api_url, id=repo["id"]
-                            )
-                        )
-
-                        if resp.status_code == 200:
-                            repo_details = resp.json()
-                            remote_repository = self.create_repository(
-                                repo_details, organization=remote_organization
-                            )
-                            if remote_repository:
-                                repository_remote_ids.append(remote_repository.remote_id)
-                        else:
-                            log.warning(
-                                "GitLab project does not exist or user does not have permissions.",
-                                repository=repo["name_with_namespace"],
-                            )
-
-                    except Exception:
-                        log.exception(
-                            "Error creating GitLab repository",
-                            repository=repo["name_with_namespace"],
-                        )
-
         except (TypeError, ValueError):
             log.warning("Error syncing GitLab organizations")
             raise SyncServiceError(
@@ -174,11 +137,65 @@ class GitLabService(UserService):
                 )
             )
 
-        return organization_remote_ids, repository_remote_ids
+        return organization_remote_ids, []
 
-    def create_repository(
-        self, fields, privacy=None, organization: RemoteOrganization | None = None
-    ):
+    def _has_access_to_repository(self, fields):
+        """Check if the user has access to the repository, and if they are an admin."""
+        permissions = fields.get("permissions", {})
+        project_access = permissions.get("project_access") or {}
+        project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
+        group_access = permissions.get("group_access") or {}
+        group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
+        has_access = (
+            group_access_level != self.PERMISSION_NO_ACCESS
+            or project_access_level != self.PERMISSION_NO_ACCESS
+        )
+        project_admin = project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER)
+        group_admin = group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER)
+        return has_access, project_admin or group_admin
+
+    def update_repository(self, remote_repository: RemoteRepository):
+        resp = self.session.get(
+            f"{self.base_api_url}/api/v4/projects/{remote_repository.remote_id}"
+        )
+
+        if resp.status_code in [403, 404]:
+            log.info(
+                "User no longer has access to the repository, removing remote relationship.",
+                remote_repository_id=remote_repository.remote_id,
+            )
+            remote_repository.get_remote_repository_relation(self.user, self.account).delete()
+            return
+
+        if resp.status_code != 200:
+            log.warning(
+                "Error fetching repository from GitLab",
+                remote_repository_id=remote_repository.remote_id,
+                status_code=resp.status_code,
+            )
+            return
+
+        data = resp.json()
+        self._update_repository_from_fields(remote_repository, data)
+
+        has_access, is_admin = self._has_access_to_repository(data)
+        relation = remote_repository.get_remote_repository_relation(
+            self.user,
+            self.account,
+        )
+        if not has_access:
+            # If the user no longer has access to the repository,
+            # we remove the remote relationship.
+            log.info(
+                "User no longer has access to the repository, removing remote relationship.",
+                remote_repository=remote_repository.remote_id,
+            )
+            relation.delete()
+        else:
+            relation.admin = is_admin
+            relation.save()
+
+    def create_repository(self, fields, privacy=None):
         """
         Update or create a repository from GitLab API response.
 
@@ -194,7 +211,6 @@ class GitLabService(UserService):
 
         :param fields: dictionary of response data from API
         :param privacy: privacy level to support
-        :param organization: remote organization to associate with
         :rtype: RemoteRepository
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
@@ -203,49 +219,13 @@ class GitLabService(UserService):
             repo, _ = RemoteRepository.objects.get_or_create(
                 remote_id=fields["id"], vcs_provider=self.vcs_provider_slug
             )
+            self._update_repository_from_fields(repo, fields)
+
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
             )
-
-            repo.organization = organization
-            repo.name = fields["name"]
-            repo.full_name = fields["path_with_namespace"]
-            repo.description = fields["description"]
-            repo.ssh_url = fields["ssh_url_to_repo"]
-            repo.html_url = fields["web_url"]
-            repo.vcs = "git"
-            repo.private = not repo_is_public
-            repo.default_branch = fields.get("default_branch")
-
-            owner = fields.get("owner") or {}
-            repo.avatar_url = fields.get("avatar_url") or owner.get("avatar_url")
-
-            if not repo.avatar_url:
-                repo.avatar_url = self.default_user_avatar_url
-
-            if repo.private:
-                repo.clone_url = repo.ssh_url
-            else:
-                repo.clone_url = fields["http_url_to_repo"]
-
-            repo.save()
-
-            project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
-
-            project_access = fields.get("permissions", {}).get("project_access", {})
-            if project_access:
-                project_access_level = project_access.get("access_level", self.PERMISSION_NO_ACCESS)
-
-            group_access = fields.get("permissions", {}).get("group_access", {})
-            if group_access:
-                group_access_level = group_access.get("access_level", self.PERMISSION_NO_ACCESS)
-
-            remote_repository_relation.admin = any(
-                [
-                    project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
-                    group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
-                ]
-            )
+            _, is_admin = self._has_access_to_repository(fields)
+            remote_repository_relation.admin = is_admin
             remote_repository_relation.save()
 
             return repo
@@ -256,28 +236,81 @@ class GitLabService(UserService):
             visibility=fields["visibility"],
         )
 
+    def _update_repository_from_fields(self, repo, fields):
+        # If the namespace is a group, we can use it as the organization
+        if fields.get("namespace", {}).get("kind") == "group":
+            organization = self.create_organization(fields["namespace"])
+            repo.organization = organization
+        else:
+            repo.organization = None
+
+        repo.name = fields["name"]
+        repo.full_name = fields["path_with_namespace"]
+        repo.description = fields["description"]
+        repo.ssh_url = fields["ssh_url_to_repo"]
+        repo.html_url = fields["web_url"]
+        repo.vcs = "git"
+        repo.private = fields["visibility"] == "private"
+        repo.default_branch = fields.get("default_branch")
+
+        owner = fields.get("owner") or {}
+        repo.avatar_url = self._make_absolute_url(
+            fields.get("avatar_url") or owner.get("avatar_url")
+        )
+
+        if not repo.avatar_url:
+            repo.avatar_url = self.default_user_avatar_url
+
+        if repo.private:
+            repo.clone_url = repo.ssh_url
+        else:
+            repo.clone_url = fields["http_url_to_repo"]
+
+        repo.save()
+
+    def _make_absolute_url(self, url):
+        """
+        Make sure the URL is absolute to gitlab.com.
+
+        If the URL is relative, prepend the base API URL.
+        """
+        if url and not url.startswith("http"):
+            return f"https://gitlab.com{url}"
+        return url
+
     def create_organization(self, fields):
         """
         Update or create remote organization from GitLab API response.
 
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
+
+        .. note::
+
+           This method caches organizations by their remote ID to avoid
+           unnecessary database queries, specially when creating
+           multiple repositories that belong to the same organization.
         """
+        organization_id = fields["id"]
+        if organization_id in self._organizations_cache:
+            return self._organizations_cache[organization_id]
+
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields["id"], vcs_provider=self.vcs_provider_slug
+            remote_id=organization_id,
+            vcs_provider=self.vcs_provider_slug,
         )
-        organization.get_remote_organization_relation(self.user, self.account)
 
         organization.name = fields.get("name")
         organization.slug = fields.get("full_path")
         organization.url = fields.get("web_url")
-        organization.avatar_url = fields.get("avatar_url")
+        organization.avatar_url = self._make_absolute_url(fields.get("avatar_url"))
 
         if not organization.avatar_url:
             organization.avatar_url = self.default_user_avatar_url
 
         organization.save()
 
+        self._organizations_cache[organization_id] = organization
         return organization
 
     def get_webhook_data(self, repo_id, project, integration):

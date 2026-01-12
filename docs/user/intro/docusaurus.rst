@@ -1,5 +1,6 @@
-Docusaurus
-==========
+
+Deploying Docusaurus on Read the Docs
+=====================================
 
 .. meta::
    :description lang=en: Hosting Docusaurus sites on Read the Docs.
@@ -61,6 +62,22 @@ For optimal integration with Read the Docs, make the following optional configur
    :depth: 1
    :local:
    :backlinks: none
+
+Configure trailing slashes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For proper operation on Read the Docs, you need to set ``trailingSlash: true`` in your Docusaurus configuration.
+This ensures that URLs like ``/docs/intro`` are handled as ``/docs/intro/`` and the corresponding ``index.html`` file is served correctly.
+
+Without this setting (or if set to ``false``), you will need to configure redirects to ensure proper URL resolution.
+
+.. code-block:: js
+    :caption: docusaurus.config.js
+
+    export default {
+        // Required for compatibility with Read the Docs
+        trailingSlash: true,
+    };
 
 Set the canonical URL
 ~~~~~~~~~~~~~~~~~~~~~

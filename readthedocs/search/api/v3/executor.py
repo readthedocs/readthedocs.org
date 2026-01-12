@@ -1,7 +1,7 @@
 from functools import cached_property
 from itertools import islice
 
-from readthedocs.builds.models import Version
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.projects.models import Project
 from readthedocs.search.api.v3.queryparser import SearchQueryParser
 from readthedocs.search.faceted_search import PageSearch
@@ -128,8 +128,19 @@ class SearchExecutor:
         the default version will be used.
         If `version_slug` is None, we will always use the default version.
         """
-        subprojects = Project.objects.filter(superprojects__parent=project)
-        for subproject in subprojects:
+        relationships = project.subprojects.select_related("child")
+        organization = project.organization
+        for relationship in relationships:
+            subproject = relationship.child
+            # NOTE: Since we already have the superproject relationship,
+            # we can set it here to avoid an extra query later
+            # when using Project.parent_relationship property.
+            # The superproject instannce is also shared among all subprojects.
+            subproject._superprojects = [relationship]
+            # NOTE: Since we already have the organization from the parent project,
+            # we can set it to each subproject to avoid an extra query later
+            # when using the Project.organization property.
+            subproject._organizations = [organization] if organization else []
             version = None
             if version_slug:
                 version = self._get_project_version(
@@ -168,9 +179,9 @@ class SearchExecutor:
         :param include_hidden: If hidden versions should be considered.
         """
         return (
-            Version.internal.public(
+            project.versions(manager=INTERNAL)
+            .public(
                 user=self.request.user,
-                project=project,
                 only_built=True,
                 include_hidden=include_hidden,
             )
@@ -208,7 +219,11 @@ class SearchExecutor:
 
     def _get_project_and_version(self, value):
         project_slug, version_slug = self._split_project_and_version(value)
-        project = Project.objects.filter(slug=project_slug).first()
+        project = (
+            Project.objects.filter(slug=project_slug)
+            .prefetch_organization(select_related=["stripe_subscription"])
+            .first()
+        )
         if not project:
             return None, None
 

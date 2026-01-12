@@ -317,15 +317,18 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``3.11``
   - ``3.12``
   - ``3.13``
+  - ``3.14``
   - ``latest`` (alias for the latest version available on Read the Docs)
   - ``miniconda3-4.7``
   - ``miniconda3-3.12-24.1``
   - ``miniconda3-3.12-24.9``
   - ``miniconda-latest`` (alias for the latest version available on Read the Docs)
-  - ``mambaforge-4.10``
-  - ``mambaforge-22.9``
-  - ``mambaforge-23.11``
-  - ``mambaforge-latest`` (alias for the latest version available on Read the Docs)
+  - ``mambaforge-4.10`` (deprecated)
+  - ``mambaforge-22.9`` (deprecated)
+  - ``mambaforge-23.11`` (deprecated)
+  - ``mambaforge-latest`` (deprecated - alias for the latest version available on Read the Docs)
+  - ``miniforge3-25.11``
+  - ``miniforge3-latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.nodejs
 ``````````````````
@@ -341,6 +344,7 @@ Node.js version to use.
    - ``20``
    - ``22``
    - ``23``
+   - ``24``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.ruby
@@ -369,6 +373,7 @@ Rust version to use.
    - ``1.78``
    - ``1.82``
    - ``1.86``
+   - ``1.91``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.golang
@@ -386,6 +391,7 @@ Go version to use.
    - ``1.22``
    - ``1.23``
    - ``1.24``
+   - ``1.25``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.apt_packages

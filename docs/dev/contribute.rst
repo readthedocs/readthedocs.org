@@ -174,7 +174,7 @@ label. The reported issue …
 
     Examples:
 
-    - *Refactor namedtuples to dataclasess*
+    - *Refactor namedtuples to dataclasses*
     - *Change font size for the project's title*
 
 … is a valid problem within the code base:

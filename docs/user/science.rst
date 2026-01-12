@@ -114,7 +114,7 @@ We want science communities to use Read the Docs and to be part of the documenta
 Getting started: Jupyter Book
 -----------------------------
 
-:external+jupyterbook:doc:`Jupyter Book <intro>` on Read the Docs brings you the rich experience of computated `Jupyter <https://jupyter.org/>`__ documents built together with a modern documentation tool. The results are beautiful and automatically deployed websites, built with Sphinx and :doc:`Executable Book <executablebook:index>` + all the extensions available in this ecosystem.
+:external+jupyterbook:doc:`Jupyter Book <intro>` on Read the Docs brings you the rich experience of computed `Jupyter <https://jupyter.org/>`__ documents built together with a modern documentation tool. The results are beautiful and automatically deployed websites, built with Sphinx and :doc:`Executable Book <executablebook:index>` + all the extensions available in this ecosystem.
 
 Here are some popular activities that are well-supported by Jupyter Book:
 

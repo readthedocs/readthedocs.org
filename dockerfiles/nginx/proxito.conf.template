@@ -112,6 +112,11 @@ server {
         add_header X-Frame-Options $x_frame_options always;
         set $x_content_type_options $upstream_http_x_content_type_options;
         add_header X-Content-Type-Options $x_content_type_options always;
+
+        # https://docs.djangoproject.com/en/4.2/ref/middleware/#cross-origin-opener-policy
+        set $cross_origin_opener_policy $upstream_http_cross_origin_opener_policy;
+        add_header Cross-Origin-Opener-Policy $cross_origin_opener_policy always;
+
         # Minio sets this header on the response, and we don't want to copy it to the response
         proxy_hide_header Content-Security-Policy;
         set $content_security_policy $upstream_http_content_security_policy;
