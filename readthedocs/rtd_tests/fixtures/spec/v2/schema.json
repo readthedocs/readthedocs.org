@@ -203,7 +203,9 @@
                 "mambaforge-4.10",
                 "mambaforge-22.9",
                 "mambaforge-23.11",
-                "mambaforge-latest"
+                "mambaforge-latest",
+                "miniforge3-25.11",
+                "miniforge3-latest"
               ]
             },
             "nodejs": {
