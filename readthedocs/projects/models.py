@@ -701,6 +701,11 @@ class Project(models.Model):
         if self.remote_repository and not dont_sync:
             self.repo = self.remote_repository.clone_url
 
+        # Normalize user input for the path to ``.readthedocs.yaml``
+        self.readthedocs_yaml_path = (
+            self.readthedocs_yaml_path.strip() if self.readthedocs_yaml_path else None
+        )
+
         super().save(*args, **kwargs)
         self.update_latest_version()
 
