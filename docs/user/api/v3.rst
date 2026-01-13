@@ -386,6 +386,7 @@ Project create
             "language": "es",
             "privacy_level": "public",
             "external_builds_privacy_level": "public",
+            "readthedocs_yaml_path": "docs/.readthedocs.yaml",
             "tags": [
                 "automation",
                 "sphinx"
