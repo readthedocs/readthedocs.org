@@ -573,6 +573,29 @@ class ProjectsEndpointTests(APIEndpointMixin):
         project = Project.objects.get(slug=response.data["slug"])
         self.assertIsNone(project.remote_repository)
 
+    def test_import_project_with_readthedocs_yaml_path(self):
+        """Test that readthedocs_yaml_path can be set during project creation."""
+        data = {
+            "name": "Test Project",
+            "repository": {
+                "url": "https://github.com/readthedocs/template",
+                "type": "git",
+            },
+            "programming_language": "py",
+            "readthedocs_yaml_path": "docs/.readthedocs.yaml",
+        }
+        url = reverse("projects-list")
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 201)
+
+        query = Project.objects.filter(slug="test-project")
+        self.assertTrue(query.exists())
+
+        project = query.first()
+        self.assertEqual(project.readthedocs_yaml_path, "docs/.readthedocs.yaml")
+
     def test_update_project(self):
         data = {
             "name": "Updated name",
