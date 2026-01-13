@@ -2052,7 +2052,7 @@ class GitHubOAuthTests(TestCase):
         assert not remote_repo.users.filter(id=self.user.id).exists()
 
     @requests_mock.Mocker(kw="request")
-    def test_update_remote_repository_remove_user_relation_public_repo(self, request):
+    def test_update_remote_repository_update_user_relation_public_repo(self, request):
         remote_repo = get(
             RemoteRepository,
             vcs_provider=GITHUB,
@@ -2078,8 +2078,8 @@ class GitHubOAuthTests(TestCase):
         assert remote_repo.name == "testrepo"
         assert remote_repo.full_name == "testuser/testrepo"
         assert remote_repo.description == "Test Repo"
-        assert not remote_repo.users.filter(id=self.user.id).exists()
-
+        relation = remote_repo.remote_repository_relations.get(user=self.user)
+        assert not relation.admin
 
 class BitbucketOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]

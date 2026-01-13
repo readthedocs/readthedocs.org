@@ -24,6 +24,7 @@ from readthedocs.oauth.clients import get_gh_app_client
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
@@ -64,6 +65,11 @@ def sync_remote_repositories(user_id, skip_githubapp=False):
             service_cls.sync_user_access(user)
         except SyncServiceError:
             failed_services.add(service_cls.allauth_provider.name)
+
+    Notification.objects.cancel(
+        message_id=MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES,
+        attached_to=user,
+    )
 
     if failed_services:
         raise SyncServiceError(
