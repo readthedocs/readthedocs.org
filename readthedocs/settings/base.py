@@ -671,7 +671,10 @@ class CommunityBaseSettings(Settings):
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
     BROKER_TRANSPORT_OPTIONS = {
-        'visibility_timeout': 18000, # 5 hours
+        'visibility_timeout': 5 * 60 * 60,  # Use 5hs to cover the longest build just in case
+        'socket_timeout': 5 * 60 * 60,
+        'retry_on_timeout': True,
+        'health_check_interval': 30,
     }
 
     CELERY_DEFAULT_QUEUE = "celery"
