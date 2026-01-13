@@ -598,6 +598,7 @@ class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             "tags",
             "privacy_level",
             "external_builds_privacy_level",
+            "readthedocs_yaml_path",
         )
 
     def __init__(self, *args, **kwargs):
