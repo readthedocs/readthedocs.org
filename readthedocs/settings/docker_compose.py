@@ -249,6 +249,9 @@ class DockerBaseSettings(CommunityBaseSettings):
             "staticfiles": {
                 "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage",
             },
+            "proxito-staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
+            },
             "build-media": {
                 "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
             },

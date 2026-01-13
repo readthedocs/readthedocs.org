@@ -142,6 +142,9 @@ class CommunityTestSettings(CommunityBaseSettings):
             "staticfiles": {
                 "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
             },
+            "proxito-staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
+            },
             "build-media": {
                 "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
             },
