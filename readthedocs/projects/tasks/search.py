@@ -129,10 +129,11 @@ class IndexFileIndexer(Indexer):
 
 
 class FileManifestIndexer(Indexer):
-    def __init__(self, version: Version, build: Build):
+    def __init__(self, version: Version, build: Build, post_build_overview: bool = True):
         self.version = version
         self.build = build
         self._hashes = {}
+        self.post_build_overview = post_build_overview
 
     def process(self, html_file: HTMLFile, sync_id: int):
         self._hashes[html_file.path] = html_file.processed_json["main_content_hash"]
@@ -146,11 +147,17 @@ class FileManifestIndexer(Indexer):
             ],
         )
         write_manifest(self.version, manifest)
-        if self.version.is_external and self.version.project.show_build_overview_in_comment:
+        if (
+            self.post_build_overview
+            and self.version.is_external
+            and self.version.project.show_build_overview_in_comment
+        ):
             post_build_overview.delay(self.build.id)
 
 
-def _get_indexers(*, version: Version, build: Build, search_index_name=None):
+def _get_indexers(
+    *, version: Version, build: Build, search_index_name=None, post_build_overview=True
+):
     build_config = build.config or {}
     search_config = build_config.get("search", {})
     search_ranking = search_config.get("ranking", {})
@@ -194,6 +201,7 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
         file_manifest_indexer = FileManifestIndexer(
             version=version,
             build=build,
+            post_build_overview=post_build_overview,
         )
         indexers.append(file_manifest_indexer)
 
@@ -345,6 +353,7 @@ def reindex_version(version_id, search_index_name=None):
             version=version,
             build=latest_successful_build,
             search_index_name=search_index_name,
+            post_build_overview=False,
         )
         _process_files(version=version, indexers=indexers)
     except Exception:
