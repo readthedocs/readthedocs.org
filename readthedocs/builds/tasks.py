@@ -4,6 +4,7 @@ from io import BytesIO
 import requests
 import structlog
 from django.conf import settings
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -26,6 +27,7 @@ from readthedocs.builds.constants import LOCK_EXPIRE
 from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.builds.reporting import get_build_overview
 from readthedocs.builds.utils import memcache_lock
@@ -118,23 +120,15 @@ class TaskRouter:
         last_builds = version.builds.order_by("-date")[: self.N_LAST_BUILDS]
         # Version has used conda in previous builds
         for build in last_builds.iterator():
-            build_tools_python = ""
-            conda = None
-            if build.config:
-                build_tools_python = (
-                    build.config.get("build", {})
-                    .get("tools", {})
-                    .get("python", {})
-                    .get("version", "")
+            uses_conda = BuildConfig.objects.filter(
+                (
+                    Q(builds=build)
+                    & (
+                        Q(data__build__tools__python__version__startswith="miniconda")
+                        | Q(data__conda__isnull=False)
+                    )
                 )
-                conda = build.config.get("conda", None)
-
-            uses_conda = any(
-                [
-                    conda,
-                    build_tools_python.startswith("miniconda"),
-                ]
-            )
+            ).exists()
             if uses_conda:
                 log.info(
                     "Routing task because project uses conda.",

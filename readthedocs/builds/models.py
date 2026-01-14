@@ -306,11 +306,11 @@ class Version(TimeStampedModel):
                 success=True,
             )
             .order_by("-date")
-            .only("_config")
+            .only("readthedocs_yaml_config")
             .first()
         )
         if last_build:
-            return last_build.config
+            return last_build.readthedocs_yaml_config.data
         return None
 
     @property
@@ -607,6 +607,28 @@ class APIVersion(Version):
         return 0
 
 
+class BuildConfig(TimeStampedModel):
+    """
+    Build configuration data.
+
+    Stores the rendered YAML configuration used in builds.
+    The unique constraint ensures we don't duplicate identical configs.
+    """
+
+    data = models.JSONField(
+        _("Configuration data"),
+        unique=True,
+        help_text=_("The rendered YAML configuration used in the build"),
+    )
+
+    class Meta:
+        verbose_name = _("Build configuration")
+        verbose_name_plural = _("Build configurations")
+
+    def __str__(self):
+        return f"BuildConfig {self.pk}"
+
+
 class Build(models.Model):
     """Build data."""
 
@@ -693,10 +715,22 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
+
+    # TODO: remove _config field once we have migrated all builds.
+    # _config field is deprecated in favor of readthedocs_yaml_config
     _config = models.JSONField(
         _("Configuration used in the build"),
         null=True,
         blank=True,
+    )
+    readthedocs_yaml_config = models.ForeignKey(
+        "BuildConfig",
+        verbose_name=_("Build configuration data"),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="builds",
+        help_text=_("The rendered YAML configuration used in the build"),
     )
     readthedocs_yaml_path = models.CharField(
         _("Custom build configuration file path used in this build"),
@@ -748,8 +782,6 @@ class Build(models.Model):
     # Only include EXTERNAL type Version builds.
     external = ExternalBuildManager.from_queryset(BuildQuerySet)()
 
-    CONFIG_KEY = "__config"
-
     class Meta:
         ordering = ["-date"]
         get_latest_by = "date"
@@ -761,10 +793,6 @@ class Build(models.Model):
             models.Index(fields=["version", "state", "date", "success"]),
             models.Index(fields=["version", "state", "type"]),
         ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._config_changed = False
 
     @property
     def previous(self):
@@ -789,54 +817,48 @@ class Build(models.Model):
     @property
     def config(self):
         """
-        Get the config used for this build.
+        Helper to get the build config data as a dict.
 
-        Since we are saving the config into the JSON field only when it differs
-        from the previous one, this helper returns the correct JSON used in this
-        Build object (it could be stored in this object or one of the previous
-        ones).
+        Keeping it for backwards compatibility for now.
+        We could use `readthedocs_yaml_config` directly instead if we want.
         """
-        # TODO: now that we are using a proper JSONField here, we could
-        # probably change this field to be a ForeignKey to avoid repeating the
-        # config file over and over again and reuse them to save db data as
-        # well
-        if self._config and self.CONFIG_KEY in self._config:
-            return Build.objects.only("_config").get(pk=self._config[self.CONFIG_KEY])._config
-        return self._config
+        return self.readthedocs_yaml_config.data if self.readthedocs_yaml_config else {}
 
     @config.setter
     def config(self, value):
         """
-        Set `_config` to value.
+        Helper to create a `BuildConfig` from a dict.
 
-        `_config` should never be set directly from outside the class.
+        Keeping it for backwards compatibility for now. We are using is as:
+
+          build.config = {
+            "search": {
+                "ranking": {
+                    "*index.html": 5,
+                }
+            }
+          }
+
+        We could remove this and create `BuildConfig` objects directly instead if we want.
         """
-        self._config = value
-        self._config_changed = True
+
+        build_config, _ = BuildConfig.objects.get_or_create(data=value)
+        self.readthedocs_yaml_config = build_config
+        log.warning(
+            "Creating BuildConfig using `build.config` setter.",
+            build_id=self.id,
+            build_config_data=value,
+            build_config_id=build_config.id,
+        )
+        self.save()
 
     def save(self, *args, **kwargs):  # noqa
-        """
-        Save object.
-
-        To save space on the db we only save the config if it's different
-        from the previous one.
-
-        If the config is the same, we save the pk of the object
-        that has the **real** config under the `CONFIG_KEY` key.
-        """
-        if self.pk is None or self._config_changed:
-            previous = self.previous
-            if previous is not None and self._config and self._config == previous.config:
-                previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
-                self._config = {self.CONFIG_KEY: previous_pk}
-
         if self.version:
             self.version_name = self.version.verbose_name
             self.version_slug = self.version.slug
             self.version_type = self.version.type
 
         super().save(*args, **kwargs)
-        self._config_changed = False
 
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
