@@ -859,7 +859,9 @@ class Build(models.Model):
         readthedocs_yaml_config field to facilitate the migration to the new model.
         """
         if self.pk is None or self._config_changed:
-            if self._config is not None:
+            if self._config is None:
+                self.readthedocs_yaml_config = None
+            else:
                 build_config, created = BuildConfig.objects.get_or_create(data=self._config)
                 self.readthedocs_yaml_config = build_config
 
