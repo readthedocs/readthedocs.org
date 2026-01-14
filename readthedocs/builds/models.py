@@ -859,29 +859,13 @@ class Build(models.Model):
         readthedocs_yaml_config field to facilitate the migration to the new model.
         """
         if self.pk is None or self._config_changed:
+            build_config, created = BuildConfig.objects.get_or_create(data=self._config)
+            self.readthedocs_yaml_config = build_config
+
             previous = self.previous
             if previous is not None and self._config and self._config == previous.config:
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
-                # When using reference style, follow the reference to get the actual config
-                # and create/get the corresponding BuildConfig
-                if previous.readthedocs_yaml_config:
-                    # Previous build already has a BuildConfig, reuse it
-                    self.readthedocs_yaml_config = previous.readthedocs_yaml_config
-                else:
-                    # Previous build doesn't have BuildConfig yet, get its actual config
-                    actual_config = previous.config
-                    if actual_config:
-                        build_config, created = BuildConfig.objects.get_or_create(
-                            data=actual_config
-                        )
-                        self.readthedocs_yaml_config = build_config
-            elif self._config and self.CONFIG_KEY not in self._config:
-                # Populate the new readthedocs_yaml_config field
-                # We only create a BuildConfig when we have actual config data (not a reference)
-                # Use get_or_create to avoid duplicates and leverage the unique constraint
-                build_config, created = BuildConfig.objects.get_or_create(data=self._config)
-                self.readthedocs_yaml_config = build_config
 
         if self.version:
             self.version_name = self.version.verbose_name
