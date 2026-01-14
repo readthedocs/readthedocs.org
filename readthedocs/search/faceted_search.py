@@ -1,8 +1,6 @@
 import re
 
 import structlog
-from django.conf import settings
-from elasticsearch import Elasticsearch
 from elasticsearch.dsl import FacetedSearch
 from elasticsearch.dsl import TermsFacet
 from elasticsearch.dsl.query import Bool
