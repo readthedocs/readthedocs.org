@@ -12,8 +12,8 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
-    RTD_DOCKER_COMPOSE_NETWORK = "community_readthedocs"
-    RTD_DOCKER_COMPOSE_VOLUME = "community_build-user-builds"
+    RTD_DOCKER_COMPOSE_NETWORK = "community-readthedocs"
+    RTD_DOCKER_COMPOSE_VOLUME = "community-build-user-builds"
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     BUILD_MEMORY_LIMIT = "2g"
 
