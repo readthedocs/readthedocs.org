@@ -416,7 +416,8 @@ class BuildsViewSet(
 
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        data = serializer.data
+        # Convert to dict to ensure it's mutable
+        data = dict(serializer.data)
 
         # Load commands from cold storage if available
         commands_from_storage = get_commands_from_cold_storage(instance)

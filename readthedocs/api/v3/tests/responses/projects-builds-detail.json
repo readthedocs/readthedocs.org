@@ -1,12 +1,19 @@
 {
+    "id": 1,
+    "version": "v1.0",
+    "project": "project",
+    "created": "2019-04-29T10:00:00Z",
+    "finished": "2019-04-29T10:01:00Z",
+    "duration": 60,
+    "state": {
+        "code": "finished",
+        "name": "Finished"
+    },
+    "success": true,
+    "error": "",
     "commit": "a1b2c3",
     "commit_url": "",
-    "created": "2019-04-29T10:00:00Z",
     "docs_url": "http://project.readthedocs.io/en/v1.0/",
-    "duration": 60,
-    "error": "",
-    "finished": "2019-04-29T10:01:00Z",
-    "id": 1,
     "builder": "builder01",
     "commands": [
         {
@@ -30,12 +37,5 @@
         "build": "https://readthedocs.org/projects/project/builds/1/",
         "project": "https://readthedocs.org/projects/project/",
         "version": "https://readthedocs.org/dashboard/project/version/v1.0/edit/"
-    },
-    "project": "project",
-    "state": {
-        "code": "finished",
-        "name": "Finished"
-    },
-    "success": true,
-    "version": "v1.0"
+    }
 }
