@@ -916,7 +916,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(16):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -932,7 +932,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         # Test parent project has fewer queries
-        with self.assertNumQueries(16):
+        with self.assertNumQueries(17):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

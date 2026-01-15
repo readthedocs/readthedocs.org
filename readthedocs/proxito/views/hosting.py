@@ -35,7 +35,9 @@ from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CALVER
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
+from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.version_handling import comparable_version
 from readthedocs.projects.version_handling import sort_versions_calver
 from readthedocs.projects.version_handling import sort_versions_custom_pattern
@@ -515,28 +517,35 @@ class AddonsResponseBase:
             if response:
                 data["addons"]["filetreediff"].update(response)
 
+        if version and not project.has_feature(Feature.DONT_INCLUDE_SUBPROJECTS_FILTER):
             # Show the subprojects filter on the parent project and subproject
             # TODO: Remove these queries and try to find a way to get this data
             # from the resolver, which has already done these queries.
             # TODO: Replace this fixed filters with the work proposed in
             # https://github.com/readthedocs/addons/issues/22
-            if project.subprojects.exists():
-                data["addons"]["search"]["filters"].append(
-                    [
-                        "Include subprojects",
-                        f"subprojects:{project.slug}/{version.slug}",
-                        True,
-                    ]
-                )
-            elif project.superprojects.exists():
-                superproject = project.superprojects.first().parent
-                data["addons"]["search"]["filters"].append(
-                    [
-                        "Include subprojects",
-                        f"subprojects:{superproject.slug}/{version.slug}",
-                        True,
-                    ]
-                )
+            relationship = (
+                ProjectRelationship.objects.filter(Q(parent=project) | Q(child=project))
+                .select_related("parent", "child")
+                .first()
+            )
+            if relationship:
+                if relationship.parent == project:
+                    data["addons"]["search"]["filters"].append(
+                        [
+                            "Include subprojects",
+                            f"subprojects:{project.slug}/{version.slug}",
+                            True,
+                        ]
+                    )
+                elif relationship.child == project:
+                    superproject = relationship.parent
+                    data["addons"]["search"]["filters"].append(
+                        [
+                            "Include subprojects",
+                            f"subprojects:{superproject.slug}/{version.slug}",
+                            True,
+                        ]
+                    )
 
         # DocDiff depends on `url=` GET attribute.
         # This attribute allows us to know the exact filename where the request was made.
