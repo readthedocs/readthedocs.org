@@ -1328,6 +1328,78 @@ class RegexAutomationRule(VersionAutomationRule):
         )
 
 
+class PushAutomationRule(VersionAutomationRule):
+    """
+    Automation rule for filtering builds based on files changed in push events.
+
+    This rule is executed when a push webhook event is received, and checks if the
+    files modified/added/deleted in the push match the rule patterns. If they do,
+    the build is triggered for the affected version.
+    """
+
+    TIMEOUT = 1  # timeout in seconds
+
+    allowed_actions_on_create = {
+        VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
+        VersionAutomationRule.HIDE_VERSION_ACTION: actions.hide_version,
+        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
+        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
+        VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
+    }
+
+    allowed_actions_on_delete = {
+        VersionAutomationRule.DELETE_VERSION_ACTION: actions.delete_version,
+    }
+
+    class Meta:
+        proxy = True
+
+    def match_files(self, file_list):
+        """
+        Check if any file in the list matches the rule pattern.
+
+        This is meant to be called from webhook handlers to determine if a build
+        should be triggered based on the files that were changed in a push event.
+
+        :param file_list: List of file paths that were modified/added/deleted
+        :return: True if any file matches the rule pattern, False otherwise
+        """
+        match_arg = self.get_match_arg()
+        try:
+            for file_path in file_list:
+                match = regex.search(
+                    match_arg,
+                    file_path,
+                    flags=regex.VERSION0,
+                    timeout=self.TIMEOUT,
+                )
+                if match:
+                    return True
+            return False
+        except TimeoutError:
+            log.warning(
+                "Timeout while parsing regex.",
+                pattern=match_arg,
+            )
+        except Exception:
+            log.exception("Error parsing regex.", exc_info=True)
+        return False
+
+    def match(self, version, match_arg):
+        """
+        Not used for push automation rules.
+
+        Push rules check files in the webhook, not version names.
+        """
+        return False, None
+
+    def get_edit_url(self):
+        return reverse(
+            "projects_automation_rule_push_edit",
+            args=[self.project.slug, self.pk],
+        )
+
+
 class AutomationRuleMatch(TimeStampedModel):
     ACTIONS_PAST_TENSE = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
