@@ -9,6 +9,7 @@ import dns.name
 import dns.resolver
 from allauth.socialaccount.models import SocialAccount
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Field
 from crispy_forms.layout import Layout
 from crispy_forms.layout import MultiField
 from django import forms
@@ -48,6 +49,22 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
 
 
+class ProjectRemoteRepositorySelect(RichSelect):
+    """
+    Rich select for user's remote repository listing
+
+    :param can_connect_remote_repository: Is the current user able to connect a remote repository
+    """
+
+    can_connect_remote_repository = False
+
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs.setdefault("can_connect_remote_repository", self.can_connect_remote_repository)
+        super().__init__(attrs)
+
+
 class ProjectForm(SimpleHistoryModelForm):
     """
     Project form.
@@ -74,7 +91,7 @@ class ProjectForm(SimpleHistoryModelForm):
             empty_value=None,
             help_text=self.fields["remote_repository"].help_text,
             label=self.fields["remote_repository"].label,
-            widget=RichSelect(),
+            widget=ProjectRemoteRepositorySelect(attrs={"use_data_binding": False}),
         )
 
         # The clone URL will be set from the remote repository.
@@ -117,8 +134,8 @@ class ProjectForm(SimpleHistoryModelForm):
         if current_remote_repo and current_remote_repo not in queryset:
             choice = RichChoice(
                 text=current_remote_repo.full_name,
-                # TODO meta note about this repo being connected by another user
                 description=current_remote_repo.clone_url,
+                extra=_("This repository is connected through another user's account"),
                 value=current_remote_repo.pk,
                 image_url=current_remote_repo.avatar_url,
             )
@@ -542,41 +559,29 @@ class UpdateProjectForm(
 
         self.setup_external_builds_option()
 
-        # The use of this field will depend on who has a connected service. If
-        # the current user does not have a connected service, we only want to
-        # make this field readonly. If none of the maintainers have a connected
-        # service, it would be more clear to disable the field though.
-
-        # TODO manage field editable/visiability at the form level? It's also
-        # happening at the front end code level already.
-        if SocialAccount.objects.filter(user=self.user).exists():
-            pass
-            # self.fields["remote_repository"].disabled = True
-            # self.fields["remote_repository"].readonly = True
-            # self.fields["remote_repository"].widget.attrs["readonly"] = True
-
-        # We use crispy layout here strictly for multifield support, which will
-        # show as a tabbed UI in the form. All other fields are displayed normally
+        # We use crispy layout here strictly for multifield and field ordering,
+        # There's no HTML in Python, it's all in templates and web components.
         self.helper = FormHelper()
         # Let templates close form tag and add submit button
         self.helper.form_tag = False
         # We only care about the order of the first fields, the rest of the
         # fields are dictated by Meta class configuration.
+        multifield_attrs = {}
+        if not SocialAccount.objects.filter(user=self.user).exists():
+            multifield_attrs["show-connected-service-warning"] = True
+        multifield = MultiField(
+            _("Repository"),
+            Field("remote_repository"),
+            Field("repo"),
+            template="projects/includes/crispy/repository.html",
+            **multifield_attrs,
+        )
         fields_other = [
             field
             for field in self.fields.keys()
             if field not in ["name", "repo", "remote_repository"]
         ]
-        self.helper.layout = Layout(
-            "name",
-            MultiField(
-                _("Repository"),
-                "repo",
-                "remote_repository",
-                template="projects/includes/crispy/repository.html",
-            ),
-            *fields_other,
-        )
+        self.helper.layout = Layout("name", multifield, *fields_other)
 
     def clean_readthedocs_yaml_path(self):
         """
