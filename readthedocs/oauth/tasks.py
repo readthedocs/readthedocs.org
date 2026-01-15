@@ -551,6 +551,42 @@ class GitHubAppWebhookHandler:
         # - archived/unarchived: We don't do anything with archived repositories.
         return
 
+    def _should_build_push(self, project, modified_files):
+        """
+        Check if automation rules allow a build for the given modified files.
+
+        If there are push automation rules configured for the project, this method
+        checks if any of them match the modified files. If at least one rule matches,
+        the build should be triggered.
+
+        If there are no push automation rules configured, returns True (backward compatible).
+
+        :param project: Project instance
+        :param modified_files: List of file paths that were modified in the push
+        :return: True if a build should be triggered, False otherwise
+        """
+        push_rules = project.automation_rules.filter(polymorphic_ctype__model="pushautomationrule")
+
+        # If no push rules are configured, allow the build (backward compatible)
+        if not push_rules.exists():
+            return True
+
+        # Check if any rule matches the modified files
+        for rule in push_rules.iterator():
+            if rule.match_files(modified_files):
+                log.info(
+                    "Push automation rule matched.",
+                    project_slug=project.slug,
+                    rule_id=rule.pk,
+                )
+                return True
+
+        log.info(
+            "No push automation rules matched.",
+            project_slug=project.slug,
+        )
+        return False
+
     def _handle_push_event(self):
         """
         Handle the push event.
@@ -561,6 +597,9 @@ class GitHubAppWebhookHandler:
         If a new branch or tag is created, we trigger a sync of the versions,
         if the version already exists, we build it if it's active.
 
+        If push automation rules are configured, they are checked to decide whether
+        a build should be triggered based on the files that were modified.
+
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#push.
         """
         created = self.data.get("created", False)
@@ -570,11 +609,46 @@ class GitHubAppWebhookHandler:
                 trigger_sync_versions(project)
             return
 
+        # Extract the list of modified files from the push event
+        modified_files = self._get_modified_files_from_push()
+
         # If this is a push to an existing branch or tag,
-        # we need to build the version if active.
+        # check automation rules and build the version if it matches.
         version_name, version_type = parse_version_from_ref(self.data["ref"])
         for project in self._get_projects():
-            build_versions_from_names(project, [VersionInfo(name=version_name, type=version_type)])
+            # Check if automation rules allow this build based on modified files
+            if self._should_build_push(project, modified_files):
+                build_versions_from_names(
+                    project, [VersionInfo(name=version_name, type=version_type)]
+                )
+            else:
+                log.info(
+                    "Push event: automation rules blocked build.",
+                    project_slug=project.slug,
+                    version_name=version_name,
+                )
+
+    def _get_modified_files_from_push(self):
+        """
+        Extract the list of modified files from a push event payload.
+
+        Returns all files that were added, modified, or removed in any commit.
+
+        :return: List of file paths
+        """
+        modified_files = set()
+
+        # Extract files from each commit in the push
+        commits = self.data.get("commits", [])
+        for commit in commits:
+            # Files added in this commit
+            modified_files.update(commit.get("added", []))
+            # Files modified in this commit
+            modified_files.update(commit.get("modified", []))
+            # Files removed in this commit
+            modified_files.update(commit.get("removed", []))
+
+        return list(modified_files)
 
     def _handle_pull_request_event(self):
         """
