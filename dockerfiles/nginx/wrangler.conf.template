@@ -7,6 +7,10 @@ server {
     # So, we are disabling the logs from NGINX directly.
     access_log off;
 
+    # Resolver for Docker's internal DNS
+    resolver 127.0.0.11:53 valid=10s;
+    resolver_timeout 5s;
+
     # Wrangler serving
     location / {
         proxy_pass http://wrangler:8000;
