@@ -1,10 +1,32 @@
 {
-    "commit": "a1b2c3",
-    "created": "2019-04-29T10:00:00Z",
-    "duration": 60,
-    "error": "",
-    "finished": "2019-04-29T10:01:00Z",
     "id": 1,
+    "version": "v1.0",
+    "project": "project",
+    "created": "2019-04-29T10:00:00Z",
+    "finished": "2019-04-29T10:01:00Z",
+    "duration": 60,
+    "state": {
+        "code": "finished",
+        "name": "Finished"
+    },
+    "success": true,
+    "error": "",
+    "commit": "a1b2c3",
+    "commit_url": "",
+    "docs_url": "http://project.readthedocs.io/en/v1.0/",
+    "builder": "builder01",
+    "commands": [
+        {
+            "id": 1,
+            "command": "python setup.py install",
+            "description": "Install",
+            "output": "Successfully installed",
+            "exit_code": 0,
+            "start_time": "2019-04-29T10:00:00Z",
+            "end_time": "2019-04-29T10:00:05Z",
+            "run_time": 5
+        }
+    ],
     "_links": {
         "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/",
         "project": "https://readthedocs.org/api/v3/projects/project/",
@@ -15,12 +37,5 @@
         "build": "https://readthedocs.org/projects/project/builds/1/",
         "project": "https://readthedocs.org/projects/project/",
         "version": "https://readthedocs.org/dashboard/project/version/v1.0/edit/"
-    },
-    "project": "project",
-    "state": {
-        "code": "finished",
-        "name": "Finished"
-    },
-    "success": true,
-    "version": "v1.0"
+    }
 }
