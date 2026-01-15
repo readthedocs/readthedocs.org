@@ -1,8 +1,6 @@
 import re
 
 import structlog
-from django.conf import settings
-from elasticsearch import Elasticsearch
 from elasticsearch.dsl import FacetedSearch
 from elasticsearch.dsl import TermsFacet
 from elasticsearch.dsl.query import Bool
@@ -66,14 +64,7 @@ class RTDFacetedSearch(FacetedSearch):
         self.aggregate_results = aggregate_results
         self.projects = projects or {}
 
-        # Hack a fix to our broken connection pooling
-        # This creates a new connection on every request,
-        # but actually works :)
-        log.debug("Hacking Elastic to fix search connection pooling")
-        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL["default"])
-
         filters = filters or {}
-
         # We may receive invalid filters
         valid_filters = {k: v for k, v in filters.items() if k in self.facets}
         super().__init__(query=query, filters=valid_filters, **kwargs)
