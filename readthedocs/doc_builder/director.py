@@ -288,7 +288,7 @@ class BuildDirector:
             version=self.data.version,
             readthedocs_yaml_path=custom_config_file,
         )
-        self.data.build["config"] = self.data.config.as_dict()
+        self.data.build["readthedocs_yaml_config"] = self.data.config.as_dict()
         self.data.build["readthedocs_yaml_path"] = custom_config_file
 
         # Raise a build error if the project is not using a config file or using v1

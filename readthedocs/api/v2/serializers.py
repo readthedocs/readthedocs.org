@@ -9,6 +9,7 @@ from rest_framework import serializers
 from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
+from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.notifications.models import Notification
@@ -259,8 +260,7 @@ class BuildSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Build
-        # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ("builder", "_config")
+        exclude = ("builder",)
 
     def get_docs_url(self, obj):
         if obj.version:
@@ -277,13 +277,36 @@ class BuildAdminSerializer(BuildSerializer):
     """
 
     commands = BuildCommandSerializer(many=True, read_only=True)
+    readthedocs_yaml_config = serializers.JSONField(
+        required=False,
+        allow_null=True,
+        write_only=True,
+    )
 
     class Meta(BuildSerializer.Meta):
-        # `_config` should be excluded to avoid conflicts with `config`.
-        #
         # `healthcheck` is excluded to avoid updating it to `None` again during building.
         # See https://github.com/readthedocs/readthedocs.org/issues/12474
-        exclude = ("_config", "healthcheck")
+        exclude = ("healthcheck",)
+
+    def create(self, validated_data):
+        config_data = validated_data.pop("readthedocs_yaml_config", None)
+
+        if config_data:
+            # Get or create BuildConfig with the provided dict
+            build_config, _ = BuildConfig.objects.get_or_create(data=config_data)
+            validated_data["readthedocs_yaml_config"] = build_config
+
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        config_data = validated_data.pop("readthedocs_yaml_config", None)
+
+        if config_data is not None:
+            # Get or create BuildConfig with the provided dict
+            build_config, _ = BuildConfig.objects.get_or_create(data=config_data)
+            validated_data["readthedocs_yaml_config"] = build_config
+
+        return super().update(instance, validated_data)
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):
