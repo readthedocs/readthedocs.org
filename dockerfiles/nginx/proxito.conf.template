@@ -7,6 +7,10 @@ server {
     # So, we are disabling the logs from NGINX directly.
     access_log off;
 
+    # Resolver for Docker's internal DNS
+    resolver 127.0.0.11:53 valid=10s;
+    resolver_timeout 5s;
+
     # TODO: serve the favicon.ico from the project/version itself instead
     location /favicon.ico {
         proxy_pass http://storage:9000/static/images/favicon.ico;
