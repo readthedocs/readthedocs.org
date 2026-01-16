@@ -402,9 +402,10 @@ class TestProjectAdvancedForm(TestCase):
         self.assertEqual(self.project.remote_repository, remote_repository)
         self.assertEqual(self.project.repo, remote_repository.clone_url)
 
-        # Since a remote repository is attached, the repo field should be disabled.
+        # Since a remote repository is attached, we used to disable the repo
+        # field. This is now handled more on the front end instead.
         form = UpdateProjectForm(data, instance=self.project, user=self.user)
-        self.assertTrue(form.fields["repo"].disabled)
+        self.assertFalse(form.fields["repo"].disabled)
 
         # This project has the don't sync with remote repository feature enabled,
         # so the repo field should be enabled.
