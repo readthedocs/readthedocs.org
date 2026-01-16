@@ -94,13 +94,6 @@ class ProjectForm(SimpleHistoryModelForm):
             widget=ProjectRemoteRepositorySelect(attrs={"use_data_binding": False}),
         )
 
-        # The clone URL will be set from the remote repository.
-        if self.instance.remote_repository and not self.instance.has_feature(
-            Feature.DONT_SYNC_WITH_REMOTE_REPO
-        ):
-            # TODO verify this is better readonly instead of disabled
-            self.fields["repo"].readonly = True
-
     def _get_remote_repository_choices(self):
         """
         Get valid choices for the remote repository field.
@@ -564,11 +557,12 @@ class UpdateProjectForm(
         self.helper = FormHelper()
         # Let templates close form tag and add submit button
         self.helper.form_tag = False
-        # We only care about the order of the first fields, the rest of the
-        # fields are dictated by Meta class configuration.
+
         multifield_attrs = {}
         if not SocialAccount.objects.filter(user=self.user).exists():
             multifield_attrs["show-connected-service-warning"] = True
+        if self.instance.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
+            multifield_attrs["dont-sync"] = True
         multifield = MultiField(
             _("Repository"),
             Field("remote_repository"),
@@ -576,6 +570,9 @@ class UpdateProjectForm(
             template="projects/includes/crispy/repository.html",
             **multifield_attrs,
         )
+
+        # We only care about the order of the first fields, the rest of the
+        # fields are dictated by Meta class configuration.
         fields_other = [
             field
             for field in self.fields.keys()
