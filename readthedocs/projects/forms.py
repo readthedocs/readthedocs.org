@@ -116,7 +116,7 @@ class ProjectForm(SimpleHistoryModelForm):
                 None,
                 RichChoice(
                     text=_("No connected repository"),
-                    description=_("This project is manually connected to a repository"),
+                    description=_("This project uses a manually configured repository URL"),
                     value=None,
                 ),
             ),
