@@ -19,13 +19,13 @@ from readthedocs.projects.models import Project
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username"]
+        fields = ["pk", "username"]
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
-        fields = ["id", "slug"]
+        fields = ["pk", "slug"]
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -33,7 +33,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ["id", "slug", "organization"]
+        fields = ["pk", "slug", "organization"]
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -41,7 +41,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ["id", "slug", "organization"]
+        fields = ["pk", "slug", "organization"]
 
 
 class InvitationSerializer(serializers.ModelSerializer):
@@ -54,7 +54,7 @@ class InvitationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invitation
         fields = [
-            "id",
+            "pk",
             "from_user",
             "to_user",
             "to_email",
