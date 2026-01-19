@@ -24,7 +24,7 @@ class CommunityTestSettings(CommunityBaseSettings):
     ELASTICSEARCH_DSL_AUTOSYNC = False
     ELASTICSEARCH_DSL_AUTO_REFRESH = True
 
-    CELERY_ALWAYS_EAGER = True
+    CELERY_TASK_ALWAYS_EAGER = True
 
     # Skip automatic detection of Docker limits for testing
     BUILD_TIME_LIMIT = 600
@@ -141,6 +141,9 @@ class CommunityTestSettings(CommunityBaseSettings):
             },
             "staticfiles": {
                 "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            },
+            "proxito-staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
             },
             "build-media": {
                 "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,

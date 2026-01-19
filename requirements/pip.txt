@@ -16,20 +16,20 @@ asgiref==3.11.0
     #   django-structlog
 billiard==4.2.4
     # via celery
-boto3==1.42.21
+boto3==1.42.30
     # via django-storages
-botocore==1.42.21
+botocore==1.42.30
     # via
     #   boto3
     #   s3transfer
 bumpver==2025.1131
     # via -r requirements/pip.in
-celery==5.6.1
+celery==5.6.2
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
     #   django-structlog
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   elastic-transport
     #   requests
@@ -68,7 +68,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.9.0
     # via -r requirements/pip.in
-django==5.2.9
+django==5.2.10
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -121,7 +121,7 @@ django-impersonate==1.9.5
     # via -r requirements/pip.in
 django-ipware==7.0.1
     # via django-structlog
-django-polymorphic==4.5.2
+django-polymorphic==4.10.3
     # via -r requirements/pip.in
 django-safemigrate==6.0
     # via -r requirements/pip.in
@@ -162,9 +162,9 @@ elasticsearch==8.19.3
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-fido2==2.0.0
+fido2==2.1.0
     # via django-allauth
-filelock==3.20.2
+filelock==3.20.3
     # via virtualenv
 gunicorn==23.0.0
     # via -r requirements/pip.in
@@ -254,7 +254,7 @@ qrcode==8.2
     # via django-allauth
 redis==7.1.0
     # via -r requirements/pip.in
-regex==2025.11.3
+regex==2026.1.15
     # via -r requirements/pip.in
 requests==2.32.5
     # via
@@ -325,7 +325,7 @@ unicode-slugify==0.1.5
     # via -r requirements/pip.in
 unidecode==1.4.0
     # via unicode-slugify
-urllib3==2.6.2
+urllib3==2.6.3
     # via
     #   botocore
     #   docker
@@ -339,7 +339,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.35.4
+virtualenv==20.36.1
     # via -r requirements/pip.in
 wcwidth==0.2.14
     # via prompt-toolkit
