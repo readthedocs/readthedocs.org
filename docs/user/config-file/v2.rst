@@ -6,6 +6,13 @@ This file is named ``.readthedocs.yaml`` and should be placed in the top level o
 
 The ``.readthedocs.yaml``  file can contain a number of settings that are not accessible through the Read the Docs website.
 
+.. note::
+
+   When using a monorepo, it is possible to place the ``.readthedocs.yaml`` file
+   in a subdirectory and configure a custom path from the project settings
+   dashboard. See the :doc:`/guides/setup/monorepo` documentation for more details.
+
+
 Because the file is stored in Git,
 the configuration will apply to the exact version that is being built.
 **This allows you to store different configurations for different versions of your documentation.**
