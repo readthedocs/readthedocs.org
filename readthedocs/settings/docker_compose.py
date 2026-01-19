@@ -168,9 +168,9 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
-    BROKER_URL = f"redis://:redispassword@cache:6379/0"
+    CELERY_BROKER_URL = f"redis://:redispassword@cache:6379/0"
 
-    CELERY_ALWAYS_EAGER = False
+    CELERY_TASK_ALWAYS_EAGER = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
@@ -243,8 +243,23 @@ class DockerBaseSettings(CommunityBaseSettings):
     @property
     def STORAGES(self):
         return {
+            "default": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+            },
             "staticfiles": {
-                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage",
+            },
+            "proxito-staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
+            },
+            "build-media": {
+                "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
+            },
+            "build-commands": {
+                "BACKEND": self.RTD_BUILD_COMMANDS_STORAGE,
+            },
+            "build-tools": {
+                "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
             },
             "usercontent": {
                 "BACKEND": "storages.backends.s3.S3Storage",

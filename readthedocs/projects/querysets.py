@@ -133,9 +133,12 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         feature_value = feature.value if feature else 1
         return project.max_concurrent_builds or max_concurrent_organization or feature_value
 
-    def prefetch_latest_build(self):
+    def annotate_has_successful_build(self):
         """
-        Prefetch and annotate to avoid N+1 queries.
+        Annotate projects with whether they have a successful build.
+
+        Adds a boolean annotation `_has_good_build` to avoid N+1 queries
+        when checking if a project has any successful builds.
 
         .. note::
 

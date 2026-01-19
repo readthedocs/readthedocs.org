@@ -582,6 +582,29 @@ class ProjectsEndpointTests(APIEndpointMixin):
         project = Project.objects.get(slug=response.data["slug"])
         self.assertIsNone(project.remote_repository)
 
+    def test_import_project_with_readthedocs_yaml_path(self):
+        """Test that readthedocs_yaml_path can be set during project creation."""
+        data = {
+            "name": "Test Project",
+            "repository": {
+                "url": "https://github.com/readthedocs/template",
+                "type": "git",
+            },
+            "programming_language": "py",
+            "readthedocs_yaml_path": "docs/.readthedocs.yaml",
+        }
+        url = reverse("projects-list")
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 201)
+
+        query = Project.objects.filter(slug="test-project")
+        self.assertTrue(query.exists())
+
+        project = query.first()
+        self.assertEqual(project.readthedocs_yaml_path, "docs/.readthedocs.yaml")
+
     def test_update_project(self):
         data = {
             "name": "Updated name",
@@ -669,6 +692,38 @@ class ProjectsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(list(self.project.tags.names()), ["partial tags", "updated"])
         self.assertNotEqual(self.project.default_version, "updated-default-branch")
+
+    def test_partial_update_project_readthedocs_yaml_path(self):
+        """Test that readthedocs_yaml_path can be set via PATCH and is returned in GET."""
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # Verify the initial value is None
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json()["readthedocs_yaml_path"])
+
+        # Set the readthedocs_yaml_path field
+        yaml_path = "   docs/.readthedocs.yaml   "
+        yaml_path_expected = "docs/.readthedocs.yaml"
+        data = {"readthedocs_yaml_path": yaml_path}
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 204)
+
+        # Verify it was saved to the database
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.readthedocs_yaml_path, yaml_path_expected)
+
+        # Verify it's returned in the GET response
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["readthedocs_yaml_path"], yaml_path_expected)
 
     def test_partial_update_others_project(self):
         data = {
