@@ -597,8 +597,26 @@ class TestReadTheDocsConfigJson(TestCase):
         subproject.versions.update(privacy_level=PUBLIC, built=True, active=True)
         self.project.add_subproject(subproject)
 
+        assert self.project.addons.search_show_subprojects_filter
         assert subproject.addons.search_show_subprojects_filter
 
+        # Filter is present in parent project.
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["addons"]["search"]["filters"] == [["Include subprojects", "subprojects:project/latest", True]]
+
+        # Filter is present in subproject.
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
             {
@@ -614,9 +632,28 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
         assert r.json()["addons"]["search"]["filters"] == [["Include subprojects", "subprojects:project/latest", True]]
 
+        self.project.addons.search_show_subprojects_filter = False
+        self.project.addons.save()
         subproject.addons.search_show_subprojects_filter = False
         subproject.addons.save()
 
+        # Filter is not present in parent project.
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["addons"]["search"]["filters"] == []
+
+        # Filter is not present in subproject.
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
             {
