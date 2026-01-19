@@ -35,7 +35,6 @@ from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CALVER
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
-from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.version_handling import comparable_version
@@ -517,7 +516,7 @@ class AddonsResponseBase:
             if response:
                 data["addons"]["filetreediff"].update(response)
 
-        if version and not project.has_feature(Feature.DONT_INCLUDE_SUBPROJECTS_FILTER):
+        if version and project.addons.search_show_subprojects_filter:
             # Show the subprojects filter on the parent project and subproject
             # TODO: Remove these queries and try to find a way to get this data
             # from the resolver, which has already done these queries.

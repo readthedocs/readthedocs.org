@@ -239,6 +239,11 @@ class AddonsConfig(TimeStampedModel):
     # Search
     search_enabled = models.BooleanField(default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
+    search_show_subprojects_filter = models.BooleanField(
+        "Show subprojects filter in search modal",
+        default=True,
+        db_default=True,
+    )
 
     # User JavaScript File
     customscript_enabled = models.BooleanField(default=False)
@@ -2055,7 +2060,6 @@ class Feature(models.Model):
 
     # Search related features
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
-    DONT_INCLUDE_SUBPROJECTS_FILTER = "dont_include_subprojects_filter"
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
@@ -2106,10 +2110,6 @@ class Feature(models.Model):
         (
             DEFAULT_TO_FUZZY_SEARCH,
             _("Search: Default to fuzzy search for simple search queries"),
-        ),
-        (
-            DONT_INCLUDE_SUBPROJECTS_FILTER,
-            _("Search: Don't include subprojects filter by default"),
         ),
         # Build related features.
         (
