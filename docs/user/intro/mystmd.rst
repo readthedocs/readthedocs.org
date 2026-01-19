@@ -26,7 +26,7 @@ Minimal configuration is required to build an existing MyST Markdown project on 
           html:
             # Build the site
             - cd docs/ && myst build --html
-          post_build:
+        post_build:
             # Copy generated files into Read the Docs directory
             - mkdir --parents $READTHEDOCS_OUTPUT/html/
             - cp --recursive docs/_build/html/* $READTHEDOCS_OUTPUT/html/

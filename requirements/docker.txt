@@ -25,11 +25,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.21
+boto3==1.42.30
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.21
+botocore==1.42.30
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -38,12 +38,12 @@ bumpver==2025.1131
     # via -r requirements/pip.txt
 cachetools==6.2.4
     # via tox
-celery==5.6.1
+celery==5.6.2
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -111,7 +111,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.9
+django==5.2.10
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -166,7 +166,7 @@ django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-polymorphic==4.5.2
+django-polymorphic==4.10.3
     # via -r requirements/pip.txt
 django-safemigrate==6.0
     # via -r requirements/pip.txt
@@ -215,11 +215,11 @@ executing==2.2.1
     # via stack-data
 fancycompleter==0.11.1
     # via pdbpp
-fido2==2.0.0
+fido2==2.1.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.20.2
+filelock==3.20.3
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -232,7 +232,7 @@ idna==3.11
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==9.8.0
+ipython==9.9.0
     # via ipdb
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -384,7 +384,7 @@ qrcode==8.2
     #   django-allauth
 redis==7.1.0
     # via -r requirements/pip.txt
-regex==2025.11.3
+regex==2026.1.15
     # via -r requirements/pip.txt
 requests==2.32.5
     # via
@@ -438,7 +438,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tox==4.33.0
+tox==4.34.1
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -483,7 +483,7 @@ unidecode==1.4.0
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.6.2
+urllib3==2.6.3
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -499,7 +499,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.35.4
+virtualenv==20.36.1
     # via
     #   -r requirements/pip.txt
     #   tox

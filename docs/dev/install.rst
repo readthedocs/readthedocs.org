@@ -174,7 +174,7 @@ save some work while typing docker compose commands. This section explains these
           inv docker.compose 'start database'
 
           # Copy the backup file into the container (replace with your actual filename)
-          docker cp dump_24-11-2025_10_30_00__abc1234.sql community_database_1:/tmp/dump.sql
+          docker cp dump_24-11-2025_10_30_00__abc1234.sql community-database-1:/tmp/dump.sql
 
           # Open a shell in the database container
           inv docker.shell --container database

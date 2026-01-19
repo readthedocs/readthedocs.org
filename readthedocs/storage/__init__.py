@@ -27,7 +27,7 @@ class ConfiguredBuildToolsStorage(LazyObject):
 
 class ConfiguredStaticStorage(LazyObject):
     def _setup(self):
-        self._wrapped = storages["staticfiles"]
+        self._wrapped = storages["proxito-staticfiles"]
 
 
 build_media_storage = ConfiguredBuildMediaStorage()

@@ -607,6 +607,28 @@ class APIVersion(Version):
         return 0
 
 
+class BuildConfig(TimeStampedModel):
+    """
+    Build configuration data.
+
+    Stores the rendered YAML configuration used in builds.
+    The unique constraint ensures we don't duplicate identical configs.
+    """
+
+    data = models.JSONField(
+        _("Configuration data"),
+        unique=True,
+        help_text=_("The rendered YAML configuration used in the build"),
+    )
+
+    class Meta:
+        verbose_name = _("Build configuration")
+        verbose_name_plural = _("Build configurations")
+
+    def __str__(self):
+        return f"BuildConfig {self.pk}"
+
+
 class Build(models.Model):
     """Build data."""
 
@@ -697,6 +719,15 @@ class Build(models.Model):
         _("Configuration used in the build"),
         null=True,
         blank=True,
+    )
+    readthedocs_yaml_config = models.ForeignKey(
+        "BuildConfig",
+        verbose_name=_("Build configuration data"),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="builds",
+        help_text=_("The rendered YAML configuration used in the build"),
     )
     readthedocs_yaml_path = models.CharField(
         _("Custom build configuration file path used in this build"),
@@ -823,8 +854,17 @@ class Build(models.Model):
 
         If the config is the same, we save the pk of the object
         that has the **real** config under the `CONFIG_KEY` key.
+
+        Additionally, we create or get a BuildConfig object for the new
+        readthedocs_yaml_config field to facilitate the migration to the new model.
         """
         if self.pk is None or self._config_changed:
+            if self._config is None:
+                self.readthedocs_yaml_config = None
+            else:
+                build_config, created = BuildConfig.objects.get_or_create(data=self._config)
+                self.readthedocs_yaml_config = build_config
+
             previous = self.previous
             if previous is not None and self._config and self._config == previous.config:
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
