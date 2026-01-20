@@ -63,7 +63,7 @@ def cleanup_pidbox_keys():
     https://github.com/readthedocs/readthedocs-ops/issues/1260
 
     """
-    client = redis.from_url(settings.BROKER_URL)
+    client = redis.from_url(settings.CELERY_BROKER_URL)
     keys = client.keys("*reply.celery.pidbox*")
     total_memory = 0
     for key in keys:
