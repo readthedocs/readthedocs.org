@@ -103,6 +103,7 @@ class PageView(models.Model):
         ]
 
         # Index created to improve performance Traffic Analytics page on the dashboard.
+        # Used in PageView.top_viewed_pages.
         # https://github.com/readthedocs/readthedocs.org/issues/12686
         indexes = [
             models.Index(
