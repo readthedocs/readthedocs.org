@@ -524,27 +524,17 @@ class AddonsResponseBase:
             # https://github.com/readthedocs/addons/issues/22
             relationship = (
                 ProjectRelationship.objects.filter(Q(parent=project) | Q(child=project))
-                .select_related("parent", "child")
+                .select_related("parent")
                 .first()
             )
             if relationship:
-                if relationship.parent == project:
-                    data["addons"]["search"]["filters"].append(
-                        [
-                            "Include subprojects",
-                            f"subprojects:{project.slug}/{version.slug}",
-                            True,
-                        ]
-                    )
-                elif relationship.child == project:
-                    superproject = relationship.parent
-                    data["addons"]["search"]["filters"].append(
-                        [
-                            "Include subprojects",
-                            f"subprojects:{superproject.slug}/{version.slug}",
-                            True,
-                        ]
-                    )
+                data["addons"]["search"]["filters"].append(
+                    [
+                        "Include subprojects",
+                        f"subprojects:{relationship.parent.slug}/{version.slug}",
+                        True,
+                    ]
+                )
 
         # DocDiff depends on `url=` GET attribute.
         # This attribute allows us to know the exact filename where the request was made.
