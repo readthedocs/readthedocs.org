@@ -168,9 +168,9 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
-    BROKER_URL = f"redis://:redispassword@cache:6379/0"
+    CELERY_BROKER_URL = f"redis://:redispassword@cache:6379/0"
 
-    CELERY_ALWAYS_EAGER = False
+    CELERY_TASK_ALWAYS_EAGER = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
@@ -248,6 +248,9 @@ class DockerBaseSettings(CommunityBaseSettings):
             },
             "staticfiles": {
                 "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage",
+            },
+            "proxito-staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
             },
             "build-media": {
                 "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
