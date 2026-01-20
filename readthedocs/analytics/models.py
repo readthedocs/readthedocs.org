@@ -102,6 +102,16 @@ class PageView(models.Model):
             ),
         ]
 
+        # Index created to improve performance Traffic Analytics page on the dashboard.
+        # https://github.com/readthedocs/readthedocs.org/issues/12686
+        indexes = [
+            models.Index(
+                fields=["project", "date", "status"],
+                include=["path", "view_count"],
+                name="analytics_pageview_issue_12686",
+            ),
+        ]
+
     @classmethod
     def top_viewed_pages(cls, project, since=None, limit=10, status=200, per_version=False):
         """
