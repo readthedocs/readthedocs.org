@@ -4,6 +4,14 @@ from django.db import migrations
 from django_safemigrate import Safe
 
 
+# NOTE: borrowed from builds/models.py Build.config @property
+def _get_config(Build, build):
+    CONFIG_KEY = "__config"
+    if build._config and CONFIG_KEY in build._config:
+        return Build.objects.only("_config").get(pk=build._config[CONFIG_KEY])._config
+    return build._config
+
+
 def forward_create_buildconfig(apps, schema_editor):
     BuildConfig = apps.get_model("builds", "BuildConfig")
     Build = apps.get_model("builds", "Build")
@@ -16,8 +24,11 @@ def forward_create_buildconfig(apps, schema_editor):
         .only("id", "_config")
         .iterator()
     ):
-        readthedocs_yaml_config, _ = BuildConfig.objects.get_or_create(data=build.config)
-        Build.objects.get(pk=build.id).update(readthedocs_yaml_config_id=readthedocs_yaml_config.id)
+        build_config = _get_config(Build, build)
+        readthedocs_yaml_config, _ = BuildConfig.objects.get_or_create(data=build_config)
+        Build.objects.filter(pk=build.id).update(
+            readthedocs_yaml_config_id=readthedocs_yaml_config.id
+        )
 
 
 class Migration(migrations.Migration):
@@ -27,4 +38,9 @@ class Migration(migrations.Migration):
         ("builds", "0066_add_buildconfig_model"),
     ]
 
-    operations = [migrations.RunPython(forward_create_buildconfig)]
+    operations = [
+        migrations.RunPython(
+            forward_create_buildconfig,
+            migrations.RunPython.noop,
+        )
+    ]
