@@ -8,12 +8,16 @@ def forward_create_buildconfig(apps, schema_editor):
     BuildConfig = apps.get_model("builds", "BuildConfig")
     Build = apps.get_model("builds", "Build")
 
-    for build in Build.objects.filter(
-        readthedocs_yaml_config__isnull=True,
-        _config__isnull=False,
-    ).iterator():
-        build.readthedocs_yaml_config, _ = BuildConfig.objects.get_or_create(data=build.config)
-        build.save(update_fields=["readthedocs_yaml_config"])
+    for build in (
+        Build.objects.filter(
+            readthedocs_yaml_config__isnull=True,
+            _config__isnull=False,
+        )
+        .only("id", "_config")
+        .iterator()
+    ):
+        readthedocs_yaml_config, _ = BuildConfig.objects.get_or_create(data=build.config)
+        Build.objects.get(pk=build.id).update(readthedocs_yaml_config_id=readthedocs_yaml_config.id)
 
 
 class Migration(migrations.Migration):
