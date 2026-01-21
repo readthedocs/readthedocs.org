@@ -239,6 +239,11 @@ class AddonsConfig(TimeStampedModel):
     # Search
     search_enabled = models.BooleanField(default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
+    search_show_subprojects_filter = models.BooleanField(
+        "Show subprojects filter in search modal",
+        default=True,
+        db_default=True,
+    )
 
     # User JavaScript File
     customscript_enabled = models.BooleanField(default=False)
