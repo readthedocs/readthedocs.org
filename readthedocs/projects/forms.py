@@ -716,6 +716,7 @@ class AddonsConfigForm(forms.ModelForm):
         labels = {
             "enabled": _("Enable Addons"),
             "customscript_enabled": _("Custom script enabled"),
+            "customscript_src": _("Custom script source URL"),
             "doc_diff_enabled": _("Visual diff enabled"),
             "filetreediff_enabled": _("Enabled"),
             "filetreediff_ignored_files": _("Ignored files"),
