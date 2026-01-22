@@ -516,17 +516,6 @@ class UpdateProjectForm(
 
         self.setup_external_builds_option()
 
-    def clean_readthedocs_yaml_path(self):
-        """
-        Validate user input to help user.
-
-        We also validate this path during the build process, so this validation step is
-        only considered as helpful to a user, not a security measure.
-        """
-        filename = self.cleaned_data.get("readthedocs_yaml_path")
-        filename = (filename or "").strip()
-        return filename
-
     def get_all_active_versions(self):
         """
         Returns all active versions.
@@ -714,6 +703,7 @@ class AddonsConfigForm(forms.ModelForm):
             "flyout_position",
             "hotkeys_enabled",
             "search_enabled",
+            "search_show_subprojects_filter",
             "linkpreviews_enabled",
             "linkpreviews_selector",
             "notifications_enabled",

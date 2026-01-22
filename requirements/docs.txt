@@ -6,7 +6,7 @@
 #
 alabaster==1.0.0
     # via sphinx
-anyio==4.12.0
+anyio==4.12.1
     # via
     #   starlette
     #   watchfiles
@@ -14,7 +14,7 @@ babel==2.17.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   requests
     #   sphinx-prompt
@@ -55,7 +55,7 @@ jinja2==3.1.6
     #   sphinx-prompt
 kiwisolver==1.4.9
     # via matplotlib
-markdown-it-py==3.0.0
+markdown-it-py==4.0.0
     # via
     #   mdit-py-plugins
     #   myst-parser
@@ -67,9 +67,9 @@ mdit-py-plugins==0.5.0
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-parser==4.0.1
+myst-parser==5.0.0
     # via -r requirements/docs.in
-numpy==2.4.0
+numpy==2.4.1
     # via
     #   contourpy
     #   matplotlib
@@ -79,14 +79,14 @@ packaging==25.0
     #   sphinx
 pbr==7.0.3
     # via sphinxcontrib-video
-pillow==12.0.0
+pillow==12.1.0
     # via matplotlib
 pygments==2.19.2
     # via
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==3.2.5
+pyparsing==3.3.1
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
@@ -138,7 +138,7 @@ sphinx-notfound-page==1.1.0
     # via -r requirements/docs.in
 sphinx-prompt==1.10.2
     # via -r requirements/docs.in
-sphinx-rtd-theme==3.0.2
+sphinx-rtd-theme==3.1.0
     # via -r requirements/docs.in
 sphinx-tabs==3.4.7
     # via -r requirements/docs.in
@@ -164,21 +164,21 @@ sphinxemoji==0.3.2
     # via -r requirements/docs.in
 sphinxext-opengraph==0.13.0
     # via -r requirements/docs.in
-starlette==0.50.0
+starlette==0.51.0
     # via sphinx-autobuild
 typing-extensions==4.15.0
     # via
     #   anyio
     #   starlette
-urllib3==2.6.2
+urllib3==2.6.3
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.38.0
+uvicorn==0.40.0
     # via sphinx-autobuild
 watchfiles==1.1.1
     # via sphinx-autobuild
-websockets==15.0.1
+websockets==16.0
     # via sphinx-autobuild
 
 # The following packages are considered to be unsafe in a requirements file:

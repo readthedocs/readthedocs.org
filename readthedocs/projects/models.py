@@ -239,6 +239,11 @@ class AddonsConfig(TimeStampedModel):
     # Search
     search_enabled = models.BooleanField(default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
+    search_show_subprojects_filter = models.BooleanField(
+        "Show subprojects filter in search modal",
+        default=True,
+        db_default=True,
+    )
 
     # User JavaScript File
     customscript_enabled = models.BooleanField(default=False)
@@ -700,6 +705,11 @@ class Project(models.Model):
         dont_sync = self.pk and self.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO)
         if self.remote_repository and not dont_sync:
             self.repo = self.remote_repository.clone_url
+
+        # Normalize user input for the path to ``.readthedocs.yaml``
+        self.readthedocs_yaml_path = (
+            self.readthedocs_yaml_path.strip() if self.readthedocs_yaml_path else None
+        )
 
         super().save(*args, **kwargs)
         self.update_latest_version()

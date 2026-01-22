@@ -6,6 +6,13 @@ This file is named ``.readthedocs.yaml`` and should be placed in the top level o
 
 The ``.readthedocs.yaml``  file can contain a number of settings that are not accessible through the Read the Docs website.
 
+.. note::
+
+   When using a monorepo, it is possible to place the ``.readthedocs.yaml`` file
+   in a subdirectory and configure a custom path from the project settings
+   dashboard. See the :doc:`/guides/setup/monorepo` documentation for more details.
+
+
 Because the file is stored in Git,
 the configuration will apply to the exact version that is being built.
 **This allows you to store different configurations for different versions of your documentation.**
@@ -323,10 +330,12 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``miniconda3-3.12-24.1``
   - ``miniconda3-3.12-24.9``
   - ``miniconda-latest`` (alias for the latest version available on Read the Docs)
-  - ``mambaforge-4.10``
-  - ``mambaforge-22.9``
-  - ``mambaforge-23.11``
-  - ``mambaforge-latest`` (alias for the latest version available on Read the Docs)
+  - ``mambaforge-4.10`` (deprecated)
+  - ``mambaforge-22.9`` (deprecated)
+  - ``mambaforge-23.11`` (deprecated)
+  - ``mambaforge-latest`` (deprecated - alias for the latest version available on Read the Docs)
+  - ``miniforge3-25.11``
+  - ``miniforge3-latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.nodejs
 ``````````````````
