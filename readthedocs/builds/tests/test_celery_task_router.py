@@ -42,7 +42,7 @@ class TaskRouterTests(TestCase):
         )
 
     def test_used_conda_in_last_builds(self):
-        self.build._config = {"conda": {"file": "docs/environment.yml"}}
+        self.build.config = {"conda": {"file": "docs/environment.yml"}}
         self.build.save()
 
         self.assertEqual(
@@ -51,7 +51,7 @@ class TaskRouterTests(TestCase):
         )
 
     def test_used_conda_in_last_failed_build(self):
-        self.build._config = {"conda": {"file": "docs/environment.yml"}}
+        self.build.config = {"conda": {"file": "docs/environment.yml"}}
         self.build.success = False
         self.build.save()
 

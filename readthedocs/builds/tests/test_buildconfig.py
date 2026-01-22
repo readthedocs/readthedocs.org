@@ -22,8 +22,10 @@ class TestBuildReadthedocsYamlData:
         build.config = config_data
         build.save()
 
-        # Check that both old and new fields are populated
-        assert build._config == config_data
+        assert BuildConfig.objects.count() == 1
+        assert BuildConfig.objects.filter(data=config_data).count() == 1
+
+        build.refresh_from_db()
         assert build.readthedocs_yaml_config.data == config_data
 
     def test_build_with_same_config_reuses_buildconfig(self):
@@ -73,7 +75,6 @@ class TestBuildReadthedocsYamlData:
         # Build has no config set
         build.save()
 
-        assert build._config is None
         assert build.readthedocs_yaml_config is None
         assert BuildConfig.objects.count() == 0
 
