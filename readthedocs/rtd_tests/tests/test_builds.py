@@ -12,7 +12,7 @@ from readthedocs.builds.constants import (
     GITHUB_EXTERNAL_VERSION_NAME,
     GITLAB_EXTERNAL_VERSION_NAME,
 )
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, Version, BuildConfig
 from readthedocs.projects.models import Project
 
 
@@ -54,6 +54,43 @@ class BuildModelTests(TestCase):
             active=True,
             type=BRANCH,
         )
+
+    def test_normal_save_config(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build.config = {"version": 1}
+        self.assertEqual(BuildConfig.objects.count(), 0)
+
+        build.save()
+        self.assertEqual(BuildConfig.objects.count(), 1)
+        self.assertEqual(build.readthedocs_yaml_config.data, {"version": 1})
+
+        build.config = {"version": 2}
+        build.save()
+        self.assertEqual(BuildConfig.objects.count(), 2)
+        self.assertEqual(build.readthedocs_yaml_config.data, {"version": 2})
+
+    def test_save_same_config(self):
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_one.config = {}
+        build_one.save()
+
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_two.config = {"version": 2}
+        build_two.save()
+
+        self.assertEqual(build_two.config, {"version": 2})
 
     def test_build_is_stale(self):
         now = timezone.now()

@@ -158,7 +158,6 @@ class FileManifestIndexer(Indexer):
 def _get_indexers(
     *, version: Version, build: Build, search_index_name=None, post_build_overview=True
 ):
-    # TODO: update code to use `build.readthedocs_yaml_config` instead of `build.config`
     build_config = build.config or {}
     search_config = build_config.get("search", {})
     search_ranking = search_config.get("ranking", {})

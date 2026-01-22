@@ -309,7 +309,7 @@ class Version(TimeStampedModel):
             .only("readthedocs_yaml_config")
             .first()
         )
-        if last_build:
+        if last_build and last_build.readthedocs_yaml_config:
             return last_build.readthedocs_yaml_config.data
         return None
 
@@ -798,26 +798,6 @@ class Build(models.Model):
         super().__init__(*args, **kwargs)
         self._readthedocs_yaml_config = None
         self._readthedocs_yaml_config_changed = False
-
-    @property
-    def previous(self):
-        """
-        Returns the previous build to the current one.
-
-        Matching the project and version.
-        """
-        date = self.date or timezone.now()
-        if self.project is not None and self.version is not None:
-            return (
-                Build.objects.filter(
-                    project=self.project,
-                    version=self.version,
-                    date__lt=date,
-                )
-                .order_by("-date")
-                .first()
-            )
-        return None
 
     @property
     def config(self):

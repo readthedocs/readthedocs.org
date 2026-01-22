@@ -288,8 +288,6 @@ class BuildDirector:
             version=self.data.version,
             readthedocs_yaml_path=custom_config_file,
         )
-        # TODO: update this `build["config"]` to `build["readthedocs_yaml_config"]` later
-        # I'm keeping the `@config.setter` so I think this should continue working
         self.data.build["config"] = self.data.config.as_dict()
         self.data.build["readthedocs_yaml_path"] = custom_config_file
 
