@@ -1,4 +1,4 @@
-import pytest
+from django.test import TestCase
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
@@ -6,8 +6,7 @@ from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.projects.models import Project
 
 
-@pytest.mark.django_db
-class TestDeleteInBatches:
+class TestDeleteInBatches(TestCase):
     """Tests for the delete_in_batches utility function."""
 
     def test_empty_queryset(self):
