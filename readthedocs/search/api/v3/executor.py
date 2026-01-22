@@ -84,6 +84,9 @@ class SearchExecutor:
             yield from self._get_default_projects()
             return None
 
+        for value in self.parser.arguments["org"]:
+            yield from self._get_projects_from_org(value)
+
         for value in self.parser.arguments["project"]:
             project, version = self._get_project_and_version(value)
             if version and self._has_permission(self.request, version):
@@ -112,6 +115,18 @@ class SearchExecutor:
 
     def _get_projects_from_user(self):
         for project in Project.objects.for_user(user=self.request.user):
+            version = self._get_project_version(
+                project=project,
+                version_slug=project.default_version,
+                include_hidden=False,
+            )
+            if version and self._has_permission(self.request, version):
+                yield project, version
+
+    def _get_projects_from_org(self, org_slug: str):
+        user = self.request.user if self.request.user.is_authenticated else None
+        projects = Project.objects.public(user=user).filter(organizations__slug=org_slug)
+        for project in projects:
             version = self._get_project_version(
                 project=project,
                 version_slug=project.default_version,

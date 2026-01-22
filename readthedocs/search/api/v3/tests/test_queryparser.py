@@ -8,6 +8,7 @@ class TestQueryParser(TestCase):
         parser = SearchQueryParser("search query")
         parser.parse()
         arguments = parser.arguments
+        self.assertEqual(arguments["org"], [])
         self.assertEqual(arguments["project"], [])
         self.assertEqual(arguments["subprojects"], [])
         self.assertEqual(arguments["user"], "")
@@ -17,6 +18,7 @@ class TestQueryParser(TestCase):
         parser = SearchQueryParser("project:foo query")
         parser.parse()
         arguments = parser.arguments
+        self.assertEqual(arguments["org"], [])
         self.assertEqual(arguments["project"], ["foo"])
         self.assertEqual(arguments["subprojects"], [])
         self.assertEqual(arguments["user"], "")
@@ -26,6 +28,7 @@ class TestQueryParser(TestCase):
         parser = SearchQueryParser("project:foo query project:bar")
         parser.parse()
         arguments = parser.arguments
+        self.assertEqual(arguments["org"], [])
         self.assertEqual(arguments["project"], ["foo", "bar"])
         self.assertEqual(arguments["subprojects"], [])
         self.assertEqual(arguments["user"], "")
@@ -35,6 +38,7 @@ class TestQueryParser(TestCase):
         parser = SearchQueryParser("query user:foo")
         parser.parse()
         arguments = parser.arguments
+        self.assertEqual(arguments["org"], [])
         self.assertEqual(arguments["project"], [])
         self.assertEqual(arguments["subprojects"], [])
         self.assertEqual(arguments["user"], "foo")
@@ -44,6 +48,7 @@ class TestQueryParser(TestCase):
         parser = SearchQueryParser("search user:foo query user:bar")
         parser.parse()
         arguments = parser.arguments
+        self.assertEqual(arguments["org"], [])
         self.assertEqual(arguments["project"], [])
         self.assertEqual(arguments["subprojects"], [])
         self.assertEqual(arguments["user"], "bar")
@@ -53,6 +58,7 @@ class TestQueryParser(TestCase):
         parser = SearchQueryParser("search subprojects:foo query ")
         parser.parse()
         arguments = parser.arguments
+        self.assertEqual(arguments["org"], [])
         self.assertEqual(arguments["project"], [])
         self.assertEqual(arguments["subprojects"], ["foo"])
         self.assertEqual(arguments["user"], "")
@@ -62,6 +68,7 @@ class TestQueryParser(TestCase):
         parser = SearchQueryParser("search subprojects:foo query  subprojects:bar")
         parser.parse()
         arguments = parser.arguments
+        self.assertEqual(arguments["org"], [])
         self.assertEqual(arguments["project"], [])
         self.assertEqual(arguments["subprojects"], ["foo", "bar"])
         self.assertEqual(arguments["user"], "")
@@ -71,6 +78,7 @@ class TestQueryParser(TestCase):
         parser = SearchQueryParser(r"project\:foo project:bar query")
         parser.parse()
         arguments = parser.arguments
+        self.assertEqual(arguments["org"], [])
         self.assertEqual(arguments["project"], ["bar"])
         self.assertEqual(arguments["subprojects"], [])
         self.assertEqual(arguments["user"], "")
@@ -80,7 +88,28 @@ class TestQueryParser(TestCase):
         parser = SearchQueryParser(r"project:foo user:bar")
         parser.parse()
         arguments = parser.arguments
+        self.assertEqual(arguments["org"], [])
         self.assertEqual(arguments["project"], ["foo"])
         self.assertEqual(arguments["subprojects"], [])
         self.assertEqual(arguments["user"], "bar")
         self.assertEqual(parser.query, "")
+
+    def test_org_argument(self):
+        parser = SearchQueryParser("org:acme query")
+        parser.parse()
+        arguments = parser.arguments
+        self.assertEqual(arguments["org"], ["acme"])
+        self.assertEqual(arguments["project"], [])
+        self.assertEqual(arguments["subprojects"], [])
+        self.assertEqual(arguments["user"], "")
+        self.assertEqual(parser.query, "query")
+
+    def test_multiple_org_arguments(self):
+        parser = SearchQueryParser("org:acme query org:beta")
+        parser.parse()
+        arguments = parser.arguments
+        self.assertEqual(arguments["org"], ["acme", "beta"])
+        self.assertEqual(arguments["project"], [])
+        self.assertEqual(arguments["subprojects"], [])
+        self.assertEqual(arguments["user"], "")
+        self.assertEqual(parser.query, "query")
