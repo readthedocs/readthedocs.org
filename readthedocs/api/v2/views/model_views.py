@@ -394,6 +394,12 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         This can generate temporary credentials for interacting with S3 only for now.
         """
         build = self.get_object()
+        if not build.version:
+            return Response(
+                {"error": "Build has no associated version"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         credentials_type = request.data.get("type")
 
         if credentials_type == "build_media":
