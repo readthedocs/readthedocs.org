@@ -6,7 +6,6 @@ from readthedocs.builds.models import Build, Version, BuildConfig
 from readthedocs.projects.models import Project
 
 
-# TODO: update these tests to use `readthedocs_yaml_config`
 class VersionConfigTests(TestCase):
     def setUp(self):
         self.project = get(Project)
