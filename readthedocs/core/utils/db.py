@@ -31,7 +31,7 @@ def delete_in_batches(queryset, batch_size=50) -> tuple[int, dict]:
     all_pks = list(queryset.values_list("pk", flat=True))
     for i in range(0, len(all_pks), batch_size):
         # We can't use a limit or offset with .delete,
-        # so we first extract the IDs and perform the deletion in anothr query.
+        # so we first extract the IDs and perform the deletion in another query.
         batch = all_pks[i : i + batch_size]
         total_deleted_batch, deleted_counter_batch = model.objects.filter(pk__in=batch).delete()
         total_deleted += total_deleted_batch
