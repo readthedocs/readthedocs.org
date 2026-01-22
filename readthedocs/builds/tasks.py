@@ -1,9 +1,12 @@
 import json
+from contextlib import contextmanager
 from io import BytesIO
 
 import requests
 import structlog
 from django.conf import settings
+from django.db import connection
+from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -42,6 +45,20 @@ from readthedocs.worker import app
 
 
 log = structlog.get_logger(__name__)
+
+SYNC_VERSIONS_STATEMENT_TIMEOUT = "5min"
+
+
+@contextmanager
+def _override_statement_timeout(timeout: str | None):
+    if not timeout or connection.vendor != "postgresql":
+        yield
+        return
+
+    with transaction.atomic():
+        with connection.cursor() as cursor:
+            cursor.execute("SET LOCAL statement_timeout = %s", [timeout])
+        yield
 
 
 class TaskRouter:
@@ -322,16 +339,17 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         )
         added_versions.update(result)
 
-        delete_versions_from_db(
-            project=project,
-            tags_data=tags_data,
-            branches_data=branches_data,
-        )
-        deleted_active_versions = get_deleted_active_versions(
-            project=project,
-            tags_data=tags_data,
-            branches_data=branches_data,
-        )
+        with _override_statement_timeout(SYNC_VERSIONS_STATEMENT_TIMEOUT):
+            delete_versions_from_db(
+                project=project,
+                tags_data=tags_data,
+                branches_data=branches_data,
+            )
+            deleted_active_versions = get_deleted_active_versions(
+                project=project,
+                tags_data=tags_data,
+                branches_data=branches_data,
+            )
     except Exception:
         log.exception("Sync Versions Error")
         return False
