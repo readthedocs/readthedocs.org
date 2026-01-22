@@ -693,6 +693,8 @@ class AddonsConfigForm(forms.ModelForm):
             "project",
             "options_root_selector",
             "analytics_enabled",
+            "customscript_enabled",
+            "customscript_src",
             "doc_diff_enabled",
             "filetreediff_enabled",
             "filetreediff_ignored_files",
@@ -713,6 +715,7 @@ class AddonsConfigForm(forms.ModelForm):
         )
         labels = {
             "enabled": _("Enable Addons"),
+            "customscript_enabled": _("Custom script enabled"),
             "doc_diff_enabled": _("Visual diff enabled"),
             "filetreediff_enabled": _("Enabled"),
             "filetreediff_ignored_files": _("Ignored files"),
