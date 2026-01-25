@@ -30,7 +30,7 @@ contourpy==1.3.3
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-docutils==0.21.2
+docutils==0.22.4
     # via
     #   myst-parser
     #   sphinx
@@ -73,7 +73,7 @@ numpy==2.4.1
     # via
     #   contourpy
     #   matplotlib
-packaging==25.0
+packaging==26.0
     # via
     #   matplotlib
     #   sphinx
@@ -86,7 +86,7 @@ pygments==2.19.2
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==3.3.1
+pyparsing==3.3.2
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
@@ -97,10 +97,6 @@ requests==2.32.5
     #   sphinx
     #   sphinx-prompt
 roman-numerals==4.1.0
-    # via
-    #   roman-numerals-py
-    #   sphinx
-roman-numerals-py==4.1.0
     # via sphinx
 six==1.17.0
     # via
@@ -108,7 +104,7 @@ six==1.17.0
     #   sphinxcontrib-httpdomain
 snowballstemmer==3.0.1
     # via sphinx
-sphinx==8.2.3
+sphinx==9.1.0
     # via
     #   -r requirements/docs.in
     #   myst-parser
@@ -128,7 +124,7 @@ sphinx-autobuild==2025.8.25
     # via -r requirements/docs.in
 sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
-sphinx-design==0.6.1
+sphinx-design==0.7.0
     # via -r requirements/docs.in
 sphinx-intl==2.3.2
     # via -r requirements/docs.in
@@ -164,7 +160,7 @@ sphinxemoji==0.3.2
     # via -r requirements/docs.in
 sphinxext-opengraph==0.13.0
     # via -r requirements/docs.in
-starlette==0.51.0
+starlette==0.52.1
     # via sphinx-autobuild
 typing-extensions==4.15.0
     # via
