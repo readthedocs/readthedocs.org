@@ -243,7 +243,6 @@
               ]
             }
           },
-          "minProperties": 1,
           "additionalProperties": false
         },
         "apt_packages": {
