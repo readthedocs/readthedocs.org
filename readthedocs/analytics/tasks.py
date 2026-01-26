@@ -2,8 +2,8 @@
 
 from django.conf import settings
 from django.utils import timezone
-from readthedocs.analytics.models import PageView
 
+from readthedocs.analytics.models import PageView
 from readthedocs.worker import app
 
 
