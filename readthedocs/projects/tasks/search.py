@@ -226,7 +226,9 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
     # See https://github.com/readthedocs/readthedocs.org/issues/10734.
     # NOTE: we use an slice instead of `.first()` to avoid Djagno using an ORDER BY clause,
     # which makes the query slower, we don't need any specific order here, just the current sync_id.
-    imported_file_build_id = next(iter(version.imported_files.values_list("build", flat=True)[:1]), None)
+    imported_file_build_id = next(
+        iter(version.imported_files.values_list("build", flat=True)[:1]), None
+    )
     sync_id = imported_file_build_id + 1 if imported_file_build_id else 1
 
     log.debug(
