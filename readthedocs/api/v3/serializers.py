@@ -15,6 +15,7 @@ from taggit.serializers import TagListSerializerField
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
@@ -143,6 +144,25 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return None
 
 
+class BuildCommandSerializer(serializers.ModelSerializer):
+    """Serializer for BuildCommandResult objects."""
+
+    run_time = serializers.ReadOnlyField()
+
+    class Meta:
+        model = BuildCommandResult
+        fields = [
+            "id",
+            "command",
+            "description",
+            "output",
+            "exit_code",
+            "start_time",
+            "end_time",
+            "run_time",
+        ]
+
+
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
     """
     Render ``Build.config`` property without modifying it.
@@ -168,6 +188,13 @@ class BuildStateSerializer(serializers.Serializer):
 
 
 class BuildSerializer(FlexFieldsModelSerializer):
+    """
+    Serializer for Build objects.
+
+    Includes build commands, documentation URL, commit URL, and builder information.
+    Supports expanding ``config`` and ``notifications`` via the ``?expand=`` query parameter.
+    """
+
     project = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     version = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     created = serializers.DateTimeField(source="date")
@@ -177,6 +204,10 @@ class BuildSerializer(FlexFieldsModelSerializer):
     state = BuildStateSerializer(source="*")
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
+    commands = BuildCommandSerializer(many=True, read_only=True)
+    docs_url = serializers.SerializerMethodField()
+    commit_url = serializers.ReadOnlyField(source="get_commit_url")
+    builder = serializers.CharField(read_only=True)
 
     class Meta:
         model = Build
@@ -191,11 +222,21 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "success",
             "error",
             "commit",
+            "commit_url",
+            "docs_url",
+            "builder",
+            "commands",
             "_links",
             "urls",
         ]
 
-        expandable_fields = {"config": (BuildConfigSerializer,)}
+        expandable_fields = {
+            "config": (BuildConfigSerializer,),
+            "notifications": (
+                "readthedocs.api.v3.serializers.NotificationSerializer",
+                {"many": True},
+            ),
+        }
 
     def get_finished(self, obj):
         if obj.date and obj.length:
@@ -210,6 +251,12 @@ class BuildSerializer(FlexFieldsModelSerializer):
         if obj.finished:
             return obj.success
 
+        return None
+
+    def get_docs_url(self, obj):
+        """Return the URL to the documentation built by this build."""
+        if obj.version:
+            return obj.version.get_absolute_url()
         return None
 
 
