@@ -57,6 +57,7 @@ from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.forms import EmailHookForm
 from readthedocs.projects.forms import EnvironmentVariableForm
 from readthedocs.projects.forms import IntegrationForm
+from readthedocs.projects.forms import OpenTelemetryConfigForm
 from readthedocs.projects.forms import ProjectAdvertisingForm
 from readthedocs.projects.forms import ProjectAutomaticForm
 from readthedocs.projects.forms import ProjectBasicsForm
@@ -1299,3 +1300,13 @@ class ProjectPullRequestsUpdate(SuccessMessageMixin, PrivateViewMixin, UpdateVie
 
     def get_success_url(self):
         return reverse("projects_pull_requests", args=[self.object.slug])
+
+
+class OpenTelemetryConfigUpdate(ProjectAdminMixin, PrivateViewMixin, CreateView, UpdateView):
+    form_class = OpenTelemetryConfigForm
+    success_message = _("Project addons updated")
+    success_message = _("OpenTelemetry configuration has been updated")
+    template_name = "projects/otel_config_form.html"
+
+    def get_success_url(self):
+        return reverse("projects_otel_config", args=[self.object.project.slug])
