@@ -223,8 +223,12 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
     # A sync ID is a number different than the current `build` attribute (pending rename),
     # it's used to differentiate the files from the current sync from the previous one.
     # This is useful to easily delete the previous files from the DB and ES.
-    # See https://github.com/readthedocs/readthedocs.org/issues/10734.
-    imported_file_build_id = version.imported_files.values_list("build", flat=True).first()
+    # NOTE: we use an slice instead of `.first()` to avoid Djagno using an ORDER BY clause,
+    # which makes the query slower, we don't need any specific order here, just the current sync_id.
+    # Next step is to not rely on the DB for this https://github.com/readthedocs/readthedocs.org/issues/10734.
+    imported_file_build_id = next(
+        iter(version.imported_files.values_list("build", flat=True)[:1]), None
+    )
     sync_id = imported_file_build_id + 1 if imported_file_build_id else 1
 
     log.debug(
