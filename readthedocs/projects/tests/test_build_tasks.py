@@ -3335,3 +3335,41 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
         lsremote.side_effect = RepositoryError(RepositoryError.FAILED_TO_GET_VERSIONS)
         self._trigger_sync_repository_task()
         sync_versions_task.assert_not_called()
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    @mock.patch("readthedocs.projects.tasks.builds.LocalBuildEnvironment")
+    def test_git_ssh_command_set_when_syncing_versions(self, build_environment):
+        """Test that GIT_SSH_COMMAND is set when ALLOW_PRIVATE_REPOS is True during sync."""
+        self._trigger_sync_repository_task()
+
+        # The environment is created in SyncRepositoryTask.execute()
+        # We need to verify it was called with the correct environment variables
+        build_environment.assert_called_once()
+        call_kwargs = build_environment.call_args[1]
+        env_vars = call_kwargs["environment"]
+
+        # Verify GIT_SSH_COMMAND is set with the correct value
+        assert "GIT_SSH_COMMAND" in env_vars
+        assert env_vars["GIT_SSH_COMMAND"] == "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+        # Also verify the other expected environment variables are set
+        assert env_vars["GIT_TERMINAL_PROMPT"] == "0"
+        assert "READTHEDOCS_GIT_CLONE_TOKEN" in env_vars
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    @mock.patch("readthedocs.projects.tasks.builds.LocalBuildEnvironment")
+    def test_git_ssh_command_not_set_when_syncing_versions(self, build_environment):
+        """Test that GIT_SSH_COMMAND is not set when ALLOW_PRIVATE_REPOS is False during sync."""
+        self._trigger_sync_repository_task()
+
+        # The environment is created in SyncRepositoryTask.execute()
+        build_environment.assert_called_once()
+        call_kwargs = build_environment.call_args[1]
+        env_vars = call_kwargs["environment"]
+
+        # Verify GIT_SSH_COMMAND is NOT set
+        assert "GIT_SSH_COMMAND" not in env_vars
+
+        # But other environment variables should still be set
+        assert env_vars["GIT_TERMINAL_PROMPT"] == "0"
+        assert "READTHEDOCS_GIT_CLONE_TOKEN" in env_vars
