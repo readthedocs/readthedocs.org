@@ -723,6 +723,7 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
+
     readthedocs_yaml_config = models.ForeignKey(
         "BuildConfig",
         verbose_name=_("Build configuration data"),
