@@ -168,6 +168,6 @@ make -C docs html
 ## Additional Resources
 
 - Full documentation: https://docs.readthedocs.io/
-- Contributing guide: https://docs.readthedocs.com/dev/latest/contribute.html
+- Contributing guide: https://docs.readthedocs.io/en/latest/contribute.html
 - Development docs: `docs/dev/` directory
 - Issue tracker: https://github.com/readthedocs/readthedocs.org/issues
