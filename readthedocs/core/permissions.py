@@ -54,12 +54,15 @@ class AdminPermissionBase:
             projects_from_sso = cls._get_projects_for_sso_user(user, admin=admin, member=member)
 
             # Projects from teams that don't have VCS SSO enabled.
-            filter = Q()
-            if admin:
-                filter |= Q(teams__access=ADMIN_ACCESS)
-            if member:
-                filter |= Q(teams__access=READ_ONLY_ACCESS)
-            projects_from_teams = Project.objects.filter(filter, teams__members=user).exclude(
+            projects_from_teams = Project.objects.filter(teams__members=user)
+            if admin and not member:
+                projects_from_teams = projects_from_teams.filter(teams__access=ADMIN_ACCESS)
+            elif member and not admin:
+                projects_from_teams = projects_from_teams.filter(teams__access=READ_ONLY_ACCESS)
+            else:
+                # If both admin and member are True, we don't need to filter the queryset.
+                pass
+            projects_from_teams = projects_from_teams.exclude(
                 organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
             )
 

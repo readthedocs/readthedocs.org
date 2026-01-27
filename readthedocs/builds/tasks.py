@@ -26,6 +26,7 @@ from readthedocs.builds.constants import LOCK_EXPIRE
 from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.builds.reporting import get_build_overview
 from readthedocs.builds.utils import memcache_lock
@@ -728,3 +729,14 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
                 "consecutive_failed_builds": consecutive_failed_builds,
             },
         )
+
+
+@app.task(queue="web")
+def remove_orphan_build_config(limit=50):
+    """Remove BuildConfig objects that are not referenced by any Build."""
+
+    # Use a limit to avoid db intensive operation
+    orphan_buildconfigs = BuildConfig.objects.filter(builds__isnull=True)[:limit]
+    count = orphan_buildconfigs.count()
+    orphan_buildconfigs.delete()
+    log.info("Removed orphan BuildConfig objects.", count=count)
