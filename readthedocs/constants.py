@@ -16,3 +16,17 @@ pattern_opts = {
     "integer_pk": r"[\d]+",
     "downloadable_type": "|".join(re.escape(type_) for type_ in DOWNLOADABLE_MEDIA_TYPES),
 }
+
+def get_pattern(name: str) -> str:
+    """
+    Return a regex pattern from pattern_opts by name.
+    Raises KeyError if the pattern does not exist.
+    """
+    return pattern_opts[name]
+
+
+def list_patterns() -> list[str]:
+    """
+    Return a list of all available pattern names.
+    """
+    return list(pattern_opts.keys())
