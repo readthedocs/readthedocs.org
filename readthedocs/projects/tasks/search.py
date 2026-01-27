@@ -227,7 +227,7 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
     # which makes the query slower, we don't need any specific order here, just the current sync_id.
     # Next step is to not rely on the DB for this https://github.com/readthedocs/readthedocs.org/issues/10734.
     imported_file_build_id = next(
-        version.imported_files.values_list("build", flat=True)[:1].iteator(), None
+        iter(version.imported_files.values_list("build", flat=True)[:1]), None
     )
     sync_id = imported_file_build_id + 1 if imported_file_build_id else 1
 
