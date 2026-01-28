@@ -1,10 +1,47 @@
 """Tasks for Read the Docs' analytics."""
 
+import logging
+
 from django.conf import settings
 from django.utils import timezone
 
 from readthedocs.analytics.models import PageView
+from readthedocs.analytics.parquet import ParquetAnalyticsExporter
 from readthedocs.worker import app
+
+
+logger = logging.getLogger(__name__)
+
+
+@app.task(queue="web")
+def export_pageviews_to_parquet():
+    """
+    Export pageview data from the previous day to Parquet files.
+
+    This is intended to run from a periodic task daily.
+    Stores the data in S3 as Parquet files for efficient querying.
+    """
+    from datetime import timedelta
+
+    try:
+        target_date = timezone.now().date() - timedelta(days=1)
+        exporter = ParquetAnalyticsExporter()
+        result = exporter.export_daily_pageviews(target_date)
+
+        logger.info(
+            f"Exported {result['total_records']} pageviews for {target_date} "
+            f"to {len(result['files'])} file(s)"
+        )
+
+        return {
+            "status": "success",
+            "date": str(target_date),
+            "total_records": result["total_records"],
+            "files_created": len(result["files"]),
+        }
+    except Exception:
+        logger.exception("Failed to export pageviews to parquet")
+        raise
 
 
 @app.task(queue="web")
