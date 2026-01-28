@@ -117,25 +117,20 @@ class TaskRouter:
                 )
                 return routing_queue
 
-        last_builds = version.builds.order_by("-date")[: self.N_LAST_BUILDS]
         # Version has used conda in previous builds
-        for build in last_builds.iterator():
-            uses_conda = BuildConfig.objects.filter(
-                (
-                    Q(builds=build)
-                    & (
-                        Q(data__build__tools__python__version__startswith="miniconda")
-                        | Q(data__conda__isnull=False)
-                    )
-                )
-            ).exists()
-            if uses_conda:
-                log.info(
-                    "Routing task because project uses conda.",
-                    project_slug=project.slug,
-                    queue=self.BUILD_LARGE_QUEUE,
-                )
-                return self.BUILD_LARGE_QUEUE
+        query = (
+            Q(builds__in=version.builds.order_by("-date")[: self.N_LAST_BUILDS])
+            & Q(data__build__tools__python__version__startswith="miniconda")
+            & ~Q(data__contains={"conda": None})
+        )
+        uses_conda = BuildConfig.objects.filter(query).exists()
+        if uses_conda:
+            log.info(
+                "Routing task because project uses conda.",
+                project_slug=project.slug,
+                queue=self.BUILD_LARGE_QUEUE,
+            )
+            return self.BUILD_LARGE_QUEUE
 
         successful_builds_count = version.builds.filter(success=True).order_by("-date").count()
         # We do not have enough builds for this version yet
