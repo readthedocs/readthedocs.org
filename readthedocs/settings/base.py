@@ -699,8 +699,15 @@ class CommunityBaseSettings(Settings):
         },
         "every-day-delete-old-buildata-models": {
             "task": "readthedocs.telemetry.tasks.delete_old_build_data",
-            "schedule": crontab(minute=0, hour=2),
+            # NOTE: we are running this task every  hour for now,
+            # since we have lots of objects to delete, and we are limiting
+            # the number of deletions per task run.
+            # TODO: go back to once a day (unlimited) after we delete the backlog of objects.
+            # It should take around ~1 week to delete all the old objects on community,
+            # commercial doesn't have this problem.
+            "schedule": crontab(minute=0, hour="*"),
             "options": {"queue": "web"},
+            "kwargs": {"limit": 10_000},
         },
         "every-day-delete-old-buildconfig-models": {
             "task": "readthedocs.builds.tasks.remove_orphan_build_config",
@@ -753,6 +760,23 @@ class CommunityBaseSettings(Settings):
             "task": "readthedocs.api.v2.tasks.delete_old_revoked_build_api_keys",
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
+        },
+        # TODO: delete this task when all imported files pending deletions are done.
+        # It shuold take around 36 days to delete all the old imported files on community,
+        # and 6 days in commercial.
+        "every-hour-delete-imported-files": {
+            "task": "readthedocs.core.tasks.delete_outdated_imported_files",
+            "schedule": crontab(minute=10, hour="*"),
+            "options": {"queue": "web"},
+            "kwargs": {"limit": 10_000},
+        },
+        # TODO: delete this task when all orphan AddonConfig objects are deleted.
+        # It should take around 6 days on community, commercial doesn't have this problem.
+        "every-hour-delete-orphaned-addons-configs": {
+            "task": "readthedocs.core.tasks.delete_orphaned_addons_configs",
+            "schedule": crontab(minute=20, hour="*"),
+            "options": {"queue": "web"},
+            "kwargs": {"limit": 5_000},
         },
     }
 
