@@ -25,7 +25,8 @@ python manage.py shell
 # Check IAM policy includes s3:PutObject on target bucket
 # Test with:
 from django.core.files.storage import default_storage
-default_storage.save('test-key', b'test data')
+
+default_storage.save("test-key", b"test data")
 ```
 
 #### Export fails with "Storage not configured"
@@ -34,18 +35,18 @@ default_storage.save('test-key', b'test data')
 **Solution**:
 ```python
 # In settings.py
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_STORAGE_BUCKET_NAME = 'your-bucket'
-AWS_S3_REGION_NAME = 'us-west-2'
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+AWS_STORAGE_BUCKET_NAME = "your-bucket"
+AWS_S3_REGION_NAME = "us-west-2"
 ```
 
 #### Parquet file is too large
 **Symptom**: S3 upload takes > 10 minutes, high memory usage
 **Cause**: Too much data for single Parquet file
 **Solution**:
-```python
-# Enable per-project exports to split data
-RTD_PARQUET_EXPORT_PER_PROJECT = True
+```bash
+# Enable per-project exports to split data (in settings)
+# RTD_PARQUET_EXPORT_PER_PROJECT = True
 
 # Or manually split by date range
 python manage.py export_pageviews_to_parquet --date 2026-01-15
@@ -79,6 +80,7 @@ aws s3 ls --endpoint-url https://your-custom-endpoint
 ```python
 # DuckDB default memory config for servers:
 import duckdb
+
 conn = duckdb.connect()
 conn.execute("PRAGMA memory_limit='4GB'")
 conn.execute("PRAGMA threads=4")
@@ -98,12 +100,14 @@ since = date(2026, 1, 15)  # Don't query months of data
 ```python
 # Verify data was exported
 from readthedocs.analytics.parquet import ParquetAnalyticsExporter
+
 exporter = ParquetAnalyticsExporter()
 result = exporter.export_daily_pageviews(date(2026, 1, 15))
 print(f"Exported {result['total_records']} records")
 
 # Compare with PostgreSQL
 from readthedocs.analytics.models import PageView
+
 db_count = PageView.objects.filter(date=date(2026, 1, 15)).count()
 print(f"Database has {db_count} records")
 ```
@@ -118,12 +122,12 @@ print(f"Database has {db_count} records")
 - CPU bottleneck
 
 **Solution**:
-```python
-# Increase Parquet batch size
-df.to_parquet(buffer, compression='snappy', row_group_size=1000000)
+```bash
+# Increase Parquet batch size (in code)
+# df.to_parquet(buffer, compression='snappy', row_group_size=1000000)
 
 # Or use faster compression
-df.to_parquet(buffer, compression='lz4')
+# df.to_parquet(buffer, compression='lz4')
 
 # Monitor export progress
 python manage.py export_pageviews_to_parquet --verbosity 3
@@ -153,6 +157,8 @@ LIMIT 10
 
 # Use caching
 from django.views.decorators.cache import cache_page
+
+
 @cache_page(3600)  # Cache for 1 hour
 def get_analytics(request):
     ...
@@ -177,7 +183,8 @@ path = f"analytics/pageviews/2026/01/15/pageviews_2026-01-15.parquet"
 
 # Enable S3 caching headers
 from django.core.files.storage import default_storage
-storage.save(path, content, content_type='application/octet-stream')
+
+storage.save(path, content, content_type="application/octet-stream")
 ```
 
 ### Data Issues
@@ -193,13 +200,15 @@ storage.save(path, content, content_type='application/octet-stream')
 ```python
 # Verify all data is exported
 from readthedocs.analytics.models import PageView
+
 target_date = date(2026, 1, 15)
 db_count = PageView.objects.filter(date=target_date).count()
 
 # Check export log
 from readthedocs.analytics.parquet import ParquetAnalyticsExporter
+
 result = ParquetAnalyticsExporter().export_daily_pageviews(target_date)
-parquet_count = result['total_records']
+parquet_count = result["total_records"]
 
 if db_count != parquet_count:
     # Investigate discrepancy
@@ -253,16 +262,16 @@ python manage.py shell
 **Symptom**: Celery task appears to run but produces no output
 **Cause**: Exception in task not logged
 **Solution**:
-```python
-# Enable task result tracking
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+```bash
+# Enable task result tracking (in settings)
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
 # Check task results
 celery -A readthedocs.celery events
 
-# Enable task logging
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 600  # 10 minutes
+# Enable task logging (in settings)
+# CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 600  # 10 minutes
 
 # Or run task directly
 python manage.py export_pageviews_to_parquet --date 2026-01-15
@@ -281,7 +290,7 @@ python manage.py export_pageviews_to_parquet --date 2026-01-15
 batch_size = 100000
 offset = 0
 while True:
-    batch = PageView.objects.filter(date=date).all()[offset:offset + batch_size]
+    batch = PageView.objects.filter(date=date).all()[offset : offset + batch_size]
     if not batch.exists():
         break
     # Process batch
@@ -294,17 +303,17 @@ while True:
 ```python
 # settings.py
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'loggers': {
-        'readthedocs.analytics': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
+    "loggers": {
+        "readthedocs.analytics": {
+            "handlers": ["console"],
+            "level": "DEBUG",
         },
     },
 }
@@ -328,11 +337,12 @@ profiler = cProfile.Profile()
 profiler.enable()
 
 from readthedocs.analytics.tasks import export_pageviews_to_parquet
+
 export_pageviews_to_parquet()
 
 profiler.disable()
 stats = pstats.Stats(profiler)
-stats.sort_stats('cumulative')
+stats.sort_stats("cumulative")
 stats.print_stats(20)
 ```
 
