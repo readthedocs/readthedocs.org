@@ -2,7 +2,7 @@ from collections import Counter
 from itertools import batched
 
 
-def delete_in_batches(queryset, batch_size=50, limit: int | None =None) -> tuple[int, dict]:
+def delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> tuple[int, dict]:
     """
     Delete a queryset in batches to avoid long transactions or big queries.
 
@@ -48,7 +48,7 @@ def delete_in_batches(queryset, batch_size=50, limit: int | None =None) -> tuple
     return total_deleted, dict(deleted_counter)
 
 
-def raw_delete_in_batches(queryset, batch_size=50, limit: int | None =None):
+def raw_delete_in_batches(queryset, batch_size=50, limit: int | None = None):
     """
     Raw delete a queryset in batches to avoid long transactions or big queries.
 

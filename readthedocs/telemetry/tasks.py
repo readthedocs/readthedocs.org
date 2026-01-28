@@ -1,7 +1,6 @@
 """Tasks related to telemetry."""
 
 from django.conf import settings
-from django.db import connections
 from django.utils import timezone
 
 from readthedocs.builds.models import Build
