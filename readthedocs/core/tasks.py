@@ -8,9 +8,14 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.history import set_change_reason
+from readthedocs.core.utils.db import delete_in_batches
+from readthedocs.core.utils.db import raw_delete_in_batches
+from readthedocs.projects.models import AddonsConfig
+from readthedocs.projects.models import ImportedFile
 from readthedocs.worker import app
 
 
@@ -110,3 +115,26 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
             task_log.info("Object deleted.")
         else:
             task_log.info("Object does not exist.")
+
+
+@app.task(queue="web")
+def delete_outdated_imported_files(limit):
+    """ """
+    query = ImportedFile.objects.exclude(Q(path="404.html") | Q(name="index.html"))
+    raw_delete_in_batches(query, limit=limit)
+
+
+@app.task(queue="web")
+def delete_addons_config(limit):
+    """
+    Delete all AddonsConfig objects.
+
+    This is used to clean up the AddonsConfig model,
+    which is no longer used in Read the Docs.
+
+    This task deletes all AddonsConfig objects from both
+    .org and .com instances.
+    """
+    # NOTE: we can't raw delete because AddonsConfig is related to other models (AddonSearchFilter).
+    query = AddonsConfig.objects.filter(project=None)
+    delete_in_batches(query, limit=limit)
