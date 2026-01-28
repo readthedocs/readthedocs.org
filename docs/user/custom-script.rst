@@ -4,11 +4,15 @@ Custom script
 The Custom Script addon allows you to inject a custom JavaScript file into your documentation at serve time.
 This enables you to modify or enhance frozen documentation without rebuilding it.
 
-.. note::
+Configure custom scripts
+------------------------
 
-   The Custom Script addon is not currently exposed in the user interface.
-   If you would like to use this feature,
-   please :doc:`contact support </support>`.
+To add or update a custom script for your project:
+
+#. Go to the :guilabel:`Settings` tab of your project.
+#. Click :guilabel:`Addons`, then :guilabel:`Custom Script`.
+#. Enter the URL of your JavaScript file.
+#. Click :guilabel:`Save`.
 
 Using custom scripts
 --------------------
