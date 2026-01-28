@@ -4,9 +4,9 @@ import os
 import re
 import socket
 import subprocess
+from pathlib import Path
 
 import structlog
-from pathlib import Path
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 from django.conf.global_settings import PASSWORD_HASHERS
@@ -14,6 +14,7 @@ from django.conf.global_settings import PASSWORD_HASHERS
 from readthedocs.builds import constants_docker
 from readthedocs.core.logs import shared_processors
 from readthedocs.core.settings import Settings
+
 
 try:
     import readthedocsext.cdn  # noqa

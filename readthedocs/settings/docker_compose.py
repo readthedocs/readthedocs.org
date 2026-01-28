@@ -168,7 +168,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
-    CELERY_BROKER_URL = f"redis://:redispassword@cache:6379/0"
+    CELERY_BROKER_URL = "redis://:redispassword@cache:6379/0"
 
     CELERY_TASK_ALWAYS_EAGER = False
 
