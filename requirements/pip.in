@@ -115,6 +115,10 @@ user-agents
 
 django-storages[s3]
 
+# Parquet analytics - column-store data format for efficient queries
+pandas>=1.0.0
+duckdb>=0.5.0
+pyarrow>=5.0.0
 
 # Required only in development and linting
 django-debug-toolbar

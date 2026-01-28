@@ -23,11 +23,12 @@ class TestParquetAnalyticsExporter(TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.project = Project.objects.create(
-            name="Test Project",
+        # Use get_or_create to avoid UNIQUE constraint failures
+        self.project, _ = Project.objects.get_or_create(
             slug="test-project",
+            defaults={"name": "Test Project"},
         )
-        self.version = Version.objects.create(
+        self.version, _ = Version.objects.get_or_create(
             project=self.project,
             slug="latest",
         )
@@ -162,11 +163,12 @@ class TestParquetAnalyticsQuerier(TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.project = Project.objects.create(
-            name="Test Project",
+        # Use get_or_create to avoid UNIQUE constraint failures
+        self.project, _ = Project.objects.get_or_create(
             slug="test-project",
+            defaults={"name": "Test Project"},
         )
-        self.version = Version.objects.create(
+        self.version, _ = Version.objects.get_or_create(
             project=self.project,
             slug="latest",
         )
@@ -214,11 +216,12 @@ class TestParquetExportIntegration(TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.project = Project.objects.create(
-            name="Test Project",
+        # Use get_or_create to avoid UNIQUE constraint failures
+        self.project, _ = Project.objects.get_or_create(
             slug="test-project",
+            defaults={"name": "Test Project"},
         )
-        self.version = Version.objects.create(
+        self.version, _ = Version.objects.get_or_create(
             project=self.project,
             slug="latest",
         )
