@@ -1,5 +1,3 @@
-from typing import Any
-
 from rest_framework import serializers
 
 from readthedocs.search.api.v2.serializers import PageSearchSerializer as PageSearchSerializerBase
@@ -34,22 +32,4 @@ class PageSearchSerializer(PageSearchSerializerBase):
     def get_version(self, obj):
         return {
             "slug": obj.version,
-        }
-
-
-class ProxiedPageSearchSerializer(PageSearchSerializer):
-    """
-    Serializer for proxied search results.
-
-    Use the subproject alias in the `slug` field for display purposes,
-    while still exposing the original project slug.
-    """
-
-    def get_project(self, obj: Any) -> dict[str, str | None]:
-        alias = self.get_project_alias(obj)
-        slug = obj.project
-        return {
-            "slug": alias or slug,
-            "alias": alias,
-            "original_slug": slug,
         }
