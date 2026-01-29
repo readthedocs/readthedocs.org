@@ -205,31 +205,31 @@ class TestTasks(TestCase):
         """Test that orphan BuildConfig objects are deleted."""
         project = get(Project)
         version = project.versions.get(slug=LATEST)
-        
+
         # Create BuildConfig objects
         config_with_build = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-20.04"}})
         orphan_config_1 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-22.04"}})
         orphan_config_2 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-24.04"}})
-        
+
         # Create a Build and manually assign the BuildConfig
         build = get(Build, project=project, version=version)
         build.readthedocs_yaml_config = config_with_build
         build.save()
-        
+
         # Verify the relationship is set correctly
         build.refresh_from_db()
         self.assertEqual(build.readthedocs_yaml_config, config_with_build)
         self.assertEqual(config_with_build.builds.count(), 1)
-        
+
         # Verify initial state - we have at least our 3 BuildConfigs
         self.assertGreaterEqual(BuildConfig.objects.count(), 3)
         self.assertTrue(BuildConfig.objects.filter(pk=config_with_build.pk).exists())
         self.assertTrue(BuildConfig.objects.filter(pk=orphan_config_1.pk).exists())
         self.assertTrue(BuildConfig.objects.filter(pk=orphan_config_2.pk).exists())
-        
+
         # Call the task
         remove_orphan_build_config()
-        
+
         # Verify that only orphan configs were deleted
         # The config_with_build should still exist because it has a build
         self.assertTrue(BuildConfig.objects.filter(pk=config_with_build.pk).exists())
@@ -241,28 +241,28 @@ class TestTasks(TestCase):
         """Test that no BuildConfig objects are deleted when there are no orphans."""
         project = get(Project)
         version = project.versions.get(slug=LATEST)
-        
+
         # Create BuildConfig objects
         config_1 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-20.04"}})
         config_2 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-22.04"}})
-        
+
         # Create Builds and manually assign the BuildConfig objects
         build_1 = get(Build, project=project, version=version)
         build_1.readthedocs_yaml_config = config_1
         build_1.save()
-        
+
         build_2 = get(Build, project=project, version=version)
         build_2.readthedocs_yaml_config = config_2
         build_2.save()
-        
+
         # Verify initial state
         self.assertGreaterEqual(BuildConfig.objects.count(), 2)
         self.assertTrue(BuildConfig.objects.filter(pk=config_1.pk).exists())
         self.assertTrue(BuildConfig.objects.filter(pk=config_2.pk).exists())
-        
+
         # Call the task
         remove_orphan_build_config()
-        
+
         # Verify that no configs were deleted
         self.assertTrue(BuildConfig.objects.filter(pk=config_1.pk).exists())
         self.assertTrue(BuildConfig.objects.filter(pk=config_2.pk).exists())
