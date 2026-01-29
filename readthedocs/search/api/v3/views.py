@@ -15,6 +15,7 @@ from readthedocs.search import tasks
 from readthedocs.search.api.pagination import SearchPagination
 from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
+from readthedocs.search.api.v3.serializers import ProxiedPageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
 
 
@@ -172,6 +173,8 @@ class BaseProxiedSearchAPI(SearchAPI):
     This is so we can override it in .com,
     where we need to make use of our auth backends.
     """
+
+    serializer_class = ProxiedPageSearchSerializer
 
 
 class ProxiedSearchAPI(SettingsOverrideObject):
