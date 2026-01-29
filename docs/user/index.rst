@@ -52,6 +52,7 @@ Read the Docs: documentation simplified
    /reference/sitemaps
    /reference/404-not-found
    /reference/robots
+   /reference/llms-txt
 
 .. toctree::
    :maxdepth: 2

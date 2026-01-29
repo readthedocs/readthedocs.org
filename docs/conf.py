@@ -156,6 +156,7 @@ gettext_compact = False
 
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static", f"{docset}/_static"]
+html_extra_path = ["_extra"]
 html_css_files = ["css/custom.css", "css/sphinx_prompt_css.css"]
 html_js_files = ["js/expand_tabs.js"]
 

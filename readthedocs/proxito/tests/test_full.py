@@ -952,6 +952,53 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_custom_llms_txt(self):
+        """Test serving a custom llms.txt file from the default version."""
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(
+            response["x-accel-redirect"],
+            "/proxito/media/html/project/latest/llms.txt",
+        )
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_llms_txt_not_found(self, storage_exists):
+        """Test that 404 is returned when llms.txt doesn't exist."""
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_llms_txt_private_version(self):
+        """Test that 404 is returned when default version is private."""
+        self.project.versions.update(
+            active=True, built=True, privacy_level=constants.PRIVATE
+        )
+        response = self.client.get(
+            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_llms_txt_inactive_version(self):
+        """Test that 404 is returned when default version is inactive."""
+        self.project.versions.update(active=False, built=True)
+        response = self.client.get(
+            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_llms_txt_unbuilt_version(self):
+        """Test that 404 is returned when default version is not built."""
+        self.project.versions.update(active=True, built=False)
+        response = self.client.get(
+            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_directory_indexes(self):
         self.project.versions.update(active=True, built=True)
 

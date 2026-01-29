@@ -1,0 +1,27 @@
+# Read the Docs Documentation
+
+> https://docs.readthedocs.io
+
+Read the Docs simplifies software documentation by automating building, versioning, and hosting of your docs for you.
+
+## Documentation Structure
+
+- Getting Started: /en/stable/tutorial/
+- Guides: /en/stable/guides/
+- Reference: /en/stable/reference/
+- API: /en/stable/api/
+
+## Key Features
+
+- Automatic building and versioning
+- Support for multiple documentation tools (Sphinx, MkDocs)
+- Custom domains and branding
+- Search functionality
+- Traffic analytics
+- Version control integration
+
+## This llms.txt File
+
+This is an example llms.txt file for Read the Docs documentation. It demonstrates the llms.txt feature that allows projects to provide LLM-friendly content at the root of their documentation.
+
+For more information about llms.txt support on Read the Docs, see: /en/stable/reference/llms-txt/

@@ -736,6 +736,77 @@ class ServeRobotsTXT(SettingsOverrideObject):
     _default_class = ServeRobotsTXTBase
 
 
+class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
+    """Serve llms.txt from the domain's root."""
+
+    # Always cache this view, since it's the same for all users.
+    cache_response = True
+    # Extra cache tag to invalidate only this view if needed.
+    project_cache_tag = "llms.txt"
+
+    def get(self, request):
+        """
+        Serve custom user's defined ``/llms.txt``.
+
+        If the user added a ``llms.txt`` in the "default version" of the
+        project, we serve it directly.
+        """
+        project = request.unresolved_domain.project
+
+        # Use the ``llms.txt`` file from the default version configured
+        version_slug = project.get_default_version()
+        version = project.versions.get(slug=version_slug)
+
+        no_serve_llms_txt = any(
+            [
+                # If the default version is private or,
+                version.privacy_level == PRIVATE,
+                # default version is not active or,
+                not version.active,
+                # default version is not built
+                not version.built,
+            ]
+        )
+
+        if no_serve_llms_txt:
+            # ... we do return a 404
+            raise Http404()
+
+        structlog.contextvars.bind_contextvars(
+            project_slug=project.slug,
+            version_slug=version.slug,
+        )
+
+        try:
+            response = self._serve_docs(
+                request=request,
+                project=project,
+                version=version,
+                filename="llms.txt",
+                check_if_exists=True,
+            )
+            log.info("Serving custom llms.txt file.")
+            return response
+        except StorageFileNotFound:
+            # If the file doesn't exist, return a 404
+            raise Http404()
+
+    def _get_project(self):
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
+
+    def _get_version(self):
+        # Method used by the CDNCacheTagsMixin class.
+        # This view isn't explicitly mapped to a version,
+        # but it can be when we serve a custom llms.txt file.
+        # TODO: refactor how we set cache tags to avoid this.
+        return None
+
+
+class ServeLLMSTXT(SettingsOverrideObject):
+    _default_class = ServeLLMSTXTBase
+
+
 class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
     """Serve sitemap.xml from the domain's root."""
 
