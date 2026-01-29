@@ -191,11 +191,8 @@ class TestRawDeleteInBatches(TestCase):
         # Should not raise any errors
         raw_delete_in_batches(queryset, batch_size=10)
 
-        # Verify nothing was deleted (no versions exist with our filter anyway)
-        assert Version.objects.count() >= 0
-
     def test_queryset_smaller_than_batch_size(self):
-        """Test that querysets smaller than batch_size use regular raw delete."""
+        """Test that a queryset smaller than batch_size uses regular raw delete."""
         # Create a project with 3 versions
         project = get(Project, slug="raw-small-project")
         versions = [get(Version, project=project, slug=f"raw-v{i}") for i in range(3)]
@@ -211,7 +208,7 @@ class TestRawDeleteInBatches(TestCase):
         assert Version.objects.filter(slug__startswith="raw-v").count() == 0
 
     def test_queryset_equal_to_batch_size(self):
-        """Test that querysets equal to batch_size use regular raw delete."""
+        """Test that a queryset equal to batch_size uses regular raw delete."""
         # Create a project with exactly 5 versions
         project = get(Project, slug="raw-equal-project")
         versions = [get(Version, project=project, slug=f"raw-eq-{i}") for i in range(5)]
@@ -223,7 +220,7 @@ class TestRawDeleteInBatches(TestCase):
         assert Version.objects.filter(slug__startswith="raw-eq-").count() == 0
 
     def test_queryset_larger_than_batch_size(self):
-        """Test that querysets larger than batch_size are raw deleted in batches."""
+        """Test that a queryset larger than batch_size is raw deleted in batches."""
         # Create a project with 10 versions
         project = get(Project, slug="raw-large-project")
         versions = [get(Version, project=project, slug=f"raw-large-{i}") for i in range(10)]
