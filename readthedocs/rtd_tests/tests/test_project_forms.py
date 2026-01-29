@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils.safestring import SafeString
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, LATEST_VERBOSE_NAME, STABLE, TAG, BRANCH
@@ -635,21 +636,18 @@ class TestProjectPrevalidationForms(TestCase):
 
     def test_form_prevalidation_html_in_error_message(self):
         """Test that HTML in error message is marked as safe."""
-        from django.utils.safestring import SafeString
-        
         form_auto = ProjectAutomaticForm(user=self.user_email)
         
         # Capture the RichValidationError to inspect the message
-        try:
+        with self.assertRaises(RichValidationError) as cm:
             form_auto.clean_prevalidation()
-            self.fail("Expected RichValidationError to be raised")
-        except RichValidationError as e:
-            # The message should be a SafeString to allow HTML rendering
-            error_message = e.messages[0]
-            self.assertIsInstance(error_message, SafeString)
-            # Verify the message contains HTML anchor tag
-            self.assertIn("<a href=", error_message)
-            self.assertIn("</a>", error_message)
+        
+        # The message should be a SafeString to allow HTML rendering
+        error_message = cm.exception.messages[0]
+        self.assertIsInstance(error_message, SafeString)
+        # Verify the message contains HTML anchor tag
+        self.assertIn("<a href=", error_message)
+        self.assertIn("</a>", error_message)
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
