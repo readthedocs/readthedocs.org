@@ -1,6 +1,7 @@
 """Subscriptions forms."""
 
 from django import forms
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from djstripe import models as djstripe
 
@@ -24,7 +25,10 @@ class PlanForm(forms.Form):
             (price.id, f"{price.product.name} ({price.human_readable_price})")
             for price in stripe_prices
         ]
-        self.fields["plan"].help_text = _(
-            'Check our <a href="https://about.readthedocs.com/pricing/">pricing page</a> '
-            "for more information about each plan."
+        self.fields["plan"].help_text = format_html(
+            _(
+                'Check our <a href="{url}">pricing page</a> '
+                "for more information about each plan."
+            ),
+            url="https://about.readthedocs.com/pricing/",
         )
