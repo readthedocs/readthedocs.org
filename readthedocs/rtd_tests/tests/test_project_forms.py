@@ -633,6 +633,24 @@ class TestProjectPrevalidationForms(TestCase):
         self.assertTrue(form_manual.is_valid())
         self.assertEqual(form_manual.errors, {})
 
+    def test_form_prevalidation_html_in_error_message(self):
+        """Test that HTML in error message is marked as safe."""
+        from django.utils.safestring import SafeString
+        
+        form_auto = ProjectAutomaticForm(user=self.user_email)
+        
+        # Capture the RichValidationError to inspect the message
+        try:
+            form_auto.clean_prevalidation()
+            self.fail("Expected RichValidationError to be raised")
+        except RichValidationError as e:
+            # The message should be a SafeString to allow HTML rendering
+            error_message = e.messages[0]
+            self.assertIsInstance(error_message, SafeString)
+            # Verify the message contains HTML anchor tag
+            self.assertIn("<a href=", error_message)
+            self.assertIn("</a>", error_message)
+
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class TestProjectPrevalidationFormsWithOrganizations(TestCase):
