@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
@@ -338,10 +339,12 @@ class ProjectAutomaticForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
         if not self.user_has_connected_account:
             url = reverse("socialaccount_connections")
             raise RichValidationError(
-                _(
-                    f"You must first <a href='{url}'>add a connected service "
-                    f"to your account</a> to enable automatic configuration of "
-                    f"repositories."
+                mark_safe(
+                    _(
+                        f"You must first <a href='{url}'>add a connected service "
+                        f"to your account</a> to enable automatic configuration of "
+                        f"repositories."
+                    )
                 ),
                 header=_("No connected services found"),
             )
