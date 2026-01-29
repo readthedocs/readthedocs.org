@@ -218,24 +218,24 @@ class TestTasks(TestCase):
 
         # Verify the relationship is set correctly
         build.refresh_from_db()
-        self.assertEqual(build.readthedocs_yaml_config, config_with_build)
-        self.assertEqual(config_with_build.builds.count(), 1)
+        assert build.readthedocs_yaml_config == config_with_build
+        assert config_with_build.builds.count() == 1
 
         # Verify initial state - we have at least our 3 BuildConfigs
-        self.assertGreaterEqual(BuildConfig.objects.count(), 3)
-        self.assertTrue(BuildConfig.objects.filter(pk=config_with_build.pk).exists())
-        self.assertTrue(BuildConfig.objects.filter(pk=orphan_config_1.pk).exists())
-        self.assertTrue(BuildConfig.objects.filter(pk=orphan_config_2.pk).exists())
+        assert BuildConfig.objects.count() >= 3
+        assert BuildConfig.objects.filter(pk=config_with_build.pk).exists()
+        assert BuildConfig.objects.filter(pk=orphan_config_1.pk).exists()
+        assert BuildConfig.objects.filter(pk=orphan_config_2.pk).exists()
 
         # Call the task
         remove_orphan_build_config()
 
         # Verify that only orphan configs were deleted
         # The config_with_build should still exist because it has a build
-        self.assertTrue(BuildConfig.objects.filter(pk=config_with_build.pk).exists())
+        assert BuildConfig.objects.filter(pk=config_with_build.pk).exists()
         # The orphan configs should be deleted
-        self.assertFalse(BuildConfig.objects.filter(pk=orphan_config_1.pk).exists())
-        self.assertFalse(BuildConfig.objects.filter(pk=orphan_config_2.pk).exists())
+        assert not BuildConfig.objects.filter(pk=orphan_config_1.pk).exists()
+        assert not BuildConfig.objects.filter(pk=orphan_config_2.pk).exists()
 
     def test_remove_orphan_build_config_no_orphans(self):
         """Test that no BuildConfig objects are deleted when there are no orphans."""
@@ -256,16 +256,16 @@ class TestTasks(TestCase):
         build_2.save()
 
         # Verify initial state
-        self.assertGreaterEqual(BuildConfig.objects.count(), 2)
-        self.assertTrue(BuildConfig.objects.filter(pk=config_1.pk).exists())
-        self.assertTrue(BuildConfig.objects.filter(pk=config_2.pk).exists())
+        assert BuildConfig.objects.count() >= 2
+        assert BuildConfig.objects.filter(pk=config_1.pk).exists()
+        assert BuildConfig.objects.filter(pk=config_2.pk).exists()
 
         # Call the task
         remove_orphan_build_config()
 
         # Verify that no configs were deleted
-        self.assertTrue(BuildConfig.objects.filter(pk=config_1.pk).exists())
-        self.assertTrue(BuildConfig.objects.filter(pk=config_2.pk).exists())
+        assert BuildConfig.objects.filter(pk=config_1.pk).exists()
+        assert BuildConfig.objects.filter(pk=config_2.pk).exists()
 
 
 @override_settings(
