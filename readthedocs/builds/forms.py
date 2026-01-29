@@ -10,6 +10,7 @@ from crispy_forms.layout import Layout
 from django import forms
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import ALL_VERSIONS
@@ -135,15 +136,18 @@ class RegexAutomationRuleForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
     match_arg = forms.CharField(
         label="Custom match",
-        help_text=_(
-            textwrap.dedent(
+        help_text=format_html(
+            _(
+                textwrap.dedent(
+                    """
+                A regular expression to match the version.
+                <a href="{url}">
+                  Check the documentation for valid patterns.
+                </a>
                 """
-            A regular expression to match the version.
-            <a href="https://docs.readthedocs.io/page/automation-rules.html#user-defined-matches">
-              Check the documentation for valid patterns.
-            </a>
-            """
-            )
+                )
+            ),
+            url="https://docs.readthedocs.io/page/automation-rules.html#user-defined-matches",
         ),
         required=False,
     )
