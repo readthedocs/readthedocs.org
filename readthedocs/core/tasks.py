@@ -119,21 +119,21 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
 
 @app.task(queue="web")
 def delete_outdated_imported_files(limit):
-    """ """
+    """
+    Delete all imported files that are no longer needed.
+
+    We only need to keep track of the top-level ``404.html`` and all ``index.html`` files.
+    """
     query = ImportedFile.objects.exclude(Q(path="404.html") | Q(name="index.html"))
     raw_delete_in_batches(query, limit=limit)
 
 
 @app.task(queue="web")
-def delete_addons_config(limit):
+def delete_orphaned_addons_configs(limit):
     """
     Delete all AddonsConfig objects.
 
-    This is used to clean up the AddonsConfig model,
-    which is no longer used in Read the Docs.
-
-    This task deletes all AddonsConfig objects from both
-    .org and .com instances.
+    These were created by mistake, and are not linked to any project.
     """
     # NOTE: we can't raw delete because AddonsConfig is related to other models (AddonSearchFilter).
     query = AddonsConfig.objects.filter(project=None)

@@ -699,7 +699,7 @@ class CommunityBaseSettings(Settings):
         },
         "every-day-delete-old-buildata-models": {
             "task": "readthedocs.telemetry.tasks.delete_old_build_data",
-            # NOTE: we are running this task every  hour for now,
+            # NOTE: we are running this task every hour for now,
             # since we have lots of objects to delete, and we are limiting
             # the number of deletions per task run.
             # TODO: go back to once a day (unlimited) after we delete the backlog of objects.
@@ -761,12 +761,12 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
         },
-        # TODO: delete this task when all imported files pending deletions are done.
+        # TODO: delete this task when all imported files pending deletion are done.
         # It shuold take around 36 days to delete all the old imported files on community,
         # and 6 days in commercial.
         "every-hour-delete-imported-files": {
             "task": "readthedocs.core.tasks.delete_outdated_imported_files",
-            "schedule": crontab(minute=10, hour="*"),
+            "schedule": crontab(minute=15, hour="*"),
             "options": {"queue": "web"},
             "kwargs": {"limit": 10_000},
         },
@@ -774,7 +774,7 @@ class CommunityBaseSettings(Settings):
         # It should take around 6 days on community, commercial doesn't have this problem.
         "every-hour-delete-orphaned-addons-configs": {
             "task": "readthedocs.core.tasks.delete_orphaned_addons_configs",
-            "schedule": crontab(minute=20, hour="*"),
+            "schedule": crontab(minute=30, hour="*"),
             "options": {"queue": "web"},
             "kwargs": {"limit": 5_000},
         },

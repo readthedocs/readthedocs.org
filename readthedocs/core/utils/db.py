@@ -18,12 +18,9 @@ def delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> tupl
     This is also useful when you don't want to overload the DB by deleting
     a large number of records at once, since .delete() doesn't support limits/offsets.
 
-    .. code-block:: python
-
-       delete_in_batches(MyModel.objects.filter(...)[:10000])
-
     :param queryset: Django queryset to delete
     :param batch_size: Number of records to delete per batch
+    :param limit: Maximum number of records to delete from the queryset
     """
     # Don't use batch deletion if the number of records
     # is smaller or equal to the batch size.
