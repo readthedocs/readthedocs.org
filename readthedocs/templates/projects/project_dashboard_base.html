@@ -1,9 +1,8 @@
 {% extends "base.html" %}
-{% load i18n %}
 {% load pagination_tags %}
 {% load socialaccount %}
 
-{% block title %}{% trans "Project Dashboard" %}{% endblock %}
+{% block title %}Project Dashboard{% endblock %}
 
 {% block dash-nav-projects %}active{% endblock %}
 
@@ -17,7 +16,7 @@
 
       {% if filter.qs.count > 0 %}
         <div class="module-header">
-          <h3>{% trans "Important Versions" %}</h3>
+          <h3>Important Versions</h3>
         </div>
 
         <div class="filter">
@@ -50,10 +49,10 @@
           <div class="module-header">
             {% block project_import_button %}
             <form method="get" action="{{ projects_import_url }}">
-              <input type="submit" value="{% trans "Import a Project" %}" />
+              <input type="submit" value="Import a Project" />
             </form>
             {% endblock %}
-            <h3>{% trans "Projects" %}</h3>
+            <h3>Projects</h3>
           </div>
 
           <div class="module-list">
@@ -71,16 +70,16 @@
 
                           {% if build %}
                             <time class="build-count" datetime="{{ build.date|date:"c" }}" title="{{ build.date|date:"DATETIME_FORMAT" }}">
-                              <small>{% blocktrans with date=build.date|timesince %}{{ date }} ago{% endblocktrans %}</small>
+                              <small>{{ build.date|timesince }} ago</small>
                             </time>
                             {% if build.success %}
-                              <span class="build-state build-state-passing">{% trans "passing" %}</span>
+                              <span class="build-state build-state-passing">passing</span>
                             {% else %}
-                              <span class="build-state build-state-failing">{% trans "failing" %}</span>
+                              <span class="build-state build-state-failing">failing</span>
                               {# TODO: What whould be show here when "not build.sucess and cancelled"? #}
                             {% endif %}
                           {% else %}
-                            <span>{% trans "No builds yet" %}</span>
+                            <span>No builds yet</span>
                           {% endif %}
                         </span>
                       {% endwith %}
@@ -109,7 +108,7 @@
     <div class="module search search-dashboard">
       <form action="{% url 'search' %}" method="GET">
         <div class="text-input-wrapper search search-dashboard">
-          <input type="text" name="q" class="search" placeholder="{% trans 'Search all docs' %}">
+          <input type="text" name="q" class="search" placeholder="Search all docs">
           {% if type %}
             <input type="hidden" name="type" value="{{ type }}">
           {% endif %}
@@ -122,16 +121,14 @@
     {% get_social_accounts request.user as accounts %}
     {% if not accounts.github.0 %}
       <div class="module onboard onboard-accounts">
-        <h3>{% trans "Connect your Accounts" %}</h3>
+        <h3>Connect your Accounts</h3>
 
         <p>
-          {% blocktrans trimmed %}
-            Have a GitHub account? Connect your account and import your existing projects automatically.
-          {% endblocktrans %}
+          Have a GitHub account? Connect your account and import your existing projects automatically.
         </p>
 
         <form method="get" action="{{ social_accounts }}">
-          <input type="submit" value="{% trans "Connect your Accounts" %}" />
+          <input type="submit" value="Connect your Accounts" />
         </form>
       </div>
     {% endif %}
@@ -141,12 +138,10 @@
     {% endblock %}
 
     <div class="module info info-docs">
-      <h3>{% trans "Learn More" %}</h3>
+      <h3>Learn More</h3>
       <p>
-        {% blocktrans trimmed with rtd_docs_url="https://docs.readthedocs.io/" %}
-          Check out the <a href="{{ rtd_docs_url }}">documentation for Read the Docs</a>.
-          It contains lots of information about how to get the most out of RTD.
-        {% endblocktrans %}
+        Check out the <a href="https://docs.readthedocs.io/">documentation for Read the Docs</a>.
+        It contains lots of information about how to get the most out of RTD.
       </p>
     </div>
   </div>
