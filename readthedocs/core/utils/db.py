@@ -22,19 +22,25 @@ def delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> tupl
     :param batch_size: Number of records to delete per batch
     :param limit: Maximum number of records to delete from the queryset
     """
-    # Don't use batch deletion if the number of records
-    # is smaller or equal to the batch size.
-    count = queryset.count()
-    if count == 0:
+    if limit is not None and limit <= 0:
         return 0, {}
-    if count <= batch_size:
-        return queryset.delete()
+
+    if not limit:
+        # Don't use batch deletion if the number of records
+        # is smaller or equal to the batch size.
+        # Only do this check if no limit is set,
+        # since with a limit we always need to get a batch.
+        count = queryset.count()
+        if count == 0:
+            return 0, {}
+        if count <= batch_size:
+            return queryset.delete()
 
     model = queryset.model
     total_deleted = 0
     deleted_counter = Counter()
     # We can't use a limit or offset with .delete,
-    # so we first extract the IDs and perform the deletion in anothr query.
+    # so we first extract the IDs and perform the deletion in another query.
     all_pks = queryset.values_list("pk", flat=True)
     if limit:
         all_pks = all_pks[:limit]
@@ -63,24 +69,30 @@ def raw_delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> 
 
     :return: Number of deleted records
     """
-    # Don't use batch deletion if the number of records
-    # is smaller or equal to the batch size.
-    count = queryset.count()
-    if count == 0:
-        return count
-    if count <= batch_size:
-        queryset._raw_delete(queryset.db)
-        return count
+    if limit is not None and limit <= 0:
+        return 0
+
+    if not limit:
+        # Don't use batch deletion if the number of records
+        # is smaller or equal to the batch size.
+        # Only do this check if no limit is set,
+        # since with a limit we always need to get a batch.
+        count = queryset.count()
+        if count == 0:
+            return count
+        if count <= batch_size:
+            queryset._raw_delete(queryset.db)
+            return count
 
     total_deleted = 0
     model = queryset.model
     # We can't use a limit or offset with .raw_delete,
-    # so we first extract the IDs and perform the deletion in anothr query.
+    # so we first extract the IDs and perform the deletion in another query.
     all_pks = queryset.values_list("pk", flat=True)
     if limit:
         all_pks = all_pks[:limit]
     for batch in batched(all_pks, batch_size):
         qs = model.objects.filter(pk__in=batch)
-        total_deleted += qs.count()
         qs._raw_delete(qs.db)
+        total_deleted += len(batch)
     return total_deleted
