@@ -20,7 +20,8 @@ class TestDeleteInBatches(TestCase):
     def test_queryset_smaller_than_batch_size(self):
         """Test that querysets smaller than batch_size use regular delete."""
         # Create 3 projects
-        projects = [get(Project, slug=f"project-{i}") for i in range(3)]
+        for i in range(3):
+            get(Project, slug=f"project-{i}")
 
         # Delete with a batch_size larger than the number of objects
         queryset = Project.objects.filter(slug__startswith="project-")
@@ -38,7 +39,8 @@ class TestDeleteInBatches(TestCase):
     def test_queryset_equal_to_batch_size(self):
         """Test that querysets equal to batch_size use regular delete."""
         # Create exactly 5 projects
-        projects = [get(Project, slug=f"project-{i}") for i in range(5)]
+        for i in range(5):
+            get(Project, slug=f"project-{i}")
 
         # Delete with a batch_size equal to the number of objects
         queryset = Project.objects.filter(slug__startswith="project-")
@@ -51,7 +53,8 @@ class TestDeleteInBatches(TestCase):
     def test_queryset_larger_than_batch_size(self):
         """Test that querysets larger than batch_size are deleted in batches."""
         # Create 10 projects
-        projects = [get(Project, slug=f"project-{i}") for i in range(10)]
+        for i in range(10):
+            get(Project, slug=f"project-{i}")
 
         # Delete with a batch_size smaller than the number of objects
         queryset = Project.objects.filter(slug__startswith="project-")
@@ -89,7 +92,8 @@ class TestDeleteInBatches(TestCase):
     def test_multiple_batches(self):
         """Test deletion works correctly across multiple batches."""
         # Create 25 projects
-        projects = [get(Project, slug=f"batch-project-{i}") for i in range(25)]
+        for i in range(25):
+            get(Project, slug=f"batch-project-{i}")
 
         # Delete with batch_size=7, requiring 4 batches (7, 7, 7, 4)
         queryset = Project.objects.filter(slug__startswith="batch-project-")
@@ -101,7 +105,8 @@ class TestDeleteInBatches(TestCase):
     def test_batch_size_one(self):
         """Test deletion with batch_size=1 (edge case)."""
         # Create 3 projects
-        projects = [get(Project, slug=f"single-{i}") for i in range(3)]
+        for i in range(3):
+            get(Project, slug=f"single-{i}")
 
         queryset = Project.objects.filter(slug__startswith="single-")
         total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=1)
@@ -113,7 +118,8 @@ class TestDeleteInBatches(TestCase):
         """Test deleting versions directly (not through project cascade)."""
         # Create a project with multiple versions
         project = get(Project, slug="version-test")
-        versions = [get(Version, project=project, slug=f"v{i}.0") for i in range(10)]
+        for i in range(10):
+            get(Version, project=project, slug=f"v{i}.0")
 
         # Delete versions in batches
         queryset = Version.objects.filter(project=project, slug__startswith="v")
@@ -131,7 +137,8 @@ class TestDeleteInBatches(TestCase):
     def test_delete_with_limit_smaller_than_total(self):
         """Test deleting with a limit smaller than total queryset count."""
         # Create 20 projects
-        projects = [get(Project, slug=f"limit-project-{i}") for i in range(20)]
+        for i in range(20):
+            get(Project, slug=f"limit-project-{i}")
 
         # Delete only 10 projects with a limit
         queryset = Project.objects.filter(slug__startswith="limit-project-")
@@ -145,7 +152,8 @@ class TestDeleteInBatches(TestCase):
     def test_delete_with_limit_larger_than_total(self):
         """Test deleting with a limit larger than total queryset count."""
         # Create 5 projects
-        projects = [get(Project, slug=f"over-limit-{i}") for i in range(5)]
+        for i in range(5):
+            get(Project, slug=f"over-limit-{i}")
 
         # Set limit larger than actual count
         queryset = Project.objects.filter(slug__startswith="over-limit-")
@@ -158,7 +166,8 @@ class TestDeleteInBatches(TestCase):
     def test_delete_with_limit_equal_to_batch_size(self):
         """Test deleting with a limit equal to the batch size."""
         # Create 10 projects
-        projects = [get(Project, slug=f"equal-limit-{i}") for i in range(10)]
+        for i in range(10):
+            get(Project, slug=f"equal-limit-{i}")
 
         # Set limit equal to batch_size
         queryset = Project.objects.filter(slug__startswith="equal-limit-")
@@ -171,7 +180,8 @@ class TestDeleteInBatches(TestCase):
     def test_delete_with_limit_one(self):
         """Test deleting with limit=1 (edge case)."""
         # Create 5 projects
-        projects = [get(Project, slug=f"one-limit-{i}") for i in range(5)]
+        for i in range(5):
+            get(Project, slug=f"one-limit-{i}")
 
         # Set limit to 1
         queryset = Project.objects.filter(slug__startswith="one-limit-")
@@ -195,7 +205,8 @@ class TestRawDeleteInBatches(TestCase):
         """Test that a queryset smaller than batch_size uses regular raw delete."""
         # Create a project with 3 versions
         project = get(Project, slug="raw-small-project")
-        versions = [get(Version, project=project, slug=f"raw-v{i}") for i in range(3)]
+        for i in range(3):
+            get(Version, project=project, slug=f"raw-v{i}")
 
         initial_count = Version.objects.filter(slug__startswith="raw-v").count()
         assert initial_count == 3
@@ -211,7 +222,8 @@ class TestRawDeleteInBatches(TestCase):
         """Test that a queryset equal to batch_size uses regular raw delete."""
         # Create a project with exactly 5 versions
         project = get(Project, slug="raw-equal-project")
-        versions = [get(Version, project=project, slug=f"raw-eq-{i}") for i in range(5)]
+        for i in range(5):
+            get(Version, project=project, slug=f"raw-eq-{i}")
 
         # Delete with a batch_size equal to the number of objects
         queryset = Version.objects.filter(slug__startswith="raw-eq-")
@@ -223,7 +235,8 @@ class TestRawDeleteInBatches(TestCase):
         """Test that a queryset larger than batch_size is raw deleted in batches."""
         # Create a project with 10 versions
         project = get(Project, slug="raw-large-project")
-        versions = [get(Version, project=project, slug=f"raw-large-{i}") for i in range(10)]
+        for i in range(10):
+            get(Version, project=project, slug=f"raw-large-{i}")
 
         # Delete with a batch_size smaller than the number of objects
         queryset = Version.objects.filter(slug__startswith="raw-large-")
@@ -235,7 +248,8 @@ class TestRawDeleteInBatches(TestCase):
         """Test raw deletion works correctly across multiple batches."""
         # Create a project with 25 versions
         project = get(Project, slug="raw-batch-project")
-        versions = [get(Version, project=project, slug=f"raw-batch-{i}") for i in range(25)]
+        for i in range(25):
+            get(Version, project=project, slug=f"raw-batch-{i}")
 
         # Delete with batch_size=7, requiring 4 batches (7, 7, 7, 4)
         queryset = Version.objects.filter(slug__startswith="raw-batch-")
@@ -247,7 +261,8 @@ class TestRawDeleteInBatches(TestCase):
         """Test raw deletion with batch_size=1 (edge case)."""
         # Create a project with 3 versions
         project = get(Project, slug="raw-single-project")
-        versions = [get(Version, project=project, slug=f"raw-single-{i}") for i in range(3)]
+        for i in range(3):
+            get(Version, project=project, slug=f"raw-single-{i}")
 
         queryset = Version.objects.filter(slug__startswith="raw-single-")
         raw_delete_in_batches(queryset, batch_size=1)
@@ -258,7 +273,8 @@ class TestRawDeleteInBatches(TestCase):
         """Test raw deleting with a limit smaller than total queryset count."""
         # Create a project with 20 versions
         project = get(Project, slug="raw-limit-project")
-        versions = [get(Version, project=project, slug=f"raw-limit-{i}") for i in range(20)]
+        for i in range(20):
+            get(Version, project=project, slug=f"raw-limit-{i}")
 
         # Delete only 10 versions with a limit
         queryset = Version.objects.filter(slug__startswith="raw-limit-")
@@ -271,7 +287,8 @@ class TestRawDeleteInBatches(TestCase):
         """Test raw deleting with a limit larger than total queryset count."""
         # Create a project with 5 versions
         project = get(Project, slug="raw-over-limit")
-        versions = [get(Version, project=project, slug=f"raw-over-{i}") for i in range(5)]
+        for i in range(5):
+            get(Version, project=project, slug=f"raw-over-{i}")
 
         # Set limit larger than actual count
         queryset = Version.objects.filter(slug__startswith="raw-over-")
@@ -284,7 +301,8 @@ class TestRawDeleteInBatches(TestCase):
         """Test raw deleting with a limit equal to the batch size."""
         # Create a project with 10 versions
         project = get(Project, slug="raw-equal-limit")
-        versions = [get(Version, project=project, slug=f"raw-eq-lim-{i}") for i in range(10)]
+        for i in range(10):
+            get(Version, project=project, slug=f"raw-eq-lim-{i}")
 
         # Set limit equal to batch_size
         queryset = Version.objects.filter(slug__startswith="raw-eq-lim-")
@@ -297,7 +315,8 @@ class TestRawDeleteInBatches(TestCase):
         """Test raw deleting with limit=1 (edge case)."""
         # Create a project with 5 versions
         project = get(Project, slug="raw-one-limit")
-        versions = [get(Version, project=project, slug=f"raw-one-{i}") for i in range(5)]
+        for i in range(5):
+            get(Version, project=project, slug=f"raw-one-{i}")
 
         # Set limit to 1
         queryset = Version.objects.filter(slug__startswith="raw-one-")
