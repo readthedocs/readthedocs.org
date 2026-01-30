@@ -737,30 +737,32 @@ class ServeRobotsTXT(SettingsOverrideObject):
 
 
 class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
-    """Serve llms.txt from the domain's root."""
+    """Serve llms.txt files from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
     # Extra cache tag to invalidate only this view if needed.
     project_cache_tag = "llms.txt"
 
-    def get(self, request):
+    def get(self, request, filename="llms.txt"):
         """
-        Serve custom user's defined ``/llms.txt``.
+        Serve custom user's defined ``/llms.txt`` or ``/llms-full.txt``.
 
-        If the user added a ``llms.txt`` in the "default version" of the
+        If the user added one of these files in the "default version" of the
         project, we serve it directly.
         """
         project = request.unresolved_domain.project
+        self.project_cache_tag = filename
 
-        # Use the ``llms.txt`` file from the default version configured
+        # Use the llms file from the default version configured
         version_slug = project.get_default_version()
-        version = project.versions.get(slug=version_slug)
+        version = get_object_or_404(project.versions, slug=version_slug)
+        self._llms_version = version
 
         no_serve_llms_txt = any(
             [
                 # If the default version is private or,
-                version.privacy_level == PRIVATE,
+                version.is_private,
                 # default version is not active or,
                 not version.active,
                 # default version is not built
@@ -782,10 +784,10 @@ class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
                 request=request,
                 project=project,
                 version=version,
-                filename="llms.txt",
+                filename=filename,
                 check_if_exists=True,
             )
-            log.info("Serving custom llms.txt file.")
+            log.info("Serving custom llms file.", filename=filename)
             return response
         except StorageFileNotFound:
             # If the file doesn't exist, return a 404
@@ -797,14 +799,13 @@ class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
 
     def _get_version(self):
         # Method used by the CDNCacheTagsMixin class.
-        # This view isn't explicitly mapped to a version,
-        # but it can be when we serve a custom llms.txt file.
-        # TODO: refactor how we set cache tags to avoid this.
-        return None
+        version = getattr(self, "_llms_version", None)
+        if version:
+            return version
 
-
-class ServeLLMSTXT(SettingsOverrideObject):
-    _default_class = ServeLLMSTXTBase
+        project = self._get_project()
+        version_slug = project.get_default_version()
+        return project.versions.filter(slug=version_slug).first()
 
 
 class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):

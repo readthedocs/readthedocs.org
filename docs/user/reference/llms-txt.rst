@@ -18,6 +18,9 @@ This is because the ``llms.txt`` file is served at the top-level of your domain,
 so we must choose a version to find the file in.
 The **default version** is the best place to look for it.
 
+If you also provide a ``llms-full.txt`` file, Read the Docs will serve it from
+``https://your-project.readthedocs.io/llms-full.txt`` using the same rules.
+
 To use this feature:
 
 1. Create a ``llms.txt`` file in your documentation source
@@ -64,7 +67,7 @@ This gives you more control over which version serves the file.
 .. _llms.txt: https://llmstxt.org/
 .. _html_extra_path: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_extra_path
 .. _docs_dir: https://www.mkdocs.org/user-guide/configuration/#docs_dir
-.. _sphinx-llm: https://github.com/jacobtomlinson/sphinx-llm
+.. _sphinx-llm: https://pypi.org/project/sphinx-llm/
 .. _mkdocs-llmstxt: https://github.com/pawamoy/mkdocs-llmstxt
 
 .. seealso::

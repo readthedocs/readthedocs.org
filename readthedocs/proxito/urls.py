@@ -47,7 +47,7 @@ from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.hosting import ReadTheDocsConfigJson
 from readthedocs.proxito.views.serve import ServeDocs
 from readthedocs.proxito.views.serve import ServeError404
-from readthedocs.proxito.views.serve import ServeLLMSTXT
+from readthedocs.proxito.views.serve import ServeLLMSTXTBase
 from readthedocs.proxito.views.serve import ServePageRedirect
 from readthedocs.proxito.views.serve import ServeRobotsTXT
 from readthedocs.proxito.views.serve import ServeSitemapXML
@@ -134,7 +134,13 @@ core_urls = [
         name="proxito_404_handler",
     ),
     re_path(r"robots\.txt$", ServeRobotsTXT.as_view(), name="robots_txt"),
-    re_path(r"llms\.txt$", ServeLLMSTXT.as_view(), name="llms_txt"),
+    re_path(r"llms\.txt$", ServeLLMSTXTBase.as_view(), name="llms_txt"),
+    re_path(
+        r"llms-full\.txt$",
+        ServeLLMSTXTBase.as_view(),
+        {"filename": "llms-full.txt"},
+        name="llms_full_txt",
+    ),
     re_path(r"sitemap\.xml$", ServeSitemapXML.as_view(), name="sitemap_xml"),
 ]
 

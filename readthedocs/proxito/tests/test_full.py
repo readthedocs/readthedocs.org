@@ -751,9 +751,7 @@ class TestDocServingBackends(BaseDocServing):
             "/en/latest/..\\\\../someproject/en/target/awesome.html",
         ]
         for _path in relative_paths:
-            resp = self.client.get(
-                _path, headers={"host": "project.dev.readthedocs.io"}
-            )
+            resp = self.client.get(_path, headers={"host": "project.dev.readthedocs.io"})
             self.assertEqual(resp.status_code, 400)
 
     def test_track_html_files_only(self):
@@ -768,9 +766,7 @@ class TestDocServingBackends(BaseDocServing):
         url = "/en/latest/awesome.html"
         host = "project.dev.readthedocs.io"
         with override_settings(
-            RTD_DEFAULT_FEATURES=dict(
-                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
-            )
+            RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()])
         ):
             resp = self.client.get(url, headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
@@ -783,17 +779,13 @@ class TestDocServingBackends(BaseDocServing):
         self.assertEqual(log.action, AuditLog.PAGEVIEW)
 
         with override_settings(
-            RTD_DEFAULT_FEATURES=dict(
-                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
-            )
+            RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()])
         ):
             resp = self.client.get("/en/latest/awesome.js", headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
 
         with override_settings(
-            RTD_DEFAULT_FEATURES=dict(
-                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
-            )
+            RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()])
         ):
             resp = self.client.get("/en/latest/awesome.css", headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
@@ -810,9 +802,7 @@ class TestDocServingBackends(BaseDocServing):
         url = "/_/downloads/en/latest/pdf/"
         host = "project.dev.readthedocs.io"
         with override_settings(
-            RTD_DEFAULT_FEATURES=dict(
-                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
-            )
+            RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()])
         ):
             resp = self.client.get(url, headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
@@ -925,9 +915,7 @@ class TestAdditionalDocViews(BaseDocServing):
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_private_version(self, storage_exists):
         storage_exists.return_value = False
-        self.project.versions.update(
-            active=True, built=True, privacy_level=constants.PRIVATE
-        )
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
@@ -944,9 +932,7 @@ class TestAdditionalDocViews(BaseDocServing):
         )
 
     def test_custom_robots_txt_private_version(self):
-        self.project.versions.update(
-            active=True, built=True, privacy_level=constants.PRIVATE
-        )
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
@@ -955,12 +941,21 @@ class TestAdditionalDocViews(BaseDocServing):
     def test_custom_llms_txt(self):
         """Test serving a custom llms.txt file from the default version."""
         self.project.versions.update(active=True, built=True)
-        response = self.client.get(
-            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
-        )
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
         self.assertEqual(
             response["x-accel-redirect"],
             "/proxito/media/html/project/latest/llms.txt",
+        )
+
+    def test_custom_llms_full_txt(self):
+        """Test serving a custom llms-full.txt file from the default version."""
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("llms_full_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(
+            response["x-accel-redirect"],
+            "/proxito/media/html/project/latest/llms-full.txt",
         )
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
@@ -968,35 +963,35 @@ class TestAdditionalDocViews(BaseDocServing):
         """Test that 404 is returned when llms.txt doesn't exist."""
         storage_exists.return_value = False
         self.project.versions.update(active=True, built=True)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_llms_full_txt_not_found(self, storage_exists):
+        """Test that 404 is returned when llms-full.txt doesn't exist."""
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True)
         response = self.client.get(
-            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
+            reverse("llms_full_txt"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 404)
 
     def test_llms_txt_private_version(self):
         """Test that 404 is returned when default version is private."""
-        self.project.versions.update(
-            active=True, built=True, privacy_level=constants.PRIVATE
-        )
-        response = self.client.get(
-            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
-        )
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
         self.assertEqual(response.status_code, 404)
 
     def test_llms_txt_inactive_version(self):
         """Test that 404 is returned when default version is inactive."""
         self.project.versions.update(active=False, built=True)
-        response = self.client.get(
-            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
-        )
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
         self.assertEqual(response.status_code, 404)
 
     def test_llms_txt_unbuilt_version(self):
         """Test that 404 is returned when default version is not built."""
         self.project.versions.update(active=True, built=False)
-        response = self.client.get(
-            reverse("llms_txt"), headers={"host": "project.readthedocs.io"}
-        )
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
         self.assertEqual(response.status_code, 404)
 
     def test_directory_indexes(self):
@@ -1377,9 +1372,7 @@ class TestAdditionalDocViews(BaseDocServing):
         storage_open.assert_not_called()
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_404_all_paths_checked_default_version_different_doc_type(
-        self, storage_open
-    ):
+    def test_404_all_paths_checked_default_version_different_doc_type(self, storage_open):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
@@ -1552,9 +1545,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.context["versions"][1]["changefreq"], "daily")
 
     def test_sitemap_all_private_versions(self):
-        self.project.versions.update(
-            active=True, built=True, privacy_level=constants.PRIVATE
-        )
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
         )
@@ -1700,9 +1691,7 @@ class TestCDNCache(BaseDocServing):
         )
         url = "/en/latest/install.html"
         resp = self.client.get(url, secure=True, headers={"host": host})
-        self.assertEqual(
-            resp["Location"], f"https://{host}/en/latest/tutorial/install.html", url
-        )
+        self.assertEqual(resp["Location"], f"https://{host}/en/latest/tutorial/install.html", url)
         self.assertEqual(resp.headers["CDN-Cache-Control"], expected_value, url)
         self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest", url)
 
@@ -1723,9 +1712,7 @@ class TestCDNCache(BaseDocServing):
         for url in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
             self.assertEqual(resp.headers["CDN-Cache-Control"], expected_value, url)
-            self.assertEqual(
-                resp.headers["Cache-Tag"], "subproject,subproject:latest", url
-            )
+            self.assertEqual(resp.headers["Cache-Tag"], "subproject,subproject:latest", url)
 
         # Page & system redirects are always cached.
         # Authz is done on the redirected URL.
@@ -1762,14 +1749,10 @@ class TestCDNCache(BaseDocServing):
         self.project.versions.update(privacy_level=PRIVATE)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_project(
-            expected_value="private", host=self.domain.domain
-        )
+        self._test_cache_control_header_project(expected_value="private", host=self.domain.domain)
 
         # HTTPS redirects can always be cached.
-        resp = self.client.get(
-            "/en/latest/", secure=False, headers={"host": self.domain.domain}
-        )
+        resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
@@ -1782,14 +1765,10 @@ class TestCDNCache(BaseDocServing):
         self.project.versions.update(privacy_level=PUBLIC)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_project(
-            expected_value="public", host=self.domain.domain
-        )
+        self._test_cache_control_header_project(expected_value="public", host=self.domain.domain)
 
         # HTTPS redirect respects the privacy level of the version.
-        resp = self.client.get(
-            "/en/latest/", secure=False, headers={"host": self.domain.domain}
-        )
+        resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest")
@@ -1827,9 +1806,7 @@ class TestCDNCache(BaseDocServing):
         self.subproject.versions.update(privacy_level=PUBLIC)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_subproject(
-            expected_value="public", host=self.domain.domain
-        )
+        self._test_cache_control_header_subproject(expected_value="public", host=self.domain.domain)
 
         # HTTPS redirects can always be cached.
         resp = self.client.get(
