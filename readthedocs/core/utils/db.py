@@ -45,7 +45,7 @@ def delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> tupl
     return total_deleted, dict(deleted_counter)
 
 
-def raw_delete_in_batches(queryset, batch_size=50, limit: int | None = None):
+def raw_delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> int:
     """
     Raw delete a queryset in batches to avoid long transactions or big queries.
 
@@ -60,16 +60,19 @@ def raw_delete_in_batches(queryset, batch_size=50, limit: int | None = None):
        signals, and won't cascade delete related objects.
        Use it only if you are sure there are no related objects
        that need to be deleted/updated.
+
+    :return: Number of deleted records
     """
     # Don't use batch deletion if the number of records
     # is smaller or equal to the batch size.
     count = queryset.count()
     if count == 0:
-        return
+        return count
     if count <= batch_size:
         queryset._raw_delete(queryset.db)
-        return
+        return count
 
+    total_deleted = 0
     model = queryset.model
     # We can't use a limit or offset with .raw_delete,
     # so we first extract the IDs and perform the deletion in anothr query.
@@ -78,4 +81,6 @@ def raw_delete_in_batches(queryset, batch_size=50, limit: int | None = None):
         all_pks = all_pks[:limit]
     for batch in batched(all_pks, batch_size):
         qs = model.objects.filter(pk__in=batch)
+        total_deleted += qs.count()
         qs._raw_delete(qs.db)
+    return total_deleted
