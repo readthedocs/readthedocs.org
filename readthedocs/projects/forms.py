@@ -434,6 +434,7 @@ class UpdateProjectForm(
             "versioning_scheme",
             "default_branch",
             "readthedocs_yaml_path",
+            "git_checkout_command",
             "search_indexing_enabled",
             "n_consecutive_failed_builds",
             # Meta data
@@ -454,10 +455,28 @@ class UpdateProjectForm(
         help_text=_("Short description of this project"),
     )
 
+    # Custom field for git_checkout_command to provide help text
+    git_checkout_command = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 4}),
+        help_text=_(
+            "Custom Git checkout commands as a JSON array. "
+            "Example: "
+            '[\"git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .\", '
+            '"git checkout $READTHEDOCS_GIT_IDENTIFIER\"]'
+        ),
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.had_search_disabled = not self.instance.search_indexing_enabled
+
+        # Convert git_checkout_command from JSON to string for display
+        if self.instance.git_checkout_command:
+            self.fields["git_checkout_command"].initial = json.dumps(
+                self.instance.git_checkout_command, indent=2
+            )
 
         # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
@@ -570,6 +589,33 @@ class UpdateProjectForm(
                     ),
                 )
         return tags
+
+    def clean_git_checkout_command(self):
+        """Parse and validate git_checkout_command as JSON."""
+        value = self.cleaned_data.get("git_checkout_command", "")
+        if not value or not value.strip():
+            return None
+        
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError as e:
+            raise forms.ValidationError(
+                _("Invalid JSON format: %(error)s") % {"error": str(e)}
+            )
+        
+        # Validate it's a list
+        if not isinstance(parsed, list):
+            raise forms.ValidationError(
+                _("Git checkout command must be a JSON array of strings.")
+            )
+        
+        # Validate all items are strings
+        if not all(isinstance(item, str) for item in parsed):
+            raise forms.ValidationError(
+                _("All items in the git checkout command array must be strings.")
+            )
+        
+        return parsed
 
     def save(self, commit=True):
         instance = super().save(commit)
