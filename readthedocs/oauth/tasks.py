@@ -584,6 +584,7 @@ class GitHubAppWebhookHandler:
                 polymorphic_ctype__model="pushautomationrule"
             )
             if push_rules.exists():
+                triggered = False
                 for rule in push_rules.iterator():
                     if rule.match(webhook_data=self.data):
                         log.info(
@@ -592,7 +593,14 @@ class GitHubAppWebhookHandler:
                             rule_id=rule.pk,
                         )
                         for version in project.versions_from_name(version_name, version_type):
+                            triggered = True
                             rule.run(version)
+
+                if not triggered:
+                    log.info(
+                        "No push automation rule matched, skipping build.",
+                        project_slug=project.slug,
+                    )
             else:
                 build_versions_from_names(
                     project, [VersionInfo(name=version_name, type=version_type)]
