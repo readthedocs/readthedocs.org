@@ -49,6 +49,8 @@ from readthedocs.projects.views.private import ProjectUsersList
 from readthedocs.projects.views.private import ProjectVersionCreate
 from readthedocs.projects.views.private import ProjectVersionDeleteHTML
 from readthedocs.projects.views.private import ProjectVersionDetail
+from readthedocs.projects.views.private import PushAutomationRuleCreate
+from readthedocs.projects.views.private import PushAutomationRuleUpdate
 from readthedocs.projects.views.private import RegexAutomationRuleCreate
 from readthedocs.projects.views.private import RegexAutomationRuleUpdate
 from readthedocs.projects.views.private import SearchAnalytics
@@ -381,6 +383,16 @@ automation_rule_urls = [
         r"^(?P<project_slug>[-\w]+)/rules/regex/(?P<automation_rule_pk>[-\w]+)/$",
         RegexAutomationRuleUpdate.as_view(),
         name="projects_automation_rule_regex_edit",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/rules/push/create/$",
+        PushAutomationRuleCreate.as_view(),
+        name="projects_automation_rule_push_create",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/rules/push/(?P<automation_rule_pk>[-\w]+)/$",
+        PushAutomationRuleUpdate.as_view(),
+        name="projects_automation_rule_push_edit",
     ),
 ]
 

@@ -17,6 +17,7 @@ from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BRANCH_TEXT
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.constants import TAG_TEXT
+from readthedocs.builds.models import PushAutomationRule
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
@@ -206,6 +207,89 @@ class RegexAutomationRuleForm(forms.ModelForm):
             raise forms.ValidationError(
                 _("Custom match should not be empty."),
             )
+
+        try:
+            re.compile(match_arg)
+        except Exception:
+            raise forms.ValidationError(
+                _("Invalid Python regular expression."),
+            )
+        return match_arg
+
+    def clean_project(self):
+        return self.project
+
+
+class PushAutomationRuleForm(forms.ModelForm):
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+    match_arg = forms.CharField(
+        label="Custom match",
+        help_text=_(
+            textwrap.dedent(
+                """
+            A regular expression to match file paths.
+            <a href="https://docs.readthedocs.io/page/automation-rules.html#push-rules">
+              Check the documentation for valid patterns.
+            </a>
+            """
+            )
+        ),
+        required=True,
+    )
+
+    class Meta:
+        model = PushAutomationRule
+        fields = [
+            "project",
+            "description",
+            # "predefined_match_arg",
+            "match_arg",
+            "version_type",
+            "action",
+        ]
+        # Don't pollute the UI with help texts
+        help_texts = {
+            "version_type": "",
+            "action": "",
+        }
+        # labels = {
+        #     "predefined_match_arg": "Match",
+        # }
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+        # Only list supported types
+        self.fields["version_type"].choices = [
+            (None, "-" * 9),
+            (BRANCH, BRANCH_TEXT),
+            (TAG, TAG_TEXT),
+        ]
+
+        # Only list supported actions (push rules only support trigger build)
+        self.fields["action"].choices = [
+            (None, "-" * 9),
+            (VersionAutomationRule.TRIGGER_BUILD_ACTION, "Trigger build"),
+        ]
+
+        # if not self.instance.pk:
+        #     self.initial["predefined_match_arg"] = ALL_VERSIONS
+        # # Allow users to start from the pattern of the predefined match
+        # # if they want to use a custom one.
+        # if self.instance.pk and self.instance.predefined_match_arg:
+        #     self.initial["match_arg"] = self.instance.get_match_arg()
+
+    def clean_match_arg(self):
+        """Check that a custom match was given if a predefined match wasn't used."""
+        match_arg = self.cleaned_data["match_arg"]
+        # predefined_match = self.cleaned_data["predefined_match_arg"]
+        # if predefined_match:
+        #     match_arg = ""
+        # if not predefined_match and not match_arg:
+        #     raise forms.ValidationError(
+        #         _("Custom match should not be empty."),
+        #     )
 
         try:
             re.compile(match_arg)

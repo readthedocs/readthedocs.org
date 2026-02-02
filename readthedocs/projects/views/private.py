@@ -29,9 +29,11 @@ from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.forms import PushAutomationRuleForm
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import AutomationRuleMatch
+from readthedocs.builds.models import PushAutomationRule
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
@@ -1112,6 +1114,19 @@ class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
 
 class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     success_message = _("Automation rule updated")
+
+
+class PushAutomationRuleMixin(AutomationRuleMixin):
+    model = PushAutomationRule
+    form_class = PushAutomationRuleForm
+
+
+class PushAutomationRuleCreate(PushAutomationRuleMixin, CreateView):
+    success_message = _("Push automation rule created")
+
+
+class PushAutomationRuleUpdate(PushAutomationRuleMixin, UpdateView):
+    success_message = _("Push automation rule updated")
 
 
 class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
