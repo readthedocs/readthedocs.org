@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
@@ -249,9 +250,12 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
         url = reverse("projects_integrations", args=[self.instance.slug])
 
         if not has_supported_integration:
-            msg = _(
-                "To build from pull requests you need a "
-                f'GitHub or GitLab <a href="{url}">integration</a>.'
+            msg = format_html(
+                _(
+                    "To build from pull requests you need a "
+                    'GitHub or GitLab <a href="{url}">integration</a>.'
+                ),
+                url=url,
             )
 
         if has_supported_integration and not can_build_external_versions:
@@ -261,10 +265,13 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
                     "projects_integrations_detail",
                     args=[self.instance.slug, integrations[0].pk],
                 )
-            msg = _(
-                "To build from pull requests your repository's webhook "
-                "needs to send pull request events. "
-                f'Try to <a href="{url}">resync your integration</a>.'
+            msg = format_html(
+                _(
+                    "To build from pull requests your repository's webhook "
+                    "needs to send pull request events. "
+                    'Try to <a href="{url}">resync your integration</a>.'
+                ),
+                url=url,
             )
 
         if msg:
