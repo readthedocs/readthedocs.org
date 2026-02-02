@@ -40,6 +40,7 @@ def delete_old_build_data(limit=None):
     # won't be sent, this is fine as we don't have any special logic
     # for the BuildData model, and doesn't have related objects.
     query = BuildData.objects.filter(created__lt=days_ago)
+    # TODO: once the limit is removed, we can use _raw_delete directly.
     if limit:
         raw_delete_in_batches(query, limit=limit)
     else:
