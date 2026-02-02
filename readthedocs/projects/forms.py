@@ -253,9 +253,9 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
             msg = format_html(
                 _(
                     "To build from pull requests you need a "
-                    'GitHub or GitLab <a href="{}">integration</a>.'
+                    'GitHub or GitLab <a href="{url}">integration</a>.'
                 ),
-                url,
+                url=url,
             )
 
         if has_supported_integration and not can_build_external_versions:
@@ -269,9 +269,9 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
                 _(
                     "To build from pull requests your repository's webhook "
                     "needs to send pull request events. "
-                    'Try to <a href="{}">resync your integration</a>.'
+                    'Try to <a href="{url}">resync your integration</a>.'
                 ),
-                url,
+                url=url,
             )
 
         if msg:
