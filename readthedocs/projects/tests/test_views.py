@@ -374,3 +374,116 @@ class TestProjectEditView(TestCase):
         self.project.refresh_from_db()
         assert self.project.search_indexing_enabled
         index_project.delay.assert_called_once_with(project_slug=self.project.slug)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestGitCheckoutCommandField(TestCase):
+    """Tests for the git_checkout_command form field."""
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user])
+        self.url = reverse("projects_edit", args=[self.project.slug])
+        self.client.force_login(self.user)
+
+    def test_git_checkout_command_field_appears_in_form(self):
+        """Test that git_checkout_command field is present in the form."""
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("git_checkout_command", resp.context["form"].fields)
+
+    def test_git_checkout_command_save_valid_json(self):
+        """Test that valid JSON can be saved to git_checkout_command."""
+        commands = [
+            "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+            "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+        ]
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+            "git_checkout_command": str(commands),  # As JSON string
+        }
+        
+        # Use json.dumps to properly format as JSON string
+        import json
+        data["git_checkout_command"] = json.dumps(commands)
+        
+        resp = self.client.post(self.url, data=data)
+        self.assertEqual(resp.status_code, 302)
+        
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.git_checkout_command, commands)
+
+    def test_git_checkout_command_empty_value(self):
+        """Test that empty value sets git_checkout_command to None."""
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+            "git_checkout_command": "",
+        }
+        
+        resp = self.client.post(self.url, data=data)
+        self.assertEqual(resp.status_code, 302)
+        
+        self.project.refresh_from_db()
+        self.assertIsNone(self.project.git_checkout_command)
+
+    def test_git_checkout_command_invalid_json(self):
+        """Test that invalid JSON returns a validation error."""
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+            "git_checkout_command": "not valid json",
+        }
+        
+        resp = self.client.post(self.url, data=data)
+        self.assertEqual(resp.status_code, 200)  # Form validation error
+        form = resp.context["form"]
+        self.assertFalse(form.is_valid())
+        self.assertIn("git_checkout_command", form.errors)
+
+    def test_git_checkout_command_not_array(self):
+        """Test that non-array JSON returns a validation error."""
+        import json
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+            "git_checkout_command": json.dumps({"key": "value"}),
+        }
+        
+        resp = self.client.post(self.url, data=data)
+        self.assertEqual(resp.status_code, 200)  # Form validation error
+        form = resp.context["form"]
+        self.assertFalse(form.is_valid())
+        self.assertIn("git_checkout_command", form.errors)
+
+    def test_git_checkout_command_display_existing_value(self):
+        """Test that existing git_checkout_command is displayed as formatted JSON."""
+        import json
+        commands = [
+            "git clone --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+            "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+        ]
+        self.project.git_checkout_command = commands
+        self.project.save()
+        
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        
+        # The field should have the initial value as formatted JSON
+        field = resp.context["form"].fields["git_checkout_command"]
+        expected_json = json.dumps(commands, indent=2)
+        self.assertEqual(field.initial, expected_json)
+
