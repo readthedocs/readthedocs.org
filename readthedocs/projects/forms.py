@@ -463,8 +463,8 @@ class UpdateProjectForm(
                 "rows": 5,
                 "placeholder": json.dumps(
                     [
-                        "git clone --no-checkout --no-tag --filter=blob:none --depth 1 https://github.com/user/repo.git",
-                        "git checkout origin/branch",
+                        "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL",
+                        "git checkout $READTHEDOCS_GIT_IDENTIFIER",
                         "git submodule update --init --recursive",
                     ],
                     indent=4,
