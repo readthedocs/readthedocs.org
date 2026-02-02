@@ -5,6 +5,7 @@ from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
+import json
 
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
@@ -404,11 +405,9 @@ class TestGitCheckoutCommandField(TestCase):
             "language": self.project.language,
             "default_version": self.project.default_version,
             "versioning_scheme": self.project.versioning_scheme,
-            "git_checkout_command": str(commands),  # As JSON string
         }
         
         # Use json.dumps to properly format as JSON string
-        import json
         data["git_checkout_command"] = json.dumps(commands)
         
         resp = self.client.post(self.url, data=data)
@@ -453,7 +452,6 @@ class TestGitCheckoutCommandField(TestCase):
 
     def test_git_checkout_command_not_array(self):
         """Test that non-array JSON returns a validation error."""
-        import json
         data = {
             "name": self.project.name,
             "repo": self.project.repo,
@@ -471,7 +469,6 @@ class TestGitCheckoutCommandField(TestCase):
 
     def test_git_checkout_command_display_existing_value(self):
         """Test that existing git_checkout_command is displayed as formatted JSON."""
-        import json
         commands = [
             "git clone --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
             "git checkout $READTHEDOCS_GIT_IDENTIFIER"
