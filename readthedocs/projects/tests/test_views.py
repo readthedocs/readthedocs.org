@@ -1,11 +1,12 @@
+import json
+from unittest import mock
+
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
-from unittest import mock
 from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
-import json
 
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation

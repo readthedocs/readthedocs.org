@@ -460,10 +460,10 @@ class UpdateProjectForm(
         required=False,
         widget=forms.Textarea(attrs={"rows": 4}),
         help_text=_(
-            "Custom Git checkout commands as a JSON array. "
-            "Example: "
-            '[\"git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .\", '
-            '"git checkout $READTHEDOCS_GIT_IDENTIFIER\"]'
+            'Custom Git checkout commands as a JSON array. '
+            'Example: '
+            '["git clone --no-checkout --no-tag --filter=blob:none --depth 1 '
+            '$READTHEDOCS_GIT_CLONE_URL .", "git checkout $READTHEDOCS_GIT_IDENTIFIER"]'
         ),
     )
 
