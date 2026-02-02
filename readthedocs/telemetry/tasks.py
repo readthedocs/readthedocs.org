@@ -30,7 +30,7 @@ def delete_old_build_data(limit=None):
     This is intended to run from a periodic task daily.
 
     NOTE: the logic of this task could be improved to keep longer data we care
-          more (eg. active projects ) and remove data we don't (eg. builds from spam projects)
+          more (eg. active projects) and remove data we don't (eg. builds from spam projects)
     """
     retention_days = settings.RTD_TELEMETRY_DATA_RETENTION_DAYS
     days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
