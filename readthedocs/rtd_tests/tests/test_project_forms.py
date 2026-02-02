@@ -637,11 +637,11 @@ class TestProjectPrevalidationForms(TestCase):
     def test_form_prevalidation_html_in_error_message(self):
         """Test that HTML in error message is marked as safe."""
         form_auto = ProjectAutomaticForm(user=self.user_email)
-        
+
         # Capture the RichValidationError to inspect the message
         with self.assertRaises(RichValidationError) as cm:
             form_auto.clean_prevalidation()
-        
+
         # The message should be a SafeString to allow HTML rendering
         error_message = cm.exception.messages[0]
         self.assertIsInstance(error_message, SafeString)
