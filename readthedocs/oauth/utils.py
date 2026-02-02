@@ -79,3 +79,19 @@ def is_access_revoked(account):
     if resp.status_code == 401:
         return True
     return False
+
+
+def get_changed_files_from_webhook(data):
+    """
+    Return all changed files (added, modified, removed) from a push event payload.
+
+    :return: List of file paths
+    """
+    changed_files = set()
+    commits = data.get("commits", [])
+    for commit in commits:
+        changed_files.update(commit.get("added", []))
+        changed_files.update(commit.get("modified", []))
+        changed_files.update(commit.get("removed", []))
+
+    return list(changed_files)

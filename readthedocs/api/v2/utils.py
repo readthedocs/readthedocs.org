@@ -228,7 +228,7 @@ def get_deleted_active_versions(project, tags_data, branches_data):
     return set(to_delete_qs.values_list("slug", flat=True))
 
 
-def run_automation_rules(project, added_versions, deleted_active_versions):
+def run_version_automation_rules(project, added_versions, deleted_active_versions):
     """
     Runs the automation rules on each version.
 
@@ -249,9 +249,12 @@ def run_automation_rules(project, added_versions, deleted_active_versions):
     ]
     for versions_slug, allowed_actions in actions:
         versions = project.versions.filter(slug__in=versions_slug)
-        rules = project.automation_rules.filter(action__in=allowed_actions)
+        rules = project.automation_rules.filter(action__in=allowed_actions).exclude(
+            polymorphic_ctype__model="pushautomationrule"
+        )
         for version, rule in itertools.product(versions, rules):
-            rule.run(version)
+            if rule.match(version):
+                rule.run(version)
 
 
 def normalize_build_command(command, project_slug, version_slug):
