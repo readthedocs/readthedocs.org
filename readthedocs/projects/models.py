@@ -882,6 +882,10 @@ class Project(models.Model):
             return self.custom_prefix
         return None
 
+    @property
+    def is_public(self):
+        return self.privacy_level == PUBLIC
+
     @cached_property
     def subproject_prefix(self):
         """
