@@ -345,10 +345,13 @@ class ProjectAutomaticForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
         if not self.user_has_connected_account:
             url = reverse("socialaccount_connections")
             raise RichValidationError(
-                _(
-                    f"You must first <a href='{url}'>add a connected service "
-                    f"to your account</a> to enable automatic configuration of "
-                    f"repositories."
+                format_html(
+                    _(
+                        "You must first <a href='{url}'>add a connected service "
+                        "to your account</a> to enable automatic configuration of "
+                        "repositories."
+                    ),
+                    url=url,
                 ),
                 header=_("No connected services found"),
             )
