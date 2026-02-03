@@ -831,7 +831,7 @@ class Build(models.Model):
         self._readthedocs_yaml_config_changed = True
 
     def save(self, *args, **kwargs):  # noqa
-        if self._readthedocs_yaml_config_changed:
+        if self._readthedocs_yaml_config_changed and self._readthedocs_yaml_config is not None:
             build_config, _ = BuildConfig.objects.get_or_create(data=self._readthedocs_yaml_config)
             self.readthedocs_yaml_config = build_config
             log.warning(
