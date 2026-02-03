@@ -300,17 +300,17 @@ class Version(TimeStampedModel):
         :returns: The configuration used in the last successful build.
         :rtype: dict
         """
-        last_build = (
+        last_successful_build_config = (
             self.builds.filter(
                 state=BUILD_STATE_FINISHED,
                 success=True,
             )
             .order_by("-date")
-            .only("readthedocs_yaml_config")
+            .values_list("readthedocs_yaml_config__data", flat=True)
             .first()
         )
-        if last_build and last_build.readthedocs_yaml_config:
-            return last_build.readthedocs_yaml_config.data
+        if last_successful_build_config:
+            return last_successful_build_config
         return None
 
     @property
