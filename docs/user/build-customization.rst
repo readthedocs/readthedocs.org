@@ -177,7 +177,7 @@ This is useful for advanced workflows like sparse checkouts or custom cloning st
 
 To enable this feature, go to your project's :term:`dashboard` and update
 :menuselection:`Admin --> Advanced Settings --> Custom Git checkout commands`.
-The value must be a JSON array of strings, where each string is a command to execute.
+Enter one command per line.
 
 .. note::
 
@@ -189,15 +189,13 @@ You can use :doc:`pre-defined environment variables </reference/environment-vari
 such as :envvar:`READTHEDOCS_GIT_CLONE_URL`, :envvar:`READTHEDOCS_GIT_IDENTIFIER`,
 and :envvar:`READTHEDOCS_REPOSITORY_PATH`.
 
-.. code-block:: json
-   :caption: Example of custom Git checkout commands
+.. code-block:: text
+  :caption: Example of custom Git checkout commands
 
-   [
-     "git clone --no-checkout --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
-     "git sparse-checkout init --cone",
-     "git sparse-checkout set docs",
-     "git checkout $READTHEDOCS_GIT_IDENTIFIER"
-   ]
+  git clone --no-checkout --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .
+  git sparse-checkout init --cone
+  git sparse-checkout set docs
+  git checkout $READTHEDOCS_GIT_IDENTIFIER
 
 .. warning::
 
