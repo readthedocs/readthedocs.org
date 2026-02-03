@@ -208,13 +208,21 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             clean_build(self.data.version)
 
     def execute(self):
+        env_vars = {
+            "GIT_TERMINAL_PROMPT": "0",
+            "READTHEDOCS_GIT_CLONE_TOKEN": self.data.project.clone_token,
+        }
+        if settings.ALLOW_PRIVATE_REPOS:
+            # Set GIT_SSH_COMMAND to use ssh with options that disable host key checking
+            # -o StrictHostKeyChecking=no: Don't prompt for host verification
+            # -o UserKnownHostsFile=/dev/null: Don't save host keys
+            env_vars["GIT_SSH_COMMAND"] = (
+                "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+            )
         environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
-            environment={
-                "GIT_TERMINAL_PROMPT": "0",
-                "READTHEDOCS_GIT_CLONE_TOKEN": self.data.project.clone_token,
-            },
+            environment=env_vars,
             # Pass the api_client so that all environments have it.
             # This is needed for ``readthedocs-corporate``.
             api_client=self.data.api_client,
