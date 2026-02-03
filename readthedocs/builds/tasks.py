@@ -382,7 +382,7 @@ def send_build_status(build_pk, commit, status):
     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.filter(pk=build_pk).first()
-    if not build:
+    if not build or not build.version:
         return
 
     structlog.contextvars.bind_contextvars(
