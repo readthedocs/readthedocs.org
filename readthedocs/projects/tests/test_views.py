@@ -6,7 +6,6 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
-from readthedocs.builds.models import Version
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.constants import GITHUB_APP
@@ -378,79 +377,30 @@ class TestProjectEditView(TestCase):
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
-class TestProjectDetailViewWithInvalidDefaultVersion(TestCase):
-    """Test that ProjectDetailView handles projects without valid default versions."""
+class TestProjectDetailView(TestCase):
 
     def setUp(self):
         self.user = get(User)
-        self.project = get(Project, users=[self.user], default_version="stable")
-        # Intentionally not creating a version with slug "stable"
-        # to simulate the case where the default_version doesn't exist
+        self.project = get(Project, users=[self.user], privacy_level=PUBLIC)
+
+    def test_view(self):
+        url = reverse("projects_detail", args=[self.project.slug])
+        resp = self.client.get(url)
+        assert resp.status_code == 200
+
+        assert "badge_url" in resp.context
+        assert "site_url" in resp.context
 
     def test_project_detail_view_no_valid_default_version(self):
-        """
-        Test that the project detail view doesn't error when a project's
-        default version doesn't exist.
+        self.project.default_version = "404"
+        self.project.save()
 
-        This tests the fix for the Sentry issue where accessing a project
-        that has a default_version set (e.g., "stable") but no actual
-        version with that slug would cause an error when trying to resolve
-        the version for the badge URL and site URL.
-        """
-        self.client.force_login(self.user)
         url = reverse("projects_detail", args=[self.project.slug])
         resp = self.client.get(url)
 
         # Should return 200 and not error
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
 
         # badge_url and site_url should not be in context when default version doesn't exist
-        self.assertNotIn("badge_url", resp.context)
-        self.assertNotIn("site_url", resp.context)
-
-    def test_project_detail_view_with_valid_default_version(self):
-        """
-        Test that the project detail view works correctly when a valid
-        default version exists.
-        """
-        # Create the stable version that matches the project's default_version
-        version = get(
-            Version,
-            project=self.project,
-            slug="stable",
-            active=True,
-        )
-
-        self.client.force_login(self.user)
-        url = reverse("projects_detail", args=[self.project.slug])
-        resp = self.client.get(url)
-
-        # Should return 200
-        self.assertEqual(resp.status_code, 200)
-
-        # badge_url and site_url should be in context when default version exists
-        self.assertIn("badge_url", resp.context)
-        self.assertIn("site_url", resp.context)
-
-    def test_project_detail_view_with_latest_as_default_no_latest_version(self):
-        """
-        Test that the project detail view doesn't error when default_version
-        is "latest" but no actual "latest" version exists.
-
-        This is another edge case where get_default_version() returns "latest"
-        but there's no version object with that slug.
-        """
-        # Create a project with default_version="latest"
-        project = get(Project, users=[self.user], default_version="latest")
-        # Intentionally not creating a version with slug "latest"
-
-        self.client.force_login(self.user)
-        url = reverse("projects_detail", args=[project.slug])
-        resp = self.client.get(url)
-
-        # Should return 200 and not error
-        self.assertEqual(resp.status_code, 200)
-
-        # badge_url and site_url should not be in context when default version doesn't exist
-        self.assertNotIn("badge_url", resp.context)
-        self.assertNotIn("site_url", resp.context)
+        assert "badge_url" not in resp.context
+        assert "site_url" not in resp.context
