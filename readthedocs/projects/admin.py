@@ -21,11 +21,11 @@ from .models import Domain
 from .models import EmailHook
 from .models import EnvironmentVariable
 from .models import Feature
+from .models import Group
 from .models import HTMLFile
 from .models import HTTPHeader
 from .models import ImportedFile
 from .models import Project
-from .models import ProjectGroup
 from .models import ProjectRelationship
 from .models import WebHook
 from .models import WebHookEvent
@@ -465,18 +465,18 @@ class AddonsConfigAdmin(admin.ModelAdmin):
     list_editable = ("enabled",)
 
 
-@admin.register(ProjectGroup)
-class ProjectGroupAdmin(admin.ModelAdmin):
-    model = ProjectGroup
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    model = Group
     list_display = ("name", "slug", "project_count", "created", "modified")
     search_fields = ("name", "slug")
     filter_horizontal = ("projects",)
     prepopulated_fields = {"slug": ("name",)}
     readonly_fields = ("created", "modified")
 
-    def project_count(self, project_group):
+    def project_count(self, group):
         """Return the number of projects in this group."""
-        return project_group.projects.count()
+        return group.projects.count()
     project_count.short_description = "Project Count"
 
 

@@ -6,20 +6,20 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.projects.models import ProjectGroup
+from readthedocs.projects.models import Group
 from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.api.v3.queryparser import SearchQueryParser
 
 
 @pytest.mark.django_db
-class TestProjectGroupSearchQueryParser(TestCase):
+class TestGroupSearchQueryParser(TestCase):
     """Test search query parser with project_group parameter."""
 
     def test_parse_project_group_argument(self):
         """Test that project_group argument is parsed correctly."""
         parser = SearchQueryParser("test query project_group:my-group")
         parser.parse()
-        
+
         assert parser.query == "test query"
         assert "my-group" in parser.arguments["project_group"]
 
@@ -29,7 +29,7 @@ class TestProjectGroupSearchQueryParser(TestCase):
             "test query project_group:group1 project_group:group2"
         )
         parser.parse()
-        
+
         assert parser.query == "test query"
         assert "group1" in parser.arguments["project_group"]
         assert "group2" in parser.arguments["project_group"]
@@ -41,14 +41,14 @@ class TestProjectGroupSearchQueryParser(TestCase):
             "test query project:myproject project_group:my-group"
         )
         parser.parse()
-        
+
         assert parser.query == "test query"
         assert "myproject" in parser.arguments["project"]
         assert "my-group" in parser.arguments["project_group"]
 
 
 @pytest.mark.django_db
-class TestProjectGroupSearchExecutor(TestCase):
+class TestGroupSearchExecutor(TestCase):
     """Test search executor with project groups."""
 
     def setUp(self):
@@ -72,7 +72,7 @@ class TestProjectGroupSearchExecutor(TestCase):
             name="Project 3",
             privacy_level="public",
         )
-        
+
         # Create versions for each project
         self.version1 = get(
             Version,
@@ -98,9 +98,9 @@ class TestProjectGroupSearchExecutor(TestCase):
             built=True,
             privacy_level="public",
         )
-        
+
         # Create project group
-        self.group = ProjectGroup.objects.create(
+        self.group = Group.objects.create(
             name="Test Group",
             slug="test-group",
         )
@@ -109,19 +109,19 @@ class TestProjectGroupSearchExecutor(TestCase):
     def test_search_executor_with_project_group(self):
         """Test that search executor includes projects from group."""
         from unittest.mock import Mock
-        
+
         request = Mock()
         request.user = Mock()
         request.user.is_authenticated = False
-        
+
         executor = SearchExecutor(
             request=request,
             query="test project_group:test-group",
         )
-        
+
         projects = list(executor.projects)
         project_slugs = [project.slug for project, version in projects]
-        
+
         assert "project1" in project_slugs
         assert "project2" in project_slugs
         # project3 should not be in the results
@@ -130,16 +130,16 @@ class TestProjectGroupSearchExecutor(TestCase):
     def test_search_executor_with_nonexistent_group(self):
         """Test that search executor handles nonexistent groups gracefully."""
         from unittest.mock import Mock
-        
+
         request = Mock()
         request.user = Mock()
         request.user.is_authenticated = False
-        
+
         executor = SearchExecutor(
             request=request,
             query="test project_group:nonexistent-group",
         )
-        
+
         projects = list(executor.projects)
         # Should return empty list for nonexistent group
         assert len(projects) == 0
@@ -147,26 +147,26 @@ class TestProjectGroupSearchExecutor(TestCase):
     def test_search_executor_multiple_groups(self):
         """Test search executor with multiple project groups."""
         from unittest.mock import Mock
-        
+
         # Create another group with project3
-        group2 = ProjectGroup.objects.create(
+        group2 = Group.objects.create(
             name="Test Group 2",
             slug="test-group-2",
         )
         group2.projects.add(self.project3)
-        
+
         request = Mock()
         request.user = Mock()
         request.user.is_authenticated = False
-        
+
         executor = SearchExecutor(
             request=request,
             query="test project_group:test-group project_group:test-group-2",
         )
-        
+
         projects = list(executor.projects)
         project_slugs = [project.slug for project, version in projects]
-        
+
         # All three projects should be in results
         assert "project1" in project_slugs
         assert "project2" in project_slugs
@@ -175,19 +175,19 @@ class TestProjectGroupSearchExecutor(TestCase):
     def test_search_executor_combined_filters(self):
         """Test search executor with project_group and project filters."""
         from unittest.mock import Mock
-        
+
         request = Mock()
         request.user = Mock()
         request.user.is_authenticated = False
-        
+
         executor = SearchExecutor(
             request=request,
             query="test project_group:test-group project:project3",
         )
-        
+
         projects = list(executor.projects)
         project_slugs = [project.slug for project, version in projects]
-        
+
         # Should include projects from group and explicit project
         assert "project1" in project_slugs
         assert "project2" in project_slugs

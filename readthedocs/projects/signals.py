@@ -10,8 +10,8 @@ from django.dispatch import receiver
 from readthedocs.integrations.models import GitHubAppIntegrationProviderData
 from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import AddonsConfig
+from readthedocs.projects.models import Group
 from readthedocs.projects.models import Project
-from readthedocs.projects.models import ProjectGroup
 from readthedocs.projects.models import ProjectRelationship
 
 
@@ -64,7 +64,7 @@ def add_subprojects_to_group(sender, instance, created, **kwargs):
     """
     Automatically add subprojects to the parent project's subproject group.
 
-    When a subproject relationship is created, add the child to a project group
+    When a subproject relationship is created, add the child to a group
     named after the parent project with "_subprojects" suffix.
     """
     if created:
@@ -73,8 +73,8 @@ def add_subprojects_to_group(sender, instance, created, **kwargs):
         group_name = f"{parent.name} - Subprojects"
         group_slug = f"{parent.slug}-subprojects"
 
-        # Get or create the project group for subprojects
-        group, _ = ProjectGroup.objects.get_or_create(
+        # Get or create the group for subprojects
+        group, _ = Group.objects.get_or_create(
             slug=group_slug,
             defaults={"name": group_name},
         )
@@ -82,7 +82,7 @@ def add_subprojects_to_group(sender, instance, created, **kwargs):
         # Add both parent and child to the group
         group.projects.add(parent, child)
         log.info(
-            "Added subproject to project group",
+            "Added subproject to group",
             parent_slug=parent.slug,
             child_slug=child.slug,
             group_slug=group_slug,
@@ -94,7 +94,7 @@ def add_translations_to_group(sender, instance, created, **kwargs):
     """
     Automatically add translations to the main language project's translation group.
 
-    When a project has a main_language_project, add it to a project group
+    When a project has a main_language_project, add it to a group
     named after the main language project with "_translations" suffix.
     """
     project = instance
@@ -103,8 +103,8 @@ def add_translations_to_group(sender, instance, created, **kwargs):
         group_name = f"{main_project.name} - Translations"
         group_slug = f"{main_project.slug}-translations"
 
-        # Get or create the project group for translations
-        group, _ = ProjectGroup.objects.get_or_create(
+        # Get or create the group for translations
+        group, _ = Group.objects.get_or_create(
             slug=group_slug,
             defaults={"name": group_name},
         )
@@ -112,7 +112,7 @@ def add_translations_to_group(sender, instance, created, **kwargs):
         # Add both main project and translation to the group
         group.projects.add(main_project, project)
         log.info(
-            "Added translation to project group",
+            "Added translation to group",
             main_project_slug=main_project.slug,
             translation_slug=project.slug,
             group_slug=group_slug,

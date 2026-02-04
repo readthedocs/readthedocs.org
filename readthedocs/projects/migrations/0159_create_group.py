@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="ProjectGroup",
+            name="Group",
             fields=[
                 (
                     "id",
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 (
                     "name",
                     models.CharField(
-                        help_text="Name of the project group",
+                        help_text="Name of the group",
                         max_length=255,
                         unique=True,
                         verbose_name="Name",
@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 (
                     "slug",
                     models.SlugField(
-                        help_text="Slug for the project group",
+                        help_text="Slug for the group",
                         max_length=255,
                         unique=True,
                         verbose_name="Slug",
@@ -61,14 +61,14 @@ class Migration(migrations.Migration):
                     models.ManyToManyField(
                         blank=True,
                         help_text="Projects in this group",
-                        related_name="project_groups",
+                        related_name="groups",
                         to="projects.project",
                     ),
                 ),
             ],
             options={
-                "verbose_name": "Project Group",
-                "verbose_name_plural": "Project Groups",
+                "verbose_name": "Group",
+                "verbose_name_plural": "Groups",
                 "ordering": ["name"],
             },
         ),

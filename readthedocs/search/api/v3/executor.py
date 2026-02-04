@@ -2,8 +2,8 @@ from functools import cached_property
 from itertools import islice
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.projects.models import Group
 from readthedocs.projects.models import Project
-from readthedocs.projects.models import ProjectGroup
 from readthedocs.search.api.v3.queryparser import SearchQueryParser
 from readthedocs.search.faceted_search import PageSearch
 
@@ -135,15 +135,15 @@ class SearchExecutor:
         """
         Get a tuple (project, version) of all projects in a group.
 
-        :param group_slug: The slug of the project group.
+        :param group_slug: The slug of the group.
         """
         try:
             group = (
-                ProjectGroup.objects.prefetch_related("projects").get(
+                Group.objects.prefetch_related("projects").get(
                     slug=group_slug
                 )
             )
-        except ProjectGroup.DoesNotExist:
+        except Group.DoesNotExist:
             return
 
         for project in group.projects.all():

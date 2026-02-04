@@ -80,9 +80,9 @@ def default_privacy_level():
     return settings.DEFAULT_PRIVACY_LEVEL
 
 
-class ProjectGroup(TimeStampedModel):
+class Group(TimeStampedModel):
     """
-    Project Group model.
+    Group model.
 
     Groups projects together for searching across them with a single query parameter.
     By default, subprojects are grouped together, and translations are grouped together.
@@ -92,24 +92,24 @@ class ProjectGroup(TimeStampedModel):
         _("Name"),
         max_length=255,
         unique=True,
-        help_text=_("Name of the project group"),
+        help_text=_("Name of the group"),
     )
     slug = models.SlugField(
         _("Slug"),
         max_length=255,
         unique=True,
-        help_text=_("Slug for the project group"),
+        help_text=_("Slug for the group"),
     )
     projects = models.ManyToManyField(
         "projects.Project",
-        related_name="project_groups",
+        related_name="groups",
         blank=True,
         help_text=_("Projects in this group"),
     )
 
     class Meta:
-        verbose_name = _("Project Group")
-        verbose_name_plural = _("Project Groups")
+        verbose_name = _("Group")
+        verbose_name_plural = _("Groups")
         ordering = ["name"]
 
     def __str__(self):
