@@ -1,4 +1,6 @@
+import pytest
 import django_dynamic_fixture as fixture
+from django.db import connection
 from django.test import TestCase
 
 from readthedocs.builds.constants import EXTERNAL
@@ -7,7 +9,7 @@ from readthedocs.builds.tasks import TaskRouter
 from readthedocs.projects.models import Project
 
 
-class TaskRouterTests(TestCase):
+class TaskRouterTestsBase(TestCase):
     def setUp(self):
         self.project = fixture.get(
             Project,
@@ -32,6 +34,8 @@ class TaskRouterTests(TestCase):
         }
         self.router = TaskRouter()
 
+
+class TaskRouterTests(TaskRouterTestsBase):
     def test_project_custom_queue(self):
         self.project.build_queue = "build:custom"
         self.project.save()
@@ -41,40 +45,10 @@ class TaskRouterTests(TestCase):
             "build:custom",
         )
 
-    def test_used_conda_in_last_builds(self):
-        self.build.config = {"conda": {"file": "docs/environment.yml"}}
-        self.build.save()
-
-        self.assertEqual(
-            self.router.route_for_task(self.task, self.args, self.kwargs),
-            TaskRouter.BUILD_LARGE_QUEUE,
-        )
-
-    def test_used_conda_in_last_failed_build(self):
-        self.build.config = {"conda": {"file": "docs/environment.yml"}}
-        self.build.success = False
-        self.build.save()
-
-        self.assertEqual(
-            self.router.route_for_task(self.task, self.args, self.kwargs),
-            TaskRouter.BUILD_LARGE_QUEUE,
-        )
-
-    def test_more_than_n_builds(self):
-        self.assertIsNone(
-            self.router.route_for_task(self.task, self.args, self.kwargs),
-        )
-
     def test_non_build_task(self):
         self.assertIsNone(
             self.router.route_for_task("non_build_task", self.args, self.kwargs),
         )
-
-    def test_no_build_pk(self):
-        self.assertIsNone(
-            self.router.route_for_task(self.task, self.args, {}),
-        )
-
     def test_external_version(self):
         external_version = fixture.get(
             Version,
@@ -105,4 +79,38 @@ class TaskRouterTests(TestCase):
         self.assertEqual(
             self.router.route_for_task(self.task, args, kwargs),
             TaskRouter.BUILD_LARGE_QUEUE,
+        )
+
+@pytest.mark.skipif(
+    "sqlite" in connection.settings_dict["ENGINE"],
+    reason="django.db.utils.NotSupportedError: contains lookup is not supported on this database backend.",
+)
+class TaskRouterConfigFileTests(TaskRouterTestsBase):
+    def test_used_conda_in_last_builds(self):
+        self.build.config = {"conda": {"file": "docs/environment.yml"}}
+        self.build.save()
+
+        self.assertEqual(
+            self.router.route_for_task(self.task, self.args, self.kwargs),
+            TaskRouter.BUILD_LARGE_QUEUE,
+        )
+
+    def test_used_conda_in_last_failed_build(self):
+        self.build.config = {"conda": {"file": "docs/environment.yml"}}
+        self.build.success = False
+        self.build.save()
+
+        self.assertEqual(
+            self.router.route_for_task(self.task, self.args, self.kwargs),
+            TaskRouter.BUILD_LARGE_QUEUE,
+        )
+
+    def test_more_than_n_builds(self):
+        self.assertIsNone(
+            self.router.route_for_task(self.task, self.args, self.kwargs),
+        )
+
+    def test_no_build_pk(self):
+        self.assertIsNone(
+            self.router.route_for_task(self.task, self.args, {}),
         )
