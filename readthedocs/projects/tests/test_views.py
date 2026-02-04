@@ -397,6 +397,7 @@ class TestProjectDetailViewWithInvalidDefaultVersion(TestCase):
         version with that slug would cause an error when trying to resolve
         the version for the badge URL and site URL.
         """
+        self.client.force_login(self.user)
         url = reverse("projects_detail", args=[self.project.slug])
         resp = self.client.get(url)
         
@@ -420,6 +421,7 @@ class TestProjectDetailViewWithInvalidDefaultVersion(TestCase):
             active=True,
         )
         
+        self.client.force_login(self.user)
         url = reverse("projects_detail", args=[self.project.slug])
         resp = self.client.get(url)
         
@@ -442,6 +444,7 @@ class TestProjectDetailViewWithInvalidDefaultVersion(TestCase):
         project = get(Project, users=[self.user], default_version="latest")
         # Intentionally not creating a version with slug "latest"
         
+        self.client.force_login(self.user)
         url = reverse("projects_detail", args=[project.slug])
         resp = self.client.get(url)
         
