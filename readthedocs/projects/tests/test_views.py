@@ -429,3 +429,25 @@ class TestProjectDetailViewWithInvalidDefaultVersion(TestCase):
         # badge_url and site_url should be in context when default version exists
         self.assertIn("badge_url", resp.context)
         self.assertIn("site_url", resp.context)
+
+    def test_project_detail_view_with_latest_as_default_no_latest_version(self):
+        """
+        Test that the project detail view doesn't error when default_version
+        is "latest" but no actual "latest" version exists.
+        
+        This is another edge case where get_default_version() returns "latest"
+        but there's no version object with that slug.
+        """
+        # Create a project with default_version="latest"
+        project = get(Project, users=[self.user], default_version="latest")
+        # Intentionally not creating a version with slug "latest"
+        
+        url = reverse("projects_detail", args=[project.slug])
+        resp = self.client.get(url)
+        
+        # Should return 200 and not error
+        self.assertEqual(resp.status_code, 200)
+        
+        # badge_url and site_url should not be in context when default version doesn't exist
+        self.assertNotIn("badge_url", resp.context)
+        self.assertNotIn("site_url", resp.context)
