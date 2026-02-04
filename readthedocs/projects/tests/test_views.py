@@ -6,6 +6,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
+from readthedocs.builds.models import Version
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.constants import GITHUB_APP
@@ -374,3 +375,57 @@ class TestProjectEditView(TestCase):
         self.project.refresh_from_db()
         assert self.project.search_indexing_enabled
         index_project.delay.assert_called_once_with(project_slug=self.project.slug)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestProjectDetailViewWithInvalidDefaultVersion(TestCase):
+    """Test that ProjectDetailView handles projects without valid default versions."""
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user], default_version="stable")
+        # Intentionally not creating a version with slug "stable"
+        # to simulate the case where the default_version doesn't exist
+
+    def test_project_detail_view_no_valid_default_version(self):
+        """
+        Test that the project detail view doesn't error when a project's
+        default version doesn't exist.
+
+        This tests the fix for the Sentry issue where accessing a project
+        that has a default_version set (e.g., "stable") but no actual
+        version with that slug would cause an error when trying to resolve
+        the version for the badge URL and site URL.
+        """
+        url = reverse("projects_detail", args=[self.project.slug])
+        resp = self.client.get(url)
+        
+        # Should return 200 and not error
+        self.assertEqual(resp.status_code, 200)
+        
+        # badge_url and site_url should not be in context when default version doesn't exist
+        self.assertNotIn("badge_url", resp.context)
+        self.assertNotIn("site_url", resp.context)
+        
+    def test_project_detail_view_with_valid_default_version(self):
+        """
+        Test that the project detail view works correctly when a valid
+        default version exists.
+        """
+        # Create the stable version that matches the project's default_version
+        version = get(
+            Version,
+            project=self.project,
+            slug="stable",
+            active=True,
+        )
+        
+        url = reverse("projects_detail", args=[self.project.slug])
+        resp = self.client.get(url)
+        
+        # Should return 200
+        self.assertEqual(resp.status_code, 200)
+        
+        # badge_url and site_url should be in context when default version exists
+        self.assertIn("badge_url", resp.context)
+        self.assertIn("site_url", resp.context)
