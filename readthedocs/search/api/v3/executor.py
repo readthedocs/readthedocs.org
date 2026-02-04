@@ -23,7 +23,13 @@ class SearchExecutor:
     """
 
     def __init__(
-        self, *, request, query, arguments_required=True, default_all=False, max_projects=100
+        self,
+        *,
+        request,
+        query,
+        arguments_required=True,
+        default_all=False,
+        max_projects=100,
     ):
         self.request = request
         self.query = query
@@ -132,7 +138,11 @@ class SearchExecutor:
         :param group_slug: The slug of the project group.
         """
         try:
-            group = ProjectGroup.objects.prefetch_related("projects").get(slug=group_slug)
+            group = (
+                ProjectGroup.objects.prefetch_related("projects").get(
+                    slug=group_slug
+                )
+            )
         except ProjectGroup.DoesNotExist:
             return
 

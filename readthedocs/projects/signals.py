@@ -5,7 +5,6 @@ from dataclasses import asdict
 import django.dispatch
 import structlog
 from django.db.models.signals import post_save
-from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 
 from readthedocs.integrations.models import GitHubAppIntegrationProviderData
