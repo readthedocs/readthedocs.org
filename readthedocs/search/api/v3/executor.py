@@ -3,6 +3,7 @@ from itertools import islice
 
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.projects.models import Project
+from readthedocs.projects.models import ProjectGroup
 from readthedocs.search.api.v3.queryparser import SearchQueryParser
 from readthedocs.search.faceted_search import PageSearch
 
@@ -110,8 +111,32 @@ class SearchExecutor:
         if self.parser.arguments["user"] == "@me":
             yield from self._get_projects_from_user()
 
+        # Add all projects from project groups.
+        for group_slug in self.parser.arguments["project_group"]:
+            yield from self._get_projects_from_group(group_slug)
+
     def _get_projects_from_user(self):
         for project in Project.objects.for_user(user=self.request.user):
+            version = self._get_project_version(
+                project=project,
+                version_slug=project.default_version,
+                include_hidden=False,
+            )
+            if version and self._has_permission(self.request, version):
+                yield project, version
+
+    def _get_projects_from_group(self, group_slug):
+        """
+        Get a tuple (project, version) of all projects in a group.
+
+        :param group_slug: The slug of the project group.
+        """
+        try:
+            group = ProjectGroup.objects.prefetch_related("projects").get(slug=group_slug)
+        except ProjectGroup.DoesNotExist:
+            return
+
+        for project in group.projects.all():
             version = self._get_project_version(
                 project=project,
                 version_slug=project.default_version,
