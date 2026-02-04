@@ -736,7 +736,7 @@ class ServeRobotsTXT(SettingsOverrideObject):
     _default_class = ServeRobotsTXTBase
 
 
-class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
+class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
     """Serve llms.txt files from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
