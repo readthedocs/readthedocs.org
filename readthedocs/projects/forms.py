@@ -474,8 +474,9 @@ class UpdateProjectForm(
                 "placeholder": "\n".join(
                     [
                         "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL",
+                        "git sparse-checkout init --cone",
+                        "git sparse-checkout set projects/$READTHEDOCS_PROJECT_SLUG",
                         "git checkout $READTHEDOCS_GIT_IDENTIFIER",
-                        "git submodule update --init --recursive",
                     ],
                 ),
             }
