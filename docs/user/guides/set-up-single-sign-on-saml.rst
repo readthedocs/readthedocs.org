@@ -94,6 +94,16 @@ To configure a team for users to join automatically:
 User management
 ---------------
 
+Signing in with SAML
+~~~~~~~~~~~~~~~~~~~~
+
+Once SAML is enabled for your organization, users can sign in using SAML by following these steps:
+
+1. Go to `https://app.readthedocs.com/ <https://app.readthedocs.com/>`__.
+2. Click on the :guilabel:`Single sign-on` tab.
+3. Enter your company email address.
+4. Click :guilabel:`Continue` to be redirected to your organization's identity provider to complete the sign-in process.
+
 New users
 ~~~~~~~~~
 
