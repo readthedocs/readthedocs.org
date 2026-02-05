@@ -19,7 +19,8 @@ log = structlog.get_logger(__name__)
 
 def trigger_build_for_version(version, action_arg, *args, **kwargs):
     """Trigger a build for this version."""
-    trigger_build(project=version.project, version=version)
+    if version.active:
+        trigger_build(project=version.project, version=version)
 
 
 def activate_version(version, action_arg, *args, **kwargs):
