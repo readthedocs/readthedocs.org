@@ -176,7 +176,7 @@ with a custom sequence of :program:`git` commands.
 This is useful for advanced workflows like sparse checkouts or custom cloning strategies.
 
 To enable this feature, go to your project's :term:`dashboard` and update
-:menuselection:`Admin --> Advanced Settings --> Custom Git checkout commands`.
+:menuselection:`Settings --> Custom Git checkout commands`.
 Enter one command per line.
 
 .. note::
