@@ -1,6 +1,7 @@
 """Models for the builds app."""
 
 import datetime
+import fnmatch
 import os.path
 import re
 from functools import partial
@@ -1364,23 +1365,9 @@ class PushAutomationRule(VersionAutomationRule):
         # Extract the list of modified files from the push event
         changed_files = get_changed_files_from_webhook(webhook_data)
         match_arg = self.get_match_arg()
-        try:
-            for file_path in changed_files:
-                match = regex.search(
-                    match_arg,
-                    file_path,
-                    flags=regex.VERSION0,
-                    timeout=self.TIMEOUT,
-                )
-                if match:
-                    return True
-        except TimeoutError:
-            log.warning(
-                "Timeout while parsing regex.",
-                pattern=match_arg,
-            )
-        except Exception:
-            log.exception("Error parsing regex.", exc_info=True)
+        for file_path in changed_files:
+            if fnmatch.fnmatch(file_path, match_arg):
+                return True
         return False
 
     def get_edit_url(self):
