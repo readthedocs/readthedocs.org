@@ -37,7 +37,7 @@ Clone the repository and use the skill directories directly:
 
    git clone https://github.com/readthedocs/skills.git
 
-If your agent supports the `Agent Skills CLI <https://whatisskills.com/cli-docs>`_, you can install the repository with:
+If your agent supports the `Agent Skills CLI <https://skills.sh/docs/cli>`_, you can install the repository with:
 
 .. code-block:: bash
 
