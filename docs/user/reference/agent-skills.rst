@@ -5,7 +5,7 @@ Trying to figure out how to pass up-to-date information to AI agents is a hard p
 We have experimented with MCP servers and ``llms.txt``,
 but we have found that `Agent Skills <https://agentskills.io/home>`_ are the current best way to handle this problem explicitly.
 
-Read the Docs Skills are a collection of Agent Skills that help AI agents work with Read the Docs APIs and configuration.
+`Read the Docs Skills <https://github.com/readthedocs/skills>`_ are a collection of Agent Skills that help AI agents work with Read the Docs APIs and configuration.
 They are designed to keep agent output aligned with our documented behavior and reduce manual verification.
 This page highlights two foundational skills that cover the most common workflows: the Read the Docs API skill and the Read the Docs Config Writer skill.
 
@@ -37,7 +37,7 @@ Clone the repository and use the skill directories directly:
 
    git clone https://github.com/readthedocs/skills.git
 
-If your agent supports the Agent Skills CLI, you can install the repository with:
+If your agent supports the `Agent Skills CLI <https://whatisskills.com/cli-docs>`_, you can install the repository with:
 
 .. code-block:: bash
 
