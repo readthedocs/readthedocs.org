@@ -630,7 +630,34 @@ class GitHubAppWebhookHandler:
                     project=project,
                     version_data=external_version_data,
                 )
-                build_external_version(project, external_version)
+
+                # NOTE: skip building PR if there are pushautomationrules matching.
+                # If the project has push automation rules,
+                # we check if any of them matches.
+                # If none one matches, it finishes here.
+                # However, if there are no push automation rules configured,
+                # we continue with the build as usual.
+                push_rules = project.automation_rules.filter(
+                    polymorphic_ctype__model="pushautomationrule"
+                )
+                if push_rules.exists():
+                    triggered = False
+                    for rule in push_rules.iterator():
+                        if rule.match(webhook_data=self.data):
+                            log.info(
+                                "Push automation rule matched, triggering build.",
+                                project_slug=project.slug,
+                                rule_id=rule.pk,
+                            )
+                            triggered = True
+                            rule.run(external_version)
+                    if not triggered:
+                        log.info(
+                            "No push automation rule matched, skipping build.",
+                            project_slug=project.slug,
+                        )
+                else:
+                    build_external_version(project, external_version)
             return
 
         if action == "closed":
