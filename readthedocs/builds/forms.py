@@ -225,16 +225,9 @@ class RegexAutomationRuleForm(forms.ModelForm):
 class PushAutomationRuleForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
     match_arg = forms.CharField(
-        label="Custom match",
+        label="File pattern match",
         help_text=_(
-            textwrap.dedent(
-                """
-            A regular expression to match file paths.
-            <a href="https://docs.readthedocs.io/page/automation-rules.html#push-rules">
-              Check the documentation for valid patterns.
-            </a>
-            """
-            )
+            textwrap.dedent("Unix shell-style wildcards to match added/modified/removed files")
         ),
         required=True,
     )
