@@ -20,11 +20,11 @@ To learn more about Agent Skills, see the `Agent Skills home page <https://agent
 Featured skills
 ---------------
 
-Read the Docs API
+`Read the Docs API <https://github.com/readthedocs/skills/blob/main/skills/readthedocs-api/SKILL.md>`_
   The Read the Docs API skill gives your AI agent the ability to interact with the Read the Docs REST API.
   If you want to manage updates to your project (eg. adding a redirect for the current PR), this skill will help you do that.
 
-Read the Docs Config Writer
+`Read the Docs Config Writer <https://github.com/readthedocs/skills/blob/main/skills/readthedocs-write-config/SKILL.md>`_
   Create or update ``.readthedocs.yaml`` configuration files.
   Use it to adjust build images, tools, dependency installs, or build jobs.
 
