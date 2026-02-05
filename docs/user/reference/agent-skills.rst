@@ -1,5 +1,5 @@
-Agent skills for Read the Docs
-==============================
+AI agent skills
+===============
 
 Trying to figure out how to pass up-to-date information to AI agents is a hard problem.
 We have experimented with MCP servers and ``llms.txt``,
