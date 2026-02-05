@@ -117,6 +117,7 @@ Read the Docs: documentation simplified
    /api/index
    /faq
    /changelog
+   /reference/agent-skills
    /about/index
    Developer Documentation <https://dev.readthedocs.io>
    Read the Docs website <https://about.readthedocs.com>
