@@ -394,6 +394,7 @@ class TestProjectDetailView(TestCase):
     def test_project_detail_view_no_valid_default_version(self):
         self.project.default_version = "404"
         self.project.save()
+        self.project.versions.all().delete()
 
         url = reverse("projects_detail", args=[self.project.slug])
         resp = self.client.get(url)
