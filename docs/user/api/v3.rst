@@ -1284,17 +1284,25 @@ Redirect create
             "to_url": "/documentation/",
             "type": "page",
             "position": 0,
+            "force": false,
+            "enabled": true,
+            "description": "Redirect old docs to new location",
+            "http_status": 302
         }
 
     .. note::
 
-       - ``type`` can be one of ``page``, ``exact``, ``clean_url_to_html`` and ``html_to_clean_url``.
+       - ``type`` (required) can be one of ``page``, ``exact``, ``clean_url_to_html`` and ``html_to_clean_url``.
        - Depending on the ``type`` of the redirect, some fields may not be needed:
 
          * ``page`` and ``exact`` types require ``from_url`` and ``to_url``.
          * ``clean_url_to_html`` and ``html_to_clean_url`` types do not require ``from_url`` and ``to_url``.
 
-       - Position starts at 0 and is used to order redirects.
+       - ``position`` (optional, default: ``0``) - Order of execution. Position starts at 0 and is used to order redirects.
+       - ``force`` (optional, default: ``false``) - Apply the redirect even if the page exists.
+       - ``enabled`` (optional, default: ``true``) - Enable or disable the redirect.
+       - ``description`` (optional) - A description for the redirect.
+       - ``http_status`` (optional, default: ``302``) - HTTP status code, can be ``301`` (permanent) or ``302`` (temporary).
 
     **Example response**:
 

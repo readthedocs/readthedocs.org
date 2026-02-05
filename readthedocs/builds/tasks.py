@@ -381,8 +381,10 @@ def send_build_status(build_pk, commit, status):
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
-    build = Build.objects.filter(pk=build_pk).first()
-    if not build:
+    build = Build.objects.filter(pk=build_pk).select_related("version").first()
+    # Bulds without a verion shouldn't send status, it can happen when
+    # a build from a deleted version is being processed (race condition).
+    if not build or not build.version:
         return
 
     structlog.contextvars.bind_contextvars(
@@ -732,11 +734,9 @@ def check_and_disable_project_for_consecutive_failed_builds(project_slug, versio
 
 
 @app.task(queue="web")
-def remove_orphan_build_config(limit=50):
+def remove_orphan_build_config():
     """Remove BuildConfig objects that are not referenced by any Build."""
-
-    # Use a limit to avoid db intensive operation
-    orphan_buildconfigs = BuildConfig.objects.filter(builds__isnull=True)[:limit]
+    orphan_buildconfigs = BuildConfig.objects.filter(builds=None)
     count = orphan_buildconfigs.count()
     orphan_buildconfigs.delete()
     log.info("Removed orphan BuildConfig objects.", count=count)

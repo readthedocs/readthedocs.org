@@ -73,7 +73,10 @@ class IsAuthorizedToViewProject(permissions.BasePermission):
         if version:
             return False
 
-        has_access = Project.objects.public(user=request.user).filter(pk=project.pk).exists()
+        has_access = (
+            project.is_public
+            or Project.objects.public(user=request.user).filter(pk=project.pk).exists()
+        )
         return has_access
 
 
