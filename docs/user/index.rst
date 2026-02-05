@@ -81,6 +81,7 @@ Read the Docs: documentation simplified
    /guides/best-practice/links
    /security-implications
    /reference/main-content-detection
+   /reference/agent-skills
    /custom-script
 
 .. toctree::
