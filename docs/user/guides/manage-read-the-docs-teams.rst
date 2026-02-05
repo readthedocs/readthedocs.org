@@ -18,14 +18,19 @@ Adding an owner to an organization
 
 To grant someone full administrative access to your organization, add them as an owner.
 
+.. note::
+
+   You must be an owner of the organization to add another owner.
+
 Follow these steps:
 
 1. Navigate to the `organization management page <https://app.readthedocs.com/organizations/choose/organization_detail/>`__.
 2. Select your organization from the list.
-3. In the right sidebar, locate the :guilabel:`Owners` section.
-4. Click :guilabel:`Add` in the Owners section.
-5. Enter the user's Read the Docs username or email address.
-6. Click :guilabel:`Add owner`.
+3. Click on :guilabel:`Settings`.
+4. In the sidebar, click on :guilabel:`Owners`.
+5. Click :guilabel:`Invite owner`.
+6. Enter the user's Read the Docs username or email address.
+7. Click :guilabel:`Add owner`.
 
 The user will receive an invitation and must accept it to become an owner.
 
