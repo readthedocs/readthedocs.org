@@ -318,6 +318,11 @@ class GenericParser:
            This will mutate the original `body`.
         """
         nodes_to_be_removed = itertools.chain(
+            # Non-content nodes
+            body.css("script"),
+            body.css("style"),
+            body.css("template"),
+            body.css("noscript"),
             # Navigation nodes
             body.css("nav"),
             body.css("[role=navigation]"),
