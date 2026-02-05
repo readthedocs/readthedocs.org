@@ -374,3 +374,34 @@ class TestProjectEditView(TestCase):
         self.project.refresh_from_db()
         assert self.project.search_indexing_enabled
         index_project.delay.assert_called_once_with(project_slug=self.project.slug)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestProjectDetailView(TestCase):
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user], privacy_level=PUBLIC)
+
+    def test_view(self):
+        url = reverse("projects_detail", args=[self.project.slug])
+        resp = self.client.get(url)
+        assert resp.status_code == 200
+
+        assert "badge_url" in resp.context
+        assert "site_url" in resp.context
+
+    def test_project_detail_view_no_valid_default_version(self):
+        self.project.default_version = "404"
+        self.project.save()
+        self.project.versions.all().delete()
+
+        url = reverse("projects_detail", args=[self.project.slug])
+        resp = self.client.get(url)
+
+        # Should return 200 and not error
+        assert resp.status_code == 200
+
+        # badge_url and site_url should not be in context when default version doesn't exist
+        assert "badge_url" not in resp.context
+        assert "site_url" not in resp.context
