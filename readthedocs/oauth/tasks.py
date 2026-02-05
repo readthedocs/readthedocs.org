@@ -587,11 +587,13 @@ class GitHubAppWebhookHandler:
             if push_rules.exists():
                 triggered = False
                 for rule in push_rules.iterator():
-                    if rule.match(webhook_data=self.data):
+                    if rule.match(webhook_data=self.data) and rule.version_type == version_type:
                         log.info(
                             "Push automation rule matched, triggering build.",
                             project_slug=project.slug,
                             rule_id=rule.pk,
+                            rule_version_type=rule.version_type,
+                            version_type=version_type,
                         )
                         for version in project.versions_from_name(version_name, version_type):
                             triggered = True
