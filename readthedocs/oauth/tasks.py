@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import user_id_matches_or_superuser
@@ -582,7 +583,7 @@ class GitHubAppWebhookHandler:
             # we continue with the build as usual.
             push_rules = project.automation_rules.filter(
                 polymorphic_ctype__model="pushautomationrule"
-            )
+            ).exclude(version_type=EXTERNAL)
             if push_rules.exists():
                 triggered = False
                 for rule in push_rules.iterator():
@@ -638,7 +639,8 @@ class GitHubAppWebhookHandler:
                 # However, if there are no push automation rules configured,
                 # we continue with the build as usual.
                 push_rules = project.automation_rules.filter(
-                    polymorphic_ctype__model="pushautomationrule"
+                    polymorphic_ctype__model="pushautomationrule",
+                    version_type=EXTERNAL,
                 )
                 if push_rules.exists():
                     triggered = False

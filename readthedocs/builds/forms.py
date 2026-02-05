@@ -15,6 +15,8 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.builds.constants import ALL_VERSIONS
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BRANCH_TEXT
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL_TEXT
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.constants import TAG_TEXT
 from readthedocs.builds.models import PushAutomationRule
@@ -265,6 +267,7 @@ class PushAutomationRuleForm(forms.ModelForm):
             (None, "-" * 9),
             (BRANCH, BRANCH_TEXT),
             (TAG, TAG_TEXT),
+            (EXTERNAL, EXTERNAL_TEXT),
         ]
 
         # Only list supported actions (push rules only support trigger build)
