@@ -184,6 +184,15 @@ Enter one command per line.
   When you define custom Git checkout commands, Read the Docs will not run the default Git clone or checkout.
   Your commands must perform the clone and checkout of the desired revision.
 
+.. tip::
+
+  If you just want to run some extra commands after the default Git checkout,
+  like unshallowing the clone or fetching extra branches,
+  you can consider using the :ref:`config-file/v2:build.jobs.post_checkout` user-defined job instead.
+
+  In case you want to clone submodules, you can use the :ref:`config-file/v2:submodules` config key for that.
+
+
 Commands are executed in order, in the repository working directory.
 You can use :doc:`pre-defined environment variables </reference/environment-variables>`
 such as :envvar:`READTHEDOCS_GIT_CLONE_URL`, :envvar:`READTHEDOCS_GIT_IDENTIFIER`,
