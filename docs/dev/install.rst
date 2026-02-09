@@ -345,6 +345,12 @@ Configuring GitHub App
   - ``RTD_GITHUB_APP_PRIVATE_KEY`` (you can use ``cat read-the-docs.private-key.pem`` as the value of this variable)
   - ``RTD_GITHUB_APP_WEBHOOK_SECRET``
 
+- Then, to receive the webhooks in your local development instance using the Webhook.site CLI,
+  run the following command updating the ``<hash>`` part:
+
+  .. prompt:: bash
+
+    docker run -ti webhooksite/cli -- whcli forward --token=<hash> --target=http://devthedocs.org/
 
 Troubleshooting
 ---------------
