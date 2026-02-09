@@ -188,7 +188,7 @@ Enter one command per line.
 
   If you just want to run some extra commands after the default Git checkout,
   like unshallowing the clone or fetching extra branches,
-  you can consider using the :ref:`config-file/v2:build.jobs.post_checkout` user-defined job instead.
+  you can consider using the ``build.jobs.post_checkout`` user-defined job instead.
 
   In case you want to clone submodules, you can use the :ref:`config-file/v2:submodules` config key for that.
 
@@ -210,7 +210,7 @@ and :envvar:`READTHEDOCS_REPOSITORY_PATH`.
 
   This is an advanced feature.
   Incorrect commands can prevent builds from checking out code or can expose sensitive files in your repository.
-  If you are unsure, use :doc:`build customization with ``build.jobs`` </build-customization>` instead.
+  If you are unsure, use :doc:`build customization with build.jobs </build-customization>` instead.
 
 Examples
 --------
