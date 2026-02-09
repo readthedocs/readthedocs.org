@@ -308,13 +308,18 @@ Configuring GitHub App
 - In permissions, select the following:
 
   - Repository permissions
+
     - ``Commit statuses`` (read and write, so we can create commit statuses),
     - ``Contents`` (read only, so we can clone repos with a token),
     - ``Metadata`` (read only, so we read the repo collaborators),
     - ``Pull requests`` (read and write, so we can post a comment on PRs in the future).
+
   - Organization permissions
+
     - ``Members`` (read only so we can read the organization members).
+
   - Account Permissions
+
     - ``Email addresses`` (read only, so allauth can fetch all verified emails).
 
 - Subscribe to the following events
