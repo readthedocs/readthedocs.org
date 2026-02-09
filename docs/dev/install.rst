@@ -337,7 +337,7 @@ Configuring GitHub App
   - ``RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_CLIENT_ID``
   - ``RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_SECRET``
 
-- Generate a webhook secret (e.g. with ``openssl rand -hex 32``)) and a private key from the GitHub App settings,
+- Generate a webhook secret (e.g. with ``openssl rand -hex 32``) and a private key from the GitHub App settings,
   and set them as :ref:`environment variables <settings:GitHub App>`.
 
   - ``RTD_GITHUB_APP_ID``
