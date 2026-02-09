@@ -182,60 +182,6 @@ def disable_search_indexing_for_projects_without_recent_searches(days=90):
         disable_search_indexing(project)
 
 
-# TODO: remove after deploy, this has been replaced by record_search_query_batch.
-@app.task(queue="web")
-def record_search_query(project_slug, version_slug, query, total_results, time_string):
-    """Record/update a search query for analytics."""
-    if not project_slug or not version_slug or not query:
-        log.debug(
-            "Not recording the search query.",
-            project_slug=project_slug,
-            version_slug=version_slug,
-            query=query,
-            total_results=total_results,
-            time=time_string,
-        )
-        return
-
-    time = parse(time_string)
-    before_10_sec = time - timezone.timedelta(seconds=10)
-    partial_query_qs = SearchQuery.objects.filter(
-        project__slug=project_slug,
-        version__slug=version_slug,
-        modified__gte=before_10_sec,
-    ).order_by("-modified")
-
-    # If a partial query exists, then just update that object.
-    # Check max 30 queries, in case there is a flood of queries.
-    max_queries = 30
-    for partial_query in partial_query_qs[:max_queries]:
-        if query.startswith(partial_query.query):
-            partial_query.query = query
-            partial_query.total_results = total_results
-            partial_query.save()
-            return
-
-    version = (
-        Version.objects.filter(slug=version_slug, project__slug=project_slug)
-        .select_related("project")
-        .first()
-    )
-    if not version:
-        log.debug(
-            "Not recording the search query because project does not exist.",
-            project_slug=project_slug,
-            version_slug=version_slug,
-        )
-        return
-
-    SearchQuery.objects.create(
-        project=version.project,
-        version=version,
-        query=query,
-        total_results=total_results,
-    )
-
-
 @app.task(queue="web")
 def record_search_query_batch(
     projects_and_versions: list[tuple[str, str]], query: str, total_results: int, time_string: str

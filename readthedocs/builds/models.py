@@ -728,11 +728,14 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
+
+    # TODO: remove `_config` field after migrating all builds to use `readthedocs_yaml_config`
     _config = models.JSONField(
         _("Configuration used in the build"),
         null=True,
         blank=True,
     )
+
     readthedocs_yaml_config = models.ForeignKey(
         "BuildConfig",
         verbose_name=_("Build configuration data"),
