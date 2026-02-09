@@ -346,11 +346,17 @@ Configuring GitHub App
   - ``RTD_GITHUB_APP_WEBHOOK_SECRET``
 
 - Then, to receive the webhooks in your local development instance using the Webhook.site CLI,
-  run the following command updating the ``<hash>`` part:
+  first install the client with:
 
   .. prompt:: bash
 
-    docker run -ti webhooksite/cli -- whcli forward --token=<hash> --target=http://devthedocs.org/
+    npm install @webhooksite/cli
+
+  and run the following command updating the ``<hash>`` part:
+
+  .. prompt:: bash
+
+    whcli forward --token=<hash> --target=http://devthedocs.org/
 
 Troubleshooting
 ---------------
