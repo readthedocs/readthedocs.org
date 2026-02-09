@@ -332,16 +332,19 @@ Configuring GitHub App
   - ``Push``
   - ``Repository``
 
-- Copy the "Client ID" and "Client Secret" and set them as :ref:`environment variables <settings:Allauth secrets>`
+- Copy the ``Client ID`` and ``Client Secret`` and set them as :ref:`environment variables <settings:Allauth secrets>`
 
-  - ``RTD_GITHUB_APP_ID``
-  - ``RTD_GITHUB_APP_NAME``
-  - ``RTD_GITHUB_APP_PRIVATE_KEY`` (you can use ``cat read-the-docs.private-key.pem`` as the value of this variable)
+  - ``RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_CLIENT_ID``
+  - ``RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_SECRET``
 
 - Generate a webhook secret (e.g. with ``openssl rand -hex 32``)) and a private key from the GitHub App settings,
   and set them as :ref:`environment variables <settings:GitHub App>`.
 
+  - ``RTD_GITHUB_APP_ID``
+  - ``RTD_GITHUB_APP_NAME``
+  - ``RTD_GITHUB_APP_PRIVATE_KEY`` (you can use ``cat read-the-docs.private-key.pem`` as the value of this variable)
   - ``RTD_GITHUB_APP_WEBHOOK_SECRET``
+
 
 Troubleshooting
 ---------------
