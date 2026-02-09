@@ -12,9 +12,7 @@ from django.db.models import Q
 
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.history import set_change_reason
-from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.core.utils.db import raw_delete_in_batches
-from readthedocs.projects.models import AddonsConfig
 from readthedocs.projects.models import ImportedFile
 from readthedocs.worker import app
 
