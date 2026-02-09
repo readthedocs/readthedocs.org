@@ -610,7 +610,7 @@ class UpdateProjectForm(
         value = self.cleaned_data.get("git_checkout_command")
         if not value:
             return None
-        return value.splitlines()
+        return [line.strip() for line in value.splitlines() if line.strip()]
 
     def save(self, commit=True):
         instance = super().save(commit)
