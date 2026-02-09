@@ -831,15 +831,20 @@ class Build(models.Model):
         self._readthedocs_yaml_config_changed = True
 
     def save(self, *args, **kwargs):  # noqa
-        if self._readthedocs_yaml_config_changed and self._readthedocs_yaml_config is not None:
-            build_config, _ = BuildConfig.objects.get_or_create(data=self._readthedocs_yaml_config)
-            self.readthedocs_yaml_config = build_config
-            log.warning(
-                "Creating BuildConfig using `build.config` setter.",
-                build_id=self.id,
-                build_config_data=self._readthedocs_yaml_config,
-                build_config_id=build_config.id,
-            )
+        if self._readthedocs_yaml_config_changed:
+            if self._readthedocs_yaml_config is None:
+                self.readthedocs_yaml_config = None
+            else:
+                build_config, _ = BuildConfig.objects.get_or_create(
+                    data=self._readthedocs_yaml_config
+                )
+                self.readthedocs_yaml_config = build_config
+                log.warning(
+                    "Creating BuildConfig using `build.config` setter.",
+                    build_id=self.id,
+                    build_config_data=self._readthedocs_yaml_config,
+                    build_config_id=build_config.id,
+                )
 
         if self.version:
             self.version_name = self.version.verbose_name
