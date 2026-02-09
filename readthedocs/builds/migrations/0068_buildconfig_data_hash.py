@@ -20,7 +20,7 @@ def forward_update_data_hash(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy()
+    safe = Safe.after_deploy()
 
     dependencies = [
         ("builds", "0067_migrate_buildconfig"),
