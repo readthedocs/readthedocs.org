@@ -341,7 +341,7 @@ Configuring GitHub App
   and set them as :ref:`environment variables <settings:GitHub App>`.
 
   - ``RTD_GITHUB_APP_ID``
-  - ``RTD_GITHUB_APP_NAME``
+  - ``RTD_GITHUB_APP_NAME`` (e.g. ``read-the-docs-development``)
   - ``RTD_GITHUB_APP_PRIVATE_KEY`` (you can use ``cat read-the-docs.private-key.pem`` as the value of this variable)
   - ``RTD_GITHUB_APP_WEBHOOK_SECRET``
 
