@@ -52,6 +52,7 @@ Read the Docs: documentation simplified
    /reference/sitemaps
    /reference/404-not-found
    /reference/robots
+   /reference/llms-txt
 
 .. toctree::
    :maxdepth: 2
@@ -80,6 +81,7 @@ Read the Docs: documentation simplified
    /guides/best-practice/links
    /security-implications
    /reference/main-content-detection
+   /reference/agent-skills
    /custom-script
 
 .. toctree::

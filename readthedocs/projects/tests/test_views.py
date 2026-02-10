@@ -1,6 +1,8 @@
+import json
+from unittest import mock
+
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
-from unittest import mock
 from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -374,3 +376,112 @@ class TestProjectEditView(TestCase):
         self.project.refresh_from_db()
         assert self.project.search_indexing_enabled
         index_project.delay.assert_called_once_with(project_slug=self.project.slug)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestGitCheckoutCommandField(TestCase):
+    """Tests for the git_checkout_command form field."""
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(
+            Project,
+            users=[self.user],
+            repo="https://github.com/user/repo"
+        )
+        self.url = reverse("projects_edit", args=[self.project.slug])
+        self.client.force_login(self.user)
+
+    def test_git_checkout_command_field_appears_in_form(self):
+        """Test that git_checkout_command field is present in the form."""
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("git_checkout_command", resp.context["form"].fields)
+
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    def test_git_checkout_command_save_valid_json(self, trigger_build):
+        """Test that multiline input can be saved to git_checkout_command."""
+        commands = [
+            "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL",
+            "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+        ]
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+            "git_checkout_command": "\n".join(commands),
+        }
+
+        resp = self.client.post(self.url, data=data)
+        self.assertEqual(resp.status_code, 302)
+
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.git_checkout_command, commands)
+
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    def test_git_checkout_command_empty_value(self, trigger_build):
+        """Test that empty value sets git_checkout_command to None."""
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+            "git_checkout_command": "",
+        }
+
+        resp = self.client.post(self.url, data=data)
+        self.assertEqual(resp.status_code, 302)
+
+        self.project.refresh_from_db()
+        self.assertIsNone(self.project.git_checkout_command)
+
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    def test_git_checkout_command_display_existing_value(self, trigger_build):
+        """Test that existing git_checkout_command is displayed as formatted JSON."""
+        commands = [
+            "git clone --depth 1 $READTHEDOCS_GIT_CLONE_URL",
+            "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+        ]
+        self.project.git_checkout_command = commands
+        self.project.save()
+
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+
+        # The field should have the initial value as formatted JSON
+        initial = resp.context["form"].initial["git_checkout_command"]
+        expected_json = "\n".join(commands)
+        self.assertEqual(initial, expected_json)
+
+
+class TestProjectDetailView(TestCase):
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user], privacy_level=PUBLIC)
+
+    def test_view(self):
+        url = reverse("projects_detail", args=[self.project.slug])
+        resp = self.client.get(url)
+        assert resp.status_code == 200
+
+        assert "badge_url" in resp.context
+        assert "site_url" in resp.context
+
+    def test_project_detail_view_no_valid_default_version(self):
+        self.project.default_version = "404"
+        self.project.save()
+        self.project.versions.all().delete()
+
+        url = reverse("projects_detail", args=[self.project.slug])
+        resp = self.client.get(url)
+
+        # Should return 200 and not error
+        assert resp.status_code == 200
+
+        # badge_url and site_url should not be in context when default version doesn't exist
+        assert "badge_url" not in resp.context
+        assert "site_url" not in resp.context

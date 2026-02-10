@@ -168,6 +168,50 @@ But we recommend using :ref:`config-file/v2:build.jobs` instead:
 but in a more structured way that allows you to define different commands for each format,
 while also supporting installing system dependencies via ``build.apt_packages``.
 
+Custom Git checkout commands (advanced)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Read the Docs supports overriding the default :term:`checkout job <pre-defined build jobs>`
+with a custom sequence of :program:`git` commands.
+This is useful for advanced workflows like sparse checkouts or custom cloning strategies.
+
+To enable this feature, go to your project's :term:`dashboard` and update
+:menuselection:`Settings --> Custom Git checkout commands`.
+Enter one command per line.
+
+.. note::
+
+  When you define custom Git checkout commands, Read the Docs will not run the default Git clone or checkout.
+  Your commands must perform the clone and checkout of the desired revision.
+
+.. tip::
+
+  If you just want to run some extra commands after the default Git checkout,
+  like unshallowing the clone or fetching extra branches,
+  you should use the ``build.jobs.post_checkout`` user-defined job instead.
+
+  In case you want to clone submodules, you can use the :ref:`config-file/v2:submodules` config key for that.
+
+
+Commands are executed in order, in the repository working directory.
+You can use :doc:`pre-defined environment variables </reference/environment-variables>`
+such as :envvar:`READTHEDOCS_GIT_CLONE_URL`, :envvar:`READTHEDOCS_GIT_IDENTIFIER`,
+and :envvar:`READTHEDOCS_REPOSITORY_PATH`.
+
+.. code-block:: text
+  :caption: Example of custom Git checkout commands
+
+  git clone --no-checkout --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .
+  git sparse-checkout init --cone
+  git sparse-checkout set docs
+  git checkout $READTHEDOCS_GIT_IDENTIFIER
+
+.. warning::
+
+  This is an advanced feature.
+  Incorrect commands can prevent builds from checking out code or can expose sensitive files in your repository.
+  If you are unsure, use :doc:`build customization with build.jobs </build-customization>` instead.
+
 Examples
 --------
 

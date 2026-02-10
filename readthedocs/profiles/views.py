@@ -43,6 +43,7 @@ from readthedocs.oauth.migrate import get_installation_target_groups_for_user
 from readthedocs.oauth.migrate import get_migrated_projects
 from readthedocs.oauth.migrate import get_migration_targets
 from readthedocs.oauth.migrate import get_old_app_link
+from readthedocs.oauth.migrate import get_projects_requiring_manual_migration
 from readthedocs.oauth.migrate import get_valid_projects_missing_migration
 from readthedocs.oauth.migrate import has_projects_pending_migration
 from readthedocs.oauth.migrate import migrate_project_to_github_app
@@ -375,6 +376,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         context["old_application_link"] = get_old_app_link()
         context["step_revoke_completed"] = self._is_access_to_old_github_accounts_revoked()
         context["old_github_accounts"] = self._get_old_github_accounts()
+        context["manual_migration_required"] = get_projects_requiring_manual_migration(user)
 
         # These can take some time, so we only load them when needed.
         if step == MigrationSteps.install:

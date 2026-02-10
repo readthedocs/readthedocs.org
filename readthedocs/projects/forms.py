@@ -444,6 +444,7 @@ class UpdateProjectForm(
             "versioning_scheme",
             "default_branch",
             "readthedocs_yaml_path",
+            "git_checkout_command",
             "search_indexing_enabled",
             "n_consecutive_failed_builds",
             # Meta data
@@ -462,6 +463,25 @@ class UpdateProjectForm(
         required=False,
         max_length=150,
         help_text=_("Short description of this project"),
+    )
+
+    # Custom field for git_checkout_command to provide help text
+    git_checkout_command = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 5,
+                "placeholder": "\n".join(
+                    [
+                        "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL",
+                        "git sparse-checkout init --cone",
+                        "git sparse-checkout set projects/$READTHEDOCS_PROJECT_SLUG",
+                        "git checkout $READTHEDOCS_GIT_IDENTIFIER",
+                    ],
+                ),
+            }
+        ),
+        help_text=_("Custom Git checkout commands (one command per line)."),
     )
 
     def __init__(self, *args, **kwargs):
@@ -524,6 +544,10 @@ class UpdateProjectForm(
         else:
             self.fields["default_version"].widget.attrs["readonly"] = True
 
+        # Represent the JSON field as a textarea with one command per line.
+        if self.instance.git_checkout_command:
+            self.initial["git_checkout_command"] = "\n".join(self.instance.git_checkout_command)
+
         self.setup_external_builds_option()
 
     def get_all_active_versions(self):
@@ -580,6 +604,13 @@ class UpdateProjectForm(
                     ),
                 )
         return tags
+
+    def clean_git_checkout_command(self):
+        """Parse and validate git_checkout_command as a JSON array."""
+        value = self.cleaned_data.get("git_checkout_command")
+        if not value:
+            return None
+        return [line.strip() for line in value.splitlines() if line.strip()]
 
     def save(self, commit=True):
         instance = super().save(commit)

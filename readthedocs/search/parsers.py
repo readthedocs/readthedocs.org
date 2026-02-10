@@ -20,8 +20,8 @@ class GenericParser:
     # to avoid filling the index with too much data.
     # The limit may be exceeded if the content is too large,
     # or if the content is malformed.
-    # A raw approximation of bytes based on the number of characters (~1.5 MB).
-    max_content_length = int(1.5 * 1024 * 1024)
+    # A raw approximation of bytes based on the number of characters (~1MB).
+    max_content_length = int(1024 * 1024)
 
     # Block level elements have an implicit line break before and after them.
     # List taken from: https://www.w3schools.com/htmL/html_blocks.asp.
@@ -318,6 +318,11 @@ class GenericParser:
            This will mutate the original `body`.
         """
         nodes_to_be_removed = itertools.chain(
+            # Non-content nodes
+            body.css("script"),
+            body.css("style"),
+            body.css("template"),
+            body.css("noscript"),
             # Navigation nodes
             body.css("nav"),
             body.css("[role=navigation]"),

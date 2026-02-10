@@ -12,9 +12,7 @@ from django.db.models import Q
 
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.history import set_change_reason
-from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.core.utils.db import raw_delete_in_batches
-from readthedocs.projects.models import AddonsConfig
 from readthedocs.projects.models import ImportedFile
 from readthedocs.worker import app
 
@@ -126,15 +124,3 @@ def delete_outdated_imported_files(limit):
     """
     query = ImportedFile.objects.exclude(Q(path="404.html") | Q(name="index.html"))
     raw_delete_in_batches(query, limit=limit)
-
-
-@app.task(queue="web")
-def delete_orphaned_addons_configs(limit):
-    """
-    Delete all AddonsConfig objects.
-
-    These were created by mistake, and are not linked to any project.
-    """
-    # NOTE: we can't raw delete because AddonsConfig is related to other models (AddonSearchFilter).
-    query = AddonsConfig.objects.filter(project=None)
-    delete_in_batches(query, limit=limit)
