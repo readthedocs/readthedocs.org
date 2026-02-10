@@ -586,8 +586,12 @@ class GitHubAppWebhookHandler:
             ).exclude(version_type=EXTERNAL)
             if push_rules.exists():
                 triggered = False
+                changed_files = self._get_changed_files_from_push_event()
                 for rule in push_rules.iterator():
-                    if rule.match(webhook_data=self.data) and rule.version_type == version_type:
+                    if (
+                        rule.match(changed_files=changed_files)
+                        and rule.version_type == version_type
+                    ):
                         log.info(
                             "Push automation rule matched, triggering build.",
                             project_slug=project.slug,
@@ -647,7 +651,8 @@ class GitHubAppWebhookHandler:
                 if push_rules.exists():
                     triggered = False
                     for rule in push_rules.iterator():
-                        if rule.match(webhook_data=self.data):
+                        changed_files = self._get_changed_files_from_pull_request_event(project)
+                        if rule.match(changed_files=changed_files):
                             log.info(
                                 "Push automation rule matched, triggering build.",
                                 project_slug=project.slug,
@@ -824,6 +829,45 @@ class GitHubAppWebhookHandler:
         if created and sync_repositories_on_create:
             installation.service.sync()
         return installation, created
+
+    def _get_changed_files_from_push_event(self):
+        """
+        Get the list of changed files from the push event.
+
+        It considers the changes in the latest commit only.
+
+        :return: List of file paths
+        """
+        changed_files = set()
+        commits = self.data.get("commits", [])
+        if commits:
+            last_commit = commits[-1]
+            changed_files.update(last_commit.get("added", []))
+            changed_files.update(last_commit.get("modified", []))
+            changed_files.update(last_commit.get("removed", []))
+        return changed_files
+
+    def _get_changed_files_from_pull_request_event(self, project):
+        """
+        Get the list of changed files from the pull request event.
+
+        It considers the changes in the latest commit only.
+
+        :return: List of file paths
+        """
+        changed_files = set()
+        installation, created = self._get_or_create_installation()
+        commits = list(
+            installation.service.installation_client.get_repo(
+                int(project.remote_repository.remote_id)
+            )
+            .get_pull(int(self.data["pull_request"]["number"]))
+            .get_commits()
+        )
+        last_commit = commits[-1] if commits else None
+        for f in last_commit.files:
+            changed_files.add(f.filename)
+        return changed_files
 
 
 @app.task(queue="web")

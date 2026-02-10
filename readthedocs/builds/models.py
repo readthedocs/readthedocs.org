@@ -53,7 +53,6 @@ from readthedocs.builds.version_slug import version_slug_validator
 from readthedocs.core.utils import extract_valid_attributes_for_model
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.utils import get_changed_files_from_webhook
 from readthedocs.projects.constants import BITBUCKET_COMMIT_URL
 from readthedocs.projects.constants import DOCTYPE_CHOICES
 from readthedocs.projects.constants import GITHUB_COMMIT_URL
@@ -1354,16 +1353,13 @@ class PushAutomationRule(VersionAutomationRule):
     class Meta:
         proxy = True
 
-    def match(self, webhook_data):
+    def match(self, changed_files):
         """
         Check if any file in the list matches the rule pattern.
 
-        :param webhook_data: List of file paths that were modified/added/deleted
+        :param changed_files: List of file paths that were modified/added/deleted
         :return: True if any file matches the rule pattern, False otherwise
         """
-
-        # Extract the list of modified files from the push event
-        changed_files = get_changed_files_from_webhook(webhook_data)
         match_arg = self.get_match_arg()
         for file_path in changed_files:
             if fnmatch.fnmatch(file_path, match_arg):
