@@ -734,18 +734,18 @@ class TestWebhookAutomationRules:
             # Exact match
             ("docs/index.rst", ["docs/index.rst"], True),
             ("docs/index.rst", ["docs/other.rst"], False),
-            # Wildcard matches
+            # Wildcard matches - NOTE: fnmatch * matches across / unlike shell globs
             ("*.py", ["test.py"], True),
-            ("*.py", ["src/test.py"], True),  # fnmatch * matches across /
+            ("*.py", ["src/test.py"], True),  # * matches everything including /
             ("*.py", ["test.txt"], False),
-            # Recursive wildcard
-            ("**/*.py", ["test.py"], False),  # ** needs directory before it
+            # Recursive wildcard - ** is just two * wildcards in fnmatch
+            ("**/*.py", ["test.py"], False),  # literal ** needs dir before *.py
             ("**/*.py", ["src/test.py"], True),
             ("**/*.py", ["src/deep/test.py"], True),
             ("**/*.py", ["test.txt"], False),
             # Directory patterns
             ("docs/*", ["docs/index.rst"], True),
-            ("docs/*", ["docs/subdir/index.rst"], True),  # fnmatch * matches /
+            ("docs/*", ["docs/subdir/index.rst"], True),  # * matches across /
             ("docs/**", ["docs/index.rst"], True),
             ("docs/**", ["docs/subdir/index.rst"], True),
             ("docs/**", ["src/index.rst"], False),
@@ -753,7 +753,7 @@ class TestWebhookAutomationRules:
             ("docs/*.rst", ["docs/index.rst"], True),
             ("docs/*.rst", ["docs/api.rst"], True),
             ("docs/*.rst", ["docs/index.md"], False),
-            ("docs/*.rst", ["docs/subdir/index.rst"], True),  # fnmatch * matches /
+            ("docs/*.rst", ["docs/subdir/index.rst"], True),  # * matches across /
             # Question mark wildcard
             ("file?.txt", ["file1.txt"], True),
             ("file?.txt", ["file2.txt"], True),
