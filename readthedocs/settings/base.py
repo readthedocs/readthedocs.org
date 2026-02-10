@@ -770,14 +770,6 @@ class CommunityBaseSettings(Settings):
             "options": {"queue": "web"},
             "kwargs": {"limit": 10_000},
         },
-        # TODO: delete this task when all orphan AddonConfig objects are deleted.
-        # It should take around 6 days on community, commercial doesn't have this problem.
-        "every-hour-delete-orphaned-addons-configs": {
-            "task": "readthedocs.core.tasks.delete_orphaned_addons_configs",
-            "schedule": crontab(minute=30, hour="*"),
-            "options": {"queue": "web"},
-            "kwargs": {"limit": 5_000},
-        },
     }
 
     # Sentry
@@ -931,7 +923,6 @@ class CommunityBaseSettings(Settings):
     GITHUB_APP_NAME = "readthedocs"
     GITHUB_APP_PRIVATE_KEY = ""
     GITHUB_APP_WEBHOOK_SECRET = ""
-    RTD_ALLOW_GITHUB_APP = True
 
     @property
     def GITHUB_APP_CLIENT_ID(self):

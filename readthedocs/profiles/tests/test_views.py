@@ -171,6 +171,11 @@ class TestMigrateToGitHubAppView(TestCase):
             users=[self.user],
             repo="https://github.com/user/repo-e",
         )
+        self.project_without_remote_repository_bitbucket = get(
+            Project,
+            users=[self.user],
+            repo="https://bitbucket.org/user/repo-f",
+        )
 
         # Make tests work on .com.
         if settings.RTD_ALLOW_ORGANIZATIONS:
@@ -257,6 +262,7 @@ class TestMigrateToGitHubAppView(TestCase):
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is False
         assert list(context["migrated_projects"]) == []
+        assert list(context["manual_migration_required"]) == [self.project_without_remote_repository]
         assert (
             context["old_application_link"]
             == "https://github.com/settings/connections/applications/123"
@@ -344,6 +350,7 @@ class TestMigrateToGitHubAppView(TestCase):
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
         assert list(context["migrated_projects"]) == []
+        assert list(context["manual_migration_required"]) == [self.project_without_remote_repository]
         assert (
             context["old_application_link"]
             == "https://github.com/settings/connections/applications/123"
@@ -357,7 +364,7 @@ class TestMigrateToGitHubAppView(TestCase):
         response = self.client.get(self.url, data={"step": "install"})
         assert response.status_code == 200
         context = response.context
-        assert context["installation_target_groups"] == [
+        assert set(context["installation_target_groups"]) == set([
             InstallationTargetGroup(
                 target=GitHubAccountTarget(
                     id=int(self.social_account_github.uid),
@@ -378,14 +385,14 @@ class TestMigrateToGitHubAppView(TestCase):
                 ),
                 repository_ids={4444},
             ),
-        ]
+        ])
         assert "migration_targets" not in context
         assert "has_projects_pending_migration" not in context
 
         response = self.client.get(self.url, data={"step": "migrate"})
         assert response.status_code == 200
         context = response.context
-        assert context["migration_targets"] == [
+        assert set(context["migration_targets"]) == set([
             MigrationTarget(
                 project=self.project_with_remote_repository,
                 has_installation=False,
@@ -410,7 +417,7 @@ class TestMigrateToGitHubAppView(TestCase):
                 is_admin=False,
                 target_id=int(self.remote_organization.remote_id),
             ),
-        ]
+        ])
         assert "installation_target_groups" not in context
         assert "has_projects_pending_migration" not in context
 
@@ -436,6 +443,7 @@ class TestMigrateToGitHubAppView(TestCase):
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
         assert list(context["migrated_projects"]) == []
+        assert list(context["manual_migration_required"]) == [self.project_without_remote_repository]
         assert (
             context["old_application_link"]
             == "https://github.com/settings/connections/applications/123"
@@ -541,6 +549,7 @@ class TestMigrateToGitHubAppView(TestCase):
         assert list(context["migrated_projects"]) == [
             self.project_with_remote_repository,
         ]
+        assert list(context["manual_migration_required"]) == [self.project_without_remote_repository]
         assert (
             context["old_application_link"]
             == "https://github.com/settings/connections/applications/123"
@@ -638,6 +647,7 @@ class TestMigrateToGitHubAppView(TestCase):
             self.project_with_remote_repository,
             self.project_with_remote_organization,
         ]
+        assert list(context["manual_migration_required"]) == [self.project_without_remote_repository]
         assert (
             context["old_application_link"]
             == "https://github.com/settings/connections/applications/123"
@@ -729,6 +739,7 @@ class TestMigrateToGitHubAppView(TestCase):
         assert list(context["migrated_projects"]) == [
             self.project_with_remote_repository,
         ]
+        assert list(context["manual_migration_required"]) == [self.project_without_remote_repository]
         assert (
             context["old_application_link"]
             == "https://github.com/settings/connections/applications/123"
@@ -819,6 +830,7 @@ class TestMigrateToGitHubAppView(TestCase):
         assert context["step"] == "overview"
         assert context["step_connect_completed"] is True
         assert list(context["migrated_projects"]) == []
+        assert list(context["manual_migration_required"]) == [self.project_without_remote_repository]
         assert (
             context["old_application_link"]
             == "https://github.com/settings/connections/applications/123"

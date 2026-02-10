@@ -37,6 +37,7 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
 from readthedocs.core.utils import slugify
+from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
@@ -729,6 +730,13 @@ class Project(models.Model):
         # Remove extra resources
         clean_project_resources(self)
 
+        # NOTE: we delete in batches to avoid expensive queries when we have lots
+        # of versions to delete. The PageView table can sometimes timeout when querying
+        # several versions like PageView.objects.filter(version_id__in=[....]).
+        # When querying more than ~67 versions, postgres will ignore the index,
+        # and do a sequential scan, which is expensive on this table.
+        delete_in_batches(self.versions.all(), batch_size=50)
+
         super().delete(*args, **kwargs)
 
     def clean(self):
@@ -882,6 +890,10 @@ class Project(models.Model):
             return self.custom_prefix
         return None
 
+    @property
+    def is_public(self):
+        return self.privacy_level == PUBLIC
+
     @cached_property
     def subproject_prefix(self):
         """
@@ -977,6 +989,20 @@ class Project(models.Model):
         if match:
             return f"https://{match.group('host')}/{match.group('repo')}"
         return self.repo
+
+    @property
+    def repository_full_name(self):
+        """
+        Return the full name of the repository.
+
+        If the project is linked to a remote repository,
+        it uses the remote repository full name. Otherwise,
+        it returns the path part of the repository URL.
+        """
+        if self.remote_repository:
+            return self.remote_repository.full_name
+        parsed = urlparse(self.repository_html_url)
+        return parsed.path.strip("/").removesuffix(".git")
 
     # Doc PATH:
     # MEDIA_ROOT/slug/checkouts/version/<repo>

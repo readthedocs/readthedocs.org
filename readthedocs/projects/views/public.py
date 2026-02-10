@@ -135,17 +135,17 @@ class ProjectDetailViewBase(
             protocol = "https"
 
         default_version_slug = project.get_default_version()
-        default_version = project.versions.get(slug=default_version_slug)
-
-        context["badge_url"] = ProjectBadgeView.get_badge_url(
-            project.slug,
-            default_version_slug,
-            protocol=protocol,
-        )
-        context["site_url"] = "{url}?badge={version}".format(
-            url=Resolver().resolve_version(project, version=default_version),
-            version=default_version_slug,
-        )
+        default_version = project.versions.filter(slug=default_version_slug).first()
+        if default_version:
+            context["badge_url"] = ProjectBadgeView.get_badge_url(
+                project.slug,
+                default_version_slug,
+                protocol=protocol,
+            )
+            context["site_url"] = "{url}?badge={version}".format(
+                url=Resolver().resolve_version(project, version=default_version),
+                version=default_version_slug,
+            )
 
         context["is_project_admin"] = AdminPermission.is_admin(
             self.request.user,

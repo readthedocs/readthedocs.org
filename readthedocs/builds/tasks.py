@@ -381,8 +381,10 @@ def send_build_status(build_pk, commit, status):
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
-    build = Build.objects.filter(pk=build_pk).first()
-    if not build:
+    build = Build.objects.filter(pk=build_pk).select_related("version").first()
+    # Bulds without a verion shouldn't send status, it can happen when
+    # a build from a deleted version is being processed (race condition).
+    if not build or not build.version:
         return
 
     structlog.contextvars.bind_contextvars(

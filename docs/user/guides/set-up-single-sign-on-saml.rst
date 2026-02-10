@@ -29,29 +29,31 @@ In order to enable SSO with Okta, you need to create a new SAML application in y
 2. Click on :guilabel:`Applications`.
 3. Click on :guilabel:`Create App Integration`.
 4. Choose :guilabel:`SAML 2.0`, and click :guilabel:`Next`.
-5. Fill in the following fields with the information from `your SAML integration <https://app.readthedocs.com/organizations/choose/organization_saml/>`__:
+5. Fill the following fields:
 
-   * :guilabel:`App name`: Read the Docs
+   * :guilabel:`App name`: Read the Docs (or any name you want)
    * :guilabel:`App logo`: Optionally you can use the `Read the Docs logo <https://brand-guidelines.readthedocs.org/_images/logo-wordmark-vertical-compact-dark.png>`__.
    * :guilabel:`App visibility`: (optional)
+
+6. Click :guilabel:`Next`.
+7. Fill in the following fields with the information from `your SAML integration <https://app.readthedocs.com/organizations/choose/organization_saml/>`__:
+
    * :guilabel:`Single Sign On URL`: ``https://app.readthedocs.com/accounts/saml/<organization-slug>/acs/`` (replace ``<organization-slug>`` with your organization slug)
    * :guilabel:`Audience URI (SP Entity ID)`: ``https://app.readthedocs.com/accounts/saml/<organization-slug>/metadata/`` (replace ``<organization-slug>`` with your organization slug)
    * :guilabel:`Name ID format`: ``EmailAddress``
    * :guilabel:`Application username`: ``Email``
    * Leave the rest of the fields as default.
 
-6. Add the following "attribute statements" to be used when creating a new user:
-
-   .. csv-table::
-      :header: "Name", "Format", "Value"
-
-      "user.id", "Basic", "user.id"
-      "user.firstName", "Basic", "user.firstName"
-      "user.lastName", "Basic", "user.lastName"
-
-7. Click :guilabel:`Next`.
 8. Select ``This is an internal app that we have created``.
 9. Click :guilabel:`Finish`.
+10. After creating the application, go to the "Attribute statements" section, and add the following statements:
+
+   .. csv-table::
+      :header: "Name", "Expression"
+
+      "user.id", "user.id"
+      "user.firstName", "user.profile.firstName"
+      "user.lastName", "user.profile.lastName"
 
 .. vale RTD.features = YES
 
@@ -93,6 +95,16 @@ To configure a team for users to join automatically:
 
 User management
 ---------------
+
+Signing in with SAML
+~~~~~~~~~~~~~~~~~~~~
+
+Once SAML is enabled for your organization, users can sign in using SAML by following these steps:
+
+1. Go to `https://app.readthedocs.com/ <https://app.readthedocs.com/>`__.
+2. Click on the :guilabel:`Single sign-on` tab.
+3. Enter your company email address.
+4. Click :guilabel:`Continue` to be redirected to your organization's identity provider to complete the sign-in process.
 
 New users
 ~~~~~~~~~
