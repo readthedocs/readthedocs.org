@@ -1335,11 +1335,11 @@ class RegexAutomationRule(VersionAutomationRule):
         )
 
 
-class PushAutomationRule(VersionAutomationRule):
+class WebhookAutomationRule(VersionAutomationRule):
     """
-    Automation rule for filtering builds based on files changed in push events.
+    Automation rule for filtering builds based on files changed in webhook events.
 
-    This rule is executed when a push webhook event is received, and checks if the
+    This rule is executed when a webhook push event is received, and checks if the
     files modified/added/deleted in the push match the rule patterns. If they do,
     the build is triggered for the affected version.
     """

@@ -29,14 +29,14 @@ from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.forms import PushAutomationRuleForm
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
+from readthedocs.builds.forms import WebhookAutomationRuleForm
 from readthedocs.builds.models import AutomationRuleMatch
-from readthedocs.builds.models import PushAutomationRule
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
+from readthedocs.builds.models import WebhookAutomationRule
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import AsyncDeleteViewWithMessage
@@ -1116,17 +1116,17 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     success_message = _("Automation rule updated")
 
 
-class PushAutomationRuleMixin(AutomationRuleMixin):
-    model = PushAutomationRule
-    form_class = PushAutomationRuleForm
+class WebhookAutomationRuleMixin(AutomationRuleMixin):
+    model = WebhookAutomationRule
+    form_class = WebhookAutomationRuleForm
 
 
-class PushAutomationRuleCreate(PushAutomationRuleMixin, CreateView):
-    success_message = _("Push automation rule created")
+class WebhookAutomationRuleCreate(WebhookAutomationRuleMixin, CreateView):
+    success_message = _("Webhook automation rule created")
 
 
-class PushAutomationRuleUpdate(PushAutomationRuleMixin, UpdateView):
-    success_message = _("Push automation rule updated")
+class WebhookAutomationRuleUpdate(WebhookAutomationRuleMixin, UpdateView):
+    success_message = _("Webhook automation rule updated")
 
 
 class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):

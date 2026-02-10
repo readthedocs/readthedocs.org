@@ -19,10 +19,10 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_TEXT
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.constants import TAG_TEXT
-from readthedocs.builds.models import PushAutomationRule
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
+from readthedocs.builds.models import WebhookAutomationRule
 from readthedocs.builds.version_slug import generate_version_slug
 
 
@@ -222,7 +222,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
         return self.project
 
 
-class PushAutomationRuleForm(forms.ModelForm):
+class WebhookAutomationRuleForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
     match_arg = forms.CharField(
         label="File pattern match",
@@ -233,7 +233,7 @@ class PushAutomationRuleForm(forms.ModelForm):
     )
 
     class Meta:
-        model = PushAutomationRule
+        model = WebhookAutomationRule
         fields = [
             "project",
             "description",
@@ -259,7 +259,7 @@ class PushAutomationRuleForm(forms.ModelForm):
             (EXTERNAL, EXTERNAL_TEXT),
         ]
 
-        # Only list supported actions (push rules only support trigger build)
+        # Only list supported actions (webhook rules only support trigger build)
         self.fields["action"].choices = [
             (None, "-" * 9),
             (VersionAutomationRule.TRIGGER_BUILD_ACTION, "Trigger build"),

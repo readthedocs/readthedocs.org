@@ -562,7 +562,7 @@ class GitHubAppWebhookHandler:
         If a new branch or tag is created, we trigger a sync of the versions,
         if the version already exists, we build it if it's active.
 
-        If push automation rules are configured, they are checked to decide whether
+        If webhook automation rules are configured, they are checked to decide whether
         a build should be triggered based on the files that were modified.
 
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#push.
@@ -576,24 +576,24 @@ class GitHubAppWebhookHandler:
 
         version_name, version_type = parse_version_from_ref(self.data["ref"])
         for project in self._get_projects():
-            # If the project has push automation rules,
+            # If the project has webhook automation rules,
             # we check if any of them matches.
             # If none one matches, it finishes here.
-            # However, if there are no push automation rules configured,
+            # However, if there are no webhook automation rules configured,
             # we continue with the build as usual.
-            push_rules = project.automation_rules.filter(
-                polymorphic_ctype__model="pushautomationrule"
+            webhook_rules = project.automation_rules.filter(
+                polymorphic_ctype__model="webhookautomationrule"
             ).exclude(version_type=EXTERNAL)
-            if push_rules.exists():
+            if webhook_rules.exists():
                 triggered = False
                 changed_files = self._get_changed_files_from_push_event()
-                for rule in push_rules.iterator():
+                for rule in webhook_rules.iterator():
                     if (
                         rule.match(changed_files=changed_files)
                         and rule.version_type == version_type
                     ):
                         log.info(
-                            "Push automation rule matched, triggering build.",
+                            "Webhook automation rule matched, triggering build.",
                             project_slug=project.slug,
                             rule_id=rule.pk,
                             rule_version_type=rule.version_type,
@@ -605,7 +605,7 @@ class GitHubAppWebhookHandler:
 
                 if not triggered:
                     log.info(
-                        "No push automation rule matched, skipping build.",
+                        "No webhook automation rule matched, skipping build.",
                         project_slug=project.slug,
                     )
             else:
@@ -638,23 +638,23 @@ class GitHubAppWebhookHandler:
                     version_data=external_version_data,
                 )
 
-                # NOTE: skip building PR if there are pushautomationrules matching.
-                # If the project has push automation rules,
+                # NOTE: skip building PR if there are webhook automation rules matching.
+                # If the project has webhook automation rules,
                 # we check if any of them matches.
                 # If none one matches, it finishes here.
-                # However, if there are no push automation rules configured,
+                # However, if there are no webhook automation rules configured,
                 # we continue with the build as usual.
-                push_rules = project.automation_rules.filter(
-                    polymorphic_ctype__model="pushautomationrule",
+                webhook_rules = project.automation_rules.filter(
+                    polymorphic_ctype__model="webhookautomationrule",
                     version_type=EXTERNAL,
                 )
-                if push_rules.exists():
+                if webhook_rules.exists():
                     triggered = False
-                    for rule in push_rules.iterator():
+                    for rule in webhook_rules.iterator():
                         changed_files = self._get_changed_files_from_pull_request_event(project)
                         if rule.match(changed_files=changed_files):
                             log.info(
-                                "Push automation rule matched, triggering build.",
+                                "Webhook automation rule matched, triggering build.",
                                 project_slug=project.slug,
                                 rule_id=rule.pk,
                             )
@@ -662,7 +662,7 @@ class GitHubAppWebhookHandler:
                             rule.run(external_version)
                     if not triggered:
                         log.info(
-                            "No push automation rule matched, skipping build.",
+                            "No webhook automation rule matched, skipping build.",
                             project_slug=project.slug,
                         )
                 else:

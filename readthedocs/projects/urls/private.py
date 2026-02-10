@@ -49,12 +49,12 @@ from readthedocs.projects.views.private import ProjectUsersList
 from readthedocs.projects.views.private import ProjectVersionCreate
 from readthedocs.projects.views.private import ProjectVersionDeleteHTML
 from readthedocs.projects.views.private import ProjectVersionDetail
-from readthedocs.projects.views.private import PushAutomationRuleCreate
-from readthedocs.projects.views.private import PushAutomationRuleUpdate
 from readthedocs.projects.views.private import RegexAutomationRuleCreate
 from readthedocs.projects.views.private import RegexAutomationRuleUpdate
 from readthedocs.projects.views.private import SearchAnalytics
 from readthedocs.projects.views.private import TrafficAnalyticsView
+from readthedocs.projects.views.private import WebhookAutomationRuleCreate
+from readthedocs.projects.views.private import WebhookAutomationRuleUpdate
 from readthedocs.projects.views.private import WebHookCreate
 from readthedocs.projects.views.private import WebHookDelete
 from readthedocs.projects.views.private import WebHookExchangeDetail
@@ -386,12 +386,12 @@ automation_rule_urls = [
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/rules/push/create/$",
-        PushAutomationRuleCreate.as_view(),
+        WebhookAutomationRuleCreate.as_view(),
         name="projects_automation_rule_push_create",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/rules/push/(?P<automation_rule_pk>[-\w]+)/$",
-        PushAutomationRuleUpdate.as_view(),
+        WebhookAutomationRuleUpdate.as_view(),
         name="projects_automation_rule_push_edit",
     ),
 ]
