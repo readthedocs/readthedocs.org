@@ -188,7 +188,7 @@ Enter one command per line.
 
   If you just want to run some extra commands after the default Git checkout,
   like unshallowing the clone or fetching extra branches,
-  you can consider using the ``build.jobs.post_checkout`` user-defined job instead.
+  you should use the ``build.jobs.post_checkout`` user-defined job instead.
 
   In case you want to clone submodules, you can use the :ref:`config-file/v2:submodules` config key for that.
 
