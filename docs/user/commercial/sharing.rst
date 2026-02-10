@@ -12,6 +12,12 @@ Common sharing use cases include:
 * Sharing documentation for your product only to specific customers.
 * Embedding documentation in a SaaS application dashboard.
 
+.. seealso::
+
+   :doc:`/api/v3`
+     You can automate sharing methods via ``/api/v3/projects/<project_slug>/sharing/``.
+     Project responses in API v3 also include ``_links.sharing`` on Read the Docs for Business.
+
 Creating a shared item
 ----------------------
 
