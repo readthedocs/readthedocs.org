@@ -303,7 +303,7 @@ Configuring GitHub App
 - Create a new GitHub app from https://github.com/settings/apps/new.
 - ``Callback URL`` should be ``http://devthedocs.org/accounts/githubapp/login/callback/``.
 - Keep marked ``Expire user authorization tokens``
-- Activate the webhook, and set the ``Webhook URL`` to one provided by a service like `Webhook.site <https://docs.webhook.site/cli.html>`__ to forward all incoming webhooks to your local development instance.
+- Activate the webhook, and set the ``Webhook URL`` to one provided by a service like `Webhook.site <https://docs.webhook.site/cli.html>`__ to forward all incoming webhooks to your local development instance. Example: ``https://webhook.site/e6e53a09-1551-4942-a750-c967bc577846``
 - In permissions, select the following:
 
   - Repository permissions
