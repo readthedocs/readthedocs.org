@@ -357,7 +357,8 @@ class SearchAPITest(SearchTestBase):
         """Test that pagination respects the max_result_window limit."""
         # Test that requesting a page that would exceed max_result_window (5000) fails
         # With page_size=15 (default), page 334 would end at 5010 (334*15),
-        # which exceeds the max_result_window of 5000
+        # which exceeds the max_result_window of 5000.
+        # Page 334 is the first page that exceeds the limit with default page_size.
         resp = self.get(self.url, data={"q": "project:project test", "page": 334})
         self.assertEqual(resp.status_code, 400)
         self.assertIn("Page number is too high", str(resp.data))
@@ -389,7 +390,7 @@ class SearchAPITest(SearchTestBase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        # page 501 would exceed the limit (ends at 5010, which is > 5000)
+        # page 501 with page_size=10 would exceed the limit (501*10 = 5010, which is > 5000)
         resp = self.get(
             self.url, data={"q": "project:project test", "page": 501, "page_size": 10}
         )
