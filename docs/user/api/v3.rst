@@ -185,7 +185,6 @@ Projects list
                     "subprojects": "/api/v3/projects/pip/subprojects/",
                     "superproject": "/api/v3/projects/pip/superproject/",
                     "redirects": "/api/v3/projects/pip/redirects/",
-                    "sharing": "/api/v3/projects/pip/sharing/",
                     "translations": "/api/v3/projects/pip/translations/"
                 }
             }]
@@ -209,7 +208,6 @@ Projects list
 
          * **expand** (*string*) -- Add additional fields in the response.
            Allowed values are: ``organization``.
-         * **_links.sharing** (*string*) -- Link to manage sharing methods (secret link, password, and HTTP header token).
 
 
 
@@ -298,7 +296,6 @@ Project details
                 "subprojects": "/api/v3/projects/pip/subprojects/",
                 "superproject": "/api/v3/projects/pip/superproject/",
                 "redirects": "/api/v3/projects/pip/redirects/",
-                "sharing": "/api/v3/projects/pip/sharing/",
                 "translations": "/api/v3/projects/pip/translations/"
             }
         }
@@ -328,7 +325,6 @@ Project details
            We used to return a full organization object in the response,
            due to privacy concerns, now we return only the slug of the organization.
            If you need to get the full organization object, you can use the organization endpoint with the slug.
-         * **_links.sharing** (*string*) -- Link to manage sharing methods (secret link, password, and HTTP header token).
 
     .. note::
 
@@ -1951,7 +1947,6 @@ Organization projects list
                        "builds": "https://app.readthedocs.com/api/v3/projects/pypa-pip/builds/",
                        "environmentvariables": "https://app.readthedocs.com/api/v3/projects/pypa-pip/environmentvariables/",
                        "redirects": "https://app.readthedocs.com/api/v3/projects/pypa-pip/redirects/",
-                       "sharing": "https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/",
                        "subprojects": "https://app.readthedocs.com/api/v3/projects/pypa-pip/subprojects/",
                        "superproject": "https://app.readthedocs.com/api/v3/projects/pypa-pip/superproject/",
                        "translations": "https://app.readthedocs.com/api/v3/projects/pypa-pip/translations/",

@@ -16,7 +16,6 @@ Common sharing use cases include:
 
    :doc:`/api/v3`
      You can automate sharing methods via ``/api/v3/projects/<project_slug>/sharing/``.
-     Project responses in API v3 also include ``_links.sharing`` on Read the Docs for Business.
 
 Creating a shared item
 ----------------------
