@@ -225,7 +225,7 @@ class BaseTestDocumentSearch:
             "project": project.slug,
             "version": latest_version.slug,
         }
-        
+
         # Test that requesting a page that would exceed max_result_window (5000) fails
         # With page_size=15 (default), page 334 would start at index 4995 (334-1)*15
         # and end at 5010, which exceeds 5000
@@ -233,12 +233,12 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 400
         assert "Page number is too high" in str(resp.data)
-        
+
         # Test that page 333 is allowed (ends at 4995, which is < 5000)
         search_params["page"] = 333
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
-        
+
         # Test with custom page_size
         # With page_size=30, page 167 would start at 4980 and end at 5010, exceeding 5000
         search_params["page_size"] = 30
@@ -246,19 +246,19 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 400
         assert "Page number is too high" in str(resp.data)
-        
+
         # Test that page 166 is allowed with page_size=30 (ends at 4980, which is < 5000)
         search_params["page"] = 166
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
-        
+
         # Test edge case: exactly at the limit
         # page_size=10, page 500 would end exactly at 5000
         search_params["page_size"] = 10
         search_params["page"] = 500
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
-        
+
         # page 501 would exceed the limit
         search_params["page"] = 501
         resp = self.get_search(api_client, search_params)
@@ -273,25 +273,25 @@ class BaseTestDocumentSearch:
             "project": project.slug,
             "version": latest_version.slug,
         }
-        
+
         # Test negative page number
         search_params["page"] = -1
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 400
         assert "Invalid page" in str(resp.data)
-        
+
         # Test zero page number
         search_params["page"] = 0
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 400
         assert "Invalid page" in str(resp.data)
-        
+
         # Test non-numeric page number
         search_params["page"] = "invalid"
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 400
         assert "Invalid page" in str(resp.data)
-        
+
         # Test float page number
         search_params["page"] = 1.5
         resp = self.get_search(api_client, search_params)
