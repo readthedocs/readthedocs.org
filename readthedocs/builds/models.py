@@ -1357,11 +1357,27 @@ class WebhookAutomationRule(VersionAutomationRule):
         """
         Check if any file in the list matches the rule pattern.
 
+        Uses fnmatch with glob-style patterns similar to GitHub Actions path filtering.
+        Patterns support:
+        - * matches any characters except path separators within a single path segment
+        - ** matches zero or more path segments (entire directories)
+        - ? matches a single character
+        - [seq] matches any character in seq
+        - [!seq] matches any character not in seq
+
+        Examples:
+        - docs/** matches all files under docs/ recursively
+        - docs/* matches files directly in docs/ (not subdirectories)
+        - **/*.py matches all .py files anywhere
+        - *.txt matches .txt files in the root
+
         :param changed_files: List of file paths that were modified/added/deleted
         :return: True if any file matches the rule pattern, False otherwise
         """
         match_arg = self.get_match_arg()
         for file_path in changed_files:
+            # fnmatch treats ** as a glob pattern that matches across path separators
+            # This is similar to how GitHub Actions path filtering works
             if fnmatch.fnmatch(file_path, match_arg):
                 return True
         return False
