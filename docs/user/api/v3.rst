@@ -1564,6 +1564,236 @@ Environment variable delete
     :statuscode 204: Environment variable deleted successfully
 
 
+Sharing methods
+~~~~~~~~~~~~~~~
+
+Sharing methods allow you to grant temporary access to private documentation by using a secret link, a password, or an HTTP header token.
+See :doc:`/commercial/sharing` for more information.
+
+.. note::
+
+   The ``/api/v3/projects/<project_slug>/sharing/`` endpoint is only available in :doc:`Read the Docs for Business </commercial/index>`.
+
+
+Sharing method details
+++++++++++++++++++++++
+
+.. http:get:: /api/v3/projects/(str:project_slug)/sharing/(int:sharing_id)/
+
+    Retrieve details of a single sharing method for a project.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/1/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/1/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+       {
+           "_links": {
+               "_self": "https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/1/",
+               "project": "https://app.readthedocs.com/api/v3/projects/pypa-pip/"
+           },
+           "access_level": "readonly",
+           "access_type": "token",
+           "allow_all": true,
+           "description": "Support team access",
+           "expires": "2026-12-31",
+           "id": 1,
+           "last_used_at": null,
+           "project": "pypa-pip",
+           "token": "<generated-token>",
+           "url": "https://pypa-pip.readthedocs-hosted.com/_/sharing/<generated-token>?next=/en/latest/",
+           "versions": []
+       }
+
+
+Sharing methods listing
++++++++++++++++++++++++
+
+.. http:get:: /api/v3/projects/(str:project_slug)/sharing/
+
+    Retrieve list of all sharing methods for this project.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "count": 2,
+            "next": null,
+            "previous": null,
+            "results": ["SHARING METHOD"]
+        }
+
+
+Sharing method create
++++++++++++++++++++++
+
+.. http:post:: /api/v3/projects/(str:project_slug)/sharing/
+
+    Create a sharing method for this project.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            import json
+            URL = 'https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            data = json.load(open('body.json', 'rb'))
+            response = requests.post(
+                URL,
+                json=data,
+                headers=HEADERS,
+            )
+            print(response.json())
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "description": "Support team access",
+            "access_type": "token",
+            "allow_all": true,
+            "expires": "2026-12-31"
+        }
+
+    .. note::
+
+       - ``access_type`` can be ``token``, ``password``, or ``http_header_token``.
+       - ``password`` is required only when ``access_type`` is ``password``.
+       - ``allow_all`` defaults to ``true``.
+       - When ``allow_all`` is ``false``, ``versions`` must include at least one private active version slug.
+       - ``expires`` defaults to 7 days from creation.
+
+    **Example response**:
+
+    `See Sharing method details <#sharing-method-details>`_.
+
+    :statuscode 201: Sharing method created successfully.
+
+
+Sharing method update
++++++++++++++++++++++
+
+.. http:patch:: /api/v3/projects/(str:project_slug)/sharing/(int:sharing_id)/
+
+    Update a sharing method for this project.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X PATCH \
+              -H "Authorization: Token <token>" https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/1/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            import json
+            URL = 'https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/1/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            data = json.load(open('body.json', 'rb'))
+            response = requests.patch(
+                URL,
+                json=data,
+                headers=HEADERS,
+            )
+            print(response.json())
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "description": "Updated support team access"
+        }
+
+    **Example response**:
+
+    `See Sharing method details <#sharing-method-details>`_.
+
+
+Sharing method delete
++++++++++++++++++++++
+
+.. http:delete:: /api/v3/projects/(str:project_slug)/sharing/(int:sharing_id)/
+
+    Delete a sharing method for this project.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X DELETE \
+              -H "Authorization: Token <token>" https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/1/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/1/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.delete(URL, headers=HEADERS)
+            print(response.status_code)
+
+    :statuscode 204: Sharing method deleted successfully.
+
+
 Organizations
 ~~~~~~~~~~~~~
 
