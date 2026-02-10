@@ -1326,7 +1326,7 @@ class RegexAutomationRule(VersionAutomationRule):
             )
         except Exception:
             log.exception("Error parsing regex.", exc_info=True)
-        return False, None
+        return False
 
     def get_edit_url(self):
         return reverse(
