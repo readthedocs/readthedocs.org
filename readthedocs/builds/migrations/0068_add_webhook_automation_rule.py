@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="PushAutomationRule",
+            name="WebhookAutomationRule",
             fields=[],
             options={
                 "proxy": True,
