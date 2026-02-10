@@ -1,6 +1,9 @@
 # Packages required to build docs, independent of application dependencies
 
-sphinx
+# Pin Sphinx due to an issue with sphinx-tabs
+# https://github.com/executablebooks/sphinx-tabs/issues/209
+# https://github.com/executablebooks/sphinx-tabs/issues/212
+sphinx==8.2.3
 
 matplotlib  # opengraph social cards
 
