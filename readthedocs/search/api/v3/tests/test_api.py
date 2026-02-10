@@ -353,6 +353,73 @@ class SearchAPITest(SearchTestBase):
         self.assertEqual(len(results), 1)
         self.assertEqual(resp.data["query"], "test")
 
+    def test_search_pagination_max_result_window(self):
+        """Test that pagination respects the max_result_window limit."""
+        # Test that requesting a page that would exceed max_result_window (5000) fails
+        # With page_size=15 (default), page 334 would end at 5010 (334*15),
+        # which exceeds the max_result_window of 5000
+        resp = self.get(self.url, data={"q": "project:project test", "page": 334})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Page number is too high", str(resp.data))
+
+        # Test that page 333 is allowed (ends at 4995, which is <= 5000)
+        resp = self.get(self.url, data={"q": "project:project test", "page": 333})
+        self.assertEqual(resp.status_code, 200)
+
+        # Test with custom page_size
+        # With page_size=30, page 167 would end at 5010 (167*30),
+        # which exceeds the max_result_window of 5000
+        resp = self.get(
+            self.url, data={"q": "project:project test", "page": 167, "page_size": 30}
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Page number is too high", str(resp.data))
+
+        # Test that page 166 is allowed with page_size=30 (ends at 4980, which is <= 5000)
+        resp = self.get(
+            self.url, data={"q": "project:project test", "page": 166, "page_size": 30}
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # Test edge case: exactly at the limit
+        # page_size=10, page 500 would end exactly at 5000 (500*10),
+        # which should be allowed (not greater than 5000)
+        resp = self.get(
+            self.url, data={"q": "project:project test", "page": 500, "page_size": 10}
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # page 501 would exceed the limit (ends at 5010, which is > 5000)
+        resp = self.get(
+            self.url, data={"q": "project:project test", "page": 501, "page_size": 10}
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Page number is too high", str(resp.data))
+
+    def test_search_pagination_invalid_page(self):
+        """Test that invalid page numbers are rejected."""
+        # Test negative page number
+        resp = self.get(self.url, data={"q": "project:project test", "page": -1})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Invalid page", str(resp.data))
+
+        # Test zero page number
+        resp = self.get(self.url, data={"q": "project:project test", "page": 0})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Invalid page", str(resp.data))
+
+        # Test non-numeric page number
+        resp = self.get(self.url, data={"q": "project:project test", "page": "invalid"})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Invalid page", str(resp.data))
+
+        # Test float page number
+        # The pagination code converts floats to int, but non-integer floats
+        # should be rejected as invalid
+        resp = self.get(self.url, data={"q": "project:project test", "page": 1.5})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Invalid page", str(resp.data))
+
 
 @pytest.mark.proxito
 @override_settings(PUBLIC_DOMAIN="readthedocs.io")
