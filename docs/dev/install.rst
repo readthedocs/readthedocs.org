@@ -312,6 +312,7 @@ Configuring GitHub App
     - ``Contents`` (read only, so we can clone repos with a token),
     - ``Metadata`` (read only, so we read the repo collaborators),
     - ``Pull requests`` (read and write, so we can post a comment on PRs in the future).
+    - ``Checks`` (read and write, so we can use the GitHub Checks API to report the status of a build)
 
   - Organization permissions
 
@@ -341,7 +342,7 @@ Configuring GitHub App
 
   - ``RTD_GITHUB_APP_ID``
   - ``RTD_GITHUB_APP_NAME`` (e.g. ``read-the-docs-development``)
-  - ``RTD_GITHUB_APP_PRIVATE_KEY`` (you can use ``cat read-the-docs.private-key.pem`` as the value of this variable)
+  - ``RTD_GITHUB_APP_PRIVATE_KEY`` (you can use ``$(cat read-the-docs.private-key.pem)`` as the value of this variable)
   - ``RTD_GITHUB_APP_WEBHOOK_SECRET``
 
 - Then, to receive the webhooks in your local development instance using the `Webhook.site CLI <https://docs.webhook.site/cli.html>`_,
