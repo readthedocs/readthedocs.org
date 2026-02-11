@@ -38,7 +38,7 @@ class SearchPagination(PageNumberPagination):
     page_size = 15
     page_size_query_param = "page_size"
     max_page_size = 30
-    # ES doesn't allow to paginate pass 10k results, and the bigger the number, the more expensive the query is.
+    # ES doesn't allow to paginate past 10k results, and the bigger the number, the more expensive the query is.
     # So we limit the maximum to 5K, which is still a lot of results for a user to paginate through.
     # See max_result_window in https://www.elastic.co/docs/reference/elasticsearch/index-settings/index-modules.
     max_result_window = 5000
