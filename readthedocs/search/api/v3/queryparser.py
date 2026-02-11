@@ -14,6 +14,7 @@ class SearchQueryParser:
     """Simplified and minimal parser for ``name:value`` expressions."""
 
     allowed_arguments = {
+        "org": list,
         "project": list,
         "subprojects": list,
         "user": str,
