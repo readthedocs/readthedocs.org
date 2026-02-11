@@ -12,7 +12,7 @@ def forward_update_data_hash(apps, schema_editor):
     BuildConfig = apps.get_model("builds", "BuildConfig")
 
     for config in BuildConfig.objects.filter(data__isnull=False).iterator():
-        dump = json.dumps(config.data, sort_keys=False)
+        dump = json.dumps(config.data)
         data_hash = hashlib.sha256(dump.encode("utf-8")).hexdigest()
         BuildConfig.objects.filter(pk=config.id).update(
             data_hash=data_hash,

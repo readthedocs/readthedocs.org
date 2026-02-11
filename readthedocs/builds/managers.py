@@ -150,13 +150,14 @@ class BuildConfigManager(models.Manager):
     """Manager for BuildConfig model."""
 
     def get_or_create(self, **kwargs):
-        data = kwargs.get("data")
+        data = kwargs.pop("data", None)
         if data:
-            dump = json.dumps(data, sort_keys=False)
+            dump = json.dumps(data)
             data_hash = hashlib.sha256(dump.encode("utf-8")).hexdigest()
+            kwargs.setdefault("defaults", {})["data"] = data
 
             return super().get_or_create(
                 data_hash=data_hash,
-                defaults={"data": data},
+                **kwargs,
             )
         return super().get_or_create(**kwargs)
