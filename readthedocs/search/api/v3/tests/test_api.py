@@ -355,44 +355,44 @@ class SearchAPITest(SearchTestBase):
 
     def test_search_pagination_max_result_window(self):
         """Test that pagination respects the max_result_window limit."""
-        # Test that requesting a page that would exceed max_result_window (5000) fails
-        # With page_size=15 (default), page 334 would end at 5010 (334*15),
-        # which exceeds the max_result_window of 5000.
-        # Page 334 is the first page that exceeds the limit with default page_size.
-        resp = self.get(self.url, data={"q": "project:project test", "page": 334})
+        # Test that requesting a page that would exceed max_result_window (1000) fails
+        # With page_size=15 (default), page 67 would end at 1005 (67*15),
+        # which exceeds the max_result_window of 1000.
+        # Page 67 is the first page that exceeds the limit with default page_size.
+        resp = self.get(self.url, data={"q": "project:project test", "page": 67})
         self.assertEqual(resp.status_code, 400)
         self.assertIn("Page number is too high", str(resp.data))
 
-        # Test that page 333 is allowed (ends at 4995, which is <= 5000)
-        resp = self.get(self.url, data={"q": "project:project test", "page": 333})
+        # Test that page 66 is allowed (ends at 990, which is <= 1000)
+        resp = self.get(self.url, data={"q": "project:project test", "page": 66})
         self.assertEqual(resp.status_code, 200)
 
         # Test with custom page_size
         # With page_size=30, page 167 would end at 5010 (167*30),
-        # which exceeds the max_result_window of 5000
+        # which exceeds the max_result_window of 1000
         resp = self.get(
             self.url, data={"q": "project:project test", "page": 167, "page_size": 30}
         )
         self.assertEqual(resp.status_code, 400)
         self.assertIn("Page number is too high", str(resp.data))
 
-        # Test that page 166 is allowed with page_size=30 (ends at 4980, which is <= 5000)
+        # Test that page 33 is allowed with page_size=30 (ends at 990, which is <= 1000)
         resp = self.get(
-            self.url, data={"q": "project:project test", "page": 166, "page_size": 30}
+            self.url, data={"q": "project:project test", "page": 33, "page_size": 30}
         )
         self.assertEqual(resp.status_code, 200)
 
         # Test edge case: exactly at the limit
-        # page_size=10, page 500 would end exactly at 5000 (500*10),
-        # which should be allowed (not greater than 5000)
+        # page_size=10, page 100 would end exactly at 1000 (100*10),
+        # which should be allowed (not greater than 1000)
         resp = self.get(
-            self.url, data={"q": "project:project test", "page": 500, "page_size": 10}
+            self.url, data={"q": "project:project test", "page": 100, "page_size": 10}
         )
         self.assertEqual(resp.status_code, 200)
 
-        # page 501 with page_size=10 would exceed the limit (501*10 = 5010, which is > 5000)
+        # page 101 with page_size=10 would exceed the limit (101*10 = 1010, which is > 1000)
         resp = self.get(
-            self.url, data={"q": "project:project test", "page": 501, "page_size": 10}
+            self.url, data={"q": "project:project test", "page": 101, "page_size": 10}
         )
         self.assertEqual(resp.status_code, 400)
         self.assertIn("Page number is too high", str(resp.data))
