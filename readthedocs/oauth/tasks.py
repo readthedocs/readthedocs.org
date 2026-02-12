@@ -857,15 +857,11 @@ class GitHubAppWebhookHandler:
         """
         changed_files = set()
         installation, created = self._get_or_create_installation()
-        commits = list(
-            installation.service.installation_client.get_repo(
-                int(project.remote_repository.remote_id)
-            )
-            .get_pull(int(self.data["pull_request"]["number"]))
-            .get_commits()
-        )
-        last_commit = commits[-1] if commits else None
-        for f in last_commit.files:
+
+        commit = installation.service.installation_client.get_repo(
+            int(project.remote_repository.remote_id)
+        ).get_commit(self.data["pull_request"]["head"]["sha"])
+        for f in commit.files:
             changed_files.add(f.filename)
         return changed_files
 
