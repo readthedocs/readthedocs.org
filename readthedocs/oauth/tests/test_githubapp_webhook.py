@@ -1108,7 +1108,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         }
         r = self.post_webhook("push", payload)
         assert r.status_code == 200
-        
+
         # Should trigger build because docs/index.rst matches docs/*.rst
         assert trigger_build.call_count >= 1
 
@@ -1150,7 +1150,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         }
         r = self.post_webhook("push", payload)
         assert r.status_code == 200
-        
+
         # Should NOT trigger build because src/code.py doesn't match docs/*.rst
         trigger_build.assert_not_called()
 
@@ -1181,7 +1181,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         }
         r = self.post_webhook("push", payload)
         assert r.status_code == 200
-        
+
         # Should trigger build normally (backwards compatibility)
         trigger_build.assert_has_calls(
             [
@@ -1239,7 +1239,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         }
         r = self.post_webhook("push", payload)
         assert r.status_code == 200
-        
+
         # Should NOT trigger because last commit has src/code.py which doesn't match docs/*.rst
         trigger_build.assert_not_called()
 
@@ -1266,20 +1266,20 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         mock_file = mock.Mock()
         mock_file.filename = "docs/index.rst"
         mock_commit.files = [mock_file]
-        
+
         mock_pull = mock.Mock()
-        mock_pull.get_commits.return_value = [mock_commit]
-        
+        mock_pull.get_commit.return_value = mock_commit
+
         mock_repo = mock.Mock()
-        mock_repo.get_pull.return_value = mock_pull
-        
+        mock_repo.get_commit.return_value = mock_commit
+
         with mock.patch.object(
             GitHubAppService,
             "installation_client",
             new_callable=mock.PropertyMock,
         ) as mock_client:
             mock_client.return_value.get_repo.return_value = mock_repo
-            
+
             payload = {
                 "installation": {
                     "id": self.installation.installation_id,
@@ -1304,7 +1304,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             }
             r = self.post_webhook("pull_request", payload)
             assert r.status_code == 200
-            
+
             # Should trigger build because docs/index.rst matches docs/**
             assert trigger_build.call_count >= 1
 
@@ -1331,20 +1331,17 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         mock_file = mock.Mock()
         mock_file.filename = "src/code.py"  # Doesn't match docs/**
         mock_commit.files = [mock_file]
-        
-        mock_pull = mock.Mock()
-        mock_pull.get_commits.return_value = [mock_commit]
-        
+
         mock_repo = mock.Mock()
-        mock_repo.get_pull.return_value = mock_pull
-        
+        mock_repo.get_commit.return_value = mock_commit
+
         with mock.patch.object(
             GitHubAppService,
             "installation_client",
             new_callable=mock.PropertyMock,
         ) as mock_client:
             mock_client.return_value.get_repo.return_value = mock_repo
-            
+
             payload = {
                 "installation": {
                     "id": self.installation.installation_id,
@@ -1369,7 +1366,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             }
             r = self.post_webhook("pull_request", payload)
             assert r.status_code == 200
-            
+
             # Should NOT trigger build because src/code.py doesn't match docs/**
             trigger_build.assert_not_called()
 
@@ -1403,7 +1400,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         }
         r = self.post_webhook("pull_request", payload)
         assert r.status_code == 200
-        
+
         # Should trigger build normally (backwards compatibility)
         external_version = self.project.versions.get(verbose_name="1", type=EXTERNAL)
         trigger_build.assert_called_once_with(
