@@ -385,14 +385,14 @@ automation_rule_urls = [
         name="projects_automation_rule_regex_edit",
     ),
     re_path(
-        r"^(?P<project_slug>[-\w]+)/rules/push/create/$",
+        r"^(?P<project_slug>[-\w]+)/rules/webhook/create/$",
         WebhookAutomationRuleCreate.as_view(),
-        name="projects_automation_rule_push_create",
+        name="projects_automation_rule_webhook_create",
     ),
     re_path(
-        r"^(?P<project_slug>[-\w]+)/rules/push/(?P<automation_rule_pk>[-\w]+)/$",
+        r"^(?P<project_slug>[-\w]+)/rules/webhook/(?P<automation_rule_pk>[-\w]+)/$",
         WebhookAutomationRuleUpdate.as_view(),
-        name="projects_automation_rule_push_edit",
+        name="projects_automation_rule_webhook_edit",
     ),
 ]
 

@@ -1368,7 +1368,7 @@ class WebhookAutomationRule(VersionAutomationRule):
 
     def get_edit_url(self):
         return reverse(
-            "projects_automation_rule_push_edit",
+            "projects_automation_rule_webhook_edit",
             args=[self.project.slug, self.pk],
         )
 
