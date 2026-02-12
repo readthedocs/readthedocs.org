@@ -8,7 +8,7 @@ class TestDockerBuildEnvironment(TestCase):
         commands = [
             (
                 ["ls", ".", "; touch /tmp/test"],
-                "/bin/sh -c 'nice -n 10  ls . \\;\\ touch\\ /tmp/test'",
+                "/bin/sh -c 'nice -n 10 ls . \\;\\ touch\\ /tmp/test'",
             ),
             (
                 ["ls", ".", "\ntouch /tmp/test"],
