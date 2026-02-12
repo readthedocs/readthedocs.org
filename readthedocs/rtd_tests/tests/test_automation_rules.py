@@ -91,10 +91,9 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        # Test match() method
         assert rule.match(version) is result
         # Test run() method - only run if match succeeds
-        if result and rule.match(version):
+        if result:
             assert rule.run(version) is True
             assert rule.matches.all().count() == 1
         else:
@@ -137,7 +136,7 @@ class TestRegexAutomationRules:
         )
         # Test match() and run() separately following new pattern
         assert rule.match(version) is result
-        if result and rule.match(version):
+        if result:
             assert rule.run(version) is True
 
     @pytest.mark.parametrize(
@@ -177,7 +176,7 @@ class TestRegexAutomationRules:
         )
         # Test match() and run() separately following new pattern
         assert rule.match(version) is result
-        if result and rule.match(version):
+        if result:
             assert rule.run(version) is True
 
     def test_action_activation(self, trigger_build):

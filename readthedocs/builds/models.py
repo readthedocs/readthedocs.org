@@ -1355,33 +1355,13 @@ class WebhookAutomationRule(VersionAutomationRule):
 
     def match(self, changed_files):
         """
-        Check if any file in the list matches the rule pattern.
-
-        Uses fnmatch which supports shell-style glob patterns:
-        - * matches any string (including path separators)
-        - ** is treated as two consecutive * wildcards
-        - ? matches a single character
-        - [seq] matches any character in seq
-        - [!seq] matches any character not in seq
-
-        Note: Unlike pathlib.Path.match(), fnmatch treats * as matching across
-        path separators, making it more permissive. For example, "*.py" will
-        match both "test.py" and "src/test.py".
-
-        Examples:
-        - docs/** matches all files under docs/ recursively
-        - docs/* matches all files under docs/ (including subdirectories)
-        - **/*.py matches .py files in any subdirectory (but not root)
-        - *.txt matches .txt files anywhere
+        Check if any file in the list matches the rule pattern using ``fnmatch``.
 
         :param changed_files: List of file paths that were modified/added/deleted
         :return: True if any file matches the rule pattern, False otherwise
         """
         match_arg = self.get_match_arg()
         for file_path in changed_files:
-            # fnmatch treats ** as a glob pattern that matches any string
-            # Since * already matches across path separators in fnmatch,
-            # ** provides similar behavior to GitHub Actions path filtering
             if fnmatch.fnmatch(file_path, match_arg):
                 return True
         return False
