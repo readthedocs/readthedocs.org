@@ -4,6 +4,7 @@ from io import BytesIO
 import requests
 import structlog
 from django.conf import settings
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -116,33 +117,20 @@ class TaskRouter:
                 )
                 return routing_queue
 
-        last_builds = version.builds.order_by("-date")[: self.N_LAST_BUILDS]
         # Version has used conda in previous builds
-        for build in last_builds.iterator():
-            build_tools_python = ""
-            conda = None
-            if build.config:
-                build_tools_python = (
-                    build.config.get("build", {})
-                    .get("tools", {})
-                    .get("python", {})
-                    .get("version", "")
-                )
-                conda = build.config.get("conda", None)
-
-            uses_conda = any(
-                [
-                    conda,
-                    build_tools_python.startswith("miniconda"),
-                ]
+        query = (
+            Q(builds__in=version.builds.order_by("-date")[: self.N_LAST_BUILDS])
+            & Q(data__build__tools__python__version__startswith="miniconda")
+            & ~Q(data__contains={"conda": None})
+        )
+        uses_conda = BuildConfig.objects.filter(query).exists()
+        if uses_conda:
+            log.info(
+                "Routing task because project uses conda.",
+                project_slug=project.slug,
+                queue=self.BUILD_LARGE_QUEUE,
             )
-            if uses_conda:
-                log.info(
-                    "Routing task because project uses conda.",
-                    project_slug=project.slug,
-                    queue=self.BUILD_LARGE_QUEUE,
-                )
-                return self.BUILD_LARGE_QUEUE
+            return self.BUILD_LARGE_QUEUE
 
         successful_builds_count = version.builds.filter(success=True).order_by("-date").count()
         # We do not have enough builds for this version yet
