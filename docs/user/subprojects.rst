@@ -62,6 +62,12 @@ When you add a subproject,
 the subproject will not be directly available anymore from its own domain.
 For instance, ``example-project-plugin.readthedocs.io/`` will redirect to ``example-project.readthedocs.io/projects/plugin``.
 
+.. seealso::
+
+   :doc:`/url-path-prefixes`
+      On |com_brand| Pro plans and higher,
+      you can customize the ``/projects/`` prefix or remove it entirely.
+
 Custom domain on subprojects
 ----------------------------
 
