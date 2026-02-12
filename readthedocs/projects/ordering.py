@@ -19,9 +19,7 @@ class ProjectItemPositionManager:
 
         The save() method needs to be called after this.
         """
-        from readthedocs.builds.models import VersionAutomationRule
-
-        model = VersionAutomationRule
+        model = item._meta.model
         total = model.objects.filter(project=item.project).count()
 
         # If the item was just created, we just need to insert it at the given position.
