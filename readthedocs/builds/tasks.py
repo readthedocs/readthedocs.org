@@ -14,7 +14,7 @@ from readthedocs import __version__
 from readthedocs.api.v2.serializers import BuildCommandSerializer
 from readthedocs.api.v2.utils import delete_versions_from_db
 from readthedocs.api.v2.utils import get_deleted_active_versions
-from readthedocs.api.v2.utils import run_automation_rules
+from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v2.utils import sync_versions_to_db
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
@@ -340,7 +340,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         # The order of added_versions isn't deterministic.
         # We don't track the commit time or any other metadata.
         # We usually have one version added per webhook.
-        run_automation_rules(project, added_versions, deleted_active_versions)
+        run_version_automation_rules(project, added_versions, deleted_active_versions)
     except Exception:
         # Don't interrupt the request if something goes wrong
         # in the automation rules.

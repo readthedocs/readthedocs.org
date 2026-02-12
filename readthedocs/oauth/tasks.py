@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import user_id_matches_or_superuser
@@ -561,6 +562,9 @@ class GitHubAppWebhookHandler:
         If a new branch or tag is created, we trigger a sync of the versions,
         if the version already exists, we build it if it's active.
 
+        If webhook automation rules are configured, they are checked to decide whether
+        a build should be triggered based on the files that were modified.
+
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#push.
         """
         created = self.data.get("created", False)
@@ -570,11 +574,44 @@ class GitHubAppWebhookHandler:
                 trigger_sync_versions(project)
             return
 
-        # If this is a push to an existing branch or tag,
-        # we need to build the version if active.
         version_name, version_type = parse_version_from_ref(self.data["ref"])
         for project in self._get_projects():
-            build_versions_from_names(project, [VersionInfo(name=version_name, type=version_type)])
+            # If the project has webhook automation rules,
+            # we check if any of them matches.
+            # If none one matches, it finishes here.
+            # However, if there are no webhook automation rules configured,
+            # we continue with the build as usual.
+            webhook_rules = project.automation_rules.filter(
+                polymorphic_ctype__model="webhookautomationrule"
+            ).exclude(version_type=EXTERNAL)
+            if webhook_rules.exists():
+                triggered = False
+                changed_files = self._get_changed_files_from_push_event()
+                for rule in webhook_rules.iterator():
+                    if (
+                        rule.match(changed_files=changed_files)
+                        and rule.version_type == version_type
+                    ):
+                        log.info(
+                            "Webhook automation rule matched, triggering build.",
+                            project_slug=project.slug,
+                            rule_id=rule.pk,
+                            rule_version_type=rule.version_type,
+                            version_type=version_type,
+                        )
+                        for version in project.versions_from_name(version_name, version_type):
+                            triggered = True
+                            rule.run(version)
+
+                if not triggered:
+                    log.info(
+                        "No webhook automation rule matched, skipping build.",
+                        project_slug=project.slug,
+                    )
+            else:
+                build_versions_from_names(
+                    project, [VersionInfo(name=version_name, type=version_type)]
+                )
 
     def _handle_pull_request_event(self):
         """
@@ -600,7 +637,36 @@ class GitHubAppWebhookHandler:
                     project=project,
                     version_data=external_version_data,
                 )
-                build_external_version(project, external_version)
+
+                # NOTE: skip building PR if there are webhook automation rules matching.
+                # If the project has webhook automation rules,
+                # we check if any of them matches.
+                # If none one matches, it finishes here.
+                # However, if there are no webhook automation rules configured,
+                # we continue with the build as usual.
+                webhook_rules = project.automation_rules.filter(
+                    polymorphic_ctype__model="webhookautomationrule",
+                    version_type=EXTERNAL,
+                )
+                if webhook_rules.exists():
+                    triggered = False
+                    for rule in webhook_rules.iterator():
+                        changed_files = self._get_changed_files_from_pull_request_event(project)
+                        if rule.match(changed_files=changed_files):
+                            log.info(
+                                "Webhook automation rule matched, triggering build.",
+                                project_slug=project.slug,
+                                rule_id=rule.pk,
+                            )
+                            triggered = True
+                            rule.run(external_version)
+                    if not triggered:
+                        log.info(
+                            "No webhook automation rule matched, skipping build.",
+                            project_slug=project.slug,
+                        )
+                else:
+                    build_external_version(project, external_version)
             return
 
         if action == "closed":
@@ -763,6 +829,41 @@ class GitHubAppWebhookHandler:
         if created and sync_repositories_on_create:
             installation.service.sync()
         return installation, created
+
+    def _get_changed_files_from_push_event(self):
+        """
+        Get the list of changed files from the push event.
+
+        It considers the changes in the latest commit only.
+
+        :return: List of file paths
+        """
+        changed_files = set()
+        commits = self.data.get("commits", [])
+        if commits:
+            last_commit = commits[-1]
+            changed_files.update(last_commit.get("added", []))
+            changed_files.update(last_commit.get("modified", []))
+            changed_files.update(last_commit.get("removed", []))
+        return changed_files
+
+    def _get_changed_files_from_pull_request_event(self, project):
+        """
+        Get the list of changed files from the pull request event.
+
+        It considers the changes in the latest commit only.
+
+        :return: List of file paths
+        """
+        changed_files = set()
+        installation, created = self._get_or_create_installation()
+
+        commit = installation.service.installation_client.get_repo(
+            int(project.remote_repository.remote_id)
+        ).get_commit(self.data["pull_request"]["head"]["sha"])
+        for f in commit.files:
+            changed_files.add(f.filename)
+        return changed_files
 
 
 @app.task(queue="web")
