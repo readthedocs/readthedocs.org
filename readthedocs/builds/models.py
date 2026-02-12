@@ -1326,7 +1326,7 @@ class RegexAutomationRule(VersionAutomationRule):
             )
         except Exception:
             log.exception("Error parsing regex.", exc_info=True)
-        return False, None
+        return False
 
     def get_edit_url(self):
         return reverse(
@@ -1355,7 +1355,7 @@ class WebhookAutomationRule(VersionAutomationRule):
 
     def match(self, changed_files):
         """
-        Check if any file in the list matches the rule pattern.
+        Check if any file in the list matches the rule pattern using ``fnmatch``.
 
         :param changed_files: List of file paths that were modified/added/deleted
         :return: True if any file matches the rule pattern, False otherwise
