@@ -17,6 +17,7 @@ class SearchQueryParser:
         "project": list,
         "subprojects": list,
         "user": str,
+        "project_group": list,
     }
 
     def __init__(self, query):

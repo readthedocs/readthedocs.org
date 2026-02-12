@@ -2,6 +2,7 @@ from functools import cached_property
 from itertools import islice
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.projects.models import Group
 from readthedocs.projects.models import Project
 from readthedocs.search.api.v3.queryparser import SearchQueryParser
 from readthedocs.search.faceted_search import PageSearch
@@ -22,7 +23,13 @@ class SearchExecutor:
     """
 
     def __init__(
-        self, *, request, query, arguments_required=True, default_all=False, max_projects=100
+        self,
+        *,
+        request,
+        query,
+        arguments_required=True,
+        default_all=False,
+        max_projects=100,
     ):
         self.request = request
         self.query = query
@@ -110,8 +117,36 @@ class SearchExecutor:
         if self.parser.arguments["user"] == "@me":
             yield from self._get_projects_from_user()
 
+        # Add all projects from project groups.
+        for group_slug in self.parser.arguments["project_group"]:
+            yield from self._get_projects_from_group(group_slug)
+
     def _get_projects_from_user(self):
         for project in Project.objects.for_user(user=self.request.user):
+            version = self._get_project_version(
+                project=project,
+                version_slug=project.default_version,
+                include_hidden=False,
+            )
+            if version and self._has_permission(self.request, version):
+                yield project, version
+
+    def _get_projects_from_group(self, group_slug):
+        """
+        Get a tuple (project, version) of all projects in a group.
+
+        :param group_slug: The slug of the group.
+        """
+        try:
+            group = (
+                Group.objects.prefetch_related("projects").get(
+                    slug=group_slug
+                )
+            )
+        except Group.DoesNotExist:
+            return
+
+        for project in group.projects.all():
             version = self._get_project_version(
                 project=project,
                 version_slug=project.default_version,
