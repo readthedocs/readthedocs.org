@@ -4,7 +4,6 @@ from django.conf import settings
 from django.utils import timezone
 
 from readthedocs.builds.models import Build
-from readthedocs.core.utils.db import raw_delete_in_batches
 from readthedocs.telemetry.models import BuildData
 from readthedocs.worker import app
 
