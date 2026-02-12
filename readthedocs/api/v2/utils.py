@@ -249,9 +249,7 @@ def run_version_automation_rules(project, added_versions, deleted_active_version
     ]
     for versions_slug, allowed_actions in actions:
         versions = project.versions.filter(slug__in=versions_slug)
-        rules = project.automation_rules.filter(action__in=allowed_actions).exclude(
-            polymorphic_ctype__model="webhookautomationrule"
-        )
+        rules = project.automation_rules.filter(action__in=allowed_actions)
         for version, rule in itertools.product(versions, rules):
             if rule.match(version):
                 rule.run(version)
