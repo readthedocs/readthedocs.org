@@ -218,8 +218,8 @@ class TestMarkdownContentNegotiation(MockStorageMixin, BaseDocServing):
         )
         # Should redirect to markdown version
         self.assertEqual(resp.status_code, 302)
-        # Should prefer .html.md, but if not present, use .md
-        self.assertIn(resp["Location"], ["/en/latest/page.html.md", "/en/latest/page.md"])
+        # Since only page.md exists (not page.html.md), it should redirect to page.md
+        self.assertEqual(resp["Location"], "/en/latest/page.md")
 
     def test_markdown_negotiation_with_subdirectory(self):
         """Test markdown negotiation for files in subdirectories."""

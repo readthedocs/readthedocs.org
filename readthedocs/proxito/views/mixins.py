@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 import structlog
 from django.conf import settings
 from django.core.exceptions import BadRequest
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.http import HttpResponsePermanentRedirect
 from django.http import HttpResponseRedirect
@@ -56,8 +57,8 @@ class ServeDocsMixin:
             addons_config = project.addons
             if not addons_config.markdown_content_negotiation_enabled:
                 return None
-        except Exception:
-            # No addons config or other error, feature not enabled
+        except (AttributeError, ObjectDoesNotExist):
+            # No addons config, feature not enabled
             return None
 
         # Check Accept header for markdown content type
