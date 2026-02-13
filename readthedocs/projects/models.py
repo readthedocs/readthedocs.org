@@ -273,6 +273,12 @@ class AddonsConfig(TimeStampedModel):
         help_text="CSS selector to select links you want enabled for link previews. Leave it blank for auto-detect all links in your main page content.",
     )
 
+    # Markdown Content Negotiation
+    markdown_content_negotiation_enabled = models.BooleanField(
+        default=False,
+        help_text="Enable content negotiation to serve markdown versions when requested by AI agents",
+    )
+
 
 class AddonSearchFilter(TimeStampedModel):
     """

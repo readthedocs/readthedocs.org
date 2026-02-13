@@ -356,6 +356,16 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         if not self.allowed_user(request, version):
             return self.get_unauthed_response(request, project)
 
+        # Check for markdown content negotiation
+        markdown_response = self._check_markdown_content_negotiation(
+            request=request,
+            project=project,
+            version=version,
+            filename=filename,
+        )
+        if markdown_response:
+            return markdown_response
+
         return self._serve_docs(
             request=request,
             project=project,

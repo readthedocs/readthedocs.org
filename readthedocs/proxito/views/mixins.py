@@ -44,6 +44,74 @@ class ServeDocsMixin:
     # unless explicitly set to external.
     version_type = INTERNAL
 
+    def _check_markdown_content_negotiation(self, request, project, version, filename):
+        """
+        Check if markdown content negotiation should be performed.
+
+        Returns a redirect response if markdown is requested and available,
+        otherwise returns None.
+        """
+        # Check if the feature is enabled for this project
+        addons_config = getattr(project, 'addons', None)
+        if not addons_config or not addons_config.markdown_content_negotiation_enabled:
+            return None
+
+        # Check Accept header for markdown content type
+        accept_header = request.headers.get('Accept', '')
+        # Look for text/markdown or text/plain in Accept header
+        if 'text/markdown' not in accept_header and 'text/plain' not in accept_header:
+            return None
+
+        # Normalize filename - ensure it has index.html if it's a directory
+        if not filename or filename.endswith("/"):
+            filename = filename + "index.html"
+
+        # Try to find markdown version of the file
+        # Pattern 1: page.html -> page.html.md
+        # Pattern 2: page.html -> page.md (for some tools)
+        markdown_filenames = []
+        if filename.endswith('.html'):
+            markdown_filenames.append(filename + '.md')
+            # Also try replacing .html with .md
+            markdown_filenames.append(filename[:-5] + '.md')
+        else:
+            # For non-html files, just try appending .md
+            markdown_filenames.append(filename + '.md')
+
+        base_storage_path = project.get_storage_path(
+            type_=MEDIA_TYPE_HTML,
+            version_slug=version.slug,
+            include_file=False,
+            version_type=self.version_type,
+        )
+
+        # Check if any of the markdown versions exist
+        for md_filename in markdown_filenames:
+            try:
+                md_storage_path = build_media_storage.join(
+                    base_storage_path,
+                    md_filename.lstrip("/")
+                )
+                if build_media_storage.exists(md_storage_path):
+                    # Return a redirect to the markdown version
+                    current_path = request.path
+                    if current_path.endswith('.html'):
+                        md_path = current_path + '.md'
+                    else:
+                        md_path = current_path + '.md'
+
+                    log.debug(
+                        "Content negotiation redirect to markdown.",
+                        original_path=current_path,
+                        markdown_path=md_path,
+                    )
+                    return HttpResponseRedirect(md_path)
+            except ValueError:
+                # Invalid path, skip
+                continue
+
+        return None
+
     def _serve_docs(self, request, project, version, filename, check_if_exists=False):
         """
         Serve a documentation file.
