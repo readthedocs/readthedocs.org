@@ -52,8 +52,12 @@ class ServeDocsMixin:
         otherwise returns None.
         """
         # Check if the feature is enabled for this project
-        addons_config = getattr(project, 'addons', None)
-        if not addons_config or not addons_config.markdown_content_negotiation_enabled:
+        try:
+            addons_config = project.addons
+            if not addons_config.markdown_content_negotiation_enabled:
+                return None
+        except Exception:
+            # No addons config or other error, feature not enabled
             return None
 
         # Check Accept header for markdown content type
