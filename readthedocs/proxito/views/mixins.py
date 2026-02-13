@@ -93,9 +93,10 @@ class ServeDocsMixin:
                 current_path.rstrip('/') + '.md'
             ))
             # Pattern 2: Try replacing .html with .md
+            base_path = current_path[:-5] if current_path.endswith('.html') else current_path.rstrip('/')
             candidates.append((
                 normalized_filename[:-5] + '.md',
-                current_path[:-5] + '.md' if current_path.endswith('.html') else current_path.rstrip('/') + '.md'
+                base_path + '.md'
             ))
         else:
             # For non-html files, just try appending .md
