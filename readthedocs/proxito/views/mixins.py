@@ -62,9 +62,10 @@ class ServeDocsMixin:
             return None
 
         # Check Accept header for markdown content type
+        # Parse Accept header properly by splitting on commas and checking each media type
         accept_header = request.headers.get('Accept', '')
-        # Look for text/markdown or text/plain in Accept header
-        if 'text/markdown' not in accept_header and 'text/plain' not in accept_header:
+        accept_types = [t.strip().split(';')[0].lower() for t in accept_header.split(',')]
+        if 'text/markdown' not in accept_types and 'text/plain' not in accept_types:
             return None
 
         # Normalize filename - ensure it has index.html if it's a directory
@@ -75,20 +76,6 @@ class ServeDocsMixin:
         # Try to find markdown version of the file
         # Pattern 1: page.html -> page.html.md
         # Pattern 2: page.html -> page.md (for some tools)
-        markdown_filenames = []
-        redirect_patterns = []
-        if normalized_filename.endswith('.html'):
-            # Try .html.md first
-            markdown_filenames.append(normalized_filename + '.md')
-            redirect_patterns.append('.html.md')
-            # Also try replacing .html with .md
-            markdown_filenames.append(normalized_filename[:-5] + '.md')
-            redirect_patterns.append('.md')
-        else:
-            # For non-html files, just try appending .md
-            markdown_filenames.append(normalized_filename + '.md')
-            redirect_patterns.append('.md')
-
         base_storage_path = project.get_storage_path(
             type_=MEDIA_TYPE_HTML,
             version_slug=version.slug,
@@ -96,30 +83,41 @@ class ServeDocsMixin:
             version_type=self.version_type,
         )
 
+        current_path = request.path
+        # Build list of (storage_filename, redirect_path) tuples to check
+        candidates = []
+        if normalized_filename.endswith('.html'):
+            # Pattern 1: Try .html.md first
+            candidates.append((
+                normalized_filename + '.md',
+                current_path.rstrip('/') + '.md'
+            ))
+            # Pattern 2: Try replacing .html with .md
+            candidates.append((
+                normalized_filename[:-5] + '.md',
+                current_path[:-5] + '.md' if current_path.endswith('.html') else current_path.rstrip('/') + '.md'
+            ))
+        else:
+            # For non-html files, just try appending .md
+            candidates.append((
+                normalized_filename + '.md',
+                current_path.rstrip('/') + '.md'
+            ))
+
         # Check if any of the markdown versions exist
-        for md_filename, redirect_pattern in zip(markdown_filenames, redirect_patterns):
+        for storage_filename, redirect_path in candidates:
             try:
                 md_storage_path = build_media_storage.join(
                     base_storage_path,
-                    md_filename.lstrip("/")
+                    storage_filename.lstrip("/")
                 )
                 if build_media_storage.exists(md_storage_path):
-                    # Return a redirect to the markdown version
-                    current_path = request.path
-                    # Construct the redirect path based on the pattern found
-                    if redirect_pattern == '.md' and current_path.endswith('.html'):
-                        # Replace .html with .md
-                        md_path = current_path[:-5] + '.md'
-                    else:
-                        # Append .md to the current path (handles .html.md pattern and non-.html files)
-                        md_path = current_path.rstrip('/') + '.md'
-
                     log.debug(
                         "Content negotiation redirect to markdown.",
                         original_path=current_path,
-                        markdown_path=md_path,
+                        markdown_path=redirect_path,
                     )
-                    return HttpResponseRedirect(md_path)
+                    return HttpResponseRedirect(redirect_path)
             except ValueError:
                 # Invalid path, skip
                 continue
