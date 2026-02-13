@@ -106,7 +106,6 @@ class ServeDocsMixin:
                 if build_media_storage.exists(md_storage_path):
                     # Return a redirect to the markdown version
                     current_path = request.path
-                    
                     # Construct the redirect path based on the pattern found
                     if redirect_pattern == '.md' and current_path.endswith('.html'):
                         # Replace .html with .md
