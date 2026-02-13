@@ -108,15 +108,12 @@ class ServeDocsMixin:
                     current_path = request.path
                     
                     # Construct the redirect path based on the pattern found
-                    if redirect_pattern == '.html.md':
-                        # Append .md to the current path
+                    if redirect_pattern == '.md' and current_path.endswith('.html'):
+                        # Replace .html with .md
+                        md_path = current_path[:-5] + '.md'
+                    else:
+                        # Append .md to the current path (handles .html.md pattern and non-.html files)
                         md_path = current_path.rstrip('/') + '.md'
-                    elif redirect_pattern == '.md':
-                        # Replace .html with .md or append .md
-                        if current_path.endswith('.html'):
-                            md_path = current_path[:-5] + '.md'
-                        else:
-                            md_path = current_path.rstrip('/') + '.md'
 
                     log.debug(
                         "Content negotiation redirect to markdown.",
