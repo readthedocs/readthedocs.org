@@ -63,20 +63,26 @@ class ServeDocsMixin:
             return None
 
         # Normalize filename - ensure it has index.html if it's a directory
-        if not filename or filename.endswith("/"):
-            filename = filename + "index.html"
+        normalized_filename = filename
+        if not normalized_filename or normalized_filename.endswith("/"):
+            normalized_filename = normalized_filename + "index.html"
 
         # Try to find markdown version of the file
         # Pattern 1: page.html -> page.html.md
         # Pattern 2: page.html -> page.md (for some tools)
         markdown_filenames = []
-        if filename.endswith('.html'):
-            markdown_filenames.append(filename + '.md')
+        redirect_patterns = []
+        if normalized_filename.endswith('.html'):
+            # Try .html.md first
+            markdown_filenames.append(normalized_filename + '.md')
+            redirect_patterns.append('.html.md')
             # Also try replacing .html with .md
-            markdown_filenames.append(filename[:-5] + '.md')
+            markdown_filenames.append(normalized_filename[:-5] + '.md')
+            redirect_patterns.append('.md')
         else:
             # For non-html files, just try appending .md
-            markdown_filenames.append(filename + '.md')
+            markdown_filenames.append(normalized_filename + '.md')
+            redirect_patterns.append('.md')
 
         base_storage_path = project.get_storage_path(
             type_=MEDIA_TYPE_HTML,
@@ -86,7 +92,7 @@ class ServeDocsMixin:
         )
 
         # Check if any of the markdown versions exist
-        for md_filename in markdown_filenames:
+        for md_filename, redirect_pattern in zip(markdown_filenames, redirect_patterns):
             try:
                 md_storage_path = build_media_storage.join(
                     base_storage_path,
@@ -95,10 +101,16 @@ class ServeDocsMixin:
                 if build_media_storage.exists(md_storage_path):
                     # Return a redirect to the markdown version
                     current_path = request.path
-                    if current_path.endswith('.html'):
-                        md_path = current_path + '.md'
-                    else:
-                        md_path = current_path + '.md'
+                    
+                    # Construct the redirect path based on the pattern found
+                    if redirect_pattern == '.html.md':
+                        md_path = current_path.rstrip('/') + '.md' if current_path.endswith('/') else current_path + '.md'
+                    elif redirect_pattern == '.md':
+                        # Replace .html with .md or append .md
+                        if current_path.endswith('.html'):
+                            md_path = current_path[:-5] + '.md'
+                        else:
+                            md_path = current_path.rstrip('/') + '.md'
 
                     log.debug(
                         "Content negotiation redirect to markdown.",
