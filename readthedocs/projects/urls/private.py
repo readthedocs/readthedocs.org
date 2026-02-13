@@ -27,6 +27,7 @@ from readthedocs.projects.views.private import IntegrationDetail
 from readthedocs.projects.views.private import IntegrationExchangeDetail
 from readthedocs.projects.views.private import IntegrationList
 from readthedocs.projects.views.private import IntegrationWebhookSync
+from readthedocs.projects.views.private import OpenTelemetryConfigUpdate
 from readthedocs.projects.views.private import ProjectAdvertisingUpdate
 from readthedocs.projects.views.private import ProjectDashboard
 from readthedocs.projects.views.private import ProjectDelete
@@ -196,6 +197,11 @@ urlpatterns = [
         r"^(?P<project_slug>[-\w]+)/traffic-analytics/$",
         TrafficAnalyticsView.as_view(),
         name="projects_traffic_analytics",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/open-telemetry/$",
+        OpenTelemetryConfigUpdate.as_view(),
+        name="projects_otel_config",
     ),
     # Placeholder URLs, so that we can test the new templates
     # with organizations enabled from our community codebase.
