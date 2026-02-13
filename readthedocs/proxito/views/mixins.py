@@ -109,7 +109,8 @@ class ServeDocsMixin:
                     
                     # Construct the redirect path based on the pattern found
                     if redirect_pattern == '.html.md':
-                        md_path = current_path.rstrip('/') + '.md' if current_path.endswith('/') else current_path + '.md'
+                        # Append .md to the current path
+                        md_path = current_path.rstrip('/') + '.md'
                     elif redirect_pattern == '.md':
                         # Replace .html with .md or append .md
                         if current_path.endswith('.html'):
