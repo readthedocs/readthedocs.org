@@ -2028,6 +2028,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
         ("access_control_allow_headers", "Access-Control-Allow-Headers"),
         ("access_control_expose_headers", "Access-Control-Expose-Headers"),
         ("content_security_policy", "Content-Security-Policy"),
+        ("cross_origin_opener_policy", "Cross-Origin-Opener-Policy"),
         ("feature_policy", "Feature-Policy"),
         ("permissions_policy", "Permissions-Policy"),
         ("referrer_policy", "Referrer-Policy"),
