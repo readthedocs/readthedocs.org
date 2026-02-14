@@ -4,15 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0158_add_search_subproject_filter_option'),
+        ("projects", "0158_add_search_subproject_filter_option"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='httpheader',
-            name='name',
-            field=models.CharField(choices=[('access_control_allow_origin', 'Access-Control-Allow-Origin'), ('access_control_allow_headers', 'Access-Control-Allow-Headers'), ('access_control_expose_headers', 'Access-Control-Expose-Headers'), ('content_security_policy', 'Content-Security-Policy'), ('cross_origin_opener_policy', 'Cross-Origin-Opener-Policy'), ('feature_policy', 'Feature-Policy'), ('permissions_policy', 'Permissions-Policy'), ('referrer_policy', 'Referrer-Policy'), ('x_frame_options', 'X-Frame-Options'), ('x_content_type_options', 'X-Content-Type-Options')], max_length=128),
+            model_name="httpheader",
+            name="name",
+            field=models.CharField(
+                choices=[
+                    ("access_control_allow_origin", "Access-Control-Allow-Origin"),
+                    ("access_control_allow_headers", "Access-Control-Allow-Headers"),
+                    ("access_control_expose_headers", "Access-Control-Expose-Headers"),
+                    ("content_security_policy", "Content-Security-Policy"),
+                    ("cross_origin_opener_policy", "Cross-Origin-Opener-Policy"),
+                    ("feature_policy", "Feature-Policy"),
+                    ("permissions_policy", "Permissions-Policy"),
+                    ("referrer_policy", "Referrer-Policy"),
+                    ("x_frame_options", "X-Frame-Options"),
+                    ("x_content_type_options", "X-Content-Type-Options"),
+                ],
+                max_length=128,
+            ),
         ),
     ]
