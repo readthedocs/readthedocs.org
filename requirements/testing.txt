@@ -27,11 +27,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.44
+boto3==1.42.49
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.44
+botocore==1.42.49
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -81,13 +81,13 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.13.3
+coverage[toml]==7.13.4
     # via pytest-cov
 cron-descriptor==2.0.6
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==46.0.4
+cryptography==46.0.5
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -214,11 +214,11 @@ fido2==2.1.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.20.3
+filelock==3.24.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-gunicorn==25.0.3
+gunicorn==25.1.0
     # via -r requirements/pip.txt
 idna==3.11
     # via
@@ -255,7 +255,7 @@ lxml==5.3.2
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.10.1
+markdown==3.10.2
     # via -r requirements/pip.txt
 markupsafe==3.0.3
     # via jinja2
@@ -276,9 +276,9 @@ packaging==26.0
     #   kombu
     #   pytest
     #   sphinx
-pillow==12.1.0
+pillow==12.1.1
     # via -r requirements/pip.txt
-platformdirs==4.5.1
+platformdirs==4.9.1
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -339,7 +339,7 @@ pytest-cov==7.0.0
     # via -r requirements/testing.in
 pytest-custom-exit-code==0.3.0
     # via -r requirements/testing.in
-pytest-django==4.11.1
+pytest-django==4.12.0
     # via -r requirements/testing.in
 pytest-mock==3.15.1
     # via -r requirements/testing.in
@@ -369,7 +369,7 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==7.1.0
+redis==7.1.1
     # via -r requirements/pip.txt
 regex==2026.1.15
     # via -r requirements/pip.txt
