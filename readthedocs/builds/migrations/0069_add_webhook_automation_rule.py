@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("builds", "0067_migrate_buildconfig"),
+        ("builds", "0068_buildconfig_data_hash"),
     ]
 
     operations = [
