@@ -46,6 +46,7 @@ Read the Docs: documentation simplified
    /localization
    /versioning-schemes
    /custom-domains
+   /url-path-prefixes
    /doc-notifications
    /canonical-urls
    /reference/cdn
@@ -81,6 +82,7 @@ Read the Docs: documentation simplified
    /guides/best-practice/links
    /security-implications
    /reference/main-content-detection
+   /reference/agent-skills
    /custom-script
 
 .. toctree::
