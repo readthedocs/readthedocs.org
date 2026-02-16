@@ -34,6 +34,7 @@ from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS_VALUES
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.builds.managers import AutomationRuleMatchManager
+from readthedocs.builds.managers import BuildConfigManager
 from readthedocs.builds.managers import ExternalBuildManager
 from readthedocs.builds.managers import ExternalVersionManager
 from readthedocs.builds.managers import InternalBuildManager
@@ -618,9 +619,21 @@ class BuildConfig(TimeStampedModel):
 
     data = models.JSONField(
         _("Configuration data"),
-        unique=True,
         help_text=_("The rendered YAML configuration used in the build"),
     )
+
+    # Used to quickly identify identical configurations.
+    # Using `unique=True` on a JSONField can be problematic due to limitations on its size,
+    # so we use a hash instead.
+    data_hash = models.CharField(
+        unique=True,
+        max_length=64,
+        null=True,
+        editable=False,
+    )
+
+    # Manager to handle creation based on data hash uniqueness.
+    objects = BuildConfigManager()
 
     class Meta:
         verbose_name = _("Build configuration")
