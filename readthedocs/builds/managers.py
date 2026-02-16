@@ -151,7 +151,7 @@ class BuildConfigManager(models.Manager):
 
     def get_or_create(self, **kwargs):
         data = kwargs.pop("data", None)
-        if data:
+        if isinstance(data, dict):
             dump = json.dumps(data)
             data_hash = hashlib.sha256(dump.encode("utf-8")).hexdigest()
             kwargs.setdefault("defaults", {})["data"] = data
