@@ -840,11 +840,10 @@ class GitHubAppWebhookHandler:
         """
         changed_files = set()
         commits = self.data.get("commits", [])
-        if commits:
-            last_commit = commits[-1]
-            changed_files.update(last_commit.get("added", []))
-            changed_files.update(last_commit.get("modified", []))
-            changed_files.update(last_commit.get("removed", []))
+        for commit in commits:
+            changed_files.update(commit.get("added", []))
+            changed_files.update(commit.get("modified", []))
+            changed_files.update(commit.get("removed", []))
         return changed_files
 
     def _get_changed_files_from_pull_request_event(self, project):
@@ -858,11 +857,16 @@ class GitHubAppWebhookHandler:
         changed_files = set()
         installation, created = self._get_or_create_installation()
 
-        commit = installation.service.installation_client.get_repo(
-            int(project.remote_repository.remote_id)
-        ).get_commit(self.data["pull_request"]["head"]["sha"])
-        for f in commit.files:
-            changed_files.add(f.filename)
+        commits = (
+            installation.service.installation_client.get_repo(
+                int(project.remote_repository.remote_id)
+            )
+            .get_pull(int(self.data["pull_request"]["number"]))
+            .get_commits()
+        )
+        for commit in commits:
+            for f in commit.files:
+                changed_files.add(f.filename)
         return changed_files
 
 
