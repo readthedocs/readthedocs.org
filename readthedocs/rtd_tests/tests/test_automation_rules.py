@@ -784,10 +784,10 @@ class TestWebhookAutomationRules:
             action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
             version_type=BRANCH,
         )
-        
+
         # Should match if any file matches
         assert rule.match(changed_files=["src/code.py", "docs/index.rst", "README.md"]) is True
-        
+
         # Should not match if no files match
         assert rule.match(changed_files=["src/code.py", "README.md"]) is False
 
@@ -813,7 +813,7 @@ class TestWebhookAutomationRules:
             action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
             version_type=BRANCH,
         )
-        
+
         result = rule.run(self.version)
         assert result is True
         trigger_build.assert_called_once_with(
@@ -825,7 +825,7 @@ class TestWebhookAutomationRules:
         """Test that run() does not trigger a build for an inactive version."""
         self.version.active = False
         self.version.save()
-        
+
         rule = get(
             WebhookAutomationRule,
             project=self.project,
@@ -834,7 +834,7 @@ class TestWebhookAutomationRules:
             action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
             version_type=BRANCH,
         )
-        
+
         result = rule.run(self.version)
         assert result is True
         trigger_build.assert_not_called()
@@ -850,7 +850,7 @@ class TestWebhookAutomationRules:
             action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
             version_type=BRANCH,
         )
-        
+
         # Create a tag version
         tag_version = get(
             Version,
@@ -859,10 +859,10 @@ class TestWebhookAutomationRules:
             active=True,
             type=TAG,
         )
-        
+
         # Branch version should match
         assert branch_rule.run(self.version) is True
-        
+
         # Tag version should not match (wrong type)
         assert branch_rule.run(tag_version) is False
 
@@ -876,7 +876,7 @@ class TestWebhookAutomationRules:
             action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
             version_type=EXTERNAL,
         )
-        
+
         external_version = get(
             Version,
             verbose_name="1",
@@ -884,7 +884,7 @@ class TestWebhookAutomationRules:
             active=True,
             type=EXTERNAL,
         )
-        
+
         # Should trigger build for external version
         result = external_rule.run(external_version)
         assert result is True
