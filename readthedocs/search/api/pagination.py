@@ -2,7 +2,7 @@ from collections import namedtuple
 from math import ceil
 
 from django.utils.translation import gettext as _
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -38,6 +38,10 @@ class SearchPagination(PageNumberPagination):
     page_size = 15
     page_size_query_param = "page_size"
     max_page_size = 30
+    # ES doesn't allow to paginate past 10k results, and the bigger the number, the more expensive the query is.
+    # So we limit the maximum to 1K, which is still a lot of results for a user to paginate through.
+    # See max_result_window in https://www.elastic.co/docs/reference/elasticsearch/index-settings/index-modules.
+    max_result_window = 1000
 
     def _get_page_number(self, number):
         try:
@@ -63,18 +67,16 @@ class SearchPagination(PageNumberPagination):
         page_size = self.get_page_size(request)
         page_number = request.query_params.get(self.page_query_param, 1)
 
-        original_page_number = page_number
         page_number = self._get_page_number(page_number)
 
         if page_number <= 0:
-            msg = self.invalid_page_message.format(
-                page_number=original_page_number,
-                message=_("Invalid page"),
-            )
-            raise NotFound(msg)
+            raise ValidationError(_("Invalid page"))
 
         start = (page_number - 1) * page_size
         end = page_number * page_size
+
+        if end > self.max_result_window:
+            raise ValidationError(_("Page number is too high."))
 
         result = []
         total_count = 0
@@ -89,6 +91,10 @@ class SearchPagination(PageNumberPagination):
         if total_pages > 1 and self.template is not None:
             # The browsable API should display pagination controls.
             self.display_page_controls = True
+
+        # DRF raises an error if the page number is out of range
+        # when rendering the browsable API.
+        page_number = min(page_number, total_pages)
 
         # Needed for other methods of this class.
         self.page = PaginatorPage(
