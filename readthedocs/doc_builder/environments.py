@@ -423,8 +423,8 @@ class DockerBuildCommand(BuildCommand):
             # variables with the `command` itself, have the same effect.
             # However, using `;` is more explicit.
             # See https://github.com/readthedocs/readthedocs.org/pull/10334
-            return f"/bin/sh -c '{prefix}; {nice} {command}'"
-        return f"/bin/sh -c '{nice} {command}'"
+            return f"{nice} /bin/sh -c '{prefix}; {command}'"
+        return f"{nice} /bin/sh -c '{command}'"
 
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""

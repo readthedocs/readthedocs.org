@@ -8,23 +8,23 @@ class TestDockerBuildEnvironment(TestCase):
         commands = [
             (
                 ["ls", ".", "; touch /tmp/test"],
-                "/bin/sh -c 'nice -n 10 ls . \\;\\ touch\\ /tmp/test'",
+                "nice -n 10 /bin/sh -c 'ls . \\;\\ touch\\ /tmp/test'",
             ),
             (
                 ["ls", ".", "\ntouch /tmp/test"],
-                "/bin/sh -c 'nice -n 10 ls . \\\ntouch\\ /tmp/test'",
+                "nice -n 10 /bin/sh -c 'ls . \\\ntouch\\ /tmp/test'",
             ),
             (
                 ["ls", ".", "\ftouch /tmp/test"],
-                "/bin/sh -c 'nice -n 10 ls . \\\ftouch\\ /tmp/test'",
+                "nice -n 10 /bin/sh -c 'ls . \\\ftouch\\ /tmp/test'",
             ),
             (
                 ["ls", ".", "\ttouch /tmp/test"],
-                "/bin/sh -c 'nice -n 10 ls . \\\ttouch\\ /tmp/test'",
+                "nice -n 10 /bin/sh -c 'ls . \\\ttouch\\ /tmp/test'",
             ),
             (
                 ["ls", ".", "\vtouch /tmp/test"],
-                "/bin/sh -c 'nice -n 10 ls . \\\vtouch\\ /tmp/test'",
+                "nice -n 10 /bin/sh -c 'ls . \\\vtouch\\ /tmp/test'",
             ),
         ]
         for command, expected in commands:
