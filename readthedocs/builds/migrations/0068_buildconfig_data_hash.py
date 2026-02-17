@@ -40,8 +40,9 @@ class Migration(migrations.Migration):
                 verbose_name="Configuration data",
             ),
         ),
-        migrations.RunPython(
-            forward_update_data_hash,
-            migrations.RunPython.noop,
-        ),
+        # TODO this took to long, separate it.
+        #migrations.RunPython(
+        #    forward_update_data_hash,
+        #    migrations.RunPython.noop,
+        #),
     ]
