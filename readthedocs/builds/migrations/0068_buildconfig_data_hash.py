@@ -41,8 +41,8 @@ class Migration(migrations.Migration):
             ),
         ),
         # TODO this took to long, separate it.
-        #migrations.RunPython(
+        # migrations.RunPython(
         #    forward_update_data_hash,
         #    migrations.RunPython.noop,
-        #),
+        # ),
     ]
