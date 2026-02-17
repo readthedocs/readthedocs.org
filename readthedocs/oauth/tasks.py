@@ -3,6 +3,7 @@
 import datetime
 from functools import cached_property
 
+from readthedocs.core.utils import trigger_build
 import structlog
 from django.contrib.auth.models import User
 from django.db.models.functions import ExtractIsoWeekDay
@@ -15,7 +16,6 @@ from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import user_id_matches_or_superuser
 from readthedocs.core.views.hooks import VersionInfo
-from readthedocs.core.views.hooks import build_external_version
 from readthedocs.core.views.hooks import build_versions_from_names
 from readthedocs.core.views.hooks import close_external_version
 from readthedocs.core.views.hooks import get_or_create_external_version
@@ -666,7 +666,7 @@ class GitHubAppWebhookHandler:
                             project_slug=project.slug,
                         )
                 else:
-                    build_external_version(project, external_version)
+                    trigger_build(project, external_version, commit=external_version.identifier)
             return
 
         if action == "closed":

@@ -205,24 +205,3 @@ def close_external_version(project, version_data):
         )
         return external_version.verbose_name
     return None
-
-
-def build_external_version(project, version):
-    """
-    Where we actually trigger builds for external versions.
-
-    All pull/merge request webhook logic should route here to call ``trigger_build``.
-    """
-    if not project.has_valid_webhook:
-        project.has_valid_webhook = True
-        project.save()
-
-    # Build External version
-    log.info(
-        "Building external version",
-        project_slug=project.slug,
-        version_slug=version.slug,
-    )
-    trigger_build(project=project, version=version, commit=version.identifier)
-
-    return version.verbose_name

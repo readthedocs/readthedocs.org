@@ -210,8 +210,14 @@ def trigger_build(project, version=None, commit=None):
         project_slug=project.slug,
         version_slug=version.slug if version else None,
         commit=commit,
+        version_type=version.type,
     )
     log.info("Triggering build.")
+
+    if version.type == EXTERNAL and not project.has_valid_webhook:
+        project.has_valid_webhook = True
+        project.save()
+
     update_docs_task, build = prepare_build(
         project=project,
         version=version,

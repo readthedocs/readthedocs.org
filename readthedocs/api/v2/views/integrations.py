@@ -6,6 +6,7 @@ import json
 from functools import namedtuple
 from textwrap import dedent
 
+from readthedocs.core.utils import trigger_build
 import structlog
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -27,7 +28,6 @@ from readthedocs.core.signals import webhook_bitbucket
 from readthedocs.core.signals import webhook_github
 from readthedocs.core.signals import webhook_gitlab
 from readthedocs.core.views.hooks import VersionInfo
-from readthedocs.core.views.hooks import build_external_version
 from readthedocs.core.views.hooks import build_versions_from_names
 from readthedocs.core.views.hooks import close_external_version
 from readthedocs.core.views.hooks import get_or_create_external_version
@@ -296,9 +296,11 @@ class WebhookMixin:
             version_data=version_data,
         )
         # returns external version verbose_name (pull/merge request number)
-        to_build = build_external_version(
+        to_build = external_version.verbose_name
+        trigger_build(
             project=project,
             version=external_version,
+            commit=external_version.identifier,
         )
 
         return {
