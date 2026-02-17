@@ -81,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "15.14.0"
+version = "15.14.1"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 # Exclude design docs from dev documentation
