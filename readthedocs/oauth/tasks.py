@@ -587,7 +587,7 @@ class GitHubAppWebhookHandler:
             if webhook_rules.exists():
                 triggered = False
                 changed_files = self._get_changed_files_from_push_event()
-                for rule in webhook_rules.iterator():
+                for rule in webhook_rules.filter(version_type=version_type).iterator():
                     if (
                         rule.match(changed_files=changed_files)
                         and rule.version_type == version_type
@@ -834,7 +834,7 @@ class GitHubAppWebhookHandler:
         """
         Get the list of changed files from the push event.
 
-        It considers the changes in the latest commit only.
+        It considers the changes from all commits that were pushed.
 
         :return: List of file paths
         """
