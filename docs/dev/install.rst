@@ -301,23 +301,63 @@ Configuring GitHub App
 ~~~~~~~~~~~~~~~~~~~~~~
 
 - Create a new GitHub app from https://github.com/settings/apps/new.
-- Callback URL should be ``http://devthedocs.org/accounts/githubapp/login/callback/``.
-- Keep marked "Expire user authorization tokens"
-- Activate the webhook, and set the URL to one provided by a service like `Webhook.site <https://docs.webhook.site/cli.html>`__ to forward all incoming webhooks to your local development instance.
-  You should forward all events to ``http://devthedocs.org/webhook/githubapp/``.
+- ``Callback URL`` should be ``http://devthedocs.org/accounts/githubapp/login/callback/``.
+- Keep marked ``Expire user authorization tokens``
+- Activate the webhook, and set the ``Webhook URL`` to one provided by a service like `Webhook.site <https://docs.webhook.site/>`__ to forward all incoming webhooks to your local development instance. Example: ``https://webhook.site/e6e53a09-1551-4942-a750-c967bc577846``
 - In permissions, select the following:
 
-  - Repository permissions: Commit statuses (read and write, so we can create commit statuses),
-    Contents (read only, so we can clone repos with a token),
-    Metadata (read only, so we read the repo collaborators),
-    Pull requests (read and write, so we can post a comment on PRs in the future).
-  - Organization permissions: Members (read only so we can read the organization members).
-  - Account permissions: Email addresses (read only, so allauth can fetch all verified emails).
+  - Repository permissions
 
-- Subscribe to the following events: Installation target, Member, Organization, Membership, Pull request, Push, and Repository.
-- Copy the "Client ID" and "Client Secret" and set them as :ref:`environment variables <settings:Allauth secrets>`.
-- Generate a webhook secret and a private key from the GitHub App settings,
+    - ``Commit statuses`` (read and write, so we can create commit statuses),
+    - ``Contents`` (read only, so we can clone repos with a token),
+    - ``Metadata`` (read only, so we read the repo collaborators),
+    - ``Pull requests`` (read and write, so we can post a comment on PRs in the future).
+    - ``Checks`` (read and write, so we can use the GitHub Checks API to report the status of a build)
+
+  - Organization permissions
+
+    - ``Members`` (read only so we can read the organization members).
+
+  - Account Permissions
+
+    - ``Email addresses`` (read only, so allauth can fetch all verified emails).
+
+- Subscribe to the following events
+
+  - ``Installation target``
+  - ``Member``
+  - ``Organization``
+  - ``Membership``
+  - ``Pull request``
+  - ``Push``
+  - ``Repository``
+
+- Copy the ``Client ID`` and ``Client Secret`` and set them as :ref:`environment variables <settings:Allauth secrets>`
+
+  - ``RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_CLIENT_ID``
+  - ``RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_SECRET``
+
+- Generate a webhook secret (e.g. with ``openssl rand -hex 32``) and a private key from the GitHub App settings,
   and set them as :ref:`environment variables <settings:GitHub App>`.
+
+  - ``RTD_GITHUB_APP_ID``
+  - ``RTD_GITHUB_APP_NAME`` (e.g. ``read-the-docs-development``)
+  - ``RTD_GITHUB_APP_PRIVATE_KEY`` (you can use ``$(cat read-the-docs.private-key.pem)`` as the value of this variable)
+  - ``RTD_GITHUB_APP_WEBHOOK_SECRET``
+
+- Then, to receive the webhooks in your local development instance using the `Webhook.site CLI <https://docs.webhook.site/cli.html>`_,
+  first install the client with:
+
+  .. prompt:: bash
+
+    npm install @webhooksite/cli
+
+  and run the following command updating the ``<hash>`` part:
+
+  .. prompt:: bash
+
+    whcli forward --token=<hash> --target=http://devthedocs.org/webhook/githubapp/
+
 
 Troubleshooting
 ---------------

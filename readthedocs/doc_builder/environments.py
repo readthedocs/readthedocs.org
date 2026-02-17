@@ -412,13 +412,19 @@ class DockerBuildCommand(BuildCommand):
         command = " ".join(
             self._escape_command(part) if self.escape_command else part for part in self.command
         )
+
+        # Run user command with `nice` to give it a lower priority
+        # and avoid it to consume all the resources of the container.
+        # We need to have some capacity to execute our own processes.
+        nice = "nice -n 10"
+
         if prefix:
             # Using `;` or `\n` to separate the `prefix` where we define the
             # variables with the `command` itself, have the same effect.
             # However, using `;` is more explicit.
             # See https://github.com/readthedocs/readthedocs.org/pull/10334
-            return f"/bin/sh -c '{prefix}; {command}'"
-        return f"/bin/sh -c '{command}'"
+            return f"{nice} /bin/sh -c '{prefix}; {command}'"
+        return f"{nice} /bin/sh -c '{command}'"
 
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""

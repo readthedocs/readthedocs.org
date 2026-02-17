@@ -1,4 +1,3 @@
-import json
 from unittest import mock
 
 from allauth.account.models import EmailAddress
@@ -378,7 +377,10 @@ class TestProjectEditView(TestCase):
         index_project.delay.assert_called_once_with(project_slug=self.project.slug)
 
 
-@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
 class TestGitCheckoutCommandField(TestCase):
     """Tests for the git_checkout_command form field."""
 

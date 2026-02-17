@@ -79,7 +79,7 @@ packaging==26.0
     #   sphinx
 pbr==7.0.3
     # via sphinxcontrib-video
-pillow==12.1.0
+pillow==12.1.1
     # via matplotlib
 pygments==2.19.2
     # via
