@@ -227,7 +227,9 @@ class WebhookAutomationRuleForm(forms.ModelForm):
     match_arg = forms.CharField(
         label="File pattern match",
         help_text=_(
-            textwrap.dedent("Unix shell-style wildcards to match added/modified/removed files")
+            textwrap.dedent(
+                "Pattern to match added/modified/removed files. It can include wildcards, for example: `docs/*.md`."
+            )
         ),
         required=True,
     )
