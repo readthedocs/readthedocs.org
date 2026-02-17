@@ -3,7 +3,6 @@
 import datetime
 from functools import cached_property
 
-from readthedocs.core.utils import trigger_build
 import structlog
 from django.contrib.auth.models import User
 from django.db.models.functions import ExtractIsoWeekDay
@@ -12,7 +11,9 @@ from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.builds.utils import memcache_lock
+from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import user_id_matches_or_superuser
 from readthedocs.core.views.hooks import VersionInfo
@@ -581,8 +582,9 @@ class GitHubAppWebhookHandler:
             # If none one matches, it finishes here.
             # However, if there are no webhook automation rules configured,
             # we continue with the build as usual.
+            allowed_actions = [VersionAutomationRule.TRIGGER_BUILD_ACTION]
             webhook_rules = project.automation_rules.filter(
-                polymorphic_ctype__model="webhookautomationrule"
+                action__in=allowed_actions,
             ).exclude(version_type=EXTERNAL)
             if webhook_rules.exists():
                 triggered = False
