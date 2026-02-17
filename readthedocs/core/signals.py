@@ -57,8 +57,10 @@ def process_email_confirmed(request, email_address, **kwargs):
         payload = {
             "email": email_address.email,
             "resubscribe": True,
+            "type": "active",
         }
         headers = {
+            "Content-Type": "application/json",
             "X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY,
         }
         try:
