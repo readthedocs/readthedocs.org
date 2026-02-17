@@ -701,7 +701,6 @@ class CommunityBaseSettings(Settings):
             "task": "readthedocs.telemetry.tasks.delete_old_build_data",
             "schedule": crontab(minute=0, hour="2"),
             "options": {"queue": "web"},
-            "kwargs": {"limit": 10_000},
         },
         "every-day-delete-old-buildconfig-models": {
             "task": "readthedocs.builds.tasks.remove_orphan_build_config",
