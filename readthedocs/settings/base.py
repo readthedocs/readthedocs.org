@@ -699,15 +699,8 @@ class CommunityBaseSettings(Settings):
         },
         "every-day-delete-old-buildata-models": {
             "task": "readthedocs.telemetry.tasks.delete_old_build_data",
-            # NOTE: we are running this task every hour for now,
-            # since we have lots of objects to delete, and we are limiting
-            # the number of deletions per task run.
-            # TODO: go back to once a day (unlimited) after we delete the backlog of objects.
-            # It should take around ~1 week to delete all the old objects on community,
-            # commercial doesn't have this problem.
-            "schedule": crontab(minute=0, hour="*"),
+            "schedule": crontab(minute=0, hour="2"),
             "options": {"queue": "web"},
-            "kwargs": {"limit": 10_000},
         },
         "every-day-delete-old-buildconfig-models": {
             "task": "readthedocs.builds.tasks.remove_orphan_build_config",
