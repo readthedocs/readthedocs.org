@@ -603,6 +603,9 @@ class GitHubAppWebhookHandler:
                             triggered = True
                             rule.run(version)
 
+                            # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
+                            break
+
                 if not triggered:
                     log.info(
                         "No webhook automation rule matched, skipping build.",
@@ -664,6 +667,10 @@ class GitHubAppWebhookHandler:
                             )
                             triggered = True
                             rule.run(external_version)
+
+                            # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
+                            break
+
                     if not triggered:
                         log.info(
                             "No webhook automation rule matched, skipping build.",
@@ -859,7 +866,8 @@ class GitHubAppWebhookHandler:
         """
         Get the list of changed files from the pull request event.
 
-        It considers the changes in the latest commit only.
+        It considers the changes on all the files affected by the pull request for `opened`/`reopened` actions.
+        For `synchronize` action, it considers the changes from the commits that were pushed.
 
         :return: List of file paths
         """

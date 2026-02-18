@@ -1,6 +1,8 @@
 import json
 from unittest import mock
 
+from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
+import requests_mock
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -1077,7 +1079,6 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     def test_push_branch_with_matching_webhook_rule(self, trigger_build):
         """Test that push triggers build when WebhookAutomationRule matches."""
-        from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
 
         # Create a webhook automation rule that matches docs files
         rule = get(
@@ -1119,7 +1120,6 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     def test_push_branch_with_non_matching_webhook_rule(self, trigger_build):
         """Test that push does not trigger build when WebhookAutomationRule doesn't match."""
-        from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
 
         # Create a webhook automation rule that matches docs files
         rule = get(
@@ -1195,9 +1195,9 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         )
 
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
-    def test_pull_request_with_matching_webhook_rule(self, trigger_build):
+    @requests_mock.Mocker(kw="request")
+    def test_pull_request_with_matching_webhook_rule(self, trigger_build, request):
         """Test that PR triggers build when WebhookAutomationRule matches."""
-        from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
 
         self.project.external_builds_enabled = True
         self.project.save()
@@ -1213,54 +1213,69 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         )
 
         # Mock the GitHub API call to get PR files
-        mock_file = mock.Mock()
-        mock_file.filename = "docs/index.rst"
-
-        mock_pull = mock.Mock()
-        mock_pull.get_files.return_value = [mock_file]
-
-        mock_repo = mock.Mock()
-        mock_repo.get_pull.return_value = mock_pull
-
-        with mock.patch.object(
-            GitHubAppService,
-            "installation_client",
-            new_callable=mock.PropertyMock,
-        ) as mock_client:
-            mock_client.return_value.get_repo.return_value = mock_repo
-
-            payload = {
-                "installation": {
-                    "id": self.installation.installation_id,
-                    "target_id": self.installation.target_id,
-                    "target_type": self.installation.target_type,
-                },
-                "action": "opened",
-                "pull_request": {
-                    "number": 1,
-                    "head": {
-                        "ref": "new-feature",
-                        "sha": "1234abcd",
-                    },
-                    "base": {
-                        "ref": "main",
-                    },
-                },
-                "repository": {
-                    "id": self.remote_repository.remote_id,
-                    "full_name": self.remote_repository.full_name,
-                },
+        api_url = "https://api.github.com:443"
+        request.post(
+            f"{api_url}/app/installations/{self.installation.installation_id}/access_tokens",
+            json={
+                "token": "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+                "expires_at": "2016-07-11T22:14:10Z",
+                "permissions": {"issues": "write", "contents": "read"},
             }
-            r = self.post_webhook("pull_request", payload)
-            assert r.status_code == 200
+        )
+        request.get(
+            f"{api_url}/repositories/{self.remote_repository.remote_id}",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}",
+            },
+        )
+        request.get(
+            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
+            },
+        )
+        request.get(
+            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1/files",
+            json=[{"filename": "docs/index.rst"}],
+        )
 
-            # Should trigger build because docs/index.rst matches docs/**
-            assert trigger_build.call_count >= 1
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "opened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+
+        external_version = self.project.versions.get(verbose_name="1", type=EXTERNAL)
+        # Should trigger build because docs/index.rst matches docs/**
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=external_version,
+            from_webhook=True,
+        )
 
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
-    def test_pull_request_with_non_matching_webhook_rule(self, trigger_build):
+    @requests_mock.Mocker(kw="request")
+    def test_pull_request_with_non_matching_webhook_rule(self, trigger_build, request):
         """Test that PR does not trigger build when WebhookAutomationRule doesn't match."""
-        from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
 
         self.project.external_builds_enabled = True
         self.project.save()
@@ -1276,49 +1291,59 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         )
 
         # Mock the GitHub API call to get PR files
-        mock_file = mock.Mock()
-        mock_file.filename = "src/code.py"  # Doesn't match docs/**
-
-        mock_pull = mock.Mock()
-        mock_pull.get_files.return_value = [mock_file]
-
-        mock_repo = mock.Mock()
-        mock_repo.get_pull.return_value = mock_pull
-
-        with mock.patch.object(
-            GitHubAppService,
-            "installation_client",
-            new_callable=mock.PropertyMock,
-        ) as mock_client:
-            mock_client.return_value.get_repo.return_value = mock_repo
-
-            payload = {
-                "installation": {
-                    "id": self.installation.installation_id,
-                    "target_id": self.installation.target_id,
-                    "target_type": self.installation.target_type,
-                },
-                "action": "opened",
-                "pull_request": {
-                    "number": 1,
-                    "head": {
-                        "ref": "new-feature",
-                        "sha": "1234abcd",
-                    },
-                    "base": {
-                        "ref": "main",
-                    },
-                },
-                "repository": {
-                    "id": self.remote_repository.remote_id,
-                    "full_name": self.remote_repository.full_name,
-                },
+        api_url = "https://api.github.com:443"
+        request.post(
+            f"{api_url}/app/installations/{self.installation.installation_id}/access_tokens",
+            json={
+                "token": "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+                "expires_at": "2016-07-11T22:14:10Z",
+                "permissions": {"issues": "write", "contents": "read"},
             }
-            r = self.post_webhook("pull_request", payload)
-            assert r.status_code == 200
+        )
+        request.get(
+            f"{api_url}/repositories/{self.remote_repository.remote_id}",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}",
+            },
+        )
+        request.get(
+            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
+            },
+        )
+        request.get(
+            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1/files",
+            json=[{"filename": "src/code.py"}],
+        )
 
-            # Should NOT trigger build because src/code.py doesn't match docs/**
-            trigger_build.assert_not_called()
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "opened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+
+        # Should NOT trigger build because src/code.py doesn't match docs/**
+        trigger_build.assert_not_called()
 
     @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_without_webhook_rules(self, trigger_build):
