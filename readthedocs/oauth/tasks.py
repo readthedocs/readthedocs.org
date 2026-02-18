@@ -646,7 +646,7 @@ class GitHubAppWebhookHandler:
                 # we continue with the build as usual.
                 allowed_actions = [VersionAutomationRule.TRIGGER_BUILD_ACTION]
                 webhook_rules = project.automation_rules.filter(
-                    actions__in=allowed_actions,
+                    action__in=allowed_actions,
                     version_type=EXTERNAL,
                 )
                 if webhook_rules.exists():
