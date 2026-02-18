@@ -214,7 +214,7 @@ def trigger_build(project, version=None, commit=None):
     )
     log.info("Triggering build.")
 
-    if version.type == EXTERNAL and not project.has_valid_webhook:
+    if version.is_external and not project.has_valid_webhook:
         project.has_valid_webhook = True
         project.save()
 

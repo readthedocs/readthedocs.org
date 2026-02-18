@@ -585,15 +585,13 @@ class GitHubAppWebhookHandler:
             allowed_actions = [VersionAutomationRule.TRIGGER_BUILD_ACTION]
             webhook_rules = project.automation_rules.filter(
                 action__in=allowed_actions,
-            ).exclude(version_type=EXTERNAL)
+                version_type=version_type,
+            )
             if webhook_rules.exists():
                 triggered = False
                 changed_files = self._get_changed_files_from_push_event()
-                for rule in webhook_rules.filter(version_type=version_type).iterator():
-                    if (
-                        rule.match(changed_files=changed_files)
-                        and rule.version_type == version_type
-                    ):
+                for rule in webhook_rules.iterator():
+                    if rule.match(changed_files=changed_files):
                         log.info(
                             "Webhook automation rule matched, triggering build.",
                             project_slug=project.slug,
@@ -646,8 +644,9 @@ class GitHubAppWebhookHandler:
                 # If none one matches, it finishes here.
                 # However, if there are no webhook automation rules configured,
                 # we continue with the build as usual.
+                allowed_actions = [VersionAutomationRule.TRIGGER_BUILD_ACTION]
                 webhook_rules = project.automation_rules.filter(
-                    polymorphic_ctype__model="webhookautomationrule",
+                    actions__in=allowed_actions,
                     version_type=EXTERNAL,
                 )
                 if webhook_rules.exists():
