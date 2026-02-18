@@ -519,7 +519,7 @@ class TestGitHubAppWebhook(TestCase):
             from_webhook=True,
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened_pr_previews_disabled(self, trigger_build):
         self.project.external_builds_enabled = False
         self.project.save()
@@ -691,7 +691,7 @@ class TestGitHubAppWebhook(TestCase):
             from_webhook=True,
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_synchronize_pr_previews_disabled(self, trigger_build):
         self.project.external_builds_enabled = False
         self.project.save()
@@ -1074,7 +1074,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             self.url, data=payload, content_type="application/json", headers=headers
         )
 
-    @mock.patch("readthedocs.oauth.tasks.trigger_build")
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     def test_push_branch_with_matching_webhook_rule(self, trigger_build):
         """Test that push triggers build when WebhookAutomationRule matches."""
         from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
@@ -1116,7 +1116,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         # Should trigger build because docs/index.rst matches docs/*.rst
         assert trigger_build.call_count >= 1
 
-    @mock.patch("readthedocs.oauth.tasks.trigger_build")
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     def test_push_branch_with_non_matching_webhook_rule(self, trigger_build):
         """Test that push does not trigger build when WebhookAutomationRule doesn't match."""
         from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
@@ -1321,7 +1321,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             # Should NOT trigger build because src/code.py doesn't match docs/**
             trigger_build.assert_not_called()
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_without_webhook_rules(self, trigger_build):
         """Test that PR triggers build normally when no WebhookAutomationRules exist."""
         self.project.external_builds_enabled = True
