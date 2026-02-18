@@ -1194,7 +1194,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             ]
         )
 
-    @mock.patch("readthedocs.oauth.tasks.trigger_build")
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     def test_pull_request_with_matching_webhook_rule(self, trigger_build):
         """Test that PR triggers build when WebhookAutomationRule matches."""
         from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
@@ -1213,16 +1213,14 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         )
 
         # Mock the GitHub API call to get PR files
-        mock_commit = mock.Mock()
         mock_file = mock.Mock()
         mock_file.filename = "docs/index.rst"
-        mock_commit.files = [mock_file]
 
         mock_pull = mock.Mock()
-        mock_pull.get_commit.return_value = mock_commit
+        mock_pull.get_files.return_value = [mock_file]
 
         mock_repo = mock.Mock()
-        mock_repo.get_commit.return_value = mock_commit
+        mock_repo.get_pull.return_value = mock_pull
 
         with mock.patch.object(
             GitHubAppService,
@@ -1259,7 +1257,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             # Should trigger build because docs/index.rst matches docs/**
             assert trigger_build.call_count >= 1
 
-    @mock.patch("readthedocs.oauth.tasks.trigger_build")
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     def test_pull_request_with_non_matching_webhook_rule(self, trigger_build):
         """Test that PR does not trigger build when WebhookAutomationRule doesn't match."""
         from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
@@ -1278,13 +1276,14 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         )
 
         # Mock the GitHub API call to get PR files
-        mock_commit = mock.Mock()
         mock_file = mock.Mock()
         mock_file.filename = "src/code.py"  # Doesn't match docs/**
-        mock_commit.files = [mock_file]
+
+        mock_pull = mock.Mock()
+        mock_pull.get_files.return_value = [mock_file]
 
         mock_repo = mock.Mock()
-        mock_repo.get_commit.return_value = mock_commit
+        mock_repo.get_pull.return_value = mock_pull
 
         with mock.patch.object(
             GitHubAppService,
