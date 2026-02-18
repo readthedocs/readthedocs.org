@@ -671,8 +671,8 @@ class GitHubAppWebhookHandler:
                         )
                 else:
                     trigger_build(
-                        project,
-                        external_version,
+                        project=project,
+                        version=external_version,
                         commit=external_version.identifier,
                         from_webhook=True,
                     )

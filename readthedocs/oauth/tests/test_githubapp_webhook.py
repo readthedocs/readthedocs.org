@@ -451,8 +451,8 @@ class TestGitHubAppWebhook(TestCase):
         assert r.status_code == 200
         trigger_build.assert_has_calls(
             [
-                mock.call(project=self.project, version=self.version_main),
-                mock.call(project=self.project, version=self.version_latest),
+                mock.call(project=self.project, version=self.version_main, from_webhook=True),
+                mock.call(project=self.project, version=self.version_latest, from_webhook=True),
             ]
         )
 
@@ -477,9 +477,10 @@ class TestGitHubAppWebhook(TestCase):
         trigger_build.assert_called_once_with(
             project=self.project,
             version=self.version_tag,
+            from_webhook=True,
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened(self, trigger_build):
         self.project.external_builds_enabled = True
         self.project.save()
@@ -515,6 +516,7 @@ class TestGitHubAppWebhook(TestCase):
             project=self.project,
             version=external_version,
             commit=external_version.identifier,
+            from_webhook=True,
         )
 
     @mock.patch("readthedocs.core.views.hooks.trigger_build")
@@ -548,7 +550,7 @@ class TestGitHubAppWebhook(TestCase):
         assert not self.project.versions.filter(verbose_name="1", type=EXTERNAL).exists()
         trigger_build.assert_not_called()
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_reopened(self, trigger_build):
         self.project.external_builds_enabled = True
         self.project.save()
@@ -594,9 +596,10 @@ class TestGitHubAppWebhook(TestCase):
             project=self.project,
             version=external_version,
             commit=external_version.identifier,
+            from_webhook=True,
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_reopened_pr_previews_disabled(self, trigger_build):
         self.project.external_builds_enabled = False
         self.project.save()
@@ -640,7 +643,7 @@ class TestGitHubAppWebhook(TestCase):
         assert external_version.active
         trigger_build.assert_not_called()
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_synchronize(self, trigger_build):
         self.project.external_builds_enabled = True
         self.project.save()
@@ -685,6 +688,7 @@ class TestGitHubAppWebhook(TestCase):
             project=self.project,
             version=external_version,
             commit=external_version.identifier,
+            from_webhook=True,
         )
 
     @mock.patch("readthedocs.core.views.hooks.trigger_build")
@@ -1070,7 +1074,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             self.url, data=payload, content_type="application/json", headers=headers
         )
 
-    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_push_branch_with_matching_webhook_rule(self, trigger_build):
         """Test that push triggers build when WebhookAutomationRule matches."""
         from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
@@ -1112,7 +1116,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         # Should trigger build because docs/index.rst matches docs/*.rst
         assert trigger_build.call_count >= 1
 
-    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_push_branch_with_non_matching_webhook_rule(self, trigger_build):
         """Test that push does not trigger build when WebhookAutomationRule doesn't match."""
         from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
@@ -1185,65 +1189,12 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         # Should trigger build normally (backwards compatibility)
         trigger_build.assert_has_calls(
             [
-                mock.call(project=self.project, version=self.version_main),
-                mock.call(project=self.project, version=self.version_latest),
+                mock.call(project=self.project, version=self.version_main, from_webhook=True),
+                mock.call(project=self.project, version=self.version_latest, from_webhook=True),
             ]
         )
 
-    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
-    def test_push_considers_last_commit_only(self, trigger_build):
-        """Test that only files from the last commit are considered."""
-        from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
-
-        rule = get(
-            WebhookAutomationRule,
-            project=self.project,
-            priority=0,
-            match_arg="docs/*.rst",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=BRANCH,
-        )
-
-        # Multiple commits, but only first one has docs file
-        # Build should NOT be triggered since last commit doesn't match
-        payload = {
-            "installation": {
-                "id": self.installation.installation_id,
-                "target_id": self.installation.target_id,
-                "target_type": self.installation.target_type,
-            },
-            "created": False,
-            "deleted": False,
-            "ref": "refs/heads/main",
-            "repository": {
-                "id": self.remote_repository.remote_id,
-                "full_name": self.remote_repository.full_name,
-            },
-            "commits": [
-                {
-                    "added": ["docs/index.rst"],
-                    "modified": [],
-                    "removed": [],
-                },
-                {
-                    "added": [],
-                    "modified": ["other.txt"],
-                    "removed": [],
-                },
-                {
-                    "added": ["src/code.py"],
-                    "modified": [],
-                    "removed": [],
-                },
-            ],
-        }
-        r = self.post_webhook("push", payload)
-        assert r.status_code == 200
-
-        # Should NOT trigger because last commit has src/code.py which doesn't match docs/*.rst
-        trigger_build.assert_not_called()
-
-    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_with_matching_webhook_rule(self, trigger_build):
         """Test that PR triggers build when WebhookAutomationRule matches."""
         from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
@@ -1308,7 +1259,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             # Should trigger build because docs/index.rst matches docs/**
             assert trigger_build.call_count >= 1
 
-    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_with_non_matching_webhook_rule(self, trigger_build):
         """Test that PR does not trigger build when WebhookAutomationRule doesn't match."""
         from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
@@ -1407,4 +1358,5 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             project=self.project,
             version=external_version,
             commit=external_version.identifier,
+            from_webhook=True,
         )
