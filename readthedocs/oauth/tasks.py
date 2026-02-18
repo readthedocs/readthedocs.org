@@ -670,7 +670,12 @@ class GitHubAppWebhookHandler:
                             project_slug=project.slug,
                         )
                 else:
-                    trigger_build(project, external_version, commit=external_version.identifier)
+                    trigger_build(
+                        project,
+                        external_version,
+                        commit=external_version.identifier,
+                        from_webhook=True,
+                    )
             return
 
         if action == "closed":

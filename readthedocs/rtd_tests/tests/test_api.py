@@ -2082,7 +2082,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version, project=self.project)],
+            [mock.call(version=self.version, project=self.project, from_webhook=True)],
         )
 
         data = {"ref": "refs/heads/non-existent"}
@@ -2095,7 +2095,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, from_webhook=True)],
         )
 
         data = {"ref": "refs/heads/master"}
@@ -2108,7 +2108,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version, project=self.project)],
+            [mock.call(version=self.version, project=self.project, from_webhook=True)],
         )
 
     def test_github_webhook_for_tags(self, trigger_build):
@@ -2125,7 +2125,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version_tag, project=self.project)],
+            [mock.call(version=self.version_tag, project=self.project, from_webhook=True)],
         )
 
         data = {"ref": "refs/heads/non-existent"}
@@ -2138,7 +2138,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, from_webhook=True)],
         )
 
         data = {"ref": "refs/tags/v1.0"}
@@ -2151,7 +2151,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version_tag, project=self.project)],
+            [mock.call(version=self.version_tag, project=self.project, from_webhook=True)],
         )
 
     @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
@@ -2228,7 +2228,7 @@ class IntegrationsTests(TestCase):
             args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
         )
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_github_pull_request_opened_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -2251,12 +2251,14 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=external_version,
+            commit=self.commit,
         )
         self.assertTrue(external_version)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_github_pull_request_reopened_event(
         self, trigger_build, core_trigger_build
     ):
@@ -2287,12 +2289,12 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
+        trigger_build.assert_called_once_with(
             project=self.project, version=external_version, commit=self.commit
         )
         self.assertTrue(external_version)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_github_pull_request_synchronize_event(
         self, trigger_build, core_trigger_build
     ):
@@ -2336,13 +2338,13 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
+        trigger_build.assert_called_once_with(
             project=self.project, version=external_version, commit=self.commit
         )
         # `synchronize` webhook event updated the identifier (commit hash)
         self.assertNotEqual(prev_identifier, external_version.identifier)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_github_pull_request_closed_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -2386,7 +2388,7 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["closed"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [version.verbose_name])
-        core_trigger_build.assert_not_called()
+        trigger_build.assert_not_called()
 
     def test_github_pull_request_no_action(self, trigger_build):
         client = APIClient()
@@ -2688,6 +2690,7 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_called_with(
             version=mock.ANY,
             project=self.project,
+            from_webhook=True,
         )
 
         trigger_build.reset_mock()
@@ -2719,6 +2722,7 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_called_with(
             version=self.version_tag,
             project=self.project,
+            from_webhook=True,
         )
 
         trigger_build.reset_mock()
@@ -2734,6 +2738,7 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_called_with(
             version=self.version_tag,
             project=self.project,
+            from_webhook=True,
         )
 
         trigger_build.reset_mock()
@@ -3189,7 +3194,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, from_webhook=True)],
         )
         client.post(
             "/api/v2/webhook/bitbucket/{}/".format(self.project.slug),
@@ -3206,7 +3211,7 @@ class IntegrationsTests(TestCase):
             format="json",
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, from_webhook=True)],
         )
 
         trigger_build_call_count = trigger_build.call_count

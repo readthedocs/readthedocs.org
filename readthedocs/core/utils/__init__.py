@@ -193,7 +193,7 @@ def prepare_build(
     )
 
 
-def trigger_build(project, version=None, commit=None):
+def trigger_build(project, version=None, commit=None, from_webhook=False):
     """
     Trigger a Build.
 
@@ -214,7 +214,7 @@ def trigger_build(project, version=None, commit=None):
     )
     log.info("Triggering build.")
 
-    if version.is_external and not project.has_valid_webhook:
+    if from_webhook and not project.has_valid_webhook:
         project.has_valid_webhook = True
         project.save()
 

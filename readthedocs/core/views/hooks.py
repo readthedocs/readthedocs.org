@@ -30,31 +30,6 @@ class VersionInfo:
 log = structlog.get_logger(__name__)
 
 
-def _build_version(project, version):
-    """
-    Where we actually trigger builds for a project and version.
-
-    All webhook logic should route here to call ``trigger_build``.
-    """
-    if not project.has_valid_webhook:
-        project.has_valid_webhook = True
-        project.save()
-    # Previously we were building the latest version (inactive or active)
-    # when building the default version,
-    # some users may have relied on this to update the version list #4450
-    if version.active:
-        log.info(
-            "Triggering build.",
-            project_slug=project.slug,
-            version_slug=version.slug,
-        )
-        trigger_build(project=project, version=version)
-        return True
-
-    log.info("Not building.", version_slug=version.slug)
-    return False
-
-
 def build_versions_from_names(project, versions_info: list[VersionInfo]):
     """
     Build the branches or tags from the project.
@@ -73,10 +48,12 @@ def build_versions_from_names(project, versions_info: list[VersionInfo]):
             )
             if version.slug in to_build:
                 continue
-            version_built = _build_version(project, version)
-            if version_built:
+
+            if version.active:
+                trigger_build(project=project, version=version, from_webhook=True)
                 to_build.add(version.slug)
             else:
+                log.info("Not building.", version_slug=version.slug)
                 not_building.add(version.slug)
     return to_build, not_building
 
