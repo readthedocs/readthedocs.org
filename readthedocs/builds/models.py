@@ -1357,8 +1357,6 @@ class WebhookAutomationRule(VersionAutomationRule):
     the build is triggered for the affected version.
     """
 
-    TIMEOUT = 1  # timeout in seconds
-
     allowed_actions_on_existing = {
         VersionAutomationRule.TRIGGER_BUILD_ACTION: actions.trigger_build_for_version,
     }
