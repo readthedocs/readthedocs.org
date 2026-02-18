@@ -652,7 +652,10 @@ class GitHubAppWebhookHandler:
                 if webhook_rules.exists():
                     triggered = False
                     for rule in webhook_rules.iterator():
-                        changed_files = self._get_changed_files_from_pull_request_event(project)
+                        changed_files = self._get_changed_files_from_pull_request_event(
+                            project,
+                            action,
+                        )
                         if rule.match(changed_files=changed_files):
                             log.info(
                                 "Webhook automation rule matched, triggering build.",
@@ -847,7 +850,7 @@ class GitHubAppWebhookHandler:
             changed_files.update(commit.get("removed", []))
         return changed_files
 
-    def _get_changed_files_from_pull_request_event(self, project):
+    def _get_changed_files_from_pull_request_event(self, project, action):
         """
         Get the list of changed files from the pull request event.
 
@@ -856,18 +859,28 @@ class GitHubAppWebhookHandler:
         :return: List of file paths
         """
         changed_files = set()
-        installation, created = self._get_or_create_installation()
+        installation, _ = self._get_or_create_installation()
 
-        commits = (
-            installation.service.installation_client.get_repo(
-                int(project.remote_repository.remote_id)
-            )
-            .get_pull(int(self.data["pull_request"]["number"]))
-            .get_commits()
+        gh_repository = installation.service.installation_client.get_repo(
+            int(project.remote_repository.remote_id)
         )
-        for commit in commits:
-            for f in commit.files:
+
+        if action == "synchronize":
+            # If the PR is updated with new commits,
+            # we check the files changed between the "before" and "after" commits.
+            before_sha = self.data["before"]
+            after_sha = self.data["after"]
+            comparison = gh_repository.compare(before_sha, after_sha)
+            for file in comparison.files:
+                changed_files.add(file.filename)
+
+        elif action in ("opened", "reopened"):
+            # If the PR is opened or reopened, we check for all the files changed in the pull request.
+            files = gh_repository.get_pull(int(self.data["pull_request"]["number"])).get_files()
+
+            for f in files:
                 changed_files.add(f.filename)
+
         return changed_files
 
 
