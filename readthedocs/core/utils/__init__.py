@@ -209,8 +209,8 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     structlog.contextvars.bind_contextvars(
         project_slug=project.slug,
         version_slug=version.slug if version else None,
+        version_type=version.type if version else None,
         commit=commit,
-        version_type=version.type,
     )
     log.info("Triggering build.")
 
