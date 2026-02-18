@@ -301,6 +301,7 @@ class WebhookMixin:
             project=project,
             version=external_version,
             commit=external_version.identifier,
+            from_webhook=True,
         )
 
         return {

@@ -2255,6 +2255,7 @@ class IntegrationsTests(TestCase):
             project=self.project,
             version=external_version,
             commit=self.commit,
+            from_webhook=True,
         )
         self.assertTrue(external_version)
 
@@ -2290,7 +2291,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
         trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True,
         )
         self.assertTrue(external_version)
 
@@ -2339,7 +2340,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
         trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True,
         )
         # `synchronize` webhook event updated the identifier (commit hash)
         self.assertNotEqual(prev_identifier, external_version.identifier)
@@ -2928,7 +2929,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.data["detail"], GitLabWebhookView.invalid_payload_msg)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_gitlab_merge_request_open_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -2947,12 +2948,12 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True
         )
         self.assertTrue(external_version)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_gitlab_merge_request_reopen_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -2979,12 +2980,12 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True,
         )
         self.assertTrue(external_version)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_gitlab_merge_request_update_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -3024,8 +3025,8 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True,
         )
         # `update` webhook event updated the identifier (commit hash)
         self.assertNotEqual(prev_identifier, external_version.identifier)
