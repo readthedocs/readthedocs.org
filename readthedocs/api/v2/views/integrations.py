@@ -6,7 +6,6 @@ import json
 from functools import namedtuple
 from textwrap import dedent
 
-from readthedocs.core.utils import trigger_build
 import structlog
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -27,6 +26,7 @@ from readthedocs.builds.constants import TAG
 from readthedocs.core.signals import webhook_bitbucket
 from readthedocs.core.signals import webhook_github
 from readthedocs.core.signals import webhook_gitlab
+from readthedocs.core.utils import trigger_build
 from readthedocs.core.views.hooks import VersionInfo
 from readthedocs.core.views.hooks import build_versions_from_names
 from readthedocs.core.views.hooks import close_external_version
