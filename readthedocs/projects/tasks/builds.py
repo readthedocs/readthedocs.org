@@ -963,7 +963,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_delete = []
 
         build_media_storage = get_storage(
-            project=self.data.project,
             build_id=self.data.build["id"],
             api_client=self.data.api_client,
             storage_type=StorageType.build_media,

@@ -6,7 +6,6 @@ from django.conf import settings
 from django.core.files.storage import storages
 
 from readthedocs.doc_builder.exceptions import BuildAppError
-from readthedocs.projects.models import Feature
 
 
 log = structlog.get_logger(__name__)
@@ -17,7 +16,7 @@ class StorageType(StrEnum):
     build_tools = auto()
 
 
-def get_storage(*, project, build_id, api_client, storage_type: StorageType):
+def get_storage(*, build_id, api_client, storage_type: StorageType):
     """
     Get a storage class instance to interact with storage from the build.
 
@@ -31,7 +30,7 @@ def get_storage(*, project, build_id, api_client, storage_type: StorageType):
     extra_kwargs = {}
     if settings.USING_AWS:
         extra_kwargs = _get_s3_scoped_credentials(
-            project=project, build_id=build_id, api_client=api_client, storage_type=storage_type
+            build_id=build_id, api_client=api_client, storage_type=storage_type
         )
     return storage_class(**extra_kwargs)
 
@@ -82,12 +81,8 @@ def _get_build_tools_storage_class():
     return _get_storage_backend_class("build-tools")
 
 
-def _get_s3_scoped_credentials(*, project, build_id, api_client, storage_type: StorageType):
+def _get_s3_scoped_credentials(*, build_id, api_client, storage_type: StorageType):
     """Get the scoped credentials for the build using our internal API."""
-    if not project.has_feature(Feature.USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS):
-        # Use the default credentials defined in the settings.
-        return {}
-
     try:
         credentials = api_client.build(f"{build_id}/credentials/storage").post(
             {"type": storage_type.value}
