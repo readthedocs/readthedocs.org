@@ -1,6 +1,7 @@
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
+import json
 import re
 
 import structlog
@@ -18,6 +19,7 @@ from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.db import delete_in_batches
+from readthedocs.storage import build_commands_storage
 
 
 log = structlog.get_logger(__name__)
@@ -283,6 +285,44 @@ def normalize_build_command(command, project_slug, version_slug):
     regex = r"^\$CONDA_ENVS_PATH/\$CONDA_DEFAULT_ENV/bin/"
     command = re.sub(regex, "", command, count=1)
     return command
+
+
+def get_build_commands_from_storage(build):
+    """
+    Return build commands from storage for ``cold_storage`` builds.
+
+    Returns ``None`` when commands can't be loaded from storage and callers
+    should keep using serializer output.
+    """
+    if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+        return None
+
+    if not build.cold_storage:
+        return None
+
+    storage_path = "{date}/{id}.json".format(
+        date=str(build.date.date()),
+        id=build.id,
+    )
+    if not build_commands_storage.exists(storage_path):
+        return None
+
+    try:
+        json_resp = build_commands_storage.open(storage_path).read()
+        commands = json.loads(json_resp)
+        for buildcommand in commands:
+            buildcommand["command"] = normalize_build_command(
+                buildcommand["command"],
+                build.project.slug,
+                build.get_version_slug(),
+            )
+        return commands
+    except Exception:
+        log.exception(
+            "Failed to read build data from storage.",
+            path=storage_path,
+        )
+        return None
 
 
 class RemoteOrganizationPagination(PageNumberPagination):

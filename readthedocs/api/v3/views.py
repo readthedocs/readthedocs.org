@@ -28,6 +28,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
+from readthedocs.api.v2.utils import get_build_commands_from_storage
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -400,6 +401,33 @@ class BuildsViewSet(
     permit_list_expands = [
         "config",
     ]
+    permit_detail_expands = [
+        "config",
+    ]
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .select_related(
+                "project",
+                "version",
+            )
+            .prefetch_related(
+                "commands",
+            )
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+
+        commands = get_build_commands_from_storage(instance)
+        if commands is not None:
+            data["commands"] = commands
+
+        return Response(data)
 
 
 class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
