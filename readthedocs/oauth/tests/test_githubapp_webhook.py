@@ -1229,6 +1229,12 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             },
         )
         request.get(
+            f"{api_url}/repositories/{self.remote_repository.remote_id}/pulls/1",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
+            },
+        )
+        request.get(
             f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1",
             json={
                 "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
