@@ -6,6 +6,10 @@
         "error": "",
         "finished": null,
         "id": 3,
+        "builder": null,
+        "docs_url": "http://project.readthedocs.io/en/v1.0/",
+        "commit_url": null,
+        "commands": [],
         "_links": {
             "_self": "https://readthedocs.org/api/v3/projects/project/builds/3/",
             "notifications": "https://readthedocs.org/api/v3/projects/project/builds/3/notifications/",
