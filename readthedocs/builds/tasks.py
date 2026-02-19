@@ -1,9 +1,9 @@
 import json
-from io import BytesIO
 
 import requests
 import structlog
 from django.conf import settings
+from django.db.models import Count
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -11,19 +11,18 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from readthedocs import __version__
-from readthedocs.api.v2.serializers import BuildCommandSerializer
 from readthedocs.api.v2.utils import delete_versions_from_db
 from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v2.utils import sync_versions_to_db
 from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import LOCK_EXPIRE
-from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildConfig
@@ -32,12 +31,12 @@ from readthedocs.builds.reporting import get_build_overview
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import send_email
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import WebHookEvent
-from readthedocs.storage import build_commands_storage
 from readthedocs.worker import app
 
 
@@ -45,7 +44,7 @@ log = structlog.get_logger(__name__)
 
 
 @app.task(queue="web", bind=True)
-def archive_builds_task(self, days=14, limit=200, delete=False):
+def archive_builds_task(self, days=14, limit=200):
     """
     Task to archive old builds to cold storage.
 
@@ -71,33 +70,8 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
             .prefetch_related("commands")
             .only("date", "cold_storage")[:limit]
         )
-
-        for build in queryset:
-            commands = BuildCommandSerializer(build.commands, many=True).data
-            if commands:
-                for cmd in commands:
-                    if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
-                        cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
-                        cmd["output"] = (
-                            "\n\n"
-                            "... (truncated) ..."
-                            "\n\n"
-                            "Command output too long. Truncated to last 1MB."
-                            "\n\n" + cmd["output"]
-                        )  # noqa
-                        log.debug("Truncating build command for build.", build_id=build.id)
-                output = BytesIO(json.dumps(commands).encode("utf8"))
-                filename = "{date}/{id}.json".format(date=str(build.date.date()), id=build.id)
-                try:
-                    build_commands_storage.save(name=filename, content=output)
-                    if delete:
-                        build.commands.all().delete()
-                except IOError:
-                    log.exception("Cold Storage save failure")
-                    continue
-
-            build.cold_storage = True
-            build.save()
+        for build in queryset.iterator():
+            build.move_to_storage()
 
 
 @app.task(queue="web")
@@ -606,3 +580,42 @@ def remove_orphan_build_config():
     count = orphan_buildconfigs.count()
     orphan_buildconfigs.delete()
     log.info("Removed orphan BuildConfig objects.", count=count)
+
+
+@app.task(queue="web")
+def delete_old_build_objects(days=360 * 3, keep_recent=5_000, limit=10_000):
+    """
+    Delete old Build objects that are not needed anymore.
+
+    We keep the most recent `keep_recent` builds per project,
+    and delete builds that are older than `days` days.
+
+    :param limit: Maximum number of builds to delete in one execution.
+     Keep our DB from being overwhelmed by deleting too many builds at once.
+    """
+    cutoff_date = timezone.now() - timezone.timedelta(days=days)
+    projects = (
+        Project.objects.all()
+        .annotate(build_count=Count("builds"))
+        .filter(build_count__gt=keep_recent)
+    )
+    for project in projects.iterator():
+        builds_to_delete = project.builds.filter(
+            state__in=BUILD_FINAL_STATES,
+            date__lt=cutoff_date,
+        ).order_by("-date")[keep_recent:]
+
+        # Builds that are not in cold storage can be deleted in bulk,
+        # as they don't need to remove any files from storage.
+        _, deleted = delete_in_batches(builds_to_delete.filter(cold_storage=False), limit=limit)
+        limit -= deleted["builds.Build"]
+        if limit <= 0:
+            break
+
+        # Builds in cold storage need to be deleted one by one,
+        # so their custom delete method is called to remove the files from storage.
+        for build in builds_to_delete.filter(cold_storage=True)[:limit]:
+            build.delete()
+            limit -= 1
+            if limit <= 0:
+                break

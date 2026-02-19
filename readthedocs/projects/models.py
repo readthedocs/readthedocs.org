@@ -727,6 +727,10 @@ class Project(models.Model):
         qs = self.search_queries.all()
         qs._raw_delete(qs.db)
 
+        # Remove builds on cold storage one by one, so they are properly deleted from storage.
+        for build in self.builds.filter(cold_storage=True):
+            build.delete()
+
         # Remove extra resources
         clean_project_resources(self)
 
