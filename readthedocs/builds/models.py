@@ -2,9 +2,11 @@
 
 import datetime
 import fnmatch
+import json
 import os.path
 import re
 from functools import partial
+from io import BytesIO
 
 import regex
 import structlog
@@ -18,6 +20,7 @@ from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
+from readthedocs.api.v2.serializers import BuildCommandSerializer
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE
@@ -29,6 +32,7 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS
 from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS_VALUES
 from readthedocs.builds.constants import STABLE
@@ -73,6 +77,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_commands_storage
 
 
 log = structlog.get_logger(__name__)
@@ -868,6 +873,55 @@ class Build(models.Model):
         super().save(*args, **kwargs)
         self._readthedocs_yaml_config = None
         self._readthedocs_yaml_config_changed = False
+
+    def delete(self, *args, **kwargs):
+        # Delete from storage if the build steps are stored outside the database.
+        if self.cold_storage:
+            try:
+                build_commands_storage.delete(self._storage_path)
+            except IOError:
+                log.exception("Cold Storage delete failure")
+        return super().delete(*args, **kwargs)
+
+    def move_to_storage(self):
+        if self.cold_storage:
+            return
+
+        commands = BuildCommandSerializer(self.commands, many=True).data
+        if commands:
+            for cmd in commands:
+                if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
+                    cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
+                    cmd["output"] = (
+                        "\n\n"
+                        "... (truncated) ..."
+                        "\n\n"
+                        "Command output too long. Truncated to last 1MB."
+                        "\n\n" + cmd["output"]
+                    )
+                    log.debug("Truncating build command for build.", build_id=self.id)
+            output = BytesIO(json.dumps(commands).encode("utf8"))
+            try:
+                build_commands_storage.save(name=self._storage_path, content=output)
+                self.commands.all().delete()
+            except IOError:
+                log.exception("Cold Storage save failure")
+                return
+
+        self.cold_storage = True
+        self.save()
+
+    @property
+    def _storage_path(self):
+        """
+        Storage path where the build commands will be stored.
+
+        The path is in the format: <date>/<build_id>.json
+
+        Example: 2024-01-01/1111.json
+        """
+        date = self.date.date()
+        return f"{date}/{self.id}.json"
 
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])

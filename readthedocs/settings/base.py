@@ -724,7 +724,6 @@ class CommunityBaseSettings(Settings):
             "kwargs": {
                 "days": 1,
                 "limit": 500,
-                "delete": True,
             },
         },
         "every-30m-delete-inactive-external-versions": {
@@ -762,6 +761,19 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute=15, hour="*"),
             "options": {"queue": "web"},
             "kwargs": {"limit": 10_000},
+        },
+        "every-day-delete-old-build-objects": {
+            "task": "readthedocs.builds.tasks.delete_old_build_objects",
+            # NOTE: we are running this task every hour for now,
+            # since we have lots of objects to delete, and we are limiting
+            # the number of deletions per task run.
+            # TODO: go back to once a day (unlimited) after we delete the backlog of objects,
+            # or keep less build objects (keep_recent=1000, days=360).
+            # It should take around 6 days to delete all the old objects on community,
+            # and 1 day on commercial.
+            "schedule": crontab(minute=0, hour="*"),
+            "options": {"queue": "web"},
+            "kwargs": {"days": 360 * 3, "keep_recent": 5_000, "limit": 10_000},
         },
     }
 
