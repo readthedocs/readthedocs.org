@@ -419,6 +419,8 @@ class BuildsViewSet(
         )
 
     def retrieve(self, request, *args, **kwargs):
+        # Keep API behavior parity with v2: hydrate commands from cold storage
+        # on detail responses only (list returns serializer output as-is).
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data

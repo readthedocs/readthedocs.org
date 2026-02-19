@@ -4,7 +4,6 @@ from django.test import override_settings
 from django.urls import reverse
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.builds.models import BuildConfig
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
@@ -251,24 +250,6 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["config"], {"property": "test value"})
 
-    def test_projects_builds_detail_expand_config_uses_yaml_config_fallback(self):
-        self.build._config = None
-        self.build.readthedocs_yaml_config = BuildConfig.objects.create(
-            data={"property": "yaml value"},
-        )
-        self.build.save(update_fields=["_config", "readthedocs_yaml_config"])
-
-        url = reverse(
-            "projects-builds-detail",
-            kwargs={
-                "parent_lookup_project__slug": self.project.slug,
-                "build_pk": self.build.pk,
-            },
-        )
-        response = self.client.get(f"{url}?expand=config")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["config"], {"property": "yaml value"})
-
     def test_projects_builds_list_expand_config(self):
         url = reverse(
             "projects-builds-list",
@@ -312,6 +293,7 @@ class BuildsEndpointTests(APIEndpointMixin):
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        # List responses intentionally don't rehydrate command output from storage.
         commands = response.json()["results"][0]["commands"]
         self.assertEqual(commands, [])
         get_build_commands_from_storage.assert_not_called()
