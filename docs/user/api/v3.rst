@@ -1608,7 +1608,6 @@ Sharing method details
                "_self": "https://app.readthedocs.com/api/v3/projects/pypa-pip/sharing/1/",
                "project": "https://app.readthedocs.com/api/v3/projects/pypa-pip/"
            },
-           "access_level": "readonly",
            "access_type": "token",
            "allow_all": true,
            "description": "Support team access",
