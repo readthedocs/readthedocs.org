@@ -1,10 +1,11 @@
 from unittest.mock import patch
 
+from allauth.account.signals import user_logged_in
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django_dynamic_fixture import get
 
 from readthedocs.notifications.models import Notification
@@ -76,6 +77,36 @@ class TestSyncRemoteRepositoriesSignal(TestCase):
         get(Project, users=[self.user], privacy_level=constants.PUBLIC)
 
         _sync_remote_repositories(self.user)
+
+        mock_sync.delay.assert_called_once_with(self.user.pk)
+        self.assertFalse(self._get_user_notification().exists())
+
+    def test_notification_created_on_login_when_no_remote_repos(self, mock_sync):
+        """Notification is created when a user with no remote repos signs in."""
+        get(SocialAccount, user=self.user, provider=GitHubOAuth2Adapter.provider_id)
+        request = RequestFactory().get("/")
+
+        user_logged_in.send(sender=User, request=request, user=self.user)
+
+        mock_sync.delay.assert_called_once_with(self.user.pk)
+        self.assertTrue(self._get_user_notification().exists())
+
+    def test_no_notification_on_login_when_user_has_repos_and_projects(self, mock_sync):
+        """No notification when a user with remote repos and projects signs in."""
+        social_account = get(
+            SocialAccount, user=self.user, provider=GitHubOAuth2Adapter.provider_id
+        )
+        remote_repo = get(RemoteRepository)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.user,
+            account=social_account,
+        )
+        get(Project, users=[self.user], privacy_level=constants.PUBLIC)
+        request = RequestFactory().get("/")
+
+        user_logged_in.send(sender=User, request=request, user=self.user)
 
         mock_sync.delay.assert_called_once_with(self.user.pk)
         self.assertFalse(self._get_user_notification().exists())
