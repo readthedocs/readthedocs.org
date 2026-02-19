@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from readthedocs.analytics.otel_models import OpenTelemetryConfig
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.forms import PrevalidatedForm
 from readthedocs.core.forms import RichValidationError
@@ -1285,3 +1286,18 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _("Only letters, numbers and underscore are allowed"),
             )
         return name
+
+
+class OpenTelemetryConfigForm(forms.ModelForm):
+    class Meta:
+        model = OpenTelemetryConfig
+        fields = (
+            "enabled",
+            "endpoint_url",
+            "api_key",
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        kwargs["instance"], _ = OpenTelemetryConfig.objects.get_or_create(project=self.project)
+        super().__init__(*args, **kwargs)

@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.analytics.telemetry import AnalyticsMetrics
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.unresolver import InvalidPathForVersionedProjectError
@@ -18,6 +19,7 @@ from readthedocs.core.unresolver import UnresolverError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.requests import is_suspicious_request
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.proxito.views.hosting import IsAuthorizedToViewProject
 
@@ -138,6 +140,18 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             )
             return
 
+        # Emit OpenTelemetry metric (per-project configuration)
+        if project.has_feature(Feature.ENABLE_OTEL_ANALYTICS) and project.otel_config.enabled:
+            am = AnalyticsMetrics(project=project)
+            am.record_page_view(
+                project=project,
+                version=version,
+                filename=filename,
+                path=absolute_uri_parsed.path,
+                status=status,
+            )
+
+        # Keep existing database storage
         PageView.objects.register_page_view(
             project=project,
             version=version,
