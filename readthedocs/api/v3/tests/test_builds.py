@@ -293,7 +293,6 @@ class BuildsEndpointTests(APIEndpointMixin):
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        # List responses intentionally don't rehydrate command output from storage.
         commands = response.json()["results"][0]["commands"]
         self.assertEqual(commands, [])
         get_build_commands_from_storage.assert_not_called()

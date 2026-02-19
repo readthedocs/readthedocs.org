@@ -333,9 +333,6 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
         This uses files from storage to get the JSON,
         and replaces the ``commands`` part of the response data.
-
-        We intentionally do this only on detail responses to preserve the
-        long-standing list endpoint behavior (list keeps serializer output).
         """
         instance = self.get_object()
         serializer = self.get_serializer(instance)

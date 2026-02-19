@@ -840,7 +840,6 @@ class APIBuildTests(TestCase):
         assert r.status_code == 200
         assert len(r.data["results"]) == 1
         assert r.data["results"][0]["id"] == build.pk
-        # List responses intentionally don't rehydrate command output from storage.
         assert r.data["results"][0]["commands"] == []
         get_build_commands_from_storage.assert_not_called()
 
