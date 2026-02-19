@@ -40,7 +40,7 @@ class TestSyncRemoteRepositoriesSignal(TestCase):
         _sync_remote_repositories(self.user)
 
         mock_sync.delay.assert_not_called()
-        self.assertFalse(self._get_user_notifications().exists())
+        assert not self._get_user_notifications().exists()
 
     def test_notification_shown_when_no_remote_repos(self, mock_sync):
         """Notification is shown when user has social account but no remote repositories."""
@@ -49,7 +49,7 @@ class TestSyncRemoteRepositoriesSignal(TestCase):
         _sync_remote_repositories(self.user)
 
         mock_sync.delay.assert_called_once_with(self.user.pk)
-        self.assertTrue(self._get_user_notifications().exists())
+        assert self._get_user_notifications().exists()
 
     def test_notification_shown_when_no_projects(self, mock_sync):
         """Notification is shown when user has remote repos but no access to any projects."""
@@ -65,7 +65,7 @@ class TestSyncRemoteRepositoriesSignal(TestCase):
         _sync_remote_repositories(self.user)
 
         mock_sync.delay.assert_called_once_with(self.user.pk)
-        self.assertTrue(self._get_user_notifications().exists())
+        assert self._get_user_notifications().exists()
 
     def test_no_notification_when_user_has_repos_and_projects(self, mock_sync):
         """No notification when user has remote repos and access to projects."""
@@ -82,7 +82,7 @@ class TestSyncRemoteRepositoriesSignal(TestCase):
         _sync_remote_repositories(self.user)
 
         mock_sync.delay.assert_called_once_with(self.user.pk)
-        self.assertFalse(self._get_user_notifications().exists())
+        assert not self._get_user_notifications().exists()
 
     def test_notification_created_on_login_when_no_remote_repos(self, mock_sync):
         """Notification is created when a user with no remote repos signs in."""
@@ -94,7 +94,7 @@ class TestSyncRemoteRepositoriesSignal(TestCase):
         )
 
         mock_sync.delay.assert_called_once_with(self.user.pk)
-        self.assertTrue(self._get_user_notifications().exists())
+        assert self._get_user_notifications().exists()
 
     def test_no_notification_on_login_when_user_has_repos_and_projects(self, mock_sync):
         """No notification when a user with remote repos and projects signs in."""
@@ -114,4 +114,4 @@ class TestSyncRemoteRepositoriesSignal(TestCase):
         )
 
         mock_sync.delay.assert_called_once_with(self.user.pk)
-        self.assertFalse(self._get_user_notifications().exists())
+        assert not self._get_user_notifications().exists()
