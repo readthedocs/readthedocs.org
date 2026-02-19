@@ -429,6 +429,26 @@ class BuildsViewSet(
 
         return Response(data)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = serializer.data
+            self._hydrate_storage_commands(page, data)
+            return self.get_paginated_response(data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+        self._hydrate_storage_commands(queryset, data)
+        return Response(data)
+
+    def _hydrate_storage_commands(self, builds, serialized_builds):
+        for build, serialized in zip(builds, serialized_builds):
+            commands = get_build_commands_from_storage(build)
+            if commands is not None:
+                serialized["commands"] = commands
+
 
 class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
     def get_serializer_class(self):
