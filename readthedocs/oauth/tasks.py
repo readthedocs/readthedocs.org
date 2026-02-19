@@ -603,8 +603,9 @@ class GitHubAppWebhookHandler:
                             triggered = True
                             rule.run(version)
 
-                            # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
-                            break
+                        # We only trigger the first matching rule,
+                        # to avoid triggering multiple builds for the same tag/branches.
+                        break
 
                 if not triggered:
                     log.info(
