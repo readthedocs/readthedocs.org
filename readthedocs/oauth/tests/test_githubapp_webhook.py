@@ -1,6 +1,8 @@
 import json
 from unittest import mock
 
+from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
+import requests_mock
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -451,8 +453,8 @@ class TestGitHubAppWebhook(TestCase):
         assert r.status_code == 200
         trigger_build.assert_has_calls(
             [
-                mock.call(project=self.project, version=self.version_main),
-                mock.call(project=self.project, version=self.version_latest),
+                mock.call(project=self.project, version=self.version_main, from_webhook=True),
+                mock.call(project=self.project, version=self.version_latest, from_webhook=True),
             ]
         )
 
@@ -477,9 +479,10 @@ class TestGitHubAppWebhook(TestCase):
         trigger_build.assert_called_once_with(
             project=self.project,
             version=self.version_tag,
+            from_webhook=True,
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened(self, trigger_build):
         self.project.external_builds_enabled = True
         self.project.save()
@@ -515,9 +518,10 @@ class TestGitHubAppWebhook(TestCase):
             project=self.project,
             version=external_version,
             commit=external_version.identifier,
+            from_webhook=True,
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened_pr_previews_disabled(self, trigger_build):
         self.project.external_builds_enabled = False
         self.project.save()
@@ -548,7 +552,7 @@ class TestGitHubAppWebhook(TestCase):
         assert not self.project.versions.filter(verbose_name="1", type=EXTERNAL).exists()
         trigger_build.assert_not_called()
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_reopened(self, trigger_build):
         self.project.external_builds_enabled = True
         self.project.save()
@@ -594,9 +598,10 @@ class TestGitHubAppWebhook(TestCase):
             project=self.project,
             version=external_version,
             commit=external_version.identifier,
+            from_webhook=True,
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_reopened_pr_previews_disabled(self, trigger_build):
         self.project.external_builds_enabled = False
         self.project.save()
@@ -640,7 +645,7 @@ class TestGitHubAppWebhook(TestCase):
         assert external_version.active
         trigger_build.assert_not_called()
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_synchronize(self, trigger_build):
         self.project.external_builds_enabled = True
         self.project.save()
@@ -685,9 +690,10 @@ class TestGitHubAppWebhook(TestCase):
             project=self.project,
             version=external_version,
             commit=external_version.identifier,
+            from_webhook=True,
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_synchronize_pr_previews_disabled(self, trigger_build):
         self.project.external_builds_enabled = False
         self.project.save()
@@ -1028,3 +1034,359 @@ class TestGitHubAppWebhook(TestCase):
         }
         r = self.post_webhook("github_app_authorization", payload)
         assert r.status_code == 200
+
+
+class TestGitHubAppWebhookWithAutomationRules(TestCase):
+    """Tests for webhook filtering with WebhookAutomationRule."""
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user], default_branch="main")
+        self.version_latest = self.project.versions.get(slug=LATEST)
+        self.version_main = get(
+            Version, project=self.project, verbose_name="main", type=BRANCH, active=True
+        )
+        self.socialaccount = get(
+            SocialAccount, user=self.user, provider=GitHubAppProvider.id
+        )
+        self.installation = get(
+            GitHubAppInstallation,
+            installation_id=1111,
+            target_id=1111,
+            target_type=GitHubAccountType.USER,
+        )
+        self.remote_repository = get(
+            RemoteRepository,
+            remote_id="1234",
+            name="repo",
+            full_name="user/repo",
+            vcs_provider=GitHubAppProvider.id,
+            github_app_installation=self.installation,
+        )
+        self.project.remote_repository = self.remote_repository
+        self.project.save()
+        self.url = reverse("github_app_webhook")
+
+    def post_webhook(self, event, payload):
+        headers = {
+            GITHUB_EVENT_HEADER: event,
+            GITHUB_SIGNATURE_HEADER: get_signature(payload),
+        }
+        return self.client.post(
+            self.url, data=payload, content_type="application/json", headers=headers
+        )
+
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
+    def test_push_branch_with_matching_webhook_rule(self, trigger_build):
+        """Test that push triggers build when WebhookAutomationRule matches."""
+
+        # Create a webhook automation rule that matches docs files
+        rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="docs/*.rst",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=BRANCH,
+        )
+
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "created": False,
+            "deleted": False,
+            "ref": "refs/heads/main",
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+            "commits": [
+                {
+                    "added": ["docs/index.rst"],
+                    "modified": [],
+                    "removed": [],
+                }
+            ],
+        }
+        r = self.post_webhook("push", payload)
+        assert r.status_code == 200
+
+        # Should trigger build because docs/index.rst matches docs/*.rst
+        assert trigger_build.call_count >= 1
+
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
+    def test_push_branch_with_non_matching_webhook_rule(self, trigger_build):
+        """Test that push does not trigger build when WebhookAutomationRule doesn't match."""
+
+        # Create a webhook automation rule that matches docs files
+        rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="docs/*.rst",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=BRANCH,
+        )
+
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "created": False,
+            "deleted": False,
+            "ref": "refs/heads/main",
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+            "commits": [
+                {
+                    "added": ["src/code.py"],
+                    "modified": [],
+                    "removed": [],
+                }
+            ],
+        }
+        r = self.post_webhook("push", payload)
+        assert r.status_code == 200
+
+        # Should NOT trigger build because src/code.py doesn't match docs/*.rst
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    def test_push_branch_without_webhook_rules(self, trigger_build):
+        """Test that push triggers build normally when no WebhookAutomationRules exist."""
+        # No automation rules - should trigger build as usual
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "created": False,
+            "deleted": False,
+            "ref": "refs/heads/main",
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+            "commits": [
+                {
+                    "added": ["src/code.py"],
+                    "modified": [],
+                    "removed": [],
+                }
+            ],
+        }
+        r = self.post_webhook("push", payload)
+        assert r.status_code == 200
+
+        # Should trigger build normally (backwards compatibility)
+        trigger_build.assert_has_calls(
+            [
+                mock.call(project=self.project, version=self.version_main, from_webhook=True),
+                mock.call(project=self.project, version=self.version_latest, from_webhook=True),
+            ]
+        )
+
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
+    @requests_mock.Mocker(kw="request")
+    def test_pull_request_with_matching_webhook_rule(self, trigger_build, request):
+        """Test that PR triggers build when WebhookAutomationRule matches."""
+
+        self.project.external_builds_enabled = True
+        self.project.save()
+
+        # Create a webhook automation rule for external versions (PRs)
+        rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="docs/**",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=EXTERNAL,
+        )
+
+        # Mock the GitHub API call to get PR files
+        api_url = "https://api.github.com:443"
+        request.post(
+            f"{api_url}/app/installations/{self.installation.installation_id}/access_tokens",
+            json={
+                "token": "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+                "expires_at": "2016-07-11T22:14:10Z",
+                "permissions": {"issues": "write", "contents": "read"},
+            }
+        )
+        request.get(
+            f"{api_url}/repositories/{self.remote_repository.remote_id}",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}",
+            },
+        )
+        request.get(
+            f"{api_url}/repositories/{self.remote_repository.remote_id}/pulls/1",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
+            },
+        )
+        request.get(
+            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
+            },
+        )
+        request.get(
+            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1/files",
+            json=[{"filename": "docs/index.rst"}],
+        )
+
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "opened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+
+        external_version = self.project.versions.get(verbose_name="1", type=EXTERNAL)
+        # Should trigger build because docs/index.rst matches docs/**
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=external_version,
+            from_webhook=True,
+        )
+
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build")
+    @requests_mock.Mocker(kw="request")
+    def test_pull_request_with_non_matching_webhook_rule(self, trigger_build, request):
+        """Test that PR does not trigger build when WebhookAutomationRule doesn't match."""
+
+        self.project.external_builds_enabled = True
+        self.project.save()
+
+        # Create a webhook automation rule for external versions (PRs)
+        rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="docs/**",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=EXTERNAL,
+        )
+
+        # Mock the GitHub API call to get PR files
+        api_url = "https://api.github.com:443"
+        request.post(
+            f"{api_url}/app/installations/{self.installation.installation_id}/access_tokens",
+            json={
+                "token": "ghs_16C7e42F292c6912E7710c838347Ae178B4a",
+                "expires_at": "2016-07-11T22:14:10Z",
+                "permissions": {"issues": "write", "contents": "read"},
+            }
+        )
+        request.get(
+            f"{api_url}/repositories/{self.remote_repository.remote_id}",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}",
+            },
+        )
+        request.get(
+            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1",
+            json={
+                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
+            },
+        )
+        request.get(
+            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1/files",
+            json=[{"filename": "src/code.py"}],
+        )
+
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "opened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+
+        # Should NOT trigger build because src/code.py doesn't match docs/**
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
+    def test_pull_request_without_webhook_rules(self, trigger_build):
+        """Test that PR triggers build normally when no WebhookAutomationRules exist."""
+        self.project.external_builds_enabled = True
+        self.project.save()
+
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "opened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+
+        # Should trigger build normally (backwards compatibility)
+        external_version = self.project.versions.get(verbose_name="1", type=EXTERNAL)
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=external_version,
+            commit=external_version.identifier,
+            from_webhook=True,
+        )

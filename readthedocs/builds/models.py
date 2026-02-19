@@ -1,6 +1,7 @@
 """Models for the builds app."""
 
 import datetime
+import fnmatch
 import os.path
 import re
 from functools import partial
@@ -1094,6 +1095,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     MAKE_VERSION_PUBLIC_ACTION = "make-version-public"
     MAKE_VERSION_PRIVATE_ACTION = "make-version-private"
     SET_DEFAULT_VERSION_ACTION = "set-default-version"
+    TRIGGER_BUILD_ACTION = "trigger-build"
 
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _("Activate version")),
@@ -1102,10 +1104,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
         (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
         (DELETE_VERSION_ACTION, _("Delete version")),
+        (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
     )
 
     allowed_actions_on_create = {}
     allowed_actions_on_delete = {}
+    allowed_actions_on_existing = {}
 
     project = models.ForeignKey(
         Project,
@@ -1175,7 +1179,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def run(self, version, **kwargs):
         """
-        Run an action if `version` matches the rule.
+        Run an action if `version` matches the version type.
 
         :type version: readthedocs.builds.models.Version
         :returns: True if the action was performed
@@ -1183,42 +1187,39 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if version.type != self.version_type:
             return False
 
-        match, result = self.match(version, self.get_match_arg())
-        if match:
-            self.apply_action(version, result)
-            AutomationRuleMatch.objects.register_match(
-                rule=self,
-                version=version,
-            )
-            return True
-        return False
+        self.apply_action(version)
+        AutomationRuleMatch.objects.register_match(
+            rule=self,
+            version=version,
+        )
+        return True
 
-    def match(self, version, match_arg):
+    def match(self, version, match_arg=None):
         """
-        Returns True and the match result if the version matches the rule.
+        Checks if the version matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :param str match_arg: Additional argument to perform the match
-        :returns: A tuple of (boolean, match_resul).
-                  The result will be passed to `apply_action`.
+        :returns: True if the version matches the rule, False otherwise
         """
-        return False, None
+        return False
 
-    def apply_action(self, version, match_result):
+    def apply_action(self, version):
         """
         Apply the action from allowed_actions_on_*.
 
         :type version: readthedocs.builds.models.Version
-        :param any match_result: Additional context from the match operation
         :raises: NotImplementedError if the action
                  isn't implemented or supported for this rule.
         """
-        action = self.allowed_actions_on_create.get(
-            self.action
-        ) or self.allowed_actions_on_delete.get(self.action)
+        action = (
+            self.allowed_actions_on_create.get(self.action)
+            or self.allowed_actions_on_delete.get(self.action)
+            or self.allowed_actions_on_existing.get(self.action)
+        )
         if action is None:
             raise NotImplementedError
-        action(version, match_result, self.action_arg)
+        action(version, self.action_arg)
 
     def move(self, steps):
         """
@@ -1239,7 +1240,11 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def save(self, *args, **kwargs):
         """Override method to update the other priorities before save."""
-        self._position_manager.change_position_before_save(self)
+
+        # TODO: update the position manager to be able to handle the WebhookAutomationRule case
+        if self._meta.model != WebhookAutomationRule:
+            self._position_manager.change_position_before_save(self)
+
         if not self.description:
             self.description = self.get_description()
         super().save(*args, **kwargs)
@@ -1280,7 +1285,7 @@ class RegexAutomationRule(VersionAutomationRule):
     class Meta:
         proxy = True
 
-    def match(self, version, match_arg):
+    def match(self, version, match_arg=None):
         """
         Find a match using regex.search.
 
@@ -1292,6 +1297,9 @@ class RegexAutomationRule(VersionAutomationRule):
            We could use a finite state machine type of regex too,
            but there isn't a stable library at the time of writing this code.
         """
+        if match_arg is None:
+            match_arg = self.get_match_arg()
+
         try:
             match = regex.search(
                 match_arg,
@@ -1300,7 +1308,7 @@ class RegexAutomationRule(VersionAutomationRule):
                 flags=regex.VERSION0,
                 timeout=self.TIMEOUT,
             )
-            return bool(match), match
+            return bool(match)
         except TimeoutError:
             log.warning(
                 "Timeout while parsing regex.",
@@ -1309,11 +1317,47 @@ class RegexAutomationRule(VersionAutomationRule):
             )
         except Exception:
             log.exception("Error parsing regex.", exc_info=True)
-        return False, None
+        return False
 
     def get_edit_url(self):
         return reverse(
             "projects_automation_rule_regex_edit",
+            args=[self.project.slug, self.pk],
+        )
+
+
+class WebhookAutomationRule(VersionAutomationRule):
+    """
+    Automation rule for filtering builds based on files changed in webhook events.
+
+    This rule is executed when a webhook push event is received, and checks if the
+    files modified/added/deleted in the push match the rule patterns. If they do,
+    the build is triggered for the affected version.
+    """
+
+    allowed_actions_on_existing = {
+        VersionAutomationRule.TRIGGER_BUILD_ACTION: actions.trigger_build_for_version,
+    }
+
+    class Meta:
+        proxy = True
+
+    def match(self, changed_files):
+        """
+        Check if any file in the list matches the rule pattern using ``fnmatch``.
+
+        :param changed_files: List of file paths that were modified/added/deleted
+        :return: True if any file matches the rule pattern, False otherwise
+        """
+        match_arg = self.get_match_arg()
+        for file_path in changed_files:
+            if fnmatch.fnmatch(file_path, match_arg):
+                return True
+        return False
+
+    def get_edit_url(self):
+        return reverse(
+            "projects_automation_rule_webhook_edit",
             args=[self.project.slug, self.pk],
         )
 
@@ -1326,6 +1370,7 @@ class AutomationRuleMatch(TimeStampedModel):
         VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: _("Version set to private privacy"),
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
         VersionAutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+        VersionAutomationRule.TRIGGER_BUILD_ACTION: _("Build triggered for version"),
     }
 
     rule = models.ForeignKey(

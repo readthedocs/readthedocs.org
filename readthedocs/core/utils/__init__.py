@@ -193,7 +193,7 @@ def prepare_build(
     )
 
 
-def trigger_build(project, version=None, commit=None):
+def trigger_build(project, version=None, commit=None, from_webhook=False):
     """
     Trigger a Build.
 
@@ -209,9 +209,15 @@ def trigger_build(project, version=None, commit=None):
     structlog.contextvars.bind_contextvars(
         project_slug=project.slug,
         version_slug=version.slug if version else None,
+        version_type=version.type if version else None,
         commit=commit,
     )
     log.info("Triggering build.")
+
+    if from_webhook and not project.has_valid_webhook:
+        project.has_valid_webhook = True
+        project.save()
+
     update_docs_task, build = prepare_build(
         project=project,
         version=version,
