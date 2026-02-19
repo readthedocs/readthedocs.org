@@ -1266,7 +1266,11 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def save(self, *args, **kwargs):
         """Override method to update the other priorities before save."""
-        self._position_manager.change_position_before_save(self)
+
+        # TODO: update the position manager to be able to handle the WebhookAutomationRule case
+        if self._meta.model != WebhookAutomationRule:
+            self._position_manager.change_position_before_save(self)
+
         if not self.description:
             self.description = self.get_description()
         super().save(*args, **kwargs)
