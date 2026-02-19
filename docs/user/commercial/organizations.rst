@@ -10,7 +10,7 @@ Organizations allow you to define both individual and team permissions for your 
 .. seealso::
 
    :doc:`/guides/manage-read-the-docs-teams`
-     A step-by-step guide to managing teams.
+     A step-by-step guide to managing organization owners and teams.
 
 Important objects
 ~~~~~~~~~~~~~~~~~
