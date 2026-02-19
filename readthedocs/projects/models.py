@@ -81,6 +81,46 @@ def default_privacy_level():
     return settings.DEFAULT_PRIVACY_LEVEL
 
 
+class Group(TimeStampedModel):
+    """
+    Group model.
+
+    Groups projects together for searching across them with a single query parameter.
+    By default, subprojects are grouped together, and translations are grouped together.
+    """
+
+    name = models.CharField(
+        _("Name"),
+        max_length=255,
+        unique=True,
+        help_text=_("Name of the group"),
+    )
+    slug = models.SlugField(
+        _("Slug"),
+        max_length=255,
+        unique=True,
+        help_text=_("Slug for the group"),
+    )
+    projects = models.ManyToManyField(
+        "projects.Project",
+        related_name="groups",
+        blank=True,
+        help_text=_("Projects in this group"),
+    )
+
+    class Meta:
+        verbose_name = _("Group")
+        verbose_name_plural = _("Groups")
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    def get_project_slugs(self):
+        """Return a list of project slugs in this group."""
+        return list(self.projects.values_list("slug", flat=True))
+
+
 class ProjectRelationship(models.Model):
     """
     Project to project relationship.

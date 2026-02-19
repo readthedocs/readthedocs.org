@@ -21,6 +21,7 @@ from .models import Domain
 from .models import EmailHook
 from .models import EnvironmentVariable
 from .models import Feature
+from .models import Group
 from .models import HTMLFile
 from .models import HTTPHeader
 from .models import ImportedFile
@@ -462,6 +463,21 @@ class AddonsConfigAdmin(admin.ModelAdmin):
     list_display = ("project", "enabled")
     search_fields = ("project__slug",)
     list_editable = ("enabled",)
+
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    model = Group
+    list_display = ("name", "slug", "project_count", "created", "modified")
+    search_fields = ("name", "slug")
+    filter_horizontal = ("projects",)
+    prepopulated_fields = {"slug": ("name",)}
+    readonly_fields = ("created", "modified")
+
+    def project_count(self, group):
+        """Return the number of projects in this group."""
+        return group.projects.count()
+    project_count.short_description = "Project Count"
 
 
 admin.site.register(EmailHook)
