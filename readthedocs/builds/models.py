@@ -1205,7 +1205,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def run(self, version, **kwargs):
         """
-        Run an action if `version` matches the rule.
+        Run an action if `version` matches the version type.
 
         :type version: readthedocs.builds.models.Version
         :returns: True if the action was performed
@@ -1220,9 +1220,9 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         )
         return True
 
-    def match(self, version, match_arg):
+    def match(self, version, match_arg=None):
         """
-        Returns True and the match result if the version matches the rule.
+        Checks if the version matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :param str match_arg: Additional argument to perform the match

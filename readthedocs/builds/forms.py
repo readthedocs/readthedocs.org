@@ -264,7 +264,7 @@ class WebhookAutomationRuleForm(forms.ModelForm):
         # Only list supported actions (webhook rules only support trigger build)
         self.fields["action"].choices = [
             (None, "-" * 9),
-            (VersionAutomationRule.TRIGGER_BUILD_ACTION, "Trigger build"),
+            (VersionAutomationRule.TRIGGER_BUILD_ACTION, "Trigger build for version"),
         ]
 
     def clean_project(self):
