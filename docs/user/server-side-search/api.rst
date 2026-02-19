@@ -163,6 +163,11 @@ users will only be allowed to search projects they have permissions over.
 Authentication and authorization is done using the current session,
 or any of the valid :doc:`sharing methods </commercial/sharing>`.
 
+.. seealso::
+
+   :doc:`/api/v3`
+     You can create and revoke sharing methods programmatically from ``/api/v3/projects/<project_slug>/sharing/``.
+
 To be able to use the user's current session you need to use the API from the domain where your docs are being served
 (``<you-docs-domain>/_/api/v3/search/``).
 This is ``https://docs.readthedocs-hosted.com/_/api/v3/search/``
