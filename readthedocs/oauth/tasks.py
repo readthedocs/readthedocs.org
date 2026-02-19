@@ -876,7 +876,8 @@ class GitHubAppWebhookHandler:
         installation, _ = self._get_or_create_installation()
 
         gh_repository = installation.service.installation_client.get_repo(
-            int(project.remote_repository.remote_id)
+            int(project.remote_repository.remote_id),
+            lazy=True,
         )
 
         if action == "synchronize":
