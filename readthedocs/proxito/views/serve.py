@@ -640,6 +640,10 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
         """
         project = request.unresolved_domain.project
 
+        # Set cache tag only for project for now, for responses that don't use a
+        # specific version instance.
+        self.set_cache_tags(project=project)
+
         if project.delisted:
             return render(
                 request,
@@ -690,6 +694,9 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
                 filename="robots.txt",
                 check_if_exists=True,
             )
+            # Set project and version cache tags, override project only tag as
+            # we want to purge this file each time the version changes too.
+            self.set_cache_tags(project=project, version=version)
             log.info("Serving custom robots.txt file.")
             return response
         except StorageFileNotFound:
@@ -704,6 +711,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
             "sitemap_url": sitemap_url,
             "hidden_paths": self._get_hidden_paths(project),
         }
+
         return render(
             request,
             "robots.txt",
@@ -719,17 +727,6 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
             resolver.resolve_path(project, version_slug=version.slug) for version in hidden_versions
         ]
         return hidden_paths
-
-    def _get_project(self):
-        # Method used by the CDNCacheTagsMixin class.
-        return self.request.unresolved_domain.project
-
-    def _get_version(self):
-        # Method used by the CDNCacheTagsMixin class.
-        # This view isn't explicitly mapped to a version,
-        # but it can be when we serve a custom robots.txt file.
-        # TODO: refactor how we set cache tags to avoid this.
-        return None
 
 
 class ServeRobotsTXT(SettingsOverrideObject):
@@ -949,6 +946,9 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
 
             versions.append(element)
 
+        # Cache tag only for project, don't include version cache tag
+        self.set_cache_tags(project=project)
+
         context = {
             "versions": versions,
         }
@@ -958,16 +958,6 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             context,
             content_type="application/xml",
         )
-
-    def _get_project(self):
-        # Method used by the CDNCacheTagsMixin class.
-        return self.request.unresolved_domain.project
-
-    def _get_version(self):
-        # Method used by the CDNCacheTagsMixin class.
-        # This view isn't explicitly mapped to a version,
-        # TODO: refactor how we set cache tags to avoid this.
-        return None
 
 
 class ServeSitemapXML(SettingsOverrideObject):
@@ -989,25 +979,20 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
 
     def get(self, request, filename):
         try:
-            return self._serve_static_file(request=request, filename=filename)
+            resp = self._serve_static_file(request=request, filename=filename)
+            # Cache tag only for project, don't include version cache tag
+            self.set_cache_tags(project=request.unresolved_domain.project)
+            return resp
         except InvalidPathError:
             raise Http404
 
-    def _get_cache_tags(self):
+    def _get_cache_tags(self, project=None, version=None):
         """
         Add an additional *global* tag.
 
         This is so we can purge all files from all projects
         with one single call.
         """
-        tags = super()._get_cache_tags()
+        tags = super()._get_cache_tags(project=project, version=version)
         tags.append(self.project_cache_tag)
         return tags
-
-    def _get_project(self):
-        # Method used by the CDNCacheTagsMixin class.
-        return self.request.unresolved_domain.project
-
-    def _get_version(self):
-        # This view isn't attached to a version.
-        return None

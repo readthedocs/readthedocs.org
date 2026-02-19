@@ -382,12 +382,7 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDoc
                 slug=version_slug,
             )
 
-        # TODO don't do this, it's a leftover of trying to use CDNCacheTagsMixin
-        # without class level variables. See proxito.views.serve for
-        # other instances of this pattern to update.
-        # See: https://github.com/readthedocs/readthedocs.org/pull/12495
-        self.project = version.project
-        self.version = version
+        self.set_cache_tags(project=version.project, version=version)
 
         return self._serve_dowload(
             request=request,
