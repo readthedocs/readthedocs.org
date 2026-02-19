@@ -848,8 +848,25 @@ class Build(models.Model):
         # config file over and over again and reuse them to save db data as
         # well
         if self._config and self.CONFIG_KEY in self._config:
-            return Build.objects.only("_config").get(pk=self._config[self.CONFIG_KEY])._config
-        return self._config
+            build = (
+                Build.objects.select_related("readthedocs_yaml_config")
+                .only(
+                    "_config",
+                    "readthedocs_yaml_config",
+                    "readthedocs_yaml_config__data",
+                )
+                .get(pk=self._config[self.CONFIG_KEY])
+            )
+            if build._config is not None:
+                return build._config
+            if build.readthedocs_yaml_config_id:
+                return build.readthedocs_yaml_config.data
+            return None
+        if self._config is not None:
+            return self._config
+        if self.readthedocs_yaml_config_id:
+            return self.readthedocs_yaml_config.data
+        return None
 
     @config.setter
     def config(self, value):
