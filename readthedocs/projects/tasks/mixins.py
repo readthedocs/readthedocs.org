@@ -6,6 +6,8 @@ from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.models import APIVersion
+from readthedocs.builds.datatypes import VersionData
+import dataclasses
 
 from ..exceptions import RepositoryError
 from ..models import Feature
@@ -57,18 +59,12 @@ class SyncRepositoryMixin:
             return
 
         tags_data = [
-            {
-                "identifier": v.identifier,
-                "verbose_name": v.verbose_name,
-            }
+            VersionData(identifier=v.identifier, verbose_name=v.verbose_name)
             for v in tags
         ]
 
         branches_data = [
-            {
-                "identifier": v.identifier,
-                "verbose_name": v.verbose_name,
-            }
+            VersionData(identifier=v.identifier, verbose_name=v.verbose_name)
             for v in branches
         ]
 
@@ -81,8 +77,8 @@ class SyncRepositoryMixin:
 
         build_tasks.sync_versions_task.delay(
             project_pk=self.data.project.pk,
-            tags_data=tags_data,
-            branches_data=branches_data,
+            tags_data=[dataclasses.asdict(v) for v in tags_data],
+            branches_data=[dataclasses.asdict(v) for v in branches_data],
         )
 
     def validate_duplicate_reserved_versions(self, tags_data, branches_data):
@@ -95,7 +91,7 @@ class SyncRepositoryMixin:
 
         :param data: Dict containing the versions from tags and branches
         """
-        version_names = [version["verbose_name"] for version in tags_data + branches_data]
+        version_names = [version.verbose_name for version in tags_data + branches_data]
         counter = Counter(version_names)
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
             if counter[reserved_name] > 1:
