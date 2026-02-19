@@ -390,7 +390,7 @@ automation_rule_urls = [
         name="projects_automation_rule_webhook_create",
     ),
     re_path(
-        r"^(?P<project_slug>[-\w]+)/rules/webhook/(?P<automation_rule_pk>[-\w]+)/$",
+        r"^(?P<project_slug>[-\w]+)/rules/webhook/(?P<webhook_automation_rule_pk>[-\w]+)/$",
         WebhookAutomationRuleUpdate.as_view(),
         name="projects_automation_rule_webhook_edit",
     ),

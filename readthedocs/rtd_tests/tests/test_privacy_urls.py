@@ -239,6 +239,7 @@ class ProjectMixin(URLAccessMixin):
             "exchange_pk": self.integration_exchange.pk,
             "environmentvariable_pk": self.environment_variable.pk,
             "automation_rule_pk": self.automation_rule.pk,
+            "webhook_automation_rule_pk": self.webhook_automation_rule.pk,
             "steps": 1,
             "invalid_project_slug": "invalid_slug",
             "webhook_pk": self.webhook.pk,

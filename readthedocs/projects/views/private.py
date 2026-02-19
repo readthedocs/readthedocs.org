@@ -1119,6 +1119,7 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
 class WebhookAutomationRuleMixin(AutomationRuleMixin):
     model = WebhookAutomationRule
     form_class = WebhookAutomationRuleForm
+    lookup_url_kwarg = "webhook_automation_rule_pk"
 
 
 class WebhookAutomationRuleCreate(WebhookAutomationRuleMixin, CreateView):
