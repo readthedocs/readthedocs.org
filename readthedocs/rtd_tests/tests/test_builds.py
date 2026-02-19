@@ -12,7 +12,7 @@ from readthedocs.builds.constants import (
     GITHUB_EXTERNAL_VERSION_NAME,
     GITLAB_EXTERNAL_VERSION_NAME,
 )
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, Version, BuildConfig
 from readthedocs.projects.models import Project
 
 
@@ -55,32 +55,6 @@ class BuildModelTests(TestCase):
             type=BRANCH,
         )
 
-    def test_get_previous_build(self):
-        build_one = get(
-            Build,
-            project=self.project,
-            version=self.version,
-            _config={"version": 1},
-        )
-        build_two = get(
-            Build,
-            project=self.project,
-            version=self.version,
-            _config={"version": 2},
-        )
-        build_three = get(
-            Build,
-            project=self.project,
-            version=self.version,
-            _config={"version": 3},
-            success=False,
-        )
-
-        self.assertIsNone(build_one.previous)
-        self.assertEqual(build_two.previous, build_one)
-        self.assertEqual(build_three.previous, build_two)
-        self.assertEqual(build_three.previous.previous, build_one)
-
     def test_normal_save_config(self):
         build = get(
             Build,
@@ -88,12 +62,16 @@ class BuildModelTests(TestCase):
             version=self.version,
         )
         build.config = {"version": 1}
+        self.assertEqual(BuildConfig.objects.count(), 0)
+
         build.save()
-        self.assertEqual(build.config, {"version": 1})
+        self.assertEqual(BuildConfig.objects.count(), 1)
+        self.assertEqual(build.readthedocs_yaml_config.data, {"version": 1})
 
         build.config = {"version": 2}
         build.save()
-        self.assertEqual(build.config, {"version": 2})
+        self.assertEqual(BuildConfig.objects.count(), 2)
+        self.assertEqual(build.readthedocs_yaml_config.data, {"version": 2})
 
     def test_save_same_config(self):
         build_one = get(
@@ -113,111 +91,6 @@ class BuildModelTests(TestCase):
         build_two.save()
 
         self.assertEqual(build_two.config, {"version": 2})
-
-    def test_save_same_config_previous_empty(self):
-        build_one = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_one.config = {}
-        build_one.save()
-
-        build_two = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_two.config = {}
-        build_two.save()
-
-        self.assertEqual(build_two.config, {})
-        build_two.config = {"version": 2}
-        build_two.save()
-        self.assertEqual(build_two.config, {"version": 2})
-
-    def test_do_not_save_same_config(self):
-        build_one = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_one.config = {"version": 1}
-        build_one.save()
-
-        build_two = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_two.config = {"version": 1}
-        build_two.save()
-        self.assertEqual(build_two._config, {Build.CONFIG_KEY: build_one.pk})
-        self.assertEqual(build_two.config, {"version": 1})
-
-    def test_do_not_save_same_config_nested(self):
-        build_one = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_one.config = {"version": 1}
-        build_one.save()
-
-        build_two = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_two.config = {"version": 1}
-        build_two.save()
-
-        build_three = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_three.config = {"version": 1}
-        build_three.save()
-
-        build_four = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_four.config = {"version": 2}
-        build_four.save()
-
-        self.assertEqual(build_one.config, {"version": 1})
-        self.assertEqual(build_one._config, {"version": 1})
-
-        self.assertEqual(build_two._config, {Build.CONFIG_KEY: build_one.pk})
-        self.assertEqual(build_three._config, {Build.CONFIG_KEY: build_one.pk})
-
-        self.assertEqual(build_two.config, {"version": 1})
-        self.assertEqual(build_three.config, {"version": 1})
-
-        self.assertEqual(build_four.config, {"version": 2})
-        self.assertEqual(build_four._config, {"version": 2})
-
-    def test_do_not_reference_empty_configs(self):
-        build_one = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_one.config = {}
-        build_one.save()
-
-        build_two = get(
-            Build,
-            project=self.project,
-            version=self.version,
-        )
-        build_two.config = {}
-        build_two.save()
-        self.assertEqual(build_two._config, {})
-        self.assertEqual(build_two.config, {})
 
     def test_build_is_stale(self):
         now = timezone.now()
@@ -257,7 +130,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={"version": 1},
         )
 
         self.assertTrue(external_build.is_external)
@@ -267,7 +139,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={"version": 1},
         )
 
         self.assertFalse(build.is_external)
@@ -277,7 +148,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={"version": 1},
         )
 
         self.assertEqual(build.external_version_name, None)
@@ -313,7 +183,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={"version": 1},
         )
 
         self.assertEqual(
@@ -328,7 +197,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.pip,
             version=self.external_version,
-            _config={"version": 1},
         )
         expected_url = "https://github.com/pypa/pip/pull/{number}/commits/{sha}".format(
             number=self.external_version.verbose_name, sha=external_build.commit
@@ -343,7 +211,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.pip,
             version=self.external_version,
-            _config={"version": 1},
         )
         expected_url = (
             "https://gitlab.com/pypa/pip/commit/" "{commit}?merge_request_iid={number}"
@@ -357,7 +224,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.pip,
             version=self.pip_version,
-            _config={"version": 1},
         )
         expected_url = "https://github.com/pypa/pip/commit/{sha}".format(
             sha=build.commit
@@ -393,7 +259,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={"version": 1},
         )
 
         self.assertFalse(build.can_rebuild)
@@ -408,7 +273,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={"version": 1},
         )
 
         self.assertTrue(external_build.can_rebuild)
@@ -423,7 +287,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={"version": 1},
         )
 
         self.assertFalse(external_build.can_rebuild)
@@ -438,14 +301,12 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={"version": 1},
         )
 
         latest_external_build = get(
             Build,
             project=self.project,
             version=self.version,
-            _config={"version": 1},
         )
 
         self.assertFalse(old_external_build.can_rebuild)

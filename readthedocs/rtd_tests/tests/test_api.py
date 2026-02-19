@@ -269,6 +269,7 @@ class APIBuildTests(TestCase):
 
         resp = client.get("/api/v2/build/{}/".format(build.pk))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # TODO: update these tests to check for `readthedocs_yaml_config` instead of `_config`
         self.assertIn("config", resp.data)
         self.assertNotIn("_config", resp.data)
 
@@ -315,12 +316,12 @@ class APIBuildTests(TestCase):
         # Checking the values from the db, just to be sure the
         # api isn't lying.
         self.assertEqual(
-            Build.objects.get(pk=build_one.pk)._config,
+            Build.objects.get(pk=build_one.pk).readthedocs_yaml_config.data,
             {"one": "two"},
         )
         self.assertEqual(
-            Build.objects.get(pk=build_two.pk)._config,
-            {Build.CONFIG_KEY: build_one.pk},
+            Build.objects.get(pk=build_one.pk).readthedocs_yaml_config.pk,
+            Build.objects.get(pk=build_two.pk).readthedocs_yaml_config.pk,
         )
 
     def test_response_building(self):
