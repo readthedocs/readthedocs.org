@@ -655,11 +655,13 @@ class GitHubAppWebhookHandler:
                 )
                 if webhook_rules.exists():
                     triggered = False
+
+                    changed_files = self._get_changed_files_from_pull_request_event(
+                        project,
+                        action,
+                    )
+
                     for rule in webhook_rules.iterator():
-                        changed_files = self._get_changed_files_from_pull_request_event(
-                            project,
-                            action,
-                        )
                         if rule.match(changed_files=changed_files):
                             log.info(
                                 "Webhook automation rule matched, triggering build.",
