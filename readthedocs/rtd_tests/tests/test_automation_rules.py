@@ -819,6 +819,7 @@ class TestWebhookAutomationRules:
         trigger_build.assert_called_once_with(
             project=self.project,
             version=self.version,
+            from_webhook=True,
         )
 
     def test_run_does_not_trigger_build_for_inactive_version(self, trigger_build):
@@ -891,4 +892,5 @@ class TestWebhookAutomationRules:
         trigger_build.assert_called_once_with(
             project=self.project,
             version=external_version,
+            from_webhook=True,
         )
