@@ -264,11 +264,14 @@ class BuildsEndpointTests(APIEndpointMixin):
             {"property": "test value"},
         )
 
+    @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
     @mock.patch("readthedocs.api.v3.views.get_build_commands_from_storage")
-    def test_projects_builds_list_reads_commands_from_storage(
+    def test_projects_builds_list_does_not_read_commands_from_cold_storage(
         self,
         get_build_commands_from_storage,
     ):
+        self.build.cold_storage = True
+        self.build.save()
         get_build_commands_from_storage.return_value = [
             {
                 "id": 10,
@@ -291,10 +294,8 @@ class BuildsEndpointTests(APIEndpointMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         commands = response.json()["results"][0]["commands"]
-        self.assertEqual(len(commands), 1)
-        self.assertEqual(commands[0]["command"], "storage command")
-        self.assertEqual(commands[0]["output"], "Storage output")
-        get_build_commands_from_storage.assert_called_once_with(self.build)
+        self.assertEqual(commands, [])
+        get_build_commands_from_storage.assert_not_called()
 
     def test_projects_builds_detail_includes_build_metadata_and_commands(self):
         self.build.commands.create(
