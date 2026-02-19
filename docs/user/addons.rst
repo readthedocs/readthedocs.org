@@ -46,6 +46,17 @@ Individual configuration options for each addon are available in :guilabel:`Sett
 #. In the left bar, go to :guilabel:`Addons`.
 #. Configure each Addon individually.
 
+Disabling the subprojects filter in search
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For projects that have :doc:`subprojects </subprojects>`,
+the search modal shows a filter that lets users choose whether to include results from subprojects.
+If your project does not need this filter (for example, if you want to keep search results focused on the main project),
+you can disable it from :guilabel:`Settings` > :guilabel:`Addons` > :guilabel:`Search`
+by unchecking :guilabel:`Show subprojects filter in search modal`.
+
+See :doc:`/server-side-search/index` for more details.
+
 Integrating with Addons
 -----------------------
 
