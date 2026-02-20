@@ -161,6 +161,7 @@ class BuildDirector:
             environment=self.build_environment,
         )
 
+        self.build_environment.build_job = "system_dependencies"
         self.run_build_job("pre_system_dependencies")
         self.system_dependencies()
         self.run_build_job("post_system_dependencies")
@@ -168,10 +169,12 @@ class BuildDirector:
         # Install all ``build.tools`` specified by the user
         self.install_build_tools()
 
+        self.build_environment.build_job = "create_environment"
         self.run_build_job("pre_create_environment")
         self.create_environment()
         self.run_build_job("post_create_environment")
 
+        self.build_environment.build_job = "install"
         self.run_build_job("pre_install")
         self.install()
         self.run_build_job("post_install")
@@ -185,6 +188,7 @@ class BuildDirector:
         3. build PDF
         4. build ePub
         """
+        self.build_environment.build_job = "build"
         self.run_build_job("pre_build")
 
         # Build all formats
@@ -204,6 +208,7 @@ class BuildDirector:
     def checkout(self):
         """Checkout Git repo and load build config file."""
 
+        self.vcs_environment.build_job = "checkout"
         log.info("Cloning and fetching.")
         self.vcs_repository.update()
 
@@ -456,14 +461,14 @@ class BuildDirector:
         In this case, `self.data.config.build.jobs.pre_build` will contains
         `sed` command.
         """
-        commands = get_dotted_attribute(self.data.config, f"build.jobs.{job}", None)
-        if not commands:
-            return
-
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.vcs_environment
         if job not in ("pre_checkout", "post_checkout"):
             environment = self.build_environment
+
+        commands = get_dotted_attribute(self.data.config, f"build.jobs.{job}", None)
+        if not commands:
+            return
 
         for command in commands:
             environment.run(command, escape_command=False, cwd=cwd)
@@ -505,6 +510,7 @@ class BuildDirector:
 
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.build_environment
+        environment.build_job = "build"
         for command in self.data.config.build.commands:
             environment.run(command, escape_command=False, cwd=cwd)
 
