@@ -188,7 +188,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     S3_STATIC_STORAGE_BUCKET = os.environ.get("RTD_S3_STATIC_STORAGE_BUCKET", "static")
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
     S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
-    S3_PROVIDER = os.environ.get("RTD_S3_PROVIDER", "minio")
+    S3_PROVIDER = os.environ.get("RTD_S3_PROVIDER", "rustfs")
 
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False
@@ -198,7 +198,7 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     @property
     def AWS_S3_ENDPOINT_URL(self):
-        if self.S3_PROVIDER == "minio":
+        if self.S3_PROVIDER == "rustfs":
             return "http://storage:9000/"
         return None
 
