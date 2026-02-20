@@ -27,6 +27,7 @@ from rest_framework.response import Response
 from readthedocs.api.v2.permissions import HasBuildAPIKey
 from readthedocs.api.v2.permissions import IsOwner
 from readthedocs.api.v2.permissions import ReadOnlyPermission
+from readthedocs.api.v2.utils import get_build_command_sections
 from readthedocs.api.v2.utils import get_build_commands_from_storage
 from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
 from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
@@ -340,6 +341,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         commands = get_build_commands_from_storage(instance)
         if commands is not None:
             data["commands"] = commands
+        data["command_sections"] = get_build_command_sections(data["commands"])
 
         return Response(data)
 

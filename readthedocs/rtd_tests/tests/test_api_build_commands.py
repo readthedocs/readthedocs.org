@@ -43,3 +43,21 @@ class APIBuildCommandTests(TestCase):
         assert detail.status_code == status.HTTP_200_OK
         assert detail.data["commands"][0]["job"] == "build.html"
         assert detail.data["commands"][0]["build_job"] == "build.html"
+        assert detail.data["command_sections"] == [
+            {
+                "job": "build.html",
+                "commands": [
+                    {
+                        "id": detail.data["commands"][0]["id"],
+                        "build": build.pk,
+                        "command": "python -m sphinx",
+                        "description": "",
+                        "output": "",
+                        "exit_code": None,
+                        "start_time": detail.data["commands"][0]["start_time"],
+                        "end_time": detail.data["commands"][0]["end_time"],
+                        "run_time": 3,
+                    }
+                ],
+            }
+        ]

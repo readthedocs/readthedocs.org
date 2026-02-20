@@ -856,7 +856,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # `Version` objects in the database. This method runs commands
             # (e.g. "hg tags") inside the VCS environment, so it requires to be
             # inside the `with` statement
-            self.sync_versions(self.data.build_director.vcs_repository)
+            previous_build_job = self.data.build_director.vcs_environment.build_job
+            self.data.build_director.vcs_environment.build_job = "sync_versions"
+            try:
+                self.sync_versions(self.data.build_director.vcs_repository)
+            finally:
+                self.data.build_director.vcs_environment.build_job = previous_build_job
 
         # TODO: remove the ``create_build_environment`` hack. Ideally, this should be
         # handled inside the ``BuildDirector`` but we can't use ``with

@@ -28,6 +28,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
+from readthedocs.api.v2.utils import get_build_command_sections
 from readthedocs.api.v2.utils import get_build_commands_from_storage
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
@@ -426,6 +427,16 @@ class BuildsViewSet(
         commands = get_build_commands_from_storage(instance)
         if commands is not None:
             data["commands"] = commands
+            section_commands = commands
+        else:
+            section_commands = [
+                {
+                    **command_data,
+                    "build_job": command.build_job,
+                }
+                for command_data, command in zip(data["commands"], instance.commands.all())
+            ]
+        data["command_sections"] = get_build_command_sections(section_commands)
 
         return Response(data)
 

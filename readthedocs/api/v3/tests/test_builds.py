@@ -270,6 +270,7 @@ class BuildsEndpointTests(APIEndpointMixin):
             description="Build docs",
             output="Done",
             exit_code=0,
+            build_job="build.html",
         )
         url = reverse(
             "projects-builds-detail",
@@ -290,6 +291,27 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(len(data["commands"]), 1)
         self.assertEqual(data["commands"][0]["build"], self.build.pk)
         self.assertEqual(data["commands"][0]["command"], "python -m sphinx")
+        self.assertEqual(
+            data["command_sections"],
+            [
+                {
+                    "job": "build.html",
+                    "commands": [
+                        {
+                            "id": data["commands"][0]["id"],
+                            "build": self.build.pk,
+                            "command": "python -m sphinx",
+                            "description": "Build docs",
+                            "output": "Done",
+                            "exit_code": 0,
+                            "start_time": None,
+                            "end_time": None,
+                            "run_time": None,
+                        },
+                    ],
+                },
+            ],
+        )
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
     @mock.patch("readthedocs.api.v3.views.get_build_commands_from_storage")
@@ -311,6 +333,7 @@ class BuildsEndpointTests(APIEndpointMixin):
                 "id": 10,
                 "build": 1,
                 "command": "storage command",
+                "build_job": "install",
                 "description": "Build docs",
                 "output": "Storage output",
                 "exit_code": 0,
@@ -333,6 +356,27 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(len(commands), 1)
         self.assertEqual(commands[0]["command"], "storage command")
         self.assertEqual(commands[0]["output"], "Storage output")
+        self.assertEqual(
+            response.json()["command_sections"],
+            [
+                {
+                    "job": "install",
+                    "commands": [
+                        {
+                            "id": 10,
+                            "build": 1,
+                            "command": "storage command",
+                            "description": "Build docs",
+                            "output": "Storage output",
+                            "exit_code": 0,
+                            "start_time": None,
+                            "end_time": None,
+                            "run_time": 0,
+                        },
+                    ],
+                },
+            ],
+        )
         get_build_commands_from_storage.assert_called_once_with(self.build)
 
     def test_projects_builds_detail_other_user(self):

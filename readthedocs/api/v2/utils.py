@@ -325,6 +325,34 @@ def get_build_commands_from_storage(build):
         return None
 
 
+def get_build_command_sections(commands):
+    """
+    Group build commands by job preserving the original command order.
+
+    Each section is a mapping with:
+
+    - ``job``: job name (or ``"unknown"`` when missing)
+    - ``commands``: list of commands belonging to that job
+    """
+    sections = {}
+    for command in commands:
+        job = command.get("build_job") or command.get("job") or "unknown"
+
+        section_command = command.copy()
+        section_command.pop("build_job", None)
+        section_command.pop("job", None)
+
+        sections.setdefault(job, []).append(section_command)
+
+    return [
+        {
+            "job": job,
+            "commands": commands,
+        }
+        for job, commands in sections.items()
+    ]
+
+
 class RemoteOrganizationPagination(PageNumberPagination):
     page_size = 25
 

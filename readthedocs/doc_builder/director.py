@@ -105,7 +105,11 @@ class BuildDirector:
         # See https://github.com/readthedocs/readthedocs.org/issues/8935
         #
         # self.run_build_job("pre_checkout")
-        self.checkout()
+        previous_build_job = self._start_build_job(self.vcs_environment, "checkout")
+        try:
+            self.checkout()
+        finally:
+            self._finish_build_job(self.vcs_environment, previous_build_job)
 
         self.run_build_job("post_checkout")
 
@@ -162,18 +166,34 @@ class BuildDirector:
         )
 
         self.run_build_job("pre_system_dependencies")
-        self.system_dependencies()
+        previous_build_job = self._start_build_job(self.build_environment, "system_dependencies")
+        try:
+            self.system_dependencies()
+        finally:
+            self._finish_build_job(self.build_environment, previous_build_job)
         self.run_build_job("post_system_dependencies")
 
         # Install all ``build.tools`` specified by the user
-        self.install_build_tools()
+        previous_build_job = self._start_build_job(self.build_environment, "install_build_tools")
+        try:
+            self.install_build_tools()
+        finally:
+            self._finish_build_job(self.build_environment, previous_build_job)
 
         self.run_build_job("pre_create_environment")
-        self.create_environment()
+        previous_build_job = self._start_build_job(self.build_environment, "create_environment")
+        try:
+            self.create_environment()
+        finally:
+            self._finish_build_job(self.build_environment, previous_build_job)
         self.run_build_job("post_create_environment")
 
         self.run_build_job("pre_install")
-        self.install()
+        previous_build_job = self._start_build_job(self.build_environment, "install")
+        try:
+            self.install()
+        finally:
+            self._finish_build_job(self.build_environment, previous_build_job)
         self.run_build_job("post_install")
 
     def build(self):
@@ -381,7 +401,11 @@ class BuildDirector:
         if self.data.config.build.jobs.build.html is not None:
             self.run_build_job("build.html")
             return
-        return self.build_docs_class(self.data.config.doctype)
+        previous_build_job = self._start_build_job(self.build_environment, "build.html")
+        try:
+            return self.build_docs_class(self.data.config.doctype)
+        finally:
+            self._finish_build_job(self.build_environment, previous_build_job)
 
     def build_pdf(self):
         if "pdf" not in self.data.config.formats or self.data.version.type == EXTERNAL:
@@ -393,7 +417,11 @@ class BuildDirector:
 
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
-            return self.build_docs_class("sphinx_pdf")
+            previous_build_job = self._start_build_job(self.build_environment, "build.pdf")
+            try:
+                return self.build_docs_class("sphinx_pdf")
+            finally:
+                self._finish_build_job(self.build_environment, previous_build_job)
 
         return False
 
@@ -407,7 +435,11 @@ class BuildDirector:
 
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
-            return self.build_docs_class("sphinx_singlehtmllocalmedia")
+            previous_build_job = self._start_build_job(self.build_environment, "build.htmlzip")
+            try:
+                return self.build_docs_class("sphinx_singlehtmllocalmedia")
+            finally:
+                self._finish_build_job(self.build_environment, previous_build_job)
         return False
 
     def build_epub(self):
@@ -420,8 +452,20 @@ class BuildDirector:
 
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
-            return self.build_docs_class("sphinx_epub")
+            previous_build_job = self._start_build_job(self.build_environment, "build.epub")
+            try:
+                return self.build_docs_class("sphinx_epub")
+            finally:
+                self._finish_build_job(self.build_environment, previous_build_job)
         return False
+
+    def _start_build_job(self, environment, job):
+        previous_build_job = environment.build_job
+        environment.build_job = job
+        return previous_build_job
+
+    def _finish_build_job(self, environment, previous_build_job):
+        environment.build_job = previous_build_job
 
     def run_build_job(self, job):
         """
@@ -466,13 +510,12 @@ class BuildDirector:
             environment = self.build_environment
 
         # Attach this job name to commands recorded while this build job runs.
-        previous_build_job = environment.build_job
-        environment.build_job = job
+        previous_build_job = self._start_build_job(environment, job)
         try:
             for command in commands:
                 environment.run(command, escape_command=False, cwd=cwd)
         finally:
-            environment.build_job = previous_build_job
+            self._finish_build_job(environment, previous_build_job)
 
     def check_old_output_directory(self):
         """
@@ -511,33 +554,37 @@ class BuildDirector:
 
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.build_environment
-        for command in self.data.config.build.commands:
-            environment.run(command, escape_command=False, cwd=cwd)
+        previous_build_job = self._start_build_job(environment, "build.commands")
+        try:
+            for command in self.data.config.build.commands:
+                environment.run(command, escape_command=False, cwd=cwd)
 
-            # Execute ``asdf reshim python`` if the user is installing a
-            # package since the package may contain an executable
-            # See https://github.com/readthedocs/readthedocs.org/pull/9150#discussion_r882849790
-            for python_reshim_command in python_reshim_commands:
-                # Convert tuple/list into set to check reshim command is a
-                # subset of the command itself. This is to find ``pip install``
-                # but also ``pip -v install`` and ``python -m pip install``
-                if python_reshim_command.issubset(command.split()):
-                    environment.run(
-                        *["asdf", "reshim", "python"],
-                        escape_command=False,
-                        cwd=cwd,
-                        record=False,
-                    )
+                # Execute ``asdf reshim python`` if the user is installing a
+                # package since the package may contain an executable
+                # See https://github.com/readthedocs/readthedocs.org/pull/9150#discussion_r882849790
+                for python_reshim_command in python_reshim_commands:
+                    # Convert tuple/list into set to check reshim command is a
+                    # subset of the command itself. This is to find ``pip install``
+                    # but also ``pip -v install`` and ``python -m pip install``
+                    if python_reshim_command.issubset(command.split()):
+                        environment.run(
+                            *["asdf", "reshim", "python"],
+                            escape_command=False,
+                            cwd=cwd,
+                            record=False,
+                        )
 
-            # Do same for Rust
-            for rust_reshim_command in rust_reshim_commands:
-                if rust_reshim_command.issubset(command.split()):
-                    environment.run(
-                        *["asdf", "reshim", "rust"],
-                        escape_command=False,
-                        cwd=cwd,
-                        record=False,
-                    )
+                # Do same for Rust
+                for rust_reshim_command in rust_reshim_commands:
+                    if rust_reshim_command.issubset(command.split()):
+                        environment.run(
+                            *["asdf", "reshim", "rust"],
+                            escape_command=False,
+                            cwd=cwd,
+                            record=False,
+                        )
+        finally:
+            self._finish_build_job(environment, previous_build_job)
 
         html_output_path = os.path.join(cwd, BUILD_COMMANDS_OUTPUT_PATH_HTML)
         if not os.path.exists(html_output_path):
