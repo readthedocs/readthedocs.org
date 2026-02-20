@@ -12,8 +12,10 @@ from django.utils.timezone import make_aware
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
-from readthedocs.builds.constants import LATEST, TAG
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import TAG
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.doc_builder.exceptions import BuildCancelled
 from readthedocs.notifications.models import Notification
@@ -104,13 +106,14 @@ class APIEndpointMixin(TestCase):
             state="finished",
             error="",
             success=True,
-            _config={"property": "test value"},
             version=self.version,
             project=self.project,
             builder="builder01",
             commit="a1b2c3",
             length=60,
         )
+        self.build.config = {"property": "test value"}
+        self.build.save()
 
         self.other = fixture.get(User, projects=[])
         self.others_token = fixture.get(Token, key="other", user=self.other)
@@ -134,13 +137,14 @@ class APIEndpointMixin(TestCase):
             state="finished",
             error="",
             success=True,
-            _config={"property": "test value"},
             version=self.others_version,
             project=self.others_project,
             builder="builder01",
             commit="a1b2c3",
             length=60,
         )
+        self.others_build.config = {"property": "test value"}
+        self.others_build.save()
 
         # Make all non-html true so responses are complete
         self.project.versions.update(

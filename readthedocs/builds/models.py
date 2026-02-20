@@ -822,13 +822,7 @@ class Build(models.Model):
         Keeping it for backwards compatibility for now.
         We could use `readthedocs_yaml_config` directly instead if we want.
         """
-        if self.readthedocs_yaml_config:
-            return self.readthedocs_yaml_config.data
-
-        if self._config:
-            return self._config
-
-        return {}
+        return self.readthedocs_yaml_config.data if self.readthedocs_yaml_config else {}
 
     @config.setter
     def config(self, value):
