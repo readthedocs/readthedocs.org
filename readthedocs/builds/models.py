@@ -1053,6 +1053,11 @@ class BuildCommandResultMixin:
         """
         return self.end_time is not None
 
+    @property
+    def job(self):
+        # Keep `job` as a stable read-only alias consumed by the frontend.
+        return getattr(self, "build_job", None)
+
 
 class BuildCommandResult(BuildCommandResultMixin, models.Model):
     """Build command for a ``Build``."""
@@ -1065,6 +1070,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     )
 
     command = models.TextField(_("Command"))
+    build_job = models.CharField(_("Build job"), max_length=128, blank=True, null=True)
     description = models.TextField(_("Description"), blank=True)
     output = models.TextField(_("Command output"), blank=True)
     exit_code = models.IntegerField(_("Command exit code"), null=True, blank=True)

@@ -301,6 +301,7 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.build.commands.create(
             command="python -m sphinx",
             description="Build docs",
+            build_job="build.html",
             output="Done",
             exit_code=0,
         )
@@ -323,6 +324,8 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(len(data["commands"]), 1)
         self.assertEqual(data["commands"][0]["build"], self.build.pk)
         self.assertEqual(data["commands"][0]["command"], "python -m sphinx")
+        self.assertEqual(data["commands"][0]["build_job"], "build.html")
+        self.assertEqual(data["commands"][0]["job"], "build.html")
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
     @mock.patch("readthedocs.api.v3.views.get_build_commands_from_storage")

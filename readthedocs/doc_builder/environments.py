@@ -80,6 +80,8 @@ class BuildCommand(BuildCommandResultMixin):
         user=None,
         build_env=None,
         bin_path=None,
+        description="",
+        build_job=None,
         record_as_success=False,
         demux=False,
         **kwargs,
@@ -103,6 +105,8 @@ class BuildCommand(BuildCommandResultMixin):
         self.end_time = None
 
         self.bin_path = bin_path
+        self.description = description
+        self._build_job = build_job
         self.record_as_success = record_as_success
         self.demux = demux
         self.exit_code = None
@@ -284,6 +288,9 @@ class BuildCommand(BuildCommandResultMixin):
         data = {
             "build": self.build_env.build.get("id"),
             "command": self.get_command(),
+            "description": self.description,
+            # This metadata powers build-step labels in build detail UI.
+            "build_job": self._build_job,
             "output": self.sanitize_output(self.output),
             "exit_code": self.exit_code,
             "start_time": self.start_time,
@@ -482,6 +489,7 @@ class BaseBuildEnvironment:
         self.commands = []
         self.version = version
         self.build = build
+        self.build_job = None
         self.config = config
         self.record = record
         self.api_client = api_client
@@ -538,6 +546,8 @@ class BaseBuildEnvironment:
                 BuildAppError.GENERIC_WITH_BUILD_ID,
                 exception_message="environment can't be passed in via commands.",
             )
+        if "build_job" not in kwargs and self.build_job:
+            kwargs["build_job"] = self.build_job
         kwargs["environment"] = environment
         kwargs["build_env"] = self
         build_cmd = cls(cmd, **kwargs)
