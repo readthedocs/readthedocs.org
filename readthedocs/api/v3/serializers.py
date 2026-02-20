@@ -148,8 +148,6 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 class BuildCommandSerializer(serializers.ModelSerializer):
     run_time = serializers.ReadOnlyField()
     command = serializers.SerializerMethodField()
-    # Keep `job` as compatibility alias for clients expecting this field.
-    job = serializers.ReadOnlyField()
 
     class Meta:
         model = BuildCommandResult
@@ -159,7 +157,6 @@ class BuildCommandSerializer(serializers.ModelSerializer):
             "command",
             "description",
             "build_job",
-            "job",
             "output",
             "exit_code",
             "start_time",

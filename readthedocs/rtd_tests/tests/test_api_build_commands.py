@@ -41,5 +41,4 @@ class APIBuildCommandTests(TestCase):
 
         detail = client.get(f"/api/v2/build/{build.pk}/")
         assert detail.status_code == status.HTTP_200_OK
-        assert detail.data["commands"][0]["job"] == "build.html"
         assert detail.data["commands"][0]["build_job"] == "build.html"

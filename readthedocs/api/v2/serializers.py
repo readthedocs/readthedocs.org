@@ -224,8 +224,6 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     """
 
     command = serializers.SerializerMethodField()
-    # Backward-compatible alias consumed by ext-theme build detail view.
-    job = serializers.ReadOnlyField()
 
     def get_command(self, obj):
         return normalize_build_command(
