@@ -15,11 +15,14 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.builds.constants import ALL_VERSIONS
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BRANCH_TEXT
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL_TEXT
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.constants import TAG_TEXT
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
+from readthedocs.builds.models import WebhookAutomationRule
 from readthedocs.builds.version_slug import generate_version_slug
 
 
@@ -214,6 +217,55 @@ class RegexAutomationRuleForm(forms.ModelForm):
                 _("Invalid Python regular expression."),
             )
         return match_arg
+
+    def clean_project(self):
+        return self.project
+
+
+class WebhookAutomationRuleForm(forms.ModelForm):
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+    match_arg = forms.CharField(
+        label="File pattern match",
+        help_text=_(
+            textwrap.dedent(
+                "Pattern to match added/modified/removed files. It can include wildcards, for example: `docs/*.md`."
+            )
+        ),
+        required=True,
+    )
+
+    class Meta:
+        model = WebhookAutomationRule
+        fields = [
+            "project",
+            "description",
+            "match_arg",
+            "version_type",
+            "action",
+        ]
+        # Don't pollute the UI with help texts
+        help_texts = {
+            "version_type": "",
+            "action": "",
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+        # Only list supported types
+        self.fields["version_type"].choices = [
+            (None, "-" * 9),
+            (BRANCH, BRANCH_TEXT),
+            (TAG, TAG_TEXT),
+            (EXTERNAL, EXTERNAL_TEXT),
+        ]
+
+        # Only list supported actions (webhook rules only support trigger build)
+        self.fields["action"].choices = [
+            (None, "-" * 9),
+            (VersionAutomationRule.TRIGGER_BUILD_ACTION, "Trigger build for version"),
+        ]
 
     def clean_project(self):
         return self.project

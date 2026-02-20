@@ -14,23 +14,23 @@ from readthedocs.oauth.notifications import MESSAGE_OAUTH_SYNCING_REMOTE_REPOSIT
 from readthedocs.oauth.notifications import MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP
 from readthedocs.oauth.tasks import sync_remote_repositories
 from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
 
 
 log = structlog.get_logger(__name__)
 
 
-def _sync_remote_repositories(user, skip_notification_for_github_app=False):
+def _sync_remote_repositories(user):
     """
     Sync the user's remote repositories in the background, and notify them about it.
 
-    If skip_notification_for_github_app is True, we won't show the notification
-    if the user only has a GitHub App social account connected. We still sync in
-    the background just in case we missed a webhook.
+    We show a notification to the user if they don't have any remote repositories yet,
+    or if they don't have access to any projects.
     """
     if user.socialaccount_set.exists():
         if (
-            not skip_notification_for_github_app
-            or user.socialaccount_set.exclude(provider=GitHubAppProvider.id).exists()
+            not user.remote_repository_relations.exists()
+            or not Project.objects.public(user).exists()
         ):
             Notification.objects.add(
                 attached_to=user,
@@ -53,7 +53,7 @@ def sync_remote_repositories_on_login(sender, request, user, *args, **kwargs):
         "Triggering sync RemoteRepository in background on login.",
         user_username=user.username,
     )
-    _sync_remote_repositories(user, skip_notification_for_github_app=True)
+    _sync_remote_repositories(user)
 
 
 @receiver(social_account_added, sender=SocialLogin)

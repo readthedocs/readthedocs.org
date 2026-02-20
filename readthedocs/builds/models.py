@@ -1,6 +1,7 @@
 """Models for the builds app."""
 
 import datetime
+import fnmatch
 import os.path
 import re
 from functools import partial
@@ -301,17 +302,17 @@ class Version(TimeStampedModel):
         :returns: The configuration used in the last successful build.
         :rtype: dict
         """
-        last_build = (
+        last_successful_build_config = (
             self.builds.filter(
                 state=BUILD_STATE_FINISHED,
                 success=True,
             )
             .order_by("-date")
-            .only("_config")
+            .values_list("readthedocs_yaml_config__data", flat=True)
             .first()
         )
-        if last_build:
-            return last_build.config
+        if last_successful_build_config:
+            return last_successful_build_config
         return None
 
     @property
@@ -729,7 +730,8 @@ class Build(models.Model):
         blank=True,
     )
 
-    # TODO: remove `_config` field after migrating all builds to use `readthedocs_yaml_config`
+    # TODO: remove _config field once we have migrated all builds.
+    # _config field is deprecated in favor of readthedocs_yaml_config
     _config = models.JSONField(
         _("Configuration used in the build"),
         null=True,
@@ -795,8 +797,6 @@ class Build(models.Model):
     # Only include EXTERNAL type Version builds.
     external = ExternalBuildManager.from_queryset(BuildQuerySet)()
 
-    CONFIG_KEY = "__config"
-
     class Meta:
         ordering = ["-date"]
         get_latest_by = "date"
@@ -811,82 +811,54 @@ class Build(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._config_changed = False
-
-    @property
-    def previous(self):
-        """
-        Returns the previous build to the current one.
-
-        Matching the project and version.
-        """
-        date = self.date or timezone.now()
-        if self.project is not None and self.version is not None:
-            return (
-                Build.objects.filter(
-                    project=self.project,
-                    version=self.version,
-                    date__lt=date,
-                )
-                .order_by("-date")
-                .first()
-            )
-        return None
+        self._readthedocs_yaml_config = None
+        self._readthedocs_yaml_config_changed = False
 
     @property
     def config(self):
         """
-        Get the config used for this build.
+        Helper to get the build config data as a dict.
 
-        Since we are saving the config into the JSON field only when it differs
-        from the previous one, this helper returns the correct JSON used in this
-        Build object (it could be stored in this object or one of the previous
-        ones).
+        Keeping it for backwards compatibility for now.
+        We could use `readthedocs_yaml_config` directly instead if we want.
         """
-        # TODO: now that we are using a proper JSONField here, we could
-        # probably change this field to be a ForeignKey to avoid repeating the
-        # config file over and over again and reuse them to save db data as
-        # well
-        if self._config and self.CONFIG_KEY in self._config:
-            return Build.objects.only("_config").get(pk=self._config[self.CONFIG_KEY])._config
-        # TODO: Consider falling back to ``readthedocs_yaml_config.data`` here
-        # when ``_config`` is empty after data migrations.
-        return self._config
+        return self.readthedocs_yaml_config.data if self.readthedocs_yaml_config else {}
 
     @config.setter
     def config(self, value):
         """
-        Set `_config` to value.
+        Helper to create a `BuildConfig` from a dict.
 
-        `_config` should never be set directly from outside the class.
+        Keeping it for backwards compatibility for now. We are using it as:
+
+          build.config = {
+            "search": {
+                "ranking": {
+                    "*index.html": 5,
+                }
+            }
+          }
+
+        We could remove this and create `BuildConfig` objects directly instead if we want.
         """
-        self._config = value
-        self._config_changed = True
+        self._readthedocs_yaml_config = value
+        self._readthedocs_yaml_config_changed = True
 
     def save(self, *args, **kwargs):  # noqa
-        """
-        Save object.
-
-        To save space on the db we only save the config if it's different
-        from the previous one.
-
-        If the config is the same, we save the pk of the object
-        that has the **real** config under the `CONFIG_KEY` key.
-
-        Additionally, we create or get a BuildConfig object for the new
-        readthedocs_yaml_config field to facilitate the migration to the new model.
-        """
-        if self.pk is None or self._config_changed:
-            if self._config is None:
+        if self._readthedocs_yaml_config_changed:
+            if self._readthedocs_yaml_config is None:
                 self.readthedocs_yaml_config = None
             else:
-                build_config, created = BuildConfig.objects.get_or_create(data=self._config)
+                build_config, _ = BuildConfig.objects.get_or_create(
+                    data=self._readthedocs_yaml_config
+                )
                 self.readthedocs_yaml_config = build_config
-
-            previous = self.previous
-            if previous is not None and self._config and self._config == previous.config:
-                previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
-                self._config = {self.CONFIG_KEY: previous_pk}
+                log.warning(
+                    "Creating BuildConfig using `build.config` setter.",
+                    build_id=self.id,
+                    build_config_data=self._readthedocs_yaml_config,
+                    build_config_id=build_config.id,
+                )
 
         if self.version:
             self.version_name = self.version.verbose_name
@@ -894,7 +866,8 @@ class Build(models.Model):
             self.version_type = self.version.type
 
         super().save(*args, **kwargs)
-        self._config_changed = False
+        self._readthedocs_yaml_config = None
+        self._readthedocs_yaml_config_changed = False
 
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
@@ -1122,6 +1095,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     MAKE_VERSION_PUBLIC_ACTION = "make-version-public"
     MAKE_VERSION_PRIVATE_ACTION = "make-version-private"
     SET_DEFAULT_VERSION_ACTION = "set-default-version"
+    TRIGGER_BUILD_ACTION = "trigger-build"
 
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _("Activate version")),
@@ -1130,10 +1104,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
         (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
         (DELETE_VERSION_ACTION, _("Delete version")),
+        (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
     )
 
     allowed_actions_on_create = {}
     allowed_actions_on_delete = {}
+    allowed_actions_on_existing = {}
 
     project = models.ForeignKey(
         Project,
@@ -1203,7 +1179,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def run(self, version, **kwargs):
         """
-        Run an action if `version` matches the rule.
+        Run an action if `version` matches the version type.
 
         :type version: readthedocs.builds.models.Version
         :returns: True if the action was performed
@@ -1211,42 +1187,39 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if version.type != self.version_type:
             return False
 
-        match, result = self.match(version, self.get_match_arg())
-        if match:
-            self.apply_action(version, result)
-            AutomationRuleMatch.objects.register_match(
-                rule=self,
-                version=version,
-            )
-            return True
-        return False
+        self.apply_action(version)
+        AutomationRuleMatch.objects.register_match(
+            rule=self,
+            version=version,
+        )
+        return True
 
-    def match(self, version, match_arg):
+    def match(self, version, match_arg=None):
         """
-        Returns True and the match result if the version matches the rule.
+        Checks if the version matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :param str match_arg: Additional argument to perform the match
-        :returns: A tuple of (boolean, match_resul).
-                  The result will be passed to `apply_action`.
+        :returns: True if the version matches the rule, False otherwise
         """
-        return False, None
+        return False
 
-    def apply_action(self, version, match_result):
+    def apply_action(self, version):
         """
         Apply the action from allowed_actions_on_*.
 
         :type version: readthedocs.builds.models.Version
-        :param any match_result: Additional context from the match operation
         :raises: NotImplementedError if the action
                  isn't implemented or supported for this rule.
         """
-        action = self.allowed_actions_on_create.get(
-            self.action
-        ) or self.allowed_actions_on_delete.get(self.action)
+        action = (
+            self.allowed_actions_on_create.get(self.action)
+            or self.allowed_actions_on_delete.get(self.action)
+            or self.allowed_actions_on_existing.get(self.action)
+        )
         if action is None:
             raise NotImplementedError
-        action(version, match_result, self.action_arg)
+        action(version, self.action_arg)
 
     def move(self, steps):
         """
@@ -1267,7 +1240,11 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def save(self, *args, **kwargs):
         """Override method to update the other priorities before save."""
-        self._position_manager.change_position_before_save(self)
+
+        # TODO: update the position manager to be able to handle the WebhookAutomationRule case
+        if self._meta.model != WebhookAutomationRule:
+            self._position_manager.change_position_before_save(self)
+
         if not self.description:
             self.description = self.get_description()
         super().save(*args, **kwargs)
@@ -1308,7 +1285,7 @@ class RegexAutomationRule(VersionAutomationRule):
     class Meta:
         proxy = True
 
-    def match(self, version, match_arg):
+    def match(self, version, match_arg=None):
         """
         Find a match using regex.search.
 
@@ -1320,6 +1297,9 @@ class RegexAutomationRule(VersionAutomationRule):
            We could use a finite state machine type of regex too,
            but there isn't a stable library at the time of writing this code.
         """
+        if match_arg is None:
+            match_arg = self.get_match_arg()
+
         try:
             match = regex.search(
                 match_arg,
@@ -1328,7 +1308,7 @@ class RegexAutomationRule(VersionAutomationRule):
                 flags=regex.VERSION0,
                 timeout=self.TIMEOUT,
             )
-            return bool(match), match
+            return bool(match)
         except TimeoutError:
             log.warning(
                 "Timeout while parsing regex.",
@@ -1337,11 +1317,47 @@ class RegexAutomationRule(VersionAutomationRule):
             )
         except Exception:
             log.exception("Error parsing regex.", exc_info=True)
-        return False, None
+        return False
 
     def get_edit_url(self):
         return reverse(
             "projects_automation_rule_regex_edit",
+            args=[self.project.slug, self.pk],
+        )
+
+
+class WebhookAutomationRule(VersionAutomationRule):
+    """
+    Automation rule for filtering builds based on files changed in webhook events.
+
+    This rule is executed when a webhook push event is received, and checks if the
+    files modified/added/deleted in the push match the rule patterns. If they do,
+    the build is triggered for the affected version.
+    """
+
+    allowed_actions_on_existing = {
+        VersionAutomationRule.TRIGGER_BUILD_ACTION: actions.trigger_build_for_version,
+    }
+
+    class Meta:
+        proxy = True
+
+    def match(self, changed_files):
+        """
+        Check if any file in the list matches the rule pattern using ``fnmatch``.
+
+        :param changed_files: List of file paths that were modified/added/deleted
+        :return: True if any file matches the rule pattern, False otherwise
+        """
+        match_arg = self.get_match_arg()
+        for file_path in changed_files:
+            if fnmatch.fnmatch(file_path, match_arg):
+                return True
+        return False
+
+    def get_edit_url(self):
+        return reverse(
+            "projects_automation_rule_webhook_edit",
             args=[self.project.slug, self.pk],
         )
 
@@ -1354,6 +1370,7 @@ class AutomationRuleMatch(TimeStampedModel):
         VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: _("Version set to private privacy"),
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
         VersionAutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+        VersionAutomationRule.TRIGGER_BUILD_ACTION: _("Build triggered for version"),
     }
 
     rule = models.ForeignKey(

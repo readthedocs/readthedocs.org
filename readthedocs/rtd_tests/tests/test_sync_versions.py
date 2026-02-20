@@ -1023,9 +1023,9 @@ class TestSyncVersions(TestCase):
             1,
         )
 
-    @mock.patch("readthedocs.builds.tasks.run_automation_rules")
+    @mock.patch("readthedocs.builds.tasks.run_version_automation_rules")
     def test_automation_rules_are_triggered_for_new_versions(
-        self, run_automation_rules
+        self, run_version_automation_rules
     ):
         Version.objects.create(
             project=self.pip,
@@ -1060,7 +1060,7 @@ class TestSyncVersions(TestCase):
             branches_data=branches_data,
             tags_data=tags_data,
         )
-        run_automation_rules.assert_called_with(
+        run_version_automation_rules.assert_called_with(
             self.pip,
             {"new_branch", "new_tag"},
             {"0.8", "0.8.1"},

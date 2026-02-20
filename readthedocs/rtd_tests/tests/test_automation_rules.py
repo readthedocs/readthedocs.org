@@ -6,6 +6,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import (
     ALL_VERSIONS,
     BRANCH,
+    EXTERNAL,
     LATEST,
     SEMVER_VERSIONS,
     TAG,
@@ -14,6 +15,7 @@ from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
     VersionAutomationRule,
+    WebhookAutomationRule,
 )
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
@@ -89,8 +91,14 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is result
-        assert rule.matches.all().count() == (1 if result else 0)
+        assert rule.match(version) is result
+        # Test run() method - only run if match succeeds
+        if result:
+            assert rule.run(version) is True
+            assert rule.matches.all().count() == 1
+        else:
+            # Don't call run() if match fails
+            assert rule.matches.all().count() == 0
 
     @pytest.mark.parametrize(
         "version_name,result",
@@ -126,7 +134,10 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is result
+        # Test match() and run() separately following new pattern
+        assert rule.match(version) is result
+        if result:
+            assert rule.run(version) is True
 
     @pytest.mark.parametrize(
         "version_name,result",
@@ -163,7 +174,10 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is result
+        # Test match() and run() separately following new pattern
+        assert rule.match(version) is result
+        if result:
+            assert rule.run(version) is True
 
     def test_action_activation(self, trigger_build):
         version = get(
@@ -697,3 +711,186 @@ class TestAutomationRuleMove:
         for priority, rule in enumerate(self.project.automation_rules.all()):
             assert rule == new_order[priority]
             assert rule.priority == priority
+
+
+@pytest.mark.django_db
+@mock.patch("readthedocs.builds.automation_actions.trigger_build")
+class TestWebhookAutomationRules:
+    @pytest.fixture(autouse=True)
+    def setup_method(self):
+        self.project = get(Project)
+        self.version = get(
+            Version,
+            verbose_name="main",
+            project=self.project,
+            active=True,
+            type=BRANCH,
+        )
+
+    @pytest.mark.parametrize(
+        "pattern,files,should_match",
+        [
+            # Exact match
+            ("docs/index.rst", ["docs/index.rst"], True),
+            ("docs/index.rst", ["docs/other.rst"], False),
+            # Wildcard matches - NOTE: fnmatch * matches across / unlike shell globs
+            ("*.py", ["test.py"], True),
+            ("*.py", ["src/test.py"], True),  # * matches everything including /
+            ("*.py", ["test.txt"], False),
+            # Recursive wildcard - ** is just two * wildcards in fnmatch
+            ("**/*.py", ["test.py"], False),  # literal ** needs dir before *.py
+            ("**/*.py", ["src/test.py"], True),
+            ("**/*.py", ["src/deep/test.py"], True),
+            ("**/*.py", ["test.txt"], False),
+            # Directory patterns
+            ("docs/*", ["docs/index.rst"], True),
+            ("docs/*", ["docs/subdir/index.rst"], True),  # * matches across /
+            ("docs/**", ["docs/index.rst"], True),
+            ("docs/**", ["docs/subdir/index.rst"], True),
+            ("docs/**", ["src/index.rst"], False),
+            # Mixed patterns
+            ("docs/*.rst", ["docs/index.rst"], True),
+            ("docs/*.rst", ["docs/api.rst"], True),
+            ("docs/*.rst", ["docs/index.md"], False),
+            ("docs/*.rst", ["docs/subdir/index.rst"], True),  # * matches across /
+            # Question mark wildcard
+            ("file?.txt", ["file1.txt"], True),
+            ("file?.txt", ["file2.txt"], True),
+            ("file?.txt", ["file10.txt"], False),
+            # Character ranges
+            ("file[0-9].txt", ["file5.txt"], True),
+            ("file[0-9].txt", ["filea.txt"], False),
+        ],
+    )
+    def test_match_files(self, trigger_build, pattern, files, should_match):
+        """Test that WebhookAutomationRule.match() correctly matches file patterns."""
+        rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg=pattern,
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=BRANCH,
+        )
+        assert rule.match(changed_files=files) is should_match
+
+    def test_match_multiple_files(self, trigger_build):
+        """Test that match returns True if any file in the list matches."""
+        rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="docs/*.rst",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=BRANCH,
+        )
+
+        # Should match if any file matches
+        assert rule.match(changed_files=["src/code.py", "docs/index.rst", "README.md"]) is True
+
+        # Should not match if no files match
+        assert rule.match(changed_files=["src/code.py", "README.md"]) is False
+
+    def test_match_empty_file_list(self, trigger_build):
+        """Test that match returns False for empty file list."""
+        rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="docs/*.rst",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=BRANCH,
+        )
+        assert rule.match(changed_files=[]) is False
+
+    def test_run_triggers_build_for_active_version(self, trigger_build):
+        """Test that run() triggers a build for an active version."""
+        rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="docs/*.rst",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=BRANCH,
+        )
+
+        result = rule.run(self.version)
+        assert result is True
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=self.version,
+            from_webhook=True,
+        )
+
+    def test_run_does_not_trigger_build_for_inactive_version(self, trigger_build):
+        """Test that run() does not trigger a build for an inactive version."""
+        self.version.active = False
+        self.version.save()
+
+        rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="docs/*.rst",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=BRANCH,
+        )
+
+        result = rule.run(self.version)
+        assert result is True
+        trigger_build.assert_not_called()
+
+    def test_version_type_filtering(self, trigger_build):
+        """Test that rules only apply to matching version types."""
+        # Create a rule for branches only
+        branch_rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="**/*.py",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=BRANCH,
+        )
+
+        # Create a tag version
+        tag_version = get(
+            Version,
+            verbose_name="v1.0",
+            project=self.project,
+            active=True,
+            type=TAG,
+        )
+
+        # Branch version should match
+        assert branch_rule.run(self.version) is True
+
+        # Tag version should not match (wrong type)
+        assert branch_rule.run(tag_version) is False
+
+    def test_external_version_support(self, trigger_build):
+        """Test that WebhookAutomationRule works with external versions (PRs)."""
+        external_rule = get(
+            WebhookAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg="docs/**",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=EXTERNAL,
+        )
+
+        external_version = get(
+            Version,
+            verbose_name="1",
+            project=self.project,
+            active=True,
+            type=EXTERNAL,
+        )
+
+        # Should trigger build for external version
+        result = external_rule.run(external_version)
+        assert result is True
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=external_version,
+            from_webhook=True,
+        )
