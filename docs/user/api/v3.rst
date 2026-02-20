@@ -52,6 +52,12 @@ Rate limiting
 
 The API limits unauthenticated requests to 5 per minute and authenticated requests to 60 per minute.
 
+.. note::
+
+   Authenticating your API requests with a :ref:`Token <api/v3:Token>` also bypasses most other rate limiting,
+   including network-level blocks that may affect automated scripts accessing Read the Docs from cloud providers or CI environments.
+   If your script is getting ``403 Forbidden`` responses, adding an ``Authorization: Token <your-access-token>`` header is the recommended solution.
+
 Pagination
 ~~~~~~~~~~
 
