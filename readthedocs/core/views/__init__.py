@@ -7,6 +7,7 @@ and server errors.
 
 import structlog
 from django.conf import settings
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -168,3 +169,67 @@ def do_not_track(request):
         },
         content_type="application/tracking-status+json",
     )
+
+
+class OperationsLogView(PrivateViewMixin, UserPassesTestMixin, View):
+    """
+    Operations view for testing logging to external services.
+
+    This view is used to verify that logging to services like Sentry and New Relic
+    is working correctly after deployments or upgrades. It requires staff access
+    and generates both info and error level log messages.
+    """
+
+    service_name = None
+    raise_exception = True
+
+    def test_func(self):
+        """Only allow staff users to access this view."""
+        return self.request.user.is_staff
+
+    def handle_no_permission(self):
+        """Return a JSON 403 response instead of rendering a template."""
+        return JsonResponse(
+            {"error": "Access denied. Staff privileges required."},
+            status=403,
+        )
+
+    def get(self, request, *args, **kwargs):
+        """Generate log messages for the configured service."""
+        if not self.service_name:
+            return JsonResponse(
+                {"error": "Service name not configured"},
+                status=500,
+            )
+
+        log.info(
+            f"Operations test: {self.service_name} logging check",
+            service=self.service_name,
+            user=request.user.username,
+        )
+        log.error(
+            f"Operations test error: {self.service_name} error logging check",
+            service=self.service_name,
+            user=request.user.username,
+        )
+
+        return JsonResponse(
+            {
+                "status": "ok",
+                "service": self.service_name,
+                "message": f"Log messages sent to {self.service_name}",
+            },
+            status=200,
+        )
+
+
+class SentryOperationsView(OperationsLogView):
+    """Operations view for testing Sentry logging."""
+
+    service_name = "sentry"
+
+
+class NewRelicOperationsView(OperationsLogView):
+    """Operations view for testing New Relic logging."""
+
+    service_name = "newrelic"
