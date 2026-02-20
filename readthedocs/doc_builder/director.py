@@ -465,8 +465,14 @@ class BuildDirector:
         if job not in ("pre_checkout", "post_checkout"):
             environment = self.build_environment
 
-        for command in commands:
-            environment.run(command, escape_command=False, cwd=cwd)
+        # Attach this job name to commands recorded while this build job runs.
+        previous_build_job = environment.build_job
+        environment.build_job = job
+        try:
+            for command in commands:
+                environment.run(command, escape_command=False, cwd=cwd)
+        finally:
+            environment.build_job = previous_build_job
 
     def check_old_output_directory(self):
         """
