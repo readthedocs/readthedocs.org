@@ -1,25 +1,23 @@
 import os
 import uuid
 from unittest import mock
-from unittest.mock import Mock
-from unittest.mock import PropertyMock
-from unittest.mock import patch
+from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
-from django.test import TestCase
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 
-from readthedocs.builds.models import Version
-from readthedocs.doc_builder.environments import BuildCommand
-from readthedocs.doc_builder.environments import DockerBuildCommand
-from readthedocs.doc_builder.environments import DockerBuildEnvironment
-from readthedocs.doc_builder.environments import LocalBuildEnvironment
-from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import APIProject
+from readthedocs.builds.models import Version
+from readthedocs.doc_builder.environments import (
+    BuildCommand,
+    DockerBuildCommand,
+    DockerBuildEnvironment,
+    LocalBuildEnvironment,
+)
+from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import Project
-
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = "HérÉ îß sömê ünïçó∂é"
@@ -69,8 +67,6 @@ class TestLocalBuildEnvironment(TestCase):
             {
                 "build": mock.ANY,
                 "command": command.get_command(),
-                "description": command.description,
-                "build_job": None,
                 "output": "",
                 "exit_code": None,
                 "start_time": None,
@@ -81,8 +77,6 @@ class TestLocalBuildEnvironment(TestCase):
             {
                 "build": mock.ANY,
                 "command": command.get_command(),
-                "description": command.description,
-                "build_job": None,
                 "output": command.output,
                 "exit_code": 0,
                 "start_time": command.start_time,
