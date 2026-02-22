@@ -16,9 +16,9 @@ asgiref==3.11.1
     #   django-structlog
 billiard==4.2.4
     # via celery
-boto3==1.42.49
+boto3==1.42.54
     # via django-storages
-botocore==1.42.49
+botocore==1.42.54
     # via
     #   boto3
     #   s3transfer
@@ -121,7 +121,7 @@ django-impersonate==1.9.5
     # via -r requirements/pip.in
 django-ipware==7.0.1
     # via django-structlog
-django-polymorphic==4.11.0
+django-polymorphic==4.11.1
     # via -r requirements/pip.in
 django-safemigrate==6.0
     # via -r requirements/pip.in
@@ -164,7 +164,7 @@ elasticsearch==8.19.3
     #   django-elasticsearch-dsl
 fido2==2.1.1
     # via django-allauth
-filelock==3.24.0
+filelock==3.24.3
     # via virtualenv
 gunicorn==25.1.0
     # via -r requirements/pip.in
@@ -206,13 +206,13 @@ packaging==26.0
     #   kombu
 pillow==12.1.1
     # via -r requirements/pip.in
-platformdirs==4.9.1
+platformdirs==4.9.2
     # via virtualenv
 prompt-toolkit==3.0.52
     # via click-repl
-psycopg[binary,pool]==3.3.2
+psycopg[binary,pool]==3.3.3
     # via -r requirements/pip.in
-psycopg-binary==3.3.2
+psycopg-binary==3.3.3
     # via psycopg
 psycopg-pool==3.3.0
     # via psycopg
@@ -252,9 +252,9 @@ pyyaml==6.0.3
     # via -r requirements/pip.in
 qrcode==8.2
     # via django-allauth
-redis==7.1.1
+redis==7.2.0
     # via -r requirements/pip.in
-regex==2026.1.15
+regex==2026.2.19
     # via -r requirements/pip.in
 requests==2.32.5
     # via
@@ -340,7 +340,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.36.1
+virtualenv==20.38.0
     # via -r requirements/pip.in
 wcwidth==0.6.0
     # via prompt-toolkit

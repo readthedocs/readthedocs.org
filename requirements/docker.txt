@@ -25,11 +25,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.49
+boto3==1.42.54
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.49
+botocore==1.42.54
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -166,7 +166,7 @@ django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-polymorphic==4.11.0
+django-polymorphic==4.11.1
     # via -r requirements/pip.txt
 django-safemigrate==6.0
     # via -r requirements/pip.txt
@@ -219,7 +219,7 @@ fido2==2.1.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.24.0
+filelock==3.24.3
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -296,7 +296,7 @@ pexpect==4.9.0
     # via ipython
 pillow==12.1.1
     # via -r requirements/pip.txt
-platformdirs==4.9.1
+platformdirs==4.9.2
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -308,9 +308,9 @@ prompt-toolkit==3.0.52
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.3.2
+psycopg[binary,pool]==3.3.3
     # via -r requirements/pip.txt
-psycopg-binary==3.3.2
+psycopg-binary==3.3.3
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -382,9 +382,9 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==7.1.1
+redis==7.2.0
     # via -r requirements/pip.txt
-regex==2026.1.15
+regex==2026.2.19
     # via -r requirements/pip.txt
 requests==2.32.5
     # via
@@ -402,7 +402,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-rich==14.3.2
+rich==14.3.3
     # via -r requirements/docker.in
 s3transfer==0.16.0
     # via
@@ -438,7 +438,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tox==4.35.0
+tox==4.44.0
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -500,7 +500,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.36.1
+virtualenv==20.38.0
     # via
     #   -r requirements/pip.txt
     #   tox
