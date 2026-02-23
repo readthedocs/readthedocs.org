@@ -195,9 +195,8 @@ def _get_indexers(
         else LATEST
     )
     create_manifest = (
-        version.project.addons.filetreediff_enabled
-        or version.project.show_build_overview_in_comment
-    ) and (version.is_external or version.slug == base_version or settings.RTD_FILETREEDIFF_ALL)
+        version.is_external or version.slug == base_version or settings.RTD_FILETREEDIFF_ALL
+    )
     if create_manifest:
         file_manifest_indexer = FileManifestIndexer(
             version=version,
