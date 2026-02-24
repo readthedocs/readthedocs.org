@@ -4,7 +4,6 @@ from django.conf import settings
 from django.utils import timezone
 
 from readthedocs.builds.models import Build
-from readthedocs.core.utils.db import raw_delete_in_batches
 from readthedocs.telemetry.models import BuildData
 from readthedocs.worker import app
 
@@ -23,7 +22,7 @@ def save_build_data(build_id, data):
 
 
 @app.task(queue="web")
-def delete_old_build_data(limit=None):
+def delete_old_build_data():
     """
     Delete BuildData models older than ``RTD_TELEMETRY_DATA_RETENTION_DAYS``.
 
@@ -40,8 +39,4 @@ def delete_old_build_data(limit=None):
     # won't be sent, this is fine as we don't have any special logic
     # for the BuildData model, and doesn't have related objects.
     query = BuildData.objects.filter(created__lt=days_ago)
-    # TODO: once the limit is removed, we can use _raw_delete directly.
-    if limit:
-        raw_delete_in_batches(query, limit=limit)
-    else:
-        query._raw_delete(query.db)
+    query._raw_delete(query.db)
