@@ -358,7 +358,7 @@ A mirror can be created with ``wget`` together with ``rclone``:
 How local development will work with the new approach?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Local development will require scripts to clone the official mirrors for each language and upload them to MinIO (S3).
+Local development will require scripts to clone the official mirrors for each language and upload them to RustFS (S3).
 Besides, a script to define a set of Python version, pre-compile them and also upload them to S3.
 
 This is already covered by this simple `bash script`_ and tested in this PR with a POC:
