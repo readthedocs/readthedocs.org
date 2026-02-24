@@ -1225,6 +1225,9 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get("download", False)
         if download_data:
+            download_type = request.GET.get("type", "")
+            if download_type == "404":
+                return self._get_csv_data_404()
             return self._get_csv_data()
         return super().get(request, *args, **kwargs)
 
@@ -1288,6 +1291,44 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         )
 
         filename = "readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv".format(
+            project_slug=project.slug,
+            start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
+            end=timezone.datetime.strftime(now, "%Y-%m-%d"),
+        )
+        csv_data = [
+            [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest] for date, *rest in data
+        ]
+        csv_data.insert(0, [header for header, _ in values])
+        return get_csv_file(filename=filename, csv_data=csv_data)
+
+    def _get_csv_data_404(self):
+        project = self.get_project()
+        now = timezone.now().date()
+        feature = self._get_feature(project)
+        if not feature:
+            raise Http404
+        if feature.unlimited:
+            days_ago = project.pub_date.date()
+        else:
+            days_ago = now - timezone.timedelta(days=feature.value)
+
+        values = [
+            ("Date", "date"),
+            ("Version", "version__slug"),
+            ("Path", "path"),
+            ("Views", "view_count"),
+        ]
+        data = (
+            PageView.objects.filter(
+                project=project,
+                date__gte=days_ago,
+                status=404,
+            )
+            .order_by("-date")
+            .values_list(*[value for _, value in values])
+        )
+
+        filename = "readthedocs_404_analytics_{project_slug}_{start}_{end}.csv".format(
             project_slug=project.slug,
             start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
             end=timezone.datetime.strftime(now, "%Y-%m-%d"),
