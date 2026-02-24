@@ -500,14 +500,14 @@ class TestTrafficAnalyticsView(TestCase):
         self.url = reverse("projects_traffic_analytics", args=[self.project.slug])
         self.client.force_login(self.user)
 
-    def test_download_traffic_csv(self):
+    def test_download_traffic_200_csv(self):
         PageView.objects.create(
             project=self.project,
             version=self.version,
             path="/en/latest/index.html",
             status=200,
         )
-        resp = self.client.get(self.url, {"download": "true"})
+        resp = self.client.get(self.url, {"download": "true", "status": "200"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Content-Type"], "text/csv")
 
@@ -520,16 +520,16 @@ class TestTrafficAnalyticsView(TestCase):
         self.assertIn("/en/latest/index.html", paths)
         # filename should be for traffic analytics (200)
         content_disposition = resp["Content-Disposition"]
-        self.assertIn("readthedocs_traffic_analytics_", content_disposition)
+        self.assertIn("readthedocs_traffic_analytics_200_", content_disposition)
 
-    def test_download_404_csv(self):
+    def test_download_traffic_404_csv(self):
         PageView.objects.create(
             project=self.project,
             version=self.version,
             path="/en/latest/missing.html",
             status=404,
         )
-        resp = self.client.get(self.url, {"download": "true", "type": "404"})
+        resp = self.client.get(self.url, {"download": "true", "status": "404"})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["Content-Type"], "text/csv")
 
@@ -542,16 +542,16 @@ class TestTrafficAnalyticsView(TestCase):
         self.assertIn("/en/latest/missing.html", paths)
         # filename should be for 404 analytics
         content_disposition = resp["Content-Disposition"]
-        self.assertIn("readthedocs_404_analytics_", content_disposition)
+        self.assertIn("readthedocs_traffic_analytics_404_", content_disposition)
 
-    def test_download_404_csv_excludes_200_pages(self):
+    def test_download_traffic_404_csv_excludes_200_pages(self):
         PageView.objects.create(
             project=self.project,
             version=self.version,
             path="/en/latest/index.html",
             status=200,
         )
-        resp = self.client.get(self.url, {"download": "true", "type": "404"})
+        resp = self.client.get(self.url, {"download": "true", "status": "404"})
         self.assertEqual(resp.status_code, 200)
 
         content = [
@@ -561,14 +561,14 @@ class TestTrafficAnalyticsView(TestCase):
         # Only header row, no data rows
         self.assertEqual(len(csv_data), 1)
 
-    def test_download_traffic_csv_excludes_404_pages(self):
+    def test_download_traffic_200_csv_excludes_404_pages(self):
         PageView.objects.create(
             project=self.project,
             version=self.version,
             path="/en/latest/missing.html",
             status=404,
         )
-        resp = self.client.get(self.url, {"download": "true"})
+        resp = self.client.get(self.url, {"download": "true", "status": "200"})
         self.assertEqual(resp.status_code, 200)
 
         content = [
