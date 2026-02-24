@@ -807,7 +807,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Failed to revoke build api key.", exc_info=True)
 
         # Disable scale-in protection on this instance
-        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
+        if self.data.project and self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
             set_builder_scale_in_protection.delay(
                 build_id=self.data.build_pk,
                 builder=socket.gethostname(),
