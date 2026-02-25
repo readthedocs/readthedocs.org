@@ -283,8 +283,8 @@ class TestGitHubAppWebhook(TestCase):
         assert r.status_code == 200
         update_or_create_repositories.assert_called_once_with([1234, 5678])
 
-    @mock.patch.object(GitHubAppService, "sync")
-    def test_installation_repositories_added_all(self, sync):
+    @mock.patch.object(GitHubAppService, "update_or_create_repositories")
+    def test_installation_repositories_added_all(self, update_or_create_repositories):
         payload = {
             "action": "added",
             "installation": {
@@ -293,10 +293,24 @@ class TestGitHubAppWebhook(TestCase):
                 "target_type": self.installation.target_type,
             },
             "repository_selection": "all",
+            "repositories_added": [
+                {
+                    "id": 1234,
+                    "name": "repo1",
+                    "full_name": "user/repo1",
+                    "private": False,
+                },
+                {
+                    "id": 5678,
+                    "name": "repo2",
+                    "full_name": "user/repo2",
+                    "private": True,
+                },
+            ],
         }
         r = self.post_webhook("installation_repositories", payload)
         assert r.status_code == 200
-        sync.assert_called_once()
+        update_or_create_repositories.assert_called_once_with([1234, 5678])
 
     def test_installation_repositories_removed(self):
         assert self.installation.repositories.count() == 1
