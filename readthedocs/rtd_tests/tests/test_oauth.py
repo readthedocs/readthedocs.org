@@ -291,10 +291,11 @@ class GitHubAppTests(TestCase):
     def _get_pull_request_json(self, number: int, repo_full_name, **kwargs):
         user, repo = repo_full_name.split("/")
         default = {
-            "url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}",
+            "url": f"https://api.github.com/repos/{repo_full_name}/pulls/{number}",
             "id": 1,
             "html_url": f"https://github.com/{repo_full_name}/pull/{number}",
             "comments_url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}/comments",
+            "issue_url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}",
             "number": number,
             "state": "open",
             "locked": False,
@@ -1088,7 +1089,7 @@ class GitHubAppTests(TestCase):
             json=self._get_access_token_json(),
         )
         request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/issues/{version.verbose_name}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/pulls/{version.verbose_name}",
             json=self._get_pull_request_json(
                 number=int(version.verbose_name),
                 repo_full_name=self.remote_repository.full_name,
@@ -1205,7 +1206,7 @@ class GitHubAppTests(TestCase):
             json=self._get_access_token_json(),
         )
         request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/issues/{version.verbose_name}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/pulls/{version.verbose_name}",
             json=self._get_pull_request_json(
                 number=int(version.verbose_name),
                 repo_full_name=self.remote_repository.full_name,
