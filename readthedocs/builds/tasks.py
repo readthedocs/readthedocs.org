@@ -3,7 +3,7 @@ import json
 import requests
 import structlog
 from django.conf import settings
-from django.db.models import Count
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -583,39 +583,65 @@ def remove_orphan_build_config():
 
 
 @app.task(queue="web")
-def delete_old_build_objects(days=360 * 3, keep_recent=5_000, limit=10_000):
+def delete_old_build_objects(days=360 * 3, keep_recent=250, limit=10_000, max_projects=5_000):
     """
     Delete old Build objects that are not needed anymore.
 
-    We keep the most recent `keep_recent` builds per project,
+    We keep the most recent `keep_recent` builds per version,
     and delete builds that are older than `days` days.
 
     :param limit: Maximum number of builds to delete in one execution.
      Keep our DB from being overwhelmed by deleting too many builds at once.
+    :param max_projects: Maximum number of projects to process in one execution.
     """
-    cutoff_date = timezone.now() - timezone.timedelta(days=days)
-    projects = (
-        Project.objects.all()
-        .annotate(build_count=Count("builds"))
-        .filter(build_count__gt=keep_recent)
-    )
-    for project in projects.iterator():
-        builds_to_delete = project.builds.filter(
-            state__in=BUILD_FINAL_STATES,
-            date__lt=cutoff_date,
-        ).order_by("-date")[keep_recent:]
+    cache_key = "rtd-task:delete_old_build_objects_start"
+    max_count = Project.objects.count()
+    start = cache.get(cache_key, 0)
+    if start >= max_count:
+        start = 0
+    end = start + max_projects
+    cache.set(cache_key, end)
 
-        # Builds that are not in cold storage can be deleted in bulk,
-        # as they don't need to remove any files from storage.
-        _, deleted = delete_in_batches(builds_to_delete.filter(cold_storage=False), limit=limit)
-        limit -= deleted["builds.Build"]
+    cutoff_date = timezone.now() - timezone.timedelta(days=days)
+    projects = Project.objects.all().order_by("pub_date")[start:end]
+    for project in projects:
+        # Delete builds associated with versions, keeping
+        # the most recent `keep_recent` builds per version.
+        for version in project.versions.exclude(builds=None):
+            builds_to_delete = version.builds.filter(
+                state__in=BUILD_FINAL_STATES,
+                date__lt=cutoff_date,
+            ).order_by("-date")[keep_recent:]
+            limit -= _delete_builds(builds_to_delete, limit=limit)
+            if limit <= 0:
+                return
+
+        # Delete builds that are not associated with any version,
+        # keeping the most recent `keep_recent` builds per project.
+        builds_to_delete = project.builds.filter(
+            version=None, state__in=BUILD_FINAL_STATES, date__lt=cutoff_date
+        ).order_by("-date")[keep_recent:]
+        limit -= _delete_builds(builds_to_delete, limit=limit)
+        if limit <= 0:
+            return
+
+
+def _delete_builds(builds, limit):
+    # Builds that are not in cold storage can be deleted in bulk,
+    # as they don't need to remove any files from storage.
+    _, deleted = delete_in_batches(builds.filter(cold_storage=False), limit=limit)
+    deleted_count = deleted["builds.Build"]
+    limit -= deleted_count
+    if limit <= 0:
+        return deleted_count
+
+    # Builds in cold storage need to be deleted one by one,
+    # so their custom delete method is called to remove the files from storage.
+    for build in builds.filter(cold_storage=True)[:limit]:
+        build.delete()
+        limit -= 1
+        deleted_count += 1
         if limit <= 0:
             break
 
-        # Builds in cold storage need to be deleted one by one,
-        # so their custom delete method is called to remove the files from storage.
-        for build in builds_to_delete.filter(cold_storage=True)[:limit]:
-            build.delete()
-            limit -= 1
-            if limit <= 0:
-                break
+    return deleted_count

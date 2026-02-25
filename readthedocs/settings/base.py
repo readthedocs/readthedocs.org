@@ -773,7 +773,7 @@ class CommunityBaseSettings(Settings):
             # and 1 day on commercial.
             "schedule": crontab(minute=0, hour="*"),
             "options": {"queue": "web"},
-            "kwargs": {"days": 360 * 3, "keep_recent": 5_000, "limit": 10_000},
+            "kwargs": {"days": 360 * 3, "keep_recent": 250, "limit": 10_000, "max_projects": 5_000},
         },
     }
 
