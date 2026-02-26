@@ -28,5 +28,5 @@ You can use :ref:`environment variables <settings:AWS configuration>` to set the
 .. note::
 
    You should use AWS only when you are testing the AWS integration,
-   use the default minio provider for local development.
+   use the default rustfs provider for local development.
    Otherwise, files may be overridden if multiple developers are using the same credentials.
