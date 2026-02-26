@@ -278,6 +278,11 @@ class VersionAddonsSerializer(RemoveFieldsMixin, VersionSerializer):
 class BuildAddonsSerializer(RemoveFieldsMixin, BuildSerializer):
     FIELDS_TO_REMOVE = [
         "_links",
+        # Keep proxito payload small and avoid expensive lookups.
+        "builder",
+        "docs_url",
+        "commit_url",
+        "commands",
     ]
 
 

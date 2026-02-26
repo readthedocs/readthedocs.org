@@ -1,6 +1,5 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
-import json
 from dataclasses import asdict
 
 import structlog
@@ -28,7 +27,7 @@ from rest_framework.response import Response
 from readthedocs.api.v2.permissions import HasBuildAPIKey
 from readthedocs.api.v2.permissions import IsOwner
 from readthedocs.api.v2.permissions import ReadOnlyPermission
-from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.api.v2.utils import get_build_commands_from_storage
 from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
 from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
 from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
@@ -43,7 +42,6 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Project
-from readthedocs.storage import build_commands_storage
 
 from ..serializers import BuildAdminReadOnlySerializer
 from ..serializers import BuildAdminSerializer
@@ -336,35 +334,13 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         This uses files from storage to get the JSON,
         and replaces the ``commands`` part of the response data.
         """
-        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
-            return super().retrieve(*args, **kwargs)
-
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
-        if instance.cold_storage:
-            storage_path = "{date}/{id}.json".format(
-                date=str(instance.date.date()),
-                id=instance.id,
-            )
-            if build_commands_storage.exists(storage_path):
-                try:
-                    json_resp = build_commands_storage.open(storage_path).read()
-                    data["commands"] = json.loads(json_resp)
+        commands = get_build_commands_from_storage(instance)
+        if commands is not None:
+            data["commands"] = commands
 
-                    # Normalize commands in the same way than when returning
-                    # them using the serializer
-                    for buildcommand in data["commands"]:
-                        buildcommand["command"] = normalize_build_command(
-                            buildcommand["command"],
-                            instance.project.slug,
-                            instance.get_version_slug(),
-                        )
-                except Exception:
-                    log.exception(
-                        "Failed to read build data from storage.",
-                        path=storage_path,
-                    )
         return Response(data)
 
     @decorators.action(

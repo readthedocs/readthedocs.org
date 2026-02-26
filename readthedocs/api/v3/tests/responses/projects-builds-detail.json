@@ -5,6 +5,10 @@
     "error": "",
     "finished": "2019-04-29T10:01:00Z",
     "id": 1,
+    "builder": "builder01",
+    "docs_url": "http://project.readthedocs.io/en/v1.0/",
+    "commit_url": "https://github.com/rtfd/project/commit/a1b2c3",
+    "commands": [],
     "_links": {
         "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/",
         "project": "https://readthedocs.org/api/v3/projects/project/",

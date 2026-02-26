@@ -4,7 +4,8 @@ from django.test import override_settings
 from django.urls import reverse
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 
@@ -14,9 +15,7 @@ from .mixins import APIEndpointMixin
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=False,
     ALLOW_PRIVATE_REPOS=False,
-    RTD_DEFAULT_FEATURES=dict(
-        [RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]
-    ),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]),
 )
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
 class BuildsEndpointTests(APIEndpointMixin):
@@ -239,6 +238,136 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), expected_response)
 
+    def test_projects_builds_detail_expand_config(self):
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
+        )
+        response = self.client.get(f"{url}?expand=config")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["config"], {"property": "test value"})
+
+    def test_projects_builds_list_expand_config(self):
+        url = reverse(
+            "projects-builds-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        response = self.client.get(f"{url}?expand=config")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["results"][0]["config"],
+            {"property": "test value"},
+        )
+
+    @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
+    @mock.patch("readthedocs.api.v3.views.get_build_commands_from_storage")
+    def test_projects_builds_list_does_not_read_commands_from_cold_storage(
+        self,
+        get_build_commands_from_storage,
+    ):
+        self.build.cold_storage = True
+        self.build.save()
+        get_build_commands_from_storage.return_value = [
+            {
+                "id": 10,
+                "build": 1,
+                "command": "storage command",
+                "description": "Build docs",
+                "output": "Storage output",
+                "exit_code": 0,
+                "start_time": None,
+                "end_time": None,
+                "run_time": 0,
+            },
+        ]
+        url = reverse(
+            "projects-builds-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        commands = response.json()["results"][0]["commands"]
+        self.assertEqual(commands, [])
+        get_build_commands_from_storage.assert_not_called()
+
+    def test_projects_builds_detail_includes_build_metadata_and_commands(self):
+        self.build.commands.create(
+            command="python -m sphinx",
+            description="Build docs",
+            output="Done",
+            exit_code=0,
+        )
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["docs_url"], "http://project.readthedocs.io/en/v1.0/")
+        self.assertEqual(
+            data["commit_url"],
+            "https://github.com/rtfd/project/commit/a1b2c3",
+        )
+        self.assertEqual(data["builder"], "builder01")
+        self.assertEqual(len(data["commands"]), 1)
+        self.assertEqual(data["commands"][0]["build"], self.build.pk)
+        self.assertEqual(data["commands"][0]["command"], "python -m sphinx")
+
+    @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
+    @mock.patch("readthedocs.api.v3.views.get_build_commands_from_storage")
+    def test_projects_builds_detail_reads_commands_from_cold_storage(
+        self,
+        get_build_commands_from_storage,
+    ):
+        self.build.commands.create(
+            command="db command",
+            description="Build docs",
+            output="DB output",
+            exit_code=0,
+        )
+        self.build.cold_storage = True
+        self.build.save()
+
+        get_build_commands_from_storage.return_value = [
+            {
+                "id": 10,
+                "build": 1,
+                "command": "storage command",
+                "description": "Build docs",
+                "output": "Storage output",
+                "exit_code": 0,
+                "start_time": None,
+                "end_time": None,
+                "run_time": 0,
+            },
+        ]
+
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        commands = response.json()["commands"]
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0]["command"], "storage command")
+        self.assertEqual(commands[0]["output"], "Storage output")
+        get_build_commands_from_storage.assert_called_once_with(self.build)
+
     def test_projects_builds_detail_other_user(self):
         url = reverse(
             "projects-builds-detail",
@@ -334,10 +463,14 @@ class BuildsEndpointTests(APIEndpointMixin):
         response_json["build"]["created"] = "2019-04-29T14:00:00Z"
         expected = self._get_response_dict("projects-versions-builds-list_POST")
         expected["build"]["commit"] = "d4e5f6"
+        expected["build"]["docs_url"] = (
+            "http://project--v1.0.external-builds.readthedocs.io/en/v1.0/"
+        )
+        expected["build"]["commit_url"] = "https://github.com/rtfd/project/pull/v1.0/commits/d4e5f6"
         expected["version"]["type"] = "external"
-        expected["version"]["urls"][
-            "documentation"
-        ] = "http://project--v1.0.external-builds.readthedocs.io/en/v1.0/"
+        expected["version"]["urls"]["documentation"] = (
+            "http://project--v1.0.external-builds.readthedocs.io/en/v1.0/"
+        )
         expected["version"]["urls"]["vcs"] = "https://github.com/rtfd/project/pull/v1.0"
         self.assertDictEqual(response_json, expected)
 
@@ -349,9 +482,7 @@ class BuildsEndpointTests(APIEndpointMixin):
                 "parent_lookup_build__id": self.build.pk,
             },
         )
-        expected_response = self._get_response_dict(
-            "projects-builds-notifications-list"
-        )
+        expected_response = self._get_response_dict("projects-builds-notifications-list")
 
         self.client.logout()
 
@@ -392,9 +523,7 @@ class BuildsEndpointTests(APIEndpointMixin):
                 "parent_lookup_build__id": self.build.pk,
             },
         )
-        expected_response = self._get_response_dict(
-            "projects-builds-notifications-list"
-        )
+        expected_response = self._get_response_dict("projects-builds-notifications-list")
 
         self.client.logout()
 
@@ -440,9 +569,7 @@ class BuildsEndpointTests(APIEndpointMixin):
                 "parent_lookup_build__id": self.build.pk,
             },
         )
-        expected_response = self._get_response_dict(
-            "projects-builds-notifications-list"
-        )
+        expected_response = self._get_response_dict("projects-builds-notifications-list")
         self.client.logout()
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
 
@@ -526,9 +653,7 @@ class BuildsEndpointTests(APIEndpointMixin):
                 "notification_pk": self.notification_build.pk,
             },
         )
-        expected_response = self._get_response_dict(
-            "projects-builds-notifications-detail"
-        )
+        expected_response = self._get_response_dict("projects-builds-notifications-detail")
         self.client.logout()
 
         # Project and version are public.
@@ -569,9 +694,7 @@ class BuildsEndpointTests(APIEndpointMixin):
                 "notification_pk": self.notification_build.pk,
             },
         )
-        expected_response = self._get_response_dict(
-            "projects-builds-notifications-detail"
-        )
+        expected_response = self._get_response_dict("projects-builds-notifications-detail")
 
         self.client.logout()
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
@@ -617,9 +740,7 @@ class BuildsEndpointTests(APIEndpointMixin):
                 "notification_pk": self.notification_build.pk,
             },
         )
-        expected_response = self._get_response_dict(
-            "projects-builds-notifications-detail"
-        )
+        expected_response = self._get_response_dict("projects-builds-notifications-detail")
         self.client.logout()
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
 

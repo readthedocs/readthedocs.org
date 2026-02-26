@@ -12,9 +12,11 @@ from rest_framework import serializers
 from taggit.serializers import TaggitSerializer
 from taggit.serializers import TagListSerializerField
 
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
@@ -143,6 +145,32 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return None
 
 
+class BuildCommandSerializer(serializers.ModelSerializer):
+    run_time = serializers.ReadOnlyField()
+    command = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BuildCommandResult
+        fields = [
+            "id",
+            "build",
+            "command",
+            "description",
+            "output",
+            "exit_code",
+            "start_time",
+            "end_time",
+            "run_time",
+        ]
+
+    def get_command(self, obj):
+        return normalize_build_command(
+            obj.command,
+            obj.build.project.slug,
+            obj.build.get_version_slug(),
+        )
+
+
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
     """
     Render ``Build.config`` property without modifying it.
@@ -177,6 +205,10 @@ class BuildSerializer(FlexFieldsModelSerializer):
     state = BuildStateSerializer(source="*")
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
+    builder = serializers.CharField(read_only=True)
+    docs_url = serializers.SerializerMethodField()
+    commit_url = serializers.SerializerMethodField()
+    commands = BuildCommandSerializer(many=True, read_only=True)
 
     class Meta:
         model = Build
@@ -191,6 +223,10 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "success",
             "error",
             "commit",
+            "builder",
+            "docs_url",
+            "commit_url",
+            "commands",
             "_links",
             "urls",
         ]
@@ -209,6 +245,18 @@ class BuildSerializer(FlexFieldsModelSerializer):
         """
         if obj.finished:
             return obj.success
+
+        return None
+
+    def get_docs_url(self, obj):
+        if obj.version:
+            return obj.version.get_absolute_url()
+
+        return None
+
+    def get_commit_url(self, obj):
+        if obj.commit:
+            return obj.get_commit_url()
 
         return None
 
