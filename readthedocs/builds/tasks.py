@@ -603,12 +603,13 @@ def delete_old_build_objects(
     """
     cache_key = "rtd-task:delete_old_build_objects_start"
     max_count = Project.objects.count()
-    if start is None:
+    use_cache = start is None
+    if use_cache:
         start = cache.get(cache_key, 0)
     if start >= max_count:
         start = 0
     end = start + max_projects
-    if start is None:
+    if use_cache:
         cache.set(cache_key, end)
 
     cutoff_date = timezone.now() - timezone.timedelta(days=days)

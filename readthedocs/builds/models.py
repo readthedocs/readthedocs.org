@@ -886,11 +886,22 @@ class Build(models.Model):
         if self.cold_storage:
             try:
                 build_commands_storage.delete(self.storage_path)
-            except IOError:
-                log.exception("Cold Storage delete failure")
+            except Exception:
+                log.info(
+                    "Failed to delete build commands from storage.",
+                    build_id=self.id,
+                    storage_path=self.storage_path,
+                    exc_info=True,
+                )
         return super().delete(*args, **kwargs)
 
     def move_to_cold_storage(self):
+        """
+        Move build steps to cold storage if they are not already there.
+
+        Build steps are removed from the database and stored in a file in the storage backend.
+        This is useful for old builds that are not accessed frequently, to save space in the database.
+        """
         if self.cold_storage:
             return
 

@@ -762,13 +762,13 @@ class CommunityBaseSettings(Settings):
             "options": {"queue": "web"},
             "kwargs": {"limit": 10_000},
         },
-        "every-day-delete-old-build-objects": {
+        "every-hour-delete-old-build-objects": {
             "task": "readthedocs.builds.tasks.delete_old_build_objects",
-            # NOTE: we are running this task every hour for now,
-            # since we have lots of objects to delete, and we are limiting
-            # the number of deletions per task run.
-            # TODO: go back to once a day (unlimited) after we delete the backlog of objects,
-            # or keep less build objects (keep_recent=1000, days=360).
+            # NOTE: we are running this task with a limit for now
+            # to don't overload the DB with many deletion queries,
+            # since we have lots of objects to delete
+            # TODO: go back to do delete without a limit after we delete the backlog of objects,
+            # or keep less build objects (keep_recent=100, days=360).
             # It should take around 6 days to delete all the old objects on community,
             # and 1 day on commercial.
             "schedule": crontab(minute=0, hour="*"),
