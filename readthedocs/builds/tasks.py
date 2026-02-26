@@ -584,7 +584,9 @@ def remove_orphan_build_config():
 
 
 @app.task(queue="web")
-def delete_old_build_objects(days=360 * 3, keep_recent=250, limit=20_000, max_projects=5_000, start=None):
+def delete_old_build_objects(
+    days=360 * 3, keep_recent=250, limit=20_000, max_projects=5_000, start=None
+):
     """
     Delete old Build objects that are not needed anymore.
 
@@ -610,11 +612,11 @@ def delete_old_build_objects(days=360 * 3, keep_recent=250, limit=20_000, max_pr
         cache.set(cache_key, end)
 
     cutoff_date = timezone.now() - timezone.timedelta(days=days)
-    projects = Project.objects.all().order_by("pub_date")[start:end]
+    projects = Project.objects.all().order_by("pub_date").only("pk")[start:end]
     for project in projects:
         # Delete builds associated with versions, keeping
         # the most recent `keep_recent` builds per version.
-        for version in project.versions.exclude(builds=None):
+        for version in project.versions.exclude(builds=None).only("pk").iterator():
             builds_to_delete = version.builds.filter(
                 state__in=BUILD_FINAL_STATES,
                 date__lt=cutoff_date,
