@@ -20,7 +20,6 @@ from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
-from readthedocs.api.v2.serializers import BuildCommandSerializer
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE
@@ -48,7 +47,6 @@ from readthedocs.builds.querysets import BuildQuerySet
 from readthedocs.builds.querysets import RelatedBuildQuerySet
 from readthedocs.builds.querysets import VersionQuerySet
 from readthedocs.builds.signals import version_changed
-from readthedocs.builds.tasks import remove_build_commands_storage_paths
 from readthedocs.builds.utils import external_version_name
 from readthedocs.builds.utils import get_bitbucket_username_repo
 from readthedocs.builds.utils import get_github_username_repo
@@ -392,6 +390,7 @@ class Version(TimeStampedModel):
         )
 
     def delete(self, *args, **kwargs):
+        from readthedocs.builds.tasks import remove_build_commands_storage_paths
         from readthedocs.projects.tasks.utils import clean_project_resources
 
         # Remove build artifacts from storage for cold storage builds.
@@ -902,6 +901,8 @@ class Build(models.Model):
         Build steps are removed from the database and stored in a file in the storage backend.
         This is useful for old builds that are not accessed frequently, to save space in the database.
         """
+        from readthedocs.api.v2.serializers import BuildCommandSerializer
+
         if self.cold_storage:
             return
 

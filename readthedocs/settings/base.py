@@ -769,7 +769,7 @@ class CommunityBaseSettings(Settings):
             # since we have lots of objects to delete
             # TODO: go back to do delete without a limit after we delete the backlog of objects,
             # or keep less build objects (keep_recent=100, days=360).
-            # It should take around 6 days to delete all the old objects on community,
+            # It should take around 12 days to delete all the old objects on community,
             # and 1 day on commercial.
             "schedule": crontab(minute=0, hour="*"),
             "options": {"queue": "web"},

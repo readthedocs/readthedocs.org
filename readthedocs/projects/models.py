@@ -33,7 +33,6 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
-from readthedocs.builds.tasks import remove_build_commands_storage_paths
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
@@ -717,6 +716,7 @@ class Project(models.Model):
         self.update_latest_version()
 
     def delete(self, *args, **kwargs):
+        from readthedocs.builds.tasks import remove_build_commands_storage_paths
         from readthedocs.projects.tasks.utils import clean_project_resources
 
         # NOTE: We use _raw_delete to avoid Django fetching all objects
