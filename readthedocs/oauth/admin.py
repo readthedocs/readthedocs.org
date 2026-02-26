@@ -2,30 +2,11 @@
 
 from django.contrib import admin
 
-from readthedocs.projects.models import Project
-
 from .models import GitHubAppInstallation
 from .models import RemoteOrganization
 from .models import RemoteOrganizationRelation
 from .models import RemoteRepository
 from .models import RemoteRepositoryRelation
-
-
-class ProjectInline(admin.TabularInline):
-    """Project inline for :py:class:`RemoteRepositoryAdmin`."""
-
-    model = Project
-    fk_name = "remote_repository"
-    fields = ("slug", "name", "repo")
-    readonly_fields = ("slug", "name", "repo")
-    show_change_link = True
-    extra = 0
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
 
 @admin.register(GitHubAppInstallation)
@@ -41,7 +22,6 @@ class GitHubAppInstallationAdmin(admin.ModelAdmin):
 class RemoteRepositoryAdmin(admin.ModelAdmin):
     """Admin configuration for the RemoteRepository model."""
 
-    inlines = [ProjectInline]
     readonly_fields = (
         "created",
         "modified",
