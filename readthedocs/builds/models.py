@@ -890,7 +890,7 @@ class Build(models.Model):
                 log.exception("Cold Storage delete failure")
         return super().delete(*args, **kwargs)
 
-    def move_to_storage(self):
+    def move_to_cold_storage(self):
         if self.cold_storage:
             return
 

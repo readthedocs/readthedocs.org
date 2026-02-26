@@ -72,7 +72,7 @@ def archive_builds_task(self, days=14, limit=200):
             .only("date", "cold_storage")[:limit]
         )
         for build in queryset.iterator():
-            build.move_to_storage()
+            build.move_to_cold_storage()
 
 
 @app.task(queue="web")
