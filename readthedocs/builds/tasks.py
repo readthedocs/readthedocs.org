@@ -37,6 +37,7 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import WebHookEvent
+from readthedocs.storage import build_commands_storage
 from readthedocs.worker import app
 
 
@@ -583,7 +584,7 @@ def remove_orphan_build_config():
 
 
 @app.task(queue="web")
-def delete_old_build_objects(days=360 * 3, keep_recent=250, limit=10_000, max_projects=5_000):
+def delete_old_build_objects(days=360 * 3, keep_recent=250, limit=20_000, max_projects=5_000, start=None):
     """
     Delete old Build objects that are not needed anymore.
 
@@ -593,14 +594,20 @@ def delete_old_build_objects(days=360 * 3, keep_recent=250, limit=10_000, max_pr
     :param limit: Maximum number of builds to delete in one execution.
      Keep our DB from being overwhelmed by deleting too many builds at once.
     :param max_projects: Maximum number of projects to process in one execution.
+     Avoids iterating over all projects in one execution.
+    :param start: Starting index for processing projects.
+     Normally, this value comes from the cache, and is updated after each execution to continue from where it left off.
+     But it can also be set to a specific value for manual execution.
     """
     cache_key = "rtd-task:delete_old_build_objects_start"
     max_count = Project.objects.count()
-    start = cache.get(cache_key, 0)
+    if start is None:
+        start = cache.get(cache_key, 0)
     if start >= max_count:
         start = 0
     end = start + max_projects
-    cache.set(cache_key, end)
+    if start is None:
+        cache.set(cache_key, end)
 
     cutoff_date = timezone.now() - timezone.timedelta(days=days)
     projects = Project.objects.all().order_by("pub_date")[start:end]
@@ -611,8 +618,8 @@ def delete_old_build_objects(days=360 * 3, keep_recent=250, limit=10_000, max_pr
             builds_to_delete = version.builds.filter(
                 state__in=BUILD_FINAL_STATES,
                 date__lt=cutoff_date,
-            ).order_by("-date")[keep_recent:]
-            limit -= _delete_builds(builds_to_delete, limit=limit)
+            ).order_by("-date")
+            limit -= _delete_builds(builds_to_delete, start=keep_recent, end=keep_recent + limit)
             if limit <= 0:
                 return
 
@@ -620,28 +627,37 @@ def delete_old_build_objects(days=360 * 3, keep_recent=250, limit=10_000, max_pr
         # keeping the most recent `keep_recent` builds per project.
         builds_to_delete = project.builds.filter(
             version=None, state__in=BUILD_FINAL_STATES, date__lt=cutoff_date
-        ).order_by("-date")[keep_recent:]
-        limit -= _delete_builds(builds_to_delete, limit=limit)
+        ).order_by("-date")
+        limit -= _delete_builds(builds_to_delete, start=keep_recent, end=keep_recent + limit)
         if limit <= 0:
             return
 
 
-def _delete_builds(builds, limit):
-    # Builds that are not in cold storage can be deleted in bulk,
-    # as they don't need to remove any files from storage.
-    _, deleted = delete_in_batches(builds.filter(cold_storage=False), limit=limit)
-    deleted_count = deleted["builds.Build"]
-    limit -= deleted_count
-    if limit <= 0:
-        return deleted_count
+def _delete_builds(builds, start: int, end: int) -> int:
+    """
+    Delete builds from the queryset, starting from `start` index and ending at `end` index.
 
-    # Builds in cold storage need to be deleted one by one,
-    # so their custom delete method is called to remove the files from storage.
-    for build in builds.filter(cold_storage=True)[:limit]:
-        build.delete()
-        limit -= 1
-        deleted_count += 1
-        if limit <= 0:
-            break
+    This also deletes the storage paths associated with the builds if they are in cold storage.
 
-    return deleted_count
+    :returns: The number of builds deleted.
+    """
+    # NOTE: we can't use a filter over an sliced queryset.
+    paths_to_delete = []
+    for build in builds[start:end]:
+        if build.cold_storage:
+            paths_to_delete.append(build.storage_path)
+
+    _, deleted = delete_in_batches(builds, start=start, end=end)
+    remove_build_commands_storage_paths(paths_to_delete)
+    return deleted["builds.Build"]
+
+
+@app.task(queue="web")
+def remove_build_commands_storage_paths(paths):
+    """Remove the build commands from storage for the given paths."""
+    log.info("Removing paths from build commands storage.", paths=paths)
+    for path in paths:
+        try:
+            build_commands_storage.delete(path)
+        except Exception:
+            log.info("Failed to delete build commands from storage.", path=path, exc_info=True)

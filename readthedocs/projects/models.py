@@ -33,6 +33,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.builds.tasks import remove_build_commands_storage_paths
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
@@ -727,9 +728,11 @@ class Project(models.Model):
         qs = self.search_queries.all()
         qs._raw_delete(qs.db)
 
-        # Remove builds on cold storage one by one, so they are properly deleted from storage.
-        for build in self.builds.filter(cold_storage=True):
-            build.delete()
+        # Remove build artifacts from storage for cold storage builds.
+        paths_to_delete = []
+        for build in self.builds.filter(cold_storage=True).iterator():
+            paths_to_delete.append(build.storage_path)
+        remove_build_commands_storage_paths.delay(paths_to_delete)
 
         # Remove extra resources
         clean_project_resources(self)

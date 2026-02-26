@@ -48,6 +48,7 @@ from readthedocs.builds.querysets import BuildQuerySet
 from readthedocs.builds.querysets import RelatedBuildQuerySet
 from readthedocs.builds.querysets import VersionQuerySet
 from readthedocs.builds.signals import version_changed
+from readthedocs.builds.tasks import remove_build_commands_storage_paths
 from readthedocs.builds.utils import external_version_name
 from readthedocs.builds.utils import get_bitbucket_username_repo
 from readthedocs.builds.utils import get_github_username_repo
@@ -392,6 +393,12 @@ class Version(TimeStampedModel):
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
+
+        # Remove build artifacts from storage for cold storage builds.
+        paths_to_delete = []
+        for build in self.builds.filter(cold_storage=True).iterator():
+            paths_to_delete.append(build.storage_path)
+        remove_build_commands_storage_paths.delay(paths_to_delete)
 
         log.info("Removing files for version.", version_slug=self.slug)
         clean_project_resources(self.project, self)
@@ -878,7 +885,7 @@ class Build(models.Model):
         # Delete from storage if the build steps are stored outside the database.
         if self.cold_storage:
             try:
-                build_commands_storage.delete(self._storage_path)
+                build_commands_storage.delete(self.storage_path)
             except IOError:
                 log.exception("Cold Storage delete failure")
         return super().delete(*args, **kwargs)
@@ -902,7 +909,7 @@ class Build(models.Model):
                     log.debug("Truncating build command for build.", build_id=self.id)
             output = BytesIO(json.dumps(commands).encode("utf8"))
             try:
-                build_commands_storage.save(name=self._storage_path, content=output)
+                build_commands_storage.save(name=self.storage_path, content=output)
                 self.commands.all().delete()
             except IOError:
                 log.exception("Cold Storage save failure")
@@ -912,7 +919,7 @@ class Build(models.Model):
         self.save()
 
     @property
-    def _storage_path(self):
+    def storage_path(self):
         """
         Storage path where the build commands will be stored.
 
