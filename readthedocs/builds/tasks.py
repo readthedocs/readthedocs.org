@@ -652,7 +652,7 @@ def _delete_builds(builds, start: int, end: int) -> int:
 
     _, deleted = delete_in_batches(builds, start=start, end=end)
     remove_build_commands_storage_paths(paths_to_delete)
-    return deleted["builds.Build"]
+    return deleted.get("builds.Build", 0)
 
 
 @app.task(queue="web")
