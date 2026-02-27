@@ -71,7 +71,7 @@ def archive_builds_task(self, days=14, limit=200):
             .prefetch_related("commands")
             .only("date", "cold_storage")[:limit]
         )
-        for build in queryset.iterator():
+        for build in queryset:
             build.move_to_cold_storage()
 
 
