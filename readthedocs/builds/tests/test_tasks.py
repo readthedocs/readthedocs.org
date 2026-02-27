@@ -102,7 +102,7 @@ class TestTasks(TestCase):
         self.assertFalse(Version.objects.filter(slug="external-inactive-old").exists())
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
-    @mock.patch("readthedocs.builds.tasks.build_commands_storage")
+    @mock.patch("readthedocs.builds.models.build_commands_storage")
     def test_archive_builds(self, build_commands_storage):
         project = get(Project)
         version = get(Version, project=project)
