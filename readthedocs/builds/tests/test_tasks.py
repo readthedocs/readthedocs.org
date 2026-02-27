@@ -294,17 +294,17 @@ class TestDeleteOldBuildObjects(TestCase):
         # Create 5 old builds with different ages so ordering is deterministic.
         old_builds = [self._create_old_build(project, version, days_old=400 + i) for i in range(5)]
 
-        self.assertEqual(Build.objects.filter(version=version).count(), 5)
+        assert Build.objects.filter(version=version).count() == 5
 
         # Keep 2 recent builds per version, so 3 should be deleted.
         delete_old_build_objects(days=365, keep_recent=2, start=0)
 
-        self.assertEqual(Build.objects.filter(version=version).count(), 2)
+        assert Build.objects.filter(version=version).count() == 2
         # The 2 most-recently-dated builds (those with the smallest days_old) should be kept.
         remaining_pks = set(
             Build.objects.filter(version=version).values_list("pk", flat=True)
         )
-        self.assertEqual(remaining_pks, {old_builds[0].pk, old_builds[1].pk})
+        assert remaining_pks == {old_builds[0].pk, old_builds[1].pk}
 
     def test_recent_builds_are_not_deleted(self):
         """Builds newer than `days` threshold are never deleted."""
@@ -315,12 +315,12 @@ class TestDeleteOldBuildObjects(TestCase):
         for _ in range(5):
             get(Build, project=project, version=version, state=BUILD_STATE_FINISHED)
 
-        self.assertEqual(Build.objects.filter(version=version).count(), 5)
+        assert Build.objects.filter(version=version).count() == 5
 
         delete_old_build_objects(days=365, keep_recent=2, start=0)
 
         # None should be deleted since they are all recent.
-        self.assertEqual(Build.objects.filter(version=version).count(), 5)
+        assert Build.objects.filter(version=version).count() == 5
 
     def test_builds_within_keep_recent_are_not_deleted(self):
         """The most recent `keep_recent` builds per version are never deleted, even if old."""
@@ -331,12 +331,12 @@ class TestDeleteOldBuildObjects(TestCase):
         for _ in range(3):
             self._create_old_build(project, version, days_old=400)
 
-        self.assertEqual(Build.objects.filter(version=version).count(), 3)
+        assert Build.objects.filter(version=version).count() == 3
 
         # keep_recent=5 means all 3 should be preserved.
         delete_old_build_objects(days=365, keep_recent=5, start=0)
 
-        self.assertEqual(Build.objects.filter(version=version).count(), 3)
+        assert Build.objects.filter(version=version).count() == 3
 
     def test_non_final_state_builds_not_deleted(self):
         """Builds in non-final states (e.g. triggered) are never deleted."""
@@ -347,12 +347,12 @@ class TestDeleteOldBuildObjects(TestCase):
         for _ in range(5):
             self._create_old_build(project, version, days_old=400, state=BUILD_STATE_TRIGGERED)
 
-        self.assertEqual(Build.objects.filter(version=version).count(), 5)
+        assert Build.objects.filter(version=version).count() == 5
 
         delete_old_build_objects(days=365, keep_recent=0, start=0)
 
         # Non-final builds should not be deleted.
-        self.assertEqual(Build.objects.filter(version=version).count(), 5)
+        assert Build.objects.filter(version=version).count() == 5
 
     def test_versionless_builds_deleted(self):
         """Old builds without a version are also deleted, beyond `keep_recent` per project."""
@@ -363,16 +363,16 @@ class TestDeleteOldBuildObjects(TestCase):
             self._create_old_build(project, version=None, days_old=400 + i) for i in range(5)
         ]
 
-        self.assertEqual(Build.objects.filter(project=project, version=None).count(), 5)
+        assert Build.objects.filter(project=project, version=None).count() == 5
 
         delete_old_build_objects(days=365, keep_recent=2, start=0)
 
         # 3 should be deleted (keeping only 2 most recent).
-        self.assertEqual(Build.objects.filter(project=project, version=None).count(), 2)
+        assert Build.objects.filter(project=project, version=None).count() == 2
         remaining_pks = set(
             Build.objects.filter(project=project, version=None).values_list("pk", flat=True)
         )
-        self.assertEqual(remaining_pks, {old_builds[0].pk, old_builds[1].pk})
+        assert remaining_pks == {old_builds[0].pk, old_builds[1].pk}
 
     def test_limit_stops_deletion(self):
         """Deletion stops once `limit` builds have been deleted."""
@@ -382,12 +382,12 @@ class TestDeleteOldBuildObjects(TestCase):
         for _ in range(10):
             self._create_old_build(project, version, days_old=400)
 
-        self.assertEqual(Build.objects.filter(version=version).count(), 10)
+        assert Build.objects.filter(version=version).count() == 10
 
         # With limit=3 and keep_recent=0, only 3 builds should be deleted.
         delete_old_build_objects(days=365, keep_recent=0, limit=3, start=0)
 
-        self.assertEqual(Build.objects.filter(version=version).count(), 7)
+        assert Build.objects.filter(version=version).count() == 7
 
     def test_max_projects_limits_projects_processed(self):
         """Only `max_projects` projects are processed per execution."""
@@ -409,7 +409,7 @@ class TestDeleteOldBuildObjects(TestCase):
             + Build.objects.filter(version=version2).count()
         )
         # Only one project's builds were processed.
-        self.assertEqual(total_remaining, 5)
+        assert total_remaining == 5
 
     def test_keeps_builds_per_version_independently(self):
         """keep_recent applies independently to each version."""
@@ -425,8 +425,8 @@ class TestDeleteOldBuildObjects(TestCase):
         delete_old_build_objects(days=365, keep_recent=2, start=0)
 
         # Each version should retain 2 builds.
-        self.assertEqual(Build.objects.filter(version=version1).count(), 2)
-        self.assertEqual(Build.objects.filter(version=version2).count(), 2)
+        assert Build.objects.filter(version=version1).count() == 2
+        assert Build.objects.filter(version=version2).count() == 2
 
     @mock.patch("readthedocs.builds.tasks.build_commands_storage")
     def test_cold_storage_paths_are_deleted(self, build_commands_storage):
@@ -444,9 +444,9 @@ class TestDeleteOldBuildObjects(TestCase):
         delete_old_build_objects(days=365, keep_recent=0, start=0)
 
         # All 3 old builds should have been deleted.
-        self.assertEqual(Build.objects.filter(version=version).count(), 2)
+        assert Build.objects.filter(version=version).count() == 2
         # Storage delete should have been called for each deleted build's path.
-        self.assertEqual(build_commands_storage.delete.call_count, 3)
+        assert build_commands_storage.delete.call_count == 3
 
 
 @override_settings(
