@@ -28,6 +28,98 @@ from readthedocs.subscriptions.notifications import SubscriptionRequiredNotifica
 log = structlog.get_logger(__name__)
 
 
+def send_never_disable_slack_notification(organization, stripe_subscription):
+    """
+    Send a Slack notification when an organization with never_disable=True would be disabled.
+
+    This alerts the team that an organization with an expired subscription
+    is being protected from automatic disabling.
+    """
+    if not settings.SLACK_WEBHOOK_RTD_NOTIFICATIONS_CHANNEL:
+        return
+
+    try:
+        domains = Domain.objects.filter(project__organizations__in=[organization]).count()
+    except Exception:
+        domains = 0
+
+    try:
+        sso_integration = organization.ssointegration.provider
+    except SSOIntegration.DoesNotExist:
+        sso_integration = "Read the Docs Auth"
+    except Exception:
+        sso_integration = "Unknown"
+
+    subscription_status = stripe_subscription.status if stripe_subscription else "Unknown"
+    subscription_url = (
+        f"<https://dashboard.stripe.com/subscriptions/{stripe_subscription.id}|{subscription_status}>"
+        if stripe_subscription
+        else subscription_status
+    )
+
+    # https://api.slack.com/surfaces/messages#payloads
+    slack_message = {
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": ":information_source: *Organization protected from auto-disable*",
+                },
+            },
+            {"type": "divider"},
+            {
+                "type": "section",
+                "fields": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f":office: *Name:* <{settings.ADMIN_URL}/organizations/organization/{organization.pk}/change/|{organization.name}>",
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f":shield: *Subscription:* {subscription_url}",
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f":books: *Projects:* {organization.projects.count()}",
+                    },
+                    {"type": "mrkdwn", "text": f":link: *Domains:* {domains}"},
+                    {
+                        "type": "mrkdwn",
+                        "text": f":closed_lock_with_key: *Authentication:* {sso_integration}",
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f":busts_in_silhouette: *Teams:* {organization.teams.count()}",
+                    },
+                ],
+            },
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": "This organization has `never_disable=True` and would normally be disabled due to subscription status.",
+                    }
+                ],
+            },
+        ]
+    }
+    try:
+        response = requests.post(
+            settings.SLACK_WEBHOOK_RTD_NOTIFICATIONS_CHANNEL,
+            json=slack_message,
+            timeout=3,
+        )
+        if not response.ok:
+            log.error("There was an issue when sending a message to Slack webhook")
+
+    except requests.Timeout:
+        log.warning("Timeout sending a message to Slack webhook")
+    except Exception as e:
+        log.error("Failed to send Slack notification", error=str(e))
+
+
 def djstripe_receiver_gold_membership(signal_names):
     """
     Register handlers only if USE_PROMOS is enabled.
@@ -151,6 +243,7 @@ def subscription_updated_event(event, **kwargs):
                 "Organization can't be disabled, skipping deactivation.",
                 organization_slug=organization.slug,
             )
+            send_never_disable_slack_notification(organization, stripe_subscription)
         else:
             log.info(
                 "Organization disabled due its subscription is not active anymore.",
@@ -209,6 +302,7 @@ def subscription_canceled(event, **kwargs):
             "Organization can't be disabled, skipping notification.",
             organization_slug=organization.slug,
         )
+        send_never_disable_slack_notification(organization, stripe_subscription)
         return
 
     structlog.contextvars.bind_contextvars(organization_slug=organization.slug)
