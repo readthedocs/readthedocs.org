@@ -122,11 +122,40 @@ class GitLabService(Service):
                 remote_organizations.append(remote_organization)
 
                 for repo in org_repos:
-                    remote_repository = self.create_repository(
-                        repo,
-                        organization=remote_organization,
-                    )
-                    remote_repositories.append(remote_repository)
+                    # TODO: Optimize this so that we don't re-fetch project data
+                    # Details: https://github.com/readthedocs/readthedocs.org/issues/7743
+                    try:
+                        # The response from /groups/{id}/projects API does not contain
+                        # admin permission fields for GitLab projects.
+                        # So, fetch every single project data from the API
+                        # which contains the admin permission fields.
+                        resp = self.get_session().get(
+                            '{url}/api/v4/projects/{id}'.format(
+                                url=self.adapter.provider_base_url,
+                                id=repo['id']
+                            )
+                        )
+
+                        if resp.status_code == 200:
+                            repo_details = resp.json()
+                            remote_repository = self.create_repository(
+                                repo_details,
+                                organization=remote_organization
+                            )
+                            remote_repositories.append(remote_repository)
+                        else:
+                            log.warning(
+                                'GitLab project does not exist or user does not have '
+                                'permissions: project=%s',
+                                repo['name_with_namespace'],
+                            )
+
+                    except Exception:
+                        log.exception(
+                            'Error creating GitLab repository=%s',
+                            repo['name_with_namespace'],
+                        )
+
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab organizations')
             raise SyncServiceError(
@@ -203,6 +232,7 @@ class GitLabService(Service):
             ])
 
             repo.vcs = 'git'
+            repo.default_branch = fields.get('default_branch')
             repo.account = self.account
 
             owner = fields.get('owner') or {}
@@ -508,7 +538,7 @@ class GitLabService(Service):
         integration.remove_secret()
         return (False, resp)
 
-    def send_build_status(self, build, commit, state):
+    def send_build_status(self, build, commit, state, link_to_build=False):
         """
         Create GitLab commit status for project.
 
@@ -518,6 +548,7 @@ class GitLabService(Service):
         :type state: str
         :param commit: commit sha of the pull request
         :type commit: str
+        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
@@ -536,7 +567,7 @@ class GitLabService(Service):
 
         target_url = build.get_full_url()
 
-        if state == BUILD_STATUS_SUCCESS:
+        if not link_to_build and state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
         context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'

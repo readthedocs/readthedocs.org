@@ -91,24 +91,26 @@ by :doc:`importing your docs </intro/import-guide>`.
 Using Markdown with Sphinx
 --------------------------
 
-You can use Markdown and reStructuredText in the same Sphinx project.
+You can use `Markdown using MyST`_ and reStructuredText in the same Sphinx project.
 We support this natively on Read the Docs, and you can do it locally:
 
 .. prompt:: bash $
 
-    pip install recommonmark
+    pip install myst-parser
 
 Then in your ``conf.py``:
 
 .. code-block:: python
 
-   extensions = ['recommonmark']
+   extensions = ['myst-parser']
 
-.. warning:: Markdown doesn't support a lot of the features of Sphinx,
-          like inline markup and directives. However, it works for
-          basic prose content. reStructuredText is the preferred
-          format for technical documentation, please read `this blog post`_
-          for motivation.
+.. warning::
+
+   Markdown does works for basic prose content.
+   But reStructuredText is the preferred format for technical documentation,
+   please read `this blog post`_ for motivation.
+
+.. _Markdown using MyST: https://myst-parser.readthedocs.io/en/latest/using/intro.html
 
 .. _this blog post: https://www.ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
 

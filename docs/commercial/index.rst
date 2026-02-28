@@ -35,4 +35,5 @@ Advertising-free
    organizations
    single-sign-on
    sharing
+   privacy-level
    analytics

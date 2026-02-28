@@ -34,6 +34,17 @@ class HomepageView(TemplateView):
         return context
 
 
+class SupportView(TemplateView):
+
+    template_name = 'support/index.html'
+
+    def get_context_data(self, **kwargs):
+        """Pass along endpoint for support form."""
+        context = super().get_context_data(**kwargs)
+        context['SUPPORT_FORM_ENDPOINT'] = settings.SUPPORT_FORM_ENDPOINT
+        return context
+
+
 def wipe_version(request, project_slug, version_slug):
     version = get_object_or_404(
         Version.internal.all(),

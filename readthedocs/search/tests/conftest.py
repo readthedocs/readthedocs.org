@@ -35,7 +35,11 @@ def all_projects(es_index, mock_processed_json, db, settings):
             main_language_project=None,
             privacy_level=PUBLIC,
         )
-        project.versions.update(privacy_level=PUBLIC)
+        project.versions.update(
+            privacy_level=PUBLIC,
+            built=True,
+            active=True,
+        )
 
         for file_basename in PROJECT_DATA_FILES[project.slug]:
             # file_basename in config are without extension so add html extension

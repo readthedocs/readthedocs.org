@@ -51,7 +51,9 @@ var sources = {
         'css/import.less': {},
         'css/admin.less': {},
     },
-    gold: {'js/gold.js': {}},
+    gold: {
+        'js/checkout.js': {},
+    },
     donate: {'js/donate.js': {}}
 };
 

@@ -1,26 +1,45 @@
-# -*- coding: utf-8 -*-
-
 import json
 from unittest import mock
 
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, STABLE, TAG, LATEST
+from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, STABLE, TAG
 from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
     VersionAutomationRule,
 )
+from readthedocs.organizations.models import Organization, OrganizationOwner
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestSyncVersions(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(username='eric')
+        self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
+
+        # Run tests for .com
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.org = get(
+                Organization,
+                name='testorg',
+            )
+            OrganizationOwner.objects.create(
+                owner=self.user,
+                organization=self.org,
+            )
+            self.org.projects.add(self.pip)
+
         Version.objects.create(
             project=self.pip,
             identifier='origin/master',
@@ -36,6 +55,7 @@ class TestSyncVersions(TestCase):
             active=False,
             type=TAG,
         )
+        self.pip.update_stable_version()
 
     def test_proper_url_no_slash(self):
         version_post_data = {
@@ -67,6 +87,7 @@ class TestSyncVersions(TestCase):
             verbose_name='0.8.3',
             active=True,
         )
+        self.pip.update_stable_version()
 
         version_post_data = {
             'branches': [
@@ -113,6 +134,7 @@ class TestSyncVersions(TestCase):
             type=TAG,
             active=False,
         )
+        self.pip.update_stable_version()
 
         version_post_data = {
             'branches': [
@@ -162,6 +184,16 @@ class TestSyncVersions(TestCase):
             active=False,
         )
 
+        Version.objects.create(
+            project=self.pip,
+            identifier='external',
+            verbose_name='external',
+            type=EXTERNAL,
+            active=False,
+        )
+
+        self.pip.update_stable_version()
+
         version_post_data = {
             'branches': [
                 {
@@ -184,6 +216,11 @@ class TestSyncVersions(TestCase):
         # There isn't a v0.8.3
         self.assertFalse(
             Version.objects.filter(slug='0.8.3').exists(),
+        )
+
+        # The inactive external version isn't deleted
+        self.assertTrue(
+            Version.objects.filter(slug='external').exists(),
         )
 
     def test_machine_attr_when_user_define_stable_tag_and_delete_it(self):
@@ -736,7 +773,7 @@ class TestSyncVersions(TestCase):
             1,
         )
 
-    @mock.patch('readthedocs.api.v2.views.model_views.run_automation_rules')
+    @mock.patch('readthedocs.builds.tasks.run_automation_rules')
     def test_automation_rules_are_triggered_for_new_versions(self, run_automation_rules):
         Version.objects.create(
             project=self.pip,
@@ -774,9 +811,12 @@ class TestSyncVersions(TestCase):
             content_type='application/json',
         )
         run_automation_rules.assert_called_with(
-            self.pip, {'new_branch', 'new_tag'}
+            self.pip,
+            {'new_branch', 'new_tag'},
+            {'0.8', '0.8.1'},
         )
 
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build', mock.MagicMock())
     def test_automation_rule_activate_version(self):
         version_post_data = {
             'tags': [
@@ -808,6 +848,7 @@ class TestSyncVersions(TestCase):
         new_tag = self.pip.versions.get(verbose_name='new_tag')
         self.assertTrue(new_tag.active)
 
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build', mock.MagicMock())
     def test_automation_rule_set_default_version(self):
         version_post_data = {
             'tags': [
@@ -837,13 +878,93 @@ class TestSyncVersions(TestCase):
         self.pip.refresh_from_db()
         self.assertEqual(self.pip.get_default_version(), 'new_tag')
 
+    def test_automation_rule_delete_version(self):
+        version_post_data = {
+            'tags': [
+                {
+                    'identifier': 'new_tag',
+                    'verbose_name': 'new_tag',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+        version_slug = '0.8'
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r'^0\.8$',
+            action=VersionAutomationRule.DELETE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        version = self.pip.versions.get(slug=version_slug)
+        self.assertTrue(version.active)
 
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertFalse(self.pip.versions.filter(slug=version_slug).exists())
+
+    def test_automation_rule_dont_delete_default_version(self):
+        version_post_data = {
+            'tags': [
+                {
+                    'identifier': 'new_tag',
+                    'verbose_name': 'new_tag',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+        version_slug = '0.8'
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r'^0\.8$',
+            action=VersionAutomationRule.DELETE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        version = self.pip.versions.get(slug=version_slug)
+        self.assertTrue(version.active)
+
+        self.pip.default_version = version_slug
+        self.pip.save()
+
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertTrue(self.pip.versions.filter(slug=version_slug).exists())
+
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(username='eric')
+        self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
+
+        # Run tests for .com
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.org = get(
+                Organization,
+                name='testorg',
+            )
+            OrganizationOwner.objects.create(
+                owner=self.user,
+                organization=self.org,
+            )
+            self.org.projects.add(self.pip)
+
 
     def test_stable_versions(self):
         version_post_data = {
@@ -985,13 +1106,14 @@ class TestStableVersion(TestCase):
             ],
         }
 
+        self.pip.update_stable_version()
         self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
 
-        version_stable = Version.objects.get(slug=STABLE)
+        version_stable = self.pip.versions.get(slug=STABLE)
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '0.9')
 
@@ -1010,7 +1132,7 @@ class TestStableVersion(TestCase):
             content_type='application/json',
         )
 
-        version_stable = Version.objects.get(slug=STABLE)
+        version_stable = self.pip.versions.get(slug=STABLE)
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '1.0.0')
 
@@ -1029,7 +1151,7 @@ class TestStableVersion(TestCase):
             content_type='application/json',
         )
 
-        version_stable = Version.objects.get(slug=STABLE)
+        version_stable = self.pip.versions.get(slug=STABLE)
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '1.0.0')
 
@@ -1049,6 +1171,7 @@ class TestStableVersion(TestCase):
             ],
         }
 
+        self.pip.update_stable_version()
         self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
@@ -1089,6 +1212,7 @@ class TestStableVersion(TestCase):
                 {'identifier': '0.9', 'verbose_name': '0.9'},
             ],
         }
+        self.pip.update_stable_version()
 
         self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
@@ -1130,6 +1254,7 @@ class TestStableVersion(TestCase):
             ],
         }
 
+        self.pip.update_stable_version()
         self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
@@ -1261,6 +1386,7 @@ class TestStableVersion(TestCase):
             active=True,
             machine=True,
         )
+        self.pip.update_stable_version()
 
         version_post_data = {
             'branches': [
@@ -1332,12 +1458,28 @@ class TestStableVersion(TestCase):
         self.assertFalse(other_stable.exists())
 
 
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestLatestVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(username='eric')
+        self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
+
+        # Run tests for .com
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.org = get(
+                Organization,
+                name='testorg',
+            )
+            OrganizationOwner.objects.create(
+                owner=self.user,
+                organization=self.org,
+            )
+            self.org.projects.add(self.pip)
+
         Version.objects.create(
             project=self.pip,
             identifier='origin/master',

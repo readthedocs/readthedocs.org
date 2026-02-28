@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Gold model signals."""
 
 from django.db.models.signals import pre_delete
@@ -14,4 +12,6 @@ from .models import GoldUser
 def delete_customer(sender, instance, **__):
     """On Gold subscription deletion, remove the customer from Stripe."""
     if sender == GoldUser and instance.stripe_id is not None:
+        # TODO: I don't think we have to delete the customer here,
+        # but cancel the subscription instead
         utils.delete_customer(instance.stripe_id)

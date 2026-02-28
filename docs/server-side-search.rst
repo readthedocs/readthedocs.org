@@ -95,6 +95,7 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
 
    :>json string type: The type of the result, currently page is the only type.
    :>json string project: The project slug
+   :>json string project_alias: Alias of the project if it's a subproject.
    :>json string version: The version slug
    :>json string title: The title of the page
    :>json string domain: Canonical domain of the resulting page
@@ -143,6 +144,7 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
               {
                   "type": "page",
                   "project": "docs",
+                  "project_alias": null,
                   "version": "latest",
                   "title": "Server Side Search",
                   "domain": "https://docs.readthedocs.io",

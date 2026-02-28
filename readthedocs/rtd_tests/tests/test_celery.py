@@ -22,7 +22,7 @@ from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
@@ -54,6 +54,11 @@ class TestCeleryBuilding(TestCase):
             repo=repo,
         )
         self.project.users.add(self.eric)
+        get(
+            Feature,
+            feature_id=Feature.SYNC_VERSIONS_USING_A_TASK,
+            projects=[self.project],
+        )
 
     def get_update_docs_task(self, version):
         build_env = LocalBuildEnvironment(
@@ -237,9 +242,8 @@ class TestCeleryBuilding(TestCase):
             result = tasks.sync_repository_task.delay(version.pk)
         clean_build.assert_called_with(version.pk)
 
-    @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_check_duplicate_reserved_version_latest(self, checkout_path, api_v2):
+    def test_check_duplicate_reserved_version_latest(self, checkout_path):
         create_git_branch(self.repo, 'latest')
         create_git_tag(self.repo, 'latest')
 
@@ -259,7 +263,7 @@ class TestCeleryBuilding(TestCase):
 
         delete_git_branch(self.repo, 'latest')
         sync_repository.sync_repo(sync_repository.build_env)
-        api_v2.project().sync_versions.post.assert_called()
+        self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
 
     @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -284,8 +288,7 @@ class TestCeleryBuilding(TestCase):
         # TODO: Check that we can build properly after
         # deleting the tag.
 
-    @patch('readthedocs.projects.tasks.api_v2')
-    def test_check_duplicate_no_reserved_version(self, api_v2):
+    def test_check_duplicate_no_reserved_version(self):
         create_git_branch(self.repo, 'no-reserved')
         create_git_tag(self.repo, 'no-reserved')
 
@@ -293,8 +296,11 @@ class TestCeleryBuilding(TestCase):
 
         sync_repository = self.get_update_docs_task(version)
 
+        self.assertEqual(self.project.versions.filter(slug__startswith='no-reserved').count(), 0)
+
         sync_repository.sync_repo(sync_repository.build_env)
-        api_v2.project().sync_versions.post.assert_called()
+
+        self.assertEqual(self.project.versions.filter(slug__startswith='no-reserved').count(), 2)
 
     def test_public_task_exception(self):
         """
@@ -357,7 +363,10 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            build=external_build,
+            commit=external_build.commit,
+            state=BUILD_STATUS_SUCCESS,
+            link_to_build=False,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
@@ -414,7 +423,10 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            build=external_build,
+            commit=external_build.commit,
+            state=BUILD_STATUS_SUCCESS,
+            link_to_build=False,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 

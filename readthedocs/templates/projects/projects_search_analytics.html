@@ -12,6 +12,12 @@
 
 {% block project_edit_content %}
 
+  {% if not enabled %}
+    {% block disabled %}
+      {% include 'projects/includes/feature_disabled.html' with project=project %}
+    {% endblock %}
+  {% endif %}
+
   <h3>{% trans "Top queries" %}</h3>
   <div class="module-list">
     <div class="module-list-wrapper">
@@ -27,7 +33,7 @@
         {% empty %}
           <li class="module-item">
             <p class="quiet">
-              {% trans 'No date available.' %}
+              {% trans 'No data available.' %}
             </p>
           </li>
         {% endfor %}

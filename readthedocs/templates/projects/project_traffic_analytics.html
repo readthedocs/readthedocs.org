@@ -11,10 +11,15 @@
 {% block project_edit_content_header %}{% trans "Traffic Analytics" %}{% endblock %}
 
 {% block project_edit_content %}
+
+  {% if not enabled %}
+    {% block disabled %}
+      {% include 'projects/includes/feature_disabled.html' %}
+    {% endblock %}
+  {% endif %}
+
   <h3>{% trans "Top viewed pages of the past month" %}</h3>
-    <p>
-      This beta feature can be enabled by <a href="mailto:{{ SUPPORT_EMAIL }}">asking support</a>.
-    </p>
+
     <div class="module-list">
       <div class="module-list-wrapper">
         <ul class="long-list-overflow">
@@ -26,7 +31,7 @@
           {% empty %}
             <li class="module-item">
               <p class="quiet">
-                {% trans 'No date available.' %}
+                {% trans 'No data available.' %}
               </p>
             </li>
           {% endfor %}

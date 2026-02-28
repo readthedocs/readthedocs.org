@@ -253,6 +253,7 @@ class PublicProjectUnauthAccessTest(PublicProjectMixin, TestCase):
 # ## Private Project Testing ###
 
 
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
 class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {
@@ -291,6 +292,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         return True
 
 
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
 class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {
@@ -376,6 +378,7 @@ class APIMixin(URLAccessMixin):
             'remoterepository-detail': {'pk': self.remote_repo.pk},
             'remoteaccount-detail': {'pk': self.social_account.pk},
             'api_webhook': {'integration_pk': self.integration.pk},
+            'api_webhook_stripe': {},
         }
         self.response_data = {
             'build-concurrent': {'status_code': 403},
@@ -396,6 +399,7 @@ class APIMixin(URLAccessMixin):
             'api_webhook_gitlab': {'status_code': 405},
             'api_webhook_bitbucket': {'status_code': 405},
             'api_webhook_generic': {'status_code': 403},
+            'api_webhook_stripe': {'status_code': 405},
             'sphinxdomain-detail': {'status_code': 404},
             'remoteorganization-detail': {'status_code': 404},
             'remoterepository-detail': {'status_code': 404},

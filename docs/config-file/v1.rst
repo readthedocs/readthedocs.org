@@ -15,7 +15,7 @@ Here is an example of what this file looks like:
 
 .. code:: yaml
 
-   # .readthedocs.yml
+   # .readthedocs.yaml
 
    build:
      image: latest

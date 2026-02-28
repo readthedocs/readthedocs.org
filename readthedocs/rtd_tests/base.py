@@ -1,25 +1,14 @@
-# -*- coding: utf-8 -*-
 """Base classes and mixins for unit tests."""
 import logging
 from collections import OrderedDict
+from unittest.mock import patch
 
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
-from unittest.mock import patch
-
 
 log = logging.getLogger(__name__)
-
-
-@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
-@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
-class MockBuildTestCase(TestCase):
-
-    """Mock build triggers for test cases."""
-
-    pass
 
 
 class RequestFactoryTestMixin:

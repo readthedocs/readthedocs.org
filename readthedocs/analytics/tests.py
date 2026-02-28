@@ -109,8 +109,8 @@ class AnalyticsPageViewsTests(TestCase):
         self.absolute_uri = f'https://{self.project.slug}.readthedocs.io/en/latest/index.html'
         self.host = f'{self.project.slug}.readthedocs.io'
         self.url = (
-            reverse('footer_html') +
-            f'?project={self.project.slug}&version={self.version.slug}&page=index&docroot=/docs/' +
+            reverse('analytics_api') +
+            f'?project={self.project.slug}&version={self.version.slug}'
             f'&absolute_uri={self.absolute_uri}'
         )
 
@@ -122,17 +122,6 @@ class AnalyticsPageViewsTests(TestCase):
         assert (
             PageView.objects.all().count() == 0
         ), 'There\'s no PageView object created yet.'
-
-        # Without the feature flag, no PageView is created
-        self.client.get(self.url, HTTP_HOST=self.host)
-        assert (
-            PageView.objects.all().count() == 0
-        )
-
-        feature, _ = Feature.objects.get_or_create(
-            feature_id=Feature.STORE_PAGEVIEWS,
-        )
-        self.project.feature_set.add(feature)
 
         # testing for yesterday
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:

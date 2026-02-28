@@ -8,8 +8,12 @@ Each function will receive the following args:
 - action_arg: An additional argument to apply the action
 """
 
+import logging
+
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.constants import PRIVATE, PUBLIC
+
+log = logging.getLogger(__name__)
 
 
 def activate_version(version, match_result, action_arg, *args, **kwargs):
@@ -62,3 +66,14 @@ def set_private_privacy_level(version, match_result, action_arg, *args, **kwargs
     """Sets the privacy_level of the version to private."""
     version.privacy_level = PRIVATE
     version.save()
+
+
+def delete_version(version, match_result, action_arg, *args, **kwargs):
+    """Delete a version if isn't marked as the default version."""
+    if version.project.default_version == version.slug:
+        log.info(
+            "Skipping deleting default version. project=%s version=%s",
+            version.project.slug, version.slug,
+        )
+        return
+    version.delete()

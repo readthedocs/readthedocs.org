@@ -1,0 +1,98 @@
+  <div class="section" id="minimal-example">
+    <h2>Minimal Example<a class="headerlink" href="http://project.readthedocs.io/en/latest/index.html#minimal-example" title="Permalink to this headline">¶</a></h2>
+    <p>
+      In your project\u2019s documentation, you can use
+      <code class="docutils literal notranslate"><span class="pre">:cite:t:</span></code> for textual citation
+      references,
+      <code class="docutils literal notranslate"><span class="pre">:cite:p:</span></code> for parenthetical citation
+      references, and <code
+        class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">bibliography::</span></code>
+      for inserting the bibliography. For <a class="reference external"
+        href="https://github.com/mcmtroffaes/sphinxcontrib-bibtex/tree/develop/test/roots/test-debug_minimal_example">example</a>:
+    </p>
+    <div class="highlight-rest notranslate">
+      <div class="highlight">
+        <pre><span></span>See <span class="na">:cite:t:</span><span class="nv">`1987:nelson`</span> for an introduction to non-standard analysis.
+Non-standard analysis is fun <span class="na">:cite:p:</span><span class="nv">`1987:nelson`</span>.
+
+<span class="p">..</span> <span class="ow">bibliography</span><span class="p">::</span>
+</pre>
+      </div>
+    </div>
+    <p>
+      where <code class="file docutils literal notranslate"><span class="pre">refs.bib</span></code> would contain an
+      entry:
+    </p>
+    <div class="highlight-default notranslate">
+      <div class="highlight">
+        <pre><span></span><span class="nd">@Book</span><span class="p">{</span><span class="mi">1987</span><span class="p">:</span><span class="n">nelson</span><span class="p">,</span>
+  <span class="n">author</span> <span class="o">=</span> <span class="p">{</span><span class="n">Edward</span> <span class="n">Nelson</span><span class="p">},</span>
+  <span class="n">title</span> <span class="o">=</span> <span class="p">{</span><span class="n">Radically</span> <span class="n">Elementary</span> <span class="n">Probability</span> <span class="n">Theory</span><span class="p">},</span>
+  <span class="n">publisher</span> <span class="o">=</span> <span class="p">{</span><span class="n">Princeton</span> <span class="n">University</span> <span class="n">Press</span><span class="p">},</span>
+  <span class="n">year</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1987</span><span class="p">}</span>
+<span class="p">}</span>
+</pre>
+      </div>
+    </div>
+    <p>In the default style, this will get rendered as:</p>
+    <p>
+      See Nelson <a class="reference internal" href="http://project.readthedocs.io/en/latest/index.html#nel87a" id="id1"><span>[Nel87a]</span></a> for an introduction to
+      non-standard analysis.
+      Non-standard analysis is fun <a class="reference internal" href="http://project.readthedocs.io/en/latest/index.html#nel87a" id="id2"><span>[Nel87a]</span></a>.</p>
+    <dl class="citation">
+      <dt class="label" id="nel87a"><span class="brackets">Nel87a</span><span class="fn-backref">(<a
+            href="http://project.readthedocs.io/en/latest/index.html#id1">1</a>,<a href="http://project.readthedocs.io/en/latest/index.html#id2">2</a>)</span></dt>
+      <dd>
+        <p>Edward Nelson. <em>Radically Elementary Probability Theory</em>. Princeton University Press, 1987.</p>
+      </dd>
+    </dl>
+    <p>
+      Citations in sphinx are resolved globally across all documents.
+      Typically, you have a single <a class="reference internal" href="http://project.readthedocs.io/en/latest/usage.html#directive-bibliography"
+        title="bibliography directive"><code
+          class="xref rst rst-dir docutils literal notranslate"><span class="pre">bibliography</span></code></a>
+      directive across
+      your entire project which collects all citations.
+      Advanced use cases with multiple <a class="reference internal" href="http://project.readthedocs.io/en/latest/usage.html#directive-bibliography"
+        title="bibliography directive"><code
+          class="xref rst rst-dir docutils literal notranslate"><span class="pre">bibliography</span></code></a>
+      directives
+      across your project are also supported, but some care
+      needs to be taken from your end to avoid duplicate citations.
+    </p>
+    <p>
+      In contrast, footnotes in sphinx are resolved locally per document.
+      To achieve local bibliographies per document, you can use citations
+      represented by footnotes as follows:
+    </p>
+    <div class="highlight-rest notranslate">
+      <div class="highlight">
+        <pre><span></span>Non-standard analysis is lovely. <span class="na">:footcite:</span><span class="nv">`1987:nelson`</span>
+
+<span class="p">..</span> <span class="ow">footbibliography</span><span class="p">::</span>
+</pre>
+      </div>
+    </div>
+    <p>which will get rendered as:</p>
+    <p>Non-standard analysis is lovely. <a class="footnote-reference brackets" href="http://project.readthedocs.io/en/latest/index.html#nel87b" id="id3">1</a></p>
+    <dl class="footnote brackets">
+      <dt class="label" id="nel87b"><span class="brackets"><a class="fn-backref" href="http://project.readthedocs.io/en/latest/index.html#id3">1</a></span></dt>
+      <dd>
+        <p>Edward Nelson. <em>Radically Elementary Probability Theory</em>. Princeton University Press, 1987.</p>
+      </dd>
+    </dl>
+    <p>
+      Typically, you have a single <a class="reference internal" href="http://project.readthedocs.io/en/latest/usage.html#directive-footbibliography"
+        title="footbibliography directive"><code
+          class="xref rst rst-dir docutils literal notranslate"><span class="pre">footbibliography</span></code></a>
+      directive
+      at the bottom of each document that has <a class="reference internal" href="http://project.readthedocs.io/en/latest/usage.html#role-footcite"
+        title="footcite role"><code
+          class="xref rst rst-role docutils literal notranslate"><span class="pre">footcite</span></code></a> citations.
+      Advanced use cases with multiple <a class="reference internal" href="http://project.readthedocs.io/en/latest/usage.html#directive-footbibliography"
+        title="footbibliography directive"><code
+          class="xref rst rst-dir docutils literal notranslate"><span class="pre">footbibliography</span></code></a>
+      directives per document are also supported. Since everything is local,
+      there is no concern with duplicate citations when using footnotes.
+    </p>
+  </div>

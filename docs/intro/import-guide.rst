@@ -72,7 +72,7 @@ and to troubleshoot any issues that arise.
 
 Some documentation projects require additional configuration to build
 such as specifying a certain version of Python or installing additional dependencies.
-You can configure these settings in a ``readthedocs.yml`` file.
+You can configure these settings in a ``.readthedocs.yaml`` file.
 See our :doc:`/config-file/index` docs for more details.
 
 It is also important to note that the default version of Sphinx is ``v1.8.5``.

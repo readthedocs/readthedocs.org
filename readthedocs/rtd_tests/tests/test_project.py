@@ -1,5 +1,7 @@
 import datetime
 import json
+from unittest import mock
+from unittest.mock import patch
 
 import pytest
 from django.contrib.auth.models import User
@@ -7,17 +9,16 @@ from django.forms.models import model_to_dict
 from django.test import TestCase
 from django.utils import timezone
 from django_dynamic_fixture import get
-from unittest.mock import patch
 from rest_framework.reverse import reverse
 
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
-    LATEST,
     EXTERNAL,
+    LATEST,
+    TAG,
 )
-from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.services import GitHubService, GitLabService
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
@@ -256,6 +257,8 @@ class TestProject(ProjectMixin, TestCase):
         self.pip.save()
         self.assertEqual(self.pip.git_service_class(), GitLabService)
 
+
+@mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
 class TestProjectTranslations(ProjectMixin, TestCase):
 
     def test_translations(self):

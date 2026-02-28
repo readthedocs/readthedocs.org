@@ -12,12 +12,15 @@
 # conf.py.tmpl file found in the readthedocs.org codebase:
 # https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/doc_builder/templates/doc_builder/conf.py.tmpl
 #
-
+# Note: this file should't rely on extra depencies.
 
 import importlib
 import sys
 import os.path
-from six import string_types
+
+# Borrowed from six.
+PY3 = sys.version_info[0] == 3
+string_types = str if PY3 else basestring
 
 from sphinx import version_info
 
@@ -120,6 +123,14 @@ context = {
     'commit': {% if project.repo_type == 'git' %}'{{ commit|slice:"8" }}'{% else %}'{{ commit }}'{% endif %},
 }
 
+# For sphinx >=1.8 we can use html_baseurl to set the canonical URL.
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_baseurl
+if version_info >= (1, 8):
+    if not globals().get('html_baseurl'):
+        html_baseurl = context['canonical_url']
+    context['canonical_url'] = None
+
+
 {# Provide block for extending context data from child template #}
 {% block extra_context %}{% endblock %}
 
@@ -146,6 +157,8 @@ else:
 # Add External version warning banner to the external version documentation
 if '{{ version.type }}' == 'external':
     extensions.insert(1, "readthedocs_ext.external_version_warning")
+    readthedocs_vcs_url = '{{ vcs_url }}'
+    readthedocs_build_url = '{{ build_url }}'
 
 project_language = '{{ project.language }}'
 
