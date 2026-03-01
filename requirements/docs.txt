@@ -14,7 +14,7 @@ babel==2.18.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2026.1.4
+certifi==2026.2.25
     # via
     #   requests
     #   sphinx-prompt
