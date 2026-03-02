@@ -25,11 +25,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.54
+boto3==1.42.59
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.54
+botocore==1.42.59
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -41,7 +41,7 @@ celery==5.6.2
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2026.1.4
+certifi==2026.2.25
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -80,7 +80,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-cron-descriptor==2.0.6
+cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -132,7 +132,7 @@ django-annoying==0.10.8
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
-django-celery-beat==2.8.1
+django-celery-beat==2.9.0
     # via -r requirements/pip.txt
 django-cors-headers==4.9.0
     # via -r requirements/pip.txt
@@ -212,6 +212,7 @@ fido2==2.1.1
 filelock==3.24.3
     # via
     #   -r requirements/pip.txt
+    #   python-discovery
     #   virtualenv
 gunicorn==25.1.0
     # via -r requirements/pip.txt
@@ -280,6 +281,7 @@ pillow==12.1.1
 platformdirs==4.9.2
     # via
     #   -r requirements/pip.txt
+    #   python-discovery
     #   virtualenv
 prompt-toolkit==3.0.52
     # via
@@ -338,6 +340,10 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
+python-discovery==1.1.0
+    # via
+    #   -r requirements/pip.txt
+    #   virtualenv
 python-ipware==3.0.0
     # via
     #   -r requirements/pip.txt
@@ -354,9 +360,9 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==7.2.0
+redis==7.2.1
     # via -r requirements/pip.txt
-regex==2026.2.19
+regex==2026.2.28
     # via -r requirements/pip.txt
 requests==2.32.5
     # via
@@ -420,7 +426,6 @@ traitlets==5.14.3
 typing-extensions==4.15.0
     # via
     #   -r requirements/pip.txt
-    #   cron-descriptor
     #   django-polymorphic
     #   elasticsearch
     #   psycopg
@@ -474,7 +479,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.38.0
+virtualenv==21.1.0
     # via -r requirements/pip.txt
 wcwidth==0.6.0
     # via
