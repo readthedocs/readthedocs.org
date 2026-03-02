@@ -1290,11 +1290,13 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             .values_list(*[value for _, value in values])
         )
 
-        filename = "readthedocs_traffic_analytics_{status}_{project_slug}_{start}_{end}.csv".format(
-            status=http_status,
-            project_slug=project.slug,
-            start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
-            end=timezone.datetime.strftime(now, "%Y-%m-%d"),
+        filename = (
+            "readthedocs_traffic_analytics_{project_slug}_http{status}_{start}_{end}.csv".format(
+                status=http_status,
+                project_slug=project.slug,
+                start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
+                end=timezone.datetime.strftime(now, "%Y-%m-%d"),
+            )
         )
         csv_data = [
             [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest] for date, *rest in data

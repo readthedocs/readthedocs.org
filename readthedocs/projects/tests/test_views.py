@@ -520,7 +520,7 @@ class TestTrafficAnalyticsView(TestCase):
         self.assertIn("/en/latest/index.html", paths)
         # filename should be for traffic analytics (200)
         content_disposition = resp["Content-Disposition"]
-        self.assertIn("readthedocs_traffic_analytics_200_", content_disposition)
+        self.assertIn(f"readthedocs_traffic_analytics_{self.project.slug}_http200_", content_disposition)
 
     def test_download_traffic_404_csv(self):
         PageView.objects.create(
@@ -542,7 +542,7 @@ class TestTrafficAnalyticsView(TestCase):
         self.assertIn("/en/latest/missing.html", paths)
         # filename should be for 404 analytics
         content_disposition = resp["Content-Disposition"]
-        self.assertIn("readthedocs_traffic_analytics_404_", content_disposition)
+        self.assertIn(f"readthedocs_traffic_analytics_{self.project.slug}_http404_", content_disposition)
 
     def test_download_traffic_404_csv_excludes_200_pages(self):
         PageView.objects.create(
