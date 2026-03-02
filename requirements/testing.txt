@@ -145,7 +145,7 @@ django-debug-toolbar==6.2.0
     # via -r requirements/pip.txt
 django-dynamic-fixture==4.0.1
     # via -r requirements/testing.in
-django-elasticsearch-dsl==8.2
+django-elasticsearch-dsl==9.0
     # via -r requirements/pip.txt
 django-extensions==4.1
     # via -r requirements/pip.txt
@@ -206,7 +206,7 @@ elastic-transport==8.17.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.19.3
+elasticsearch==9.0.5
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
