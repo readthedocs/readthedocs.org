@@ -543,10 +543,10 @@ class GitHubAppService(Service):
         # NOTE: we use the lazy option to avoid fetching the repository object,
         # since we only need the object to interact with the commit status API.
         gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
-        gh_issue = gh_repo.get_issue(int(version.verbose_name))
+        gh_pull = gh_repo.get_pull(int(version.verbose_name))
         existing_gh_comment = None
         comment_marker = f"<!-- readthedocs-{project.pk} -->"
-        for gh_comment in gh_issue.get_comments():
+        for gh_comment in gh_pull.get_issue_comments():
             # Get the comment where the author is us, and the comment belongs to the project.
             # The login of the author is the name of the GitHub App, with the "[bot]" suffix.
             if (
@@ -560,7 +560,7 @@ class GitHubAppService(Service):
         if existing_gh_comment:
             existing_gh_comment.edit(body=comment)
         elif create_new:
-            gh_issue.create_comment(body=comment)
+            gh_pull.create_issue_comment(body=comment)
         else:
             log.debug(
                 "No comment to update, skipping commenting",
