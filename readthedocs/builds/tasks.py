@@ -659,8 +659,7 @@ def _delete_builds(builds, start: int, end: int) -> int:
 def remove_build_commands_storage_paths(paths):
     """Remove the build commands from storage for the given paths."""
     log.info("Removing paths from build commands storage.", paths=paths)
-    for path in paths:
-        try:
-            build_commands_storage.delete(path)
-        except Exception:
-            log.info("Failed to delete build commands from storage.", path=path, exc_info=True)
+    try:
+        build_commands_storage.delete_paths(paths)
+    except Exception:
+        log.info("Failed to delete build commands from storage.", exc_info=True)

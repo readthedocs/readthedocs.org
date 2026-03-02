@@ -10,6 +10,7 @@ in our Docker Development environment.
 # Disable abstract method because we are not overriding all the methods
 # pylint: disable=abstract-method
 from functools import cached_property
+from itertools import batched
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -23,7 +24,20 @@ from .mixins import OverrideHostnameMixin
 from .mixins import S3PrivateBucketMixin
 
 
-class S3BuildMediaStorage(OverrideHostnameMixin, BuildMediaStorageMixin, S3Boto3Storage):
+class RTDS3Boto3Storage(S3Boto3Storage):
+    def delete_paths(self, paths):
+        """
+        Delete multiple paths from storage in batches.
+
+        S3 has a limit of 1000 objects per delete request, so we batch the deletions accordingly.
+        See https://docs.aws.amazon.com/boto3/latest/reference/services/s3/bucket/delete_objects.html#S3.Bucket.delete_objects.
+        """
+        for batch in batched(paths, 1000):
+            objects = [{"Key": path} for path in batch]
+            self.bucket.delete_objects(Delete={"Objects": objects, "Quiet": True})
+
+
+class S3BuildMediaStorage(OverrideHostnameMixin, BuildMediaStorageMixin, RTDS3Boto3Storage):
     """An AWS S3 Storage backend for build artifacts."""
 
     bucket_name = getattr(settings, "S3_MEDIA_STORAGE_BUCKET", None)
@@ -53,7 +67,7 @@ class S3BuildMediaStorage(OverrideHostnameMixin, BuildMediaStorageMixin, S3Boto3
         )
 
 
-class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
+class S3BuildCommandsStorage(S3PrivateBucketMixin, RTDS3Boto3Storage):
     """An AWS S3 Storage backend for build commands."""
 
     bucket_name = getattr(settings, "S3_BUILD_COMMANDS_STORAGE_BUCKET", None)
@@ -85,7 +99,7 @@ class S3StaticStorageMixin:
 
 # pylint: disable=too-many-ancestors
 class S3StaticStorage(
-    S3StaticStorageMixin, OverrideHostnameMixin, S3ManifestStaticStorage, S3Boto3Storage
+    S3StaticStorageMixin, OverrideHostnameMixin, S3ManifestStaticStorage, RTDS3Boto3Storage
 ):
     """
     An AWS S3 Storage backend for static media.
@@ -94,7 +108,7 @@ class S3StaticStorage(
     """
 
 
-class NoManifestS3StaticStorage(S3StaticStorageMixin, OverrideHostnameMixin, S3Boto3Storage):
+class NoManifestS3StaticStorage(S3StaticStorageMixin, OverrideHostnameMixin, RTDS3Boto3Storage):
     """
     Storage backend for static files used outside Django's static files.
 
@@ -107,7 +121,7 @@ class NoManifestS3StaticStorage(S3StaticStorageMixin, OverrideHostnameMixin, S3B
     internal_redirect_root_path = "proxito-static"
 
 
-class S3BuildToolsStorage(S3PrivateBucketMixin, S3Boto3Storage):
+class S3BuildToolsStorage(S3PrivateBucketMixin, RTDS3Boto3Storage):
     bucket_name = getattr(settings, "S3_BUILD_TOOLS_STORAGE_BUCKET", None)
 
     def __init__(self, *args, **kwargs):

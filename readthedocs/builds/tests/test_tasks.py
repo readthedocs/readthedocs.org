@@ -446,7 +446,7 @@ class TestDeleteOldBuildObjects(TestCase):
         # All 3 old builds should have been deleted.
         assert Build.objects.filter(version=version).count() == 2
         # Storage delete should have been called for each deleted build's path.
-        assert build_commands_storage.delete.call_count == 3
+        build_commands_storage.delete_paths.assert_called()
 
 
 @override_settings(
