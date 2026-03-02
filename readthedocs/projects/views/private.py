@@ -1224,8 +1224,11 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get("download", False)
+        download_status = request.GET.get("status", None)
         if download_data:
-            return self._get_csv_data()
+            if download_status == "404":
+                return self._get_csv_data_404()
+            return self._get_csv_data_200()
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1260,7 +1263,7 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
         return context
 
-    def _get_csv_data(self):
+    def _get_csv_data(self, http_status):
         project = self.get_project()
         now = timezone.now().date()
         feature = self._get_feature(project)
@@ -1281,22 +1284,31 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             PageView.objects.filter(
                 project=project,
                 date__gte=days_ago,
-                status=200,
+                status=http_status,
             )
             .order_by("-date")
             .values_list(*[value for _, value in values])
         )
 
-        filename = "readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv".format(
-            project_slug=project.slug,
-            start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
-            end=timezone.datetime.strftime(now, "%Y-%m-%d"),
+        filename = (
+            "readthedocs_traffic_analytics_{project_slug}_http{status}_{start}_{end}.csv".format(
+                status=http_status,
+                project_slug=project.slug,
+                start=timezone.datetime.strftime(days_ago, "%Y-%m-%d"),
+                end=timezone.datetime.strftime(now, "%Y-%m-%d"),
+            )
         )
         csv_data = [
             [timezone.datetime.strftime(date, "%Y-%m-%d %H:%M:%S"), *rest] for date, *rest in data
         ]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
+
+    def _get_csv_data_200(self):
+        return self._get_csv_data(http_status=200)
+
+    def _get_csv_data_404(self):
+        return self._get_csv_data(http_status=404)
 
     def _get_feature(self, project):
         return get_feature(project, feature_type=self.feature_type)
