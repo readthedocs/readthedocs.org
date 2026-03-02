@@ -78,9 +78,3 @@ License
 `MIT`_ © 2025 Read the Docs, Inc. & contributors
 
 .. _MIT: LICENSE
-
-
-Test for WebhookAutomationRules
--------------------------------
-
-This is just a new section to test if a build is triggered.
