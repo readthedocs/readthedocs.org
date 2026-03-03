@@ -1,3 +1,4 @@
+import csv
 from unittest import mock
 
 from allauth.account.models import EmailAddress
@@ -7,6 +8,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
+from readthedocs.analytics.models import PageView
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.constants import GITHUB_APP
@@ -487,3 +489,91 @@ class TestProjectDetailView(TestCase):
         # badge_url and site_url should not be in context when default version doesn't exist
         assert "badge_url" not in resp.context
         assert "site_url" not in resp.context
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestTrafficAnalyticsView(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user])
+        self.version = self.project.versions.first()
+        self.url = reverse("projects_traffic_analytics", args=[self.project.slug])
+        self.client.force_login(self.user)
+
+    def test_download_traffic_200_csv(self):
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/en/latest/index.html",
+            status=200,
+        )
+        resp = self.client.get(self.url, {"download": "true", "status": "200"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "text/csv")
+
+        content = [
+            line.decode() for line in b"".join(resp.streaming_content).splitlines()
+        ]
+        csv_data = list(csv.reader(content))
+        self.assertEqual(csv_data[0], ["Date", "Version", "Path", "Views"])
+        paths = [row[2] for row in csv_data[1:]]
+        self.assertIn("/en/latest/index.html", paths)
+        # filename should be for traffic analytics (200)
+        content_disposition = resp["Content-Disposition"]
+        self.assertIn(f"readthedocs_traffic_analytics_{self.project.slug}_http200_", content_disposition)
+
+    def test_download_traffic_404_csv(self):
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/en/latest/missing.html",
+            status=404,
+        )
+        resp = self.client.get(self.url, {"download": "true", "status": "404"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "text/csv")
+
+        content = [
+            line.decode() for line in b"".join(resp.streaming_content).splitlines()
+        ]
+        csv_data = list(csv.reader(content))
+        self.assertEqual(csv_data[0], ["Date", "Version", "Path", "Views"])
+        paths = [row[2] for row in csv_data[1:]]
+        self.assertIn("/en/latest/missing.html", paths)
+        # filename should be for 404 analytics
+        content_disposition = resp["Content-Disposition"]
+        self.assertIn(f"readthedocs_traffic_analytics_{self.project.slug}_http404_", content_disposition)
+
+    def test_download_traffic_404_csv_excludes_200_pages(self):
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/en/latest/index.html",
+            status=200,
+        )
+        resp = self.client.get(self.url, {"download": "true", "status": "404"})
+        self.assertEqual(resp.status_code, 200)
+
+        content = [
+            line.decode() for line in b"".join(resp.streaming_content).splitlines()
+        ]
+        csv_data = list(csv.reader(content))
+        # Only header row, no data rows
+        self.assertEqual(len(csv_data), 1)
+
+    def test_download_traffic_200_csv_excludes_404_pages(self):
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/en/latest/missing.html",
+            status=404,
+        )
+        resp = self.client.get(self.url, {"download": "true", "status": "200"})
+        self.assertEqual(resp.status_code, 200)
+
+        content = [
+            line.decode() for line in b"".join(resp.streaming_content).splitlines()
+        ]
+        csv_data = list(csv.reader(content))
+        # Only header row, no data rows
+        self.assertEqual(len(csv_data), 1)

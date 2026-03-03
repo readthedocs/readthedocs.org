@@ -483,12 +483,9 @@ class GitHubAppWebhookHandler:
             return
 
         if action == "added":
-            if self.data["repository_selection"] == "all":
-                installation.service.sync()
-            else:
-                installation.service.update_or_create_repositories(
-                    [repo["id"] for repo in self.data["repositories_added"]]
-                )
+            installation.service.update_or_create_repositories(
+                [repo["id"] for repo in self.data["repositories_added"]]
+            )
             return
 
         if action == "removed":
