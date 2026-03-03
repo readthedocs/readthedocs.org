@@ -238,7 +238,7 @@ class BuildSerializer(serializers.ModelSerializer):
     This is the default serializer for Build objects over read-only operations from regular users.
     Take into account that:
 
-    - It doesn't display internal fields (builder, _config)
+    - It doesn't display internal fields (builder)
     - It's read-only for multiple fields (commands, project_slug, etc)
 
     Staff users should use either:
@@ -259,8 +259,7 @@ class BuildSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Build
-        # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ("builder", "_config")
+        exclude = ("builder",)
 
     def get_docs_url(self, obj):
         if obj.version:
@@ -279,11 +278,9 @@ class BuildAdminSerializer(BuildSerializer):
     commands = BuildCommandSerializer(many=True, read_only=True)
 
     class Meta(BuildSerializer.Meta):
-        # `_config` should be excluded to avoid conflicts with `config`.
-        #
         # `healthcheck` is excluded to avoid updating it to `None` again during building.
         # See https://github.com/readthedocs/readthedocs.org/issues/12474
-        exclude = ("_config", "healthcheck")
+        exclude = ("healthcheck",)
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):
