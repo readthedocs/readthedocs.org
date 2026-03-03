@@ -8,6 +8,8 @@ amqp==5.3.1
     # via kombu
 annotated-types==0.7.0
     # via pydantic
+anyio==4.12.1
+    # via elasticsearch
 asgiref==3.11.1
     # via
     #   django
@@ -156,9 +158,9 @@ drf-extensions==0.8.0
     # via -r requirements/pip.in
 drf-flex-fields==1.0.2
     # via -r requirements/pip.in
-elastic-transport==8.17.1
+elastic-transport==9.2.1
     # via elasticsearch
-elasticsearch==9.0.5
+elasticsearch==9.3.0
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
@@ -171,7 +173,9 @@ filelock==3.24.3
 gunicorn==25.1.0
     # via -r requirements/pip.in
 idna==3.11
-    # via requests
+    # via
+    #   anyio
+    #   requests
 isodate==0.7.2
     # via python3-saml
 jmespath==1.1.0
@@ -290,6 +294,10 @@ six==1.17.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.in
+sniffio==1.3.1
+    # via
+    #   elastic-transport
+    #   elasticsearch
 sqlparse==0.5.5
     # via
     #   django
@@ -306,6 +314,7 @@ toml==0.10.2
     # via bumpver
 typing-extensions==4.15.0
     # via
+    #   anyio
     #   django-polymorphic
     #   elasticsearch
     #   psycopg
