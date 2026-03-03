@@ -267,7 +267,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         pre-process the `command` field before returning it to the user, and we
         also want to have a specific serializer for admins.
         """
-        if self.request.build_api_key:
+        if self.request.build_api_key or self.request.user.is_superuser:
             # Logic copied from `UserSelectViewSet.get_serializer_class`
             # and extended to choose serializer from self.action
             if self.action not in ["list", "retrieve"]:
