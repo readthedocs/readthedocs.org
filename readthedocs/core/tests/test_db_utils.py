@@ -142,7 +142,7 @@ class TestDeleteInBatches(TestCase):
 
         # Delete only 10 projects with a limit
         queryset = Project.objects.filter(slug__startswith="limit-project-")
-        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=3, limit=10)
+        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=3, end=10)
 
         # Should delete exactly 10 projects and their related objects
         assert deleted_counter["projects.Project"] == 10
@@ -157,7 +157,7 @@ class TestDeleteInBatches(TestCase):
 
         # Set limit larger than actual count
         queryset = Project.objects.filter(slug__startswith="over-limit-")
-        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=2, limit=100)
+        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=2, end=100)
 
         # Should delete all 5 projects
         assert deleted_counter["projects.Project"] == 5
@@ -171,21 +171,21 @@ class TestDeleteInBatches(TestCase):
 
         # Set limit equal to batch_size
         queryset = Project.objects.filter(slug__startswith="equal-limit-")
-        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=5, limit=5)
+        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=5, end=5)
 
         # Should delete exactly 5 projects
         assert deleted_counter["projects.Project"] == 5
         assert Project.objects.filter(slug__startswith="equal-limit-").count() == 5
 
     def test_delete_with_limit_one(self):
-        """Test deleting with limit=1 (edge case)."""
+        """Test deleting with end=1 (edge case)."""
         # Create 5 projects
         for i in range(5):
             get(Project, slug=f"one-limit-{i}")
 
         # Set limit to 1
         queryset = Project.objects.filter(slug__startswith="one-limit-")
-        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=2, limit=1)
+        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=2, end=1)
 
         # Should delete exactly 1 project and its related objects
         assert deleted_counter["projects.Project"] == 1
@@ -278,7 +278,7 @@ class TestRawDeleteInBatches(TestCase):
 
         # Delete only 10 versions with a limit
         queryset = Version.objects.filter(slug__startswith="raw-limit-")
-        raw_delete_in_batches(queryset, batch_size=3, limit=10)
+        raw_delete_in_batches(queryset, batch_size=3, end=10)
 
         # Should have 10 versions remaining
         assert Version.objects.filter(slug__startswith="raw-limit-").count() == 10
@@ -292,7 +292,7 @@ class TestRawDeleteInBatches(TestCase):
 
         # Set limit larger than actual count
         queryset = Version.objects.filter(slug__startswith="raw-over-")
-        raw_delete_in_batches(queryset, batch_size=2, limit=100)
+        raw_delete_in_batches(queryset, batch_size=2, end=100)
 
         # Should delete all 5 versions
         assert Version.objects.filter(slug__startswith="raw-over-").count() == 0
@@ -306,13 +306,13 @@ class TestRawDeleteInBatches(TestCase):
 
         # Set limit equal to batch_size
         queryset = Version.objects.filter(slug__startswith="raw-eq-lim-")
-        raw_delete_in_batches(queryset, batch_size=5, limit=5)
+        raw_delete_in_batches(queryset, batch_size=5, end=5)
 
         # Should have 5 versions remaining
         assert Version.objects.filter(slug__startswith="raw-eq-lim-").count() == 5
 
     def test_raw_delete_with_limit_one(self):
-        """Test raw deleting with limit=1 (edge case)."""
+        """Test raw deleting with end=1 (edge case)."""
         # Create a project with 5 versions
         project = get(Project, slug="raw-one-limit")
         for i in range(5):
@@ -320,7 +320,7 @@ class TestRawDeleteInBatches(TestCase):
 
         # Set limit to 1
         queryset = Version.objects.filter(slug__startswith="raw-one-")
-        raw_delete_in_batches(queryset, batch_size=2, limit=1)
+        raw_delete_in_batches(queryset, batch_size=2, end=1)
 
         # Should have 4 versions remaining
         assert Version.objects.filter(slug__startswith="raw-one-").count() == 4

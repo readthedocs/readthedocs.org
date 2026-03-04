@@ -716,6 +716,7 @@ class Project(models.Model):
         self.update_latest_version()
 
     def delete(self, *args, **kwargs):
+        from readthedocs.builds.tasks import remove_build_commands_storage_paths
         from readthedocs.projects.tasks.utils import clean_project_resources
 
         # NOTE: We use _raw_delete to avoid Django fetching all objects
@@ -726,6 +727,12 @@ class Project(models.Model):
         qs._raw_delete(qs.db)
         qs = self.search_queries.all()
         qs._raw_delete(qs.db)
+
+        # Remove build artifacts from storage for cold storage builds.
+        paths_to_delete = []
+        for build in self.builds.filter(cold_storage=True).iterator():
+            paths_to_delete.append(build.storage_path)
+        remove_build_commands_storage_paths.delay(paths_to_delete)
 
         # Remove extra resources
         clean_project_resources(self)

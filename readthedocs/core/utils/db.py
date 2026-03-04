@@ -2,7 +2,9 @@ from collections import Counter
 from itertools import batched
 
 
-def delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> tuple[int, dict]:
+def delete_in_batches(
+    queryset, batch_size=50, start: int | None = None, end: int | None = None
+) -> tuple[int, dict]:
     """
     Delete a queryset in batches to avoid long transactions or big queries.
 
@@ -20,12 +22,15 @@ def delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> tupl
 
     :param queryset: Django queryset to delete
     :param batch_size: Number of records to delete per batch
-    :param limit: Maximum number of records to delete from the queryset
+    :param start: Starting index of the records to delete from the queryset
+    :param end: Ending index of the records to delete from the queryset
     """
-    if limit is not None and limit <= 0:
+    if end is not None and start is None:
+        start = 0
+    if end is not None and end <= 0:
         return 0, {}
 
-    if not limit:
+    if not end:
         # Don't use batch deletion if the number of records
         # is smaller or equal to the batch size.
         # Only do this check if no limit is set,
@@ -42,8 +47,8 @@ def delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> tupl
     # We can't use a limit or offset with .delete,
     # so we first extract the IDs and perform the deletion in another query.
     all_pks = queryset.values_list("pk", flat=True)
-    if limit:
-        all_pks = all_pks[:limit]
+    if end:
+        all_pks = all_pks[start:end]
     for batch in batched(all_pks, batch_size):
         total_deleted_batch, deleted_counter_batch = model.objects.filter(pk__in=batch).delete()
         total_deleted += total_deleted_batch
@@ -51,7 +56,9 @@ def delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> tupl
     return total_deleted, dict(deleted_counter)
 
 
-def raw_delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> int:
+def raw_delete_in_batches(
+    queryset, batch_size=50, start: int | None = None, end: int | None = None
+) -> int:
     """
     Raw delete a queryset in batches to avoid long transactions or big queries.
 
@@ -69,10 +76,12 @@ def raw_delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> 
 
     :return: Number of deleted records
     """
-    if limit is not None and limit <= 0:
+    if end is not None and start is None:
+        start = 0
+    if end is not None and end <= 0:
         return 0
 
-    if not limit:
+    if not end:
         # Don't use batch deletion if the number of records
         # is smaller or equal to the batch size.
         # Only do this check if no limit is set,
@@ -89,8 +98,8 @@ def raw_delete_in_batches(queryset, batch_size=50, limit: int | None = None) -> 
     # We can't use a limit or offset with .raw_delete,
     # so we first extract the IDs and perform the deletion in another query.
     all_pks = queryset.values_list("pk", flat=True)
-    if limit:
-        all_pks = all_pks[:limit]
+    if end:
+        all_pks = all_pks[start:end]
     for batch in batched(all_pks, batch_size):
         qs = model.objects.filter(pk__in=batch)
         qs._raw_delete(qs.db)
