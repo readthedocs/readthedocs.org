@@ -19,6 +19,9 @@ Read the Docs has the following search features:
 Search across :doc:`subprojects </subprojects>`
    Subprojects allow you to host multiple discrete projects on a single domain.
    Every subproject hosted on that same domain is included in the search results of the main project.
+   The search modal shows a filter that lets users choose whether to include subproject results.
+   If you don't need this filter, you can disable it from :guilabel:`Settings` > :guilabel:`Addons` > :guilabel:`Search`
+   by unchecking :guilabel:`Show subprojects filter in search modal`.
 
 Search results land on the exact content you were looking for
    We index every heading in the document,
