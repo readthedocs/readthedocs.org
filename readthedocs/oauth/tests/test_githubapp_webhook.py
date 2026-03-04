@@ -102,6 +102,10 @@ class TestGitHubAppWebhook(TestCase):
                 "target_id": 2222,
                 "target_type": GitHubAccountType.USER,
             },
+            "repository_selection": "all",
+            "account": {
+                "login": "user",
+            },
         }
         r = self.post_webhook("installation", payload)
         assert r.status_code == 200
@@ -111,6 +115,8 @@ class TestGitHubAppWebhook(TestCase):
         )
         assert installation.target_id == 2222
         assert installation.target_type == GitHubAccountType.USER
+        assert installation.all_repositories_selected
+        assert installation.target_login == "user"
         sync.assert_called_once()
 
     @mock.patch.object(GitHubAppService, "sync")
@@ -122,6 +128,10 @@ class TestGitHubAppWebhook(TestCase):
                 "target_id": self.installation.target_id,
                 "target_type": self.installation.target_type,
             },
+            "repository_selection": "all",
+            "account": {
+                "login": "user",
+            },
         }
         r = self.post_webhook("installation", paylod)
         assert r.status_code == 200
@@ -129,6 +139,8 @@ class TestGitHubAppWebhook(TestCase):
         self.installation.refresh_from_db()
         assert self.installation.target_id == 1111
         assert self.installation.target_type == GitHubAccountType.USER
+        assert self.installation.all_repositories_selected
+        assert self.installation.target_login == "user"
         assert GitHubAppInstallation.objects.count() == 1
 
     @mock.patch.object(GitHubAppService, "sync")
