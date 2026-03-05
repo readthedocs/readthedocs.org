@@ -25,7 +25,6 @@ class Migration(migrations.Migration):
             model_name="githubappinstallation",
             name="target_login",
             field=models.CharField(
-                default="",
                 help_text="The account login the installation belongs to",
                 max_length=255,
                 null=True,

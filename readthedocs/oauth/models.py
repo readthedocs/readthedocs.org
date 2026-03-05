@@ -92,7 +92,6 @@ class GitHubAppInstallation(TimeStampedModel):
     )
     target_login = models.CharField(
         help_text=_("The account login the installation belongs to"),
-        default="",
         null=True,
         max_length=255,
     )

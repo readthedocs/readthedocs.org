@@ -101,10 +101,10 @@ class TestGitHubAppWebhook(TestCase):
                 "id": new_installation_id,
                 "target_id": 2222,
                 "target_type": GitHubAccountType.USER,
-            },
-            "repository_selection": "all",
-            "account": {
-                "login": "user",
+                "repository_selection": "all",
+                "account": {
+                    "login": "user",
+                },
             },
         }
         r = self.post_webhook("installation", payload)
@@ -127,10 +127,10 @@ class TestGitHubAppWebhook(TestCase):
                 "id": self.installation.installation_id,
                 "target_id": self.installation.target_id,
                 "target_type": self.installation.target_type,
-            },
-            "repository_selection": "all",
-            "account": {
-                "login": "user",
+                "repository_selection": "all",
+                "account": {
+                    "login": "user",
+                },
             },
         }
         r = self.post_webhook("installation", paylod)
