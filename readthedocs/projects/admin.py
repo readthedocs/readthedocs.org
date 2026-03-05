@@ -6,12 +6,15 @@ from django.contrib import messages
 from django.contrib.admin.actions import delete_selected
 from django.db.models import Sum
 from django.forms import BaseInlineFormSet
+from django.forms import BaseModelFormSet
+from django.forms import modelformset_factory
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.core.history import ExtraSimpleHistoryAdmin
 from readthedocs.core.history import set_change_reason
 from readthedocs.core.utils import trigger_build
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.tasks.search import reindex_version
 from readthedocs.redirects.models import Redirect
 
@@ -85,6 +88,62 @@ class RedirectInline(admin.TabularInline):
 
 class DomainInline(admin.TabularInline):
     model = Domain
+
+
+class RemoteRepositoryInline(ReadOnlyInlineMixin, admin.StackedInline):
+    """Remote repository inline for :py:class:`ProjectAdmin`.
+
+    ``Project.remote_repository`` is a FK from Project to RemoteRepository,
+    so there is no FK in the reverse direction that Django's standard inline
+    mechanism can use. We work around this by using a plain model formset
+    (instead of an inline formset) whose queryset is built from the project's
+    ``remote_repository_id``.
+    """
+
+    model = RemoteRepository
+    classes = ["collapse"]
+    fields = (
+        "full_name",
+        "clone_url",
+        "html_url",
+        "private",
+        "vcs",
+        "vcs_provider",
+        "default_branch",
+    )
+    readonly_fields = fields
+
+    @classmethod
+    def check(cls, parent_model):
+        # Standard inline checks require a FK from RemoteRepository to Project,
+        # which does not exist (the FK goes the other way). We handle the
+        # relationship manually in get_formset(), so we skip those checks.
+        return []
+
+    def get_queryset(self, request):
+        return RemoteRepository.objects.none()
+
+    def get_formset(self, request, obj=None, **kwargs):
+        """Return a model formset whose queryset is the project's remote repository."""
+        if obj and obj.remote_repository_id:
+            qs = RemoteRepository.objects.filter(pk=obj.remote_repository_id)
+        else:
+            qs = RemoteRepository.objects.none()
+
+        class FormSet(BaseModelFormSet):
+            def __init__(self, *args, instance=None, save_as_new=False, **kwargs):
+                # Use the queryset captured from get_formset()'s closure above,
+                # ignoring the queryset/instance kwargs Django passes through.
+                kwargs["queryset"] = qs
+                super().__init__(*args, **kwargs)
+
+        return modelformset_factory(
+            RemoteRepository,
+            formset=FormSet,
+            fields=self.fields,
+            extra=0,
+            can_delete=False,
+        )
 
 
 class ProjectOwnerBannedFilter(admin.SimpleListFilter):
@@ -232,6 +291,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         ProjectRelationshipInline,
         RedirectInline,
         DomainInline,
+        RemoteRepositoryInline,
         VersionInline,
     ]
     readonly_fields = (
