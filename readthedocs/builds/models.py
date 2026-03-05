@@ -1391,3 +1391,382 @@ class AutomationRuleMatch(TimeStampedModel):
 
     def get_action_past_tense(self):
         return self.ACTIONS_PAST_TENSE.get(self.action)
+
+
+# ------------------------------------------------------------------------------
+# New Automation Rule Models (V2)
+# ------------------------------------------------------------------------------
+
+
+class AutomationRule(TimeStampedModel):
+    """
+    Automation rule for versions (v2 design).
+
+    This is a redesigned automation rule system that combines version matching
+    with webhook filtering in a single, more flexible model.
+
+    The rule works as follows:
+    1. Checks if the version type matches one of the configured version_types
+    2. Checks if the version name matches the version_match_pattern (regex)
+    3. If webhook_filter is set, also checks the webhook data against webhook_match_pattern
+    4. If all checks pass, executes the configured action
+    """
+
+    ACTIVATE_VERSION_ACTION = "activate-version"
+    DELETE_VERSION_ACTION = "delete-version"
+    HIDE_VERSION_ACTION = "hide-version"
+    MAKE_VERSION_PUBLIC_ACTION = "make-version-public"
+    MAKE_VERSION_PRIVATE_ACTION = "make-version-private"
+    SET_DEFAULT_VERSION_ACTION = "set-default-version"
+    TRIGGER_BUILD_ACTION = "trigger-build"
+
+    ACTIONS = (
+        (ACTIVATE_VERSION_ACTION, _("Activate version")),
+        (HIDE_VERSION_ACTION, _("Hide version")),
+        (MAKE_VERSION_PUBLIC_ACTION, _("Make version public")),
+        (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
+        (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
+        (DELETE_VERSION_ACTION, _("Delete version")),
+        (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
+    )
+
+    WEBHOOK_FILTER_LABEL = "label"
+    WEBHOOK_FILTER_COMMIT_MESSAGE = "commit_message"
+    WEBHOOK_FILTER_FILE_PATTERN = "file_pattern"
+
+    WEBHOOK_FILTER_CHOICES = (
+        (WEBHOOK_FILTER_LABEL, _("Label")),
+        (WEBHOOK_FILTER_COMMIT_MESSAGE, _("Commit message")),
+        (WEBHOOK_FILTER_FILE_PATTERN, _("File pattern")),
+    )
+
+    TIMEOUT = 1  # timeout in seconds for regex matching
+
+    project = models.ForeignKey(
+        Project,
+        verbose_name=_("Project"),
+        related_name="automation_rules_v2",
+        on_delete=models.CASCADE,
+    )
+
+    priority = models.PositiveIntegerField(
+        _("Rule priority"),
+        help_text=_("A lower number (0) means a higher priority"),
+        default=0,
+    )
+
+    description = models.CharField(
+        _("Description"),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+
+    # Version filtering
+    version_types = models.JSONField(
+        _("Version types"),
+        help_text=_(
+            "List of version types this rule applies to (e.g., ['tag', 'branch', 'external']). "
+            "Use ['any'] to match all version types."
+        ),
+        default=list,
+    )
+
+    version_match_pattern = models.CharField(
+        _("Version match pattern"),
+        help_text=_("Regex pattern to match against the version name (e.g., '^release-.*')"),
+        max_length=255,
+    )
+
+    # Webhook filtering (optional)
+    webhook_filter = models.CharField(
+        _("Webhook filter"),
+        help_text=_(
+            "Type of webhook filter to apply. "
+            "When None, version management actions are supported. "
+            "When set, only 'trigger build' action is supported."
+        ),
+        max_length=32,
+        choices=WEBHOOK_FILTER_CHOICES,
+        null=True,
+        blank=True,
+        default=None,
+    )
+
+    webhook_match_pattern = models.CharField(
+        _("Webhook match pattern"),
+        help_text=_(
+            "Pattern to match against the webhook filter. "
+            "For file_pattern, use comma-separated glob patterns (e.g., 'docs/*,*.rst'). "
+            "For commit_message and label, use regex patterns."
+        ),
+        max_length=1024,
+        null=True,
+        blank=True,
+    )
+
+    # Action to perform
+    action = models.CharField(
+        _("Action"),
+        help_text=_("Action to apply when the rule matches"),
+        max_length=32,
+        choices=ACTIONS,
+    )
+
+    action_arg = models.CharField(
+        _("Action argument"),
+        help_text=_("Optional argument for the action"),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+
+    enabled = models.BooleanField(
+        _("Enabled"),
+        default=True,
+        help_text=_("Whether this rule is enabled"),
+    )
+
+    class Meta:
+        ordering = ("priority", "-modified", "-created")
+        unique_together = (("project", "priority"),)
+        verbose_name = _("Automation rule")
+        verbose_name_plural = _("Automation rules")
+        indexes = [
+            models.Index(fields=["project", "priority"]),
+            models.Index(fields=["project", "enabled"]),
+        ]
+
+    def __str__(self):
+        return f"({self.priority}) {self.get_action_display()}"
+
+    def match_version(self, version):
+        """
+        Check if the version matches this rule's version criteria.
+
+        :param version: Version instance to check
+        :return: True if the version matches, False otherwise
+        """
+        # Check version type
+        if "any" not in self.version_types and version.type not in self.version_types:
+            return False
+
+        # Check version name pattern
+        try:
+            match = regex.search(
+                self.version_match_pattern,
+                version.verbose_name,
+                flags=regex.VERSION0,
+                timeout=self.TIMEOUT,
+            )
+            if not match:
+                return False
+        except TimeoutError:
+            log.warning(
+                "Timeout while parsing version name regex.",
+                pattern=self.version_match_pattern,
+                version_slug=version.slug,
+                rule_id=self.pk,
+            )
+            return False
+        except Exception:
+            log.exception(
+                "Error parsing version name regex.",
+                exc_info=True,
+            )
+            return False
+
+        return True
+
+    def match_webhook(self, changed_files=None, commit_message=None, labels=None):
+        """
+        Check if the webhook data matches this rule's webhook criteria.
+
+        :param changed_files: List of file paths that were modified/added/deleted
+        :param commit_message: Commit message from the webhook event
+        :param labels: List of labels from PR/MR webhook event
+        :return: True if the webhook data matches or no webhook filter is set, False otherwise
+        """
+        # If no webhook filter is set, webhook matching is not required
+        if not self.webhook_filter:
+            return True
+
+        # If webhook filter is set but pattern is empty, fail
+        if not self.webhook_match_pattern:
+            return False
+
+        # Handle different webhook filter types
+        if self.webhook_filter == self.WEBHOOK_FILTER_FILE_PATTERN:
+            if changed_files is None:
+                return False
+            # Support multiple patterns separated by commas
+            patterns = [p.strip() for p in self.webhook_match_pattern.split(",")]
+            for file_path in changed_files:
+                for file_pattern in patterns:
+                    if fnmatch.fnmatch(file_path, file_pattern):
+                        return True
+            return False
+
+        elif self.webhook_filter == self.WEBHOOK_FILTER_COMMIT_MESSAGE:
+            if commit_message is None:
+                return False
+            # Use regex matching for commit message
+            try:
+                match = regex.search(
+                    self.webhook_match_pattern,
+                    commit_message,
+                    flags=regex.VERSION0,
+                    timeout=self.TIMEOUT,
+                )
+                return bool(match)
+            except TimeoutError:
+                log.warning(
+                    "Timeout while parsing regex for commit message.",
+                    pattern=self.webhook_match_pattern,
+                    rule_id=self.pk,
+                )
+            except Exception:
+                log.exception(
+                    "Error parsing regex for commit message.",
+                    exc_info=True,
+                )
+            return False
+
+        elif self.webhook_filter == self.WEBHOOK_FILTER_LABEL:
+            if labels is None:
+                return False
+            # Support multiple label patterns separated by commas
+            patterns = [p.strip() for p in self.webhook_match_pattern.split(",")]
+            for label in labels:
+                for label_pattern in patterns:
+                    # Use regex matching for labels
+                    try:
+                        match = regex.search(
+                            label_pattern,
+                            label,
+                            flags=regex.VERSION0,
+                            timeout=self.TIMEOUT,
+                        )
+                        if match:
+                            return True
+                    except TimeoutError:
+                        log.warning(
+                            "Timeout while parsing regex for label.",
+                            pattern=label_pattern,
+                            rule_id=self.pk,
+                        )
+                    except Exception:
+                        log.exception(
+                            "Error parsing regex for label.",
+                            exc_info=True,
+                        )
+            return False
+
+        return False
+
+    def match(self, version, changed_files=None, commit_message=None, labels=None):
+        """
+        Check if this rule matches the given version and webhook data.
+
+        :param version: Version instance to check
+        :param changed_files: List of file paths that were modified/added/deleted
+        :param commit_message: Commit message from the webhook event
+        :param labels: List of labels from PR/MR webhook event
+        :return: True if both version and webhook criteria match, False otherwise
+        """
+        if not self.enabled:
+            return False
+
+        return self.match_version(version) and self.match_webhook(
+            changed_files=changed_files,
+            commit_message=commit_message,
+            labels=labels,
+        )
+
+    def apply_action(self, version):
+        """
+        Apply the configured action to the version.
+
+        :param version: Version instance to apply the action to
+        """
+        action_map = {
+            self.ACTIVATE_VERSION_ACTION: actions.activate_version,
+            self.HIDE_VERSION_ACTION: actions.hide_version,
+            self.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
+            self.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
+            self.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
+            self.DELETE_VERSION_ACTION: actions.delete_version,
+            self.TRIGGER_BUILD_ACTION: actions.trigger_build_for_version,
+        }
+
+        action_func = action_map.get(self.action)
+        if action_func:
+            action_func(version, self.action_arg)
+        else:
+            raise NotImplementedError(f"Action {self.action} is not implemented")
+
+    def run(self, version, **webhook_data):
+        """
+        Run the rule: check if it matches and apply the action if it does.
+
+        :param version: Version instance to check and act upon
+        :param webhook_data: Optional webhook data (changed_files, commit_message, labels)
+        :return: True if the action was performed, False otherwise
+        """
+        if self.match(version, **webhook_data):
+            self.apply_action(version)
+            AutomationRuleMatchV2.objects.register_match(
+                rule=self,
+                version=version,
+            )
+            return True
+        return False
+
+
+class AutomationRuleMatchV2(TimeStampedModel):
+    """Record of when an AutomationRule (v2) matched and was applied."""
+
+    ACTIONS_PAST_TENSE = {
+        AutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
+        AutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
+        AutomationRule.MAKE_VERSION_PUBLIC_ACTION: _("Version set to public privacy"),
+        AutomationRule.MAKE_VERSION_PRIVATE_ACTION: _("Version set to private privacy"),
+        AutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
+        AutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+        AutomationRule.TRIGGER_BUILD_ACTION: _("Build triggered for version"),
+    }
+
+    rule = models.ForeignKey(
+        AutomationRule,
+        verbose_name=_("Matched rule"),
+        related_name="matches",
+        on_delete=models.CASCADE,
+    )
+
+    # Metadata from when the match happened
+    version_name = models.CharField(max_length=255)
+    version_type = models.CharField(
+        max_length=32,
+        choices=VERSION_TYPES,
+    )
+    action = models.CharField(
+        max_length=255,
+        choices=AutomationRule.ACTIONS,
+    )
+    match_data = models.JSONField(
+        _("Match data"),
+        help_text=_("Additional data about what was matched (patterns, webhook data, etc.)"),
+        default=dict,
+        null=True,
+        blank=True,
+    )
+
+    objects = AutomationRuleMatchManager()
+
+    class Meta:
+        ordering = ("-modified", "-created")
+        verbose_name = _("Automation rule match")
+        verbose_name_plural = _("Automation rule matches")
+
+    def get_action_past_tense(self):
+        return self.ACTIONS_PAST_TENSE.get(self.action)
