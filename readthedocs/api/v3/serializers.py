@@ -28,7 +28,6 @@ from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import LANGUAGES
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
-from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
@@ -481,8 +480,8 @@ class RepositorySerializer(serializers.ModelSerializer):
             "type",
         ]
         extra_kwargs = {
-            'url': {'source': 'repo'},
-            'type': {'source': 'repo_type'},
+            "url": {"source": "repo"},
+            "type": {"source": "repo_type"},
         }
 
 
