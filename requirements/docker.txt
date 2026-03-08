@@ -29,18 +29,18 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.59
+boto3==1.42.63
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.59
+botocore==1.42.63
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2025.1131
     # via -r requirements/pip.txt
-cachetools==7.0.1
+cachetools==7.0.3
     # via tox
 celery==5.6.2
     # via
@@ -57,7 +57,7 @@ cffi==2.0.0
     #   -r requirements/pip.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.4
+charset-normalizer==3.4.5
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -113,7 +113,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.11
+django==5.2.12
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -168,7 +168,7 @@ django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-polymorphic==4.11.1
+django-polymorphic==4.11.2
     # via -r requirements/pip.txt
 django-safemigrate==6.0
     # via -r requirements/pip.txt
@@ -221,7 +221,7 @@ fido2==2.1.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.24.3
+filelock==3.25.0
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -236,7 +236,7 @@ idna==3.11
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==9.10.0
+ipython==9.11.0
     # via ipdb
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -300,7 +300,7 @@ pexpect==4.9.0
     # via ipython
 pillow==12.1.1
     # via -r requirements/pip.txt
-platformdirs==4.9.2
+platformdirs==4.9.4
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -371,7 +371,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.1.0
+python-discovery==1.1.1
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -383,7 +383,7 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2025.2
+pytz==2026.1.post1
     # via -r requirements/pip.txt
 pyyaml==6.0.3
     # via -r requirements/pip.txt
@@ -391,7 +391,7 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==7.2.1
+redis==7.3.0
     # via -r requirements/pip.txt
 regex==2026.2.28
     # via -r requirements/pip.txt
@@ -417,7 +417,7 @@ s3transfer==0.16.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.4.6
+selectolax==0.4.7
     # via -r requirements/pip.txt
 six==1.17.0
     # via
@@ -452,7 +452,9 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
-tox==4.46.3
+tomli-w==1.2.0
+    # via tox
+tox==4.49.0
     # via -r requirements/docker.in
 traitlets==5.14.3
     # via
@@ -488,7 +490,7 @@ ua-parser==1.0.1
     # via
     #   -r requirements/pip.txt
     #   user-agents
-ua-parser-builtins==202602
+ua-parser-builtins==202603
     # via
     #   -r requirements/pip.txt
     #   ua-parser
