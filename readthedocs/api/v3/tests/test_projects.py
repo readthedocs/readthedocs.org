@@ -482,8 +482,15 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_import_project_with_invalid_repo_url(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
-
-        for invalid_url in ["not-a-url", "random string"]:
+        invalid_urls = [
+            "not-a-url",
+            "random string",
+            "javascript:alert(1)",
+            "ftp://github.com/user/repo",
+            "file:///etc/passwd",
+            "//github.com/user/repo",
+        ]
+        for invalid_url in invalid_urls:
             data = {
                 "name": "Test Project",
                 "repository": {
@@ -491,32 +498,9 @@ class ProjectsEndpointTests(APIEndpointMixin):
                     "type": "git",
                 },
             }
-            response = self.client.post(reverse("projects-list"), data)
-            self.assertContains(
-                response,
-                "Invalid scheme for URL",
-                status_code=400,
-                msg_prefix=invalid_url,
-            )
-
-    def test_import_project_with_non_http_protocol_url(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
-
-        for invalid_url in ["ssh://github.com/user/repo", "git@github.com:user/repo"]:
-            data = {
-                "name": "Test Project",
-                "repository": {
-                    "url": invalid_url,
-                    "type": "git",
-                },
-            }
-            response = self.client.post(reverse("projects-list"), data)
-            self.assertContains(
-                response,
-                "Manual cloning via SSH is not supported",
-                status_code=400,
-                msg_prefix=invalid_url,
-            )
+            r = self.client.post(reverse("projects-list"), data)
+            assert r.status_code == 400, invalid_url
+            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], invalid_url
 
     def test_import_project_with_extra_fields(self):
         data = {
@@ -880,19 +864,26 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
 
-        for invalid_url in ["not-a-url", "ssh://github.com/user/repo"]:
+        invalid_urls = [
+            "not-a-url",
+            "random string",
+            "javascript:alert(1)",
+            "ftp://github.com/user/repo",
+            "file:///etc/passwd",
+            "//github.com/user/repo",
+        ]
+        for invalid_url in invalid_urls:
             data = {
                 "repository": {
                     "url": invalid_url,
                 },
             }
-            response = self.client.patch(url, data)
-            self.assertEqual(response.status_code, 400, invalid_url)
+            r = self.client.patch(url, data)
+            assert r.status_code == 400, invalid_url
+            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], invalid_url
 
         self.project.refresh_from_db()
-        self.assertNotEqual(self.project.repo, "not-a-url")
-        self.assertNotEqual(self.project.repo, "ssh://github.com/user/repo")
-        self.assertEqual(self.project.repo, "https://github.com/rtfd/project")
+        assert self.project.repo == "https://github.com/rtfd/project"
 
     def test_projects_notifications_list(self):
         url = reverse(
