@@ -370,25 +370,6 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/pip/advanced/": {"status_code": 301},
         # Unauth access redirect for non-owners
         "/dashboard/pip/": {"status_code": 301},
-        # 405's where we should be POST'ing
-        "/dashboard/pip/users/delete/": {"status_code": 405},
-        "/dashboard/pip/notifications/delete/": {"status_code": 405},
-        "/dashboard/pip/redirects/{redirect_pk}/delete/": {"status_code": 405},
-        "/dashboard/pip/redirects/{redirect_pk}/insert/{position}/": {
-            "status_code": 405
-        },
-        "/dashboard/pip/subprojects/sub/delete/": {"status_code": 405},
-        "/dashboard/pip/integrations/sync/": {"status_code": 405},
-        "/dashboard/pip/integrations/{integration_id}/sync/": {"status_code": 405},
-        "/dashboard/pip/integrations/{integration_id}/delete/": {"status_code": 405},
-        "/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/": {
-            "status_code": 405
-        },
-        "/dashboard/pip/translations/delete/sub/": {"status_code": 405},
-        "/dashboard/pip/version/latest/delete_html/": {"status_code": 405},
-        "/dashboard/pip/rules/{automation_rule_id}/delete/": {"status_code": 405},
-        "/dashboard/pip/rules/{automation_rule_id}/move/{steps}/": {"status_code": 405},
-        "/dashboard/pip/webhooks/{webhook_id}/delete/": {"status_code": 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
