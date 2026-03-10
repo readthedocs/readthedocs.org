@@ -479,6 +479,8 @@ class RepositorySerializer(serializers.ModelSerializer):
             "url",
             "type",
         ]
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
         extra_kwargs = {
             "url": {"source": "repo"},
             "type": {"source": "repo_type"},
@@ -603,6 +605,8 @@ class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
         )
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
         extra_kwargs = {
             "homepage": {"source": "project_url"},
         }
@@ -707,6 +711,8 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
         )
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
         extra_kwargs = {
             "homepage": {"source": "project_url"},
         }
@@ -1026,6 +1032,8 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "position",
             "_links",
         ]
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
         extra_kwargs = {
             "type": {"source": "redirect_type"},
         }
