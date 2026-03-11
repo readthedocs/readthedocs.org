@@ -112,8 +112,8 @@ class CancelBuildViewWithOrganizationsTests(CancelBuildViewTests):
 class BuildViewsTests(TestCase):
     def setUp(self):
         self.user = get(User, username="test")
-        self.project = get(Project, users=[self.user])
-        self.version = get(Version, project=self.project)
+        self.project = get(Project, users=[self.user], privacy_level=PUBLIC)
+        self.version = get(Version, project=self.project, privacy_level=PUBLIC)
         self.build = get(
             Build,
             project=self.project,
