@@ -1,7 +1,61 @@
 """Django storage mixin classes for different storage backends (Azure, S3)."""
 
+from functools import cached_property
+from pathlib import Path
 from urllib.parse import urlsplit
 from urllib.parse import urlunsplit
+
+import structlog
+from django.conf import settings
+from django.core.exceptions import SuspiciousFileOperation
+
+
+log = structlog.get_logger(__name__)
+
+
+class RTDBaseStorage:
+    """
+    A mixin for Storage classes used by our application.
+
+    This adds and modifies some functionality to Django's File Storage API.
+    This mixin also adds convenience methods to copy and delete entire directories,
+    and interacting with rclone to sync directories to storage.
+
+    See: https://docs.djangoproject.com/en/5.2/ref/files/storage/
+    """
+
+    def _check_suspicious_path(self, path):
+        """Check that the given path isn't a symlink or outside the doc root."""
+        path = Path(path)
+        resolved_path = path.resolve()
+        if path.is_symlink():
+            msg = "Suspicious operation over a symbolic link."
+            log.error(msg, path=str(path), resolved_path=str(resolved_path))
+            raise SuspiciousFileOperation(msg)
+
+        docroot = Path(settings.DOCROOT).absolute()
+        if not path.is_relative_to(docroot):
+            msg = "Suspicious operation outside the docroot directory."
+            log.error(msg, path=str(path), resolved_path=str(resolved_path))
+            raise SuspiciousFileOperation(msg)
+
+    @cached_property
+    def _rclone(self):
+        raise NotImplementedError
+
+    def rclone_sync_directory(self, source, destination):
+        """Sync a directory recursively to storage using rclone sync."""
+        if destination in ("", "/"):
+            raise SuspiciousFileOperation("Syncing all storage cannot be right")
+
+        self._check_suspicious_path(source)
+        return self._rclone.sync(source, destination)
+
+    def delete_directory(self, path):
+        raise NotImplementedError
+
+    def join(self, directory, filepath):
+        raise NotImplementedError
 
 
 class OverrideHostnameMixin:
