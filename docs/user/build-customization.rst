@@ -429,7 +429,10 @@ Take a look at the following example:
 Install dependencies with ``uv``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Projects managed with `uv <https://github.com/astral-sh/uv/>`__ can install `uv` with asdf,
+For a complete guide with multiple ``uv`` workflows and recommendations,
+see :doc:`/guides/uv`.
+
+Projects managed with `uv <https://github.com/astral-sh/uv/>`__ can install ``uv`` with asdf,
 and then rely on it to set up the environment and install the python project and its dependencies.
 Read the Docs' own build steps expect it by setting the ``UV_PROJECT_ENVIRONMENT`` variable,
 usually reducing the time taken to install compared to pip.
@@ -457,8 +460,8 @@ If a ``uv.lock`` file exists it is respected.
       jobs:
          pre_create_environment:
             - asdf plugin add uv
-            - asdf install uv latest
-            - asdf global uv latest
+            - asdf install uv 0.10.6
+            - asdf global uv 0.10.6
          create_environment:
             - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
          install:
