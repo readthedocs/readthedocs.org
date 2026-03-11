@@ -2,7 +2,6 @@ from enum import StrEnum
 from enum import auto
 
 import structlog
-from django.conf import settings
 from django.core.files.storage import storages
 
 from readthedocs.doc_builder.exceptions import BuildAppError
@@ -27,11 +26,9 @@ def get_storage(*, build_id, api_client, storage_type: StorageType):
         so we need to dynamically create the storage class instance
     """
     storage_class = _get_storage_class(storage_type)
-    extra_kwargs = {}
-    if settings.USING_AWS:
-        extra_kwargs = _get_s3_scoped_credentials(
-            build_id=build_id, api_client=api_client, storage_type=storage_type
-        )
+    extra_kwargs = _get_s3_scoped_credentials(
+        build_id=build_id, api_client=api_client, storage_type=storage_type
+    )
     return storage_class(**extra_kwargs)
 
 

@@ -66,8 +66,8 @@ class TestProjectForms(TestCase):
             ("https://github.com/humitos/foo", True),
             ("http://gitlab.com/humitos/foo", True),
             ("http://bitbucket.com/humitos/foo", True),
-            ("ftp://ftpserver.com/humitos/foo", True),
-            ("ftps://ftpserver.com/humitos/foo", True),
+            ("ftp://ftpserver.com/humitos/foo", False),
+            ("ftps://ftpserver.com/humitos/foo", False),
             ("lp:zaraza", True),
         ]
 
