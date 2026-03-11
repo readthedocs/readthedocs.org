@@ -154,6 +154,10 @@ class CommunityTestSettings(CommunityBaseSettings):
             },
             "build-commands": {
                 "BACKEND": self.RTD_BUILD_COMMANDS_STORAGE,
+                "OPTIONS": {
+                    "location": self.MEDIA_ROOT,
+                    "allow_overwrite": True,
+                },
             },
             "build-tools": {
                 "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
