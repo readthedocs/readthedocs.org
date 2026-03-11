@@ -15,6 +15,9 @@ How-to guides: build process
 ⏩️ :doc:`Using custom environment variables </guides/environment-variables>`
     Extra environment variables, for instance secrets, may be needed in the build process and can be defined from the project's :term:`dashboard`.
 
+⏩️ :doc:`Using uv on Read the Docs </guides/uv>`
+    Use ``uv`` with lockfile-based or requirements-based workflows for your documentation builds.
+
 ⏩️ :doc:`Managing versions automatically </guides/automation-rules>`
     Automating your versioning on Read the Docs means you only have to handle your versioning logic in Git.
     Learn how to define rules to automate creation of new versions on Read the Docs,
@@ -38,5 +41,6 @@ How-to guides: build process
    /guides/build/webhooks
    Configuring pull request builds </guides/pull-requests>
    Using custom environment variables </guides/environment-variables>
+   Using uv on Read the Docs </guides/uv>
    Managing versions automatically </guides/automation-rules>
    Skip builds based on conditions </guides/build/skip-build>
