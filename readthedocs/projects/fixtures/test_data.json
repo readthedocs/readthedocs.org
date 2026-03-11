@@ -455,10 +455,10 @@
     "fields": {
         "pub_date": "2010-08-15T00:12:14Z",
         "modified_date": "2010-08-15T13:18:17Z",
-        "name": "poliastro",
-        "slug": "poliastro",
+        "name": "requests",
+        "slug": "requests",
         "description": "Awesome",
-        "repo": "https://github.com/poliastro/poliastro",
+        "repo": "https://github.com/psf/requests",
         "repo_type": "git",
         "project_url": "",
         "canonical_url": "",
