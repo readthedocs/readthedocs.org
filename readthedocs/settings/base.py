@@ -754,15 +754,6 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
         },
-        # TODO: delete this task when all imported files pending deletion are done.
-        # It shuold take around 36 days to delete all the old imported files on community,
-        # and 6 days in commercial.
-        "every-hour-delete-imported-files": {
-            "task": "readthedocs.core.tasks.delete_outdated_imported_files",
-            "schedule": crontab(minute=15, hour="*"),
-            "options": {"queue": "web"},
-            "kwargs": {"limit": 10_000},
-        },
     }
 
     # Sentry

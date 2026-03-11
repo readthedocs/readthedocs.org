@@ -480,6 +480,28 @@ class ProjectsEndpointTests(APIEndpointMixin):
             status_code=400,
         )
 
+    def test_import_project_with_invalid_repo_url(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        invalid_urls = [
+            "not-a-url",
+            "random string",
+            "javascript:alert(1)",
+            "ftp://github.com/user/repo",
+            "file:///etc/passwd",
+            "//github.com/user/repo",
+        ]
+        for invalid_url in invalid_urls:
+            data = {
+                "name": "Test Project",
+                "repository": {
+                    "url": invalid_url,
+                    "type": "git",
+                },
+            }
+            r = self.client.post(reverse("projects-list"), data)
+            assert r.status_code == 400, invalid_url
+            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], invalid_url
+
     def test_import_project_with_extra_fields(self):
         data = {
             "name": "Test Project",
@@ -805,6 +827,63 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.project.refresh_from_db()
         self.assertEqual(self.project.privacy_level, "public")
         self.assertEqual(self.project.external_builds_privacy_level, "public")
+
+    def test_update_project_with_invalid_repo_url(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+
+        for invalid_url in ["not-a-url", "ssh://github.com/user/repo"]:
+            data = {
+                "name": "Updated name",
+                "repository": {
+                    "url": invalid_url,
+                    "type": "git",
+                },
+                "language": "en",
+                "programming_language": "py",
+            }
+            response = self.client.put(url, data)
+            self.assertEqual(response.status_code, 400, invalid_url)
+
+        self.project.refresh_from_db()
+        self.assertNotEqual(self.project.repo, "not-a-url")
+        self.assertNotEqual(self.project.repo, "ssh://github.com/user/repo")
+        self.assertEqual(self.project.repo, "https://github.com/rtfd/project")
+
+    def test_partial_update_project_with_invalid_repo_url(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+
+        invalid_urls = [
+            "not-a-url",
+            "random string",
+            "javascript:alert(1)",
+            "ftp://github.com/user/repo",
+            "file:///etc/passwd",
+            "//github.com/user/repo",
+        ]
+        for invalid_url in invalid_urls:
+            data = {
+                "repository": {
+                    "url": invalid_url,
+                },
+            }
+            r = self.client.patch(url, data)
+            assert r.status_code == 400, invalid_url
+            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], invalid_url
+
+        self.project.refresh_from_db()
+        assert self.project.repo == "https://github.com/rtfd/project"
 
     def test_projects_notifications_list(self):
         url = reverse(
