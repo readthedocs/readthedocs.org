@@ -1,37 +1,27 @@
-from django.core.files.storage import FileSystemStorage
-from readthedocs.storage.utils import safe_join
-from django.conf import settings
-
 import shutil
-from readthedocs.storage.rclone import RCloneLocal
-
-from readthedocs.storage.mixins import RTDBaseStorage
 from functools import cached_property
 
-class RTDFileSystemStorage(RTDBaseStorage, FileSystemStorage):
+from django.core.files.storage import FileSystemStorage
 
+from readthedocs.storage.mixins import RTDBaseStorage
+from readthedocs.storage.rclone import RCloneLocal
+from readthedocs.storage.utils import safe_join
+
+
+class RTDFileSystemStorage(RTDBaseStorage, FileSystemStorage):
     """
-    Storage subclass that writes files in to the local filesystem.
+    Storage subclass that writes files to the local filesystem.
 
     .. note:: This storage is used on tests only, and it is not used in production.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, location=None, allow_overwrite=False, **kwargs):
         # TODO: find a better way to not pass unknown kwargs to FileSystemStorage.
         # This happens because we are creating storage instances dynamically in
         # readthedocs.projects.tasks.storage and we are passing the credentials
         # as kwargs, which are not used by FileSystemStorage.
         # NOTE: this is used on tests only.
-        location = kwargs.pop("location", None)
-
-        if not location:
-            # Mirrors the logic of getting the production media path
-            if settings.DEFAULT_PRIVACY_LEVEL == "public" or settings.DEBUG:
-                location = settings.MEDIA_ROOT
-            else:
-                location = settings.PRODUCTION_MEDIA_ARTIFACTS
-
-        super().__init__(location)
+        super().__init__(location=location, allow_overwrite=allow_overwrite)
 
     @cached_property
     def _rclone(self):

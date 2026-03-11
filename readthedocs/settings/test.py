@@ -146,7 +146,6 @@ class CommunityTestSettings(CommunityBaseSettings):
                 "BACKEND": self.RTD_STATICFILES_STORAGE,
             },
             "build-media": {
-                # "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
                 "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
                 "OPTIONS": {
                     "location": self.MEDIA_ROOT,
