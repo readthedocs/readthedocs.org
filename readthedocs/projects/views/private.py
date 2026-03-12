@@ -67,7 +67,6 @@ from readthedocs.projects.forms import ProjectConfigForm
 from readthedocs.projects.forms import ProjectManualForm
 from readthedocs.projects.forms import ProjectPullRequestForm
 from readthedocs.projects.forms import ProjectRelationshipForm
-from readthedocs.projects.forms import ProjectSearchSettingsForm
 from readthedocs.projects.forms import RedirectForm
 from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
@@ -1346,32 +1345,10 @@ class ProjectSearchSettingsUpdate(ProjectAdminMixin, UpdateView):
     template_name = "projects/search_settings_form.html"
     lookup_url_kwarg = "project_slug"
     lookup_field = "slug"
-    form_classes = [ProjectSearchSettingsForm, AddonsConfigSearchSettingsForm]
+    form_class = AddonsConfigSearchSettingsForm
 
     def get_queryset(self):
         return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
         return reverse("projects_search_settings", args=[self.object.slug])
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        forms = self.get_forms(instance=self.object)
-        context = self.get_context_data(forms=forms)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        forms = self.get_forms(data=request.POST, instance=self.object)
-        if all(form.is_valid() for form in forms):
-            for form in forms:
-                form.save()
-            messages.success(self.request, self.success_message)
-            return HttpResponseRedirect(self.get_success_url())
-
-        context = self.get_context_data(forms=forms)
-        return self.render_to_response(context)
-
-    def get_forms(self, data=None, files=None, **kwargs):
-        kwargs.update(self.get_form_kwargs())
-        return [form_class(data, files, **kwargs) for form_class in self.form_classes]
