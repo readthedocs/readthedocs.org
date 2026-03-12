@@ -90,7 +90,7 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
     :param user_id: The ID of the user performing the deletion.
      Just for logging purposes.
     """
-    task_log = structlog.contextvars.bind_contextvars(
+    structlog.contextvars.bind_contextvars(
         model_name=model_name,
         object_pk=pk,
         user_id=user_id,
@@ -101,16 +101,16 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
         lock_id=lock_id, lock_expire=lock_expire, app_identifier=self.app.oid
     ) as acquired:
         if not acquired:
-            task_log.info("Object is already being deleted.")
+            log.info("Object is already being deleted.")
             return
 
         user = User.objects.filter(pk=user_id).first() if user_id else None
         Model = apps.get_model(model_name)
         obj = Model.objects.filter(pk=pk).first()
         if obj:
-            task_log.info("Deleting object.")
+            log.info("Deleting object.")
             set_change_reason(obj, reason="Object deleted asynchronously", user=user)
             obj.delete()
-            task_log.info("Object deleted.")
+            log.info("Object deleted.")
         else:
-            task_log.info("Object does not exist.")
+            log.info("Object does not exist.")
