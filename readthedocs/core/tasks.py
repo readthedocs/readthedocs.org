@@ -90,7 +90,11 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
     :param user_id: The ID of the user performing the deletion.
      Just for logging purposes.
     """
-    task_log = log.bind(model_name=model_name, object_pk=pk, user_id=user_id)
+    task_log = structlog.contextvars.bind_contextvars(
+        model_name=model_name,
+        object_pk=pk,
+        user_id=user_id,
+    )
     lock_id = f"{self.name}-{model_name}-{pk}-lock"
     lock_expire = 60 * 60 * 2  # 2 hours
     with memcache_lock(
