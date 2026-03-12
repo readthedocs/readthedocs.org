@@ -1,7 +1,83 @@
 """Django storage mixin classes for different storage backends (Azure, S3)."""
 
+from functools import cached_property
+from pathlib import Path
+from typing import Iterator
 from urllib.parse import urlsplit
 from urllib.parse import urlunsplit
+
+import structlog
+from django.conf import settings
+from django.core.exceptions import SuspiciousFileOperation
+
+
+log = structlog.get_logger(__name__)
+
+
+class RTDBaseStorage:
+    """
+    A common interface for all our storage backends to implement.
+
+    This adds some convenience methods to Django's File Storage API.
+    like to copy and delete entire directories efficiently,
+    and interacting with rclone to sync directories to storage.
+
+    See: https://docs.djangoproject.com/en/5.2/ref/files/storage/
+    """
+
+    def _check_suspicious_path(self, path):
+        """Check that the given path isn't a symlink or outside the doc root."""
+        path = Path(path)
+        resolved_path = path.resolve()
+        if path.is_symlink():
+            msg = "Suspicious operation over a symbolic link."
+            log.error(msg, path=str(path), resolved_path=str(resolved_path))
+            raise SuspiciousFileOperation(msg)
+
+        docroot = Path(settings.DOCROOT).absolute()
+        if not path.is_relative_to(docroot):
+            msg = "Suspicious operation outside the docroot directory."
+            log.error(msg, path=str(path), resolved_path=str(resolved_path))
+            raise SuspiciousFileOperation(msg)
+
+    @cached_property
+    def _rclone(self):
+        raise NotImplementedError
+
+    def rclone_sync_directory(self, source, destination):
+        """Sync a directory recursively to storage using rclone sync."""
+        if destination in ("", "/"):
+            raise SuspiciousFileOperation("Syncing all storage cannot be right")
+
+        self._check_suspicious_path(source)
+        return self._rclone.sync(source, destination)
+
+    def delete_directory(self, path):
+        raise NotImplementedError
+
+    def join(self, directory, filepath):
+        raise NotImplementedError
+
+    def walk(self, path) -> Iterator[tuple[str, list[str], list[str]]]:
+        """
+        Walk the directory tree under the given path.
+
+        This is a generator that yields tuples of (dirpath, dirnames, filenames) for each directory in the tree.
+
+        Note tha dirpath is relative to the storage root, not absolute.
+        """
+        if path in ("", "/"):
+            raise SuspiciousFileOperation("Iterating all storage cannot be right")
+
+        log.debug("Walking path in storage", path=path)
+        folders, files = self.listdir(path)
+
+        yield path, folders, files
+
+        for folder_name in folders:
+            if folder_name:
+                # Recursively walk the subdirectory
+                yield from self.walk(self.join(path, folder_name))
 
 
 class OverrideHostnameMixin:
