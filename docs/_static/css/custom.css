@@ -21,3 +21,216 @@
   -webkit-font-smoothing: antialiased;
 
 }
+
+/* Footer CTA */
+.rtd-cta {
+  text-align: center;
+  padding: 24px 16px;
+  margin-top: 24px;
+  background-color: #1a1c1e;
+  border-radius: 8px;
+}
+
+.rtd-cta-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.rtd-cta-text {
+  font-size: 14px;
+  color: #9da5b4;
+  margin: 0 0 16px;
+}
+
+.rtd-cta-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.rtd-cta-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.rtd-cta-btn-primary {
+  background-color: #00a98e;
+  color: #fff;
+}
+
+.rtd-cta-btn-primary:hover,
+.rtd-cta-btn-primary:visited {
+  background-color: #00897a;
+  color: #fff;
+  text-decoration: none;
+}
+
+.rtd-cta-btn-secondary {
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+.rtd-cta-btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Modal overlay */
+.rtd-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.rtd-modal {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 640px;
+  width: 100%;
+  padding: 32px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.rtd-modal-sm {
+  max-width: 380px;
+}
+
+.rtd-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+}
+
+.rtd-modal-close:hover {
+  color: #333;
+}
+
+.rtd-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: #333;
+}
+
+.rtd-modal-subtitle {
+  color: #666;
+  margin: 0 0 20px;
+  font-size: 14px;
+}
+
+/* Sign up modal cards */
+.rtd-modal-cards {
+  display: flex;
+  gap: 16px;
+}
+
+.rtd-modal-card {
+  flex: 1;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.rtd-modal-card h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: #333;
+}
+
+.rtd-modal-card-sub {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 12px;
+}
+
+.rtd-modal-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  text-align: left;
+  font-size: 13px;
+  color: #444;
+}
+
+.rtd-modal-card ul li {
+  padding: 4px 0;
+}
+
+.rtd-modal-card ul li::before {
+  content: "\f00c";
+  font-family: FontAwesome;
+  color: #00a98e;
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+.rtd-modal-card-price {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 12px;
+}
+
+/* Log in modal links */
+.rtd-modal-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rtd-modal-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #333;
+  transition: background-color 0.15s;
+}
+
+.rtd-modal-link:hover {
+  background-color: #f5f5f5;
+  text-decoration: none;
+  color: #333;
+}
+
+.rtd-modal-link span {
+  font-size: 13px;
+  color: #888;
+  font-family: monospace;
+}
+
+/* Responsive: stack cards on narrow viewports */
+@media (max-width: 540px) {
+  .rtd-modal-cards {
+    flex-direction: column;
+  }
+}

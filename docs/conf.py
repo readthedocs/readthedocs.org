@@ -70,7 +70,7 @@ ogp_custom_meta_tags = (
 ogp_enable_meta_description = True
 ogp_description_length = 300
 
-templates_path = ["_templates"]
+templates_path = [os.path.join(os.path.dirname(__file__), "_templates")]
 
 # This may be elevated as a general issue for documentation and behavioral
 # change to the Sphinx build:
