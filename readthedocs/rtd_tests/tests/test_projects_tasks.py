@@ -13,7 +13,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
     EXTERNAL,
 )
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks.utils import finish_unhealthy_builds, send_external_build_status
 
@@ -93,6 +93,8 @@ class TestFinishInactiveBuildsTask(TestCase):
             healthcheck=timezone.now() - datetime.timedelta(minutes=15),
         )
 
+        get(BuildCommandResult, build=build_3, start_time=timezone.now())
+
         finish_unhealthy_builds()
 
         build_1.refresh_from_db()
@@ -103,5 +105,6 @@ class TestFinishInactiveBuildsTask(TestCase):
 
         build_3.refresh_from_db()
         self.assertEqual(build_3.state, BUILD_STATE_CANCELLED)
+        self.assertIsNotNone(build_3.length)
         self.assertEqual(build_3.success, False)
         self.assertEqual(build_3.notifications.count(), 1)
