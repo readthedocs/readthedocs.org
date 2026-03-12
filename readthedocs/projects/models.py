@@ -238,7 +238,7 @@ class AddonsConfig(TimeStampedModel):
     hotkeys_enabled = models.BooleanField(default=True)
 
     # Search
-    search_enabled = models.BooleanField(default=True)
+    search_enabled = models.BooleanField(_("Enable search modal"), default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
     search_show_subprojects_filter = models.BooleanField(
         "Show subprojects filter in search modal",
