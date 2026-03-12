@@ -15,10 +15,10 @@ log = structlog.get_logger(__name__)
 
 class RTDBaseStorage:
     """
-    A mixin for Storage classes used by our application.
+    A common interface for all our storage backends to implement.
 
-    This adds and modifies some functionality to Django's File Storage API.
-    This mixin also adds convenience methods to copy and delete entire directories,
+    This adds some convenience methods to Django's File Storage API.
+    like to copy and delete entire directories efficiently,
     and interacting with rclone to sync directories to storage.
 
     See: https://docs.djangoproject.com/en/5.2/ref/files/storage/
