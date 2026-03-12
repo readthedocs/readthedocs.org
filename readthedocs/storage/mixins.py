@@ -2,6 +2,7 @@
 
 from functools import cached_property
 from pathlib import Path
+from typing import Iterator
 from urllib.parse import urlsplit
 from urllib.parse import urlunsplit
 
@@ -56,6 +57,27 @@ class RTDBaseStorage:
 
     def join(self, directory, filepath):
         raise NotImplementedError
+
+    def walk(self, path) -> Iterator[tuple[str, list[str], list[str]]]:
+        """
+        Walk the directory tree under the given path.
+
+        This is a generator that yields tuples of (dirpath, dirnames, filenames) for each directory in the tree.
+
+        Note tha dirpath is relative to the storage root, not absolute.
+        """
+        if path in ("", "/"):
+            raise SuspiciousFileOperation("Iterating all storage cannot be right")
+
+        log.debug("Walking path in storage", path=path)
+        folders, files = self.listdir(path)
+
+        yield path, folders, files
+
+        for folder_name in folders:
+            if folder_name:
+                # Recursively walk the subdirectory
+                yield from self.walk(self.join(path, folder_name))
 
 
 class OverrideHostnameMixin:
