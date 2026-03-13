@@ -486,7 +486,6 @@ class UpdateProjectForm(
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.had_search_disabled = not self.instance.search_indexing_enabled
 
         # Remove empty choice from options.
@@ -1285,3 +1284,16 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _("Only letters, numbers and underscore are allowed"),
             )
         return name
+
+
+class AddonsConfigSearchSettingsForm(forms.ModelForm):
+    """Form to configure addons search settings."""
+
+    class Meta:
+        model = AddonsConfig
+        fields = ["search_enabled", "search_show_subprojects_filter"]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        kwargs["instance"] = self.project.addons
+        super().__init__(*args, **kwargs)
