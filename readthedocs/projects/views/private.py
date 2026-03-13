@@ -1351,4 +1351,4 @@ class ProjectSearchSettingsUpdate(PrivateViewMixin, ProjectAdminMixin, UpdateVie
         return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
-        return reverse("projects_search_settings", args=[self.object.slug])
+        return reverse("projects_search_settings", args=[self.get_project().slug])
