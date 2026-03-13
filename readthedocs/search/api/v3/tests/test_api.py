@@ -4,14 +4,18 @@ from unittest import mock
 import pytest
 from django.contrib.auth.models import User
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.organizations.models import Organization, Team
-from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
+from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
 from readthedocs.search.documents import PageDocument
 
 
@@ -801,6 +805,45 @@ class SearchAPIWithOrganizationsTest(SearchTestBase):
             projects, [{"slug": "another-project", "versions": [{"slug": "latest"}]}]
         )
         self.assertEqual(len(results), 1)
+        self.assertEqual(resp.data["query"], "test")
+
+    def test_search_org(self):
+        resp = self.client.get(self.url, data={"q": f"org:{self.organization.slug} test"})
+        projects = resp.data["projects"]
+        results = resp.data["results"]
+        self.assertEqual(
+            projects,
+            [
+                {"slug": "project", "versions": [{"slug": "latest"}]},
+                {"slug": "project-b", "versions": [{"slug": "latest"}]},
+            ],
+        )
+        self.assertEqual(len(results), 2)
+        self.assertEqual(resp.data["query"], "test")
+
+    def test_search_org_team_member(self):
+        self.client.force_login(self.member)
+        resp = self.client.get(self.url, data={"q": f"org:{self.organization.slug} test"})
+        projects = resp.data["projects"]
+        results = resp.data["results"]
+        self.assertEqual(
+            projects,
+            [
+                {"slug": "project-b", "versions": [{"slug": "latest"}]},
+            ],
+        )
+        self.assertEqual(len(results), 1)
+        self.assertEqual(resp.data["query"], "test")
+
+    def test_search_org_no_permissions(self):
+        resp = self.client.get(
+            self.url,
+            data={"q": f"org:{self.another_organization.slug} test"},
+        )
+        projects = resp.data["projects"]
+        results = resp.data["results"]
+        self.assertEqual(projects, [])
+        self.assertEqual(results, [])
         self.assertEqual(resp.data["query"], "test")
 
     def test_search_user_and_project(self):
