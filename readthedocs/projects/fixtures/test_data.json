@@ -275,10 +275,10 @@
     "fields": {
         "pub_date": "2010-08-14T13:01:57Z",
         "modified_date": "2010-08-15T13:18:20Z",
-        "name": "Sphinx",
-        "slug": "sphinx",
+        "name": "Jinja",
+        "slug": "jinja",
         "description": "ZOMG HE'S COMING?!",
-        "repo": "https://github.com/sphinx-doc/sphinx",
+        "repo": "https://github.com/pallets/jinja",
         "repo_type": "git",
         "project_url": "",
         "canonical_url": "",
