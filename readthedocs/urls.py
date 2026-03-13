@@ -111,9 +111,10 @@ api_urls = [
     path("api/v3/embed/", include("readthedocs.embed.v3.urls")),
 ]
 
-i18n_urls = [
-    path("i18n/", include("django.conf.urls.i18n")),
-]
+# i18n URLs disabled - dashboard i18n is not supported
+# i18n_urls = [
+#     path("i18n/", include("django.conf.urls.i18n")),
+# ]
 
 admin_urls = [
     re_path(r"^admin/", admin.site.urls),
@@ -175,7 +176,7 @@ groups = [
     project_urls,
     organization_urls,
     api_urls,
-    i18n_urls,
+    # i18n_urls,  # Disabled - dashboard i18n is not supported
 ]
 
 if settings.DO_NOT_TRACK_ENABLED:

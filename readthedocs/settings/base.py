@@ -355,7 +355,8 @@ class CommunityBaseSettings(Settings):
         middlewares = [
             "readthedocs.core.middleware.NullCharactersMiddleware",
             "django.contrib.sessions.middleware.SessionMiddleware",
-            "django.middleware.locale.LocaleMiddleware",
+            # LocaleMiddleware disabled - dashboard i18n is not supported
+            # "django.middleware.locale.LocaleMiddleware",
             "corsheaders.middleware.CorsMiddleware",
             "django.middleware.common.CommonMiddleware",
             "django.middleware.security.SecurityMiddleware",
@@ -578,7 +579,8 @@ class CommunityBaseSettings(Settings):
                         "django.contrib.auth.context_processors.auth",
                         "django.contrib.messages.context_processors.messages",
                         "django.template.context_processors.debug",
-                        "django.template.context_processors.i18n",
+                        # i18n context processor disabled - dashboard i18n is not supported
+                        # "django.template.context_processors.i18n",
                         "django.template.context_processors.media",
                         "django.template.context_processors.request",
                         # Read the Docs processor
@@ -602,28 +604,15 @@ class CommunityBaseSettings(Settings):
     TIME_ZONE = "UTC"
     USE_TZ = True
     LANGUAGE_CODE = "en-us"
+    # Dashboard i18n is disabled - only English is supported
+    # Documentation language support is handled separately in readthedocs.projects.constants
     LANGUAGES = (
-        ("ca", gettext("Catalan")),
         ("en", gettext("English")),
-        ("es", gettext("Spanish")),
-        ("pt-br", gettext("Brazilian Portuguese")),
-        ("nb", gettext("Norwegian Bokmål")),
-        ("fr", gettext("French")),
-        ("ru", gettext("Russian")),
-        ("de", gettext("German")),
-        ("gl", gettext("Galician")),
-        ("vi", gettext("Vietnamese")),
-        ("zh-cn", gettext("Simplified Chinese")),
-        ("zh-tw", gettext("Traditional Chinese")),
-        ("ja", gettext("Japanese")),
-        ("uk", gettext("Ukrainian")),
-        ("it", gettext("Italian")),
-        ("ko", gettext("Korean")),
     )
     LOCALE_PATHS = [
         os.path.join(SITE_ROOT, "readthedocs", "locale"),
     ]
-    USE_I18N = True
+    USE_I18N = False
     USE_L10N = True
 
     BUILD_TIME_LIMIT = 900  # seconds
