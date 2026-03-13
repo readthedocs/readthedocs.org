@@ -1339,7 +1339,7 @@ class ProjectPullRequestsUpdate(PrivateViewMixin, SuccessMessageMixin, UpdateVie
         return reverse("projects_pull_requests", args=[self.object.slug])
 
 
-class ProjectSearchSettingsUpdate(ProjectAdminMixin, UpdateView):
+class ProjectSearchSettingsUpdate(PrivateViewMixin, ProjectAdminMixin, UpdateView):
     model = Project
     success_message = _("Search settings have been updated")
     template_name = "projects/search_settings_form.html"
