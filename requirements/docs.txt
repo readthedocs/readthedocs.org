@@ -37,7 +37,7 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.61.1
+fonttools==4.62.1
     # via matplotlib
 h11==0.16.0
     # via uvicorn
@@ -53,7 +53,7 @@ jinja2==3.1.6
     #   myst-parser
     #   sphinx
     #   sphinx-prompt
-kiwisolver==1.4.9
+kiwisolver==1.5.0
     # via matplotlib
 markdown-it-py==4.0.0
     # via
@@ -69,7 +69,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==5.0.0
     # via -r requirements/docs.in
-numpy==2.4.2
+numpy==2.4.3
     # via
     #   contourpy
     #   matplotlib
