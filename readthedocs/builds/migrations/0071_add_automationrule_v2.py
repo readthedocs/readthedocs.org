@@ -74,8 +74,8 @@ class Migration(migrations.Migration):
                         blank=True,
                         choices=[
                             ("label", "Label"),
-                            ("commit_message", "Commit message"),
-                            ("file_pattern", "File pattern"),
+                            ("commit-message", "Commit message"),
+                            ("file-pattern", "File pattern"),
                         ],
                         default=None,
                         help_text="Type of webhook filter to apply. When None, version management actions are supported. When set, only 'trigger build' action is supported.",
@@ -86,9 +86,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "webhook_match_pattern",
-                    models.CharField(
+                    models.JSONField(
                         blank=True,
-                        help_text="Pattern to match against the webhook filter. For file_pattern, use comma-separated glob patterns (e.g., 'docs/*,*.rst'). For commit_message and label, use regex patterns.",
+                        help_text="Pattern to match against the webhook filter. For file_pattern, one fnmatch patterns For commit_message and label, use only regex patterns. You can use one pattern per line.",
                         max_length=1024,
                         null=True,
                         verbose_name="Webhook match pattern",
@@ -112,16 +112,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "action_arg",
-                    models.CharField(
-                        blank=True,
-                        help_text="Optional argument for the action",
-                        max_length=255,
-                        null=True,
-                        verbose_name="Action argument",
-                    ),
-                ),
-                (
                     "enabled",
                     models.BooleanField(
                         default=True,
@@ -142,99 +132,7 @@ class Migration(migrations.Migration):
             options={
                 "verbose_name": "Automation rule",
                 "verbose_name_plural": "Automation rules",
-                "ordering": ("priority", "-modified", "-created"),
-                "unique_together": {("project", "priority")},
+                "ordering": ("priority", "-created"),
             },
-        ),
-        migrations.CreateModel(
-            name="AutomationRuleMatchV2",
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "created",
-                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
-                ),
-                (
-                    "modified",
-                    models.DateTimeField(auto_now=True, verbose_name="modified"),
-                ),
-                (
-                    "version_name",
-                    models.CharField(max_length=255),
-                ),
-                (
-                    "version_type",
-                    models.CharField(
-                        choices=[
-                            ("branch", "Branch"),
-                            ("tag", "Tag"),
-                            ("external", "External"),
-                            ("unknown", "Unknown"),
-                        ],
-                        max_length=32,
-                    ),
-                ),
-                (
-                    "action",
-                    models.CharField(
-                        choices=[
-                            ("activate-version", "Activate version"),
-                            ("hide-version", "Hide version"),
-                            ("make-version-public", "Make version public"),
-                            ("make-version-private", "Make version private"),
-                            ("set-default-version", "Set version as default"),
-                            ("delete-version", "Delete version"),
-                            ("trigger-build", "Trigger build for version"),
-                        ],
-                        max_length=255,
-                    ),
-                ),
-                (
-                    "match_data",
-                    models.JSONField(
-                        blank=True,
-                        default=dict,
-                        help_text="Additional data about what was matched (patterns, webhook data, etc.)",
-                        null=True,
-                        verbose_name="Match data",
-                    ),
-                ),
-                (
-                    "rule",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="matches",
-                        to="builds.automationrule",
-                        verbose_name="Matched rule",
-                    ),
-                ),
-            ],
-            options={
-                "verbose_name": "Automation rule match",
-                "verbose_name_plural": "Automation rule matches",
-                "ordering": ("-modified", "-created"),
-            },
-        ),
-        migrations.AddIndex(
-            model_name="automationrule",
-            index=models.Index(
-                fields=["project", "priority"],
-                name="builds_auto_project_9b8b23_idx",
-            ),
-        ),
-        migrations.AddIndex(
-            model_name="automationrule",
-            index=models.Index(
-                fields=["project", "enabled"],
-                name="builds_auto_project_ab7c2f_idx",
-            ),
         ),
     ]

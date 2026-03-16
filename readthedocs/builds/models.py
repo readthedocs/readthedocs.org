@@ -1431,8 +1431,8 @@ class AutomationRule(TimeStampedModel):
     )
 
     WEBHOOK_FILTER_LABEL = "label"
-    WEBHOOK_FILTER_COMMIT_MESSAGE = "commit_message"
-    WEBHOOK_FILTER_FILE_PATTERN = "file_pattern"
+    WEBHOOK_FILTER_COMMIT_MESSAGE = "commit-message"
+    WEBHOOK_FILTER_FILE_PATTERN = "file-pattern"
 
     WEBHOOK_FILTER_CHOICES = (
         (WEBHOOK_FILTER_LABEL, _("Label")),
@@ -1493,12 +1493,13 @@ class AutomationRule(TimeStampedModel):
         default=None,
     )
 
-    webhook_match_pattern = models.CharField(
+    webhook_match_pattern = models.JSONField(
         _("Webhook match pattern"),
         help_text=_(
             "Pattern to match against the webhook filter. "
-            "For file_pattern, use comma-separated glob patterns (e.g., 'docs/*,*.rst'). "
-            "For commit_message and label, use regex patterns."
+            "For file_pattern, one fnmatch patterns "
+            "For commit_message and label, use only regex patterns. "
+            "You can use one pattern per line."
         ),
         max_length=1024,
         null=True,
@@ -1513,14 +1514,6 @@ class AutomationRule(TimeStampedModel):
         choices=ACTIONS,
     )
 
-    action_arg = models.CharField(
-        _("Action argument"),
-        help_text=_("Optional argument for the action"),
-        max_length=255,
-        null=True,
-        blank=True,
-    )
-
     enabled = models.BooleanField(
         _("Enabled"),
         default=True,
@@ -1528,14 +1521,9 @@ class AutomationRule(TimeStampedModel):
     )
 
     class Meta:
-        ordering = ("priority", "-modified", "-created")
-        unique_together = (("project", "priority"),)
+        ordering = ("priority", "-created")
         verbose_name = _("Automation rule")
         verbose_name_plural = _("Automation rules")
-        indexes = [
-            models.Index(fields=["project", "priority"]),
-            models.Index(fields=["project", "enabled"]),
-        ]
 
     def __str__(self):
         return f"({self.priority}) {self.get_action_display()}"
@@ -1559,8 +1547,7 @@ class AutomationRule(TimeStampedModel):
                 flags=regex.VERSION0,
                 timeout=self.TIMEOUT,
             )
-            if not match:
-                return False
+            return bool(match)
         except TimeoutError:
             log.warning(
                 "Timeout while parsing version name regex.",
@@ -1587,6 +1574,8 @@ class AutomationRule(TimeStampedModel):
         :param labels: List of labels from PR/MR webhook event
         :return: True if the webhook data matches or no webhook filter is set, False otherwise
         """
+        # NOTE: these checks probably needs to be done in the caller, instead of here.
+
         # If no webhook filter is set, webhook matching is not required
         if not self.webhook_filter:
             return True
@@ -1599,8 +1588,8 @@ class AutomationRule(TimeStampedModel):
         if self.webhook_filter == self.WEBHOOK_FILTER_FILE_PATTERN:
             if changed_files is None:
                 return False
-            # Support multiple patterns separated by commas
-            patterns = [p.strip() for p in self.webhook_match_pattern.split(",")]
+            # Support multiple patterns separated by newlines
+            patterns = [p.strip() for p in self.webhook_match_pattern.splitlines()]
             for file_path in changed_files:
                 for file_pattern in patterns:
                     if fnmatch.fnmatch(file_path, file_pattern):
@@ -1610,19 +1599,22 @@ class AutomationRule(TimeStampedModel):
         elif self.webhook_filter == self.WEBHOOK_FILTER_COMMIT_MESSAGE:
             if commit_message is None:
                 return False
+            patterns = [p.strip() for p in self.webhook_match_pattern.splitlines()]
             # Use regex matching for commit message
             try:
-                match = regex.search(
-                    self.webhook_match_pattern,
-                    commit_message,
-                    flags=regex.VERSION0,
-                    timeout=self.TIMEOUT,
-                )
-                return bool(match)
+                for commit_pattern in patterns:
+                    match = regex.search(
+                        commit_pattern,
+                        commit_message,
+                        flags=regex.VERSION0,
+                        timeout=self.TIMEOUT,
+                    )
+                    if match:
+                        return True
             except TimeoutError:
                 log.warning(
                     "Timeout while parsing regex for commit message.",
-                    pattern=self.webhook_match_pattern,
+                    pattern=commit_pattern,
                     rule_id=self.pk,
                 )
             except Exception:
@@ -1635,11 +1627,10 @@ class AutomationRule(TimeStampedModel):
         elif self.webhook_filter == self.WEBHOOK_FILTER_LABEL:
             if labels is None:
                 return False
-            # Support multiple label patterns separated by commas
-            patterns = [p.strip() for p in self.webhook_match_pattern.split(",")]
+            # Use regex matching for labels
+            patterns = [p.strip() for p in self.webhook_match_pattern.splitlines()]
             for label in labels:
                 for label_pattern in patterns:
-                    # Use regex matching for labels
                     try:
                         match = regex.search(
                             label_pattern,
@@ -1715,58 +1706,9 @@ class AutomationRule(TimeStampedModel):
         """
         if self.match(version, **webhook_data):
             self.apply_action(version)
-            AutomationRuleMatchV2.objects.register_match(
+            AutomationRuleMatch.objects.register_match(
                 rule=self,
                 version=version,
             )
             return True
         return False
-
-
-class AutomationRuleMatchV2(TimeStampedModel):
-    """Record of when an AutomationRule (v2) matched and was applied."""
-
-    ACTIONS_PAST_TENSE = {
-        AutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
-        AutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
-        AutomationRule.MAKE_VERSION_PUBLIC_ACTION: _("Version set to public privacy"),
-        AutomationRule.MAKE_VERSION_PRIVATE_ACTION: _("Version set to private privacy"),
-        AutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
-        AutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
-        AutomationRule.TRIGGER_BUILD_ACTION: _("Build triggered for version"),
-    }
-
-    rule = models.ForeignKey(
-        AutomationRule,
-        verbose_name=_("Matched rule"),
-        related_name="matches",
-        on_delete=models.CASCADE,
-    )
-
-    # Metadata from when the match happened
-    version_name = models.CharField(max_length=255)
-    version_type = models.CharField(
-        max_length=32,
-        choices=VERSION_TYPES,
-    )
-    action = models.CharField(
-        max_length=255,
-        choices=AutomationRule.ACTIONS,
-    )
-    match_data = models.JSONField(
-        _("Match data"),
-        help_text=_("Additional data about what was matched (patterns, webhook data, etc.)"),
-        default=dict,
-        null=True,
-        blank=True,
-    )
-
-    objects = AutomationRuleMatchManager()
-
-    class Meta:
-        ordering = ("-modified", "-created")
-        verbose_name = _("Automation rule match")
-        verbose_name_plural = _("Automation rule matches")
-
-    def get_action_past_tense(self):
-        return self.ACTIONS_PAST_TENSE.get(self.action)
