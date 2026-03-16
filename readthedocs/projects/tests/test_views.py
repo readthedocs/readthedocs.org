@@ -589,36 +589,36 @@ class TestProjectSearchSettingsUpdate(TestCase):
 
     def test_get_returns_200_for_admin(self):
         resp = self.client.get(self.url)
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
 
     def test_get_returns_404_for_non_admin(self):
         other_user = get(User)
         self.client.force_login(other_user)
         resp = self.client.get(self.url)
-        self.assertEqual(resp.status_code, 404)
+        assert resp.status_code == 404
 
     def test_get_redirects_unauthenticated_user(self):
         self.client.logout()
         resp = self.client.get(self.url)
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn("/accounts/login/", resp["Location"])
+        assert resp.status_code == 302
+        assert "/accounts/login/" in resp["Location"]
 
     def test_post_updates_search_settings(self):
         addons = self.project.addons
-        self.assertTrue(addons.search_enabled)
-        self.assertTrue(addons.search_show_subprojects_filter)
+        assert addons.search_enabled is True
+        assert addons.search_show_subprojects_filter is True
 
         data = {
             "search_enabled": False,
             "search_show_subprojects_filter": False,
         }
         resp = self.client.post(self.url, data=data)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["Location"], self.url)
+        assert resp.status_code == 302
+        assert resp["Location"] == self.url
 
         addons.refresh_from_db()
-        self.assertFalse(addons.search_enabled)
-        self.assertFalse(addons.search_show_subprojects_filter)
+        assert addons.search_enabled is False
+        assert addons.search_show_subprojects_filter is False
 
     def test_post_updates_partial_search_settings(self):
         addons = self.project.addons
@@ -631,8 +631,8 @@ class TestProjectSearchSettingsUpdate(TestCase):
             "search_show_subprojects_filter": False,
         }
         resp = self.client.post(self.url, data=data)
-        self.assertEqual(resp.status_code, 302)
+        assert resp.status_code == 302
 
         addons.refresh_from_db()
-        self.assertTrue(addons.search_enabled)
-        self.assertFalse(addons.search_show_subprojects_filter)
+        assert addons.search_enabled is True
+        assert addons.search_show_subprojects_filter is False
