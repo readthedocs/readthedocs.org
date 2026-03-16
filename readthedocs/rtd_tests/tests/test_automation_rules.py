@@ -91,7 +91,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.match(version) is result
+        assert rule.match_version(version) is result
         # Test run() method - only run if match succeeds
         if result:
             assert rule.run(version) is True
@@ -135,7 +135,7 @@ class TestRegexAutomationRules:
             version_type=version_type,
         )
         # Test match() and run() separately following new pattern
-        assert rule.match(version) is result
+        assert rule.match_version(version) is result
         if result:
             assert rule.run(version) is True
 
@@ -175,7 +175,7 @@ class TestRegexAutomationRules:
             version_type=version_type,
         )
         # Test match() and run() separately following new pattern
-        assert rule.match(version) is result
+        assert rule.match_version(version) is result
         if result:
             assert rule.run(version) is True
 
@@ -772,7 +772,7 @@ class TestWebhookAutomationRules:
             action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
             version_type=BRANCH,
         )
-        assert rule.match(changed_files=files) is should_match
+        assert rule.match_webhook(changed_files=files) is should_match
 
     def test_match_multiple_files(self, trigger_build):
         """Test that match returns True if any file in the list matches."""
@@ -786,10 +786,10 @@ class TestWebhookAutomationRules:
         )
 
         # Should match if any file matches
-        assert rule.match(changed_files=["src/code.py", "docs/index.rst", "README.md"]) is True
+        assert rule.match_webhook(changed_files=["src/code.py", "docs/index.rst", "README.md"]) is True
 
         # Should not match if no files match
-        assert rule.match(changed_files=["src/code.py", "README.md"]) is False
+        assert rule.match_webhook(changed_files=["src/code.py", "README.md"]) is False
 
     def test_match_empty_file_list(self, trigger_build):
         """Test that match returns False for empty file list."""
@@ -801,7 +801,7 @@ class TestWebhookAutomationRules:
             action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
             version_type=BRANCH,
         )
-        assert rule.match(changed_files=[]) is False
+        assert rule.match_webhook(changed_files=[]) is False
 
     def test_run_triggers_build_for_active_version(self, trigger_build):
         """Test that run() triggers a build for an active version."""

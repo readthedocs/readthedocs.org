@@ -10,9 +10,11 @@ from readthedocs.core.views import PageNotFoundView
 from readthedocs.projects.backends.views import ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import AddonsConfigUpdate
+from readthedocs.projects.views.private import AutomationRuleCreate
 from readthedocs.projects.views.private import AutomationRuleDelete
 from readthedocs.projects.views.private import AutomationRuleList
 from readthedocs.projects.views.private import AutomationRuleMove
+from readthedocs.projects.views.private import AutomationRuleUpdate
 from readthedocs.projects.views.private import DomainCreate
 from readthedocs.projects.views.private import DomainDelete
 from readthedocs.projects.views.private import DomainList
@@ -53,8 +55,6 @@ from readthedocs.projects.views.private import RegexAutomationRuleCreate
 from readthedocs.projects.views.private import RegexAutomationRuleUpdate
 from readthedocs.projects.views.private import SearchAnalytics
 from readthedocs.projects.views.private import TrafficAnalyticsView
-from readthedocs.projects.views.private import WebhookAutomationRuleCreate
-from readthedocs.projects.views.private import WebhookAutomationRuleUpdate
 from readthedocs.projects.views.private import WebHookCreate
 from readthedocs.projects.views.private import WebHookDelete
 from readthedocs.projects.views.private import WebHookExchangeDetail
@@ -385,14 +385,14 @@ automation_rule_urls = [
         name="projects_automation_rule_regex_edit",
     ),
     re_path(
-        r"^(?P<project_slug>[-\w]+)/rules/webhook/create/$",
-        WebhookAutomationRuleCreate.as_view(),
-        name="projects_automation_rule_webhook_create",
+        r"^(?P<project_slug>[-\w]+)/rules/create/$",
+        AutomationRuleCreate.as_view(),
+        name="projects_automation_rule_create",
     ),
     re_path(
-        r"^(?P<project_slug>[-\w]+)/rules/webhook/(?P<webhook_automation_rule_pk>[-\w]+)/$",
-        WebhookAutomationRuleUpdate.as_view(),
-        name="projects_automation_rule_webhook_edit",
+        r"^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/$",
+        AutomationRuleUpdate.as_view(),
+        name="projects_automation_rule_edit",
     ),
 ]
 

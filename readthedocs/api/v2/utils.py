@@ -15,6 +15,7 @@ from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.constants import TAG
+from readthedocs.builds.models import AutomationRule
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.db import delete_in_batches
@@ -247,11 +248,12 @@ def run_version_automation_rules(project, added_versions, deleted_active_version
         (added_versions, class_.allowed_actions_on_create),
         (deleted_active_versions, class_.allowed_actions_on_delete),
     ]
+    # NOTE: needs to check for allowed_actions. Is still required?
     for versions_slug, allowed_actions in actions:
         versions = project.versions.filter(slug__in=versions_slug)
-        rules = project.automation_rules.filter(action__in=allowed_actions)
+        rules = project.automation_rules.filter(action__in=AutomationRule.VERSION_ACTIONS)
         for version, rule in itertools.product(versions, rules):
-            if rule.match(version):
+            if rule.match_version(version):
                 rule.run(version)
 
 

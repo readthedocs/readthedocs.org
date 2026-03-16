@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.builds.models import VersionAutomationRule
+from readthedocs.builds.models import AutomationRule
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.tasks import PublicTask
@@ -579,18 +579,35 @@ class GitHubAppWebhookHandler:
             # If none one matches, it finishes here.
             # However, if there are no webhook automation rules configured,
             # we continue with the build as usual.
-            allowed_actions = [VersionAutomationRule.TRIGGER_BUILD_ACTION]
             webhook_rules = project.automation_rules.filter(
-                action__in=allowed_actions,
-                version_type=version_type,
+                enabled=True,
+                action__in=AutomationRule.BUILD_ACTIONS,
+                webhook_filter__in=AutomationRule.WEBHOOK_FILTERS,
+                webhook_match_pattern__isnull=False,
+                version_type__contains=version_type,
             )
             if webhook_rules.exists():
                 triggered = False
                 changed_files = self._get_changed_files_from_push_event()
+                commit_message = self.data["head_commit"]["message"]
+                labels = []
+
+                # NOTE: not sure about how to get the labels associated to the PR that this commit belongs to.
+                #
+                # labels = # self.data["head_commit"].get("labels", [])
+                # gh_repository = installation.service.installation_client.get_repo(
+                #     int(project.remote_repository.remote_id),
+                #     lazy=True,
+                # )
+
+                # labels = gh_repository.commits(self.data["head_commit"]["id"], lazy=True).get_pulls()[0].labels()
+
                 for rule in webhook_rules.iterator():
-                    if rule.match(changed_files=changed_files):
+                    if rule.match_webhook(
+                        changed_files=changed_files, commit_message=commit_message, labels=labels
+                    ):
                         log.info(
-                            "Webhook automation rule matched, triggering build.",
+                            "Automation rule matched, triggering build.",
                             project_slug=project.slug,
                             rule_id=rule.pk,
                             rule_version_type=rule.version_type,
@@ -606,7 +623,7 @@ class GitHubAppWebhookHandler:
 
                 if not triggered:
                     log.info(
-                        "No webhook automation rule matched, skipping build.",
+                        "No automation rule matched, skipping build.",
                         project_slug=project.slug,
                     )
             else:
@@ -645,25 +662,34 @@ class GitHubAppWebhookHandler:
                 # If none one matches, it finishes here.
                 # However, if there are no webhook automation rules configured,
                 # we continue with the build as usual.
-                allowed_actions = [VersionAutomationRule.TRIGGER_BUILD_ACTION]
                 webhook_rules = project.automation_rules.filter(
-                    action__in=allowed_actions,
+                    enabled=True,
+                    action__in=AutomationRule.BUILD_ACTIONS,
+                    webhook_filter__in=AutomationRule.WEBHOOK_FILTERS,
+                    webhook_match_pattern__isnull=False,
                     version_type=EXTERNAL,
                 )
                 if webhook_rules.exists():
                     triggered = False
-
                     changed_files = self._get_changed_files_from_pull_request_event(
                         project,
                         action,
                     )
+                    commit_message = self.data["head_commit"]["message"]
+                    labels = self._get_labels_from_pull_request_event(project)
 
                     for rule in webhook_rules.iterator():
-                        if rule.match(changed_files=changed_files):
+                        if rule.match(
+                            changed_files=changed_files,
+                            commit_message=commit_message,
+                            labels=labels,
+                        ):
                             log.info(
-                                "Webhook automation rule matched, triggering build.",
+                                "Automation rule matched, triggering build.",
                                 project_slug=project.slug,
                                 rule_id=rule.pk,
+                                rule_version_type=rule.version_type,
+                                version_type=EXTERNAL,
                             )
                             triggered = True
                             rule.run(external_version)
@@ -673,7 +699,7 @@ class GitHubAppWebhookHandler:
 
                     if not triggered:
                         log.info(
-                            "No webhook automation rule matched, skipping build.",
+                            "No automation rule matched, skipping build.",
                             project_slug=project.slug,
                         )
                 else:
@@ -896,6 +922,25 @@ class GitHubAppWebhookHandler:
                 changed_files.add(f.filename)
 
         return changed_files
+
+    def _get_labels_from_pull_request_event(self, project):
+        """
+        Get the list of labels from the pull request event.
+
+        :return: List of labels
+        """
+        labels = set()
+        installation, _ = self._get_or_create_installation()
+
+        gh_repository = installation.service.installation_client.get_repo(
+            int(project.remote_repository.remote_id),
+            lazy=True,
+        )
+
+        for label in gh_repository.get_pull(int(self.data["pull_request"]["number"]))["labels"]:
+            labels.add(label.name)
+
+        return labels
 
 
 @app.task(queue="web")

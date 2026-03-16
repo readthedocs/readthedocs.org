@@ -1105,7 +1105,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     project = models.ForeignKey(
         Project,
-        related_name="automation_rules",
+        related_name="version_automation_rules",
         on_delete=models.CASCADE,
     )
     priority = models.PositiveIntegerField(
@@ -1430,9 +1430,33 @@ class AutomationRule(TimeStampedModel):
         (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
     )
 
+    VERSION_TYPES = (
+        "tag",
+        "branch",
+        "external",
+        "any",
+    )
+
+    VERSION_ACTIONS = (
+        ACTIVATE_VERSION_ACTION,
+        HIDE_VERSION_ACTION,
+        MAKE_VERSION_PUBLIC_ACTION,
+        MAKE_VERSION_PRIVATE_ACTION,
+        SET_DEFAULT_VERSION_ACTION,
+        DELETE_VERSION_ACTION,
+    )
+
+    BUILD_ACTIONS = (TRIGGER_BUILD_ACTION,)
+
     WEBHOOK_FILTER_LABEL = "label"
     WEBHOOK_FILTER_COMMIT_MESSAGE = "commit-message"
     WEBHOOK_FILTER_FILE_PATTERN = "file-pattern"
+
+    WEBHOOK_FILTERS = (
+        WEBHOOK_FILTER_LABEL,
+        WEBHOOK_FILTER_COMMIT_MESSAGE,
+        WEBHOOK_FILTER_FILE_PATTERN,
+    )
 
     WEBHOOK_FILTER_CHOICES = (
         (WEBHOOK_FILTER_LABEL, _("Label")),
@@ -1445,7 +1469,7 @@ class AutomationRule(TimeStampedModel):
     project = models.ForeignKey(
         Project,
         verbose_name=_("Project"),
-        related_name="automation_rules_v2",
+        related_name="automation_rules",
         on_delete=models.CASCADE,
     )
 
@@ -1574,22 +1598,14 @@ class AutomationRule(TimeStampedModel):
         :param labels: List of labels from PR/MR webhook event
         :return: True if the webhook data matches or no webhook filter is set, False otherwise
         """
-        # NOTE: these checks probably needs to be done in the caller, instead of here.
-
-        # If no webhook filter is set, webhook matching is not required
-        if not self.webhook_filter:
-            return True
-
-        # If webhook filter is set but pattern is empty, fail
-        if not self.webhook_match_pattern:
-            return False
+        # Support multiple patterns separated by newlines
+        patterns = [p.strip() for p in self.webhook_match_pattern.splitlines()]
 
         # Handle different webhook filter types
         if self.webhook_filter == self.WEBHOOK_FILTER_FILE_PATTERN:
             if changed_files is None:
                 return False
-            # Support multiple patterns separated by newlines
-            patterns = [p.strip() for p in self.webhook_match_pattern.splitlines()]
+            # Use fnmatch matching for file paths
             for file_path in changed_files:
                 for file_pattern in patterns:
                     if fnmatch.fnmatch(file_path, file_pattern):
@@ -1599,7 +1615,6 @@ class AutomationRule(TimeStampedModel):
         elif self.webhook_filter == self.WEBHOOK_FILTER_COMMIT_MESSAGE:
             if commit_message is None:
                 return False
-            patterns = [p.strip() for p in self.webhook_match_pattern.splitlines()]
             # Use regex matching for commit message
             try:
                 for commit_pattern in patterns:
@@ -1628,7 +1643,6 @@ class AutomationRule(TimeStampedModel):
             if labels is None:
                 return False
             # Use regex matching for labels
-            patterns = [p.strip() for p in self.webhook_match_pattern.splitlines()]
             for label in labels:
                 for label_pattern in patterns:
                     try:
@@ -1654,25 +1668,6 @@ class AutomationRule(TimeStampedModel):
             return False
 
         return False
-
-    def match(self, version, changed_files=None, commit_message=None, labels=None):
-        """
-        Check if this rule matches the given version and webhook data.
-
-        :param version: Version instance to check
-        :param changed_files: List of file paths that were modified/added/deleted
-        :param commit_message: Commit message from the webhook event
-        :param labels: List of labels from PR/MR webhook event
-        :return: True if both version and webhook criteria match, False otherwise
-        """
-        if not self.enabled:
-            return False
-
-        return self.match_version(version) and self.match_webhook(
-            changed_files=changed_files,
-            commit_message=commit_message,
-            labels=labels,
-        )
 
     def apply_action(self, version):
         """
