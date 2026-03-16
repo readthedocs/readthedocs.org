@@ -242,7 +242,7 @@ def run_version_automation_rules(project, added_versions, deleted_active_version
        Currently the versions aren't sorted in any way,
        the same order is keeped.
     """
-    version_slugs = added_versions + deleted_active_versions
+    version_slugs = added_versions.union(deleted_active_versions)
     versions = project.versions.filter(slug__in=version_slugs)
     rules = project.automation_rules.filter(action__in=AutomationRule.VERSION_ACTIONS)
     for version, rule in itertools.product(versions, rules):

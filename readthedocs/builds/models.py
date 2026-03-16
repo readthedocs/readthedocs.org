@@ -1552,6 +1552,11 @@ class AutomationRule(TimeStampedModel):
     def __str__(self):
         return f"({self.priority}) {self.get_action_display()}"
 
+    def get_description(self):
+        if self.description:
+            return self.description
+        return f"{self.get_action_display()}"
+
     def match_version(self, version):
         """
         Check if the version matches this rule's version criteria.

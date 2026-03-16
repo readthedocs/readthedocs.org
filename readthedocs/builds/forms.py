@@ -222,7 +222,6 @@ class RegexAutomationRuleForm(forms.ModelForm):
 
 class AutomationRuleForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
-    # Custom field for git_checkout_command to provide help text
     webhook_match_pattern = forms.CharField(
         required=False,
         widget=forms.Textarea(
