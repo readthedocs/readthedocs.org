@@ -128,7 +128,11 @@ def finish_unhealthy_builds():
     for build in builds:
         if build.commands.exists():
             # Try to update the build length if there is at least one command
-            build.length = (build.commands.last().start_time - build.commands.first().start_time).seconds
+            first_command = build.commands.first()
+            last_command = build.commands.last()
+            build.length = (
+                (last_command.end_time or last_command.start_time) - first_command.start_time
+            ).seconds
 
         build.success = False
         build.state = BUILD_STATE_CANCELLED
