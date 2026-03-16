@@ -36,7 +36,6 @@ from readthedocs.builds.models import AutomationRule
 from readthedocs.builds.models import AutomationRuleMatch
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
-from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import AsyncDeleteViewWithMessage
@@ -1065,7 +1064,7 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage)
 
 
 class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
-    model = VersionAutomationRule
+    model = AutomationRule
     lookup_url_kwarg = "automation_rule_pk"
 
     def get_success_url(self):

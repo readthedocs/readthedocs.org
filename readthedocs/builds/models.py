@@ -1366,7 +1366,7 @@ class AutomationRuleMatch(TimeStampedModel):
     }
 
     rule = models.ForeignKey(
-        VersionAutomationRule,
+        "AutomationRule",
         verbose_name=_("Matched rule"),
         related_name="matches",
         on_delete=models.CASCADE,
@@ -1669,13 +1669,14 @@ class AutomationRule(TimeStampedModel):
 
         return False
 
-    def apply_action(self, version):
+    def run(self, version):
         """
-        Apply the configured action to the version.
+        Run the rule.
 
-        :param version: Version instance to apply the action to
+        :param version: Version instance to check and act upon
+        :return: True if the action was performed, False otherwise
         """
-        action_map = {
+        actions_map = {
             self.ACTIVATE_VERSION_ACTION: actions.activate_version,
             self.HIDE_VERSION_ACTION: actions.hide_version,
             self.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
@@ -1685,25 +1686,20 @@ class AutomationRule(TimeStampedModel):
             self.TRIGGER_BUILD_ACTION: actions.trigger_build_for_version,
         }
 
-        action_func = action_map.get(self.action)
+        action_func = actions_map.get(self.action)
         if action_func:
-            action_func(version, self.action_arg)
+            action_func(version)
         else:
             raise NotImplementedError(f"Action {self.action} is not implemented")
 
-    def run(self, version, **webhook_data):
-        """
-        Run the rule: check if it matches and apply the action if it does.
+        AutomationRuleMatch.objects.register_match(
+            rule=self,
+            version=version,
+        )
+        return True
 
-        :param version: Version instance to check and act upon
-        :param webhook_data: Optional webhook data (changed_files, commit_message, labels)
-        :return: True if the action was performed, False otherwise
-        """
-        if self.match(version, **webhook_data):
-            self.apply_action(version)
-            AutomationRuleMatch.objects.register_match(
-                rule=self,
-                version=version,
-            )
-            return True
-        return False
+    def get_edit_url(self):
+        return reverse(
+            "projects_automation_rule_edit",
+            args=[self.project.slug, self.pk],
+        )

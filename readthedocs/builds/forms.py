@@ -222,14 +222,23 @@ class RegexAutomationRuleForm(forms.ModelForm):
 
 class AutomationRuleForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
-    match_arg = forms.CharField(
-        label="File pattern match",
-        help_text=_(
-            textwrap.dedent(
-                "Pattern to match added/modified/removed files. It can include wildcards, for example: `docs/*.md`."
-            )
+    # Custom field for git_checkout_command to provide help text
+    webhook_match_pattern = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 5,
+                "placeholder": "\n".join(
+                    [
+                        "docs/*.rst",
+                        "docs/*.md",
+                        "docs/requirements.txt",
+                        "requirements.txt",
+                        ".readthedocs.yaml",
+                    ],
+                ),
+            }
         ),
-        required=True,
     )
 
     class Meta:
@@ -251,7 +260,6 @@ class AutomationRuleForm(forms.ModelForm):
 
     def clean_version_types(self):
         version_types = self.cleaned_data["version_types"]
-        version_types = [vt.strip() for vt in version_types.splitlines()]
         for vt in version_types:
             if vt not in self.Meta.model.VERSION_TYPES:
                 raise forms.ValidationError(

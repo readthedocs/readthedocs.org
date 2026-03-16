@@ -584,7 +584,7 @@ class GitHubAppWebhookHandler:
                 action__in=AutomationRule.BUILD_ACTIONS,
                 webhook_filter__in=AutomationRule.WEBHOOK_FILTERS,
                 webhook_match_pattern__isnull=False,
-                version_type__contains=version_type,
+                version_types__contains=version_type,
             )
             if webhook_rules.exists():
                 triggered = False
@@ -604,13 +604,15 @@ class GitHubAppWebhookHandler:
 
                 for rule in webhook_rules.iterator():
                     if rule.match_webhook(
-                        changed_files=changed_files, commit_message=commit_message, labels=labels
+                        changed_files=changed_files,
+                        commit_message=commit_message,
+                        labels=labels,
                     ):
                         log.info(
                             "Automation rule matched, triggering build.",
                             project_slug=project.slug,
                             rule_id=rule.pk,
-                            rule_version_type=rule.version_type,
+                            rule_version_types=rule.version_types,
                             version_type=version_type,
                         )
                         for version in project.versions_from_name(version_name, version_type):
@@ -667,7 +669,7 @@ class GitHubAppWebhookHandler:
                     action__in=AutomationRule.BUILD_ACTIONS,
                     webhook_filter__in=AutomationRule.WEBHOOK_FILTERS,
                     webhook_match_pattern__isnull=False,
-                    version_type=EXTERNAL,
+                    version_types__contains=EXTERNAL,
                 )
                 if webhook_rules.exists():
                     triggered = False
@@ -675,11 +677,11 @@ class GitHubAppWebhookHandler:
                         project,
                         action,
                     )
-                    commit_message = self.data["head_commit"]["message"]
+                    commit_message = None  # We can get the latest commit with `pr["head"]["sha"]`.
                     labels = self._get_labels_from_pull_request_event(project)
 
                     for rule in webhook_rules.iterator():
-                        if rule.match(
+                        if rule.match_webhook(
                             changed_files=changed_files,
                             commit_message=commit_message,
                             labels=labels,
@@ -688,7 +690,7 @@ class GitHubAppWebhookHandler:
                                 "Automation rule matched, triggering build.",
                                 project_slug=project.slug,
                                 rule_id=rule.pk,
-                                rule_version_type=rule.version_type,
+                                rule_version_types=rule.version_types,
                                 version_type=EXTERNAL,
                             )
                             triggered = True
@@ -937,7 +939,7 @@ class GitHubAppWebhookHandler:
             lazy=True,
         )
 
-        for label in gh_repository.get_pull(int(self.data["pull_request"]["number"]))["labels"]:
+        for label in gh_repository.get_pull(int(self.data["pull_request"]["number"])).get_labels():
             labels.add(label.name)
 
         return labels

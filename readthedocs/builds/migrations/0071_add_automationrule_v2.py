@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("builds", "0070_delete_build_old_config"),
-        ("projects", "0126_remove_projectadmins"),
+        ("projects", "0158_add_search_subproject_filter_option"),
     ]
 
     operations = [
