@@ -40,13 +40,11 @@ validate_no_ip = NoIPValidator()
 
 @deconstructible
 class RepositoryURLValidator:
-    disallow_relative_url = True
-
     # Pattern for ``git@github.com:user/repo`` pattern
     re_git_user = re.compile(r"^[\w]+@.+")
 
     def __call__(self, value):
-        public_schemes = ["https", "http", "git", "ftps", "ftp"]
+        public_schemes = ["https", "http", "git"]
         private_schemes = ["ssh", "ssh+git"]
         local_schemes = ["file"]
         valid_schemes = public_schemes
@@ -67,9 +65,7 @@ class RepositoryURLValidator:
         # Launchpad
         if value.startswith("lp:"):
             return value
-        # Relative paths are conditionally supported
-        if value.startswith(".") and not self.disallow_relative_url:
-            return value
+
         # SSH cloning and ``git@github.com:user/project.git``
         if self.re_git_user.search(value) or url.scheme in private_schemes:
             if settings.ALLOW_PRIVATE_REPOS:
