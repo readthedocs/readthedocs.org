@@ -272,3 +272,13 @@ class AutomationRuleForm(forms.ModelForm):
 
     def clean_project(self):
         return self.project
+
+    def clean(self):
+        version_predefined_match_pattern = self.cleaned_data.get("version_predefined_match_pattern")
+        if version_predefined_match_pattern is None and not self.cleaned_data.get(
+            "version_match_pattern"
+        ):
+            raise forms.ValidationError(
+                _("You should use either a predefined match or a custom match."),
+            )
+        return super().clean()
