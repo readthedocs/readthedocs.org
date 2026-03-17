@@ -192,7 +192,11 @@ class Backend(BaseVCS):
             cmd = ["git", "remote", "add", remote_name, ssh_url]
             self.run(*cmd, record=False)
 
-            cmd = ["git", "push", "--dry-run", remote_name]
+            # NOTE: We use timeout to avoid hanging the build.
+            # Azure DevOps is known to not fail immediately when trying to push
+            # with an SSH key without write access, but instead it hangs until
+            # it times out (this happens randomly).
+            cmd = ["timeout", "3s", "git", "push", "--dry-run", remote_name]
             code, stdout, stderr = self.run(*cmd, record=False, demux=True)
 
             if code == 0:
@@ -232,6 +236,8 @@ class Backend(BaseVCS):
                 "remote: This deploy key does not have write access to this project.",
                 # Bitbucket:
                 "fatal: Could not read from remote repository.",
+                # Azure:
+                "You need the Git 'GenericContribute' permission to perform this action.",
             ]
             for pattern in errors_read_access_only:
                 if pattern in stderr:
