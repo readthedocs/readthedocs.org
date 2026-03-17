@@ -14,6 +14,7 @@ import structlog
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.exceptions import UserFileNotFound
+from readthedocs.projects.models import Feature
 
 from ..base import BaseBuilder
 from ..constants import PDF_RE
@@ -142,6 +143,10 @@ class BaseSphinx(BaseBuilder):
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
         language = self.get_language(project)
+
+        if self.project.has_feature(Feature.BUILD_IN_PARALLEL):
+            build_command.extend(["-j", "auto"])
+
         build_command.extend(
             [
                 "-b",
