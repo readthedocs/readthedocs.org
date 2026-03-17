@@ -4,13 +4,10 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import (
     ALL_VERSIONS,
-    ALL_VERSIONS_REGEX,
     BRANCH,
-    SEMVER_VERSIONS,
-    SEMVER_VERSIONS_REGEX,
     TAG,
 )
-from readthedocs.builds.models import VersionAutomationRule
+from readthedocs.builds.models import AutomationRule
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
@@ -32,17 +29,17 @@ class TestAutomationRulesViews:
             args=[self.project.slug],
         )
 
-    def test_create_and_update_regex_rule(self):
+    def test_create_and_update_rule(self):
         r = self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "One rule",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
 
@@ -54,14 +51,14 @@ class TestAutomationRulesViews:
 
         r = self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "Another rule",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": BRANCH,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
 
@@ -73,14 +70,14 @@ class TestAutomationRulesViews:
 
         r = self.client.post(
             reverse(
-                "projects_automation_rule_regex_edit",
+                "projects_automation_rule_edit",
                 args=[self.project.slug, rule.pk],
             ),
             {
                 "description": "Edit rule",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         assert r.status_code == 302
@@ -90,138 +87,120 @@ class TestAutomationRulesViews:
         assert rule.description == "Edit rule"
         assert rule.priority == 0
 
-    def test_create_regex_rule_default_description(self):
+    def test_create_rule_default_description(self):
         r = self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         assert r.status_code == 302
         assert r["Location"] == self.list_rules_url
 
-        assert self.project.automation_rules.filter(
-            description="Activate version"
-        ).exists()
+        rule = self.project.automation_rules.first()
+        assert rule.description is None
+        assert rule.get_description() == "Activate version"
 
-    def test_create_regex_rule_custom_match(self):
+    def test_create_rule_custom_match(self):
         r = self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "One rule",
-                "match_arg": r"^master$",
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_match_pattern": r"^master$",
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         assert r.status_code == 302
         assert r["Location"] == self.list_rules_url
 
         rule = self.project.automation_rules.get(description="One rule")
-        assert rule.match_arg == r"^master$"
+        assert rule.version_match_pattern == r"^master$"
 
-    @pytest.mark.parametrize(
-        "predefined_match_arg,expected_regex",
-        [
-            (ALL_VERSIONS, ALL_VERSIONS_REGEX),
-            (SEMVER_VERSIONS, SEMVER_VERSIONS_REGEX),
-        ],
-    )
-    def test_create_regex_rule_predefined_match(
-        self, predefined_match_arg, expected_regex
-    ):
+    def test_create_rule_predefined_match(self):
         r = self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule",
-                "predefined_match_arg": predefined_match_arg,
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         assert r.status_code == 302
         assert r["Location"] == self.list_rules_url
 
         rule = self.project.automation_rules.get(description="rule")
-        assert rule.get_match_arg() == expected_regex
+        assert rule.version_predefined_match_pattern == ALL_VERSIONS
 
-    def test_empty_custom_match(self):
+    def test_create_rule_with_webhook_filter(self):
         r = self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
-                "description": "One rule",
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "description": "Webhook rule",
+                "version_match_pattern": ".*",
+                "version_types": [BRANCH],
+                "action": AutomationRule.TRIGGER_BUILD_ACTION,
+                "webhook_filter": AutomationRule.WEBHOOK_FILTER_FILE_PATTERN,
+                "webhook_match_pattern": "docs/*.rst\nrequirements.txt",
             },
         )
-        form = r.context["form"]
-        assert "Custom match should not be empty." in form.errors["match_arg"]
+        assert r.status_code == 302
+        assert r["Location"] == self.list_rules_url
 
-    def test_invalid_regex(self):
-        r = self.client.post(
-            reverse(
-                "projects_automation_rule_regex_create",
-                args=[self.project.slug],
-            ),
-            {
-                "description": "One rule",
-                "match_arg": r"?$",
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
-            },
-        )
-        form = r.context["form"]
-        assert "Invalid Python regular expression." in form.errors["match_arg"]
+        rule = self.project.automation_rules.get(description="Webhook rule")
+        assert rule.webhook_filter == AutomationRule.WEBHOOK_FILTER_FILE_PATTERN
+        assert "docs/*.rst" in rule.webhook_match_pattern
 
     def test_delete_rule(self):
         self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule-2",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule-1",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": BRANCH,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule-0",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": BRANCH,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
 
@@ -255,38 +234,38 @@ class TestAutomationRulesViews:
     def test_move_rule_up(self):
         self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule-2",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule-1",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": BRANCH,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule-0",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": BRANCH,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
 
@@ -314,38 +293,38 @@ class TestAutomationRulesViews:
     def test_move_rule_down(self):
         self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule-2",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": TAG,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule-1",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": BRANCH,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
         self.client.post(
             reverse(
-                "projects_automation_rule_regex_create",
+                "projects_automation_rule_create",
                 args=[self.project.slug],
             ),
             {
                 "description": "rule-0",
-                "predefined_match_arg": ALL_VERSIONS,
-                "version_type": BRANCH,
-                "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
             },
         )
 

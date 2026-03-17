@@ -12,10 +12,8 @@ from readthedocs.builds.constants import (
     TAG,
 )
 from readthedocs.builds.models import (
-    RegexAutomationRule,
+    AutomationRule,
     Version,
-    VersionAutomationRule,
-    WebhookAutomationRule,
 )
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
@@ -23,7 +21,7 @@ from readthedocs.projects.models import Project
 
 @pytest.mark.django_db
 @mock.patch("readthedocs.builds.automation_actions.trigger_build")
-class TestRegexAutomationRules:
+class TestAutomationRuleVersionMatching:
     @pytest.fixture(autouse=True)
     def setup_method(self):
         self.project = get(Project)
@@ -84,12 +82,12 @@ class TestRegexAutomationRules:
             built=False,
         )
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg=regex,
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
-            version_type=version_type,
+            version_match_pattern=regex,
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
+            version_types=[version_type],
         )
         assert rule.match_version(version) is result
         # Test run() method - only run if match succeeds
@@ -127,14 +125,13 @@ class TestRegexAutomationRules:
             built=False,
         )
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            predefined_match_arg=ALL_VERSIONS,
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
-            version_type=version_type,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
+            version_types=[version_type],
         )
-        # Test match() and run() separately following new pattern
         assert rule.match_version(version) is result
         if result:
             assert rule.run(version) is True
@@ -167,14 +164,13 @@ class TestRegexAutomationRules:
             built=False,
         )
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            predefined_match_arg=SEMVER_VERSIONS,
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
-            version_type=version_type,
+            version_predefined_match_pattern=SEMVER_VERSIONS,
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
+            version_types=[version_type],
         )
-        # Test match() and run() separately following new pattern
         assert rule.match_version(version) is result
         if result:
             assert rule.run(version) is True
@@ -188,12 +184,12 @@ class TestRegexAutomationRules:
             type=TAG,
         )
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg=".*",
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
-            version_type=TAG,
+            version_match_pattern=".*",
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
+            version_types=[TAG],
         )
         assert rule.run(version) is True
         assert version.active is True
@@ -211,12 +207,12 @@ class TestRegexAutomationRules:
             type=version_type,
         )
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg=".*",
-            action=VersionAutomationRule.DELETE_VERSION_ACTION,
-            version_type=version_type,
+            version_match_pattern=".*",
+            action=AutomationRule.DELETE_VERSION_ACTION,
+            version_types=[version_type],
         )
         assert rule.run(version) is True
         assert not self.project.versions.filter(slug=slug).exists()
@@ -238,12 +234,12 @@ class TestRegexAutomationRules:
         self.project.save()
 
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg=".*",
-            action=VersionAutomationRule.DELETE_VERSION_ACTION,
-            version_type=version_type,
+            version_match_pattern=".*",
+            action=AutomationRule.DELETE_VERSION_ACTION,
+            version_types=[version_type],
         )
         assert rule.run(version) is True
         assert self.project.versions.filter(slug=slug).exists()
@@ -257,12 +253,12 @@ class TestRegexAutomationRules:
             type=TAG,
         )
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg=".*",
-            action=VersionAutomationRule.SET_DEFAULT_VERSION_ACTION,
-            version_type=TAG,
+            version_match_pattern=".*",
+            action=AutomationRule.SET_DEFAULT_VERSION_ACTION,
+            version_types=[TAG],
         )
         assert self.project.get_default_version() == LATEST
         assert rule.run(version) is True
@@ -278,12 +274,12 @@ class TestRegexAutomationRules:
             type=TAG,
         )
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg=".*",
-            action=VersionAutomationRule.HIDE_VERSION_ACTION,
-            version_type=TAG,
+            version_match_pattern=".*",
+            action=AutomationRule.HIDE_VERSION_ACTION,
+            version_types=[TAG],
         )
         assert rule.run(version) is True
         assert version.active is True
@@ -301,12 +297,12 @@ class TestRegexAutomationRules:
             privacy_level=PRIVATE,
         )
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg=".*",
-            action=VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION,
-            version_type=TAG,
+            version_match_pattern=".*",
+            action=AutomationRule.MAKE_VERSION_PUBLIC_ACTION,
+            version_types=[TAG],
         )
         assert rule.run(version) is True
         assert version.privacy_level == PUBLIC
@@ -323,12 +319,12 @@ class TestRegexAutomationRules:
             privacy_level=PUBLIC,
         )
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg=".*",
-            action=VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION,
-            version_type=TAG,
+            version_match_pattern=".*",
+            action=AutomationRule.MAKE_VERSION_PRIVATE_ACTION,
+            version_types=[TAG],
         )
         assert rule.run(version) is True
         assert version.privacy_level == PRIVATE
@@ -345,12 +341,12 @@ class TestRegexAutomationRules:
         )
 
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="^test",
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
-            version_type=TAG,
+            version_match_pattern="^test",
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
+            version_types=[TAG],
         )
 
         assert rule.run(version) is True
@@ -359,7 +355,7 @@ class TestRegexAutomationRules:
         match = rule.matches.first()
         assert match.version_name == "test"
         assert match.version_type == TAG
-        assert match.action == VersionAutomationRule.ACTIVATE_VERSION_ACTION
+        assert match.action == AutomationRule.ACTIVATE_VERSION_ACTION
         assert match.match_arg == "^test"
 
         for i in range(1, 31):
@@ -372,13 +368,13 @@ class TestRegexAutomationRules:
         match = rule.matches.first()
         assert match.version_name == "test 30"
         assert match.version_type == TAG
-        assert match.action == VersionAutomationRule.ACTIVATE_VERSION_ACTION
+        assert match.action == AutomationRule.ACTIVATE_VERSION_ACTION
         assert match.match_arg == "^test"
 
         match = rule.matches.last()
         assert match.version_name == "test 16"
         assert match.version_type == TAG
-        assert match.action == VersionAutomationRule.ACTIVATE_VERSION_ACTION
+        assert match.action == AutomationRule.ACTIVATE_VERSION_ACTION
         assert match.match_arg == "^test"
 
 
@@ -388,15 +384,15 @@ class TestAutomationRuleManager:
     def setup_method(self):
         self.project = get(Project)
 
-    def test_add_rule_regex(self):
+    def test_add_rule(self):
         assert not self.project.automation_rules.all()
 
-        rule = RegexAutomationRule.objects.create(
+        rule = AutomationRule.objects.create(
             project=self.project,
             description="First rule",
-            match_arg=".*",
-            version_type=TAG,
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_match_pattern=".*",
+            version_types=[TAG],
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
         )
 
         # First rule gets added with priority 0
@@ -404,36 +400,36 @@ class TestAutomationRuleManager:
         assert rule.priority == 0
 
         # Adding a second rule
-        rule = RegexAutomationRule.objects.create(
+        rule = AutomationRule.objects.create(
             project=self.project,
             description="Second rule",
-            match_arg=".*",
-            version_type=BRANCH,
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_match_pattern=".*",
+            version_types=[BRANCH],
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
         )
         assert self.project.automation_rules.count() == 2
         assert rule.priority == 0
 
-        # Adding a rule with a not secuencial priority
+        # Adding a rule with a not sequential priority
         rule = get(
-            RegexAutomationRule,
+            AutomationRule,
             description="Third rule",
             project=self.project,
             priority=9,
-            match_arg=".*",
-            version_type=TAG,
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_match_pattern=".*",
+            version_types=[TAG],
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
         )
         assert self.project.automation_rules.count() == 3
         assert rule.priority == 2
 
         # Adding a new rule
-        rule = RegexAutomationRule.objects.create(
+        rule = AutomationRule.objects.create(
             project=self.project,
             description="Fourth rule",
-            match_arg=".*",
-            version_type=BRANCH,
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_match_pattern=".*",
+            version_types=[BRANCH],
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
         )
         assert self.project.automation_rules.count() == 4
         assert rule.priority == 0
@@ -458,12 +454,12 @@ class TestAutomationRuleMove:
         assert self.project.automation_rules.count() == 6
 
     def _add_rule(self, description):
-        rule = RegexAutomationRule.objects.create(
+        rule = AutomationRule.objects.create(
             project=self.project,
             description=description,
-            match_arg=".*",
-            version_type=BRANCH,
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_match_pattern=".*",
+            version_types=[BRANCH],
+            action=AutomationRule.ACTIVATE_VERSION_ACTION,
         )
         return rule
 
@@ -763,26 +759,30 @@ class TestWebhookAutomationRules:
         ],
     )
     def test_match_files(self, trigger_build, pattern, files, should_match):
-        """Test that WebhookAutomationRule.match() correctly matches file patterns."""
+        """Test that AutomationRule.match_webhook() correctly matches file patterns."""
         rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg=pattern,
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=BRANCH,
+            version_match_pattern=".*",
+            webhook_match_pattern=pattern,
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
+            webhook_filter=AutomationRule.WEBHOOK_FILTER_FILE_PATTERN,
         )
         assert rule.match_webhook(changed_files=files) is should_match
 
     def test_match_multiple_files(self, trigger_build):
         """Test that match returns True if any file in the list matches."""
         rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="docs/*.rst",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=BRANCH,
+            version_match_pattern=".*",
+            webhook_match_pattern="docs/*.rst",
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
+            webhook_filter=AutomationRule.WEBHOOK_FILTER_FILE_PATTERN,
         )
 
         # Should match if any file matches
@@ -794,24 +794,28 @@ class TestWebhookAutomationRules:
     def test_match_empty_file_list(self, trigger_build):
         """Test that match returns False for empty file list."""
         rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="docs/*.rst",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=BRANCH,
+            version_match_pattern=".*",
+            webhook_match_pattern="docs/*.rst",
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
+            webhook_filter=AutomationRule.WEBHOOK_FILTER_FILE_PATTERN,
         )
         assert rule.match_webhook(changed_files=[]) is False
 
     def test_run_triggers_build_for_active_version(self, trigger_build):
         """Test that run() triggers a build for an active version."""
         rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="docs/*.rst",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=BRANCH,
+            version_match_pattern=".*",
+            webhook_match_pattern="docs/*.rst",
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
+            webhook_filter=AutomationRule.WEBHOOK_FILTER_FILE_PATTERN,
         )
 
         result = rule.run(self.version)
@@ -828,12 +832,14 @@ class TestWebhookAutomationRules:
         self.version.save()
 
         rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="docs/*.rst",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=BRANCH,
+            version_match_pattern=".*",
+            webhook_match_pattern="docs/*.rst",
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
+            webhook_filter=AutomationRule.WEBHOOK_FILTER_FILE_PATTERN,
         )
 
         result = rule.run(self.version)
@@ -844,12 +850,14 @@ class TestWebhookAutomationRules:
         """Test that rules only apply to matching version types."""
         # Create a rule for branches only
         branch_rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="**/*.py",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=BRANCH,
+            version_match_pattern=".*",
+            webhook_match_pattern="**/*.py",
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
+            webhook_filter=AutomationRule.WEBHOOK_FILTER_FILE_PATTERN,
         )
 
         # Create a tag version
@@ -861,21 +869,23 @@ class TestWebhookAutomationRules:
             type=TAG,
         )
 
-        # Branch version should match
-        assert branch_rule.run(self.version) is True
+        # Branch version should match version type
+        assert branch_rule.match_version(self.version) is True
 
         # Tag version should not match (wrong type)
-        assert branch_rule.run(tag_version) is False
+        assert branch_rule.match_version(tag_version) is False
 
     def test_external_version_support(self, trigger_build):
-        """Test that WebhookAutomationRule works with external versions (PRs)."""
+        """Test that AutomationRule works with external versions (PRs)."""
         external_rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="docs/**",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=EXTERNAL,
+            version_match_pattern=".*",
+            webhook_match_pattern="docs/**",
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[EXTERNAL],
+            webhook_filter=AutomationRule.WEBHOOK_FILTER_FILE_PATTERN,
         )
 
         external_version = get(
