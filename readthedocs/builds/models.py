@@ -1641,16 +1641,13 @@ class AutomationRule(TimeStampedModel):
         :param labels: List of labels from PR webhook event
         :return: True if the webhook data matches, False otherwise
         """
-        # Support multiple patterns separated by newlines
-        patterns = [p.strip() for p in self.webhook_match_pattern.splitlines()]
-
         # Handle different webhook filter types
         if self.webhook_filter == self.WEBHOOK_FILTER_FILE_PATTERN:
             if changed_files is None:
                 return False
             # Use fnmatch matching for file paths
             for file_path in changed_files:
-                for file_pattern in patterns:
+                for file_pattern in self.webhook_match_pattern:
                     if fnmatch.fnmatch(file_path, file_pattern):
                         log.info(
                             "File pattern matched for webhook rule.",
@@ -1666,7 +1663,7 @@ class AutomationRule(TimeStampedModel):
                 return False
             # Use regex matching for commit message
             try:
-                for commit_pattern in patterns:
+                for commit_pattern in self.webhook_match_pattern:
                     match = regex.search(
                         commit_pattern,
                         commit_message,
@@ -1699,7 +1696,7 @@ class AutomationRule(TimeStampedModel):
                 return False
             # Use regex matching for labels
             for label in labels:
-                for label_pattern in patterns:
+                for label_pattern in self.webhook_match_pattern:
                     try:
                         match = regex.search(
                             label_pattern,
