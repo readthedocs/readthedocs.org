@@ -300,13 +300,13 @@ class GitHubAppWebhookHandler:
         structlog.contextvars.bind_contextvars(
             installation_id=installation_id,
             action=action,
-            event=self.event,
+            event_name=self.event,
         )
         if self.event not in self.event_handlers:
             log.debug("Unsupported event")
             raise ValueError(f"Unsupported event: {self.event}")
 
-        log.info("Handling event")
+        log.info("Handling event from GitHubAppWebhookHandler.")
         self.event_handlers[self.event]()
 
     def _handle_installation_event(self):
@@ -957,6 +957,6 @@ def handle_github_app_webhook(data: dict, event: str, event_id: str = "unknown")
         event=event,
         event_id=event_id,
     )
-    log.info("Handling GitHub App webhook")
+    log.info("Handling GitHub App webhook from Celery task.")
     handler = GitHubAppWebhookHandler(data, event)
     handler.handle()
