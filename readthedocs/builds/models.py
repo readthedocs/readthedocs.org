@@ -1652,6 +1652,12 @@ class AutomationRule(TimeStampedModel):
             for file_path in changed_files:
                 for file_pattern in patterns:
                     if fnmatch.fnmatch(file_path, file_pattern):
+                        log.info(
+                            "File pattern matched for webhook rule.",
+                            file_path=file_path,
+                            pattern=file_pattern,
+                            rule_id=self.pk,
+                        )
                         return True
             return False
 
@@ -1668,6 +1674,12 @@ class AutomationRule(TimeStampedModel):
                         timeout=self.TIMEOUT,
                     )
                     if match:
+                        log.info(
+                            "Commit message pattern matched for webhook rule.",
+                            commit_message=commit_message,
+                            pattern=commit_pattern,
+                            rule_id=self.pk,
+                        )
                         return True
             except TimeoutError:
                 log.warning(
@@ -1696,6 +1708,12 @@ class AutomationRule(TimeStampedModel):
                             timeout=self.TIMEOUT,
                         )
                         if match:
+                            log.info(
+                                "Label pattern matched for webhook rule.",
+                                label=label,
+                                pattern=label_pattern,
+                                rule_id=self.pk,
+                            )
                             return True
                     except TimeoutError:
                         log.warning(
