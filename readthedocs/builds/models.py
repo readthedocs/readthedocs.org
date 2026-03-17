@@ -1425,18 +1425,6 @@ class AutomationRule(TimeStampedModel):
         (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
     )
 
-    VERSION_TYPES = (
-        "tag",
-        "branch",
-        "external",
-    )
-
-    VERSION_TYPE_CHOICES = (
-        ("tag", _("Tag")),
-        ("branch", _("Branch")),
-        ("external", _("External version")),
-    )
-
     VERSION_ACTIONS = (
         ACTIVATE_VERSION_ACTION,
         HIDE_VERSION_ACTION,

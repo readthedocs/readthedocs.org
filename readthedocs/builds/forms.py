@@ -17,6 +17,7 @@ from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BRANCH_TEXT
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.constants import TAG_TEXT
+from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.builds.models import AutomationRule
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
@@ -226,7 +227,7 @@ class AutomationRuleForm(forms.ModelForm):
     # https://semantic-ui.com/modules/dropdown.html#multiple-selection
     version_types = forms.MultipleChoiceField(
         widget=forms.SelectMultiple,
-        choices=AutomationRule.VERSION_TYPE_CHOICES,
+        choices=VERSION_TYPES,
         required=True,
     )
     webhook_match_pattern = forms.CharField(
