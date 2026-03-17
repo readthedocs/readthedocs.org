@@ -117,7 +117,8 @@ django-storages[s3]
 
 
 # Required only in development and linting
-django-debug-toolbar
+# There is a recursion bug with 6.2.0 caching
+django-debug-toolbar==6.1.0
 
 # For enabling content-security-policy
 # Pinned to 3.8 because we need to take some manual actions before upgrading to 4.x
