@@ -1393,11 +1393,6 @@ class AutomationRuleMatch(TimeStampedModel):
         return self.ACTIONS_PAST_TENSE.get(self.action)
 
 
-# ------------------------------------------------------------------------------
-# New Automation Rule Models (V2)
-# ------------------------------------------------------------------------------
-
-
 class AutomationRule(TimeStampedModel):
     """
     Automation rule for versions (v2 design).
