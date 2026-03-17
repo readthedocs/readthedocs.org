@@ -261,6 +261,10 @@ class AutomationRuleForm(forms.ModelForm):
             "action",
         ]
 
+        widgets = {
+            "version_match_pattern": forms.TextInput(attrs={"placeholder": "^release-.*$"}),
+        }
+
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
