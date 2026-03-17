@@ -1,9 +1,35 @@
 # Generated manually
 
 import django.db.models.deletion
+import django_extensions
 from django.db import migrations
 from django.db import models
 from django_safemigrate import Safe
+
+
+def forward_migrate_data(apps, schema_editor):
+    RegexAutomationRule = apps.get_model("builds", "RegexAutomationRule")
+    AutomationRule = apps.get_model("builds", "AutomationRule")
+
+    for rule in RegexAutomationRule.objects.iterator():
+        AutomationRule.objects.create(
+            # Keep the same date for the migrated rules.
+            created=rule.created,
+            modified=rule.modified,
+            project=rule.project,
+            priority=rule.priority,
+            description=rule.description,
+            version_types=[rule.version_type],
+            version_match_pattern=rule.match_arg,
+            # ``predefined_match_arg`` could be:
+            # - semver-versions
+            # - all-versions
+            version_predefined_match_pattern=rule.predefined_match_arg,
+            webhook_filter=rule.webhook_filter,
+            webhook_match_pattern=rule.webhook_match_pattern,
+            action=rule.action,
+            enabled=True,
+        )
 
 
 class Migration(migrations.Migration):
@@ -15,6 +41,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name="versionautomationrule",
+            name="project",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="version_automation_rules",
+                to="projects.project",
+            ),
+        ),
         migrations.CreateModel(
             name="AutomationRule",
             fields=[
@@ -29,11 +64,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created",
-                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(auto_now=True, verbose_name="modified"),
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
                 ),
                 (
                     "priority",
@@ -61,10 +100,27 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
+                    "version_predefined_match_pattern",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("all-versions", "Any version"),
+                            ("semver-versions", "SemVer versions"),
+                            (None, "Custom match"),
+                        ],
+                        help_text="Predefined pattern to match against the version name (e.g., 'semver-versions')",
+                        max_length=255,
+                        null=True,
+                        verbose_name="Version predefined match pattern",
+                    ),
+                ),
+                (
                     "version_match_pattern",
                     models.CharField(
+                        blank=True,
                         help_text="Regex pattern to match against the version name (e.g., '^release-.*')",
                         max_length=255,
+                        null=True,
                         verbose_name="Version match pattern",
                     ),
                 ),
@@ -123,7 +179,7 @@ class Migration(migrations.Migration):
                     "project",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="automation_rules_v2",
+                        related_name="automation_rules",
                         to="projects.project",
                         verbose_name="Project",
                     ),
@@ -134,5 +190,19 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Automation rules",
                 "ordering": ("priority", "-created"),
             },
+        ),
+        migrations.AlterField(
+            model_name="automationrulematch",
+            name="rule",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="matches",
+                to="builds.automationrule",
+                verbose_name="Matched rule",
+            ),
+        ),
+        migrations.RunPython(
+            forward_migrate_data,
+            migrations.RunPython.noop,
         ),
     ]
