@@ -136,13 +136,13 @@ SEMVER_VERSIONS = "semver-versions"
 SEMVER_VERSIONS_REGEX = r"^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"  # noqa
 
 
-PREDEFINED_MATCH_ARGS = (
+VERSION_PREDEFINED_MATCH_PATTERNS = (
     (ALL_VERSIONS, _("Any version")),
     (SEMVER_VERSIONS, _("SemVer versions")),
     (None, _("Custom match")),
 )
 
-PREDEFINED_MATCH_ARGS_VALUES = {
+VERSION_PREDEFINED_MATCH_PATTERN_VALUES = {
     ALL_VERSIONS: ALL_VERSIONS_REGEX,
     SEMVER_VERSIONS: SEMVER_VERSIONS_REGEX,
 }

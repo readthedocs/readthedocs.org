@@ -29,9 +29,9 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS_VALUES
 from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
+from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.builds.managers import AutomationRuleMatchManager
 from readthedocs.builds.managers import BuildConfigManager
@@ -1131,7 +1131,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             "otherwise match_arg will be used."
         ),
         max_length=255,
-        choices=PREDEFINED_MATCH_ARGS,
+        choices=VERSION_PREDEFINED_MATCH_PATTERNS,
         null=True,
         blank=True,
         default=None,
@@ -1164,7 +1164,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def get_match_arg(self):
         """Get the match arg defined for `predefined_match_arg` or the match from user."""
-        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+        match_arg = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
             self.predefined_match_arg,
         )
         return match_arg or self.match_arg
@@ -1496,10 +1496,23 @@ class AutomationRule(TimeStampedModel):
         default=list,
     )
 
+    version_predefined_match_pattern = models.CharField(
+        _("Version predefined match pattern"),
+        help_text=_(
+            "Predefined pattern to match against the version name (e.g., 'semver-versions')"
+        ),
+        max_length=255,
+        choices=VERSION_PREDEFINED_MATCH_PATTERNS,
+        null=True,
+        blank=True,
+    )
+
     version_match_pattern = models.CharField(
         _("Version match pattern"),
         help_text=_("Regex pattern to match against the version name (e.g., '^release-.*')"),
         max_length=255,
+        null=True,
+        blank=True,
     )
 
     # Webhook filtering (optional)
@@ -1568,10 +1581,18 @@ class AutomationRule(TimeStampedModel):
         if "any" not in self.version_types and version.type not in self.version_types:
             return False
 
+        # If a predefined match pattern is set, use it instead of the user-defined one.
+        # This allows us to have common patterns defined by us that users can easily select
+        # without needing to write regex themselves.
+        version_predefined_match_pattern = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
+            self.predefined_match_arg,
+        )
+        version_match_pattern = version_predefined_match_pattern or self.version_match_pattern
+
         # Check version name pattern
         try:
             match = regex.search(
-                self.version_match_pattern,
+                version_match_pattern,
                 version.verbose_name,
                 flags=regex.VERSION0,
                 timeout=self.TIMEOUT,
@@ -1580,7 +1601,7 @@ class AutomationRule(TimeStampedModel):
         except TimeoutError:
             log.warning(
                 "Timeout while parsing version name regex.",
-                pattern=self.version_match_pattern,
+                pattern=version_match_pattern,
                 version_slug=version.slug,
                 rule_id=self.pk,
             )
