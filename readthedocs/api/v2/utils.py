@@ -250,8 +250,7 @@ def run_version_automation_rules(project, added_versions, deleted_active_version
     ).order_by("priority")
     log.info(
         "Running version automation rules.",
-        rules=rules,
-        versions=[version.slug for version in versions],
+        project_slug=project.slug,
         version_slugs=version_slugs,
     )
     for version, rule in itertools.product(versions, rules):
