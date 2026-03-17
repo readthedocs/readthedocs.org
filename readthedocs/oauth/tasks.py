@@ -590,17 +590,7 @@ class GitHubAppWebhookHandler:
                 triggered = False
                 changed_files = self._get_changed_files_from_push_event()
                 commit_message = self.data["head_commit"]["message"]
-                labels = []
-
-                # NOTE: not sure about how to get the labels associated to the PR that this commit belongs to.
-                #
-                # labels = # self.data["head_commit"].get("labels", [])
-                # gh_repository = installation.service.installation_client.get_repo(
-                #     int(project.remote_repository.remote_id),
-                #     lazy=True,
-                # )
-
-                # labels = gh_repository.commits(self.data["head_commit"]["id"], lazy=True).get_pulls()[0].labels()
+                labels = []  # We don't have labels in push events, so we leave it empty.
 
                 for rule in webhook_rules.iterator():
                     if rule.match_webhook(
