@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
                     "version_types",
                     models.JSONField(
                         default=list,
-                        help_text="List of version types this rule applies to (e.g., ['tag', 'branch', 'external']). Use ['any'] to match all version types.",
+                        help_text="List of version types this rule applies to (e.g., ['tag', 'branch', 'external']).",
                         verbose_name="Version types",
                     ),
                 ),
@@ -188,7 +188,7 @@ class Migration(migrations.Migration):
             options={
                 "verbose_name": "Automation rule",
                 "verbose_name_plural": "Automation rules",
-                "ordering": ("priority", "-created"),
+                "ordering": ("priority", "-modified", "-created"),
             },
         ),
         migrations.AlterField(
