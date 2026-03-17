@@ -1638,8 +1638,8 @@ class AutomationRule(TimeStampedModel):
 
         :param changed_files: List of file paths that were modified/added/deleted
         :param commit_message: Commit message from the webhook event
-        :param labels: List of labels from PR/MR webhook event
-        :return: True if the webhook data matches or no webhook filter is set, False otherwise
+        :param labels: List of labels from PR webhook event
+        :return: True if the webhook data matches, False otherwise
         """
         # Support multiple patterns separated by newlines
         patterns = [p.strip() for p in self.webhook_match_pattern.splitlines()]
