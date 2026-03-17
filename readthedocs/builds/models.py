@@ -1561,13 +1561,42 @@ class AutomationRule(TimeStampedModel):
         help_text=_("Whether this rule is enabled"),
     )
 
+    _position_manager = ProjectItemPositionManager(position_field_name="priority")
+
     class Meta:
-        ordering = ("priority", "-created")
+        ordering = ("priority", "-modified", "-created")
         verbose_name = _("Automation rule")
         verbose_name_plural = _("Automation rules")
 
     def __str__(self):
         return f"({self.priority}) {self.get_action_display()}"
+
+    def save(self, *args, **kwargs):
+        """Override method to update the other priorities before save."""
+        self._position_manager.change_position_before_save(self)
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """Override method to update the other priorities after delete."""
+        super().delete(*args, **kwargs)
+        self._position_manager.change_position_after_delete(self)
+
+    def move(self, steps):
+        """
+        Change the priority of this Automation Rule.
+
+        This is done by moving it ``n`` steps,
+        relative to the other priority rules.
+        The priority from the other rules are updated too.
+
+        :param steps: Number of steps to be moved
+                      (it can be negative)
+        """
+        total = self.project.automation_rules.count()
+        current_priority = self.priority
+        new_priority = (current_priority + steps) % total
+        self.priority = new_priority
+        self.save()
 
     def get_description(self):
         if self.description:
