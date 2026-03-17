@@ -1749,6 +1749,8 @@ class AutomationRule(TimeStampedModel):
         else:
             raise NotImplementedError(f"Action {self.action} is not implemented")
 
+        # TODO: we could consider adding more metadata here related to the webhook match.
+        # I'm not going to add that feature for now, but I'll consider to do it in a following iteration.
         AutomationRuleMatch.objects.register_match(
             rule=self,
             version=version,
