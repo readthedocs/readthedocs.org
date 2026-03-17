@@ -270,8 +270,19 @@ class AutomationRuleForm(forms.ModelForm):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
+        if self.instance and self.instance.pk and self.instance.webhook_match_pattern:
+            self.initial["webhook_match_pattern"] = "\n".join(self.instance.webhook_match_pattern)
+
     def clean_project(self):
         return self.project
+
+    def clean_webhook_match_pattern(self):
+        webhook_match_pattern = self.cleaned_data["webhook_match_pattern"]
+        if webhook_match_pattern:
+            webhook_match_pattern = [
+                line.strip() for line in webhook_match_pattern.splitlines() if line.strip()
+            ]
+        return webhook_match_pattern
 
     def clean(self):
         version_predefined_match_pattern = self.cleaned_data.get("version_predefined_match_pattern")
