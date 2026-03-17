@@ -244,7 +244,15 @@ def run_version_automation_rules(project, added_versions, deleted_active_version
     """
     version_slugs = added_versions.union(deleted_active_versions)
     versions = project.versions.filter(slug__in=version_slugs)
-    rules = project.automation_rules.filter(action__in=AutomationRule.VERSION_ACTIONS)
+    rules = project.automation_rules.filter(action__in=AutomationRule.VERSION_ACTIONS).order_by(
+        "priority"
+    )
+    log.warning(
+        "Running version automation rules.",
+        rules=rules,
+        versions=[version.slug for version in versions],
+        version_slugs=version_slugs,
+    )
     for version, rule in itertools.product(versions, rules):
         if rule.match_version(version):
             rule.run(version)
