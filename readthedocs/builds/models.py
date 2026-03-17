@@ -1603,6 +1603,15 @@ class AutomationRule(TimeStampedModel):
             return self.description
         return f"{self.get_action_display()}"
 
+    def get_version_match_pattern(self):
+        # If a predefined match pattern is set, use it instead of the user-defined one.
+        # This allows us to have common patterns defined by us that users can easily select
+        # without needing to write regex themselves.
+        version_predefined_match_pattern = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
+            self.version_predefined_match_pattern,
+        )
+        return version_predefined_match_pattern or self.version_match_pattern
+
     def match_version(self, version):
         """
         Check if the version matches this rule's version criteria.
@@ -1611,16 +1620,10 @@ class AutomationRule(TimeStampedModel):
         :return: True if the version matches, False otherwise
         """
         # Check version type
-        if "any" not in self.version_types and version.type not in self.version_types:
+        if version.type not in self.version_types:
             return False
 
-        # If a predefined match pattern is set, use it instead of the user-defined one.
-        # This allows us to have common patterns defined by us that users can easily select
-        # without needing to write regex themselves.
-        version_predefined_match_pattern = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
-            self.predefined_match_arg,
-        )
-        version_match_pattern = version_predefined_match_pattern or self.version_match_pattern
+        version_match_pattern = self.get_version_match_pattern()
 
         # Check version name pattern
         try:
