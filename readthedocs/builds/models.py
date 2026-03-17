@@ -1434,7 +1434,12 @@ class AutomationRule(TimeStampedModel):
         "tag",
         "branch",
         "external",
-        "any",
+    )
+
+    VERSION_TYPE_CHOICES = (
+        ("tag", _("Tag")),
+        ("branch", _("Branch")),
+        ("external", _("External version")),
     )
 
     VERSION_ACTIONS = (
@@ -1490,8 +1495,7 @@ class AutomationRule(TimeStampedModel):
     version_types = models.JSONField(
         _("Version types"),
         help_text=_(
-            "List of version types this rule applies to (e.g., ['tag', 'branch', 'external']). "
-            "Use ['any'] to match all version types."
+            "List of version types this rule applies to (e.g., ['tag', 'branch', 'external'])."
         ),
         default=list,
     )

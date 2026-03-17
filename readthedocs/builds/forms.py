@@ -222,6 +222,13 @@ class RegexAutomationRuleForm(forms.ModelForm):
 
 class AutomationRuleForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
+    # NOTE: I want to use something like, but I'm not sure how.
+    # https://semantic-ui.com/modules/dropdown.html#multiple-selection
+    version_types = forms.MultipleChoiceField(
+        widget=forms.SelectMultiple,
+        choices=AutomationRule.VERSION_TYPE_CHOICES,
+        required=True,
+    )
     webhook_match_pattern = forms.CharField(
         required=False,
         widget=forms.Textarea(
@@ -247,6 +254,7 @@ class AutomationRuleForm(forms.ModelForm):
             "enabled",
             "description",
             "version_types",
+            "version_predefined_match_pattern",
             "version_match_pattern",
             "webhook_filter",
             "webhook_match_pattern",
@@ -256,17 +264,6 @@ class AutomationRuleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
-
-    def clean_version_types(self):
-        version_types = self.cleaned_data["version_types"]
-        for vt in version_types:
-            if vt not in self.Meta.model.VERSION_TYPES:
-                raise forms.ValidationError(
-                    _(
-                        f"Invalid version type: {vt}. Supported types are: {', '.join(self.Meta.model.VERSION_TYPES)}."
-                    ),
-                )
-        return version_types
 
     def clean_project(self):
         return self.project
