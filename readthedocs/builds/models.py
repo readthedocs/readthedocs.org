@@ -1490,8 +1490,6 @@ class AutomationRule(TimeStampedModel):
         ),
         max_length=255,
         choices=VERSION_PREDEFINED_MATCH_PATTERNS,
-        null=True,
-        blank=True,
     )
 
     version_match_pattern = models.CharField(
