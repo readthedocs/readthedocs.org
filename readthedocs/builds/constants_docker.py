@@ -91,9 +91,7 @@ RTD_DOCKER_BUILD_SETTINGS = {
 _OS = RTD_DOCKER_BUILD_SETTINGS["os"]
 _TOOLS = RTD_DOCKER_BUILD_SETTINGS["tools"]
 
-# TODO: point ``ubuntu-lts-latest`` to Ubuntu 24.04 LTS once we have tested it
-# in production after some weeks
-_OS["ubuntu-lts-latest"] = _OS["ubuntu-22.04"]
+_OS["ubuntu-lts-latest"] = _OS["ubuntu-24.04"]
 
 _TOOLS["python"]["3"] = _TOOLS["python"]["3.14"]
 _TOOLS["python"]["latest"] = _TOOLS["python"]["3"]
