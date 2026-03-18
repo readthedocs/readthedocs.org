@@ -1,5 +1,7 @@
 """Allauth overrides."""
 
+import fnmatch
+
 import structlog
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.account.adapter import get_adapter as get_account_adapter
@@ -23,6 +25,10 @@ log = structlog.get_logger(__name__)
 class AccountAdapter(DefaultAccountAdapter):
     """Customize Allauth emails to match our current patterns."""
 
+    error_messages = DefaultAccountAdapter.error_messages | {
+        "email_blocked": "Registration with this email domain is not allowed.",
+    }
+
     def format_email_subject(self, subject):
         return force_str(subject)
 
@@ -45,6 +51,18 @@ class AccountAdapter(DefaultAccountAdapter):
                 send_email_from_object(self.email)
 
         return DummyEmail(email)
+
+    def clean_email(self, email):
+        """Block signup from emails matching blocked domain patterns."""
+        from readthedocs.core.models import BlockedEmailDomain
+
+        email = super().clean_email(email)
+        domain = email.rsplit("@", 1)[-1].lower()
+        for entry in BlockedEmailDomain.objects.values_list("domain", flat=True):
+            pattern = entry.lower()
+            if domain == pattern or fnmatch.fnmatch(domain, pattern):
+                raise self.validation_error("email_blocked")
+        return email
 
     def save_user(self, request, user, form, commit=True):
         """Override default account signup to redeem invitations at sign-up."""

@@ -14,6 +14,7 @@ from impersonate.admin import UserAdminImpersonateMixin
 from rest_framework.authtoken.admin import TokenAdmin
 
 from readthedocs.core.history import ExtraSimpleHistoryAdmin
+from readthedocs.core.models import BlockedEmailDomain
 from readthedocs.core.models import UserProfile
 from readthedocs.oauth.tasks import sync_remote_repositories
 from readthedocs.projects.models import Project
@@ -125,6 +126,12 @@ class UserProfileAdmin(ExtraSimpleHistoryAdmin):
     list_display = ("user", "homepage")
     search_fields = ("user__username", "homepage")
     raw_id_fields = ("user",)
+
+
+@admin.register(BlockedEmailDomain)
+class BlockedEmailDomainAdmin(admin.ModelAdmin):
+    list_display = ("domain", "created")
+    search_fields = ("domain",)
 
 
 admin.site.unregister(User)
