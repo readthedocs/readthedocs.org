@@ -29,6 +29,7 @@ from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.models import Feature
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS
 from readthedocs.projects.signals import after_build
 from readthedocs.projects.signals import before_build
@@ -724,6 +725,21 @@ class BuildDirector:
         success = builder.build()
         return success
 
+    def _add_parallel_env_var(self, env):
+        cpus = os.cpu_count()
+        # These variables are useful for projects that compile libraries during the build.
+        env.update(
+            {
+                # https://cmake.org/cmake/help/latest/envvar/CMAKE_BUILD_PARALLEL_LEVEL.html
+                "CMAKE_BUILD_PARALLEL_LEVEL": cpus,
+                # https://www.gnu.org/software/make/manual/html_node/Options_002fRecursion.html
+                "MAKEFLAGS": f"-j {cpus}",
+                # Pillow and other libraries use this variable
+                # https://pillow.readthedocs.io/en/stable/installation/building-from-source.html#build-options
+                "MAX_CONCURRENCY": cpus,
+            }
+        )
+
     def _add_git_ssh_command_env_var(self, env):
         if settings.ALLOW_PRIVATE_REPOS:
             # Set GIT_SSH_COMMAND to use ssh with options that disable host key checking
@@ -811,6 +827,9 @@ class BuildDirector:
         )
 
         self._add_git_ssh_command_env_var(env)
+
+        if self.data.project.has_feature(Feature.BUILD_IN_PARALLEL):
+            self._add_parallel_env_var(env)
 
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables
