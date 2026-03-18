@@ -778,7 +778,7 @@ class CommunityBaseSettings(Settings):
     RTD_DOCKER_COMPOSE = False
 
     DOCKER_VERSION = "auto"
-    DOCKER_DEFAULT_VERSION = "ubuntu-22.04"
+    DOCKER_DEFAULT_VERSION = "ubuntu-24.04"
     DOCKER_IMAGE = "{}:{}".format(
         constants_docker.DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION
     )
@@ -788,7 +788,7 @@ class CommunityBaseSettings(Settings):
     RTD_DOCKER_BUILD_SETTINGS = constants_docker.RTD_DOCKER_BUILD_SETTINGS
     # This is used for the image used to clone the users repo,
     # since we can't read their config file image choice before cloning
-    RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-22.04"]
+    RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-24.04"]
 
     def _get_build_memory_limit(self):
         """
