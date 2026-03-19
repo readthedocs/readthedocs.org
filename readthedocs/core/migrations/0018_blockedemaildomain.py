@@ -6,16 +6,6 @@ from django.db import models
 from django_safemigrate import Safe
 
 
-def seed_blocked_domains(apps, schema_editor):
-    BlockedEmailDomain = apps.get_model("core", "BlockedEmailDomain")
-    BlockedEmailDomain.objects.bulk_create(
-        [
-            BlockedEmailDomain(domain="163.com"),
-            BlockedEmailDomain(domain="*.milkgg.com"),
-        ]
-    )
-
-
 class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
@@ -59,5 +49,4 @@ class Migration(migrations.Migration):
                 "ordering": ["domain"],
             },
         ),
-        migrations.RunPython(seed_blocked_domains, migrations.RunPython.noop),
     ]
