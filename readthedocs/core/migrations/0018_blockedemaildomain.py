@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 (
                     "domain",
                     models.CharField(
-                        help_text='Exact domain (e.g. "163.com") or wildcard pattern (e.g. "*.milkgg.com").',
+                        help_text='Exact domain (e.g. "example.com") or wildcard pattern (e.g. "*.example.com").',
                         max_length=255,
                         unique=True,
                         verbose_name="Domain pattern",

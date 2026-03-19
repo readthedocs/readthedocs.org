@@ -52,15 +52,17 @@ class UserProfile(TimeStampedModel):
 class BlockedEmailDomain(TimeStampedModel):
     """Email domain pattern blocked from registration.
 
-    Managed via Django admin. Supports exact domains (e.g., ``163.com``)
-    and wildcard patterns using fnmatch syntax (e.g., ``*.milkgg.com``).
+    Managed via Django admin. Supports exact domains (e.g., ``example.com``)
+    and wildcard patterns using fnmatch syntax (e.g., ``*.example.com``).
     """
 
     domain = models.CharField(
         _("Domain pattern"),
         max_length=255,
         unique=True,
-        help_text=_('Exact domain (e.g. "163.com") or wildcard pattern (e.g. "*.milkgg.com").'),
+        help_text=_(
+            'Exact domain (e.g. "example.com") or wildcard pattern (e.g. "*.example.com").'
+        ),
     )
 
     class Meta:
