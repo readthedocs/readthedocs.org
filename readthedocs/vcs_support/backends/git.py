@@ -196,7 +196,7 @@ class Backend(BaseVCS):
             # Azure DevOps is known to not fail immediately when trying to push
             # with an SSH key without write access, but instead it hangs until
             # it times out (this happens randomly).
-            cmd = ["timeout", "3s", "git", "push", "--dry-run", remote_name]
+            cmd = ["timeout", "10s", "git", "push", "--dry-run", remote_name]
             code, stdout, stderr = self.run(*cmd, record=False, demux=True)
 
             if code == 0:
