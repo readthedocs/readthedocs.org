@@ -941,7 +941,7 @@ class TestAdditionalDocViews(BaseDocServing):
         response = self.client.get(
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         # The hidden extra version should NOT be included in robots.txt since the project
         # is single-version and all non-default version paths resolve to /.
         expected = dedent(
@@ -953,7 +953,7 @@ class TestAdditionalDocViews(BaseDocServing):
             Sitemap: https://project.readthedocs.io/sitemap.xml
             """
         ).lstrip()
-        self.assertContains(response, expected)
+        assert expected in response.content.decode()
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_single_version_project_with_multiple_versions_hidden_default(
@@ -988,7 +988,7 @@ class TestAdditionalDocViews(BaseDocServing):
         response = self.client.get(
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         # Only the default hidden version should be disallowed, not the extra hidden version.
         expected = dedent(
             """
@@ -999,8 +999,8 @@ class TestAdditionalDocViews(BaseDocServing):
             Sitemap: https://project.readthedocs.io/sitemap.xml
             """
         ).lstrip()
-        self.assertContains(response, expected)
-        self.assertNotContains(response, "hidden-extra")
+        assert expected in response.content.decode()
+        assert "hidden-extra" not in response.content.decode()
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_private_version(self, storage_exists):
@@ -1664,15 +1664,14 @@ class TestAdditionalDocViews(BaseDocServing):
         response = self.client.get(
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["versions"]), 1)
+        assert response.status_code == 200
+        assert len(response.context["versions"]) == 1
         # Only the default version should be in the sitemap.
-        self.assertEqual(
-            response.context["versions"][0]["loc"],
-            self.project.get_docs_url(version_slug=self.project.get_default_version()),
+        assert response.context["versions"][0]["loc"] == self.project.get_docs_url(
+            version_slug=self.project.get_default_version()
         )
         # The extra version should NOT appear in the sitemap.
-        self.assertNotContains(response, extra_version.slug)
+        assert extra_version.slug not in response.content.decode()
 
     def test_sitemap_xml_single_version_project_with_hidden_extra_versions(self):
         """
@@ -1698,14 +1697,13 @@ class TestAdditionalDocViews(BaseDocServing):
         response = self.client.get(
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
         )
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         # Only the default version should be in the sitemap.
-        self.assertEqual(len(response.context["versions"]), 1)
-        self.assertEqual(
-            response.context["versions"][0]["loc"],
-            self.project.get_docs_url(version_slug=self.project.get_default_version()),
+        assert len(response.context["versions"]) == 1
+        assert response.context["versions"][0]["loc"] == self.project.get_docs_url(
+            version_slug=self.project.get_default_version()
         )
-        self.assertNotContains(response, "hidden-extra")
+        assert "hidden-extra" not in response.content.decode()
 
     @mock.patch(
         "readthedocs.proxito.views.mixins.staticfiles_storage",
