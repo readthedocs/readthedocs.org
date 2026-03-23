@@ -1641,6 +1641,72 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_sitemap_xml_single_version_project_with_multiple_versions(self):
+        """
+        Single-version projects may still have more than one active version.
+
+        When a project switches to single-version mode, the other versions are not deleted.
+        Only the default version should appear in the sitemap since all other version paths
+        resolve to ``/``.
+        """
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        self.project.versions.update(active=True, built=True)
+
+        extra_version = fixture.get(
+            Version,
+            project=self.project,
+            slug="extra-version",
+            active=True,
+            privacy_level=PUBLIC,
+        )
+
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["versions"]), 1)
+        # Only the default version should be in the sitemap.
+        self.assertEqual(
+            response.context["versions"][0]["loc"],
+            self.project.get_docs_url(version_slug=self.project.get_default_version()),
+        )
+        # The extra version should NOT appear in the sitemap.
+        self.assertNotContains(response, extra_version.slug)
+
+    def test_sitemap_xml_single_version_project_with_hidden_extra_versions(self):
+        """
+        Extra hidden versions in a single-version project should not appear in the sitemap.
+
+        Hidden versions are excluded from the sitemap regardless, but this test ensures
+        the single-version filter is applied before the hidden filter, so paths that would
+        incorrectly resolve to ``/`` are never considered.
+        """
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        self.project.versions.update(active=True, built=True)
+
+        fixture.get(
+            Version,
+            project=self.project,
+            slug="hidden-extra",
+            active=True,
+            hidden=True,
+            privacy_level=PUBLIC,
+        )
+
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 200)
+        # Only the default version should be in the sitemap.
+        self.assertEqual(len(response.context["versions"]), 1)
+        self.assertEqual(
+            response.context["versions"][0]["loc"],
+            self.project.get_docs_url(version_slug=self.project.get_default_version()),
+        )
+        self.assertNotContains(response, "hidden-extra")
+
     @mock.patch(
         "readthedocs.proxito.views.mixins.staticfiles_storage",
         new=StaticFileSystemStorageTest(),
