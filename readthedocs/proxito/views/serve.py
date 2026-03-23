@@ -714,6 +714,10 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
     def _get_hidden_paths(self, project):
         """Get the absolute paths of the public hidden versions of `project`."""
         hidden_versions = project.versions(manager=INTERNAL).public().filter(hidden=True)
+        # If the project doesn't support multiple versions, we only need to consider the default version.
+        # Otherwise, if the project still has more than one active version, all paths will resolve to `/`.
+        if not project.supports_multiple_versions:
+            hidden_versions = hidden_versions.filter(slug=project.get_default_version())
         resolver = Resolver()
         hidden_paths = [
             resolver.resolve_path(project, version_slug=version.slug) for version in hidden_versions
@@ -879,6 +883,11 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             only_active=True,
             include_hidden=False,
         )
+        # If the project doesn't support multiple versions, we only need to consider the default version.
+        # Otherwise, if the project still has more than one active version, all paths will resolve to `/`.
+        if not project.supports_multiple_versions:
+            public_versions = public_versions.filter(slug=project.get_default_version())
+
         if not public_versions.exists():
             raise Http404()
 
