@@ -1670,8 +1670,8 @@ class TestAdditionalDocViews(BaseDocServing):
         assert response.context["versions"][0]["loc"] == self.project.get_docs_url(
             version_slug=self.project.get_default_version()
         )
-        # The extra version should NOT appear in the sitemap.
-        assert extra_version.slug not in response.content.decode()
+        # Only one <loc> entry should be present (the extra version is excluded).
+        assert response.content.decode().count("<loc>") == 1
 
     def test_sitemap_xml_single_version_project_with_hidden_extra_versions(self):
         """
@@ -1703,7 +1703,8 @@ class TestAdditionalDocViews(BaseDocServing):
         assert response.context["versions"][0]["loc"] == self.project.get_docs_url(
             version_slug=self.project.get_default_version()
         )
-        assert "hidden-extra" not in response.content.decode()
+        # Only one <loc> entry should be present (the hidden extra version is excluded).
+        assert response.content.decode().count("<loc>") == 1
 
     @mock.patch(
         "readthedocs.proxito.views.mixins.staticfiles_storage",
