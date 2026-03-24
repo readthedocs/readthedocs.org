@@ -26,6 +26,7 @@ RTD_DOCKER_BUILD_SETTINGS = {
         "ubuntu-20.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04",
         "ubuntu-22.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04",
         "ubuntu-24.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-24.04",
+        "ubuntu-26.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-26.04",
     },
     # Mapping of build.tools options to specific versions.
     "tools": {
