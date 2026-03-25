@@ -156,14 +156,82 @@ When `python.install` contains any uv entries:
 
 **Note on `sphinx-build` invocation:** `uv env` produces a standard PEP 405 virtualenv at `$READTHEDOCS_VIRTUALENV_PATH`. Read the Docs already activates that path (adds its `bin/` to PATH) before invoking build tools, so `sphinx-build` (and `mkdocs`, etc.) remain callable directly — no `uv run sphinx-build` is needed. The build invocation layer is unchanged.
 
-Example of a build using these approaches:
- - [`uv pip install -r requirements`](https://app.readthedocs.org/projects/test-builds/builds/
-31965642/)
- - [`uv sync`](https://app.readthedocs.org/projects/test-builds/builds/31965835/)
 
 Implementation note:
 
 - This likely requires a branch in environment setup logic in `readthedocs/doc_builder/python_environments.py` (or adjacent orchestration layer) to select a uv-native path.
+
+## Implementation done using `build.commands` as example
+
+### Using `uv sync`
+
+```yaml
+version: 2
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.12"
+  jobs:
+    pre_create_environment:
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+    install:
+      - UV_PROJECT_ENVIRONMENT="$READTHEDOCS_VIRTUALENV_PATH" uv sync --python `asdf which python`
+    build:
+      html:
+        - sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
+```
+
+- There is no need to call `uv env` since `uv sync` will create the env for us.
+- We need to pass `--python` to `uv sync` so it creates the environment using the Python version defined in `build.tools.python` and fail otherwise.
+- `UV_PROJECT_ENVIRONMENT` will be set automatically by Read the Docs and won't be needed to be prepended in the commands.
+- Link to the build using `uv sync`: https://app.readthedocs.org/projects/test-builds/builds/31966186/
+
+### Using `uv pip install -r requirements.txt`
+
+```yaml
+version: 2
+build:
+  os: ubuntu-26.04
+  tools:
+    python: latest
+  jobs:
+    pre_create_environment:
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+    create_environment:
+      - uv venv --python `asdf which python` $READTHEDOCS_VIRTUALENV_PATH
+    install:
+      - uv pip install -r requirements.txt
+    build:
+      html:
+        - sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
+```
+
+- Link to the build  using `uv pip install -r requirements` https://app.readthedocs.org/projects/test-builds/builds/31965642/
+
+## Python version mismatching
+
+If the user select `build.tools.python: 3.12` but then uses `requires-python = ">=3.14"` in `pyproject.toml`, `uv` will remove the environment and create another one with the pre-compiled Python version they manage:
+
+```bash
+ 	asdf global python 3.12.10
+	asdf plugin add uv
+	asdf install uv latest
+	asdf global uv latest
+	uv venv --python `asdf which python` $READTHEDOCS_VIRTUALENV_PATH
+ ```
+
+ ```
+	UV_PROJECT_ENVIRONMENT="$READTHEDOCS_VIRTUALENV_PATH" uv sync
+Downloading cpython-3.14.3-linux-x86_64-gnu (download) (34.6MiB)
+ Downloaded cpython-3.14.3-linux-x86_64-gnu (download)
+Using CPython 3.14.3
+Removed virtual environment at: /home/docs/checkouts/readthedocs.org/user_builds/test-builds/envs/uv
+Creating virtual environment at: /home/docs/checkouts/readthedocs.org/user_builds/test-builds/envs/uv
+```
 
 ## Validation Rules
 
