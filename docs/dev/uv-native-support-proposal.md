@@ -1,8 +1,6 @@
 # Native `uv` Support Proposal (Issue #11289)
 
-## Status
-
-Draft for team iteration.
+Issue: https://github.com/readthedocs/readthedocs.org/issues/11289
 
 ## Context
 
@@ -14,13 +12,13 @@ We want native `uv` support in `python.install` focused on common use cases:
 
 This proposal updates the earlier direction with these explicit constraints:
 
-- Prefer explicit `uv` CLI flags (for clarity and reproducibility).
-- Do **not** use `UV_PROJECT_ENVIRONMENT="$READTHEDOCS_VIRTUALENV_PATH"`.
-- When a project uses `python.install.method: uv`, replace Read the Docs virtualenv creation (`python -mvirtualenv ...`) with an explicit uv environment creation command: `uv env "$READTHEDOCS_VIRTUALENV_PATH" --python <python-binary>`.
+- Prefer using `uv` environment variables such as `UV_PYTHON`, `UV_PROJECT` and `UV_PROJECT_ENVIRONMENT`.
+- Define these environment variables inside the director (`director.py`) so they are transparent for the user.
+  Do **not** use them as prefix for commands in the frontend: `UV_PROJECT_ENVIRONMENT="$READTHEDOCS_VIRTUALENV_PATH" uv sync`.
+- When a project uses `python.install.method: uv`, replace Read the Docs virtualenv creation (`python -mvirtualenv ...`) with an explicit uv environment creation command: `uv env "$READTHEDOCS_VIRTUALENV_PATH"`.
 - When using `uv`, skip Read the Docs pip bootstrap commands:
   - `python -m pip install --upgrade --no-cache-dir pip setuptools`
   - `python -m pip install --upgrade --no-cache-dir sphinx`
-- After creating the environment with `uv env ... --python ...`, do not pass `--python` to subsequent uv install commands.
 
 ## Proposed Config Shape
 
@@ -31,36 +29,62 @@ python:
       operation: sync
       path: .
       groups: [docs]
-      extras: []
+      extras: null
 ```
+
+Command called: `uv sync --group docs`.
+
+```yaml
+python:
+  install:
+    - method: uv
+      operation: pip
+      path: mymodule/awesome
+      groups: null
+      extras:
+        - docs
+```
+
+Command called: `uv pip install mymodule/awesome[docs]`.
+
+```yaml
+python:
+  install:
+    - method: uv
+      operation: pip
+      requirements: docs/requirements.txt
+      groups: null
+      extras: null
+```
+
+Command called: `uv pip install -r docs/requirements.txt`.
 
 ### Fields
 
 - `method`: add `uv` (existing: `pip`, `setuptools`)
 - `operation`: `sync` or `pip`
 - `path`: directory containing the project metadata (default: `.`)
+- `requirements`: path to `requirements.txt` file
 - `groups`: list of group names or `all`
 - `extras`: list of extras names or `all`
 
-## Command Construction Rules
+## Environment variables
+
+- `UV_PYTHON` is set as `asdf which python`
+- `UV_PROJECT_ENVIRONMENT` is set as `$READTHEDOCS_VIRTUALENV_PATH`
+- `UV_PROJECT` is set with the value defined in `python.install.path`
+
+## Commands
 
 ### Common
 
 Create the environment once, explicitly, using the selected Python:
 
 ```bash
-uv env "$READTHEDOCS_VIRTUALENV_PATH" --python "<python-binary>"
+uv env "$READTHEDOCS_VIRTUALENV_PATH"
 ```
 
-Subsequent uv install invocations should select the project location as follows:
-
-- If `path` is omitted or `path: .`, run uv from the checkout root and do not pass `--project`.
-- If `path` is not `.` (for example `packages/site`), pass `--project "$READTHEDOCS_CHECKOUT_PATH/<path>"`.
-
-Where:
-
-- `<path>` comes from `python.install.path` (default `.`)
-- `<python-binary>` is the selected Python from RTD build tools (same interpreter family selected by config/build image, including `asdf` Python if that is what the environment exposes)
+Note that the environment will be created with the Python version defined in `UV_PYTHON`.
 
 ### `operation: sync`
 
@@ -84,7 +108,7 @@ uv sync --group docs
 ```
 
 ```bash
-uv --project "$READTHEDOCS_CHECKOUT_PATH/packages/site" sync --all-groups --all-extras
+uv sync --all-groups --all-extras
 ```
 
 ### `operation: pip`
@@ -109,8 +133,6 @@ With extras:
 uv pip install ".[docs,pdf]"
 ```
 
-When `path` is non-root, prepend `--project` in each of the examples above.
-
 ## Docker Image Changes
 
 To support `method: uv` natively, `uv` must be available in the build environment. Since our Ubuntu images manage toolchains via `asdf`, the following commands need to be added to the Dockerfile:
@@ -134,6 +156,7 @@ asdf global uv latest
 ```
 
 The overhead is expected to be comparable to the existing `pip`/`setuptools` upgrade step.
+This would be the simplest way and I'd recommend that for now.
 
 ## Build Pipeline Changes
 
@@ -141,7 +164,7 @@ The overhead is expected to be comparable to the existing `pip`/`setuptools` upg
 
 For uv-based installs we should skip:
 
-1. Base venv creation (`python -mvirtualenv $READTHEDOCS_VIRTUALENV_PATH`) and replace it with `uv env "$READTHEDOCS_VIRTUALENV_PATH" --python <python-binary>`
+1. Base venv creation (`python -mvirtualenv $READTHEDOCS_VIRTUALENV_PATH`) and replace it with `uv env "$READTHEDOCS_VIRTUALENV_PATH"`
 2. Core pip bootstrap (`pip setuptools` upgrade)
 3. Core Sphinx bootstrap (`sphinx` install)
 
@@ -149,19 +172,20 @@ For uv-based installs we should skip:
 
 When `python.install` contains any uv entries:
 
-1. Create the environment with `uv env "$READTHEDOCS_VIRTUALENV_PATH" --python <python-binary>`.
+1. Create the environment with `uv env "$REDTHEDOCS_VIRTUALENV_PATH"`.
 2. Do not call RTD core `pip`/`setuptools`/`sphinx` install commands.
-3. Execute uv install entries directly (without `--python`, since env is already created with the desired interpreter).
+3. Execute uv install entries directly (since we are using `UV_` variables)
 4. Continue with regular build steps (Sphinx/MkDocs invocation), assuming dependencies come from uv-managed environment.
 
-**Note on `sphinx-build` invocation:** `uv env` produces a standard PEP 405 virtualenv at `$READTHEDOCS_VIRTUALENV_PATH`. Read the Docs already activates that path (adds its `bin/` to PATH) before invoking build tools, so `sphinx-build` (and `mkdocs`, etc.) remain callable directly — no `uv run sphinx-build` is needed. The build invocation layer is unchanged.
+**Note on `sphinx-build` invocation:** `uv env` produces a standard PEP 405 virtualenv at `$READTHEDOCS_VIRTUALENV_PATH`.
+Read the Docs already activates that path (adds its `bin/` to PATH) before invoking build tools, so `sphinx-build` (and `mkdocs`, etc.) remain callable directly — no `uv run sphinx-build` is needed.
+The build invocation layer is unchanged.
 
 
-Implementation note:
+## Implementation done using `build.jobs` as example
 
-- This likely requires a branch in environment setup logic in `readthedocs/doc_builder/python_environments.py` (or adjacent orchestration layer) to select a uv-native path.
-
-## Implementation done using `build.commands` as example
+These examples show that the idea works as expected.
+We need to implement it natively now :)
 
 ### Using `uv sync`
 
@@ -170,23 +194,24 @@ version: 2
 build:
   os: ubuntu-24.04
   tools:
-    python: "3.12"
+    python: "3.14"
   jobs:
     pre_create_environment:
       - asdf plugin add uv
       - asdf install uv latest
       - asdf global uv latest
     install:
-      - UV_PROJECT_ENVIRONMENT="$READTHEDOCS_VIRTUALENV_PATH" uv sync --python `asdf which python`
+      - UV_PYTHON=`asdf which python` UV_PROJECT_ENVIRONMENT="$READTHEDOCS_VIRTUALENV_PATH" uv sync
     build:
       html:
         - sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
 ```
 
+- `pre_create_environment` commands won't be needed as they will be automatically executed by Read the Docs at `BuildDirector.install_build_tools`.
 - There is no need to call `uv env` since `uv sync` will create the env for us.
-- We need to pass `--python` to `uv sync` so it creates the environment using the Python version defined in `build.tools.python` and fail otherwise.
+- We need to pass `UV_PYTHON` to `uv sync` so it creates the environment using the Python version defined in `build.tools.python` and fails otherwise. It will be set automatically by Read the Docs and won't be shown to users.
 - `UV_PROJECT_ENVIRONMENT` will be set automatically by Read the Docs and won't be needed to be prepended in the commands.
-- Link to the build using `uv sync`: https://app.readthedocs.org/projects/test-builds/builds/31966186/
+- Link to the build using `uv sync`: https://app.readthedocs.org/projects/test-builds/builds/31966279/
 
 ### Using `uv pip install -r requirements.txt`
 
@@ -202,7 +227,7 @@ build:
       - asdf install uv latest
       - asdf global uv latest
     create_environment:
-      - uv venv --python `asdf which python` $READTHEDOCS_VIRTUALENV_PATH
+      - UV_PYTHON=`asdf which python` uv venv $READTHEDOCS_VIRTUALENV_PATH
     install:
       - uv pip install -r requirements.txt
     build:
@@ -214,7 +239,8 @@ build:
 
 ## Python version mismatching
 
-If the user select `build.tools.python: 3.12` but then uses `requires-python = ">=3.14"` in `pyproject.toml`, `uv` will remove the environment and create another one with the pre-compiled Python version they manage:
+If the user select `build.tools.python: 3.12` but then uses `requires-python = ">=3.14"` in `pyproject.toml`,
+`uv` will remove the environment and create another one with the pre-compiled Python version they manage:
 
 ```bash
  	asdf global python 3.12.10
@@ -232,6 +258,9 @@ Using CPython 3.14.3
 Removed virtual environment at: /home/docs/checkouts/readthedocs.org/user_builds/test-builds/envs/uv
 Creating virtual environment at: /home/docs/checkouts/readthedocs.org/user_builds/test-builds/envs/uv
 ```
+
+We are explicitly calling `uv sync` with `UV_PYTHON` on porpuse to avoid this behavior and make the build to fail if these versions mismatch.
+Otherwise, it will conflict with `build.tools.python` version and it will be pretty confusing.
 
 ## Validation Rules
 
@@ -263,7 +292,7 @@ General
 - `uv` behavior is opt-in via `method: uv`.
 - First iteration should target common flows only; advanced uv options can be added later.
 - We considered supporting both `--frozen` and `--locked` in schema, but deferred them because they are not common enough for a first iteration.
-- Users that strictly need lockfile behavior can still use `UV_FROZEN=1` or `UV_LOCKED=1` via build environment customization.
+- Users that strictly need lockfile behavior can still use `UV_FROZEN=1` or `UV_LOCKED=1` via build environment customization or overwrite the `build.jobs.*` manually.
 
 ## Examples to Document Publicly
 
@@ -310,19 +339,3 @@ python:
       path: packages/docs-site
       groups: [docs]
 ```
-
-## Open Questions
-
-1. Should `operation` be mandatory from day 1, or inferred (`sync` if `uv.lock` exists, otherwise `pip`)?
-2. How should we resolve `<python-binary>` for the one-time `uv env --python` reliably in every build image and toolchain variant?
-3. Should we support `uv pip sync` explicitly in v1, or keep `operation: pip` limited to `pip install` scenarios?
-4. Do we need a dedicated error message when `method: uv` is used but `uv` is not available in PATH?
-
-## Suggested Implementation Order
-
-1. Config model updates (`uv` method + uv install schema)
-2. Config validation and error messages
-3. Command builder for uv (`sync` and `pip` operations)
-4. Environment orchestration changes to skip virtualenv/core pip bootstrap for uv
-5. Tests for parser + command construction + pipeline behavior
-6. Documentation updates
