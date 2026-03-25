@@ -111,6 +111,30 @@ uv pip install ".[docs,pdf]"
 
 When `path` is non-root, prepend `--project` in each of the examples above.
 
+## Docker Image Changes
+
+To support `method: uv` natively, `uv` must be available in the build environment. Since our Ubuntu images manage toolchains via `asdf`, the following commands need to be added to the Dockerfile:
+
+```dockerfile
+RUN asdf plugin add uv && asdf install uv latest
+```
+
+At build time, when `python.install` contains any `method: uv` entry, Read the Docs should activate the installed version before running uv commands:
+
+```bash
+asdf global uv latest
+```
+
+If we don't want to modify our Docker images just yet, we can do the same as we are doing for `pip` where we upgrade it always before start working with the environment. In the case of `uv` we need to call
+
+```bash
+asdf plugin add uv
+asdf install uv latest
+asdf global uv latest
+```
+
+The overhead is expected to be comparable to the existing `pip`/`setuptools` upgrade step.
+
 ## Build Pipeline Changes
 
 ### Current behavior to bypass for `uv`
