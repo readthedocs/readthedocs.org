@@ -154,6 +154,13 @@ When `python.install` contains any uv entries:
 3. Execute uv install entries directly (without `--python`, since env is already created with the desired interpreter).
 4. Continue with regular build steps (Sphinx/MkDocs invocation), assuming dependencies come from uv-managed environment.
 
+**Note on `sphinx-build` invocation:** `uv env` produces a standard PEP 405 virtualenv at `$READTHEDOCS_VIRTUALENV_PATH`. Read the Docs already activates that path (adds its `bin/` to PATH) before invoking build tools, so `sphinx-build` (and `mkdocs`, etc.) remain callable directly — no `uv run sphinx-build` is needed. The build invocation layer is unchanged.
+
+Example of a build using these approaches:
+ - [`uv pip install -r requirements`](https://app.readthedocs.org/projects/test-builds/builds/
+31965642/)
+ - [`uv sync`](https://app.readthedocs.org/projects/test-builds/builds/31965835/)
+
 Implementation note:
 
 - This likely requires a branch in environment setup logic in `readthedocs/doc_builder/python_environments.py` (or adjacent orchestration layer) to select a uv-native path.
