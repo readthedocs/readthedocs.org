@@ -46,7 +46,7 @@ class Backend(BaseVCS):
         # https://git-scm.com/docs/git-config#Documentation/git-config.txt-fetchparallel
         self.run("git", "config", "--global", "fetch.parallel", "0")
         # https://git-scm.com/docs/git-config#Documentation/git-config.txt-checkoutworkers
-        self.run("git", "config", "--global", "checkout.workers", "-1")
+        self.run("git", "config", "--global", "checkout.workers", "0")
         # https://git-scm.com/docs/git-config#Documentation/git-config.txt-checkoutthresholdForParallelism
         self.run("git", "config", "--global", "checkout.thresholdForParallelism", "100")
         # https://git-scm.com/docs/git-config#Documentation/git-config.txt-submodulefetchJobs
