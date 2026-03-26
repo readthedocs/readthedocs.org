@@ -1,20 +1,18 @@
 # shot-scraper multi configuration for Read the Docs dashboard screenshots
 # Usage: shot-scraper multi screenshots.yml --auth auth.json
 #
-# Each entry injects JavaScript to hide the header, footer, sidebar, and
-# notifications so screenshots show only the main content area.
+# Each entry uses `selector` to capture only the main content container,
+# and injects JS to hide the sidebar and notifications within it.
 
 # Tutorial screenshots (docs/user/_static/images/tutorial/)
 - url: https://app.readthedocs.org/dashboard/
   output: docs/user/_static/images/tutorial/rtd-empty-dashboard.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: &hide_chrome |
     document.querySelectorAll(
-      'body > .ui.basic.fitted.attached.segment, '
-      + 'footer, '
-      + '.ui.stackable.grid > .five.wide.computer.column, '
+      '.ui.stackable.grid > .five.wide.computer.column, '
       + '.ui.stackable.grid > .five.wide.computer.only.column, '
       + 'readthedocs-notification-list, '
       + '.ui.message'
@@ -23,159 +21,155 @@
       el.style.width = '100%';
       el.className = el.className.replace('eleven wide', 'sixteen wide');
     });
-    const container = document.querySelector('.ui.very.padded.container');
-    if (container) container.style.padding = '1em';
 
 - url: https://app.readthedocs.org/projects/test-builds/
   output: docs/user/_static/images/tutorial/rtd-project-home.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/builds/
   output: docs/user/_static/images/tutorial/rtd-first-successful-build.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/versions/
   output: docs/user/_static/images/tutorial/active-versions.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/versions/?active=false
   output: docs/user/_static/images/tutorial/inactive-versions.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/traffic-analytics/
   output: docs/user/_static/images/tutorial/traffic-analytics-plot.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/search-analytics/
   output: docs/user/_static/images/tutorial/search-analytics-terms.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 # Search analytics (used in two places)
 - url: https://app.readthedocs.org/projects/test-builds/search-analytics/
   output: docs/user/_static/images/search-analytics-demo.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 # Guide/reference screenshots (docs/user/img/)
 - url: https://app.readthedocs.org/projects/test-builds/redirects/
   output: docs/user/img/screenshot_redirects.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/redirects/create/
   output: docs/user/img/screenshot_redirects_preview.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/environment-variables/
   output: docs/user/img/screenshot_environment_variables.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/accounts/social/connections/
   output: docs/user/img/screenshot_connected_services.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/rules/
   output: docs/user/img/screenshot_automation_rules_add.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/integrations/
   output: docs/user/img/screenshot-webhook.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/edit/
   output: docs/user/img/screenshot-howto-build-configuration-file.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 # Subproject screenshots
 - url: https://app.readthedocs.org/dashboard/djtest/subprojects/
   output: docs/user/img/screenshots/community-project-subproject-list.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/djtest/subprojects/
   output: docs/user/img/screenshot_subprojects_list.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/djtest/subprojects/create/
   output: docs/user/img/screenshots/community-project-subproject-create.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 # Webhook screenshots
 - url: https://app.readthedocs.org/dashboard/djtest/webhooks/create/
   output: docs/user/img/screenshots/community-project-webhook-create.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/djtest/webhooks/1485/edit/
   output: docs/user/img/screenshots/community-project-webhook-activity.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/djtest/webhooks/1485/edit/
   output: docs/user/img/screenshots/community-project-webhook-secret.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: |
     const h = Array.from(document.querySelectorAll('h3,h4,label,legend'))
         .find(el => el.textContent.toLowerCase().includes('secret'));
     if (h) h.scrollIntoView({block: 'center'});
     document.querySelectorAll(
-      'body > .ui.basic.fitted.attached.segment, '
-      + 'footer, '
-      + '.ui.stackable.grid > .five.wide.computer.column, '
+      '.ui.stackable.grid > .five.wide.computer.column, '
       + '.ui.stackable.grid > .five.wide.computer.only.column, '
       + 'readthedocs-notification-list, '
       + '.ui.message'
@@ -184,20 +178,18 @@
       el.style.width = '100%';
       el.className = el.className.replace('eleven wide', 'sixteen wide');
     });
-    const container = document.querySelector('.ui.very.padded.container');
-    if (container) container.style.padding = '1em';
 
 # Import / manual project setup
 - url: https://app.readthedocs.org/dashboard/import/
   output: docs/user/img/screenshots/business-project-manual-team-select.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/import/manual/
   output: docs/user/img/screenshots/business-project-manual-form.png
+  selector: .ui.very.padded.container
   width: 1280
-  height: 800
   wait: 2000
   javascript: *hide_chrome
