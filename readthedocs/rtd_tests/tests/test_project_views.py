@@ -436,6 +436,52 @@ class TestPrivateViews(TestCase):
                 clean_project_resources.call_args[0][0].slug, self.project.slug
             )
 
+    def test_delete_project_creates_audit_log_for_all_admins(self):
+        from readthedocs.audit.models import AuditLog
+
+        other_admin = get(User)
+        self.project.users.add(other_admin)
+
+        with mock.patch(
+            "readthedocs.projects.tasks.utils.clean_project_resources"
+        ):
+            response = self.client.post("/dashboard/pip/delete/")
+            self.assertEqual(response.status_code, 302)
+
+        # An audit log entry is created for each project admin.
+        logs = AuditLog.objects.filter(action=AuditLog.PROJECT_DELETE)
+        self.assertEqual(logs.count(), 2)
+        self.assertEqual(
+            set(logs.values_list("log_user_username", flat=True)),
+            {self.user.username, other_admin.username},
+        )
+
+        # All entries preserve the project slug after deletion.
+        for log in logs:
+            self.assertEqual(log.log_project_slug, "pip")
+            self.assertIsNone(log.project)
+            self.assertEqual(log.data, {"deleted_by": self.user.username})
+
+    def test_delete_project_captures_ip_and_browser_in_history(self):
+        with mock.patch(
+            "readthedocs.projects.tasks.utils.clean_project_resources"
+        ):
+            response = self.client.post(
+                "/dashboard/pip/delete/",
+                headers={"user-agent": "TestBrowser/1.0"},
+            )
+            self.assertEqual(response.status_code, 302)
+
+        HistoricalProject = Project.history.model
+        history = HistoricalProject.objects.filter(
+            slug="pip",
+            history_type="-",
+        ).first()
+        self.assertIsNotNone(history)
+        self.assertEqual(history.extra_history_ip, "127.0.0.1")
+        self.assertEqual(history.extra_history_browser, "TestBrowser/1.0")
+        self.assertEqual(history.history_user, self.user)
+
     def test_delete_superproject(self):
         sub_proj = get(Project, slug="test-sub-project", users=[self.user])
 
