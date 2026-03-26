@@ -102,6 +102,7 @@ def delete_object(
     from simple_history.models import HistoricalRecords
 
     from readthedocs.audit.models import AuditLog
+    from readthedocs.organizations.models import Organization
     from readthedocs.projects.models import Project
 
     task_log = log.bind(model_name=model_name, object_pk=pk, user_id=user_id)
@@ -127,15 +128,24 @@ def delete_object(
             if browser:
                 HistoricalRecords.context.browser = browser
 
+            # Collect projects to audit log before deletion.
+            # When an Organization is deleted, its projects are cascade-deleted
+            # via signal, so we need to capture them here.
+            projects_to_log = []
             if isinstance(obj, Project):
-                # Create an audit log entry for each project admin
-                # so that all of them can see the deletion in their
-                # personal security log, not just the user who deleted it.
-                for admin in obj.users.all():
+                projects_to_log = [obj]
+            elif isinstance(obj, Organization):
+                projects_to_log = list(obj.projects.all())
+
+            # Create an audit log entry for each project admin
+            # so that all of them can see the deletion in their
+            # personal security log, not just the user who deleted it.
+            for project in projects_to_log:
+                for admin in project.users.all():
                     AuditLog.objects.create(
                         user=admin,
                         action=AuditLog.PROJECT_DELETE,
-                        project=obj,
+                        project=project,
                         ip=ip,
                         browser=browser,
                         data={"deleted_by": user.username} if user else None,

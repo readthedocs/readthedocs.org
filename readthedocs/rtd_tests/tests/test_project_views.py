@@ -845,6 +845,46 @@ class TestWebhooksViews(TestCase):
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class TestOrganizationDeleteAuditLog(TestCase):
+    """Test that deleting an organization creates audit logs for its projects."""
+
+    def setUp(self):
+        self.user = new(User, username="org-owner")
+        self.user.set_password("test")
+        self.user.save()
+        self.client.login(username="org-owner", password="test")
+
+        self.project = get(Project, slug="org-project", users=[self.user])
+        self.organization = get(
+            Organization,
+            owners=[self.user],
+            projects=[self.project],
+        )
+
+    def test_delete_organization_creates_audit_log_for_projects(self):
+        from readthedocs.audit.models import AuditLog
+
+        project_slug = self.project.slug
+        with mock.patch(
+            "readthedocs.projects.tasks.utils.clean_project_resources"
+        ):
+            response = self.client.post(
+                reverse("organization_delete", args=[self.organization.slug]),
+            )
+            self.assertEqual(response.status_code, 302)
+
+        self.assertFalse(Project.objects.filter(slug=project_slug).exists())
+        self.assertFalse(Organization.objects.filter(pk=self.organization.pk).exists())
+
+        logs = AuditLog.objects.filter(action=AuditLog.PROJECT_DELETE)
+        self.assertEqual(logs.count(), 1)
+        log_entry = logs.first()
+        self.assertEqual(log_entry.log_project_slug, project_slug)
+        self.assertEqual(log_entry.log_user_username, self.user.username)
+        self.assertEqual(log_entry.data, {"deleted_by": self.user.username})
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class TestWebhooksViewsWithOrganizations(TestWebhooksViews):
     def setUp(self):
         super().setUp()
