@@ -101,7 +101,7 @@ Page redirects
 
 .. note::
 
-   Since pages redirects apply to all versions,
+   Since page redirects apply to all versions and all translations (languages),
    ``From URL`` doesn't need to include the ``/<language>/<version>`` prefix (e.g. ``/en/latest``),
    but just the version-specific part of the URL.
    If you want to set redirects only for some languages or some versions, you should use
