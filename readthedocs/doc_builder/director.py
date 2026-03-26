@@ -25,6 +25,7 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda
+from readthedocs.doc_builder.python_environments import UvEnv
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.constants import GENERIC
@@ -145,6 +146,8 @@ class BuildDirector:
         language_environment_cls = Virtualenv
         if self.data.config.is_using_conda:
             language_environment_cls = Conda
+        elif self.data.config.is_using_uv:
+            language_environment_cls = UvEnv
 
         self.language_environment = language_environment_cls(
             version=self.data.version,
@@ -570,6 +573,24 @@ class BuildDirector:
                 record=False,
             )
 
+        # TODO: where we should put this?
+        if self.data.config.is_using_uv:
+            cmd = ["asdf", "plugin", "add", "uv"]
+            self.build_environment.run(
+                *cmd,
+                record=True,
+            )
+            cmd = ["asdf", "install", "uv", "latest"]
+            self.build_environment.run(
+                *cmd,
+                record=True,
+            )
+            cmd = ["asdf", "global", "uv", "latest"]
+            self.build_environment.run(
+                *cmd,
+                record=True,
+            )
+
         build_tools_storage = get_storage(
             build_id=self.data.build["id"],
             api_client=self.data.api_client,
@@ -695,6 +716,13 @@ class BuildDirector:
                     *cmd,
                 )
 
+        cmd = ["asdf", "which", "python"]
+        command = self.build_environment.run(
+            *cmd,
+            record=True,
+        )
+        self.UV_PYTHON = command.output.strip()
+
     # Helpers
     #
     # TODO: move somewhere or change names to make them private or something to
@@ -786,6 +814,34 @@ class BuildDirector:
                         "conda",
                         self.data.version.slug,
                         "bin",
+                    ),
+                }
+            )
+        elif self.data.config.is_using_uv is not None:
+            if hasattr(self, "UV_PYTHON"):
+                env.update(
+                    {
+                        # TODO:
+                        # UV_PYTHON needs to execute this command inside the Docker container.
+                        "UV_PYTHON": self.UV_PYTHON,
+                    }
+                )
+            env.update(
+                {
+                    "BIN_PATH": os.path.join(
+                        self.data.project.doc_path,
+                        "envs",
+                        self.data.version.slug,
+                        "bin",
+                    ),
+                    # TODO: I'm not sure about this value here. I need to confirm by triggering some builds.
+                    "UV_PROJECT": self.data.config.python.install[0].path
+                    or self.data.project.checkout_path(self.data.version.slug),
+                    # UV_PROJECT_ENVIRONMENT is the same as READTHEDOCS_VIRTUALENV_PATH
+                    "UV_PROJECT_ENVIRONMENT": os.path.join(
+                        self.data.project.doc_path,
+                        "envs",
+                        self.data.version.slug,
                     ),
                 }
             )
