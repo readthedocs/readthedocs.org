@@ -345,7 +345,7 @@ Embed
 
     .. prompt:: bash $
 
-        curl https://app.readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html
+        curl https://app.readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.com/platform/stable/reference/features.html
 
     **Example response**:
 
@@ -378,7 +378,7 @@ Embed
                     "Open Source and Customer Focused": "#open-source-and-customer-focused"
                 }
             ],
-            "url": "https://docs.readthedocs.io/en/latest/features",
+            "url": "https://docs.readthedocs.com/platform/stable/reference/features",
             "meta": {
                 "project": "docs",
                 "version": "latest",
