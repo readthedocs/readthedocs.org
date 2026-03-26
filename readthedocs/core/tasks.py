@@ -78,7 +78,14 @@ def cleanup_pidbox_keys():
 
 
 @app.task(queue="web", bind=True)
-def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
+def delete_object(
+    self,
+    model_name: str,
+    pk: int,
+    user_id: int | None = None,
+    ip: str | None = None,
+    browser: str | None = None,
+):
     """
     Delete an object from the database asynchronously.
 
@@ -89,7 +96,14 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
     :param pk: The primary key of the object to delete.
     :param user_id: The ID of the user performing the deletion.
      Just for logging purposes.
+    :param ip: The IP address of the user performing the deletion.
+    :param browser: The browser user-agent of the user performing the deletion.
     """
+    from simple_history.models import HistoricalRecords
+
+    from readthedocs.audit.models import AuditLog
+    from readthedocs.projects.models import Project
+
     task_log = log.bind(model_name=model_name, object_pk=pk, user_id=user_id)
     lock_id = f"{self.name}-{model_name}-{pk}-lock"
     lock_expire = 60 * 60 * 2  # 2 hours
@@ -105,6 +119,28 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
         obj = Model.objects.filter(pk=pk).first()
         if obj:
             task_log.info("Deleting object.")
+
+            # Make IP/browser available to the django-simple-history
+            # signal handler, since there is no HTTP request in a Celery task.
+            if ip:
+                HistoricalRecords.context.ip = ip
+            if browser:
+                HistoricalRecords.context.browser = browser
+
+            if isinstance(obj, Project):
+                # Create an audit log entry for each project admin
+                # so that all of them can see the deletion in their
+                # personal security log, not just the user who deleted it.
+                for admin in obj.users.all():
+                    AuditLog.objects.create(
+                        user=admin,
+                        action=AuditLog.PROJECT_DELETE,
+                        project=obj,
+                        ip=ip,
+                        browser=browser,
+                        data={"deleted_by": user.username} if user else None,
+                    )
+
             set_change_reason(obj, reason="Object deleted asynchronously", user=user)
             obj.delete()
             task_log.info("Object deleted.")
