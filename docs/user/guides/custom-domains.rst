@@ -11,7 +11,7 @@ Adding a custom domain
 
 To setup your :doc:`custom domain </custom-domains>`, follow these steps:
 
-#. Go the :guilabel:`Admin` tab of your project.
+#. Go to the :guilabel:`Settings` page of your project.
 #. Click on :guilabel:`Domains`.
 #. Enter the domain where you want to serve the documentation from (e.g. ``docs.example.com``).
 #. Mark the :guilabel:`Canonical` option if you want use this domain
@@ -57,7 +57,7 @@ Removing a custom domain
 
 To remove a custom domain:
 
-#. Go the :guilabel:`Admin` tab of your project.
+#. Go to the :guilabel:`Settings` page of your project.
 #. Click on :guilabel:`Domains`.
 #. Click the :guilabel:`Remove` button next to the domain.
 #. Click :guilabel:`Confirm` on the confirmation page.
@@ -128,7 +128,7 @@ SSL certificate issue delays
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The status of your domain validation and certificate can always be seen on the details page for your domain
-under :guilabel:`Admin` > :guilabel:`Domains` > :guilabel:`YOURDOMAIN.TLD (details)`.
+under :guilabel:`Settings` > :guilabel:`Domains` > :guilabel:`YOURDOMAIN.TLD (details)`.
 
 Domains are usually validated and a certificate issued within minutes.
 However, if you setup the domain in Read the Docs without provisioning the necessary DNS changes

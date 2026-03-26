@@ -16,7 +16,7 @@ These are useful for different purposes:
 .. Using the Dashboard is a good approach
 .. but adding an environment variable with ``ENV=123 command --flag`` in the build process is possibly better.
 
-Custom environment variables are defined in the :term:`dashboard` interface in :menuselection:`Admin --> Environment variables`.
+Custom environment variables are defined in the :term:`dashboard` interface in :menuselection:`Settings --> Environment variables`.
 Environment variables are defined for a project's entire build process,
 :ref:`with 2 important exceptions <custom_env_var_exceptions>`.
 

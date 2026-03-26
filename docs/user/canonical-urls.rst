@@ -40,7 +40,7 @@ thus avoiding duplicating the content.
 
    If you want your custom domain to be set as the canonical,
    you need to set ``Canonical:  This domain is the primary one where the documentation is served from``
-   in the :guilabel:`Admin` > :guilabel:`Domains` section of your project settings.
+   in the :guilabel:`Settings` > :guilabel:`Domains` section of your project settings.
 
 
 How to specify the canonical URL

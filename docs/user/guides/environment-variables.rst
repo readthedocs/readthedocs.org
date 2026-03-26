@@ -9,7 +9,7 @@ you can define them from the project's :term:`dashboard`.
    :doc:`/environment-variables`
      Learn more about how Read the Docs applies environment variables in your builds.
 
-Go to your project's :menuselection:`Admin --> Environment Variables` and click on :guilabel:`Add Environment Variable`.
+Go to your project's :menuselection:`Settings --> Environment variables` and click on :guilabel:`Add variable`.
 You will then see the form for adding an environment variable:
 
 .. image:: /img/screenshot_environment_variables.png

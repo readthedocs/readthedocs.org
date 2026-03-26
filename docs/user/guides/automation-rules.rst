@@ -19,7 +19,7 @@ Adding a new automation rule
 
 First you need to go to the automation rule creation page:
 
-#. Navigate to :menuselection:`Admin --> Automation Rules`.
+#. Navigate to :menuselection:`Settings --> Automation rules`.
 #. Click on :guilabel:`Add Rule` and you will see the following form.
 
 .. image:: /img/screenshot_automation_rules_add.png
@@ -73,7 +73,7 @@ but does not apply to old versions.
 Ordering your rules
 -------------------
 
-The order your rules are listed in  :menuselection:`Admin --> Automation Rules` matters.
+The order your rules are listed in  :menuselection:`Settings --> Automation rules` matters.
 Each action will be performed in that order,
 so earlier rules have a higher priority.
 

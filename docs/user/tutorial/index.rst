@@ -95,11 +95,11 @@ Importing the project to Read the Docs
 
 To import your GitHub project to Read the Docs:
 
-#. Click the :guilabel:`Import a Project` button on your `dashboard <https://app.readthedocs.org/dashboard/>`_.
+#. Click the :guilabel:`Add project` button on your `dashboard <https://app.readthedocs.org/dashboard/>`_.
 
-#. Click the |:heavy_plus_sign:| button to the right of your ``rtd-tutorial`` project. If the list of repositories is empty, click the |:arrows_counterclockwise:| button.
+#. Search for your ``rtd-tutorial`` repository and select it.
 
-   .. figure:: /_static/images/tutorial/rtd-import-projects.gif
+   .. figure:: /_static/images/tutorial/rtd-import-projects.png
       :width: 80%
       :align: center
       :alt: Import projects workflow
@@ -175,7 +175,7 @@ Configuring the project
 
 To update the project description and configure the notification settings:
 
-#. Navigate back to the :term:`project page` and click the :guilabel:`⚙ Admin` button,to open the Settings page.
+#. Navigate back to the :term:`project page` and click the :guilabel:`Settings` button to open the Settings page.
 
 #. Update the project description by adding the following text:
 
@@ -184,7 +184,7 @@ To update the project description and configure the notification settings:
 
 #. Set the project homepage to ``https://world.openfoodfacts.org/``, and add ``food, python`` to the list of public project tags.
 
-#. To get a notification if the build fails, click the :guilabel:`Email Notifications` link on the left, add your email address, and click the :guilabel:`Add` button.
+#. To get a notification if the build fails, click the :guilabel:`Email Notifications` link in the sidebar, add your email address, and click the :guilabel:`Add` button.
 
 Triggering builds from pull requests
 ------------------------------------
@@ -194,7 +194,7 @@ and show you a preview of the documentation with those changes.
 
 To trigger builds from pull requests:
 
-#. Click the :guilabel:`Settings` link on the left under the :guilabel:`⚙ Admin` menu, check the "Build pull requests for this project" checkbox, and click the :guilabel:`Save` button at the bottom of the page.
+#. Click the :guilabel:`Settings` link in the sidebar, check the "Build pull requests for this project" checkbox, and click the :guilabel:`Save` button at the bottom of the page.
 
 #. Make some changes to your documentation:
 
@@ -447,7 +447,7 @@ rather than ``latest``,
 so that users see the ``stable`` documentation
 when they visit the :term:`root URL` of your documentation:
 
-#. In the :guilabel:`⚙ Admin` menu of your project home, go to the :guilabel:`Settings` link, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
+#. Go to your project's :guilabel:`Settings` page, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
 
 Modifying versions
 ~~~~~~~~~~~~~~~~~~
@@ -460,15 +460,15 @@ version, which will always point to the ``1.0.x`` branch of your repository.
 .. figure:: /_static/images/tutorial/inactive-versions.png
    :width: 80%
    :align: center
-   :alt: List of inactive versions of the project
+   :alt: Activate a new version page
 
-   List of inactive versions of the project
+   Activate a new version page
 
 To activate the ``1.0.x`` version:
 
-#. On your :term:`project home`, go to the "Versions", locate ``1.0.x`` under "Activate a version", and click the :guilabel:`Activate` button.
+#. On your :term:`project home`, click :guilabel:`Versions`, and then click :guilabel:`Add version`.
 
-#. On the "Activate" page with "Active" and "Hidden" checkboxes, check only "Active" and click :guilabel:`Save`.
+#. Search for ``1.0.x`` in the version search box and select it to activate it.
 
 .. note::
 
@@ -496,8 +496,7 @@ To activate the ``1.0.x`` version:
    - Since you already have an active ``stable`` version, ``2.0.x`` will be activated.
 
    From this point, ``1.0.x`` version is no longer the most up to date one.
-   To display a warning to your readers, go to the :guilabel:`⚙ Admin` menu of your project home,
-   click on the :guilabel:`Settings` link on the left,
+   To display a warning to your readers, go to your project's :guilabel:`Settings` page,
    enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
 
    If you now browse the ``1.0.x`` documentation, you will see a warning on top
@@ -531,8 +530,8 @@ This page shows the most viewed documentation pages of the past 30 days,
 plus a visualization of the daily views during that period.
 
 To see the Traffic Analytics view, go back the :term:`project page` again,
-click the :guilabel:`⚙ Admin` button,
-and then click the :guilabel:`Traffic Analytics` section.
+click the :guilabel:`Settings` button,
+and then click the :guilabel:`Traffic Analytics` section in the sidebar.
 You will see the list of pages in descending order of visits,
 and a similar visualization to this one:
 
@@ -559,8 +558,8 @@ go to the HTML documentation, locate the Sphinx search box on the left,
 type ``ingredients``, and press the :kbd:`Enter` key.
 You will be redirected to the search results page, which will show two entries.
 
-Next, go back to the :guilabel:`⚙ Admin` section of your project page,
-and then click the :guilabel:`Search Analytics` section.
+Next, go to the :guilabel:`Settings` section of your project page,
+and then click the :guilabel:`Search Analytics` section in the sidebar.
 You will see a table with the most searched queries
 (including the ``ingredients`` one you just typed),
 how many results did each query return, and how many times it was searched.

@@ -21,7 +21,7 @@ Adding a redirect rule
 ----------------------
 
 Redirects are configured in the project dashboard,
-go to :menuselection:`Admin > Redirects`.
+go to :menuselection:`Settings > Redirects`.
 
 .. figure:: /img/screenshot_redirects.png
    :alt: Screenshot of the Redirect admin page
@@ -103,7 +103,7 @@ There are no immediate upper bounds to how many redirect rules a project may def
 Editing and deleting redirect rules
 -----------------------------------
 
-You can always revisit :menuselection:`Admin > Redirects`.
+You can always revisit :menuselection:`Settings > Redirects`.
 in order to delete a rule or edit it.
 
 When editing a rule,
@@ -116,7 +116,7 @@ The order of redirects is important,
 if you have multiple rules that match the same URL,
 the first redirect in the list will be used.
 
-You can change the order of the redirect from the :menuselection:`Admin > Redirects` page,
+You can change the order of the redirect from the :menuselection:`Settings > Redirects` page,
 by using the up and down arrow buttons.
 
 New redirects are added at the start of the list (i.e. they have the highest priority).

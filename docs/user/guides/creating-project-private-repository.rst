@@ -51,14 +51,11 @@ Creating a project manually
 .. figure:: /img/screenshots/business-project-manual-team-select.png
   :scale: 40%
   :align: right
-  :alt: Select an organization team to create the project in.
+  :alt: Select manual project configuration from the Add project page.
 
 #. Select :guilabel:`Add project` from the main dashboard.
-#. Select :guilabel:`Configure manually` and then :guilabel:`Continue`.
-#. Select the organization team you'd like to create the project for.
-   You must be on a team with ``admin`` permission to do this.
-
-In the next form page you will manually configure your project's repository details.
+#. Select :guilabel:`Configure manually`.
+#. Continue to the form to configure your project's repository details.
 
 .. figure:: /img/screenshots/business-project-manual-form.png
   :scale: 40%

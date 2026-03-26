@@ -21,7 +21,7 @@ Email notifications
 
 Follow these steps to add an email address to be notified about build failures:
 
-* Go to :menuselection:`Admin --> Notifications` in your project.
+* Go to :menuselection:`Settings --> Email notifications` in your project.
 * Fill in the **Email** field under the **New Email Notifications** heading
 * Press :guilabel:`Add` and the email is saved and will be displayed in the list of **Existing notifications**.
 

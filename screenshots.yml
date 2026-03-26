@@ -1,0 +1,98 @@
+# shot-scraper multi configuration for Read the Docs dashboard screenshots
+# Usage: shot-scraper multi screenshots.yml --auth auth.json
+#
+# Tutorial screenshots (docs/user/_static/images/tutorial/)
+- url: https://app.readthedocs.org/dashboard/
+  output: docs/user/_static/images/tutorial/rtd-empty-dashboard.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/
+  output: docs/user/_static/images/tutorial/rtd-project-home.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/builds/
+  output: docs/user/_static/images/tutorial/rtd-first-successful-build.png
+  width: 1280
+  height: 800
+  wait: 2000
+  javascript: |
+    // Click on the first build link if available
+    const buildLink = document.querySelector('a[href*="/builds/"]');
+
+- url: https://app.readthedocs.org/projects/test-builds/versions/
+  output: docs/user/_static/images/tutorial/active-versions.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/versions/?active=false
+  output: docs/user/_static/images/tutorial/inactive-versions.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/traffic-analytics/
+  output: docs/user/_static/images/tutorial/traffic-analytics-plot.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/search-analytics/
+  output: docs/user/_static/images/tutorial/search-analytics-terms.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+# Guide/reference screenshots (docs/user/img/)
+- url: https://app.readthedocs.org/projects/test-builds/redirects/
+  output: docs/user/img/screenshot_redirects.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/redirects/create/
+  output: docs/user/img/screenshot_redirects_preview.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/environment-variables/
+  output: docs/user/img/screenshot_environment_variables.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/accounts/social/connections/
+  output: docs/user/img/screenshot_connected_services.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/rules/
+  output: docs/user/img/screenshot_automation_rules_add.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/integrations/
+  output: docs/user/img/screenshot-webhook.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+- url: https://app.readthedocs.org/projects/test-builds/edit/
+  output: docs/user/img/screenshot-howto-build-configuration-file.png
+  width: 1280
+  height: 800
+  wait: 2000
+
+# Search analytics (used in two places)
+- url: https://app.readthedocs.org/projects/test-builds/search-analytics/
+  output: docs/user/_static/images/search-analytics-demo.png
+  width: 1280
+  height: 800
+  wait: 2000

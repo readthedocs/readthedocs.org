@@ -72,7 +72,6 @@ Changing the versioning scheme of your project will affect the URLs of your docu
 any existing links to your documentation will break.
 If you want to keep the old URLs working, you can create :doc:`redirects </user-defined-redirects>`.
 
-#. Go the :guilabel:`Admin` tab of your project.
-#. Click on :guilabel:`Settings`.
+#. Go to the :guilabel:`Settings` page of your project.
 #. Select the new versioning scheme in the :guilabel:`URL versioning scheme` dropdown.
 #. Click on :guilabel:`Save`.

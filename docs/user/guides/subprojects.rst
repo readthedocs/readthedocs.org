@@ -45,9 +45,9 @@ the URL displayed in the updated list of subprojects.
 
 .. figure:: /img/screenshots/community-project-subproject-list.png
     :align: center
-    :alt: Project subproject list with a new subproject added
+    :alt: Project subproject list
 
-    Project subproject list with a new subproject added
+    Project subproject list
 
 .. |button-edit| image:: /img/screenshots/community-edit-button.png
     :height: 1.5em

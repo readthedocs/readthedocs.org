@@ -33,7 +33,7 @@ Team types
 
 You can create two types of teams:
 
-* **Admin** -- Team members have full access to administer the projects assigned to the team. Members are allowed to change all of the settings, set notifications, and perform any action under the :guilabel:`Admin` tab for each project.
+* **Admin** -- Team members have full access to administer the projects assigned to the team. Members are allowed to change all of the settings, set notifications, and perform any action under the :guilabel:`Settings` page for each project.
 * **Read Only** -- Team members are only able to read the documentation of each project, and not able to change anything about each project.
 
 Example

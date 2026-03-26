@@ -173,7 +173,7 @@ We have added multiple ways to opt out of the advertising on Read the Docs.
    You can change these options:
 
    * Go to your **project** page (`/projects/<slug>/`)
-   * Go to :guilabel:`Admin` > :guilabel:`Advertising`
+   * Go to :guilabel:`Settings` > :guilabel:`Advertising`
    * Change your advertising settings
 
 4. If you are part of a company that uses Read the Docs to host documentation for a commercial product,

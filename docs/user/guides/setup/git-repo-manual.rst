@@ -39,7 +39,7 @@ Read the Docs will sync versions and build your documentation whenever a Git com
       * Go to the :guilabel:`Settings` page for your **GitHub project**
       * Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
       * For **Payload URL**, use the URL of the integration on your **Read the Docs project**,
-        found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page.
+        found on the project's :guilabel:`Settings` > :guilabel:`Integrations` page.
         You may need to prepend *https://* to the URL.
       * For **Content type**, both *application/json* and
         *application/x-www-form-urlencoded* work
@@ -57,7 +57,7 @@ Read the Docs will sync versions and build your documentation whenever a Git com
 
       * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
       * For **URL**, use the URL of the integration on **Read the Docs project**,
-        found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
+        found on the :guilabel:`Settings` > :guilabel:`Integrations`  page
       * Fill the **Secret token** field with the value from the integration on Read the Docs
       * Leave the default **Push events** selected,
         additionally mark **Tag push events** and **Merge request events**.
@@ -67,7 +67,7 @@ Read the Docs will sync versions and build your documentation whenever a Git com
 
       * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` > :guilabel:`Add webhook` page for your project
       * For **URL**, use the URL of the integration on Read the Docs,
-        found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
+        found on the :guilabel:`Settings` > :guilabel:`Integrations`  page
       * Under **Triggers**, **Repository push** should be selected
       * Fill the **Secret** field with the value from the integration on Read the Docs
       * Finish by clicking **Save**
@@ -93,7 +93,7 @@ Read the Docs will sync versions and build your documentation whenever a Git com
       * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
       * Create a new webhook of type "Gitea"
       * For **URL**, use the URL of the integration on Read the Docs,
-        found on the :guilabel:`Admin` > :guilabel:`Integrations` page
+        found on the :guilabel:`Settings` > :guilabel:`Integrations` page
       * Leave the default **HTTP Method** as POST
       * For **Content type**, both *application/json* and
         *application/x-www-form-urlencoded* work
@@ -129,7 +129,7 @@ This validation is done according to each provider:
 Managing Integrations
 ---------------------
 
-To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
+To manually set up an integration, go to :guilabel:`Settings` > :guilabel:`Integrations` >  :guilabel:`Add integration`
 dashboard page and select the integration type you'd like to add.
 
 As an example, the URL pattern looks like this: ``https://app.readthedocs.org/api/v2/webhook/<project-name>/<id>/*``.
@@ -143,7 +143,7 @@ Using the generic API integration
 For repositories that are not hosted with a supported provider, we also offer a
 generic API endpoint for triggering project builds. Similar to webhook integrations,
 this integration has a specific URL, which can be found on the project's **Integrations** dashboard page
-(:guilabel:`Admin` > :guilabel:`Integrations`).
+(:guilabel:`Settings` > :guilabel:`Integrations`).
 
 Token authentication is required to use the generic endpoint, you will find this
 token on the integration details page. The token should be passed in as a
@@ -162,7 +162,7 @@ branches
 
 token
     The integration token found on the project's **Integrations** dashboard page
-    (:guilabel:`Admin` > :guilabel:`Integrations`).
+    (:guilabel:`Settings` > :guilabel:`Integrations`).
 
 
 default_branch

@@ -134,7 +134,7 @@ which Read the Docs supports :ref:`using a token <commercial/sharing:Basic Autho
 You need to generate a token for each project you want to use with Intersphinx.
 
 #. Go the project you want to use with Intersphinx
-#. Click :guilabel:`Admin` > :guilabel:`Sharing`
+#. Click :guilabel:`Settings` > :guilabel:`Sharing`
 #. Select ``HTTP Header Token``
 #. Set an expiration date long enough to use the token when building your project
 #. Click on ``Share!``.

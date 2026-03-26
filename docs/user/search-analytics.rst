@@ -15,7 +15,7 @@ Using search analytics
 ----------------------
 
 To see a list of the top queries and an overview from the last month,
-go to the :guilabel:`Admin` tab of your project,
+go to the :guilabel:`Settings` page of your project,
 and then click on :guilabel:`Search Analytics`.
 
 .. figure:: /_static/images/search-analytics-demo.png

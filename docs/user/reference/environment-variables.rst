@@ -102,7 +102,7 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     URL for the remote source repository, from which the documentation is cloned.
     It could be HTTPS, SSH or any other URL scheme supported by Git.
-    This is the same URL defined in your Project's :term:`dashboard` in :menuselection:`Admin --> Settings --> Repository URL`.
+    This is the same URL defined in your Project's :term:`dashboard` in :menuselection:`Settings --> Repository URL`.
 
     :Example: ``https://github.com/readthedocs/readthedocs.org``
     :Example: ``git@github.com:readthedocs/readthedocs.org.git``
