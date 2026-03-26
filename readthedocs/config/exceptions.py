@@ -22,6 +22,7 @@ class ConfigError(BuildUserError):
     SYNTAX_INVALID = "config:base:invalid-syntax"
     CONDA_KEY_REQUIRED = "config:conda:required"
     UV_COMMAND_REQUIRED = "config:python:uv-command-required"
+    UV_MULTIPLE_INSTALL_ENTRIES_INVALID = "config:python:uv-multiple-install-entries-invalid"
     UV_SYNC_REQUIREMENTS_INVALID = "config:python:uv-sync-requirements-invalid"
     UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED = "config:python:uv-pip-requirements-or-path-required"
     UV_PIP_GROUPS_NOT_ALLOWED = "config:python:uv-pip-groups-not-allowed"

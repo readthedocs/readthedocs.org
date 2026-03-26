@@ -267,6 +267,18 @@ messages = [
         type=ERROR,
     ),
     Message(
+        id=ConfigError.UV_MULTIPLE_INSTALL_ENTRIES_INVALID,
+        header=_("Invalid configuration for uv"),
+        body=_(
+            textwrap.dedent(
+                """
+            When using <code>method: uv</code>, only one entry is allowed under <code>python.install</code>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=ConfigError.UV_SYNC_REQUIREMENTS_INVALID,
         header=_("Invalid configuration for uv sync"),
         body=_(

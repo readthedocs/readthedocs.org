@@ -533,6 +533,17 @@ class BuildConfigV2(BuildConfigBase):
             self.validate_python_install(index) for index in range(len(raw_install))
         ]
 
+        # uv entries currently support a single python.install item only.
+        has_uv_install = any(
+            install.get("method") == UV
+            for install in python["install"]
+            if isinstance(install, dict)
+        )
+        if has_uv_install and len(python["install"]) > 1:
+            raise ConfigError(
+                message_id=ConfigError.UV_MULTIPLE_INSTALL_ENTRIES_INVALID,
+            )
+
         return python
 
     def validate_python_install(self, index):
