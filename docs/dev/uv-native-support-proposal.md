@@ -26,7 +26,7 @@ This proposal updates the earlier direction with these explicit constraints:
 python:
   install:
     - method: uv
-      operation: sync
+      command: sync
       path: .
       groups: [docs]
       extras: null
@@ -38,7 +38,7 @@ Command called: `uv sync --group docs`.
 python:
   install:
     - method: uv
-      operation: pip
+      command: pip
       path: mymodule/awesome
       groups: null
       extras:
@@ -51,7 +51,7 @@ Command called: `uv pip install mymodule/awesome[docs]`.
 python:
   install:
     - method: uv
-      operation: pip
+      command: pip
       requirements: docs/requirements.txt
       groups: null
       extras: null
@@ -86,7 +86,7 @@ uv env "$READTHEDOCS_VIRTUALENV_PATH"
 
 Note that the environment will be created with the Python version defined in `UV_PYTHON`.
 
-### `operation: sync`
+### `command: sync`
 
 Base command:
 
@@ -111,7 +111,7 @@ uv sync --group docs
 uv sync --all-groups --all-extras
 ```
 
-### `operation: pip`
+### `command: pip`
 
 Use `uv pip install` for compatibility flows.
 
@@ -269,13 +269,13 @@ Otherwise, it will conflict with `build.tools.python` version and it will be pre
 - `operation` is required: `sync` or `pip`
 - `path` default is `.`
 
-`operation: sync`
+`command: sync`
 
 - `groups` allowed (`all` or list)
 - `extras` allowed (`all` or list)
 - `requirements` not allowed
 
-`operation: pip`
+`command: pip`
 
 - one of `requirements` or `path` is required
 - `groups` not allowed
@@ -302,7 +302,7 @@ General
 python:
   install:
     - method: uv
-      operation: sync
+      command: sync
       path: .
       groups: [docs]
 ```
@@ -313,7 +313,7 @@ python:
 python:
   install:
     - method: uv
-      operation: sync
+      command: sync
       path: .
       groups: all
       extras: all
@@ -325,7 +325,7 @@ python:
 python:
   install:
     - method: uv
-      operation: pip
+      command: pip
       requirements: docs/requirements.txt
 ```
 
@@ -335,7 +335,7 @@ python:
 python:
   install:
     - method: uv
-      operation: sync
+      command: sync
       path: packages/docs-site
       groups: [docs]
 ```
