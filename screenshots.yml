@@ -1,98 +1,195 @@
 # shot-scraper multi configuration for Read the Docs dashboard screenshots
 # Usage: shot-scraper multi screenshots.yml --auth auth.json
 #
+# Screenshots are cropped to show only the primary content area:
+# - Non-settings pages: JS removes nav/footer, selector captures main container
+# - Settings pages: selector_all captures just the right content column (no sidebar)
+
 # Tutorial screenshots (docs/user/_static/images/tutorial/)
+
+# Project list dashboard
 - url: https://app.readthedocs.org/dashboard/
+  javascript: |-
+    document.querySelector('body > nav')?.remove();
+    document.querySelectorAll('body > footer, body > .ui.inverted.vertical').forEach(el => el.remove());
+  selector: body > div.ui.very.padded.container
+  padding: 20
+  width: 1280
   output: docs/user/_static/images/tutorial/rtd-empty-dashboard.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Import / Add project page
+- url: https://app.readthedocs.org/dashboard/import/
+  javascript: |-
+    document.querySelector('body > nav')?.remove();
+    document.querySelectorAll('body > footer, body > .ui.inverted.vertical').forEach(el => el.remove());
+  selector: body > div.ui.very.padded.container
+  padding: 20
+  width: 1280
+  output: docs/user/_static/images/tutorial/rtd-import-projects.png
+  wait: 2000
+
+# Project home / versions page
 - url: https://app.readthedocs.org/projects/test-builds/
+  javascript: |-
+    document.querySelector('body > nav')?.remove();
+    document.querySelectorAll('body > footer, body > .ui.inverted.vertical').forEach(el => el.remove());
+  selector: body > div.ui.very.padded.container
+  padding: 20
+  width: 1280
   output: docs/user/_static/images/tutorial/rtd-project-home.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Builds page
 - url: https://app.readthedocs.org/projects/test-builds/builds/
+  javascript: |-
+    document.querySelector('body > nav')?.remove();
+    document.querySelectorAll('body > footer, body > .ui.inverted.vertical').forEach(el => el.remove());
+  selector: body > div.ui.very.padded.container
+  padding: 20
+  width: 1280
   output: docs/user/_static/images/tutorial/rtd-first-successful-build.png
-  width: 1280
-  height: 800
   wait: 2000
-  javascript: |
-    // Click on the first build link if available
-    const buildLink = document.querySelector('a[href*="/builds/"]');
 
+# Active versions
 - url: https://app.readthedocs.org/projects/test-builds/versions/
+  javascript: |-
+    document.querySelector('body > nav')?.remove();
+    document.querySelectorAll('body > footer, body > .ui.inverted.vertical').forEach(el => el.remove());
+  selector: body > div.ui.very.padded.container
+  padding: 20
+  width: 1280
   output: docs/user/_static/images/tutorial/active-versions.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Inactive versions / Activate a new version
 - url: https://app.readthedocs.org/projects/test-builds/versions/?active=false
+  javascript: |-
+    document.querySelector('body > nav')?.remove();
+    document.querySelectorAll('body > footer, body > .ui.inverted.vertical').forEach(el => el.remove());
+  selector: body > div.ui.very.padded.container
+  padding: 20
+  width: 1280
   output: docs/user/_static/images/tutorial/inactive-versions.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Traffic Analytics (settings page with sidebar - crop to content column only)
 - url: https://app.readthedocs.org/projects/test-builds/traffic-analytics/
-  output: docs/user/_static/images/tutorial/traffic-analytics-plot.png
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
   width: 1280
-  height: 800
+  output: docs/user/_static/images/tutorial/traffic-analytics-plot.png
   wait: 2000
 
+# Search Analytics (settings page with sidebar - crop to content column only)
 - url: https://app.readthedocs.org/projects/test-builds/search-analytics/
-  output: docs/user/_static/images/tutorial/search-analytics-terms.png
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
   width: 1280
-  height: 800
+  output: docs/user/_static/images/tutorial/search-analytics-terms.png
   wait: 2000
 
 # Guide/reference screenshots (docs/user/img/)
+
+# Redirects list
 - url: https://app.readthedocs.org/projects/test-builds/redirects/
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  width: 1280
   output: docs/user/img/screenshot_redirects.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Redirect create form
 - url: https://app.readthedocs.org/projects/test-builds/redirects/create/
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  width: 1280
   output: docs/user/img/screenshot_redirects_preview.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Environment variables
 - url: https://app.readthedocs.org/projects/test-builds/environment-variables/
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  width: 1280
   output: docs/user/img/screenshot_environment_variables.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Connected services (account page)
 - url: https://app.readthedocs.org/accounts/social/connections/
+  javascript: |-
+    document.querySelector('body > nav')?.remove();
+    document.querySelectorAll('body > footer, body > .ui.inverted.vertical').forEach(el => el.remove());
+  selector: body > div.ui.very.padded.container
+  padding: 20
+  width: 1280
   output: docs/user/img/screenshot_connected_services.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Automation rules
 - url: https://app.readthedocs.org/projects/test-builds/rules/
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  width: 1280
   output: docs/user/img/screenshot_automation_rules_add.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Integrations / webhooks
 - url: https://app.readthedocs.org/projects/test-builds/integrations/
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  width: 1280
   output: docs/user/img/screenshot-webhook.png
-  width: 1280
-  height: 800
   wait: 2000
 
+# Build configuration file setting
 - url: https://app.readthedocs.org/projects/test-builds/edit/
-  output: docs/user/img/screenshot-howto-build-configuration-file.png
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
   width: 1280
-  height: 800
+  output: docs/user/img/screenshot-howto-build-configuration-file.png
   wait: 2000
 
-# Search analytics (used in two places)
+# Search analytics (used in search-analytics.rst and server-side-search/index.rst)
 - url: https://app.readthedocs.org/projects/test-builds/search-analytics/
-  output: docs/user/_static/images/search-analytics-demo.png
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
   width: 1280
-  height: 800
+  output: docs/user/_static/images/search-analytics-demo.png
   wait: 2000
