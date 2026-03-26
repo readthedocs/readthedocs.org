@@ -8,7 +8,7 @@
 - url: https://app.readthedocs.org/dashboard/
   output: docs/user/_static/images/tutorial/rtd-empty-dashboard.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: &hide_chrome |
     document.querySelectorAll(
@@ -25,107 +25,108 @@
 - url: https://app.readthedocs.org/projects/test-builds/
   output: docs/user/_static/images/tutorial/rtd-project-home.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/builds/
   output: docs/user/_static/images/tutorial/rtd-first-successful-build.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/versions/
   output: docs/user/_static/images/tutorial/active-versions.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/projects/test-builds/versions/?active=false
   output: docs/user/_static/images/tutorial/inactive-versions.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
-- url: https://app.readthedocs.org/projects/test-builds/traffic-analytics/
+- url: https://app.readthedocs.org/dashboard/djtest/traffic-analytics/
   output: docs/user/_static/images/tutorial/traffic-analytics-plot.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
-- url: https://app.readthedocs.org/projects/test-builds/search-analytics/
+- url: https://app.readthedocs.org/dashboard/djtest/search-analytics/
   output: docs/user/_static/images/tutorial/search-analytics-terms.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/import/
   output: docs/user/_static/images/tutorial/rtd-import-projects.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 # Search analytics (used in two places)
-- url: https://app.readthedocs.org/projects/test-builds/search-analytics/
+- url: https://app.readthedocs.org/dashboard/djtest/search-analytics/
   output: docs/user/_static/images/search-analytics-demo.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 # Guide/reference screenshots (docs/user/img/)
-- url: https://app.readthedocs.org/projects/test-builds/redirects/
+# Settings pages use /dashboard/<slug>/ URLs (not /projects/)
+- url: https://app.readthedocs.org/dashboard/djtest/redirects/
   output: docs/user/img/screenshot_redirects.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
-- url: https://app.readthedocs.org/projects/test-builds/redirects/create/
+- url: https://app.readthedocs.org/dashboard/djtest/redirects/create/
   output: docs/user/img/screenshot_redirects_preview.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
-- url: https://app.readthedocs.org/projects/test-builds/environment-variables/
+- url: https://app.readthedocs.org/dashboard/djtest/environment-variables/
   output: docs/user/img/screenshot_environment_variables.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/accounts/social/connections/
   output: docs/user/img/screenshot_connected_services.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
-- url: https://app.readthedocs.org/projects/test-builds/rules/
+- url: https://app.readthedocs.org/dashboard/djtest/rules/
   output: docs/user/img/screenshot_automation_rules_add.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
-- url: https://app.readthedocs.org/projects/test-builds/integrations/
+- url: https://app.readthedocs.org/dashboard/djtest/integrations/
   output: docs/user/img/screenshot-webhook.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
-- url: https://app.readthedocs.org/projects/test-builds/edit/
+- url: https://app.readthedocs.org/dashboard/djtest/edit/
   output: docs/user/img/screenshot-howto-build-configuration-file.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
@@ -133,21 +134,21 @@
 - url: https://app.readthedocs.org/dashboard/djtest/subprojects/
   output: docs/user/img/screenshots/community-project-subproject-list.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/djtest/subprojects/
   output: docs/user/img/screenshot_subprojects_list.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/djtest/subprojects/create/
   output: docs/user/img/screenshots/community-project-subproject-create.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
@@ -155,21 +156,21 @@
 - url: https://app.readthedocs.org/dashboard/djtest/webhooks/create/
   output: docs/user/img/screenshots/community-project-webhook-create.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/djtest/webhooks/1485/edit/
   output: docs/user/img/screenshots/community-project-webhook-activity.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/djtest/webhooks/1485/edit/
   output: docs/user/img/screenshots/community-project-webhook-secret.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: |
     const h = Array.from(document.querySelectorAll('h3,h4,label,legend'))
@@ -190,13 +191,13 @@
 - url: https://app.readthedocs.org/dashboard/import/
   output: docs/user/img/screenshots/business-project-manual-team-select.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
 
 - url: https://app.readthedocs.org/dashboard/import/manual/
   output: docs/user/img/screenshots/business-project-manual-form.png
   selector: .ui.very.padded.container
-  width: 1280
+  width: 768
   wait: 2000
   javascript: *hide_chrome
