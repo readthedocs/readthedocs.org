@@ -21,6 +21,12 @@ class ConfigError(BuildUserError):
     INVALID_KEY_NAME = "config:base:invalid-key-name"
     SYNTAX_INVALID = "config:base:invalid-syntax"
     CONDA_KEY_REQUIRED = "config:conda:required"
+    UV_COMMAND_REQUIRED = "config:python:uv-command-required"
+    UV_SYNC_REQUIREMENTS_INVALID = "config:python:uv-sync-requirements-invalid"
+    UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED = "config:python:uv-pip-requirements-or-path-required"
+    UV_PIP_GROUPS_NOT_ALLOWED = "config:python:uv-pip-groups-not-allowed"
+    UV_GROUPS_EXTRAS_EMPTY = "config:python:uv-groups-extras-empty"
+    UV_GROUPS_EXTRAS_INVALID_TYPE = "config:python:uv-groups-extras-invalid-type"
 
     SPHINX_CONFIG_MISSING = "config:sphinx:missing-config"
     MKDOCS_CONFIG_MISSING = "config:mkdocs:missing-config"

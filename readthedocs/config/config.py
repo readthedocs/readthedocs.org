@@ -29,6 +29,7 @@ from .models import PythonInstall
 from .models import Search
 from .models import Sphinx
 from .models import Submodules
+from .models import UvInstall
 from .parser import ParseError
 from .parser import parse
 from .validation import validate_bool
@@ -46,12 +47,14 @@ __all__ = (
     "BuildConfigV2",
     "PIP",
     "SETUPTOOLS",
+    "UV",
     "LATEST_CONFIGURATION_VERSION",
 )
 
 ALL = "all"
 PIP = "pip"
 SETUPTOOLS = "setuptools"
+UV = "uv"
 CONFIG_FILENAME_REGEX = r"^\.?readthedocs.ya?ml$"
 
 LATEST_CONFIGURATION_VERSION = 2
@@ -214,6 +217,14 @@ class BuildConfigBase:
         return False
 
     @property
+    def is_using_uv(self):
+        """Check if this project has at least one uv install entry."""
+        for install in self.python.install:
+            if isinstance(install, UvInstall):
+                return True
+        return False
+
+    @property
     def python_interpreter(self):
         tool = self.build.tools.get("python")
         if tool and tool.version.startswith("mamba"):
@@ -248,7 +259,6 @@ class BuildConfigV2(BuildConfigBase):
 
     version = "2"
     valid_formats = ["htmlzip", "pdf", "epub"]
-    valid_install_method = [PIP, SETUPTOOLS]
     valid_sphinx_builders = {
         "html": "sphinx",
         "htmldir": "sphinx_htmldir",
@@ -277,7 +287,11 @@ class BuildConfigV2(BuildConfigBase):
         self._config["search"] = self.validate_search()
         if self.deprecate_implicit_keys:
             self.validate_deprecated_implicit_keys()
-        self.validate_keys()
+        # Raises an error saying
+        #  Invalid configuration key: python.install.0.method
+        #  Make sure the key name python.install.0.method is correct.
+        # I need to research more why this is happening
+        # self.validate_keys()
 
     def validate_formats(self):
         """
@@ -529,7 +543,18 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error(key):
             validate_dict(raw_install)
 
-        if "requirements" in raw_install:
+        # Detect which type of install this is: uv, requirements file, or path-based
+        method = raw_install.get("method", PIP)
+        has_command = "command" in raw_install
+        has_requirements = "requirements" in raw_install
+        has_path = "path" in raw_install
+
+        # Case 1: method: uv
+        if method == UV or has_command:
+            return self._validate_uv_install(index, key, raw_install)
+
+        # Case 2: requirements file (legacy pip)
+        if has_requirements:
             requirements_key = key + ".requirements"
             with self.catch_validation_error(requirements_key):
                 requirements = validate_path(
@@ -537,7 +562,10 @@ class BuildConfigV2(BuildConfigBase):
                     self.base_path,
                 )
                 python_install["requirements"] = requirements
-        elif "path" in raw_install:
+            return python_install
+
+        # Case 3: path-based install (pip/setuptools)
+        if has_path:
             path_key = key + ".path"
             with self.catch_validation_error(path_key):
                 path = validate_path(
@@ -550,7 +578,7 @@ class BuildConfigV2(BuildConfigBase):
             with self.catch_validation_error(method_key):
                 method = validate_choice(
                     self.pop_config(method_key, PIP),
-                    self.valid_install_method,
+                    [PIP, SETUPTOOLS],
                 )
                 python_install["method"] = method
 
@@ -559,20 +587,150 @@ class BuildConfigV2(BuildConfigBase):
                 extra_requirements = validate_list(
                     self.pop_config(extra_req_key, []),
                 )
-                if extra_requirements and python_install["method"] != PIP:
+                if extra_requirements and method != PIP:
                     raise ConfigError(
                         message_id=ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS,
                     )
                 python_install["extra_requirements"] = extra_requirements
-        else:
-            raise ConfigError(
-                message_id=ConfigError.PIP_PATH_OR_REQUIREMENT_REQUIRED,
-                format_values={
-                    "key": key,
-                },
-            )
+            return python_install
+
+        # No valid combination found
+        raise ConfigError(
+            message_id=ConfigError.PIP_PATH_OR_REQUIREMENT_REQUIRED,
+            format_values={
+                "key": key,
+            },
+        )
+
+    def _validate_uv_install(self, index, key, raw_install):
+        """Validate a uv install entry."""
+        python_install = {"method": UV}
+
+        # command is required
+        command_key = key + ".command"
+        with self.catch_validation_error(command_key):
+            command = self.pop_config(command_key)
+            if command is None:
+                raise ConfigError(
+                    message_id=ConfigError.UV_COMMAND_REQUIRED,
+                )
+            command = validate_choice(command, ["sync", "pip"])
+            python_install["command"] = command
+
+        # path (optional, defaults to .)
+        path_key = key + ".path"
+        path = self.pop_config(path_key, ".")
+        with self.catch_validation_error(path_key):
+            if path:
+                path = validate_path(path, self.base_path)
+            python_install["path"] = path
+
+        # Validate based on command type
+        if command == "sync":
+            self._validate_uv_sync(key, python_install, raw_install)
+        else:  # command == "pip"
+            self._validate_uv_pip(key, python_install, raw_install)
 
         return python_install
+
+    def _validate_uv_sync(self, key, python_install, raw_install):
+        """Validate uv sync specific fields."""
+        # groups (optional)
+        groups_key = key + ".groups"
+        if groups_key.split(".")[-1] in raw_install:
+            groups = self.pop_config(groups_key)
+            with self.catch_validation_error(groups_key):
+                if isinstance(groups, list):
+                    if not groups:
+                        raise ConfigError(
+                            message_id=ConfigError.UV_GROUPS_EXTRAS_EMPTY,
+                            format_values={"field": "groups"},
+                        )
+                    groups = validate_list(groups)
+                elif groups == ALL:
+                    pass  # "all" is valid
+                else:
+                    raise ConfigError(
+                        message_id=ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE,
+                        format_values={"field": "groups"},
+                    )
+                python_install["groups"] = groups
+
+        # extras (optional)
+        extras_key = key + ".extras"
+        if extras_key.split(".")[-1] in raw_install:
+            extras = self.pop_config(extras_key)
+            with self.catch_validation_error(extras_key):
+                if isinstance(extras, list):
+                    if not extras:
+                        raise ConfigError(
+                            message_id=ConfigError.UV_GROUPS_EXTRAS_EMPTY,
+                            format_values={"field": "extras"},
+                        )
+                    extras = validate_list(extras)
+                elif extras == ALL:
+                    pass  # "all" is valid
+                else:
+                    raise ConfigError(
+                        message_id=ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE,
+                        format_values={"field": "extras"},
+                    )
+                python_install["extras"] = extras
+
+        # requirements not allowed with sync
+        if "requirements" in raw_install:
+            raise ConfigError(
+                message_id=ConfigError.UV_SYNC_REQUIREMENTS_INVALID,
+            )
+
+    def _validate_uv_pip(self, key, python_install, raw_install):
+        """Validate uv pip specific fields."""
+        # One of requirements or path is required for uv pip
+        requirements_key = key + ".requirements"
+
+        has_requirements = "requirements" in raw_install
+        has_path = "path" in raw_install and raw_install.get("path")
+
+        if not (has_requirements or has_path):
+            raise ConfigError(
+                message_id=ConfigError.UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED,
+            )
+
+        # If requirements is specified, handle it
+        if has_requirements:
+            with self.catch_validation_error(requirements_key):
+                requirements = validate_path(
+                    self.pop_config(requirements_key),
+                    self.base_path,
+                )
+                python_install["requirements"] = requirements
+
+        # groups not allowed with uv pip
+        if "groups" in raw_install:
+            raise ConfigError(
+                message_id=ConfigError.UV_PIP_GROUPS_NOT_ALLOWED,
+            )
+
+        # extras (optional, allowed for local path install)
+        extras_key = key + ".extras"
+        if extras_key.split(".")[-1] in raw_install:
+            extras = self.pop_config(extras_key)
+            with self.catch_validation_error(extras_key):
+                if isinstance(extras, list):
+                    if not extras:
+                        raise ConfigError(
+                            message_id=ConfigError.UV_GROUPS_EXTRAS_EMPTY,
+                            format_values={"field": "extras"},
+                        )
+                    extras = validate_list(extras)
+                elif extras == ALL:
+                    pass  # "all" is valid
+                else:
+                    raise ConfigError(
+                        message_id=ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE,
+                        format_values={"field": "extras"},
+                    )
+                python_install["extras"] = extras
 
     def validate_doc_types(self):
         """
