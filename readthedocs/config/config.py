@@ -628,9 +628,9 @@ class BuildConfigV2(BuildConfigBase):
             command = validate_choice(command, ["sync", "pip"])
             python_install["command"] = command
 
-        # path (optional, defaults to .)
+        # path (optional, None when not provided by user)
         path_key = key + ".path"
-        path = self.pop_config(path_key, ".")
+        path = self.pop_config(path_key)
         with self.catch_validation_error(path_key):
             if path:
                 path = validate_path(path, self.base_path)
@@ -700,7 +700,8 @@ class BuildConfigV2(BuildConfigBase):
         requirements_key = key + ".requirements"
 
         has_requirements = "requirements" in raw_install
-        has_path = "path" in raw_install and raw_install.get("path")
+        # Check python_install for path since it was already popped from raw_install
+        has_path = bool(python_install.get("path"))
 
         if not (has_requirements or has_path):
             raise ConfigError(
