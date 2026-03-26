@@ -30,7 +30,8 @@ jobs:
             # Compare against the merge base with main to find changed files.
             changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
             if [ -z "$changed_files" ]; then
-              echo "No changed files detected, running tests."
+              echo "No changed files detected — skipping tests."
+              circleci-agent step halt
               exit 0
             fi
             non_docs=$(echo "$changed_files" | grep -v '^docs/')
@@ -59,7 +60,8 @@ jobs:
             # Compare against the merge base with main to find changed files.
             changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
             if [ -z "$changed_files" ]; then
-              echo "No changed files detected, running tests."
+              echo "No changed files detected — skipping tests."
+              circleci-agent step halt
               exit 0
             fi
             non_docs=$(echo "$changed_files" | grep -v '^docs/')
