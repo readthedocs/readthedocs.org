@@ -21,6 +21,8 @@
       el.style.width = '100%';
       el.className = el.className.replace('eleven wide', 'sixteen wide');
     });
+    const c = document.querySelector('.ui.very.padded.container');
+    if (c) { c.style.padding = '0'; c.style.margin = '0'; c.style.width = 'auto'; }
 
 - url: https://app.readthedocs.org/projects/test-builds/
   output: docs/user/_static/images/tutorial/rtd-project-home.png
@@ -186,6 +188,8 @@
       el.style.width = '100%';
       el.className = el.className.replace('eleven wide', 'sixteen wide');
     });
+    const c = document.querySelector('.ui.very.padded.container');
+    if (c) { c.style.padding = '0'; c.style.margin = '0'; c.style.width = 'auto'; }
 
 # Import / manual project setup
 - url: https://app.readthedocs.org/dashboard/import/
