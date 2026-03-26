@@ -64,6 +64,13 @@
   wait: 2000
   javascript: *hide_chrome
 
+- url: https://app.readthedocs.org/dashboard/import/
+  output: docs/user/_static/images/tutorial/rtd-import-projects.png
+  selector: .ui.very.padded.container
+  width: 1280
+  wait: 2000
+  javascript: *hide_chrome
+
 # Search analytics (used in two places)
 - url: https://app.readthedocs.org/projects/test-builds/search-analytics/
   output: docs/user/_static/images/search-analytics-demo.png
