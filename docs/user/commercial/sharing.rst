@@ -20,7 +20,7 @@ Common sharing use cases include:
 Creating a shared item
 ----------------------
 
-* Go into your project's :guilabel:`Settings` page and click on :guilabel:`Sharing`.
+* Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
 * Click on :guilabel:`New Share`
 * Select access type (secret link, password, or HTTP header token),
   add an expiration date and a *Description* to help with managing access in the future.
@@ -87,18 +87,6 @@ For example:
 .. prompt:: bash $
 
    curl -H "Authorization: Token $TOKEN" https://docs.example.com/en/latest/example.html
-
-If you want to access a subproject,
-create the HTTP header token on the subproject itself and then request the subproject URL.
-For example,
-if ``plugin`` is a subproject served under ``https://docs.example.com/projects/plugin/``,
-use:
-
-.. prompt:: bash $
-
-   curl -H "Authorization: Token $TOKEN" https://docs.example.com/projects/plugin/en/latest/example.html
-
-An HTTP header token created on the parent project does not grant access to its subprojects.
 
 Basic Authorization
 ~~~~~~~~~~~~~~~~~~~

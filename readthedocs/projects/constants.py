@@ -147,7 +147,7 @@ LANGUAGES = (
     ("es", "Spanish"),
     ("et", "Estonian"),
     ("eu", "Basque"),
-    ("fa", "Persian"),
+    ("fa", "Iranian"),
     ("fi", "Finnish"),
     ("fj", "Fijian"),
     ("fo", "Faroese"),
