@@ -38,8 +38,6 @@ jobs:
             if [ -z "$non_docs" ]; then
               echo "Only docs changed — skipping tests."
               circleci-agent step halt
-            else
-              echo "Non-docs files changed, running tests."
             fi
       - run: sudo apt update
       - run: sudo apt install -y rclone
@@ -68,8 +66,6 @@ jobs:
             if [ -z "$non_docs" ]; then
               echo "Only docs changed — skipping tests."
               circleci-agent step halt
-            else
-              echo "Non-docs files changed, running tests."
             fi
       - run: pip install --user 'tox<4'
       - run: tox --version
