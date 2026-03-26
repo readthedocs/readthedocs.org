@@ -1,24 +1,8 @@
 # shot-scraper multi configuration for Read the Docs dashboard screenshots
 # Usage: shot-scraper multi screenshots.yml --auth auth.json
 #
-# Common JavaScript to inject into every page to isolate the main content area.
-# This hides the header, footer, sidebar, and notifications, then expands
-# the main content column to full width.
-_js: &hide_chrome |
-  document.querySelectorAll(
-    'body > .ui.basic.fitted.attached.segment, '
-    + 'footer, '
-    + '.ui.stackable.grid > .five.wide.computer.column, '
-    + '.ui.stackable.grid > .five.wide.computer.only.column, '
-    + 'readthedocs-notification-list, '
-    + '.ui.message'
-  ).forEach(el => el.style.display = 'none');
-  document.querySelectorAll('.eleven.wide.computer.column').forEach(el => {
-    el.style.width = '100%';
-    el.className = el.className.replace('eleven wide', 'sixteen wide');
-  });
-  const container = document.querySelector('.ui.very.padded.container');
-  if (container) container.style.padding = '1em';
+# Each entry injects JavaScript to hide the header, footer, sidebar, and
+# notifications so screenshots show only the main content area.
 
 # Tutorial screenshots (docs/user/_static/images/tutorial/)
 - url: https://app.readthedocs.org/dashboard/
@@ -26,7 +10,21 @@ _js: &hide_chrome |
   width: 1280
   height: 800
   wait: 2000
-  javascript: *hide_chrome
+  javascript: &hide_chrome |
+    document.querySelectorAll(
+      'body > .ui.basic.fitted.attached.segment, '
+      + 'footer, '
+      + '.ui.stackable.grid > .five.wide.computer.column, '
+      + '.ui.stackable.grid > .five.wide.computer.only.column, '
+      + 'readthedocs-notification-list, '
+      + '.ui.message'
+    ).forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.eleven.wide.computer.column').forEach(el => {
+      el.style.width = '100%';
+      el.className = el.className.replace('eleven wide', 'sixteen wide');
+    });
+    const container = document.querySelector('.ui.very.padded.container');
+    if (container) container.style.padding = '1em';
 
 - url: https://app.readthedocs.org/projects/test-builds/
   output: docs/user/_static/images/tutorial/rtd-project-home.png
@@ -171,11 +169,9 @@ _js: &hide_chrome |
   height: 800
   wait: 2000
   javascript: |
-    // Scroll the Secret section into view before hiding chrome
     const h = Array.from(document.querySelectorAll('h3,h4,label,legend'))
         .find(el => el.textContent.toLowerCase().includes('secret'));
     if (h) h.scrollIntoView({block: 'center'});
-
     document.querySelectorAll(
       'body > .ui.basic.fitted.attached.segment, '
       + 'footer, '
