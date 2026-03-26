@@ -164,7 +164,7 @@ This would be the simplest way and I'd recommend that for now.
 
 For uv-based installs we should skip:
 
-1. Base venv creation (`python -mvirtualenv $READTHEDOCS_VIRTUALENV_PATH`) and replace it with `uv env "$READTHEDOCS_VIRTUALENV_PATH"`
+1. Base venv creation (`python -mvirtualenv $READTHEDOCS_VIRTUALENV_PATH`) and replace it with `uv venv "$READTHEDOCS_VIRTUALENV_PATH"`
 2. Core pip bootstrap (`pip setuptools` upgrade)
 3. Core Sphinx bootstrap (`sphinx` install)
 
@@ -172,7 +172,7 @@ For uv-based installs we should skip:
 
 When `python.install` contains any uv entries:
 
-1. Create the environment with `uv env "$REDTHEDOCS_VIRTUALENV_PATH"`.
+1. Create the environment with `uv venv "$REDTHEDOCS_VIRTUALENV_PATH"`.
 2. Do not call RTD core `pip`/`setuptools`/`sphinx` install commands.
 3. Execute uv install entries directly (since we are using `UV_` variables)
 4. Continue with regular build steps (Sphinx/MkDocs invocation), assuming dependencies come from uv-managed environment.
