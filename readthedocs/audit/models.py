@@ -96,7 +96,7 @@ class AuditLog(TimeStampedModel):
     INVITATION_DECLINED_TEXT = _("Invitation declined")
 
     PROJECT_DELETE = "project-delete"
-    PROJECT_DELETE_TEXT = _("Project delete")
+    PROJECT_DELETE_TEXT = _("Project deleted")
 
     CHOICES = (
         (PAGEVIEW, PAGEVIEW_TEXT),

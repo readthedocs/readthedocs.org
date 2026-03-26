@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                     ("invitation-revoked", "Invitation revoked"),
                     ("invitation-accepted", "Invitation accepted"),
                     ("invitation-declined", "Invitation declined"),
-                    ("project-delete", "Project delete"),
+                    ("project-delete", "Project deleted"),
                 ],
                 max_length=150,
                 verbose_name="Action",
