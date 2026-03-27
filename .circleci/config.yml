@@ -18,7 +18,7 @@ commands:
               circleci-agent step halt
               exit 0
             fi
-            non_docs=$(echo "$changed_files" | grep -v '^docs/')
+            non_docs=$(echo "$changed_files" | grep -v '^docs/' || true)
             if [ -z "$non_docs" ]; then
               echo "Only docs changed — skipping tests."
               circleci-agent step halt
