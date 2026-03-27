@@ -12,11 +12,6 @@ commands:
       - run: git submodule sync
       - run: git submodule update --init
       - run:
-          name: Install uv
-          command: |
-            curl -LsSf https://astral.sh/uv/0.8.17/install.sh | sh
-            echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASH_ENV"
-      - run:
           name: Combine requirements files for cache key
           command: cat requirements/*.txt > requirements-cache-key.txt
 
@@ -64,7 +59,7 @@ jobs:
             - pip-tests-v1-
       - run: sudo apt update
       - run: sudo apt install -y rclone
-      - run: pip install --user tox tox-uv
+      - run: pip install --user uv==0.8.17 tox tox-uv
       - run: tox -e py312
       - save_cache:
           key: pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
@@ -109,7 +104,7 @@ jobs:
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: pip install --user tox tox-uv
+      - run: pip install --user uv==0.8.17 tox tox-uv
       - run: tox -e pre-commit
       - run: tox -e migrations
       - save_cache:
