@@ -121,3 +121,4 @@ workflows:
       - tests-embedapi:
           requires:
             - checks
+            - tests
