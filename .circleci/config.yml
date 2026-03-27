@@ -11,6 +11,9 @@ commands:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
+      - run:
+          name: Install uv
+          command: pip install --user uv
 
   skip-if-docs-only:
     description: Halt the job if only docs/ files changed
@@ -56,7 +59,7 @@ jobs:
             - pip-tests-v1-
       - run: sudo apt update
       - run: sudo apt install -y rclone
-      - run: pip install --user tox
+      - run: uv pip install --system tox tox-uv
       - run: tox -e py312
       - save_cache:
           key: pip-tests-v1-{{ checksum "requirements/testing.txt" }}
@@ -76,7 +79,7 @@ jobs:
           keys:
             - pip-embedapi-v1-{{ checksum "requirements/testing.txt" }}
             - pip-embedapi-v1-
-      - run: pip install --user 'tox<4'
+      - run: uv pip install --system 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
       - save_cache:
@@ -101,7 +104,7 @@ jobs:
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: pip install --user tox
+      - run: uv pip install --system tox tox-uv
       - run: tox -e pre-commit
       - run: tox -e migrations
       - save_cache:
