@@ -64,7 +64,7 @@ jobs:
             - pip-tests-v1-
       - run: sudo apt update
       - run: sudo apt install -y rclone
-      - run: uv pip install --system tox tox-uv
+      - run: uv pip install --system --python $(which python) tox tox-uv
       - run: tox -e py312
       - save_cache:
           key: pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
@@ -84,7 +84,7 @@ jobs:
           keys:
             - pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
             - pip-embedapi-v1-
-      - run: uv pip install --system 'tox<4'
+      - run: uv pip install --system --python $(which python) 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
       - save_cache:
@@ -109,7 +109,7 @@ jobs:
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: uv pip install --system tox tox-uv
+      - run: uv pip install --system --python $(which python) tox tox-uv
       - run: tox -e pre-commit
       - run: tox -e migrations
       - save_cache:
