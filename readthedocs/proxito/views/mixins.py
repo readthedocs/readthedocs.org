@@ -1,6 +1,6 @@
 import mimetypes
 from urllib.parse import parse_qsl
-from urllib.parse import urlencode
+from urllib.parse import quote_plus
 from urllib.parse import urlparse
 
 import structlog
@@ -386,7 +386,16 @@ class ServeRedirectMixin:
 
         # Combine the query params from the original request with the ones from the redirect.
         query_list.extend(parse_qsl(new_url_parsed.query, keep_blank_values=True))
-        query = urlencode(query_list)
+        # Build query string preserving valueless params (e.g. ?key instead of ?key=).
+        # urlencode() always appends '=' to keys with empty values, which changes
+        # the semantics of the original URL.
+        query_parts = []
+        for key, value in query_list:
+            if value:
+                query_parts.append(f"{quote_plus(key)}={quote_plus(value)}")
+            else:
+                query_parts.append(quote_plus(key))
+        query = "&".join(query_parts)
         new_url_parsed = new_url_parsed._replace(query=query)
         new_url = new_url_parsed.geturl()
 
