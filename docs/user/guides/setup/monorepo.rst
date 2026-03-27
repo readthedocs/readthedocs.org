@@ -32,10 +32,13 @@ A custom build configuration file path is applied to all versions of your docume
 
    All paths in the ``.readthedocs.yaml`` file are always relative to the **repository root**,
    regardless of where the configuration file is located.
+   This is because Read the Docs runs all build commands from the repository root directory.
    For example, if your config file is at ``docs/.readthedocs.yaml``
    and your requirements file is at ``docs/requirements.txt``,
    you should still use ``docs/requirements.txt`` as the path in the config file,
    not ``requirements.txt``.
+   This also means the configuration file can be moved
+   without updating the paths inside it.
 
 .. warning::
 
