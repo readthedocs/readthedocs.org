@@ -16,6 +16,9 @@ commands:
           command: |
             curl -LsSf https://astral.sh/uv/0.8.17/install.sh | sh
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Combine requirements files for cache key
+          command: cat requirements/*.txt > requirements-cache-key.txt
 
   skip-if-docs-only:
     description: Halt the job if only docs/ files changed
@@ -57,14 +60,14 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-tests-v1-{{ checksum "requirements/testing.txt" }}
+            - pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
             - pip-tests-v1-
       - run: sudo apt update
       - run: sudo apt install -y rclone
       - run: uv pip install --system tox tox-uv
       - run: tox -e py312
       - save_cache:
-          key: pip-tests-v1-{{ checksum "requirements/testing.txt" }}
+          key: pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
             - ~/.local/bin
@@ -79,13 +82,13 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-embedapi-v1-{{ checksum "requirements/testing.txt" }}
+            - pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
             - pip-embedapi-v1-
       - run: uv pip install --system 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
       - save_cache:
-          key: pip-embedapi-v1-{{ checksum "requirements/testing.txt" }}
+          key: pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
             - ~/.local/bin
@@ -98,11 +101,11 @@ jobs:
       - setup-checkout
       # Recipe: https://pre-commit.com/#managing-ci-caches
       - run:
-          name: Combine pre-commit config, python version and testing requirements for caching
+          name: Combine pre-commit config and requirements for caching
           command: |
             cp common/pre-commit-config.yaml pre-commit-cache-key.txt
             python --version --version >> pre-commit-cache-key.txt
-            cat requirements/testing.txt >> pre-commit-cache-key.txt
+            cat requirements-cache-key.txt >> pre-commit-cache-key.txt
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
