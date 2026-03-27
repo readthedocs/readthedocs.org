@@ -349,7 +349,11 @@ class TestPostBuildOverview(TestCase):
 
             > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
 
-            <p align="center">[<kbd><br />🔍 Preview build <br /></kbd>](http://my-project--1.readthedocs.build/en/1/)</p>
+            <div align="center">
+
+[<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
+
+</div>
 
 
             <details>
@@ -397,7 +401,11 @@ class TestPostBuildOverview(TestCase):
 
             > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
 
-            <p align="center">[<kbd><br />🔍 Preview build <br /></kbd>](http://my-project--1.readthedocs.build/en/1/)</p>
+            <div align="center">
+
+[<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
+
+</div>
 
 
             <details>
@@ -442,7 +450,11 @@ class TestPostBuildOverview(TestCase):
 
             > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
 
-            <p align="center">[<kbd><br />🔍 Preview build <br /></kbd>](http://my-project--1.readthedocs.build/en/1/)</p>
+            <div align="center">
+
+[<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
+
+</div>
 
 
             No files changed.
