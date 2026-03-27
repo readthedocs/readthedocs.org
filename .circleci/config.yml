@@ -4,6 +4,26 @@ orbs:
   codecov: codecov/codecov@3.2.2
   node: circleci/node@5.1.0
 
+commands:
+  skip-if-docs-only:
+    description: Halt the job if only docs/ files changed
+    steps:
+      - run:
+          name: Skip tests if only docs changed
+          command: |
+            # Compare against the merge base with main to find changed files.
+            changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
+            if [ -z "$changed_files" ]; then
+              echo "No changed files detected — skipping tests."
+              circleci-agent step halt
+              exit 0
+            fi
+            non_docs=$(echo "$changed_files" | grep -v '^docs/')
+            if [ -z "$non_docs" ]; then
+              echo "Only docs changed — skipping tests."
+              circleci-agent step halt
+            fi
+
 jobs:
   tests:
     docker:
@@ -24,21 +44,7 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run:
-          name: Skip tests if only docs changed
-          command: |
-            # Compare against the merge base with main to find changed files.
-            changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
-            if [ -z "$changed_files" ]; then
-              echo "No changed files detected — skipping tests."
-              circleci-agent step halt
-              exit 0
-            fi
-            non_docs=$(echo "$changed_files" | grep -v '^docs/')
-            if [ -z "$non_docs" ]; then
-              echo "Only docs changed — skipping tests."
-              circleci-agent step halt
-            fi
+      - skip-if-docs-only
       - run: sudo apt update
       - run: sudo apt install -y rclone
       - run: pip install --user tox
@@ -52,21 +58,7 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run:
-          name: Skip tests if only docs changed
-          command: |
-            # Compare against the merge base with main to find changed files.
-            changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
-            if [ -z "$changed_files" ]; then
-              echo "No changed files detected — skipping tests."
-              circleci-agent step halt
-              exit 0
-            fi
-            non_docs=$(echo "$changed_files" | grep -v '^docs/')
-            if [ -z "$non_docs" ]; then
-              echo "Only docs changed — skipping tests."
-              circleci-agent step halt
-            fi
+      - skip-if-docs-only
       - run: pip install --user 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
