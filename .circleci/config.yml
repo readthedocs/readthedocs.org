@@ -14,7 +14,7 @@ commands:
       - run:
           name: Install uv
           command: |
-            curl -LsSf https://astral.sh/uv/install.sh | sh
+            curl -LsSf https://astral.sh/uv/0.8.17/install.sh | sh
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASH_ENV"
 
   skip-if-docs-only:
