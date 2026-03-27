@@ -4,6 +4,33 @@ orbs:
   codecov: codecov/codecov@3.2.2
   node: circleci/node@5.1.0
 
+commands:
+  setup-checkout:
+    description: Checkout code and initialize submodules
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+
+  skip-if-docs-only:
+    description: Halt the job if only docs/ files changed
+    steps:
+      - run:
+          name: Skip tests if only docs changed
+          command: |
+            # Compare against the merge base with main to find changed files.
+            changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
+            if [ -z "$changed_files" ]; then
+              echo "No changed files detected — skipping tests."
+              circleci-agent step halt
+              exit 0
+            fi
+            non_docs=$(echo "$changed_files" | grep -v '^docs/')
+            if [ -z "$non_docs" ]; then
+              echo "Only docs changed — skipping tests."
+              circleci-agent step halt
+            fi
+
 jobs:
   tests:
     docker:
@@ -21,33 +48,49 @@ jobs:
           # Disabled SSL for testing.
           xpack.security.transport.ssl.enabled: 'false'
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
+      - setup-checkout
+      - skip-if-docs-only
+      - restore_cache:
+          keys:
+            - pip-tests-v1-{{ checksum "requirements/testing.txt" }}
+            - pip-tests-v1-
       - run: sudo apt update
       - run: sudo apt install -y rclone
       - run: pip install --user tox
       - run: tox -e py312
+      - save_cache:
+          key: pip-tests-v1-{{ checksum "requirements/testing.txt" }}
+          paths:
+            - ~/.local/lib
+            - ~/.local/bin
+            - .tox
       - codecov/upload
 
   tests-embedapi:
     docker:
       - image: 'cimg/python:3.12'
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
+      - setup-checkout
+      - skip-if-docs-only
+      - restore_cache:
+          keys:
+            - pip-embedapi-v1-{{ checksum "requirements/testing.txt" }}
+            - pip-embedapi-v1-
       - run: pip install --user 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
+      - save_cache:
+          key: pip-embedapi-v1-{{ checksum "requirements/testing.txt" }}
+          paths:
+            - ~/.local/lib
+            - ~/.local/bin
+            - .tox
 
   checks:
     docker:
       - image: 'cimg/python:3.12'
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
+      - setup-checkout
       # Recipe: https://pre-commit.com/#managing-ci-caches
       - run:
           name: Combine pre-commit config, python version and testing requirements for caching
@@ -75,4 +118,3 @@ workflows:
       - tests-embedapi:
           requires:
             - checks
-            - tests
