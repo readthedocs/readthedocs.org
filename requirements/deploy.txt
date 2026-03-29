@@ -12,7 +12,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
-anyio==4.12.1
+anyio==4.13.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -29,18 +29,18 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.73
+boto3==1.42.78
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.73
+botocore==1.42.78
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2025.1131
     # via -r requirements/pip.txt
-celery==5.6.2
+celery==5.6.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -88,7 +88,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==46.0.5
+cryptography==46.0.6
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -180,7 +180,7 @@ django-timezone-field==7.2.1
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.17.0
+djangorestframework==3.17.1
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -218,14 +218,14 @@ filelock==3.25.2
     #   -r requirements/pip.txt
     #   python-discovery
     #   virtualenv
-gunicorn==25.1.0
+gunicorn==25.3.0
     # via -r requirements/pip.txt
 idna==3.11
     # via
     #   -r requirements/pip.txt
     #   anyio
     #   requests
-ipython==9.11.0
+ipython==9.12.0
     # via -r requirements/deploy.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -260,7 +260,7 @@ markdown==3.10.2
     # via -r requirements/pip.txt
 matplotlib-inline==0.2.1
     # via ipython
-newrelic==12.0.0
+newrelic==12.1.0
     # via -r requirements/deploy.in
 oauthlib==3.3.1
     # via
@@ -317,7 +317,7 @@ pydantic-core==2.41.5
     # via
     #   -r requirements/pip.txt
     #   pydantic
-pygithub==2.8.1
+pygithub==2.9.0
     # via -r requirements/pip.txt
 pygments==2.19.2
     # via
@@ -345,7 +345,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.2.0
+python-discovery==1.2.1
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -365,11 +365,11 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==7.3.0
+redis==7.4.0
     # via -r requirements/pip.txt
-regex==2026.2.28
+regex==2026.3.32
     # via -r requirements/pip.txt
-requests==2.32.5
+requests==2.33.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -391,7 +391,7 @@ s3transfer==0.16.0
     #   boto3
 selectolax==0.4.7
     # via -r requirements/pip.txt
-sentry-sdk==2.55.0
+sentry-sdk==2.56.0
     # via structlog-sentry
 six==1.17.0
     # via

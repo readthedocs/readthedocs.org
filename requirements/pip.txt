@@ -8,7 +8,7 @@ amqp==5.3.1
     # via kombu
 annotated-types==0.7.0
     # via pydantic
-anyio==4.12.1
+anyio==4.13.0
     # via elasticsearch
 asgiref==3.11.1
     # via
@@ -18,15 +18,15 @@ asgiref==3.11.1
     #   django-structlog
 billiard==4.2.4
     # via celery
-boto3==1.42.73
+boto3==1.42.78
     # via django-storages
-botocore==1.42.73
+botocore==1.42.78
     # via
     #   boto3
     #   s3transfer
 bumpver==2025.1131
     # via -r requirements/pip.in
-celery==5.6.2
+celery==5.6.3
     # via
     #   -r requirements/pip.in
     #   django-celery-beat
@@ -58,7 +58,7 @@ colorama==0.4.6
     # via bumpver
 cron-descriptor==1.4.5
     # via django-celery-beat
-cryptography==46.0.5
+cryptography==46.0.6
     # via
     #   fido2
     #   pyjwt
@@ -139,7 +139,7 @@ django-timezone-field==7.2.1
     # via django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.in
-djangorestframework==3.17.0
+djangorestframework==3.17.1
     # via
     #   -r requirements/pip.in
     #   drf-extensions
@@ -170,7 +170,7 @@ filelock==3.25.2
     # via
     #   python-discovery
     #   virtualenv
-gunicorn==25.1.0
+gunicorn==25.3.0
     # via -r requirements/pip.in
 idna==3.11
     # via
@@ -230,7 +230,7 @@ pydantic==2.12.5
     # via -r requirements/pip.in
 pydantic-core==2.41.5
     # via pydantic
-pygithub==2.8.1
+pygithub==2.9.0
     # via -r requirements/pip.in
 pygments==2.19.2
     # via -r requirements/pip.in
@@ -250,7 +250,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.2.0
+python-discovery==1.2.1
     # via virtualenv
 python-ipware==3.0.0
     # via django-ipware
@@ -262,11 +262,11 @@ pyyaml==6.0.3
     # via -r requirements/pip.in
 qrcode==8.2
     # via django-allauth
-redis==7.3.0
+redis==7.4.0
     # via -r requirements/pip.in
-regex==2026.2.28
+regex==2026.3.32
     # via -r requirements/pip.in
-requests==2.32.5
+requests==2.33.0
     # via
     #   -r requirements/pip.in
     #   django-allauth

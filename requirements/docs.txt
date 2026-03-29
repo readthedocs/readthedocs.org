@@ -6,7 +6,7 @@
 #
 alabaster==1.0.0
     # via sphinx
-anyio==4.12.1
+anyio==4.13.0
     # via
     #   starlette
     #   watchfiles
@@ -92,7 +92,7 @@ python-dateutil==2.9.0.post0
     # via matplotlib
 pyyaml==6.0.3
     # via myst-parser
-requests==2.32.5
+requests==2.33.0
     # via
     #   sphinx
     #   sphinx-prompt
@@ -160,7 +160,7 @@ sphinxemoji==0.3.2
     # via -r requirements/docs.in
 sphinxext-opengraph==0.13.0
     # via -r requirements/docs.in
-starlette==0.52.1
+starlette==1.0.0
     # via sphinx-autobuild
 typing-extensions==4.15.0
     # via
