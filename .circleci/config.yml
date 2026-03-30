@@ -175,10 +175,13 @@ workflows:
       - checks
       - tests
       - tests-proxito
-      - tests-search
+      - tests-search:
+          requires:
+            - checks
+            - tests
+            - tests-proxito
       - tests-embedapi:
           requires:
             - checks
             - tests
             - tests-proxito
-            - tests-search
