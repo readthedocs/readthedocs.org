@@ -20,33 +20,53 @@ commands:
     steps:
       - run:
           name: Skip tests if only docs changed
+          shell: /bin/bash --noprofile --norc -eo pipefail
           command: |
+            set +e
+
             # Only run this check on PR branches, not on main.
             if [ "$CIRCLE_BRANCH" = "main" ]; then
               echo "On main branch — running tests."
               exit 0
             fi
+
             # Determine the base branch from the PR URL, defaulting to main.
             BASE_BRANCH="main"
             if [ -n "$CIRCLE_PULL_REQUEST" ]; then
-              PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | grep -o '[0-9]*$') || true
-              PR_BASE=$(curl -sf "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUMBER}" \
-                | python3 -c "import sys,json; print(json.load(sys.stdin)['base']['ref'])" 2>/dev/null) || true
-              if [ -n "$PR_BASE" ]; then
-                BASE_BRANCH="$PR_BASE"
+              PR_NUMBER="${CIRCLE_PULL_REQUEST##*/}"
+              if [ -n "$PR_NUMBER" ]; then
+                PR_BASE=$(curl -sf "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUMBER}" \
+                  | python3 -c "import sys,json; print(json.load(sys.stdin)['base']['ref'])" 2>/dev/null)
+                if [ -n "$PR_BASE" ]; then
+                  BASE_BRANCH="$PR_BASE"
+                fi
               fi
             fi
-            git fetch origin "$BASE_BRANCH" --depth=1 2>/dev/null || true
-            # Compare against the merge base to find changed files.
-            changed_files=$(git diff --name-only $(git merge-base HEAD "origin/$BASE_BRANCH")..HEAD)
+
+            echo "Comparing against base branch: $BASE_BRANCH"
+            git fetch origin "$BASE_BRANCH" --depth=1 2>/dev/null
+
+            MERGE_BASE=$(git merge-base HEAD "origin/$BASE_BRANCH" 2>/dev/null)
+            if [ -z "$MERGE_BASE" ]; then
+              echo "Could not determine merge base — running tests."
+              exit 0
+            fi
+
+            changed_files=$(git diff --name-only "$MERGE_BASE"..HEAD)
             if [ -z "$changed_files" ]; then
               echo "No changed files detected — running tests."
               exit 0
             fi
-            non_docs=$(echo "$changed_files" | grep -v '^docs/')
+
+            echo "Changed files:"
+            echo "$changed_files"
+
+            non_docs=$(echo "$changed_files" | grep -v '^docs/' || true)
             if [ -z "$non_docs" ]; then
               echo "Only docs changed — skipping tests."
               circleci-agent step halt
+            else
+              echo "Non-docs changes detected — running tests."
             fi
 
 jobs:
