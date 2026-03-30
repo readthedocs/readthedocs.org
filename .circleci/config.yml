@@ -29,9 +29,9 @@ commands:
             # Determine the base branch from the PR URL, defaulting to main.
             BASE_BRANCH="main"
             if [ -n "$CIRCLE_PULL_REQUEST" ]; then
-              PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | grep -o '[0-9]*$')
+              PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | grep -o '[0-9]*$') || true
               PR_BASE=$(curl -sf "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUMBER}" \
-                | python3 -c "import sys,json; print(json.load(sys.stdin)['base']['ref'])" 2>/dev/null)
+                | python3 -c "import sys,json; print(json.load(sys.stdin)['base']['ref'])" 2>/dev/null) || true
               if [ -n "$PR_BASE" ]; then
                 BASE_BRANCH="$PR_BASE"
               fi
