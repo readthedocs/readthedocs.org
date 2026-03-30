@@ -266,6 +266,35 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
+    def test_root_redirect_preserves_valueless_query_params(self):
+        """Valueless query params like ?install should not get '=' appended.
+
+        See https://github.com/readthedocs/readthedocs.org/issues/9799
+        """
+        r = self.client.get(
+            "/?install",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://project.dev.readthedocs.io/en/latest/?install",
+        )
+
+    def test_root_redirect_preserves_mixed_query_params(self):
+        """Mix of valueless and valued query params should both be preserved."""
+        r = self.client.get(
+            "/?install&key=value",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://project.dev.readthedocs.io/en/latest/?install&key=value",
+        )
+
     def test_canonicalize_https_redirect(self):
         self.domain.canonical = True
         self.domain.save()
