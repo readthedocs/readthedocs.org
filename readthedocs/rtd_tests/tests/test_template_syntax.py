@@ -44,7 +44,11 @@ class TemplateSyntaxTest(TestCase):
         (not third-party packages) and yield relative template paths.
         """
         site_root = settings.SITE_ROOT
-        template_dirs = list(engines["django"].dirs)
+        # Only include DIRS entries that live inside the project source tree
+        # (excludes ext-theme and other third-party template directories).
+        template_dirs = [
+            d for d in engines["django"].dirs if d.startswith(site_root)
+        ]
 
         for app_config in apps.get_app_configs():
             # Only include apps that live inside the project source tree.
