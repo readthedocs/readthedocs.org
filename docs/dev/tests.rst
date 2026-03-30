@@ -3,6 +3,10 @@ Testing
 
 .. TODO: upgrade this guide to mention how to do this with ``inv docker.test``.
 
+.. note::
+
+   CI test jobs are automatically skipped for docs-only changes.
+
 Before contributing to Read the Docs, make sure your patch passes our test suite
 and your code style passes our code linting suite.
 
