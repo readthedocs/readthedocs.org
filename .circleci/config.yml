@@ -26,8 +26,19 @@ commands:
               echo "On main branch — running tests."
               exit 0
             fi
-            # Compare against the merge base with main to find changed files.
-            changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
+            # Determine the base branch from the PR URL, defaulting to main.
+            BASE_BRANCH="main"
+            if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+              PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | grep -o '[0-9]*$')
+              PR_BASE=$(curl -sf "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUMBER}" \
+                | python3 -c "import sys,json; print(json.load(sys.stdin)['base']['ref'])" 2>/dev/null)
+              if [ -n "$PR_BASE" ]; then
+                BASE_BRANCH="$PR_BASE"
+              fi
+            fi
+            git fetch origin "$BASE_BRANCH" --depth=1 2>/dev/null || true
+            # Compare against the merge base to find changed files.
+            changed_files=$(git diff --name-only $(git merge-base HEAD "origin/$BASE_BRANCH")..HEAD)
             if [ -z "$changed_files" ]; then
               echo "No changed files detected — running tests."
               exit 0
