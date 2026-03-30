@@ -5,7 +5,8 @@ Testing
 
 .. note::
 
-   CI test jobs are automatically skipped for docs-only changes.
+   CI test jobs are automatically skipped when only files under ``docs/``
+   have changed, saving CI resources on documentation-only pull requests.
 
 Before contributing to Read the Docs, make sure your patch passes our test suite
 and your code style passes our code linting suite.
