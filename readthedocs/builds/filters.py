@@ -67,8 +67,10 @@ class BuildListFilter(ModelFilterSet):
         # Copied from the version listing view. We need this here as this is
         # what allows the build version list to populate. Otherwise the
         # ``all()`` queryset method is used.
-        return self.project.versions(manager=INTERNAL).public(
-            user=self.request.user,
+        return (
+            self.project.versions(manager=INTERNAL)
+            .public(user=self.request.user)
+            .sort_version_aware()
         )
 
     def get_state(self, queryset, _, value):

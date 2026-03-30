@@ -380,8 +380,17 @@ class VersionsViewSet(
         return result
 
     def get_queryset(self):
-        """Overridden to allow internal versions only."""
-        return super().get_queryset().exclude(type=EXTERNAL)
+        """Overridden to allow internal versions only.
+
+        Orders results with "latest" first, "stable" second,
+        then remaining versions in ascending alphabetical order.
+        """
+        return (
+            super()
+            .get_queryset()
+            .exclude(type=EXTERNAL)
+            .sort_version_aware()
+        )
 
 
 class BuildsViewSet(
