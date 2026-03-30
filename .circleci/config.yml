@@ -11,6 +11,11 @@ commands:
       - run:
           name: Skip tests if only docs changed
           command: |
+            # Only run this check on PR branches, not on main.
+            if [ "$CIRCLE_BRANCH" = "main" ]; then
+              echo "On main branch — running tests."
+              exit 0
+            fi
             # Compare against the merge base with main to find changed files.
             changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
             if [ -z "$changed_files" ]; then
