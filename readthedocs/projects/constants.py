@@ -8,7 +8,9 @@ theme names and repository types.
 import os
 import re
 
+from django.conf.global_settings import LANGUAGES as DJANGO_LANGUAGES
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import to_locale
 
 
 SPHINX = "sphinx"
@@ -108,211 +110,47 @@ PYTHON_CHOICES = (
     ("python3", _("CPython 3.x")),
 )
 
-# Via http://sphinx-doc.org/latest/config.html#confval-language
-# Languages supported for the lang_slug in the URL
-# Translations for builtin Sphinx messages only available for a subset of these
-LANGUAGES = (
-    ("aa", "Afar"),
-    ("ab", "Abkhaz"),
-    ("acr", "Achi"),
-    ("af", "Afrikaans"),
-    ("agu", "Awakateko"),
-    ("am", "Amharic"),
-    ("ar", "Arabic"),
-    ("as", "Assamese"),
-    ("ay", "Aymara"),
-    ("az", "Azerbaijani"),
-    ("ba", "Bashkir"),
-    ("be", "Belarusian"),
-    ("bg", "Bulgarian"),
-    ("bh", "Bihari"),
-    ("bi", "Bislama"),
-    ("bn", "Bengali"),
-    ("bo", "Tibetan"),
-    ("br", "Breton"),
-    ("ca", "Catalan"),
-    ("caa", "Ch'orti'"),
-    ("cac", "Chuj"),
-    ("cab", "Garífuna"),
-    ("cak", "Kaqchikel"),
-    ("co", "Corsican"),
-    ("cs", "Czech"),
-    ("cy", "Welsh"),
-    ("da", "Danish"),
-    ("de", "German"),
-    ("dz", "Dzongkha"),
-    ("el", "Greek"),
-    ("en", "English"),
-    ("eo", "Esperanto"),
-    ("es", "Spanish"),
-    ("et", "Estonian"),
-    ("eu", "Basque"),
-    ("fa", "Iranian"),
-    ("fi", "Finnish"),
-    ("fj", "Fijian"),
-    ("fo", "Faroese"),
-    ("fr", "French"),
-    ("fy", "Western Frisian"),
-    ("ga", "Irish"),
-    ("gd", "Scottish Gaelic"),
-    ("gl", "Galician"),
-    ("gn", "Guarani"),
-    ("gu", "Gujarati"),
-    ("ha", "Hausa"),
-    ("hi", "Hindi"),
-    ("he", "Hebrew"),
-    ("hr", "Croatian"),
-    ("hu", "Hungarian"),
-    ("hy", "Armenian"),
-    ("ia", "Interlingua"),
-    ("id", "Indonesian"),
-    ("ie", "Interlingue"),
-    ("ik", "Inupiaq"),
-    ("is", "Icelandic"),
-    ("it", "Italian"),
-    ("itz", "Itza'"),
-    ("iu", "Inuktitut"),
-    ("ixl", "Ixil"),
-    ("ja", "Japanese"),
-    ("jac", "Popti'"),
-    ("jv", "Javanese"),
-    ("ka", "Georgian"),
-    ("kjb", "Q'anjob'al"),
-    ("kek", "Q'eqchi'"),
-    ("kk", "Kazakh"),
-    ("kl", "Kalaallisut"),
-    ("km", "Khmer"),
-    ("kn", "Kannada"),
-    ("knj", "Akateko"),
-    ("ko", "Korean"),
-    ("ks", "Kashmiri"),
-    ("ku", "Kurdish"),
-    ("ky", "Kyrgyz"),
-    ("la", "Latin"),
-    ("ln", "Lingala"),
-    ("lo", "Lao"),
-    ("lt", "Lithuanian"),
-    ("lv", "Latvian"),
-    ("mam", "Mam"),
-    ("mg", "Malagasy"),
-    ("mi", "Maori"),
-    ("mk", "Macedonian"),
-    ("ml", "Malayalam"),
-    ("mn", "Mongolian"),
-    ("mop", "Mopan"),
-    ("mr", "Marathi"),
-    ("ms", "Malay"),
-    ("mt", "Maltese"),
-    ("my", "Burmese"),
-    ("na", "Nauru"),
-    ("ne", "Nepali"),
-    ("nl", "Dutch"),
-    ("no", "Norwegian"),
-    ("oc", "Occitan"),
-    ("om", "Oromo"),
-    ("or", "Oriya"),
-    ("pa", "Panjabi"),
-    ("pl", "Polish"),
-    ("pnb", "Western Punjabi"),
-    ("poc", "Poqomam"),
-    ("poh", "Poqomchi"),
-    ("ps", "Pashto"),
-    ("pt", "Portuguese"),
-    ("qu", "Quechua"),
-    ("quc", "K'iche'"),
-    ("qum", "Sipakapense"),
-    ("quv", "Sakapulteko"),
-    ("rm", "Romansh"),
-    ("rn", "Kirundi"),
-    ("ro", "Romanian"),
-    ("ru", "Russian"),
-    ("rw", "Kinyarwanda"),
-    ("sa", "Sanskrit"),
-    ("sd", "Sindhi"),
-    ("sg", "Sango"),
-    ("si", "Sinhala"),
-    ("sk", "Slovak"),
-    ("skr", "Saraiki"),
-    ("sl", "Slovenian"),
-    ("sm", "Samoan"),
-    ("sn", "Shona"),
-    ("so", "Somali"),
-    ("sq", "Albanian"),
-    ("sr", "Serbian"),
-    ("ss", "Swati"),
-    ("st", "Southern Sotho"),
-    ("su", "Sudanese"),
-    ("sv", "Swedish"),
-    ("sw", "Swahili"),
-    ("ta", "Tamil"),
-    ("te", "Telugu"),
-    ("tg", "Tajik"),
-    ("th", "Thai"),
-    ("ti", "Tigrinya"),
-    ("tk", "Turkmen"),
-    ("tl", "Tagalog"),
-    ("tn", "Tswana"),
-    ("to", "Tonga"),
-    ("tr", "Turkish"),
-    ("ts", "Tsonga"),
-    ("tt", "Tatar"),
-    ("ttc", "Tektiteko"),
-    ("tzj", "Tz'utujil"),
-    ("tw", "Twi"),
-    ("ug", "Uyghur"),
-    ("uk", "Ukrainian"),
-    ("ur", "Urdu"),
-    ("usp", "Uspanteko"),
-    ("uz", "Uzbek"),
-    ("vi", "Vietnamese"),
-    ("vo", "Volapuk"),
-    ("wo", "Wolof"),
-    ("xh", "Xhosa"),
-    ("xin", "Xinka"),
-    ("yi", "Yiddish"),
-    ("yo", "Yoruba"),
-    ("za", "Zhuang"),
-    # TODO: migrate those projects that are currently using "zh" as language.
-    # This is an invalid language code, so the first step is remove it from the
-    # list of possible languages.
-    # https://github.com/readthedocs/readthedocs.org/issues/11387
-    #
-    # In [1]: Project.objects.filter(language='zh').count()
-    # Out[1]: 1485
-    #
-    # ("zh", "Chinese"),
-    ("zu", "Zulu"),
-    # Try these to test our non-2 letter language support
-    ("nb-no", "Norwegian Bokmal"),
-    ("pt-br", "Brazilian Portuguese"),
-    ("es-mx", "Mexican Spanish"),
-    ("uk-ua", "Ukrainian"),
-    ("zh-cn", "Simplified Chinese"),
-    ("zh-tw", "Traditional Chinese"),
-)
+# Use Django's standard language codes.
+# https://github.com/readthedocs/readthedocs.org/issues/4411
+LANGUAGES = DJANGO_LANGUAGES
 LANGUAGE_CODES = [code for code, *_ in LANGUAGES]
 
-# Normalize the language codes to lowercase with dashes,
-# we use them to match the language codes in the URL.
-# The old language codes were uppercase with underscores,
-# and are deprecated, but we still need to support them.
-old_language_codes = [
-    "nb_NO",
-    "pt_BR",
-    "es_MX",
-    "uk_UA",
-    "zh_CN",
-    "zh_TW",
-]
-OLD_LANGUAGES_CODE_MAPPING = {code.lower().replace("_", "-"): code for code in old_language_codes}
+# Maps old/deprecated language codes to their current Django equivalents.
+# Includes old RTD-specific codes and underscore/locale variants of
+# hyphenated codes (for backward-compatible URL matching).
+OLD_LANGUAGES_CODE_MAPPING = {
+    # Old RTD-specific codes that changed when adopting Django's codes.
+    "nb-no": "nb",
+    "uk-ua": "uk",
+    "zh-cn": "zh-hans",
+    "zh-tw": "zh-hant",
+    # Legacy bare "zh" code.
+    "zh": "zh-hans",
+}
+
+# Add underscore/locale variants for all hyphenated Django codes
+# (e.g. pt_BR -> pt-br, zh_Hans -> zh-hans) so URLs using locale
+# format still resolve and redirect.
+for _code in LANGUAGE_CODES:
+    if "-" in _code:
+        OLD_LANGUAGES_CODE_MAPPING[to_locale(_code)] = _code
+
+# Also add underscore variants for old RTD codes.
+for _old_dash, _new in [
+    ("nb-no", "nb"),
+    ("uk-ua", "uk"),
+    ("zh-cn", "zh-hans"),
+    ("zh-tw", "zh-hant"),
+]:
+    OLD_LANGUAGES_CODE_MAPPING[to_locale(_old_dash)] = _new
+
+LANGUAGE_CODE_OLD_VARIANTS = {}
+for _old_code, _new_code in OLD_LANGUAGES_CODE_MAPPING.items():
+    LANGUAGE_CODE_OLD_VARIANTS.setdefault(_new_code, set()).add(_old_code)
 
 LANGUAGES_REGEX = "|".join(
-    [re.escape(code) for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING.values())]
-    # Add "zh" here to be able to keep serving projects with this old invalid language code.
-    # We don't allow new projects to select this language code anymore.
-    #
-    # https://github.com/readthedocs/readthedocs.org/issues/11428
-    + ["zh"]
+    re.escape(code)
+    for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING)
 )
 
 PROGRAMMING_LANGUAGES = (
