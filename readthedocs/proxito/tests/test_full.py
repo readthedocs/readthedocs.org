@@ -1660,27 +1660,9 @@ class TestAdditionalDocViews(BaseDocServing):
             ),
         )
 
-        # Check if STABLE version has 'priority of 1 and changefreq of weekly.
-        self.assertEqual(
-            response.context["versions"][0]["loc"],
-            self.project.get_docs_url(
-                version_slug=stable_version.slug,
-                lang_slug=self.project.language,
-            ),
-        )
-        self.assertEqual(response.context["versions"][0]["priority"], 1)
-        self.assertEqual(response.context["versions"][0]["changefreq"], "weekly")
-
-        # Check if LATEST version has priority of 0.9 and changefreq of daily.
-        self.assertEqual(
-            response.context["versions"][1]["loc"],
-            self.project.get_docs_url(
-                version_slug="latest",
-                lang_slug=self.project.language,
-            ),
-        )
-        self.assertEqual(response.context["versions"][1]["priority"], 0.9)
-        self.assertEqual(response.context["versions"][1]["changefreq"], "daily")
+        # Verify that changefreq and priority are not included in the sitemap.
+        self.assertNotContains(response, "<changefreq>")
+        self.assertNotContains(response, "<priority>")
 
     def test_sitemap_all_private_versions(self):
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
