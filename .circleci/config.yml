@@ -1,3 +1,17 @@
+# CI Pipeline
+#
+# Stage 1 (parallel):   checks, tests, tests-proxito
+# Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (6 Sphinx versions)
+#
+# Stage 2 only runs after Stage 1 passes to avoid wasting resources
+# (especially the Elasticsearch sidecar) on broken builds.
+#
+# Test marker coverage — every test runs in exactly one job:
+#   tests:          -m "not search and not proxito and not embed_api"
+#   tests-search:   -m "search and not proxito" + -m "search and proxito" (proxito settings)
+#   tests-proxito:  -m "proxito and not search"
+#   tests-embedapi: -m embed_api (multiple Sphinx versions via tox.embedapi.ini)
+
 version: 2.1
 
 orbs:
@@ -32,6 +46,7 @@ commands:
               echo "No changed files detected — running tests."
               exit 0
             fi
+            # grep -v returns exit code 1 when all lines match, so || true
             non_docs=$(echo "$changed_files" | grep -v '^docs/' || true)
             if [ -z "$non_docs" ]; then
               echo "Only docs changed — skipping tests."
@@ -40,6 +55,8 @@ commands:
 
 jobs:
   tests:
+    # Core tests — excludes search, proxito, and embed_api markers.
+    # No Elasticsearch sidecar needed.
     docker:
       - image: 'cimg/python:3.12'
         environment:
@@ -63,6 +80,7 @@ jobs:
               chmod +x ~/.local/bin/rclone
               rm -rf /tmp/rclone*
             fi
+      # tox-uv makes tox use uv for virtualenv creation and dep resolution.
       - run: pip install --user uv==0.8.17 tox tox-uv
       - run: tox -e py312
       - save_cache:
@@ -74,6 +92,8 @@ jobs:
       - codecov/upload
 
   tests-search:
+    # Search tests — needs Elasticsearch sidecar.
+    # Runs in Stage 2 to avoid starting ES on broken builds.
     docker:
       - image: 'cimg/python:3.12'
         environment:
@@ -84,7 +104,6 @@ jobs:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms750m -Xmx750m
           ELASTIC_PASSWORD: password
-          # Disabled SSL for testing.
           xpack.security.transport.ssl.enabled: 'false'
     steps:
       - setup-checkout
@@ -104,6 +123,8 @@ jobs:
       - codecov/upload
 
   tests-proxito:
+    # Proxito tests — uses readthedocs.settings.proxito.test Django settings.
+    # No Elasticsearch sidecar needed.
     docker:
       - image: 'cimg/python:3.12'
         environment:
@@ -126,6 +147,8 @@ jobs:
       - codecov/upload
 
   tests-embedapi:
+    # Embed API tests — tests against 6 Sphinx versions.
+    # Requires tox<4 (tox.embedapi.ini is not compatible with tox 4).
     docker:
       - image: 'cimg/python:3.12'
     steps:
@@ -172,9 +195,11 @@ workflows:
   version: 2
   test:
     jobs:
+      # Stage 1: fast, lightweight jobs (parallel)
       - checks
       - tests
       - tests-proxito
+      # Stage 2: heavier jobs, only after Stage 1 passes (parallel)
       - tests-search:
           requires:
             - checks
