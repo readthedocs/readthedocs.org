@@ -26,12 +26,6 @@ class TestTemplateSyntax(TestCase):
     KNOWN_ISSUES = {
         # dj_pagination uses {% ifequal %} removed in Django 5.1.
         "pagination/pagination.html",
-        # ext-theme flagging templates reference a removed 'flagging' tag
-        # library. Remove these once ext-theme drops the flagging/ directory
-        # and projects/includes/flagging.html.
-        "flagging/flag_confirm.html",
-        "flagging/flag_success.html",
-        "projects/includes/flagging.html",
     }
 
     def _get_all_template_names(self):
