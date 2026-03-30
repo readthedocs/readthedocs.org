@@ -6,7 +6,7 @@ orbs:
 
 commands:
   setup-checkout:
-    description: Checkout code and initialize submodules
+    description: Checkout code, initialize submodules, and prepare cache keys
     steps:
       - checkout
       - run: git submodule sync
