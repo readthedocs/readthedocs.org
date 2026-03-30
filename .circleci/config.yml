@@ -61,8 +61,18 @@ jobs:
           keys:
             - pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
             - pip-tests-v1-
-      - run: sudo apt update
-      - run: sudo apt install -y rclone
+      - run:
+          name: Install rclone
+          command: |
+            if command -v rclone &> /dev/null; then
+              echo "rclone already installed (from cache)"
+            else
+              curl -sSL https://downloads.rclone.org/rclone-current-linux-amd64.zip -o /tmp/rclone.zip
+              unzip -o /tmp/rclone.zip -d /tmp
+              cp /tmp/rclone-*-linux-amd64/rclone ~/.local/bin/
+              chmod +x ~/.local/bin/rclone
+              rm -rf /tmp/rclone*
+            fi
       - run: pip install --user uv==0.8.17 tox tox-uv
       - run: tox -e py312
       - save_cache:
