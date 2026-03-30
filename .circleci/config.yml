@@ -83,6 +83,28 @@ jobs:
             - .tox
       - codecov/upload
 
+  tests-proxito:
+    docker:
+      - image: 'cimg/python:3.12'
+        environment:
+          PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=.
+    steps:
+      - setup-checkout
+      - skip-if-docs-only
+      - restore_cache:
+          keys:
+            - pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
+            - pip-proxito-v1-
+      - run: pip install --user uv==0.8.17 tox tox-uv
+      - run: tox -e proxito
+      - save_cache:
+          key: pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
+          paths:
+            - ~/.local/lib
+            - ~/.local/bin
+            - .tox
+      - codecov/upload
+
   tests-embedapi:
     docker:
       - image: 'cimg/python:3.12'
@@ -132,7 +154,9 @@ workflows:
     jobs:
       - checks
       - tests
+      - tests-proxito
       - tests-embedapi:
           requires:
             - checks
             - tests
+            - tests-proxito
