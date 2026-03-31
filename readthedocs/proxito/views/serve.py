@@ -1,6 +1,5 @@
 """Views for doc serving."""
 
-import itertools
 from urllib.parse import urlparse
 
 import structlog
@@ -15,8 +14,6 @@ from django.views import View
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.constants import STABLE
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import InvalidExternalVersionError
@@ -714,6 +711,10 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
     def _get_hidden_paths(self, project):
         """Get the absolute paths of the public hidden versions of `project`."""
         hidden_versions = project.versions(manager=INTERNAL).public().filter(hidden=True)
+        # If the project doesn't support multiple versions, we only need to consider the default version.
+        # Otherwise, if the project still has more than one active version, all paths will resolve to `/`.
+        if not project.supports_multiple_versions:
+            hidden_versions = hidden_versions.filter(slug=project.get_default_version())
         resolver = Resolver()
         hidden_paths = [
             resolver.resolve_path(project, version_slug=version.slug) for version in hidden_versions
@@ -839,16 +840,6 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
         """
         # pylint: disable=too-many-locals
 
-        def priorities_generator():
-            """
-            Generator returning ``priority`` needed by sitemap.xml.
-
-            It generates values from 1 to 0.1 by decreasing in 0.1 on each
-            iteration. After 0.1 is reached, it will keep returning 0.1.
-            """
-            priorities = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
-            yield from itertools.chain(priorities, itertools.repeat(0.1))
-
         def hreflang_formatter(lang):
             """
             sitemap hreflang should follow correct format.
@@ -860,55 +851,25 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
                 return lang.replace("_", "-")
             return lang
 
-        def changefreqs_generator():
-            """
-            Generator returning ``changefreq`` needed by sitemap.xml.
-
-            It returns ``weekly`` on first iteration, then ``daily`` and then it
-            will return always ``monthly``.
-
-            We are using ``monthly`` as last value because ``never`` is too
-            aggressive. If the tag is removed and a branch is created with the same
-            name, we will want bots to revisit this.
-            """
-            changefreqs = ["weekly", "daily"]
-            yield from itertools.chain(changefreqs, itertools.repeat("monthly"))
-
         project = request.unresolved_domain.project
         public_versions = project.versions(manager=INTERNAL).public(
             only_active=True,
             include_hidden=False,
         )
+        # If the project doesn't support multiple versions, we only need to consider the default version.
+        # Otherwise, if the project still has more than one active version, all paths will resolve to `/`.
+        if not project.supports_multiple_versions:
+            public_versions = public_versions.filter(slug=project.get_default_version())
+
         if not public_versions.exists():
             raise Http404()
 
         sorted_versions = sort_version_aware(public_versions)
 
-        # This is a hack to swap the latest version with
-        # stable version to get the stable version first in the sitemap.
-        # We want stable with priority=1 and changefreq='weekly' and
-        # latest with priority=0.9 and changefreq='daily'
-        # More details on this: https://github.com/rtfd/readthedocs.org/issues/5447
-        if (
-            len(sorted_versions) >= 2
-            and sorted_versions[0].slug == LATEST
-            and sorted_versions[1].slug == STABLE
-        ):
-            sorted_versions[0], sorted_versions[1] = (
-                sorted_versions[1],
-                sorted_versions[0],
-            )
-
         versions = []
-        for version, priority, changefreq in zip(
-            sorted_versions,
-            priorities_generator(),
-            changefreqs_generator(),
-        ):
+        for version in sorted_versions:
             element = {
                 "loc": version.get_subdomain_url(),
-                "priority": priority,
-                "changefreq": changefreq,
                 "languages": [],
             }
 
