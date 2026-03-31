@@ -10,6 +10,7 @@ from readthedocs.builds.constants import BUILD_STATE_BUILDING, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
@@ -170,6 +171,22 @@ class CoreUtilTests(TestCase):
             },
             options=options,
             immutable=True,
+        )
+
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_trigger_build_skips_non_default_version_on_single_version_project(
+        self, update_docs
+    ):
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.default_version = "latest"
+        self.project.save()
+
+        result = trigger_build(project=self.project, version=self.version)
+
+        self.assertEqual(result, (None, None))
+        self.assertFalse(update_docs.signature.called)
+        self.assertFalse(
+            Build.objects.filter(project=self.project, version=self.version).exists()
         )
 
     @mock.patch("readthedocs.core.utils.app")

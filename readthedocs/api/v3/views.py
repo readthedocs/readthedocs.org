@@ -428,19 +428,22 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
             commit=commit,
         )
 
-        # TODO: refactor this to be a serializer
-        # BuildTriggeredSerializer(build, project, version).data
-        data = {
-            "build": BuildSerializer(build).data,
-            "project": ProjectSerializer(project).data,
-            "version": VersionSerializer(version).data,
-        }
-
         if build:
-            data.update({"triggered": True})
+            # TODO: refactor this to be a serializer
+            # BuildTriggeredSerializer(build, project, version).data
+            data = {
+                "build": BuildSerializer(build).data,
+                "project": ProjectSerializer(project).data,
+                "version": VersionSerializer(version).data,
+                "triggered": True,
+            }
             code = status.HTTP_202_ACCEPTED
         else:
-            data.update({"triggered": False})
+            data = {
+                "project": ProjectSerializer(project).data,
+                "version": VersionSerializer(version).data,
+                "triggered": False,
+            }
             code = status.HTTP_400_BAD_REQUEST
         return Response(data=data, status=code)
 

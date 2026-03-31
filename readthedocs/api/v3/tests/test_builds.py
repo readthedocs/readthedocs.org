@@ -1,9 +1,12 @@
 from unittest import mock
 
+import django_dynamic_fixture as fixture
 from django.test import override_settings
 from django.urls import reverse
 
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Version
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
@@ -340,6 +343,41 @@ class BuildsEndpointTests(APIEndpointMixin):
         ] = "http://project--v1.0.external-builds.readthedocs.io/en/v1.0/"
         expected["version"]["urls"]["vcs"] = "https://github.com/rtfd/project/pull/v1.0"
         self.assertDictEqual(response_json, expected)
+
+    def test_single_version_project_rejects_non_default_version_build(self):
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.default_version = "latest"
+        self.project.save()
+        version = fixture.get(
+            Version,
+            project=self.project,
+            slug="v2.0",
+            verbose_name="v2.0",
+            identifier="d4e5f6",
+            active=True,
+        )
+        url = reverse(
+            "projects-versions-builds-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "parent_lookup_version__slug": version.slug,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        builds_count = self.project.builds.count()
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.project.builds.count(), builds_count)
+        self.assertDictEqual(
+            response.json(),
+            {
+                "project": mock.ANY,
+                "triggered": False,
+                "version": mock.ANY,
+            },
+        )
 
     def test_projects_builds_notifications_list_anonymous_user(self):
         url = reverse(

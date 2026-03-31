@@ -50,8 +50,12 @@ def build_versions_from_names(project, versions_info: list[VersionInfo]):
                 continue
 
             if version.active:
-                trigger_build(project=project, version=version, from_webhook=True)
-                to_build.add(version.slug)
+                _, build = trigger_build(project=project, version=version, from_webhook=True)
+                if build:
+                    to_build.add(version.slug)
+                else:
+                    log.info("Not building.", version_slug=version.slug)
+                    not_building.add(version.slug)
             else:
                 log.info("Not building.", version_slug=version.slug)
                 not_building.add(version.slug)

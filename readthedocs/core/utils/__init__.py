@@ -67,6 +67,18 @@ def prepare_build(
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
 
+    if (
+        project.is_single_version
+        and not version.is_external
+        and version.slug != project.get_default_version()
+    ):
+        log.warning(
+            "Build not triggered for non-default version on single-version project.",
+            default_version_slug=project.get_default_version(),
+            version_slug=version.slug,
+        )
+        return (None, None)
+
     build = Build.objects.create(
         project=project,
         version=version,
