@@ -54,7 +54,12 @@ class ProjectRemoteRepositorySelect(RichSelect):
     """
     Rich select for user's remote repository listing
 
-    :param can_connect_remote_repository: Is the current user able to connect a remote repository
+    Some attributes, passed in through ``attrs``, are defined and used by the base :py:class:`RichSelect`.
+    In addition to those, this class and its templates use:
+
+    ``can_connect_remote_repository``
+        Show the remote repository part of the field as usable if the current
+        user able to connect a remote repository.
     """
 
     can_connect_remote_repository = False
@@ -600,9 +605,9 @@ class UpdateProjectForm(
 
         multifield_attrs = {}
         if not SocialAccount.objects.filter(user=self.user).exists():
-            multifield_attrs["show-connected-service-warning"] = True
+            multifield_attrs["show_connected_service_warning"] = True
         if self.instance.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
-            multifield_attrs["dont-sync"] = True
+            multifield_attrs["dont_sync"] = True
         multifield = MultiField(
             _("Repository"),
             Field("remote_repository"),
