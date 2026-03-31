@@ -5,7 +5,7 @@ How to install private python packages
 
    This guide is for :doc:`/commercial/index`.
 
-Read the Docs uses :ref:`pip <config-file/v2:python.install>` or `uv <https://docs.astral.sh/uv/>`__ to install your Python packages.
+Read the Docs uses :ref:`pip <config-file/v2:python.install>` to install your Python packages.
 If you have private dependencies, you can install them from
 a :ref:`private Git repository <guides/private-python-packages:From a Git repository>` or
 a :ref:`private repository manager <guides/private-python-packages:From a repository manager other than PyPI>`.
@@ -13,7 +13,7 @@ a :ref:`private repository manager <guides/private-python-packages:From a reposi
 From a Git repository
 ---------------------
 
-Pip and uv support installing packages from a :ref:`Git repository <pip:vcs support>` using the URI form:
+Pip supports installing packages from a :ref:`Git repository <pip:vcs support>` using the URI form:
 
 - ``git+https://gitprovider.com/user/project.git@{version}`` (public repository)
 - ``git+https://{token}@gitprovider.com/user/project.git@{version}`` (private repository)
@@ -24,13 +24,13 @@ Where ``version`` can be a tag, a branch, or a commit, and ``token`` is a person
 
 To install a private package from a Git repositories, add the URI to your :ref:`requirements file <config-file/v2:Requirements file>`. Make sure to use an environment variable for the token, so you don't have to hard code it in the URI.
 
-`Pip <https://pip.pypa.io/en/stable/reference/requirements-file-format/#using-environment-variables>`__ and `uv <https://docs.astral.sh/uv/>`__ automatically expand environment variables in POSIX format: using only uppercase letters and ``_``, and including a dollar sign and curly brackets around the name, like ``${API_TOKEN}``.
+`Pip automatically  expands <https://pip.pypa.io/en/stable/reference/requirements-file-format/#using-environment-variables>`__ environment variables in POSIX format: using only uppercase letters and ``_``, and including a dollar sign and curly brackets around the name, like ``${API_TOKEN}``.
 
 .. note::
 
    Environment variable expansion is only supported in ``requirements.txt`` files.
    If your project uses ``pyproject.toml``,
-   neither pip nor uv support expanding environment variables in that format.
+   pip does not support expanding environment variables in that format.
    Use a ``requirements.txt`` file for installing private dependencies instead.
 
 See :doc:`using environment variables in Read the Docs </environment-variables>` for more information.
@@ -88,7 +88,7 @@ Here ``BITBUCKET_USER`` is your Bitbucket user.
 From a repository manager other than PyPI
 -----------------------------------------
 
-By default pip and uv install your packages from `PyPI <https://pypi.org/>`__.
+By default Pip installs your packages from `PyPI <https://pypi.org/>`__.
 If you are using a different repository manager like *pypiserver*, or *Nexus Repository*,
 you need to get the index URL from your repository manager and set the :option:`pip:--index-url` option in one of the following ways:
 

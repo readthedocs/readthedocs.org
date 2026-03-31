@@ -138,7 +138,7 @@ You can also set your project documentation to install your Python project itsel
 How do I install private dependencies if my package uses pyproject.toml?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Neither pip nor uv support environment variable expansion in ``pyproject.toml`` files.
+Pip does not support environment variable expansion in ``pyproject.toml`` files.
 If your project has private dependencies that require authentication tokens,
 you will need to use a ``requirements.txt`` file instead.
 
