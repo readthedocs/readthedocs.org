@@ -544,7 +544,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 if (version_404.slug, tryfile) not in available_404_files:
                     continue
 
-                storage_filename_path = version.get_storage_path(
+                storage_filename_path = version_404.get_storage_path(
                     media_type=MEDIA_TYPE_HTML,
                     filename=tryfile,
                 )

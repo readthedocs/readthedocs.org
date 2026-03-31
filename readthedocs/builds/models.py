@@ -568,7 +568,7 @@ class Version(TimeStampedModel):
         if self.is_external:
             path = f"{EXTERNAL}/{media_type}"
 
-        # Version slug may come from an unstrusted input,
+        # Version slug may come from an untrusted input,
         # so we use join to avoid any path traversal.
         # All other values are already validated.
         path = build_media_storage.join(f"{path}/{self.project.slug}", version_slug)
@@ -594,8 +594,8 @@ class Version(TimeStampedModel):
             raise ValueError("Invalid type for downloadable file.")
 
         extension = media_type.replace("htmlzip", "zip")
-        filenane = f"{self.project.slug}.{extension}"
-        return self.get_storage_path(media_type=media_type, filename=filenane)
+        filename = f"{self.project.slug}.{extension}"
+        return self.get_storage_path(media_type=media_type, filename=filename)
 
 
 class APIVersion(Version):
