@@ -24,7 +24,7 @@ Where ``version`` can be a tag, a branch, or a commit, and ``token`` is a person
 
 To install a private package from a Git repositories, add the URI to your :ref:`requirements file <config-file/v2:Requirements file>`. Make sure to use an environment variable for the token, so you don't have to hard code it in the URI.
 
-`Pip <https://pip.pypa.io/en/stable/reference/requirements-file-format/#using-environment-variables>`__ and `uv <https://docs.astral.sh/uv/pip/compatibility/#environment-variables-in-requirements-files>`__ automatically expand environment variables in POSIX format: using only uppercase letters and ``_``, and including a dollar sign and curly brackets around the name, like ``${API_TOKEN}``.
+`Pip <https://pip.pypa.io/en/stable/reference/requirements-file-format/#using-environment-variables>`__ and `uv <https://docs.astral.sh/uv/>`__ automatically expand environment variables in POSIX format: using only uppercase letters and ``_``, and including a dollar sign and curly brackets around the name, like ``${API_TOKEN}``.
 
 .. note::
 
