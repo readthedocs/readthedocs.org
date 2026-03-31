@@ -96,20 +96,16 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
     def _get_page_content_from_storage(self, version, filename):
         # Decode encoded URLs (e.g. convert %20 into a whitespace)
         filename = urllib.parse.unquote(filename)
-        file_path = version.get_storage_path(
-            media_type=MEDIA_TYPE_HTML,
-            filename=filename,
-        )
-        index_file_path = version.get_storage_path(
-            media_type=MEDIA_TYPE_HTML, filename=build_media_storage.join(filename, "index.html")
-        )
-        tryfiles = [file_path, index_file_path]
+        tryfiles = [filename, build_media_storage.join(filename, "index.html")]
         for tryfile in tryfiles:
+            storage_file_path = version.get_storage_path(
+                media_type=MEDIA_TYPE_HTML, filename=tryfile
+            )
             try:
-                with build_media_storage.open(tryfile) as fd:
+                with build_media_storage.open(storage_file_path) as fd:
                     return fd.read()
             except Exception:  # noqa
-                log.warning("Unable to read file.", file_path=file_path)
+                log.warning("Unable to read file.", file_path=storage_file_path)
 
         return None
 

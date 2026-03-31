@@ -107,6 +107,22 @@ class TestProject(ProjectMixin, TestCase):
             ProjectConfigurationError.MULTIPLE_CONF_FILES,
         )
 
+    def test_get_storage_paths(self):
+        assert self.pip.get_storage_paths() == [
+            "html/pip",
+            "pdf/pip",
+            "epub/pip",
+            "htmlzip/pip",
+            "json/pip",
+            "diff/pip",
+            "external/html/pip",
+            "external/pdf/pip",
+            "external/epub/pip",
+            "external/htmlzip/pip",
+            "external/json/pip",
+            "external/diff/pip",
+        ]
+
     def test_get_storage_path(self):
         for type_ in MEDIA_TYPES:
             self.assertEqual(
