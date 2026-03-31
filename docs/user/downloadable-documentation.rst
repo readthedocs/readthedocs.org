@@ -46,11 +46,9 @@ Examples
 If you want to see an example,
 you can download the Read the Docs documentation in the following formats:
 
-    * `PDF`_
     * `ePub`_
     * `Zipped HTML`_
 
-.. _PDF: https://docs.readthedocs.io/_/downloads/en/latest/pdf/
 .. _ePub: https://docs.readthedocs.io/_/downloads/en/latest/epub/
 .. _Zipped HTML: https://docs.readthedocs.io/_/downloads/en/latest/htmlzip/
 

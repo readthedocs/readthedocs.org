@@ -30,7 +30,7 @@ commands:
           command: cat requirements/*.txt > requirements-cache-key.txt
 
   skip-if-docs-only:
-    description: Halt the job if only docs/ files changed (PR branches only)
+    description: Halt the job if only docs/ files changed
     steps:
       - run:
           name: Skip tests if only docs changed
@@ -43,7 +43,8 @@ commands:
             # Compare against the merge base with main to find changed files.
             changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
             if [ -z "$changed_files" ]; then
-              echo "No changed files detected — running tests."
+              echo "No changed files detected — skipping tests."
+              circleci-agent step halt
               exit 0
             fi
             # grep -v returns exit code 1 when all lines match, so || true
