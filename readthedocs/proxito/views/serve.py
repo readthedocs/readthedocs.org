@@ -12,7 +12,6 @@ from django.shortcuts import render
 from django.views import View
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import Resolver
@@ -23,6 +22,7 @@ from readthedocs.core.unresolver import TranslationWithoutVersionError
 from readthedocs.core.unresolver import VersionNotFoundError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain
@@ -173,11 +173,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
     def serve_path(self, request, path):
         unresolved_domain = request.unresolved_domain
-
-        # We force all storage calls to use the external versions storage,
-        # since we are serving an external version.
-        if unresolved_domain.is_from_external_domain:
-            self.version_type = EXTERNAL
 
         # 404 errors aren't contextualized here because all 404s use the internal nginx redirect,
         # where the path will be 'unresolved' again when handling the 404 error
@@ -390,14 +385,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         structlog.contextvars.bind_contextvars(proxito_path=proxito_path)
         log.debug("Executing 404 handler.")
         unresolved_domain = request.unresolved_domain
-        # We force all storage calls to use the external versions storage,
-        # since we are serving an external version.
-        # The version that results from the unresolve_path() call already is
-        # validated to use the correct manager, this is here to add defense in
-        # depth against serving the wrong version.
-        if unresolved_domain.is_from_external_domain:
-            self.version_type = EXTERNAL
-
         project = None
         version = None
         # If we weren't able to resolve a filename,
@@ -557,13 +544,10 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 if (version_404.slug, tryfile) not in available_404_files:
                     continue
 
-                storage_root_path = project.get_storage_path(
-                    type_="html",
-                    version_slug=version_404.slug,
-                    include_file=False,
-                    version_type=self.version_type,
+                storage_filename_path = version.get_storage_path(
+                    media_type=MEDIA_TYPE_HTML,
+                    filename=tryfile,
                 )
-                storage_filename_path = build_media_storage.join(storage_root_path, tryfile)
                 log.debug(
                     "Serving custom 404.html page.",
                     version_slug_404=version_404.slug,

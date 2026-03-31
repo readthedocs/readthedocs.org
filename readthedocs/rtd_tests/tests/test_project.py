@@ -38,6 +38,8 @@ class ProjectMixin:
     def setUp(self):
         self.client.login(username="eric", password="test")
         self.pip = Project.objects.get(slug="pip")
+        self.pip.save()
+        self.version = self.pip.versions.get(slug=LATEST)
         # Create a External Version. ie: pull/merge request Version.
         self.external_version = get(
             Version,
@@ -108,59 +110,51 @@ class TestProject(ProjectMixin, TestCase):
     def test_get_storage_path(self):
         for type_ in MEDIA_TYPES:
             self.assertEqual(
-                self.pip.get_storage_path(type_, LATEST, include_file=False),
+                self.version.get_storage_path(type_),
                 f"{type_}/pip/latest",
             )
         self.assertEqual(
-            self.pip.get_storage_path(MEDIA_TYPE_PDF, LATEST),
+            self.version.get_download_storage_path(MEDIA_TYPE_PDF),
             "pdf/pip/latest/pip.pdf",
         )
         self.assertEqual(
-            self.pip.get_storage_path(MEDIA_TYPE_EPUB, LATEST),
+            self.version.get_download_storage_path(MEDIA_TYPE_EPUB),
             "epub/pip/latest/pip.epub",
         )
         self.assertEqual(
-            self.pip.get_storage_path(MEDIA_TYPE_HTMLZIP, LATEST),
+            self.version.get_download_storage_path(MEDIA_TYPE_HTMLZIP),
             "htmlzip/pip/latest/pip.zip",
         )
 
     def test_get_storage_path_invalid_inputs(self):
         # Invalid type.
         with pytest.raises(ValueError):
-            self.pip.get_storage_path("foo")
+            self.version.get_storage_path("foo")
 
         # Trying to get a file from a non-downloadable type.
         with pytest.raises(ValueError):
-            self.pip.get_storage_path(MEDIA_TYPE_HTML, include_file=True)
+            self.version.get_download_storage_path(MEDIA_TYPE_HTML)
 
         # Trying path traversal.
         with pytest.raises(ValueError):
-            self.pip.get_storage_path(
-                MEDIA_TYPE_HTML, version_slug="../sneaky/index.html", include_file=False
-            )
+            self.version.get_storage_path(MEDIA_TYPE_HTML, version_slug="../sneaky/index.html")
 
     def test_get_storage_path_for_external_versions(self):
         self.assertEqual(
-            self.pip.get_storage_path(
+            self.external_version.get_download_storage_path(
                 "pdf",
-                self.external_version.slug,
-                version_type=self.external_version.type,
             ),
             "external/pdf/pip/99/pip.pdf",
         )
         self.assertEqual(
-            self.pip.get_storage_path(
+            self.external_version.get_download_storage_path(
                 "epub",
-                self.external_version.slug,
-                version_type=self.external_version.type,
             ),
             "external/epub/pip/99/pip.epub",
         )
         self.assertEqual(
-            self.pip.get_storage_path(
+            self.external_version.get_download_storage_path(
                 "htmlzip",
-                self.external_version.slug,
-                version_type=self.external_version.type,
             ),
             "external/htmlzip/pip/99/pip.zip",
         )
