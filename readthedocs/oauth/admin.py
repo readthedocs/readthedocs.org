@@ -1,6 +1,8 @@
 """Admin configuration for the OAuth app."""
 
+from django import urls
 from django.contrib import admin
+from django.utils.html import format_html
 
 from .models import GitHubAppInstallation
 from .models import RemoteOrganization
@@ -25,6 +27,7 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
     readonly_fields = (
         "created",
         "modified",
+        "remote_repository_relations",
     )
     raw_id_fields = ("organization", "github_app_installation")
     list_select_related = ("organization",)
@@ -37,6 +40,8 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
         "name",
         "full_name",
         "remote_id",
+        "projects__slug",
+        "projects__name",
     )
     list_display = (
         "id",
@@ -47,6 +52,29 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
         "get_vcs_provider_display",
         "get_vcs_display",
     )
+
+    @admin.display(description="Remote repository relations")
+    def remote_repository_relations(self, obj):
+        """Link to relation objects filtered to this remote repository."""
+        if not obj.pk:
+            return "-"
+
+        url = urls.reverse(
+            "admin:{}_{}_changelist".format(
+                RemoteRepositoryRelation._meta.app_label,
+                RemoteRepositoryRelation._meta.model_name,
+            ),
+        )
+        relation_count = obj.remote_repository_relations.count()
+        relation_label = "relation" if relation_count == 1 else "relations"
+        return format_html(
+            '<a href="{}?{}={}">{} remote repository {}</a>',
+            url,
+            "remote_repository__id__exact",
+            obj.pk,
+            relation_count,
+            relation_label,
+        )
 
 
 @admin.register(RemoteOrganization)
@@ -99,6 +127,13 @@ class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
     list_filter = (
         "remote_repository__vcs_provider",
         "admin",
+    )
+    search_fields = (
+        "remote_repository__name",
+        "remote_repository__full_name",
+        "remote_repository__remote_id",
+        "remote_repository__projects__slug",
+        "remote_repository__projects__name",
     )
 
     def vcs_provider(self, obj):
