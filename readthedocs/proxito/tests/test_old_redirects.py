@@ -1482,6 +1482,119 @@ class UserForcedRedirectBeforeSystemRedirectTests(BaseDocServing):
         self.assertEqual(r.status_code, 301)
         self.assertEqual(r["Location"], "https://example.com/")
 
+    def test_exact_forced_wildcard_redirect_catches_translation_paths(self):
+        """
+        A forced wildcard redirect on the main project should catch
+        translation paths like /es/latest/ before the system redirect.
+        """
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="https://newdocs.example.com/:splat",
+            force=True,
+        )
+        r = self.client.get(
+            "/es/latest/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://newdocs.example.com/es/latest/install.html",
+        )
+
+    def test_exact_forced_wildcard_redirect_catches_translation_root(self):
+        """
+        A forced wildcard redirect on the main project should catch
+        the translation root path /es/ (which normally system-redirects
+        to /es/latest/) before the system redirect.
+        """
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="https://newdocs.example.com/:splat",
+            force=True,
+        )
+        r = self.client.get(
+            "/es/", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://newdocs.example.com/es/",
+        )
+
+    def test_exact_forced_wildcard_redirect_catches_subproject_paths(self):
+        """
+        A forced wildcard redirect on the main project should catch
+        subproject paths like /projects/subproject/en/latest/.
+        """
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="https://newdocs.example.com/:splat",
+            force=True,
+        )
+        r = self.client.get(
+            "/projects/subproject/en/latest/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://newdocs.example.com/projects/subproject/en/latest/install.html",
+        )
+
+    def test_exact_forced_wildcard_redirect_catches_subproject_root(self):
+        """
+        A forced wildcard redirect on the main project should catch
+        the subproject root path /projects/subproject/ (which normally
+        system-redirects to /projects/subproject/en/latest/).
+        """
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="https://newdocs.example.com/:splat",
+            force=True,
+        )
+        r = self.client.get(
+            "/projects/subproject/",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://newdocs.example.com/projects/subproject/",
+        )
+
+    def test_subproject_redirect_not_affected_by_main_project_non_wildcard(self):
+        """
+        A forced exact redirect on the main project for a specific path
+        should NOT match subproject paths.
+        """
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="https://example.com/install.html",
+            force=True,
+        )
+        # The subproject path should not be affected by the main project's redirect.
+        r = self.client.get(
+            "/projects/subproject/en/latest/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 200)
+
 
 @override_settings(
     PYTHON_MEDIA=True,
