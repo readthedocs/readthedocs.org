@@ -67,21 +67,10 @@ jobs:
       - restore_cache:
           keys:
             - pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
-            - pip-tests-v1-
-      - run:
-          name: Install rclone
-          command: |
-            if command -v rclone &> /dev/null; then
-              echo "rclone already installed (from cache)"
-            else
-              curl -sSL https://downloads.rclone.org/rclone-current-linux-amd64.zip -o /tmp/rclone.zip
-              unzip -o /tmp/rclone.zip -d /tmp
-              cp /tmp/rclone-*-linux-amd64/rclone ~/.local/bin/
-              chmod +x ~/.local/bin/rclone
-              rm -rf /tmp/rclone*
-            fi
+      - run: sudo apt update
+      - run: sudo apt install -y rclone
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
-      - run: pip install --user uv==0.8.17 tox tox-uv
+      - run: pip install --user tox tox-uv
       - run: tox -e py312
       - save_cache:
           key: pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
@@ -89,7 +78,8 @@ jobs:
             - ~/.local/lib
             - ~/.local/bin
             - .tox
-      - codecov/upload
+      - codecov/upload:
+          flags: tests
 
   tests-search:
     # Search tests — needs Elasticsearch sidecar.
@@ -111,8 +101,7 @@ jobs:
       - restore_cache:
           keys:
             - pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
-            - pip-search-v1-
-      - run: pip install --user uv==0.8.17 tox tox-uv
+      - run: pip install --user tox tox-uv
       - run: tox -e search
       - save_cache:
           key: pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
@@ -120,7 +109,8 @@ jobs:
             - ~/.local/lib
             - ~/.local/bin
             - .tox
-      - codecov/upload
+      - codecov/upload:
+          flags: search
 
   tests-proxito:
     # Proxito tests — uses readthedocs.settings.proxito.test Django settings.
@@ -135,8 +125,7 @@ jobs:
       - restore_cache:
           keys:
             - pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
-            - pip-proxito-v1-
-      - run: pip install --user uv==0.8.17 tox tox-uv
+      - run: pip install --user tox tox-uv
       - run: tox -e proxito
       - save_cache:
           key: pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
@@ -144,7 +133,8 @@ jobs:
             - ~/.local/lib
             - ~/.local/bin
             - .tox
-      - codecov/upload
+      - codecov/upload:
+          flags: proxito
 
   tests-embedapi:
     # Embed API tests — tests against 6 Sphinx versions.
@@ -157,7 +147,6 @@ jobs:
       - restore_cache:
           keys:
             - pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
-            - pip-embedapi-v1-
       - run: pip install --user 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
@@ -183,7 +172,7 @@ jobs:
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: pip install --user uv==0.8.17 tox tox-uv
+      - run: pip install --user tox tox-uv
       - run: tox -e pre-commit
       - run: tox -e migrations
       - save_cache:
