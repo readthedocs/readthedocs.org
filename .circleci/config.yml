@@ -43,8 +43,7 @@ commands:
             # Compare against the merge base with main to find changed files.
             changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
             if [ -z "$changed_files" ]; then
-              echo "No changed files detected — skipping tests."
-              circleci-agent step halt
+              echo "No changed files detected — running tests."
               exit 0
             fi
             # grep -v returns exit code 1 when all lines match, so || true
