@@ -70,7 +70,7 @@ class BuildListFilter(ModelFilterSet):
         return (
             self.project.versions(manager=INTERNAL)
             .public(user=self.request.user)
-            .sort_version_aware()
+            .sort_version_aware_naive()
         )
 
     def get_state(self, queryset, _, value):

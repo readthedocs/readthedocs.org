@@ -151,12 +151,14 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
             .distinct()
         )
 
-    def sort_version_aware(self):
+    def sort_version_aware_naive(self):
         """
         Order versions with "latest" first, "stable" second, then alphabetically.
 
-        This provides a user-friendly default ordering for version lists,
-        ensuring special versions appear at the top.
+        This is a naive SQL-level approximation of the full version-aware
+        sorting (which requires Python-level semantic version parsing).
+        It ensures special versions appear at the top, but does not handle
+        semantic version ordering (e.g. 1.9 vs 1.10).
         """
         return self.order_by(
             Case(

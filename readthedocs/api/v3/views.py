@@ -385,7 +385,7 @@ class VersionsViewSet(
         Orders results with "latest" first, "stable" second,
         then remaining versions in ascending alphabetical order.
         """
-        return super().get_queryset().exclude(type=EXTERNAL).sort_version_aware()
+        return super().get_queryset().exclude(type=EXTERNAL).sort_version_aware_naive()
 
 
 class BuildsViewSet(
