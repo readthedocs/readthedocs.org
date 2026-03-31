@@ -179,6 +179,27 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         if unresolved_domain.is_from_external_domain:
             self.version_type = EXTERNAL
 
+        # Check for forced redirects before system redirects.
+        # This allows users to redirect the entire project (e.g., "/" -> "https://other-domain.com/")
+        # without the system redirect (e.g., "/" -> "/en/latest/") taking precedence.
+        # At this point we don't have the resolved language/version/filename,
+        # so only exact redirects will be matched.
+        if not unresolved_domain.is_from_external_domain:
+            try:
+                redirect_response = self.get_redirect_response(
+                    request=request,
+                    project=unresolved_domain.project,
+                    language=None,
+                    version_slug=None,
+                    filename="",
+                    path=path,
+                    forced_only=True,
+                )
+                if redirect_response:
+                    return redirect_response
+            except InfiniteRedirectException:
+                pass
+
         # 404 errors aren't contextualized here because all 404s use the internal nginx redirect,
         # where the path will be 'unresolved' again when handling the 404 error
         # See: ServeError404Base

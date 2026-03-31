@@ -1050,9 +1050,11 @@ class UserForcedRedirectTests(BaseDocServing):
         """
         Test prefix redirect.
 
-        Prefix redirects don't match a version,
-        so they will return 404, and the redirect will
-        be handled there.
+        Forced exact redirects with wildcards are now matched
+        before system redirects, so they return a redirect
+        instead of a 404.
+
+        See: https://github.com/readthedocs/readthedocs.org/issues/10314
         """
         fixture.get(
             Redirect,
@@ -1065,7 +1067,11 @@ class UserForcedRedirectTests(BaseDocServing):
         r = self.client.get(
             "/woot/install.html", headers={"host": "project.dev.readthedocs.io"}
         )
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/install.html",
+        )
 
     def test_infinite_redirect(self):
         host = "project.dev.readthedocs.io"
@@ -1350,6 +1356,130 @@ class UserForcedRedirectTests(BaseDocServing):
         )
         r = self.client.get("/", headers={"host": "project.dev.readthedocs.io"})
         self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/")
+
+
+@override_settings(PUBLIC_DOMAIN="dev.readthedocs.io")
+class UserForcedRedirectBeforeSystemRedirectTests(BaseDocServing):
+    """
+    Test that forced redirects are checked before system redirects.
+
+    This ensures users can redirect entire projects to another domain
+    without the system redirect (e.g., / -> /en/latest/) taking precedence.
+
+    See: https://github.com/readthedocs/readthedocs.org/issues/10314
+    """
+
+    def test_exact_forced_redirect_from_root_to_external_domain(self):
+        """An exact forced redirect from / should take priority over the system redirect to /en/latest/."""
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/",
+            to_url="https://example.com/",
+            force=True,
+        )
+        r = self.client.get("/", headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/")
+
+    def test_exact_forced_redirect_with_wildcard_from_root_to_external_domain(self):
+        """An exact forced wildcard redirect from /* should match / before the system redirect."""
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="https://example.com/:splat",
+            force=True,
+        )
+        r = self.client.get("/", headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/")
+
+    def test_exact_forced_redirect_with_wildcard_matches_subpaths(self):
+        """An exact forced wildcard redirect from /* should also match subpaths like /en/latest/."""
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="https://example.com/:splat",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"], "https://example.com/en/latest/install.html"
+        )
+
+    def test_exact_forced_redirect_from_translation_path(self):
+        """
+        An exact forced redirect from a translation path (e.g. /en/)
+        should take priority over the system redirect to /en/latest/.
+        """
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en",
+            to_url="https://example.com/en/",
+            force=True,
+        )
+        r = self.client.get("/en/", headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/en/")
+
+    def test_non_forced_redirect_does_not_override_system_redirect(self):
+        """A non-forced exact redirect from / should NOT take priority over the system redirect."""
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/",
+            to_url="https://example.com/",
+            force=False,
+        )
+        r = self.client.get("/", headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/",
+        )
+
+    def test_exact_forced_redirect_with_query_params(self):
+        """An exact forced redirect from / should preserve query parameters."""
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/",
+            to_url="https://example.com/",
+            force=True,
+        )
+        r = self.client.get(
+            "/?foo=bar", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "https://example.com/?foo=bar")
+
+    def test_exact_forced_redirect_with_301_status(self):
+        """An exact forced redirect from / with 301 status should return 301."""
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/",
+            to_url="https://example.com/",
+            http_status=301,
+            force=True,
+        )
+        r = self.client.get("/", headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 301)
         self.assertEqual(r["Location"], "https://example.com/")
 
 
