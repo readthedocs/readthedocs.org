@@ -2112,6 +2112,7 @@ class TestBuildConfigV2:
         install = build.python.install
         assert len(install) == 1
         assert isinstance(install[0], UvInstall)
+        assert install[0].command == "sync"
         assert install[0].path == "."
 
     def test_python_install_uv_sync_with_groups(self, tmpdir):
@@ -2132,6 +2133,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
+        assert install[0].command == "sync"
         assert install[0].groups == ["docs", "dev"]
 
     def test_python_install_uv_sync_with_groups_all(self, tmpdir):
@@ -2152,6 +2154,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
+        assert install[0].command == "sync"
         assert install[0].groups == ALL
 
     def test_python_install_uv_sync_with_extras(self, tmpdir):
@@ -2172,6 +2175,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
+        assert install[0].command == "sync"
         assert install[0].extras == ["docs", "tests"]
 
     def test_python_install_uv_sync_with_extras_all(self, tmpdir):
@@ -2192,6 +2196,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
+        assert install[0].command == "sync"
         assert install[0].extras == ALL
 
     def test_python_install_uv_pip_with_extras(self, tmpdir):
@@ -2213,6 +2218,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
+        assert install[0].command == "pip"
         assert install[0].extras == ["docs"]
 
     def test_python_install_uv_command_required(self, tmpdir):
