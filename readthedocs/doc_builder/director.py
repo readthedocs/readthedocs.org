@@ -830,11 +830,13 @@ class BuildDirector:
             )
 
         if self.data.config.is_using_uv:
+            try:
+                UV_PROJECT = self.data.config.python.install[0].path
+            except (AttributeError, IndexError):
+                UV_PROJECT = self.data.project.checkout_path(self.data.version.slug)
             env.update(
                 {
-                    "UV_PROJECT": self.data.config.python.install[0].path
-                    if self.data.config.python.install
-                    else self.data.project.checkout_path(self.data.version.slug),
+                    "UV_PROJECT": UV_PROJECT,
                     "UV_PYTHON": self.UV_PYTHON,
                     # UV_PROJECT_ENVIRONMENT is the same as READTHEDOCS_VIRTUALENV_PATH
                     "UV_PROJECT_ENVIRONMENT": os.path.join(
