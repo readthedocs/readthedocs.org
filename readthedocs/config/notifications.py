@@ -158,7 +158,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            The name of the package <code>{{pacakge}}</code> is invalid.
+            The name of the package <code>{{package}}</code> is invalid.
             """
             ).strip(),
         ),

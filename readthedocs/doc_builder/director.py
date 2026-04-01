@@ -356,7 +356,7 @@ class BuildDirector:
             return
 
         # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
+        # as the commands are provided by the user.
         if self.data.config.doctype == GENERIC:
             return
 
@@ -369,7 +369,7 @@ class BuildDirector:
             return
 
         # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
+        # as the commands are provided by the user.
         if self.data.config.doctype == GENERIC:
             return
 
@@ -675,7 +675,7 @@ class BuildDirector:
                 ]
             ):
                 # We cap setuptools to avoid breakage of projects
-                # relying on setup.py invokations,
+                # relying on setup.py invocations,
                 # see https://github.com/readthedocs/readthedocs.org/issues/8659
                 setuptools_version = (
                     "setuptools<58.3.0"
@@ -708,7 +708,7 @@ class BuildDirector:
         process.
         """
         # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
+        # as the commands are provided by the user.
         if builder_class == GENERIC:
             return
 

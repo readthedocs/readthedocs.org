@@ -327,7 +327,7 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED,
-        header=_("Your project is outputing files in an old directory"),
+        header=_("Your project is outputting files in an old directory"),
         body=_(
             textwrap.dedent(
                 """

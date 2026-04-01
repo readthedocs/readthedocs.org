@@ -792,7 +792,7 @@ class CommunityBaseSettings(Settings):
 
     def _get_build_memory_limit(self):
         """
-        Return the buld memory limit based on available system memory.
+        Return the build memory limit based on available system memory.
 
         We subtract ~1000Mb for overhead of processes and base system, and set
         the build time as proportional to the memory limit.
@@ -966,7 +966,7 @@ class CommunityBaseSettings(Settings):
     ES_TASK_CHUNK_SIZE = 500
 
     # The number of shards depends on the size of the data, 30GB per shard is a good rule to follow.
-    # Everytime we need to do a re-index, make sure to check the size of the index and adjust the
+    # Every time we need to do a re-index, make sure to check the size of the index and adjust the
     # number of shards if needed (change on ops repos). This is a static setting, it can't be changed
     # after the index is created. In case a change is needed, a new index must be created and data
     # reindexed. The number of replicas can be changed dynamically, one replica is a good default.

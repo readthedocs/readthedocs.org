@@ -566,7 +566,7 @@ class TestOrganizationTeamMemberFilterSet(OrganizationFilterTestCase):
         indirect=True,
     )
     def test_team_filter_choices(self, user, organization, teams):
-        """Team filter choices limited to organization teams with permisisons."""
+        """Team filter choices limited to organization teams with permissions."""
         filter = self.get_filterset_for_user(
             user,
             organization=organization,
