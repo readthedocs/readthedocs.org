@@ -17,6 +17,11 @@ Build status report
     request's checks. This status will update as the build is running, and will
     show a success or failure status when the build completes.
 
+    For GitLab, build status reporting only works for merge requests opened from
+    branches in the same repository. Merge requests opened from forks will still
+    trigger builds, but Read the Docs can't report the build status back to
+    GitLab.
+
     .. figure:: /_static/images/github-build-status-reporting.gif
        :align: center
        :alt: GitHub build status reporting for pull requests.

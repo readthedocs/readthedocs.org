@@ -55,6 +55,8 @@ Limitations
 - To enable this feature, your Read the Docs project needs to be connected to a repository from a supported Git provider.
 - If your project is using our :ref:`reference/git-integration:GitHub App`, you don't need to configure a webhook.
   For GitLab, and projects using our old GitHub integration, you need to make sure that your webhook is configured to send pull request events, not just push events.
+- For GitLab, Read the Docs can only report build status for merge requests opened from branches in the same repository.
+  Merge requests opened from forks will still build, but their build status won't be reported back to GitLab.
 - Builds from pull requests have the same memory and time limitations
   :doc:`as regular builds </builds>`.
 - Additional formats like PDF aren't built in order to reduce build time.
@@ -93,6 +95,10 @@ Build status is not being reported to your Git provider
    If opening a pull request does start a new build, but the build status is not
    being updated with your Git provider, then your connected account may have out
    dated or insufficient permissions.
+
+   On GitLab, this is also expected for merge requests opened from forks.
+   Read the Docs will still build the preview, but it can't report the build
+   status back to the forked merge request.
 
    Make sure that you have granted access to the Read the Docs `GitHub OAuth App`_ for
    your personal or organization GitHub account.

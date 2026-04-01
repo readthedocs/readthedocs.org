@@ -110,6 +110,10 @@ Using the secret token,
 we can automatically configure repositories during :doc:`project creation </intro/add-project>`.
 We also use the token to send back build statuses and preview URLs for :doc:`pull requests </pull-requests>`.
 
+For GitLab, build status reporting only works for merge requests opened from
+branches in the same repository. Merge requests opened from forks will still
+trigger builds, but Read the Docs can't report the build status back to GitLab.
+
 .. _OAuth: https://en.wikipedia.org/wiki/OAuth
 
 .. note::
