@@ -2,7 +2,12 @@
 
 import os
 
+import structlog
+
 from .exceptions import ConfigValidationError
+
+
+log = structlog.get_logger(__name__)
 
 
 def validate_list(value):
@@ -39,6 +44,15 @@ def validate_choice(value, choices):
     """Check that ``value`` is in ``choices``."""
     choices = validate_list(choices)
     if value not in choices:
+        log.info(
+            "Invalid choice for %(key)s: %(value)s. Choices are: %(choices)s",
+            {
+                "key": "value",  # Replace with the actual key if available
+                "value": value,
+                "choices": ", ".join(map(str, choices)),
+            },
+        )
+
         raise ConfigValidationError(
             message_id=ConfigValidationError.INVALID_CHOICE,
             format_values={

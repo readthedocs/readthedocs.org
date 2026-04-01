@@ -291,7 +291,7 @@ class BuildConfigV2(BuildConfigBase):
         #  Invalid configuration key: python.install.0.method
         #  Make sure the key name python.install.0.method is correct.
         # I need to research more why this is happening
-        # self.validate_keys()
+        self.validate_keys()
 
     def validate_formats(self):
         """
@@ -508,7 +508,7 @@ class BuildConfigV2(BuildConfigBase):
         Validates the python key.
 
         validate_build should be called before this, since it initialize the
-        build.image attribute.
+        build attribute.
 
         .. note::
            - ``version`` can be a string or number type.
@@ -556,13 +556,12 @@ class BuildConfigV2(BuildConfigBase):
 
         # Detect which type of install this is: uv, requirements file, or path-based
         method = raw_install.get("method", PIP)
-        has_command = "command" in raw_install
         has_requirements = "requirements" in raw_install
         has_path = "path" in raw_install
 
         # Case 1: method: uv
-        if method == UV or has_command:
-            return self._validate_uv_install(index, key, raw_install)
+        if method == UV:
+            return self._validate_uv_install(key, raw_install)
 
         # Case 2: requirements file (legacy pip)
         if has_requirements:
@@ -589,7 +588,7 @@ class BuildConfigV2(BuildConfigBase):
             with self.catch_validation_error(method_key):
                 method = validate_choice(
                     self.pop_config(method_key, PIP),
-                    [PIP, SETUPTOOLS],
+                    [None, PIP, SETUPTOOLS, UV],
                 )
                 python_install["method"] = method
 
@@ -613,8 +612,10 @@ class BuildConfigV2(BuildConfigBase):
             },
         )
 
-    def _validate_uv_install(self, index, key, raw_install):
+    def _validate_uv_install(self, key, raw_install):
         """Validate a uv install entry."""
+        method_key = key + ".method"
+        self.pop_config(method_key)
         python_install = {"method": UV}
 
         # command is required
