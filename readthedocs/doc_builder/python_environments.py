@@ -258,11 +258,6 @@ class UvEnv(Virtualenv):
         :param install: A UvInstall object from the config module.
         :type install: readthedocs.config.models.UvInstall
         """
-        # TODO: these variables should from the BuildDirector when UV is used, so _all the commands_ make use of them.
-        # Set uv-specific environment variables
-        # UV_PYTHON points to the selected Python interpreter
-        # UV_PROJECT_ENVIRONMENT points to the virtualenv path
-        # UV_PROJECT points to the project directory if non-root
         if install.command == "sync":
             self._install_uv_sync(install)
         elif install.command == "pip":
@@ -296,9 +291,6 @@ class UvEnv(Virtualenv):
         """Execute uv pip install with appropriate flags."""
         args = ["uv", "pip", "install"]
 
-        # TODO: `uv pip install` cannot be used without a requirements file.
-        # However, the `python.install.requirements` config key is only used for pip installs, right?
-        # I need to confirm this.
         if install.requirements:
             args.extend(["-r", install.requirements])
         elif install.path and install.path != ".":
