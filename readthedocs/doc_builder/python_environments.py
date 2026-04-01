@@ -51,10 +51,6 @@ class PythonEnvironment:
             elif isinstance(install, UvInstall):
                 self.install_uv(install)
 
-    def has_uv_installs(self):
-        """Check if any uv installs are configured."""
-        return any(isinstance(install, UvInstall) for install in self.config.python.install)
-
     def install_uv(self, install):
         """
         Install using uv package manager.
