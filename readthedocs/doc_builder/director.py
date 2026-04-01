@@ -573,7 +573,6 @@ class BuildDirector:
                 record=False,
             )
 
-        # TODO: where we should put this?
         if self.data.config.is_using_uv:
             cmd = ["asdf", "plugin", "add", "uv"]
             self.build_environment.run(
@@ -590,6 +589,13 @@ class BuildDirector:
                 *cmd,
                 record=True,
             )
+            # Save the Python path under UV_PYTHON to define it as an environment variable
+            cmd = ["asdf", "which", "python"]
+            command = self.build_environment.run(
+                *cmd,
+                record=True,
+            )
+            self.UV_PYTHON = command.output.strip()
 
         build_tools_storage = get_storage(
             build_id=self.data.build["id"],
@@ -716,13 +722,6 @@ class BuildDirector:
                     *cmd,
                 )
 
-        cmd = ["asdf", "which", "python"]
-        command = self.build_environment.run(
-            *cmd,
-            record=True,
-        )
-        self.UV_PYTHON = command.output.strip()
-
     # Helpers
     #
     # TODO: move somewhere or change names to make them private or something to
@@ -817,15 +816,8 @@ class BuildDirector:
                     ),
                 }
             )
-        elif self.data.config.is_using_uv is not None:
-            if hasattr(self, "UV_PYTHON"):
-                env.update(
-                    {
-                        # TODO:
-                        # UV_PYTHON needs to execute this command inside the Docker container.
-                        "UV_PYTHON": self.UV_PYTHON,
-                    }
-                )
+
+        else:
             env.update(
                 {
                     "BIN_PATH": os.path.join(
@@ -834,10 +826,16 @@ class BuildDirector:
                         self.data.version.slug,
                         "bin",
                     ),
-                    # TODO: I'm not sure about this value here. I need to confirm by triggering some builds.
+                }
+            )
+
+        if self.data.config.is_using_uv:
+            env.update(
+                {
                     "UV_PROJECT": self.data.config.python.install[0].path
                     if self.data.config.python.install
                     else self.data.project.checkout_path(self.data.version.slug),
+                    "UV_PYTHON": self.UV_PYTHON,
                     # UV_PROJECT_ENVIRONMENT is the same as READTHEDOCS_VIRTUALENV_PATH
                     "UV_PROJECT_ENVIRONMENT": os.path.join(
                         self.data.project.doc_path,
@@ -849,12 +847,6 @@ class BuildDirector:
         else:
             env.update(
                 {
-                    "BIN_PATH": os.path.join(
-                        self.data.project.doc_path,
-                        "envs",
-                        self.data.version.slug,
-                        "bin",
-                    ),
                     "READTHEDOCS_VIRTUALENV_PATH": os.path.join(
                         self.data.project.doc_path, "envs", self.data.version.slug
                     ),
