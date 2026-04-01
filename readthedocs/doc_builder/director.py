@@ -836,7 +836,8 @@ class BuildDirector:
                     ),
                     # TODO: I'm not sure about this value here. I need to confirm by triggering some builds.
                     "UV_PROJECT": self.data.config.python.install[0].path
-                    or self.data.project.checkout_path(self.data.version.slug),
+                    if self.data.config.python.install
+                    else self.data.project.checkout_path(self.data.version.slug),
                     # UV_PROJECT_ENVIRONMENT is the same as READTHEDOCS_VIRTUALENV_PATH
                     "UV_PROJECT_ENVIRONMENT": os.path.join(
                         self.data.project.doc_path,
