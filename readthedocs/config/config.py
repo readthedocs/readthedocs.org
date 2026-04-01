@@ -287,10 +287,6 @@ class BuildConfigV2(BuildConfigBase):
         self._config["search"] = self.validate_search()
         if self.deprecate_implicit_keys:
             self.validate_deprecated_implicit_keys()
-        # Raises an error saying
-        #  Invalid configuration key: python.install.0.method
-        #  Make sure the key name python.install.0.method is correct.
-        # I need to research more why this is happening
         self.validate_keys()
 
     def validate_formats(self):
