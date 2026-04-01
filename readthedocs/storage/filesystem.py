@@ -1,7 +1,7 @@
 import shutil
-import structlog
 from functools import cached_property
 
+import structlog
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 
