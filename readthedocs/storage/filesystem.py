@@ -17,8 +17,7 @@ class RTDFileSystemStorage(RTDBaseStorage, FileSystemStorage):
     """
     Storage subclass that writes files to the local filesystem.
 
-    .. note:: Used as the default storage backend when no cloud provider is configured
-       (e.g. in development and testing). In production, cloud storage backends are used instead.
+    .. note:: This storage is used on tests only, and it is not used in production.
     """
 
     def __init__(self, location=None, allow_overwrite=False, **kwargs):
@@ -26,6 +25,7 @@ class RTDFileSystemStorage(RTDBaseStorage, FileSystemStorage):
         # This happens because we are creating storage instances dynamically in
         # readthedocs.projects.tasks.storage and we are passing the credentials
         # as kwargs, which are not used by FileSystemStorage.
+        # NOTE: this is used on tests only.
         super().__init__(location=location, allow_overwrite=allow_overwrite)
 
     @cached_property
