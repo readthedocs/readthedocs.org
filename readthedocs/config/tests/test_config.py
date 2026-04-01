@@ -2024,8 +2024,6 @@ class TestBuildConfigV2:
         }
         assert build.as_dict() == expected_dict
 
-    # Tests for uv install method support
-
     def test_python_install_uv_sync_valid(self, tmpdir):
         build = get_build_config(
             {
