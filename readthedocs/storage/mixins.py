@@ -34,8 +34,8 @@ class RTDBaseStorage:
             log.error(msg, path=str(path), resolved_path=str(resolved_path))
             raise SuspiciousFileOperation(msg)
 
-        docroot = Path(settings.DOCROOT).absolute()
-        if not path.is_relative_to(docroot):
+        docroot = Path(settings.DOCROOT).resolve()
+        if not resolved_path.is_relative_to(docroot):
             msg = "Suspicious operation outside the docroot directory."
             log.error(msg, path=str(path), resolved_path=str(resolved_path))
             raise SuspiciousFileOperation(msg)
@@ -64,7 +64,7 @@ class RTDBaseStorage:
 
         This is a generator that yields tuples of (dirpath, dirnames, filenames) for each directory in the tree.
 
-        Note tha dirpath is relative to the storage root, not absolute.
+        Note that dirpath is relative to the storage root, not absolute.
         """
         if path in ("", "/"):
             raise SuspiciousFileOperation("Iterating all storage cannot be right")
