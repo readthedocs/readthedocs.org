@@ -147,12 +147,24 @@ class CommunityTestSettings(CommunityBaseSettings):
             },
             "build-media": {
                 "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
+                "OPTIONS": {
+                    "location": self.MEDIA_ROOT,
+                    "allow_overwrite": True,
+                },
             },
             "build-commands": {
                 "BACKEND": self.RTD_BUILD_COMMANDS_STORAGE,
+                "OPTIONS": {
+                    "location": self.MEDIA_ROOT,
+                    "allow_overwrite": True,
+                },
             },
             "build-tools": {
                 "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
+                "OPTIONS": {
+                    "location": self.MEDIA_ROOT,
+                    "allow_overwrite": True,
+                },
             },
             "usercontent": {
                 "BACKEND": "django.core.files.storage.FileSystemStorage",
