@@ -117,6 +117,25 @@ class TestBuildMediaStorage(TestCase):
         self.assertEqual(dirs, [])
         self.assertEqual(files, [])
 
+    def test_walk(self):
+        with override_settings(DOCROOT=files_dir):
+            self.storage.rclone_sync_directory(files_dir, "files")
+
+        output = list(self.storage.walk("files"))
+        self.assertEqual(len(output), 2)
+
+        top, dirs, files = output[0]
+        self.assertEqual(top, "files")
+        self.assertCountEqual(dirs, ["api"])
+        self.assertCountEqual(
+            files, ["404.html", "api.fjson", "conf.py", "index.html", "test.html"]
+        )
+
+        top, dirs, files = output[1]
+        self.assertEqual(top, "files/api")
+        self.assertCountEqual(dirs, [])
+        self.assertCountEqual(files, ["index.html"])
+
     def test_rclone_sync(self):
         tmp_files_dir = Path(tempfile.mkdtemp()) / "files"
         shutil.copytree(files_dir, tmp_files_dir, symlinks=True)

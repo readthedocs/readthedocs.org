@@ -1,11 +1,16 @@
 import shutil
+import structlog
 from functools import cached_property
 
+from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 
 from readthedocs.storage.mixins import RTDBaseStorage
 from readthedocs.storage.rclone import RCloneLocal
 from readthedocs.storage.utils import safe_join
+
+
+log = structlog.get_logger(__name__)
 
 
 class RTDFileSystemStorage(RTDBaseStorage, FileSystemStorage):
@@ -28,8 +33,17 @@ class RTDFileSystemStorage(RTDBaseStorage, FileSystemStorage):
         return RCloneLocal(location=self.location)
 
     def delete_directory(self, path):
-        path = self.path(path)
-        shutil.rmtree(path, ignore_errors=True)
+        if path in ("", "/"):
+            raise SuspiciousFileOperation("Deleting all storage cannot be right")
+        log.debug("Deleting directory from filesystem storage", path=path)
+        abs_path = self.path(path)
+        try:
+            shutil.rmtree(abs_path)
+        except FileNotFoundError:
+            pass
+        except OSError:
+            log.exception("Error while deleting directory", path=abs_path)
+            raise
 
     def url(self, name, *args, **kwargs):
         """
