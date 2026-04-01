@@ -429,40 +429,36 @@ Take a look at the following example:
 Install dependencies with ``uv``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Projects managed with `uv <https://github.com/astral-sh/uv/>`__ can install `uv` with asdf,
-and then rely on it to set up the environment and install the python project and its dependencies.
-Read the Docs' own build steps expect it by setting the ``UV_PROJECT_ENVIRONMENT`` variable,
-usually reducing the time taken to install compared to pip.
+Read the Docs supports `uv <https://docs.astral.sh/uv/>`__ natively in
+``python.install``.
+For most uv-based projects, prefer the configuration file reference at
+:ref:`config-file/v2:python.install` instead of overriding ``build.jobs``.
 
-The following examples assumes a uv project as described in its
-`projects concept <https://docs.astral.sh/uv/concepts/projects/>`__. As an introduction
-refer to its `Working on projects guide <https://docs.astral.sh/uv/guides/projects/>`__.
-The ``docs`` dependency group which should is pulled in during the ``uv sync`` step (if additional
-extras are required they can be added with the `--extra attribute <https://docs.astral.sh/uv/concepts/projects/sync/#syncing-optional-dependencies>`__).
-
-If a ``uv.lock`` file exists it is respected.
+The following example uses ``uv sync`` with a dependency group named ``docs``.
+If a ``uv.lock`` file exists, it is respected.
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
 
    version: 2
 
+  build:
+    os: ubuntu-24.04
+    tools:
+      python: "3.13"
+
+  python:
+    install:
+      - method: uv
+        command: sync
+        groups:
+          - docs
+
    sphinx:
       configuration: docs/conf.py
 
-   build:
-      os: ubuntu-24.04
-      tools:
-         python: "3.13"
-      jobs:
-         pre_create_environment:
-            - asdf plugin add uv
-            - asdf install uv latest
-            - asdf global uv latest
-         create_environment:
-            - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
-         install:
-            - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
+Use ``build.jobs`` only when you need an advanced uv workflow that isn't covered by
+``python.install``, such as adding specific arguments to the ``uv`` command.
 
 Install dependencies from Dependency Groups
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
