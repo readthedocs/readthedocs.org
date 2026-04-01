@@ -29,11 +29,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.63
+boto3==1.42.73
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.63
+botocore==1.42.73
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -56,7 +56,7 @@ cffi==2.0.0
     #   -r requirements/pip.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.5
+charset-normalizer==3.4.6
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -180,7 +180,7 @@ django-timezone-field==7.2.1
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.16.1
+djangorestframework==3.17.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -213,7 +213,7 @@ fido2==2.1.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.25.0
+filelock==3.25.2
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -260,7 +260,7 @@ markdown==3.10.2
     # via -r requirements/pip.txt
 matplotlib-inline==0.2.1
     # via ipython
-newrelic==11.5.0
+newrelic==12.0.0
     # via -r requirements/deploy.in
 oauthlib==3.3.1
     # via
@@ -324,7 +324,7 @@ pygments==2.19.2
     #   -r requirements/pip.txt
     #   ipython
     #   ipython-pygments-lexers
-pyjwt[crypto]==2.11.0
+pyjwt[crypto]==2.12.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -345,7 +345,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.1.1
+python-discovery==1.2.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -391,7 +391,7 @@ s3transfer==0.16.0
     #   boto3
 selectolax==0.4.7
     # via -r requirements/pip.txt
-sentry-sdk==2.54.0
+sentry-sdk==2.55.0
     # via structlog-sentry
 six==1.17.0
     # via
@@ -490,7 +490,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.1.0
+virtualenv==21.2.0
     # via -r requirements/pip.txt
 wcwidth==0.6.0
     # via

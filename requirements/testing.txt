@@ -31,11 +31,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.63
+boto3==1.42.73
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.63
+botocore==1.42.73
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -57,7 +57,7 @@ cffi==2.0.0
     #   -r requirements/pip.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.5
+charset-normalizer==3.4.6
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -85,7 +85,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.13.4
+coverage[toml]==7.13.5
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
@@ -183,7 +183,7 @@ django-timezone-field==7.2.1
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.16.1
+djangorestframework==3.17.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -218,7 +218,7 @@ fido2==2.1.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.25.0
+filelock==3.25.2
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -324,7 +324,7 @@ pygments==2.19.2
     #   -r requirements/pip.txt
     #   pytest
     #   sphinx
-pyjwt[crypto]==2.11.0
+pyjwt[crypto]==2.12.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -342,7 +342,7 @@ pytest==9.0.2
     #   pytest-custom-exit-code
     #   pytest-django
     #   pytest-mock
-pytest-cov==7.0.0
+pytest-cov==7.1.0
     # via -r requirements/testing.in
 pytest-custom-exit-code==0.3.0
     # via -r requirements/testing.in
@@ -360,7 +360,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.1.1
+python-discovery==1.2.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -515,7 +515,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.1.0
+virtualenv==21.2.0
     # via -r requirements/pip.txt
 wcwidth==0.6.0
     # via
