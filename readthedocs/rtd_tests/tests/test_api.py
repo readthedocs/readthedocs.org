@@ -818,7 +818,7 @@ class APITests(TestCase):
         expected = (build_api_key_obj.expiry_date - timezone.now()).seconds
         self.assertAlmostEqual(expected, 86400, delta=5)
 
-        # Project with a custom containe time limit
+        # Project with a custom container time limit
         project.container_time_limit = 1200
         project.save()
         build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
