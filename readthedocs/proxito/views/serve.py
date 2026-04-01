@@ -882,7 +882,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixi
         version = project.versions.get(slug=version_slug)
         serve_custom_sitemap = all(
             [
-                version.privacy_level != PRIVATE,
+                version.is_public,
                 version.active,
                 version.built,
             ]

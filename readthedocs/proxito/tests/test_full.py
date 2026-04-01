@@ -1407,9 +1407,9 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(r.status_code, 404)
         storage_open.assert_not_called()
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_sitemap_xml(self, storage_open):
-        storage_open.return_value = False
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_xml(self, storage_exists):
+        storage_exists.return_value = False
         self.project.versions.update(active=True)
         private_version = fixture.get(
             Version,
@@ -1556,9 +1556,9 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.context["versions"][1]["priority"], 0.9)
         self.assertEqual(response.context["versions"][1]["changefreq"], "daily")
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_sitemap_all_private_versions(self, storage_open):
-        storage_open.return_value = False
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_all_private_versions(self, storage_exists):
+        storage_exists.return_value = False
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
