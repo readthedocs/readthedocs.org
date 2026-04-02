@@ -2,6 +2,7 @@
 #
 # Stage 1 (parallel):   checks, tests, tests-proxito
 # Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (6 Sphinx versions)
+# Stage 3:              coverage-report (combines and uploads to codecov)
 #
 # Stage 2 only runs after Stage 1 passes to avoid wasting resources
 # (especially the Elasticsearch sidecar) on broken builds.
@@ -60,7 +61,8 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=. --cov-append
+          COVERAGE_FILE: .coverage.tests
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov=.
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -78,8 +80,10 @@ jobs:
             - ~/.local/lib
             - ~/.local/bin
             - .tox
-      - codecov/upload:
-          flags: tests
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .coverage.tests
 
   tests-search:
     # Search tests — needs Elasticsearch sidecar.
@@ -87,7 +91,8 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=.
+          COVERAGE_FILE: .coverage.search
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov=.
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:9.3.1'
         name: search
         environment:
@@ -109,8 +114,10 @@ jobs:
             - ~/.local/lib
             - ~/.local/bin
             - .tox
-      - codecov/upload:
-          flags: search
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .coverage.search
 
   tests-proxito:
     # Proxito tests — uses readthedocs.settings.proxito.test Django settings.
@@ -118,7 +125,8 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=.
+          COVERAGE_FILE: .coverage.proxito
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov=.
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -133,8 +141,10 @@ jobs:
             - ~/.local/lib
             - ~/.local/bin
             - .tox
-      - codecov/upload:
-          flags: proxito
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .coverage.proxito
 
   tests-embedapi:
     # Embed API tests — tests against 6 Sphinx versions.
@@ -156,6 +166,23 @@ jobs:
             - ~/.local/lib
             - ~/.local/bin
             - .tox
+
+  coverage-report:
+    # Combines coverage from tests, tests-search, and tests-proxito,
+    # then uploads a single unified report to codecov.
+    docker:
+      - image: 'cimg/python:3.12'
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Combine coverage and generate report
+          command: |
+            pip install --user coverage
+            coverage combine .coverage.*
+            coverage xml
+      - codecov/upload
 
   checks:
     docker:
@@ -199,3 +226,9 @@ workflows:
             - checks
             - tests
             - tests-proxito
+      # Stage 3: combine coverage and upload to codecov
+      - coverage-report:
+          requires:
+            - tests
+            - tests-proxito
+            - tests-search
