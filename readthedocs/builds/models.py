@@ -25,6 +25,7 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATUS_CHOICES
 from readthedocs.builds.constants import BUILD_TYPES
+from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
@@ -1446,12 +1447,6 @@ class AutomationRule(TimeStampedModel):
         WEBHOOK_FILTER_FILE_PATTERN,
     )
 
-    WEBHOOK_FILTER_CHOICES = (
-        (WEBHOOK_FILTER_LABEL, _("Label")),
-        (WEBHOOK_FILTER_COMMIT_MESSAGE, _("Commit message")),
-        (WEBHOOK_FILTER_FILE_PATTERN, _("File pattern")),
-    )
-
     TIMEOUT = 1  # timeout in seconds for regex matching
 
     project = models.ForeignKey(
@@ -1501,29 +1496,33 @@ class AutomationRule(TimeStampedModel):
     )
 
     # Webhook filtering (optional)
-    webhook_filter = models.CharField(
-        _("Webhook filter"),
+    webhook_files_match_pattern = models.JSONField(
+        _("Webhook files match pattern"),
         help_text=_(
-            "Type of webhook filter to apply. "
-            "When None, version management actions are supported. "
-            "When set, only 'trigger build' action is supported."
-        ),
-        max_length=32,
-        choices=WEBHOOK_FILTER_CHOICES,
-        null=True,
-        blank=True,
-        default=None,
-    )
-
-    webhook_match_pattern = models.JSONField(
-        _("Webhook match pattern"),
-        help_text=_(
-            "Pattern to match against the webhook filter. "
-            "For file_pattern, one fnmatch patterns "
-            "For commit_message and label, use only regex patterns. "
-            "You can use one pattern per line."
+            "Pattern to match against the files changed in the webhook event. "
+            "Use fnmatch patterns (e.g., 'docs/*.md') and one pattern per line."
         ),
         max_length=1024,
+        null=True,
+        blank=True,
+    )
+    webhook_labels_match_pattern = models.CharField(
+        _("Webhook labels match pattern"),
+        help_text=_(
+            "Pattern to match against the labels in the webhook event. "
+            "Use a regex pattern to match against the labels (e.g., 'docs|build')."
+        ),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    webhook_commit_message_match_pattern = models.CharField(
+        _("Webhook commit message match pattern"),
+        help_text=_(
+            "Pattern to match against the commit message in the webhook event. "
+            "Use a regex pattern to match against the commit message (e.g., 'fix|feature')."
+        ),
+        max_length=255,
         null=True,
         blank=True,
     )
@@ -1588,10 +1587,12 @@ class AutomationRule(TimeStampedModel):
         # If a predefined match pattern is set, use it instead of the user-defined one.
         # This allows us to have common patterns defined by us that users can easily select
         # without needing to write regex themselves.
+        if self.version_predefined_match_pattern == CUSTOM_MATCH:
+            return self.version_match_pattern
         version_predefined_match_pattern = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
             self.version_predefined_match_pattern,
         )
-        return version_predefined_match_pattern or self.version_match_pattern
+        return version_predefined_match_pattern
 
     def match_version(self, version):
         """
@@ -1636,18 +1637,24 @@ class AutomationRule(TimeStampedModel):
         """
         Check if the webhook data matches this rule's webhook criteria.
 
+        All the webhook criteria that are set (files, commit message, labels)
+        must match for this to return True.
+
         :param changed_files: List of file paths that were modified/added/deleted
         :param commit_message: Commit message from the webhook event
         :param labels: List of labels from PR webhook event
-        :return: True if the webhook data matches, False otherwise
+        :return: True if all the webhook filter match, False otherwise
         """
-        # Handle different webhook filter types
-        if self.webhook_filter == self.WEBHOOK_FILTER_FILE_PATTERN:
-            if changed_files is None:
-                return False
-            # Use fnmatch matching for file paths
+
+        changed_files = changed_files or []
+        commit_message = commit_message or ""
+        labels = labels or []
+
+        # Use fnmatch matching for file paths
+        if self.webhook_files_match_pattern:
+            files_matched = False
             for file_path in changed_files:
-                for file_pattern in self.webhook_match_pattern:
+                for file_pattern in self.webhook_files_match_pattern:
                     if fnmatch.fnmatch(file_path, file_pattern):
                         log.info(
                             "File pattern matched for webhook rule.",
@@ -1655,15 +1662,16 @@ class AutomationRule(TimeStampedModel):
                             pattern=file_pattern,
                             rule_id=self.pk,
                         )
-                        return True
-            return False
-
-        elif self.webhook_filter == self.WEBHOOK_FILTER_COMMIT_MESSAGE:
-            if commit_message is None:
+                        files_matched = True
+                        break
+            if not files_matched:
                 return False
-            # Use regex matching for commit message
+
+        # Use regex matching for commit message
+        if self.webhook_commit_message_match_pattern:
+            commit_matched = False
             try:
-                for commit_pattern in self.webhook_match_pattern:
+                for commit_pattern in self.webhook_commit_message_match_pattern:
                     match = regex.search(
                         commit_pattern,
                         commit_message,
@@ -1677,7 +1685,8 @@ class AutomationRule(TimeStampedModel):
                             pattern=commit_pattern,
                             rule_id=self.pk,
                         )
-                        return True
+                        commit_matched = True
+                        break
             except TimeoutError:
                 log.warning(
                     "Timeout while parsing regex for commit message.",
@@ -1689,14 +1698,14 @@ class AutomationRule(TimeStampedModel):
                     "Error parsing regex for commit message.",
                     exc_info=True,
                 )
-            return False
-
-        elif self.webhook_filter == self.WEBHOOK_FILTER_LABEL:
-            if labels is None:
+            if not commit_matched:
                 return False
-            # Use regex matching for labels
+
+        # Use regex matching for labels
+        if self.webhook_labels_match_pattern:
+            labels_matched = False
             for label in labels:
-                for label_pattern in self.webhook_match_pattern:
+                for label_pattern in self.webhook_labels_match_pattern:
                     try:
                         match = regex.search(
                             label_pattern,
@@ -1711,7 +1720,8 @@ class AutomationRule(TimeStampedModel):
                                 pattern=label_pattern,
                                 rule_id=self.pk,
                             )
-                            return True
+                            labels_matched = True
+                            break
                     except TimeoutError:
                         log.warning(
                             "Timeout while parsing regex for label.",
@@ -1723,9 +1733,10 @@ class AutomationRule(TimeStampedModel):
                             "Error parsing regex for label.",
                             exc_info=True,
                         )
-            return False
+            if not labels_matched:
+                return False
 
-        return False
+        return True
 
     def run(self, version):
         """

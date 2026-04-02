@@ -257,32 +257,40 @@ class AutomationRuleForm(forms.ModelForm):
             "version_types",
             "version_predefined_match_pattern",
             "version_match_pattern",
-            "webhook_filter",
-            "webhook_match_pattern",
+            "webhook_files_match_pattern",
+            "webhook_labels_match_pattern",
+            "webhook_commit_message_match_pattern",
             "action",
         ]
 
         widgets = {
             "version_match_pattern": forms.TextInput(attrs={"placeholder": "^release-.*$"}),
+            "webhook_files_match_pattern": forms.TextInput(attrs={"placeholder": "^docs/.*$"}),
+            "webhook_labels_match_pattern": forms.TextInput(attrs={"placeholder": "^docs|build$"}),
+            "webhook_commit_message_match_pattern": forms.TextInput(
+                attrs={"placeholder": "^fix|feature$"}
+            ),
         }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
-        if self.instance and self.instance.pk and self.instance.webhook_match_pattern:
-            self.initial["webhook_match_pattern"] = "\n".join(self.instance.webhook_match_pattern)
+        if self.instance and self.instance.pk and self.instance.webhook_files_match_pattern:
+            self.initial["webhook_files_match_pattern"] = "\n".join(
+                self.instance.webhook_files_match_pattern
+            )
 
     def clean_project(self):
         return self.project
 
-    def clean_webhook_match_pattern(self):
-        webhook_match_pattern = self.cleaned_data["webhook_match_pattern"]
-        if webhook_match_pattern:
-            webhook_match_pattern = [
-                line.strip() for line in webhook_match_pattern.splitlines() if line.strip()
+    def clean_webhook_files_match_pattern(self):
+        webhook_files_match_pattern = self.cleaned_data["webhook_files_match_pattern"]
+        if webhook_files_match_pattern:
+            webhook_files_match_pattern = [
+                line.strip() for line in webhook_files_match_pattern.splitlines() if line.strip()
             ]
-        return webhook_match_pattern
+        return webhook_files_match_pattern
 
     def clean(self):
         version_predefined_match_pattern = self.cleaned_data.get("version_predefined_match_pattern")
