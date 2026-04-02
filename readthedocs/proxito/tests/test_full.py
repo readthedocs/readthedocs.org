@@ -1028,6 +1028,16 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_custom_sitemap_xml(self):
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(
+            response["x-accel-redirect"],
+            "/proxito/media/html/project/latest/sitemap.xml",
+        )
+
     def test_custom_llms_txt(self):
         """Test serving a custom llms.txt file from the default version."""
         self.project.versions.update(active=True, built=True)
@@ -1487,7 +1497,9 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(r.status_code, 404)
         storage_open.assert_not_called()
 
-    def test_sitemap_xml(self):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_xml(self, storage_exists):
+        storage_exists.return_value = False
         self.project.versions.update(active=True)
         private_version = fixture.get(
             Version,
@@ -1616,7 +1628,9 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertNotContains(response, "<changefreq>")
         self.assertNotContains(response, "<priority>")
 
-    def test_sitemap_all_private_versions(self):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_all_private_versions(self, storage_exists):
+        storage_exists.return_value = False
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
