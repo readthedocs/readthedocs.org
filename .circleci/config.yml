@@ -61,7 +61,6 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          COVERAGE_FILE: .coverage.tests
           PYTEST_COVERAGE: --cov-config .coveragerc --cov=.
     steps:
       - setup-checkout
@@ -74,6 +73,7 @@ jobs:
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
       - run: pip install --user tox tox-uv
       - run: tox -e py312
+      - run: cp .coverage .coverage.tests
       - save_cache:
           key: pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
@@ -91,7 +91,6 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          COVERAGE_FILE: .coverage.search
           PYTEST_COVERAGE: --cov-config .coveragerc --cov=.
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:9.3.1'
         name: search
@@ -108,6 +107,7 @@ jobs:
             - pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
       - run: pip install --user tox tox-uv
       - run: tox -e search
+      - run: cp .coverage .coverage.search
       - save_cache:
           key: pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
@@ -125,7 +125,6 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          COVERAGE_FILE: .coverage.proxito
           PYTEST_COVERAGE: --cov-config .coveragerc --cov=.
     steps:
       - setup-checkout
@@ -135,6 +134,7 @@ jobs:
             - pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
       - run: pip install --user tox tox-uv
       - run: tox -e proxito
+      - run: cp .coverage .coverage.proxito
       - save_cache:
           key: pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
