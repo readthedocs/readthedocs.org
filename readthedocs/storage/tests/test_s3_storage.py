@@ -2,34 +2,39 @@ from unittest import mock
 
 import pytest
 from django.core.exceptions import SuspiciousFileOperation
-from django.test import TestCase, override_settings
+from django.test import TestCase
+
+from readthedocs.storage.s3_storage import RTDS3Storage
 
 
-@override_settings(
-    S3_MEDIA_STORAGE_BUCKET="readthedocs-test",
-)
 class TestS3BuildMediaStorageDeleteDirectory(TestCase):
-    def setUp(self):
-        from readthedocs.storage.s3_storage import S3BuildMediaStorage
+    """
+    Test custom overrides on S3 storage backends.
 
-        self.storage = S3BuildMediaStorage()
-        self.mock_bucket = mock.MagicMock()
-        # Override the internal _bucket attribute (used by the bucket property)
-        self.storage._bucket = self.mock_bucket
+    Since the overrides are in the RTDBaseStorage class,
+    we test using the S3BuildMediaStorage, which inherits from RTDBaseStorage and
+    """
+
+    def setUp(self):
+        self.storage = RTDS3Storage()
 
     def test_delete_directory(self):
+        mock_bucket = mock.MagicMock()
+        self.storage._bucket = mock_bucket
         self.storage.delete_directory("projects/my-project/en/latest/")
-        self.mock_bucket.objects.filter.assert_called_once_with(
+        mock_bucket.objects.filter.assert_called_once_with(
             Prefix="projects/my-project/en/latest/"
         )
-        self.mock_bucket.objects.filter.return_value.delete.assert_called_once()
+        mock_bucket.objects.filter.return_value.delete.assert_called_once()
 
     def test_delete_directory_adds_trailing_slash(self):
+        mock_bucket = mock.MagicMock()
+        self.storage._bucket = mock_bucket
         self.storage.delete_directory("projects/my-project/en/latest")
-        self.mock_bucket.objects.filter.assert_called_once_with(
+        mock_bucket.objects.filter.assert_called_once_with(
             Prefix="projects/my-project/en/latest/"
         )
-        self.mock_bucket.objects.filter.return_value.delete.assert_called_once()
+        mock_bucket.objects.filter.return_value.delete.assert_called_once()
 
     def test_delete_directory_raises_for_root_path(self):
         with pytest.raises(SuspiciousFileOperation):
