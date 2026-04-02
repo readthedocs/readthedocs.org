@@ -33,7 +33,7 @@ To setup your :doc:`custom domain </custom-domains>`, follow these steps:
    Otherwise, another user may add the same domain to their project and serve that content from your domain (domain hijacking).
 
 SSL certificates are automatically provisioned for your domain
-once the DNS record (CNAME or ANAME/ALIAS) is pointed to Read the Docs ---
+once the DNS record (CNAME or ANAME/ALIAS) is pointed to Read the Docs,
 no extra action or certificate request is needed.
 Certificates are managed by `Cloudflare <https://www.cloudflare.com/>`_
 and are typically issued within a few minutes,
