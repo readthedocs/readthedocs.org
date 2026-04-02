@@ -8,12 +8,6 @@ from readthedocs.storage.s3_storage import RTDS3Storage
 
 
 class TestS3BuildMediaStorageDeleteDirectory(TestCase):
-    """
-    Test custom overrides on S3 storage backends.
-
-    Since the overrides are in the RTDBaseStorage class,
-    we test using the S3BuildMediaStorage, which inherits from RTDBaseStorage and
-    """
 
     def setUp(self):
         self.storage = RTDS3Storage()
