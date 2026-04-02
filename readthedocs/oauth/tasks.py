@@ -582,38 +582,42 @@ class GitHubAppWebhookHandler:
             webhook_rules = project.automation_rules.filter(
                 enabled=True,
                 action__in=AutomationRule.BUILD_ACTIONS,
-                webhook_filter__in=AutomationRule.WEBHOOK_FILTERS,
-                webhook_match_pattern__isnull=False,
                 version_types__contains=version_type,
             )
             if webhook_rules.exists():
-                triggered = False
                 changed_files = self._get_changed_files_from_push_event()
                 commit_message = self.data["head_commit"]["message"]
                 labels = []  # We don't have labels in push events, so we leave it empty.
 
-                for rule in webhook_rules.iterator():
-                    if rule.match_webhook(
-                        changed_files=changed_files,
-                        commit_message=commit_message,
-                        labels=labels,
-                    ):
-                        log.info(
-                            "Automation rule matched, triggering build.",
-                            project_slug=project.slug,
-                            rule_id=rule.pk,
-                            rule_version_types=rule.version_types,
-                            version_type=version_type,
-                        )
-                        for version in project.versions_from_name(version_name, version_type):
-                            triggered = True
+                rule_triggered_for_project = False
+                for version in project.versions_from_name(version_name, version_type):
+                    rule_triggered_for_version = False
+                    for rule in webhook_rules.iterator():
+                        if rule.match(
+                            version=version,
+                            changed_files=changed_files,
+                            commit_message=commit_message,
+                            labels=labels,
+                        ):
+                            log.info(
+                                "Automation rule matched, triggering build.",
+                                project_slug=project.slug,
+                                rule_id=rule.pk,
+                                rule_version_types=rule.version_types,
+                                version_slug=version.slug,
+                                version_name=version_name,
+                                version_type=version_type,
+                            )
+                            rule_triggered_for_project = True
+                            rule_triggered_for_version = True
                             rule.run(version)
 
-                        # We only trigger the first matching rule,
+                        # We only trigger the first matching rule per version
                         # to avoid triggering multiple builds for the same tag/branches.
-                        break
+                        if rule_triggered_for_version:
+                            break
 
-                if not triggered:
+                if not rule_triggered_for_project:
                     log.info(
                         "No automation rule matched, skipping build.",
                         project_slug=project.slug,
@@ -657,12 +661,10 @@ class GitHubAppWebhookHandler:
                 webhook_rules = project.automation_rules.filter(
                     enabled=True,
                     action__in=AutomationRule.BUILD_ACTIONS,
-                    webhook_filter__in=AutomationRule.WEBHOOK_FILTERS,
-                    webhook_match_pattern__isnull=False,
                     version_types__contains=EXTERNAL,
                 )
                 if webhook_rules.exists():
-                    triggered = False
+                    rule_triggered = False
                     changed_files = self._get_changed_files_from_pull_request_event(
                         project,
                         action,
@@ -671,7 +673,8 @@ class GitHubAppWebhookHandler:
                     labels = self._get_labels_from_pull_request_event(project)
 
                     for rule in webhook_rules.iterator():
-                        if rule.match_webhook(
+                        if rule.match(
+                            version=external_version,
                             changed_files=changed_files,
                             commit_message=commit_message,
                             labels=labels,
@@ -681,15 +684,16 @@ class GitHubAppWebhookHandler:
                                 project_slug=project.slug,
                                 rule_id=rule.pk,
                                 rule_version_types=rule.version_types,
+                                version_slug=external_version.slug,
                                 version_type=EXTERNAL,
                             )
-                            triggered = True
+                            rule_triggered = True
                             rule.run(external_version)
 
                             # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
                             break
 
-                    if not triggered:
+                    if not rule_triggered:
                         log.info(
                             "No automation rule matched, skipping build.",
                             project_slug=project.slug,
