@@ -23,6 +23,8 @@ from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.builds.version_slug import generate_version_slug
+from readthedocs.core.forms import RichChoice
+from readthedocs.core.forms import RichSelect
 
 
 class VersionForm(forms.ModelForm):
@@ -223,14 +225,21 @@ class RegexAutomationRuleForm(forms.ModelForm):
 
 class AutomationRuleForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    VERSION_TYPE_CHOICES = [
+        RichChoice(text=name, value=value, description="description", disabled=False)
+        for name, value in VERSION_TYPES
+    ]
     # NOTE: I want to use something like, but I'm not sure how.
     # https://semantic-ui.com/modules/dropdown.html#multiple-selection
-    version_types = forms.MultipleChoiceField(
-        widget=forms.SelectMultiple,
-        choices=VERSION_TYPES,
+    # version_types = forms.MultipleChoiceField(
+    version_types = forms.ChoiceField(
+        widget=RichSelect(attrs={"multiple": "true"}),
+        choices=[(choice.value, choice) for choice in VERSION_TYPE_CHOICES],
         required=True,
     )
-    webhook_match_pattern = forms.CharField(
+
+    webhook_files_match_pattern = forms.CharField(
         required=False,
         widget=forms.Textarea(
             attrs={
@@ -265,7 +274,9 @@ class AutomationRuleForm(forms.ModelForm):
 
         widgets = {
             "version_match_pattern": forms.TextInput(attrs={"placeholder": "^release-.*$"}),
-            "webhook_files_match_pattern": forms.TextInput(attrs={"placeholder": "^docs/.*$"}),
+            "webhook_files_match_pattern": forms.TextInput(
+                attrs={"placeholder": "^docs/.*$"},
+            ),
             "webhook_labels_match_pattern": forms.TextInput(attrs={"placeholder": "^docs|build$"}),
             "webhook_commit_message_match_pattern": forms.TextInput(
                 attrs={"placeholder": "^fix|feature$"}
