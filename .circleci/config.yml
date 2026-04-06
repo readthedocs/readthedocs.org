@@ -24,6 +24,19 @@
 #     requirements have changed since it was saved.
 #   Bump "v1" in key names to bust all caches.
 #   See: https://circleci.com/docs/guides/optimize/caching/
+#
+# Other design decisions:
+#   - tests-search runs two pytest commands because some tests are marked
+#     both "search" and "proxito" (e.g. test_proxied_api.py). These need
+#     the ES sidecar AND proxito Django settings, so they run in
+#     tests-search with --ds=readthedocs.settings.proxito.test.
+#   - tests-embedapi uses tox<4 (tox.embedapi.ini isn't compatible with
+#     tox 4), so it can't use tox-uv.
+#   - Coverage files are copied to unique names (cp .coverage .coverage.tests)
+#     after each tox run because tox doesn't pass COVERAGE_FILE through to
+#     the test env. The coverage-report job combines them.
+#   - skip-if-docs-only compares against origin/main, so it only works for
+#     PRs targeting main. PRs targeting other branches will always run tests.
 
 version: 2.1
 
