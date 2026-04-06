@@ -582,9 +582,9 @@ def remove_orphan_build_config():
     log.info("Removed orphan BuildConfig objects.", count=count)
 
 
-@app.task(queue="web")
+@app.task(queue="web", bind=True)
 def delete_old_build_objects(
-    days=365 * 3, keep_recent=250, limit=20_000, max_projects=5_000, start=None
+    self, days=365 * 3, keep_recent=250, limit=20_000, max_projects=5_000, start=None
 ):
     """
     Delete old Build objects that are not needed anymore.
@@ -608,13 +608,35 @@ def delete_old_build_objects(
     if start >= max_count:
         start = 0
 
-    cutoff_date = timezone.now() - timezone.timedelta(days=days)
-    projects = Project.objects.all().order_by("pub_date").only("pk")[start : start + max_projects]
-    for n, project in enumerate(projects, start=1):
-        # Delete builds associated with versions, keeping
-        # the most recent `keep_recent` builds per version.
-        for version in project.versions.exclude(builds=None).only("pk").iterator():
-            builds_to_delete = version.builds.filter(date__lt=cutoff_date).order_by("-date")
+    lock_id = "{0}-lock".format(self.name)
+    with memcache_lock(lock_id, 60 * 60 * 2, self.app.oid) as acquired:
+        if not acquired:
+            log.warning("Delete old build objects task still locked")
+            return
+
+        cutoff_date = timezone.now() - timezone.timedelta(days=days)
+        projects = (
+            Project.objects.all().order_by("pub_date").only("pk")[start : start + max_projects]
+        )
+        for n, project in enumerate(projects, start=1):
+            # Delete builds associated with versions, keeping
+            # the most recent `keep_recent` builds per version.
+            for version in project.versions.exclude(builds=None).only("pk").iterator():
+                builds_to_delete = version.builds.filter(date__lt=cutoff_date).order_by("-date")
+                n_builds_deleted = _delete_builds(
+                    builds_to_delete, start=keep_recent, end=keep_recent + limit
+                )
+                limit -= n_builds_deleted
+                if limit <= 0:
+                    if use_cache:
+                        cache.set(cache_key, start + n)
+                    return
+
+            # Delete builds that are not associated with any version,
+            # keeping the most recent `keep_recent` builds per project.
+            builds_to_delete = project.builds.filter(version=None, date__lt=cutoff_date).order_by(
+                "-date"
+            )
             n_builds_deleted = _delete_builds(
                 builds_to_delete, start=keep_recent, end=keep_recent + limit
             )
@@ -624,22 +646,8 @@ def delete_old_build_objects(
                     cache.set(cache_key, start + n)
                 return
 
-        # Delete builds that are not associated with any version,
-        # keeping the most recent `keep_recent` builds per project.
-        builds_to_delete = project.builds.filter(version=None, date__lt=cutoff_date).order_by(
-            "-date"
-        )
-        n_builds_deleted = _delete_builds(
-            builds_to_delete, start=keep_recent, end=keep_recent + limit
-        )
-        limit -= n_builds_deleted
-        if limit <= 0:
-            if use_cache:
-                cache.set(cache_key, start + n)
-            return
-
-    if use_cache:
-        cache.set(cache_key, start + max_projects)
+        if use_cache:
+            cache.set(cache_key, start + max_projects)
 
 
 def _delete_builds(builds, start: int, end: int) -> int:

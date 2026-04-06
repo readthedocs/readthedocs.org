@@ -297,7 +297,7 @@ class TestDeleteOldBuildObjects(TestCase):
         assert Build.objects.filter(version=version).count() == 5
 
         # Keep 2 recent builds per version, so 3 should be deleted.
-        delete_old_build_objects(days=365, keep_recent=2, start=0)
+        delete_old_build_objects.delay(days=365, keep_recent=2, start=0)
 
         assert Build.objects.filter(version=version).count() == 2
         # The 2 most-recently-dated builds (those with the smallest days_old) should be kept.
@@ -317,7 +317,7 @@ class TestDeleteOldBuildObjects(TestCase):
 
         assert Build.objects.filter(version=version).count() == 5
 
-        delete_old_build_objects(days=365, keep_recent=2, start=0)
+        delete_old_build_objects.delay(days=365, keep_recent=2, start=0)
 
         # None should be deleted since they are all recent.
         assert Build.objects.filter(version=version).count() == 5
@@ -334,11 +334,11 @@ class TestDeleteOldBuildObjects(TestCase):
         assert Build.objects.filter(version=version).count() == 3
 
         # keep_recent=5 means all 3 should be preserved.
-        delete_old_build_objects(days=365, keep_recent=5, start=0)
+        delete_old_build_objects.delay(days=365, keep_recent=5, start=0)
 
         assert Build.objects.filter(version=version).count() == 3
 
-    def test_non_final_state_builds_not_deleted(self):
+    def test_non_final_state_builds_deleted(self):
         """Builds in non-final states (e.g. triggered) are never deleted."""
         project = get(Project)
         version = project.versions.get(slug=LATEST)
@@ -349,10 +349,10 @@ class TestDeleteOldBuildObjects(TestCase):
 
         assert Build.objects.filter(version=version).count() == 5
 
-        delete_old_build_objects(days=365, keep_recent=0, start=0)
+        delete_old_build_objects.delay(days=365, keep_recent=0, start=0)
 
-        # Non-final builds should not be deleted.
-        assert Build.objects.filter(version=version).count() == 5
+        # Non-final builds should be deleted.
+        assert Build.objects.filter(version=version).count() == 0
 
     def test_versionless_builds_deleted(self):
         """Old builds without a version are also deleted, beyond `keep_recent` per project."""
@@ -365,7 +365,7 @@ class TestDeleteOldBuildObjects(TestCase):
 
         assert Build.objects.filter(project=project, version=None).count() == 5
 
-        delete_old_build_objects(days=365, keep_recent=2, start=0)
+        delete_old_build_objects.delay(days=365, keep_recent=2, start=0)
 
         # 3 should be deleted (keeping only 2 most recent).
         assert Build.objects.filter(project=project, version=None).count() == 2
@@ -385,7 +385,7 @@ class TestDeleteOldBuildObjects(TestCase):
         assert Build.objects.filter(version=version).count() == 10
 
         # With limit=3 and keep_recent=0, only 3 builds should be deleted.
-        delete_old_build_objects(days=365, keep_recent=0, limit=3, start=0)
+        delete_old_build_objects.delay(days=365, keep_recent=0, limit=3, start=0)
 
         assert Build.objects.filter(version=version).count() == 7
 
@@ -402,7 +402,7 @@ class TestDeleteOldBuildObjects(TestCase):
             self._create_old_build(project2, version2, days_old=400)
 
         # Only process 1 project at a time (max_projects=1).
-        delete_old_build_objects(days=365, keep_recent=0, max_projects=1, start=0)
+        delete_old_build_objects.delay(days=365, keep_recent=0, max_projects=1, start=0)
 
         total_remaining = (
             Build.objects.filter(version=version1).count()
@@ -422,7 +422,7 @@ class TestDeleteOldBuildObjects(TestCase):
         for _ in range(5):
             self._create_old_build(project, version2, days_old=400)
 
-        delete_old_build_objects(days=365, keep_recent=2, start=0)
+        delete_old_build_objects.delay(days=365, keep_recent=2, start=0)
 
         # Each version should retain 2 builds.
         assert Build.objects.filter(version=version1).count() == 2
@@ -441,7 +441,7 @@ class TestDeleteOldBuildObjects(TestCase):
         for _ in range(2):
             get(Build, project=project, version=version, state=BUILD_STATE_FINISHED, cold_storage=True)
 
-        delete_old_build_objects(days=365, keep_recent=0, start=0)
+        delete_old_build_objects.delay(days=365, keep_recent=0, start=0)
 
         # All 3 old builds should have been deleted.
         assert Build.objects.filter(version=version).count() == 2
