@@ -15,11 +15,10 @@
 #
 # Caching strategy:
 #   Each test job caches ~/.local/lib, ~/.local/bin (tox binary), and .tox
-#   (virtualenvs with all deps). restore_cache tries two keys in order:
-#     1. Exact match on requirements checksum — full cache hit, installs are no-ops
-#     2. Prefix-only fallback (e.g. pip-tests-v1-) — restores the most recent
-#        cache even when requirements changed, so only the diff needs installing
-#   Bump the "v1" in key names to bust all caches if needed.
+#   (virtualenvs with all deps). save_cache uses a checksum key so a new
+#   snapshot is saved when requirements change (CircleCI won't overwrite
+#   existing keys). restore_cache uses a prefix-only key to always load
+#   the most recent snapshot. Bump "v1" in key names to bust all caches.
 
 version: 2.1
 
@@ -75,7 +74,6 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
             - pip-tests-v1-
       - run: sudo apt update
       - run: sudo apt install -y rclone
@@ -113,7 +111,6 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
             - pip-search-v1-
       - run: pip install --user tox tox-uv
       - run: tox -e search
@@ -141,7 +138,6 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
             - pip-proxito-v1-
       - run: pip install --user tox tox-uv
       - run: tox -e proxito
@@ -167,7 +163,6 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
             - pip-embedapi-v1-
       - run: pip install --user 'tox<4'
       - run: tox --version
