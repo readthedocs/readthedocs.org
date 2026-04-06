@@ -65,6 +65,9 @@ jobs:
     steps:
       - setup-checkout
       - skip-if-docs-only
+      # Cache pip packages and tox envs. The first key is an exact match;
+      # the second (prefix-only) key restores the most recent cache when
+      # requirements change, so only new/updated packages need installing.
       - restore_cache:
           keys:
             - pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
