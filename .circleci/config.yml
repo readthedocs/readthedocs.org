@@ -23,6 +23,7 @@
 #     always loads the most recent matching snapshot, regardless of whether
 #     requirements have changed since it was saved.
 #   Bump "v1" in key names to bust all caches.
+#   See: https://circleci.com/docs/guides/optimize/caching/
 
 version: 2.1
 
