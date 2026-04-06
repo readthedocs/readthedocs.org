@@ -16,7 +16,6 @@ from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v2.utils import sync_versions_to_db
 from readthedocs.builds.constants import BRANCH
-from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
@@ -585,7 +584,7 @@ def remove_orphan_build_config():
 
 @app.task(queue="web")
 def delete_old_build_objects(
-    days=360 * 3, keep_recent=250, limit=20_000, max_projects=5_000, start=None
+    days=365 * 3, keep_recent=250, limit=20_000, max_projects=5_000, start=None
 ):
     """
     Delete old Build objects that are not needed anymore.
@@ -608,32 +607,39 @@ def delete_old_build_objects(
         start = cache.get(cache_key, 0)
     if start >= max_count:
         start = 0
-    end = start + max_projects
-    if use_cache:
-        cache.set(cache_key, end)
 
     cutoff_date = timezone.now() - timezone.timedelta(days=days)
-    projects = Project.objects.all().order_by("pub_date").only("pk")[start:end]
-    for project in projects:
+    projects = Project.objects.all().order_by("pub_date").only("pk")[start : start + max_projects]
+    for n, project in enumerate(projects, start=1):
         # Delete builds associated with versions, keeping
         # the most recent `keep_recent` builds per version.
         for version in project.versions.exclude(builds=None).only("pk").iterator():
-            builds_to_delete = version.builds.filter(
-                state__in=BUILD_FINAL_STATES,
-                date__lt=cutoff_date,
-            ).order_by("-date")
-            limit -= _delete_builds(builds_to_delete, start=keep_recent, end=keep_recent + limit)
+            builds_to_delete = version.builds.filter(date__lt=cutoff_date).order_by("-date")
+            n_builds_deleted = _delete_builds(
+                builds_to_delete, start=keep_recent, end=keep_recent + limit
+            )
+            limit -= n_builds_deleted
             if limit <= 0:
+                if use_cache:
+                    cache.set(cache_key, start + n)
                 return
 
         # Delete builds that are not associated with any version,
         # keeping the most recent `keep_recent` builds per project.
-        builds_to_delete = project.builds.filter(
-            version=None, state__in=BUILD_FINAL_STATES, date__lt=cutoff_date
-        ).order_by("-date")
-        limit -= _delete_builds(builds_to_delete, start=keep_recent, end=keep_recent + limit)
+        builds_to_delete = project.builds.filter(version=None, date__lt=cutoff_date).order_by(
+            "-date"
+        )
+        n_builds_deleted = _delete_builds(
+            builds_to_delete, start=keep_recent, end=keep_recent + limit
+        )
+        limit -= n_builds_deleted
         if limit <= 0:
+            if use_cache:
+                cache.set(cache_key, start + n)
             return
+
+    if use_cache:
+        cache.set(cache_key, start + max_projects)
 
 
 def _delete_builds(builds, start: int, end: int) -> int:
@@ -650,9 +656,15 @@ def _delete_builds(builds, start: int, end: int) -> int:
         if build.cold_storage:
             paths_to_delete.append(build.storage_path)
 
-    _, deleted = delete_in_batches(builds, start=start, end=end)
-    remove_build_commands_storage_paths(paths_to_delete)
-    return deleted.get("builds.Build", 0)
+    try:
+        _, deleted = delete_in_batches(builds, start=start, end=end)
+        return deleted.get("builds.Build", 0)
+    finally:
+        # If there was an error during deletion, we still want to
+        # delete the storage paths, otherwise we end up with orphan
+        # files in storage. The builds will be empty, but they are
+        # already scheduled for deletion.
+        remove_build_commands_storage_paths(paths_to_delete)
 
 
 @app.task(queue="web")
