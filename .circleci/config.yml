@@ -15,10 +15,14 @@
 #
 # Caching strategy:
 #   Each test job caches ~/.local/lib, ~/.local/bin (tox binary), and .tox
-#   (virtualenvs with all deps). save_cache uses a checksum key so a new
-#   snapshot is saved when requirements change (CircleCI won't overwrite
-#   existing keys). restore_cache uses a prefix-only key to always load
-#   the most recent snapshot. Bump "v1" in key names to bust all caches.
+#   (virtualenvs with all deps).
+#   - save_cache uses a checksum key (e.g. pip-tests-v1-<hash>) because
+#     CircleCI never overwrites an existing key — a new hash means a new
+#     snapshot is saved when requirements change.
+#   - restore_cache uses a prefix-only key (e.g. pip-tests-v1-) which
+#     always loads the most recent matching snapshot, regardless of whether
+#     requirements have changed since it was saved.
+#   Bump "v1" in key names to bust all caches.
 
 version: 2.1
 
