@@ -12,19 +12,79 @@ in our Docker Development environment.
 from functools import cached_property
 from itertools import batched
 
+import structlog
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import SuspiciousFileOperation
 from storages.backends.s3boto3 import S3Boto3Storage
 from storages.backends.s3boto3 import S3ManifestStaticStorage
 
-from readthedocs.builds.storage import BuildMediaStorageMixin
+from readthedocs.storage.mixins import RTDBaseStorage
 from readthedocs.storage.rclone import RCloneS3Remote
+from readthedocs.storage.utils import safe_join
 
 from .mixins import OverrideHostnameMixin
 from .mixins import S3PrivateBucketMixin
 
 
-class RTDS3Boto3Storage(S3Boto3Storage):
+log = structlog.get_logger(__name__)
+
+
+class RTDS3Storage(RTDBaseStorage, S3Boto3Storage):
+    @cached_property
+    def _rclone(self):
+        provider = settings.S3_PROVIDER
+        return RCloneS3Remote(
+            bucket_name=self.bucket_name,
+            access_key_id=self.access_key,
+            secret_access_key=self.secret_key,
+            session_token=self.security_token,
+            region=self.region_name or "",
+            acl=self.default_acl,
+            endpoint=self.endpoint_url,
+            provider=provider,
+        )
+
+    def join(self, directory, filepath):
+        return safe_join(directory, filepath)
+
+    @staticmethod
+    def _dirpath(path):
+        """
+        Make the path to end with `/`.
+
+        It may just be Azure, but for listdir to work correctly, this is needed.
+        """
+        path = str(path)
+        if not path.endswith("/"):
+            path += "/"
+
+        return path
+
+    def delete_directory(self, path):
+        """
+        Delete all files under a certain path from storage.
+
+        Many storage backends (S3, Azure storage) don't care about "directories".
+        The directory effectively doesn't exist if there are no files in it.
+        However, in these backends, there is no "rmdir" operation so you have to recursively
+        delete all files.
+
+        :param path: the path to the directory to remove
+        """
+        if path in ("", "/"):
+            raise SuspiciousFileOperation("Deleting all storage cannot be right")
+
+        log.debug("Deleting path from media storage", path=path)
+        folders, files = self.listdir(self._dirpath(path))
+        for folder_name in folders:
+            if folder_name:
+                # Recursively delete the subdirectory
+                self.delete_directory(self.join(path, folder_name))
+        for filename in files:
+            if filename:
+                self.delete(self.join(path, filename))
+
     def delete_paths(self, paths):
         """
         Delete multiple paths from storage in batches.
@@ -37,7 +97,7 @@ class RTDS3Boto3Storage(S3Boto3Storage):
             self.bucket.delete_objects(Delete={"Objects": objects, "Quiet": True})
 
 
-class S3BuildMediaStorage(OverrideHostnameMixin, BuildMediaStorageMixin, RTDS3Boto3Storage):
+class S3BuildMediaStorage(OverrideHostnameMixin, RTDS3Storage):
     """An AWS S3 Storage backend for build artifacts."""
 
     bucket_name = getattr(settings, "S3_MEDIA_STORAGE_BUCKET", None)
@@ -51,23 +111,8 @@ class S3BuildMediaStorage(OverrideHostnameMixin, BuildMediaStorageMixin, RTDS3Bo
                 "AWS S3 not configured correctly. Ensure S3_MEDIA_STORAGE_BUCKET is defined.",
             )
 
-    @cached_property
-    def _rclone(self):
-        provider = settings.S3_PROVIDER
 
-        return RCloneS3Remote(
-            bucket_name=self.bucket_name,
-            access_key_id=self.access_key,
-            secret_access_key=self.secret_key,
-            session_token=self.security_token,
-            region=self.region_name or "",
-            acl=self.default_acl,
-            endpoint=self.endpoint_url,
-            provider=provider,
-        )
-
-
-class S3BuildCommandsStorage(S3PrivateBucketMixin, RTDS3Boto3Storage):
+class S3BuildCommandsStorage(S3PrivateBucketMixin, RTDS3Storage):
     """An AWS S3 Storage backend for build commands."""
 
     bucket_name = getattr(settings, "S3_BUILD_COMMANDS_STORAGE_BUCKET", None)
@@ -99,7 +144,7 @@ class S3StaticStorageMixin:
 
 # pylint: disable=too-many-ancestors
 class S3StaticStorage(
-    S3StaticStorageMixin, OverrideHostnameMixin, S3ManifestStaticStorage, RTDS3Boto3Storage
+    S3StaticStorageMixin, OverrideHostnameMixin, S3ManifestStaticStorage, RTDS3Storage
 ):
     """
     An AWS S3 Storage backend for static media.
@@ -108,7 +153,7 @@ class S3StaticStorage(
     """
 
 
-class NoManifestS3StaticStorage(S3StaticStorageMixin, OverrideHostnameMixin, RTDS3Boto3Storage):
+class NoManifestS3StaticStorage(S3StaticStorageMixin, OverrideHostnameMixin, RTDS3Storage):
     """
     Storage backend for static files used outside Django's static files.
 
@@ -121,7 +166,7 @@ class NoManifestS3StaticStorage(S3StaticStorageMixin, OverrideHostnameMixin, RTD
     internal_redirect_root_path = "proxito-static"
 
 
-class S3BuildToolsStorage(S3PrivateBucketMixin, RTDS3Boto3Storage):
+class S3BuildToolsStorage(S3PrivateBucketMixin, RTDS3Storage):
     bucket_name = getattr(settings, "S3_BUILD_TOOLS_STORAGE_BUCKET", None)
 
     def __init__(self, *args, **kwargs):

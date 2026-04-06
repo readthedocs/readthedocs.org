@@ -464,6 +464,18 @@ class AddonsConfigAdmin(admin.ModelAdmin):
     list_editable = ("enabled",)
 
 
-admin.site.register(EmailHook)
-admin.site.register(WebHook)
+@admin.register(EmailHook)
+class EmailHookAdmin(admin.ModelAdmin):
+    raw_id_fields = ("project",)
+    list_display = ("email", "project")
+    search_fields = ("email", "project__slug", "project__name")
+
+
+@admin.register(WebHook)
+class WebHookAdmin(admin.ModelAdmin):
+    raw_id_fields = ("project",)
+    list_display = ("url", "project")
+    search_fields = ("url", "project__slug", "project__name")
+
+
 admin.site.register(WebHookEvent)

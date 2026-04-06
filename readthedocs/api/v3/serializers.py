@@ -28,7 +28,6 @@ from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import LANGUAGES
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
-from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
@@ -473,12 +472,19 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return resolver.resolve_version(project=obj, version=version)
 
 
-class RepositorySerializer(serializers.Serializer):
-    url = serializers.CharField(source="repo")
-    type = serializers.ChoiceField(
-        source="repo_type",
-        choices=REPO_CHOICES,
-    )
+class RepositorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = [
+            "url",
+            "type",
+        ]
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
+        extra_kwargs = {
+            "url": {"source": "repo"},
+            "type": {"source": "repo_type"},
+        }
 
 
 class ProjectLinksSerializer(BaseLinksSerializer):
@@ -584,7 +590,6 @@ class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
     """Serializer used to Import a Project."""
 
     repository = RepositorySerializer(source="*")
-    homepage = serializers.URLField(source="project_url", required=False)
     tags = TagListSerializerField(required=False)
 
     class Meta:
@@ -600,6 +605,11 @@ class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
         )
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
+        extra_kwargs = {
+            "homepage": {"source": "project_url"},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -675,10 +685,6 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
     """Serializer used to modify a Project once imported."""
 
     repository = RepositorySerializer(source="*")
-    homepage = serializers.URLField(
-        source="project_url",
-        required=False,
-    )
     tags = TagListSerializerField(required=False)
 
     class Meta:
@@ -705,6 +711,11 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
         )
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
+        extra_kwargs = {
+            "homepage": {"source": "project_url"},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1004,8 +1015,6 @@ class RedirectSerializerBase(serializers.ModelSerializer):
     modified = serializers.DateTimeField(source="update_dt", read_only=True)
     _links = RedirectLinksSerializer(source="*", read_only=True)
 
-    type = serializers.ChoiceField(source="redirect_type", choices=REDIRECT_TYPE_CHOICES)
-
     class Meta:
         model = Redirect
         fields = [
@@ -1023,6 +1032,11 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "position",
             "_links",
         ]
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
+        extra_kwargs = {
+            "type": {"source": "redirect_type"},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

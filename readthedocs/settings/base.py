@@ -413,8 +413,6 @@ class CommunityBaseSettings(Settings):
     TEMPLATE_ROOT = os.path.join(SITE_ROOT, "readthedocs", "templates")
     DOCROOT = os.path.join(SITE_ROOT, "user_builds")
     LOGS_ROOT = os.path.join(SITE_ROOT, "logs")
-    PRODUCTION_ROOT = os.path.join(SITE_ROOT, "prod_artifacts")
-    PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, "media")
 
     # Assets and media
     STATIC_ROOT = os.path.join(SITE_ROOT, "static")
@@ -752,15 +750,6 @@ class CommunityBaseSettings(Settings):
             "task": "readthedocs.api.v2.tasks.delete_old_revoked_build_api_keys",
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
-        },
-        # TODO: delete this task when all imported files pending deletion are done.
-        # It shuold take around 36 days to delete all the old imported files on community,
-        # and 6 days in commercial.
-        "every-hour-delete-imported-files": {
-            "task": "readthedocs.core.tasks.delete_outdated_imported_files",
-            "schedule": crontab(minute=15, hour="*"),
-            "options": {"queue": "web"},
-            "kwargs": {"limit": 10_000},
         },
         "every-hour-delete-old-build-objects": {
             "task": "readthedocs.builds.tasks.delete_old_build_objects",
