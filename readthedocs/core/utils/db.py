@@ -25,6 +25,8 @@ def delete_in_batches(
     :param start: Starting index of the records to delete from the queryset
     :param end: Ending index of the records to delete from the queryset
     """
+    if start is not None and end is None:
+        raise ValueError("'start' requires 'end' to also be provided.")
     if end is not None and start is None:
         start = 0
     if end is not None and end <= 0:
@@ -76,6 +78,8 @@ def raw_delete_in_batches(
 
     :return: Number of deleted records
     """
+    if start is not None and end is None:
+        raise ValueError("'start' requires 'end' to also be provided.")
     if end is not None and start is None:
         start = 0
     if end is not None and end <= 0:

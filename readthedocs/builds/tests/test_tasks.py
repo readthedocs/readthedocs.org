@@ -339,7 +339,7 @@ class TestDeleteOldBuildObjects(TestCase):
         assert Build.objects.filter(version=version).count() == 3
 
     def test_non_final_state_builds_deleted(self):
-        """Builds in non-final states (e.g. triggered) are never deleted."""
+        """Old builds in non-final states (e.g. triggered) are deleted."""
         project = get(Project)
         version = project.versions.get(slug=LATEST)
 

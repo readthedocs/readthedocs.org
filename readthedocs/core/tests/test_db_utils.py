@@ -1,3 +1,4 @@
+import pytest
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -191,6 +192,13 @@ class TestDeleteInBatches(TestCase):
         assert deleted_counter["projects.Project"] == 1
         assert Project.objects.filter(slug__startswith="one-limit-").count() == 4
 
+    def test_start_without_end_raises_error(self):
+        """Test that providing start without end raises a ValueError."""
+        queryset = Project.objects.all()
+
+        with pytest.raises(ValueError, match="'start' requires 'end' to also be provided."):
+            delete_in_batches(queryset, start=5)
+
 
 class TestRawDeleteInBatches(TestCase):
     """Tests for the raw_delete_in_batches utility function."""
@@ -324,3 +332,10 @@ class TestRawDeleteInBatches(TestCase):
 
         # Should have 4 versions remaining
         assert Version.objects.filter(slug__startswith="raw-one-").count() == 4
+
+    def test_start_without_end_raises_error(self):
+        """Test that providing start without end raises a ValueError."""
+        queryset = Version.objects.all()
+
+        with pytest.raises(ValueError, match="'start' requires 'end' to also be provided."):
+            raw_delete_in_batches(queryset, start=5)
