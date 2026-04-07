@@ -1,3 +1,3 @@
 """Read the Docs."""
 
-__version__ = "2026.3.24"
+__version__ = "2026.4.7"

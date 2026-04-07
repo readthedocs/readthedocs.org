@@ -809,7 +809,7 @@ class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View
         return project.versions.filter(slug=version_slug).first()
 
 
-class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
+class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
     """Serve sitemap.xml from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
@@ -852,6 +852,32 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             return lang
 
         project = request.unresolved_domain.project
+
+        # Serve custom sitemap.xml from the default version when available.
+        # If it doesn't exist, we fallback to the generated sitemap.
+        version_slug = project.get_default_version()
+        version = project.versions.get(slug=version_slug)
+        serve_custom_sitemap = all(
+            [
+                version.is_public,
+                version.active,
+                version.built,
+            ]
+        )
+        if serve_custom_sitemap:
+            try:
+                response = self._serve_docs(
+                    request=request,
+                    project=project,
+                    version=version,
+                    filename="sitemap.xml",
+                    check_if_exists=True,
+                )
+                log.info("Serving custom sitemap.xml file.")
+                return response
+            except StorageFileNotFound:
+                pass
+
         public_versions = project.versions(manager=INTERNAL).public(
             only_active=True,
             include_hidden=False,
