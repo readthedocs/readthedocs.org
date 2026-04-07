@@ -67,6 +67,8 @@ class TestLocalBuildEnvironment(TestCase):
             {
                 "build": mock.ANY,
                 "command": command.get_command(),
+                "description": "",
+                "job": None,
                 "output": "",
                 "exit_code": None,
                 "start_time": None,
@@ -77,6 +79,8 @@ class TestLocalBuildEnvironment(TestCase):
             {
                 "build": mock.ANY,
                 "command": command.get_command(),
+                "description": "",
+                "job": None,
                 "output": command.output,
                 "exit_code": 0,
                 "start_time": command.start_time,
@@ -284,6 +288,8 @@ class TestBuildCommand(TestCase):
                 {
                     "build": mock.ANY,
                     "command": "/bin/bash -c echo -n FOOBAR",
+                    "description": "",
+                    "job": None,
                     "output": "FOOBAR",
                     "exit_code": 0,
                     "start_time": mock.ANY,
