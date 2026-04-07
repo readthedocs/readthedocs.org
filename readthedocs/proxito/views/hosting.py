@@ -280,8 +280,6 @@ class BuildAddonsSerializer(RemoveFieldsMixin, BuildSerializer):
         "_links",
         # Keep proxito payload small and avoid expensive lookups.
         "builder",
-        "docs_url",
-        "commit_url",
         "commands",
     ]
 

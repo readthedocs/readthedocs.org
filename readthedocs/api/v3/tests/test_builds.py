@@ -314,14 +314,16 @@ class BuildsEndpointTests(APIEndpointMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["docs_url"], "http://project.readthedocs.io/en/v1.0/")
         self.assertEqual(
-            data["commit_url"],
+            data["urls"]["documentation"],
+            "http://project.readthedocs.io/en/v1.0/",
+        )
+        self.assertEqual(
+            data["urls"]["commit"],
             "https://github.com/rtfd/project/commit/a1b2c3",
         )
         self.assertEqual(data["builder"], "builder01")
         self.assertEqual(len(data["commands"]), 1)
-        self.assertEqual(data["commands"][0]["build"], self.build.pk)
         self.assertEqual(data["commands"][0]["command"], "python -m sphinx")
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
@@ -463,10 +465,10 @@ class BuildsEndpointTests(APIEndpointMixin):
         response_json["build"]["created"] = "2019-04-29T14:00:00Z"
         expected = self._get_response_dict("projects-versions-builds-list_POST")
         expected["build"]["commit"] = "d4e5f6"
-        expected["build"]["docs_url"] = (
+        expected["build"]["urls"]["documentation"] = (
             "http://project--v1.0.external-builds.readthedocs.io/en/v1.0/"
         )
-        expected["build"]["commit_url"] = "https://github.com/rtfd/project/pull/v1.0/commits/d4e5f6"
+        expected["build"]["urls"]["commit"] = "https://github.com/rtfd/project/pull/v1.0/commits/d4e5f6"
         expected["version"]["type"] = "external"
         expected["version"]["urls"]["documentation"] = (
             "http://project--v1.0.external-builds.readthedocs.io/en/v1.0/"

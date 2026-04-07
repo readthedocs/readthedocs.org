@@ -126,6 +126,8 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     build = serializers.URLField(source="get_full_url")
     project = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
+    documentation = serializers.SerializerMethodField()
+    commit = serializers.SerializerMethodField()
 
     def get_project(self, obj):
         path = reverse("projects_detail", kwargs={"project_slug": obj.project.slug})
@@ -143,6 +145,16 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
             return self._absolute_url(path)
         return None
 
+    def get_documentation(self, obj):
+        if obj.version:
+            return obj.version.get_absolute_url()
+        return None
+
+    def get_commit(self, obj):
+        if obj.commit:
+            return obj.get_commit_url()
+        return None
+
 
 class BuildCommandSerializer(serializers.ModelSerializer):
     run_time = serializers.ReadOnlyField()
@@ -152,9 +164,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
         model = BuildCommandResult
         fields = [
             "id",
-            "build",
             "command",
-            "description",
             "output",
             "exit_code",
             "start_time",
@@ -205,8 +215,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
     builder = serializers.CharField(read_only=True)
-    docs_url = serializers.SerializerMethodField()
-    commit_url = serializers.SerializerMethodField()
     commands = BuildCommandSerializer(many=True, read_only=True)
 
     class Meta:
@@ -223,8 +231,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "error",
             "commit",
             "builder",
-            "docs_url",
-            "commit_url",
             "commands",
             "_links",
             "urls",
@@ -244,18 +250,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
         """
         if obj.finished:
             return obj.success
-
-        return None
-
-    def get_docs_url(self, obj):
-        if obj.version:
-            return obj.version.get_absolute_url()
-
-        return None
-
-    def get_commit_url(self, obj):
-        if obj.commit:
-            return obj.get_commit_url()
 
         return None
 
