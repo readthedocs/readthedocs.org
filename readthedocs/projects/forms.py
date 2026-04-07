@@ -625,17 +625,6 @@ class UpdateProjectForm(
         ]
         self.helper.layout = Layout("name", multifield, *fields_other)
 
-    def clean_readthedocs_yaml_path(self):
-        """
-        Validate user input to help user.
-
-        We also validate this path during the build process, so this validation step is
-        only considered as helpful to a user, not a security measure.
-        """
-        filename = self.cleaned_data.get("readthedocs_yaml_path")
-        filename = (filename or "").strip()
-        return filename
-
     def get_all_active_versions(self):
         """
         Returns all active versions.
