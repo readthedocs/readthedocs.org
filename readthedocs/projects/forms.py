@@ -17,7 +17,11 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import VERSION_TYPES
+from readthedocs.builds.models import AutomationRule
 from readthedocs.core.forms import PrevalidatedForm
+from readthedocs.core.forms import RichChoice
+from readthedocs.core.forms import RichSelect
 from readthedocs.core.forms import RichValidationError
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.permissions import AdminPermission
@@ -1285,3 +1289,94 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _("Only letters, numbers and underscore are allowed"),
             )
         return name
+
+
+class AutomationRuleForm(forms.ModelForm):
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    VERSION_TYPE_CHOICES = [
+        RichChoice(text=name, value=value, description="description", disabled=False)
+        for name, value in VERSION_TYPES
+    ]
+    # NOTE: I want to use something like, but I'm not sure how.
+    # https://semantic-ui.com/modules/dropdown.html#multiple-selection
+    # version_types = forms.MultipleChoiceField(
+    version_types = forms.ChoiceField(
+        widget=RichSelect(attrs={"multiple": "true"}),
+        choices=[(choice.value, choice) for choice in VERSION_TYPE_CHOICES],
+        required=True,
+    )
+
+    webhook_files_match_pattern = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 5,
+                "placeholder": "\n".join(
+                    [
+                        "docs/*.rst",
+                        "docs/*.md",
+                        "docs/requirements.txt",
+                        "requirements.txt",
+                        ".readthedocs.yaml",
+                    ],
+                ),
+            }
+        ),
+    )
+
+    class Meta:
+        model = AutomationRule
+        fields = [
+            "project",
+            "enabled",
+            "description",
+            "version_types",
+            "version_predefined_match_pattern",
+            "version_match_pattern",
+            "webhook_files_match_pattern",
+            "webhook_labels_match_pattern",
+            "webhook_commit_message_match_pattern",
+            "action",
+        ]
+
+        widgets = {
+            "version_match_pattern": forms.TextInput(attrs={"placeholder": "^release-.*$"}),
+            "webhook_files_match_pattern": forms.TextInput(
+                attrs={"placeholder": "^docs/.*$"},
+            ),
+            "webhook_labels_match_pattern": forms.TextInput(attrs={"placeholder": "^docs|build$"}),
+            "webhook_commit_message_match_pattern": forms.TextInput(
+                attrs={"placeholder": "^fix|feature$"}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.pk and self.instance.webhook_files_match_pattern:
+            self.initial["webhook_files_match_pattern"] = "\n".join(
+                self.instance.webhook_files_match_pattern
+            )
+
+    def clean_project(self):
+        return self.project
+
+    def clean_webhook_files_match_pattern(self):
+        webhook_files_match_pattern = self.cleaned_data["webhook_files_match_pattern"]
+        if webhook_files_match_pattern:
+            webhook_files_match_pattern = [
+                line.strip() for line in webhook_files_match_pattern.splitlines() if line.strip()
+            ]
+        return webhook_files_match_pattern
+
+    def clean(self):
+        version_predefined_match_pattern = self.cleaned_data.get("version_predefined_match_pattern")
+        if version_predefined_match_pattern is None and not self.cleaned_data.get(
+            "version_match_pattern"
+        ):
+            raise forms.ValidationError(
+                _("You should use either a predefined match or a custom match."),
+            )
+        return super().clean()
