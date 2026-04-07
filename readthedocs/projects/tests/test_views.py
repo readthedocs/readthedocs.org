@@ -19,7 +19,7 @@ from readthedocs.projects.constants import (
     MEDIA_TYPE_HTMLZIP,
     PUBLIC,
 )
-from readthedocs.projects.models import AddonsConfig, Project
+from readthedocs.projects.models import Project
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
