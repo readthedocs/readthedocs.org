@@ -354,15 +354,14 @@ class TestPostBuildOverview(TestCase):
 
             <details open>
             <summary>3 files changed · ➕ 1 added · 📝 1 modified · ➖ 1 deleted</summary>
-
-            | File | Status |
-            | --- | --- |
-            | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
-            | | |
-            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ➖ deleted |
-            | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
-
-
+            <table>
+            <tr><th align="left">File</th><th align="left">Status</th></tr>
+            <tr><td><a href="http://my-project--1.readthedocs.build/en/1/changes.html">changes.html</a></td><td>➕ added</td></tr>
+            <tr><td colspan="2"></td></tr>
+            <tr><td><a href="http://my-project--1.readthedocs.build/en/1/index.html">index.html</a></td><td>📝 modified</td></tr>
+            <tr><td colspan="2"></td></tr>
+            <tr><td><a href="http://my-project--1.readthedocs.build/en/1/deleteme.html">deleteme.html</a></td><td>➖ deleted</td></tr>
+            </table>
             </details>
 
             """
@@ -403,18 +402,17 @@ class TestPostBuildOverview(TestCase):
 
             <details>
             <summary>6 files changed · ➕ 1 added · 📝 4 modified · ➖ 1 deleted</summary>
-
-            | File | Status |
-            | --- | --- |
-            | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
-            | | |
-            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ➖ deleted |
-            | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
-            | [one.html](http://my-project--1.readthedocs.build/en/1/one.html) | 📝 modified |
-            | [three.html](http://my-project--1.readthedocs.build/en/1/three.html) | 📝 modified |
-            | [two.html](http://my-project--1.readthedocs.build/en/1/two.html) | 📝 modified |
-
-
+            <table>
+            <tr><th align="left">File</th><th align="left">Status</th></tr>
+            <tr><td><a href="http://my-project--1.readthedocs.build/en/1/changes.html">changes.html</a></td><td>➕ added</td></tr>
+            <tr><td colspan="2"></td></tr>
+            <tr><td><a href="http://my-project--1.readthedocs.build/en/1/index.html">index.html</a></td><td>📝 modified</td></tr>
+            <tr><td><a href="http://my-project--1.readthedocs.build/en/1/one.html">one.html</a></td><td>📝 modified</td></tr>
+            <tr><td><a href="http://my-project--1.readthedocs.build/en/1/three.html">three.html</a></td><td>📝 modified</td></tr>
+            <tr><td><a href="http://my-project--1.readthedocs.build/en/1/two.html">two.html</a></td><td>📝 modified</td></tr>
+            <tr><td colspan="2"></td></tr>
+            <tr><td><a href="http://my-project--1.readthedocs.build/en/1/deleteme.html">deleteme.html</a></td><td>➖ deleted</td></tr>
+            </table>
             </details>
 
             """

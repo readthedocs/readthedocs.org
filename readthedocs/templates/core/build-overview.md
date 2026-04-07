@@ -13,14 +13,14 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 {% if diff.files %}
 <details{% if diff.should_auto_expand %} open{% endif %}>
 <summary>{{ diff.files|length }} files changed{% if diff.added %} · ➕ {{ diff.added|length }} added{% endif %}{% if diff.modified %} · 📝 {{ diff.modified|length }} modified{% endif %}{% if diff.deleted %} · ➖ {{ diff.deleted|length }} deleted{% endif %}</summary>
-
-| File | Status |
-| --- | --- |
-{% for file in diff.added %}| [{{ file.path }}]({{ file.url }}) | {{ file.status.emoji }} {{ file.status }} |
-{% endfor %}{% if diff.added and diff.non_added %}| | |
-{% endif %}{% for file in diff.non_added %}| [{{ file.path }}]({{ file.url }}) | {{ file.status.emoji }} {{ file.status }} |
-{% endfor %}
-
+<table>
+<tr><th align="left">File</th><th align="left">Status</th></tr>
+{% for file in diff.added %}<tr><td><a href="{{ file.url }}">{{ file.path }}</a></td><td>{{ file.status.emoji }} {{ file.status }}</td></tr>
+{% endfor %}{% if diff.added %}{% if diff.modified or diff.deleted %}<tr><td colspan="2"></td></tr>
+{% endif %}{% endif %}{% for file in diff.modified %}<tr><td><a href="{{ file.url }}">{{ file.path }}</a></td><td>{{ file.status.emoji }} {{ file.status }}</td></tr>
+{% endfor %}{% if diff.modified and diff.deleted %}<tr><td colspan="2"></td></tr>
+{% endif %}{% for file in diff.deleted %}<tr><td><a href="{{ file.url }}">{{ file.path }}</a></td><td>{{ file.status.emoji }} {{ file.status }}</td></tr>
+{% endfor %}</table>
 </details>
 {% else %}
 No files changed.
