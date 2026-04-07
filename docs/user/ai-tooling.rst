@@ -56,8 +56,8 @@ Preserve stable URLs ✅
   Define canonical URLs to reduce ambiguity when similar content exists at
   multiple addresses.
 
-Expose crawlable structure ✅
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Expose discoverable structure ✅
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :doc:`/reference/sitemaps`
   Use generated sitemaps so automated systems can discover your full URL graph.
