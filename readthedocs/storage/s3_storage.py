@@ -69,10 +69,11 @@ class RTDS3Storage(RTDBaseStorage, S3Boto3Storage):
         if not path.endswith("/"):
             path += "/"
 
-        if path in ("", "/"):
+        location = self.location.rstrip("/") + "/"
+        if path == location:
             raise SuspiciousFileOperation("Deleting all storage cannot be right")
 
-        log.debug("Deleting path from media storage", path=path)
+        log.debug("Deleting path from storage", path=path)
         self.bucket.objects.filter(Prefix=path).delete()
 
 

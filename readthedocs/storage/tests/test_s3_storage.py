@@ -7,7 +7,7 @@ from django.test import TestCase
 from readthedocs.storage.s3_storage import RTDS3Storage
 
 
-class TestS3BuildMediaStorageDeleteDirectory(TestCase):
+class TestRTDS3Storage(TestCase):
 
     def setUp(self):
         self.storage = RTDS3Storage()
@@ -35,5 +35,15 @@ class TestS3BuildMediaStorageDeleteDirectory(TestCase):
             self.storage.delete_directory("/")
 
     def test_delete_directory_raises_for_empty_path(self):
+        with pytest.raises(SuspiciousFileOperation):
+            self.storage.delete_directory("")
+
+    def test_delete_directory_raises_for_root_path_with_location(self):
+        self.storage.location = "projects"
+        with pytest.raises(SuspiciousFileOperation):
+            self.storage.delete_directory("/")
+
+    def test_delete_directory_raises_for_empty_path_with_location(self):
+        self.storage.location = "projects"
         with pytest.raises(SuspiciousFileOperation):
             self.storage.delete_directory("")
