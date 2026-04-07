@@ -178,5 +178,5 @@ class FileTreeDiff:
 
     @cached_property
     def should_auto_expand(self):
-        """Auto-expand when there are added files, collapsing other groups."""
-        return bool(self.added) and len(self.added) < 5
+        """Auto-expand the details view when there are few files."""
+        return len(self.files) < 5

@@ -20,24 +20,20 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 <ul>
 {% for file in diff.added %}<li><a href="{{ file.url }}">{{ file.path }}</a></li>
 {% endfor %}</ul>
-{% endif %}{% endif %}{% if diff.modified %}{% if diff.should_auto_expand %}
-<details>
-<summary>📝 {{ diff.modified|length }} modified</summary>
+{% endif %}{% endif %}{% if diff.modified %}{% if diff.modified|length == 1 %}
+<p>📝 <a href="{{ diff.modified.0.url }}">{{ diff.modified.0.path }}</a></p>
 {% else %}
 <p><strong>📝 Modified</strong></p>
-{% endif %}<ul>
+<ul>
 {% for file in diff.modified %}<li><a href="{{ file.url }}">{{ file.path }}</a></li>
 {% endfor %}</ul>
-{% if diff.should_auto_expand %}</details>
-{% endif %}{% endif %}{% if diff.deleted %}{% if diff.should_auto_expand %}
-<details>
-<summary>➖ {{ diff.deleted|length }} deleted</summary>
+{% endif %}{% endif %}{% if diff.deleted %}{% if diff.deleted|length == 1 %}
+<p>➖ <a href="{{ diff.deleted.0.url }}">{{ diff.deleted.0.path }}</a></p>
 {% else %}
 <p><strong>➖ Deleted</strong></p>
-{% endif %}<ul>
+<ul>
 {% for file in diff.deleted %}<li><a href="{{ file.url }}">{{ file.path }}</a></li>
 {% endfor %}</ul>
-{% if diff.should_auto_expand %}</details>
 {% endif %}{% endif %}
 </details>
 {% else %}

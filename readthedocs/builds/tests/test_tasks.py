@@ -357,19 +357,9 @@ class TestPostBuildOverview(TestCase):
 
             <p>➕ <a href="http://my-project--1.readthedocs.build/en/1/changes.html">changes.html</a></p>
 
-            <details>
-            <summary>📝 1 modified</summary>
-            <ul>
-            <li><a href="http://my-project--1.readthedocs.build/en/1/index.html">index.html</a></li>
-            </ul>
-            </details>
+            <p>📝 <a href="http://my-project--1.readthedocs.build/en/1/index.html">index.html</a></p>
 
-            <details>
-            <summary>➖ 1 deleted</summary>
-            <ul>
-            <li><a href="http://my-project--1.readthedocs.build/en/1/deleteme.html">deleteme.html</a></li>
-            </ul>
-            </details>
+            <p>➖ <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html">deleteme.html</a></p>
 
             </details>
 
@@ -409,27 +399,20 @@ class TestPostBuildOverview(TestCase):
             [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
 
 
-            <details open>
+            <details>
             <summary>6 files changed · ➕ 1 added · 📝 4 modified · ➖ 1 deleted</summary>
 
             <p>➕ <a href="http://my-project--1.readthedocs.build/en/1/changes.html">changes.html</a></p>
 
-            <details>
-            <summary>📝 4 modified</summary>
+            <p><strong>📝 Modified</strong></p>
             <ul>
             <li><a href="http://my-project--1.readthedocs.build/en/1/index.html">index.html</a></li>
             <li><a href="http://my-project--1.readthedocs.build/en/1/one.html">one.html</a></li>
             <li><a href="http://my-project--1.readthedocs.build/en/1/three.html">three.html</a></li>
             <li><a href="http://my-project--1.readthedocs.build/en/1/two.html">two.html</a></li>
             </ul>
-            </details>
 
-            <details>
-            <summary>➖ 1 deleted</summary>
-            <ul>
-            <li><a href="http://my-project--1.readthedocs.build/en/1/deleteme.html">deleteme.html</a></li>
-            </ul>
-            </details>
+            <p>➖ <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html">deleteme.html</a></p>
 
             </details>
 
