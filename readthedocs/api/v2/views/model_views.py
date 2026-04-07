@@ -334,6 +334,9 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         This uses files from storage to get the JSON,
         and replaces the ``commands`` part of the response data.
         """
+        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+            return super().retrieve(*args, **kwargs)
+
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
