@@ -294,9 +294,9 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         score = obj._spam_score
         if score is None:
             return "-"
-        if score >= getattr(settings, "RTD_SPAM_THRESHOLD_DELETE_PROJECT", 999):
+        if score >= settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT:
             return format_html('<span style="color: red; font-weight: bold;">{}</span>', score)
-        if score >= getattr(settings, "RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS", 999):
+        if score >= settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS:
             return format_html('<span style="color: orange; font-weight: bold;">{}</span>', score)
         if score >= 1:
             return format_html('<span style="color: goldenrod;">{}</span>', score)
