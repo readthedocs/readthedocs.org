@@ -27,7 +27,6 @@ from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-import readthedocs.builds.automation_actions as actions
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import EXTERNAL
@@ -38,7 +37,6 @@ from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERNS
-from readthedocs.builds.models import AutomationRuleMatch
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
@@ -2621,6 +2619,10 @@ class AutomationRule(TimeStampedModel):
         :param version: Version instance to check and act upon
         :return: True if the action was performed, False otherwise
         """
+        # Avoid circular imports
+        import readthedocs.builds.automation_actions as actions
+        from readthedocs.builds.models import AutomationRuleMatch
+
         actions_map = {
             self.ACTIVATE_VERSION_ACTION: actions.activate_version,
             self.HIDE_VERSION_ACTION: actions.hide_version,

@@ -18,7 +18,6 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import VERSION_TYPES
-from readthedocs.builds.models import AutomationRule
 from readthedocs.core.forms import PrevalidatedForm
 from readthedocs.core.forms import RichChoice
 from readthedocs.core.forms import RichSelect
@@ -35,6 +34,7 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.models import AddonsConfig
+from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable

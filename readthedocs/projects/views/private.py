@@ -29,10 +29,8 @@ from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.forms import AutomationRuleForm
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import AutomationRule
 from readthedocs.builds.models import AutomationRuleMatch
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
@@ -54,6 +52,7 @@ from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
+from readthedocs.projects.forms import AutomationRuleForm
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.forms import EmailHookForm
 from readthedocs.projects.forms import EnvironmentVariableForm
@@ -70,6 +69,7 @@ from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.forms import UserForm
 from readthedocs.projects.forms import WebHookForm
+from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable

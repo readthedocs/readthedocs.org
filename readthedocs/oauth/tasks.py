@@ -11,7 +11,6 @@ from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.builds.models import AutomationRule
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.tasks import PublicTask
@@ -34,6 +33,7 @@ from readthedocs.oauth.services import GitHubAppService
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
+from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
