@@ -101,10 +101,12 @@ Page redirects
 
 .. note::
 
-   Since pages redirects apply to all versions,
-   ``From URL`` doesn't need to include the ``/<language>/<version>`` prefix (e.g. ``/en/latest``),
-   but just the version-specific part of the URL.
-   If you want to set redirects only for some languages or some versions, you should use
+   Since page redirects apply to all versions of a project,
+   ``From URL`` doesn't need to include the ``/<language>/<version>`` prefix (for example, ``/en/latest``),
+   only the path to the page.
+   Page redirects don't apply to translations or subprojects,
+   which need their own redirect rules.
+   If you need a redirect for a specific language or version URL, use
    :ref:`user-defined-redirects:exact redirects` with the fully-specified path.
 
 Exact redirects

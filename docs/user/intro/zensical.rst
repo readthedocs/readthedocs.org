@@ -17,21 +17,21 @@ Minimal configuration is required to build an existing Zensical project on Read 
     version: 2
 
     build:
-    os: ubuntu-24.04
-    tools:
+      os: ubuntu-24.04
+      tools:
         python: latest
-    jobs:
-      # We recommend using a requirements file for reproducible builds.
-      # This is just a quick example to get started.
-      # https://docs.readthedocs.io/page/guides/reproducible-builds.html
-      install:
-        - pip install zensical
-      build:
-        html:
-          - zensical build
-      post_build:
-        - mkdir -p $READTHEDOCS_OUTPUT/html/
-        - cp --recursive site/* $READTHEDOCS_OUTPUT/html/
+      jobs:
+        # We recommend using a requirements file for reproducible builds.
+        # This is just a quick example to get started.
+        # https://docs.readthedocs.io/page/guides/reproducible-builds.html
+        install:
+          - pip install zensical
+        build:
+          html:
+            - zensical build
+        post_build:
+          - mkdir -p $READTHEDOCS_OUTPUT/html/
+          - cp --recursive site/* $READTHEDOCS_OUTPUT/html/
 
 .. _Zensical: https://zensical.org/
 
