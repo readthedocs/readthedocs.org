@@ -88,7 +88,7 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
+            - pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
       - run: sudo apt update
       - run: sudo apt install -y rclone
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
@@ -96,7 +96,7 @@ jobs:
       - run: tox -e py312
       - run: cp .coverage .coverage.tests
       - save_cache:
-          key: pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
+          key: pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
             - ~/.local/bin
@@ -125,14 +125,14 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
+            - pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
       - run: sudo apt update
       - run: sudo apt install -y rclone
       - run: pip install --user tox tox-uv
       - run: tox -e search
       - run: cp .coverage .coverage.search
       - save_cache:
-          key: pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
+          key: pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
             - ~/.local/bin
@@ -154,12 +154,12 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
+            - pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
       - run: pip install --user tox tox-uv
       - run: tox -e proxito
       - run: cp .coverage .coverage.proxito
       - save_cache:
-          key: pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
+          key: pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
             - ~/.local/bin
@@ -179,12 +179,12 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
+            - pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
       - run: pip install --user 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
       - save_cache:
-          key: pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
+          key: pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
             - ~/.local/bin
