@@ -447,7 +447,7 @@ class TestGitHubAppWebhook(TestCase):
             kwargs={"build_api_key": mock.ANY},
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.core.views.hooks.trigger_build", return_value=(mock.MagicMock(), mock.MagicMock()))
     def test_push_branch(self, trigger_build):
         payload = {
             "installation": {
@@ -472,7 +472,7 @@ class TestGitHubAppWebhook(TestCase):
             ]
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.core.views.hooks.trigger_build", return_value=(mock.MagicMock(), mock.MagicMock()))
     def test_push_tag(self, trigger_build):
         payload = {
             "installation": {
@@ -1172,7 +1172,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         # Should NOT trigger build because src/code.py doesn't match docs/*.rst
         trigger_build.assert_not_called()
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.core.views.hooks.trigger_build", return_value=(mock.MagicMock(), mock.MagicMock()))
     def test_push_branch_without_webhook_rules(self, trigger_build):
         """Test that push triggers build normally when no WebhookAutomationRules exist."""
         # No automation rules - should trigger build as usual

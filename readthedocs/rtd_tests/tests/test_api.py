@@ -1905,7 +1905,10 @@ class APIImportTests(TestCase):
         self.assertEqual(len(repos), 0)
 
 
-@mock.patch("readthedocs.core.views.hooks.trigger_build")
+@mock.patch(
+    "readthedocs.core.views.hooks.trigger_build",
+    return_value=(mock.MagicMock(), mock.MagicMock()),
+)
 class IntegrationsTests(TestCase):
 
     """Integration for webhooks, etc."""
