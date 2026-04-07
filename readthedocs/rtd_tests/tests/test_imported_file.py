@@ -59,7 +59,7 @@ class ImportedFileTests(TestCase):
 
     def _copy_storage_dir(self, version):
         """Copy the test directory (rtd_tests/files) to storage"""
-        self.storage.copy_directory(
+        self.storage.rclone_sync_directory(
             self.test_dir,
             self.project.get_storage_path(
                 type_="html",
