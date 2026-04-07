@@ -99,6 +99,7 @@ jobs:
           key: pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
+            - ~/.local/bin
             - .tox
       - persist_to_workspace:
           root: .
@@ -134,6 +135,7 @@ jobs:
           key: pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
+            - ~/.local/bin
             - .tox
       - persist_to_workspace:
           root: .
@@ -160,6 +162,7 @@ jobs:
           key: pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
+            - ~/.local/bin
             - .tox
       - persist_to_workspace:
           root: .
@@ -184,6 +187,7 @@ jobs:
           key: pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
+            - ~/.local/bin
             - .tox
 
   coverage-report:
