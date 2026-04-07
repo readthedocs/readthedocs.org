@@ -15,12 +15,10 @@ Markdown inside <details> requires a blank line after </summary>.
 {% if diff.files %}{% if diff.should_auto_expand %}
 <details open>
 <summary>{{ diff.files|length }} files changed</summary>
-{% for file in diff.added %}
-➕ [`{{ file.path }}`]({{ file.url }})
-{% endfor %}{% for file in diff.modified %}
-📝 [`{{ file.path }}`]({{ file.url }})
-{% endfor %}{% for file in diff.deleted %}
-➖ [`{{ file.path }}`]({{ file.url }})
+
+{% for file in diff.added %}- ➕ [`{{ file.path }}`]({{ file.url }})
+{% endfor %}{% for file in diff.modified %}- 📝 [`{{ file.path }}`]({{ file.url }})
+{% endfor %}{% for file in diff.deleted %}- ➖ [`{{ file.path }}`]({{ file.url }})
 {% endfor %}
 </details>
 {% else %}
