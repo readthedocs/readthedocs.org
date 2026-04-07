@@ -125,6 +125,8 @@ jobs:
       - restore_cache:
           keys:
             - pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
+      - run: sudo apt update
+      - run: sudo apt install -y rclone
       - run: pip install --user tox tox-uv
       - run: tox -e search
       - run: cp .coverage .coverage.search
