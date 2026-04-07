@@ -196,6 +196,24 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     forced_only=True,
                 )
                 if redirect_response:
+                    # Set request attributes for the middleware to use
+                    # (cache tags, CDN headers, etc).
+                    # Since we haven't resolved the path yet, we try to resolve
+                    # it now to get the version info for proper cache headers.
+                    request.path_project_slug = unresolved_domain.project.slug
+                    try:
+                        unresolved = unresolver.unresolve_path(
+                            unresolved_domain=unresolved_domain,
+                            path=path,
+                            append_indexhtml=False,
+                        )
+                        request.path_version_slug = unresolved.version.slug
+                        self.cache_response = unresolved.version.is_public
+                    except Exception:
+                        # If the path can't be resolved (e.g., "/" before
+                        # system redirect), we still return the redirect
+                        # but let the middleware set default cache headers.
+                        self.cache_response = True
                     return redirect_response
             except InfiniteRedirectException:
                 pass
