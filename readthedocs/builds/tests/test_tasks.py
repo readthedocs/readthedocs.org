@@ -352,12 +352,13 @@ class TestPostBuildOverview(TestCase):
             [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
 
 
-            <details>
+            <details open>
             <summary>Show files changed (3 files in total): 📝 1 modified | ➕ 1 added | ➖ 1 deleted</summary>
 
             | File | Status |
             | --- | --- |
             | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
+            | | |
             | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ➖ deleted |
             | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
 
@@ -406,6 +407,7 @@ class TestPostBuildOverview(TestCase):
             | File | Status |
             | --- | --- |
             | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
+            | | |
             | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ➖ deleted |
             | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
             | [one.html](http://my-project--1.readthedocs.build/en/1/one.html) | 📝 modified |
