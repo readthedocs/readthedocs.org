@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from django.apps import apps
@@ -27,6 +28,13 @@ class TestTemplateSyntax(TestCase):
         # dj_pagination uses {% ifequal %} removed in Django 5.1.
         "pagination/pagination.html",
     }
+
+    # Regex matching TemplateSyntaxError messages for tag libraries
+    # that are not registered in this Django project. Templates from
+    # third-party apps may reference tag libraries from apps that are
+    # not installed in this project (e.g. ext-theme templates that
+    # depend on apps only available in readthedocs-corporate).
+    _TAG_LIBRARY_RE = re.compile(r"is not a registered tag library")
 
     def _get_all_template_names(self):
         """Collect all template names from DIRS and app template directories."""
@@ -65,6 +73,11 @@ class TestTemplateSyntax(TestCase):
             try:
                 get_template(name)
             except TemplateSyntaxError as e:
+                # Skip templates that reference tag libraries not installed
+                # in this project. These come from third-party apps whose
+                # templates depend on other apps we don't have installed.
+                if self._TAG_LIBRARY_RE.search(str(e)):
+                    continue
                 errors.append(f"  {name}: {e}")
 
         if errors:
