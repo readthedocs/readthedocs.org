@@ -1,4 +1,3 @@
-from types import SimpleNamespace
 from unittest import mock
 
 from django.test import TestCase
@@ -71,15 +70,13 @@ class TestBuildDirectorJobMetadata(TestCase):
     @mock.patch("readthedocs.doc_builder.director.find_one")
     def test_checkout_sets_checkout_job_context(self, find_one, load_yaml_config):
         data = mock.Mock()
-        data.project = mock.Mock()
         data.project.default_branch = "main"
         data.project.readthedocs_yaml_path = None
         data.project.checkout_path.return_value = "/tmp/repo"
-        data.version = mock.Mock()
         data.version.slug = "latest"
         data.version.identifier = "main"
         data.version.is_machine_latest = False
-        data.version.project = mock.Mock(readthedocs_yaml_path=None)
+        data.version.project.readthedocs_yaml_path = None
         data.build = {}
         data.build_commit = None
 
@@ -103,33 +100,24 @@ class TestBuildDirectorJobMetadata(TestCase):
     @mock.patch("readthedocs.doc_builder.director.Virtualenv")
     def test_setup_environment_sets_predefined_job_context(self, virtualenv_cls, get_storage):
         data = mock.Mock()
-        data.project = mock.Mock()
         data.project.checkout_path.return_value = "/tmp/repo"
         data.project.doc_path = "/tmp/docs"
-        data.version = mock.Mock()
         data.version.slug = "latest"
         data.version.is_external = False
-        data.api_client = mock.Mock()
         data.build = {"id": 1}
-        data.config = SimpleNamespace(
-            is_using_conda=False,
-            doctype="generic",
-            build=SimpleNamespace(
-                os="ubuntu-24.04",
-                apt_packages=[],
-                tools={},
-                jobs=SimpleNamespace(
-                    pre_system_dependencies=None,
-                    post_system_dependencies=None,
-                    pre_create_environment=None,
-                    create_environment=None,
-                    post_create_environment=None,
-                    pre_install=None,
-                    install=None,
-                    post_install=None,
-                ),
-            ),
-        )
+        data.config.is_using_conda = False
+        data.config.doctype = "generic"
+        data.config.build.os = "ubuntu-24.04"
+        data.config.build.apt_packages = []
+        data.config.build.tools = {}
+        data.config.build.jobs.pre_system_dependencies = None
+        data.config.build.jobs.post_system_dependencies = None
+        data.config.build.jobs.pre_create_environment = None
+        data.config.build.jobs.create_environment = None
+        data.config.build.jobs.post_create_environment = None
+        data.config.build.jobs.pre_install = None
+        data.config.build.jobs.install = None
+        data.config.build.jobs.post_install = None
 
         director = BuildDirector(data)
         director.build_environment = mock.Mock(build_job=None)
@@ -179,23 +167,15 @@ class TestBuildDirectorJobMetadata(TestCase):
 
     def test_build_sets_predefined_build_step_context(self):
         data = mock.Mock()
-        data.version = mock.Mock(type="branch")
-        data.config = SimpleNamespace(
-            doctype="sphinx",
-            formats=["pdf", "htmlzip", "epub"],
-            build=SimpleNamespace(
-                jobs=SimpleNamespace(
-                    pre_build=None,
-                    post_build=None,
-                    build=SimpleNamespace(
-                        html=None,
-                        pdf=None,
-                        htmlzip=None,
-                        epub=None,
-                    ),
-                ),
-            ),
-        )
+        data.version.type = "branch"
+        data.config.doctype = "sphinx"
+        data.config.formats = ["pdf", "htmlzip", "epub"]
+        data.config.build.jobs.pre_build = None
+        data.config.build.jobs.post_build = None
+        data.config.build.jobs.build.html = None
+        data.config.build.jobs.build.pdf = None
+        data.config.build.jobs.build.htmlzip = None
+        data.config.build.jobs.build.epub = None
 
         director = BuildDirector(data)
         director.build_environment = mock.Mock(build_job=None)
@@ -222,19 +202,11 @@ class TestBuildDirectorJobMetadata(TestCase):
 
     def test_run_build_job_uses_existing_step_context(self):
         data = mock.Mock()
-        data.project = mock.Mock()
         data.project.checkout_path.return_value = "/tmp/repo"
-        data.version = mock.Mock()
         data.version.slug = "latest"
-        data.config = SimpleNamespace(
-            build=SimpleNamespace(
-                jobs=SimpleNamespace(
-                    pre_install=["echo pre install"],
-                    post_checkout=["echo post checkout"],
-                    build=SimpleNamespace(html=["echo build html"]),
-                ),
-            ),
-        )
+        data.config.build.jobs.pre_install = ["echo pre install"]
+        data.config.build.jobs.post_checkout = ["echo post checkout"]
+        data.config.build.jobs.build.html = ["echo build html"]
 
         director = BuildDirector(data)
         director.vcs_environment = mock.Mock(build_job="checkout")

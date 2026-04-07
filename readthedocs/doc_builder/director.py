@@ -461,14 +461,14 @@ class BuildDirector:
         In this case, `self.data.config.build.jobs.pre_build` will contains
         `sed` command.
         """
+        commands = get_dotted_attribute(self.data.config, f"build.jobs.{job}", None)
+        if not commands:
+            return
+
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.vcs_environment
         if job not in ("pre_checkout", "post_checkout"):
             environment = self.build_environment
-
-        commands = get_dotted_attribute(self.data.config, f"build.jobs.{job}", None)
-        if not commands:
-            return
 
         for command in commands:
             environment.run(command, escape_command=False, cwd=cwd)

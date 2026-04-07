@@ -1065,7 +1065,19 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     )
 
     command = models.TextField(_("Command"))
-    build_job = models.CharField(_("Build job"), max_length=128, blank=True, null=True)
+    job = models.CharField(
+        _("Build job"),
+        max_length=128,
+        blank=True,
+        null=True,
+        choices=[
+            ("checkout", _("Checkout")),
+            ("system_dependencies", _("System dependencies")),
+            ("create_environment", _("Create environment")),
+            ("install", _("Install")),
+            ("build", _("Build")),
+        ],
+    )
     description = models.TextField(_("Description"), blank=True)
     output = models.TextField(_("Command output"), blank=True)
     exit_code = models.IntegerField(_("Command exit code"), null=True, blank=True)

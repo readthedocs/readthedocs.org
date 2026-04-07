@@ -156,7 +156,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
             "build",
             "command",
             "description",
-            "build_job",
+            "job",
             "output",
             "exit_code",
             "start_time",

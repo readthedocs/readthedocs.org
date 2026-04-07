@@ -15,9 +15,16 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="buildcommandresult",
-            name="build_job",
+            name="job",
             field=models.CharField(
                 blank=True,
+                choices=[
+                    ("checkout", "Checkout"),
+                    ("system_dependencies", "System dependencies"),
+                    ("create_environment", "Create environment"),
+                    ("install", "Install"),
+                    ("build", "Build"),
+                ],
                 max_length=128,
                 null=True,
                 verbose_name="Build job",

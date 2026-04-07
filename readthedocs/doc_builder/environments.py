@@ -106,7 +106,7 @@ class BuildCommand(BuildCommandResultMixin):
 
         self.bin_path = bin_path
         self.description = description
-        self._build_job = build_job
+        self.build_job = build_job
         self.record_as_success = record_as_success
         self.demux = demux
         self.exit_code = None
@@ -290,7 +290,7 @@ class BuildCommand(BuildCommandResultMixin):
             "command": self.get_command(),
             "description": self.description,
             # This metadata powers build-step labels in build detail UI.
-            "build_job": self._build_job,
+            "job": self.build_job,
             "output": self.sanitize_output(self.output),
             "exit_code": self.exit_code,
             "start_time": self.start_time,

@@ -18,7 +18,7 @@ class APIBuildCommandTests(TestCase):
         self.project = Project.objects.get(pk=1)
         self.version = self.project.versions.first()
 
-    def test_build_detail_exposes_build_job(self):
+    def test_build_detail_exposes_job(self):
         _, build_api_key = BuildAPIKey.objects.create_key(self.project)
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
@@ -31,7 +31,7 @@ class APIBuildCommandTests(TestCase):
             {
                 "build": build.pk,
                 "command": "python -m sphinx",
-                "build_job": "build.html",
+                "job": "build",
                 "start_time": now - datetime.timedelta(seconds=3),
                 "end_time": now,
             },
@@ -41,4 +41,4 @@ class APIBuildCommandTests(TestCase):
 
         detail = client.get(f"/api/v2/build/{build.pk}/")
         assert detail.status_code == status.HTTP_200_OK
-        assert detail.data["commands"][0]["build_job"] == "build.html"
+        assert detail.data["commands"][0]["job"] == "build"
