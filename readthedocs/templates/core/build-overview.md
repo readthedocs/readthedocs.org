@@ -12,8 +12,19 @@ Markdown inside <details> requires a blank line after </summary>.
 
 [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>]({{ current_version.get_absolute_url }})
 
-{% if diff.files %}
-<details{% if diff.should_auto_expand %} open{% endif %}>
+{% if diff.files %}{% if diff.should_auto_expand %}
+<details open>
+<summary>{{ diff.files|length }} files changed</summary>
+{% for file in diff.added %}
+➕ [`{{ file.path }}`]({{ file.url }})
+{% endfor %}{% for file in diff.modified %}
+📝 [`{{ file.path }}`]({{ file.url }})
+{% endfor %}{% for file in diff.deleted %}
+➖ [`{{ file.path }}`]({{ file.url }})
+{% endfor %}
+</details>
+{% else %}
+<details>
 <summary>{{ diff.files|length }} files changed{% if diff.added %} · ➕ {{ diff.added|length }} added{% endif %}{% if diff.modified %} · 📝 {{ diff.modified|length }} modified{% endif %}{% if diff.deleted %} · ➖ {{ diff.deleted|length }} deleted{% endif %}</summary>
 {% if diff.added %}
 ➕ **Added**
@@ -29,6 +40,6 @@ Markdown inside <details> requires a blank line after </summary>.
 {% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more...*
 {% endif %}{% endif %}
 </details>
-{% else %}
+{% endif %}{% else %}
 No files changed.
 {% endif %}

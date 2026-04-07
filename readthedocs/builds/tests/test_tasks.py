@@ -353,16 +353,13 @@ class TestPostBuildOverview(TestCase):
 
 
             <details open>
-            <summary>3 files changed · ➕ 1 added · 📝 1 modified · ➖ 1 deleted</summary>
+            <summary>3 files changed</summary>
 
-            ➕ **Added**
-            - [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
+            ➕ [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
 
-            📝 **Modified**
-            - [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
+            📝 [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
 
-            ➖ **Deleted**
-            - [`deleteme.html`](http://my-project--1.readthedocs.build/en/1/deleteme.html)
+            ➖ [`deleteme.html`](http://my-project--1.readthedocs.build/en/1/deleteme.html)
 
             </details>
 
