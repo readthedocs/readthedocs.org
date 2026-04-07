@@ -14,13 +14,13 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 <details{% if diff.should_auto_expand %} open{% endif %}>
 <summary>{{ diff.files|length }} files changed{% if diff.added %} · ➕ {{ diff.added|length }} added{% endif %}{% if diff.modified %} · 📝 {{ diff.modified|length }} modified{% endif %}{% if diff.deleted %} · ➖ {{ diff.deleted|length }} deleted{% endif %}</summary>
 <table>
-<tr><th align="left">File</th><th align="left">Status</th></tr>
-{% for file in diff.added %}<tr><td><a href="{{ file.url }}">{{ file.path }}</a></td><td>{{ file.status.emoji }} {{ file.status }}</td></tr>
-{% endfor %}{% if diff.added %}{% if diff.modified or diff.deleted %}<tr><td colspan="2"></td></tr>
-{% endif %}{% endif %}{% for file in diff.modified %}<tr><td><a href="{{ file.url }}">{{ file.path }}</a></td><td>{{ file.status.emoji }} {{ file.status }}</td></tr>
-{% endfor %}{% if diff.modified and diff.deleted %}<tr><td colspan="2"></td></tr>
-{% endif %}{% for file in diff.deleted %}<tr><td><a href="{{ file.url }}">{{ file.path }}</a></td><td>{{ file.status.emoji }} {{ file.status }}</td></tr>
-{% endfor %}</table>
+{% if diff.added %}<tr><th align="left" colspan="2">➕ Added</th></tr>
+{% for file in diff.added %}<tr><td>&nbsp;&nbsp;<a href="{{ file.url }}">{{ file.path }}</a></td></tr>
+{% endfor %}{% endif %}{% if diff.modified %}<tr><th align="left" colspan="2">📝 Modified</th></tr>
+{% for file in diff.modified %}<tr><td>&nbsp;&nbsp;<a href="{{ file.url }}">{{ file.path }}</a></td></tr>
+{% endfor %}{% endif %}{% if diff.deleted %}<tr><th align="left" colspan="2">➖ Deleted</th></tr>
+{% for file in diff.deleted %}<tr><td>&nbsp;&nbsp;<a href="{{ file.url }}">{{ file.path }}</a></td></tr>
+{% endfor %}{% endif %}</table>
 </details>
 {% else %}
 No files changed.
