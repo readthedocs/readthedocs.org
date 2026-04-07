@@ -729,10 +729,18 @@ class Project(models.Model):
         qs._raw_delete(qs.db)
 
         # Remove build artifacts from storage for cold storage builds.
+        # Send paths in batches to avoid high memory usage and
+        # oversized Celery broker messages for projects with many builds.
+        batch_size = 1000
         paths_to_delete = []
         for build in self.builds.filter(cold_storage=True).iterator():
             paths_to_delete.append(build.storage_path)
-        remove_build_commands_storage_paths.delay(paths_to_delete)
+            if len(paths_to_delete) >= batch_size:
+                remove_build_commands_storage_paths.delay(paths_to_delete)
+                paths_to_delete = []
+
+        if paths_to_delete:
+            remove_build_commands_storage_paths.delay(paths_to_delete)
 
         # Remove extra resources
         clean_project_resources(self)

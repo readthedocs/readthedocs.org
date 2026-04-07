@@ -678,7 +678,7 @@ def _delete_builds(builds, start: int, end: int) -> int:
 @app.task(queue="web")
 def remove_build_commands_storage_paths(paths):
     """Remove the build commands from storage for the given paths."""
-    log.info("Removing paths from build commands storage.", paths=paths)
+    log.info("Removing paths from build commands storage.", paths=paths[:10])
     try:
         build_commands_storage.delete_paths(paths)
     except Exception:
