@@ -355,11 +355,14 @@ class TestPostBuildOverview(TestCase):
             <details open>
             <summary>3 files changed · ➕ 1 added · 📝 1 modified · ➖ 1 deleted</summary>
 
-            <p>➕ <a href="http://my-project--1.readthedocs.build/en/1/changes.html">changes.html</a></p>
+            ➕ **Added**
+            - [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
 
-            <p>📝 <a href="http://my-project--1.readthedocs.build/en/1/index.html">index.html</a></p>
+            📝 **Modified**
+            - [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
 
-            <p>➖ <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html">deleteme.html</a></p>
+            ➖ **Deleted**
+            - [`deleteme.html`](http://my-project--1.readthedocs.build/en/1/deleteme.html)
 
             </details>
 
@@ -402,17 +405,17 @@ class TestPostBuildOverview(TestCase):
             <details>
             <summary>6 files changed · ➕ 1 added · 📝 4 modified · ➖ 1 deleted</summary>
 
-            <p>➕ <a href="http://my-project--1.readthedocs.build/en/1/changes.html">changes.html</a></p>
+            ➕ **Added**
+            - [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
 
-            <p><strong>📝 Modified</strong></p>
-            <ul>
-            <li><a href="http://my-project--1.readthedocs.build/en/1/index.html">index.html</a></li>
-            <li><a href="http://my-project--1.readthedocs.build/en/1/one.html">one.html</a></li>
-            <li><a href="http://my-project--1.readthedocs.build/en/1/three.html">three.html</a></li>
-            <li><a href="http://my-project--1.readthedocs.build/en/1/two.html">two.html</a></li>
-            </ul>
+            📝 **Modified**
+            - [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
+            - [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html)
+            - [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html)
+            - [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html)
 
-            <p>➖ <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html">deleteme.html</a></p>
+            ➖ **Deleted**
+            - [`deleteme.html`](http://my-project--1.readthedocs.build/en/1/deleteme.html)
 
             </details>
 
