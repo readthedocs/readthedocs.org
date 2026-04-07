@@ -199,6 +199,7 @@ jobs:
             pip install --user coverage
             coverage combine .coverage.*
             coverage xml
+            coverage report --show-missing
       - codecov/upload
 
   checks:
