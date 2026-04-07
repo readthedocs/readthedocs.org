@@ -9,7 +9,7 @@ from django_safemigrate import Safe
 
 def forward_migrate_data(apps, schema_editor):
     RegexAutomationRule = apps.get_model("builds", "RegexAutomationRule")
-    AutomationRule = apps.get_model("builds", "AutomationRule")
+    AutomationRule = apps.get_model("projects", "AutomationRule")
 
     for rule in RegexAutomationRule.objects.iterator():
         AutomationRule.objects.create(

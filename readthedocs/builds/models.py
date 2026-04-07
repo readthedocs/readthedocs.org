@@ -1366,7 +1366,7 @@ class AutomationRuleMatch(TimeStampedModel):
     }
 
     rule = models.ForeignKey(
-        "AutomationRule",
+        "projects.AutomationRule",
         verbose_name=_("Matched rule"),
         related_name="matches",
         on_delete=models.CASCADE,
