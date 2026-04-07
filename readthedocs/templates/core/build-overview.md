@@ -12,7 +12,7 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 {% if diff.files %}
 <details{% if diff.should_auto_expand %} open{% endif %}>
-<summary>Show files changed ({{ diff.files|length }} files in total): 📝 {{ diff.modified|length }} modified | ➕ {{ diff.added|length }} added | ➖ {{ diff.deleted|length }} deleted</summary>
+<summary>{{ diff.files|length }} files changed{% if diff.added %} · ➕ {{ diff.added|length }} added{% endif %}{% if diff.modified %} · 📝 {{ diff.modified|length }} modified{% endif %}{% if diff.deleted %} · ➖ {{ diff.deleted|length }} deleted{% endif %}</summary>
 
 | File | Status |
 | --- | --- |

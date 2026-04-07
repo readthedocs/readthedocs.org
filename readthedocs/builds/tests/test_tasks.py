@@ -353,7 +353,7 @@ class TestPostBuildOverview(TestCase):
 
 
             <details open>
-            <summary>Show files changed (3 files in total): 📝 1 modified | ➕ 1 added | ➖ 1 deleted</summary>
+            <summary>3 files changed · ➕ 1 added · 📝 1 modified · ➖ 1 deleted</summary>
 
             | File | Status |
             | --- | --- |
@@ -402,7 +402,7 @@ class TestPostBuildOverview(TestCase):
 
 
             <details>
-            <summary>Show files changed (6 files in total): 📝 4 modified | ➕ 1 added | ➖ 1 deleted</summary>
+            <summary>6 files changed · ➕ 1 added · 📝 4 modified · ➖ 1 deleted</summary>
 
             | File | Status |
             | --- | --- |
