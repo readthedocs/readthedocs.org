@@ -177,11 +177,6 @@ class FileTreeDiff:
         return [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
 
     @cached_property
-    def non_added(self):
-        """List of non-added files (modified + deleted)."""
-        return [file for file in self.files if file.status != FileTreeDiffFileStatus.added]
-
-    @cached_property
     def should_auto_expand(self):
-        """Auto-expand the details view when there are added files and few total files."""
-        return bool(self.added) and len(self.files) < 5
+        """Auto-expand when there are added files, collapsing other groups."""
+        return bool(self.added) and len(self.added) < 5

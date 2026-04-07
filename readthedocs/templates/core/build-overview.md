@@ -13,14 +13,32 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 {% if diff.files %}
 <details{% if diff.should_auto_expand %} open{% endif %}>
 <summary>{{ diff.files|length }} files changed{% if diff.added %} · ➕ {{ diff.added|length }} added{% endif %}{% if diff.modified %} · 📝 {{ diff.modified|length }} modified{% endif %}{% if diff.deleted %} · ➖ {{ diff.deleted|length }} deleted{% endif %}</summary>
-<table>
-{% if diff.added %}<tr><th align="left" colspan="2">➕ Added</th></tr>
-{% for file in diff.added %}<tr><td>&nbsp;&nbsp;<a href="{{ file.url }}">{{ file.path }}</a></td></tr>
-{% endfor %}{% endif %}{% if diff.modified %}<tr><th align="left" colspan="2">📝 Modified</th></tr>
-{% for file in diff.modified %}<tr><td>&nbsp;&nbsp;<a href="{{ file.url }}">{{ file.path }}</a></td></tr>
-{% endfor %}{% endif %}{% if diff.deleted %}<tr><th align="left" colspan="2">➖ Deleted</th></tr>
-{% for file in diff.deleted %}<tr><td>&nbsp;&nbsp;<a href="{{ file.url }}">{{ file.path }}</a></td></tr>
-{% endfor %}{% endif %}</table>
+{% if diff.added %}{% if diff.added|length == 1 %}
+<p>➕ <a href="{{ diff.added.0.url }}">{{ diff.added.0.path }}</a></p>
+{% else %}
+<p><strong>➕ Added</strong></p>
+<ul>
+{% for file in diff.added %}<li><a href="{{ file.url }}">{{ file.path }}</a></li>
+{% endfor %}</ul>
+{% endif %}{% endif %}{% if diff.modified %}{% if diff.should_auto_expand %}
+<details>
+<summary>📝 {{ diff.modified|length }} modified</summary>
+{% else %}
+<p><strong>📝 Modified</strong></p>
+{% endif %}<ul>
+{% for file in diff.modified %}<li><a href="{{ file.url }}">{{ file.path }}</a></li>
+{% endfor %}</ul>
+{% if diff.should_auto_expand %}</details>
+{% endif %}{% endif %}{% if diff.deleted %}{% if diff.should_auto_expand %}
+<details>
+<summary>➖ {{ diff.deleted|length }} deleted</summary>
+{% else %}
+<p><strong>➖ Deleted</strong></p>
+{% endif %}<ul>
+{% for file in diff.deleted %}<li><a href="{{ file.url }}">{{ file.path }}</a></li>
+{% endfor %}</ul>
+{% if diff.should_auto_expand %}</details>
+{% endif %}{% endif %}
 </details>
 {% else %}
 No files changed.
