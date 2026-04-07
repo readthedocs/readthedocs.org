@@ -136,6 +136,11 @@ CUSTOM_MATCH = "custom-match"
 # allowing an optional "v" prefix.
 SEMVER_VERSIONS_REGEX = r"^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"  # noqa
 
+OLD_VERSION_PREDEFINED_MATCH_PATTERNS = (
+    (ALL_VERSIONS, _("Any version")),
+    (SEMVER_VERSIONS, _("SemVer versions")),
+    (None, _("Custom match")),
+)
 
 VERSION_PREDEFINED_MATCH_PATTERNS = (
     (ALL_VERSIONS, _("Any version")),

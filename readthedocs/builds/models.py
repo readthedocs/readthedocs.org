@@ -29,9 +29,9 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
-from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.builds.managers import AutomationRuleMatchManager
 from readthedocs.builds.managers import BuildConfigManager
@@ -1131,7 +1131,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             "otherwise match_arg will be used."
         ),
         max_length=255,
-        choices=VERSION_PREDEFINED_MATCH_PATTERNS,
+        choices=OLD_VERSION_PREDEFINED_MATCH_PATTERNS,
         null=True,
         blank=True,
         default=None,

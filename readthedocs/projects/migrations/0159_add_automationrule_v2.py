@@ -44,23 +44,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField(
             model_name="versionautomationrule",
-            name="predefined_match_arg",
-            field=models.CharField(
-                blank=True,
-                choices=[
-                    ("all-versions", "Any version"),
-                    ("semver-versions", "SemVer versions"),
-                    ("custom-match", "Custom match"),
-                ],
-                default=None,
-                help_text="Match argument defined by us, it is used if is not None, otherwise match_arg will be used.",
-                max_length=255,
-                null=True,
-                verbose_name="Predefined match argument",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="versionautomationrule",
             name="project",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
