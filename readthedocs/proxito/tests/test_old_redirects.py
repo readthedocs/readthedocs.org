@@ -757,6 +757,37 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             r["Location"], "http://project.dev.readthedocs.io/en/latest/tutorial.html"
         )
 
+    def test_page_redirect_does_not_apply_to_translations_or_subprojects(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/install.html",
+            to_url="/tutorial/install.html",
+        )
+
+        r = self.client.get(
+            "/en/latest/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+        r = self.client.get(
+            "/es/latest/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 404)
+
+        r = self.client.get(
+            "/projects/subproject/en/latest/install.html",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 404)
+
     def test_redirect_inactive_version(self):
         """
         Inactive Version (``active=False``) should redirect properly.

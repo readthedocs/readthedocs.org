@@ -52,6 +52,12 @@ Rate limiting
 
 The API limits unauthenticated requests to 5 per minute and authenticated requests to 60 per minute.
 
+.. note::
+
+   Authenticating your API requests with a :ref:`token <api/v3:Token>` also bypasses most other rate limiting,
+   including network-level blocks that may affect automated scripts accessing Read the Docs from cloud providers or CI environments.
+   If your script is getting ``403 Forbidden`` responses, adding an ``Authorization: Token <your-access-token>`` header is the recommended solution.
+
 Pagination
 ~~~~~~~~~~
 
@@ -2246,16 +2252,16 @@ Embed
 
     .. prompt:: bash $
 
-        curl https://app.readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23read-the-docs-features
+        curl https://app.readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.com/platform/stable/reference/features.html%23feature-reference
 
     **Example response**:
 
     .. sourcecode:: js
 
        {
-           "url": "https://docs.readthedocs.io/en/latest/features.html#read-the-docs-features",
-           "fragment": "read-the-docs-features",
-           "content": "<div class=\"section\" id=\"read-the-docs-features\">\n<h1>Read the Docs ...",
+           "url": "https://docs.readthedocs.com/platform/stable/reference/features.html#feature-reference",
+           "fragment": "feature-reference",
+           "content": "<section id=\"feature-reference\">\n<h1>Feature reference ...",
            "external": false
        }
 

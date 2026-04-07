@@ -12,6 +12,10 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
+anyio==4.12.1
+    # via
+    #   -r requirements/pip.txt
+    #   elasticsearch
 asgiref==3.11.1
     # via
     #   -r requirements/pip.txt
@@ -25,11 +29,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.49
+boto3==1.42.73
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.49
+botocore==1.42.73
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -41,7 +45,7 @@ celery==5.6.2
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2026.1.4
+certifi==2026.2.25
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -52,7 +56,7 @@ cffi==2.0.0
     #   -r requirements/pip.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.4
+charset-normalizer==3.4.6
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -80,7 +84,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-cron-descriptor==2.0.6
+cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -103,7 +107,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.11
+django==5.2.12
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -132,7 +136,7 @@ django-annoying==0.10.8
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
-django-celery-beat==2.8.1
+django-celery-beat==2.9.0
     # via -r requirements/pip.txt
 django-cors-headers==4.9.0
     # via -r requirements/pip.txt
@@ -142,7 +146,7 @@ django-csp==3.8
     # via -r requirements/pip.txt
 django-debug-toolbar==6.2.0
     # via -r requirements/pip.txt
-django-elasticsearch-dsl==8.2
+django-elasticsearch-dsl==9.0
     # via -r requirements/pip.txt
 django-extensions==4.1
     # via -r requirements/pip.txt
@@ -158,7 +162,7 @@ django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-polymorphic==4.11.0
+django-polymorphic==4.11.2
     # via -r requirements/pip.txt
 django-safemigrate==6.0
     # via -r requirements/pip.txt
@@ -176,7 +180,7 @@ django-timezone-field==7.2.1
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.16.1
+djangorestframework==3.17.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -195,11 +199,11 @@ drf-extensions==0.8.0
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.17.1
+elastic-transport==9.2.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.19.3
+elasticsearch==9.3.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -209,17 +213,19 @@ fido2==2.1.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.24.0
+filelock==3.25.2
     # via
     #   -r requirements/pip.txt
+    #   python-discovery
     #   virtualenv
 gunicorn==25.1.0
     # via -r requirements/pip.txt
 idna==3.11
     # via
     #   -r requirements/pip.txt
+    #   anyio
     #   requests
-ipython==9.10.0
+ipython==9.11.0
     # via -r requirements/deploy.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -254,7 +260,7 @@ markdown==3.10.2
     # via -r requirements/pip.txt
 matplotlib-inline==0.2.1
     # via ipython
-newrelic==10.7.0
+newrelic==12.0.0
     # via -r requirements/deploy.in
 oauthlib==3.3.1
     # via
@@ -277,18 +283,19 @@ pexpect==4.9.0
     # via ipython
 pillow==12.1.1
     # via -r requirements/pip.txt
-platformdirs==4.9.1
+platformdirs==4.9.4
     # via
     #   -r requirements/pip.txt
+    #   python-discovery
     #   virtualenv
 prompt-toolkit==3.0.52
     # via
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.3.2
+psycopg[binary,pool]==3.3.3
     # via -r requirements/pip.txt
-psycopg-binary==3.3.2
+psycopg-binary==3.3.3
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -317,7 +324,7 @@ pygments==2.19.2
     #   -r requirements/pip.txt
     #   ipython
     #   ipython-pygments-lexers
-pyjwt[crypto]==2.11.0
+pyjwt[crypto]==2.12.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -338,6 +345,10 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
+python-discovery==1.2.0
+    # via
+    #   -r requirements/pip.txt
+    #   virtualenv
 python-ipware==3.0.0
     # via
     #   -r requirements/pip.txt
@@ -346,7 +357,7 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2025.2
+pytz==2026.1.post1
     # via -r requirements/pip.txt
 pyyaml==6.0.3
     # via -r requirements/pip.txt
@@ -354,9 +365,9 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==7.1.1
+redis==7.3.0
     # via -r requirements/pip.txt
-regex==2026.1.15
+regex==2026.2.28
     # via -r requirements/pip.txt
 requests==2.32.5
     # via
@@ -378,9 +389,9 @@ s3transfer==0.16.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.4.6
+selectolax==0.4.7
     # via -r requirements/pip.txt
-sentry-sdk==2.52.0
+sentry-sdk==2.55.0
     # via structlog-sentry
 six==1.17.0
     # via
@@ -391,6 +402,11 @@ six==1.17.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.txt
+sniffio==1.3.1
+    # via
+    #   -r requirements/pip.txt
+    #   elastic-transport
+    #   elasticsearch
 sqlparse==0.5.5
     # via
     #   -r requirements/pip.txt
@@ -420,7 +436,7 @@ traitlets==5.14.3
 typing-extensions==4.15.0
     # via
     #   -r requirements/pip.txt
-    #   cron-descriptor
+    #   anyio
     #   django-polymorphic
     #   elasticsearch
     #   psycopg
@@ -447,7 +463,7 @@ ua-parser==1.0.1
     # via
     #   -r requirements/pip.txt
     #   user-agents
-ua-parser-builtins==202602
+ua-parser-builtins==202603
     # via
     #   -r requirements/pip.txt
     #   ua-parser
@@ -474,7 +490,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.36.1
+virtualenv==21.2.0
     # via -r requirements/pip.txt
 wcwidth==0.6.0
     # via

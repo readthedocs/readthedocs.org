@@ -43,10 +43,10 @@ RUN apt-get -y install \
       libxmlsec1-dev \
       libxmlsec1-openssl
 
-# Gets the MinIO mc client used to add buckets upon initialization
+# Gets the mc (MinIO Client) used to add buckets upon initialization in RustFS (S3 emulator).
+# The mc client is compatible with any S3-compatible storage, including RustFS.
 # If this client should have issues running inside this image, it is also
 # fine to defer it to a separate image.
-# The current minio/mc Docker image could be a lot smaller
 RUN curl --disable https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-06-11T21-10-36Z -o /usr/bin/mc && \
     chmod +x /usr/bin/mc
 

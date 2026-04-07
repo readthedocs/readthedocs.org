@@ -2092,6 +2092,7 @@ class Feature(models.Model):
     BUILD_FULL_CLEAN = "build_full_clean"
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
+    BUILD_IN_PARALLEL = "build_in_parallel"
 
     FEATURES = (
         (
@@ -2152,6 +2153,10 @@ class Feature(models.Model):
         (
             BUILD_NO_ACKS_LATE,
             _("Build: Do not use Celery ASK_LATE config for this project."),
+        ),
+        (
+            BUILD_IN_PARALLEL,
+            _("Build: Enable parallel building."),
         ),
     )
 
