@@ -354,11 +354,10 @@ class TestPostBuildOverview(TestCase):
 
             <details open>
             <summary>3 files changed</summary>
-
-            - ➕ [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
-            - 📝 [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
-            - ➖ [`deleteme.html`](http://my-project--1.readthedocs.build/en/1/deleteme.html)
-
+            <br>
+            ➕ <a href="http://my-project--1.readthedocs.build/en/1/changes.html"><code>changes.html</code></a><br>
+            📝 <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a><br>
+            ➖ <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html"><code>deleteme.html</code></a><br>
             </details>
 
             """
