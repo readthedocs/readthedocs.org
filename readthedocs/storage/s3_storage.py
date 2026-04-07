@@ -82,6 +82,9 @@ class S3BuildMediaStorage(OverrideHostnameMixin, RTDS3Storage):
 
     bucket_name = getattr(settings, "S3_MEDIA_STORAGE_BUCKET", None)
     override_hostname = getattr(settings, "S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME", None)
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
