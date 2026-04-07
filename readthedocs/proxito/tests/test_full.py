@@ -109,10 +109,21 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_translation_zh_deprecated_code_serving(self):
-        self.translation.language = "zh"
+        self.translation.language = "zh-hans"
         self.translation.save()
+
+        # Accessing with the deprecated "zh" code redirects to the new "zh-hans" code.
         url = "/zh/latest/awesome.html"
         host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["location"],
+            "http://project.dev.readthedocs.io/zh-hans/latest/awesome.html",
+        )
+
+        # Accessing with the new "zh-hans" code serves directly.
+        url = "/zh-hans/latest/awesome.html"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
             resp["x-accel-redirect"],

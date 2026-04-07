@@ -149,8 +149,7 @@ for _old_code, _new_code in OLD_LANGUAGES_CODE_MAPPING.items():
     LANGUAGE_CODE_OLD_VARIANTS.setdefault(_new_code, set()).add(_old_code)
 
 LANGUAGES_REGEX = "|".join(
-    re.escape(code)
-    for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING)
+    re.escape(code) for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING)
 )
 
 PROGRAMMING_LANGUAGES = (
