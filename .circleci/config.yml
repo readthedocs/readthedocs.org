@@ -14,14 +14,10 @@
 #   tests-embedapi: -m embed_api (multiple Sphinx versions via tox.embedapi.ini)
 #
 # Caching strategy:
-#   Each test job caches ~/.local/lib, ~/.local/bin (tox binary), and .tox
-#   (virtualenvs with all deps).
-#   - save_cache uses a checksum key (e.g. pip-tests-v1-<hash>) because
-#     CircleCI never overwrites an existing key — a new hash means a new
-#     snapshot is saved when requirements change.
-#   - restore_cache uses a prefix-only key (e.g. pip-tests-v1-) which
-#     always loads the most recent matching snapshot, regardless of whether
-#     requirements have changed since it was saved.
+#   Each test job caches ~/.local/lib (tox packages) and .tox (virtualenvs
+#   with all deps). Both save_cache and restore_cache use an exact checksum
+#   key — on a cache miss (requirements changed), a full install runs and
+#   a new cache is saved. CircleCI keys are immutable (never overwritten).
 #   Bump "v1" in key names to bust all caches.
 #   See: https://circleci.com/docs/guides/optimize/caching/
 #
@@ -92,7 +88,7 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-tests-v1-
+            - pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
       - run: sudo apt update
       - run: sudo apt install -y rclone
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
@@ -103,7 +99,6 @@ jobs:
           key: pip-tests-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
-            - ~/.local/bin
             - .tox
       - persist_to_workspace:
           root: .
@@ -129,7 +124,7 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-search-v1-
+            - pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
       - run: pip install --user tox tox-uv
       - run: tox -e search
       - run: cp .coverage .coverage.search
@@ -137,7 +132,6 @@ jobs:
           key: pip-search-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
-            - ~/.local/bin
             - .tox
       - persist_to_workspace:
           root: .
@@ -156,7 +150,7 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-proxito-v1-
+            - pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
       - run: pip install --user tox tox-uv
       - run: tox -e proxito
       - run: cp .coverage .coverage.proxito
@@ -164,7 +158,6 @@ jobs:
           key: pip-proxito-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
-            - ~/.local/bin
             - .tox
       - persist_to_workspace:
           root: .
@@ -181,7 +174,7 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-embedapi-v1-
+            - pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
       - run: pip install --user 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
@@ -189,7 +182,6 @@ jobs:
           key: pip-embedapi-v1-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
-            - ~/.local/bin
             - .tox
 
   coverage-report:
