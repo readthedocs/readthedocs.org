@@ -17,14 +17,17 @@ Markdown inside <details> requires a blank line after </summary>.
 <summary>{{ diff.files|length }} files changed{% if diff.added %} · ➕ {{ diff.added|length }} added{% endif %}{% if diff.modified %} · 📝 {{ diff.modified|length }} modified{% endif %}{% if diff.deleted %} · ➖ {{ diff.deleted|length }} deleted{% endif %}</summary>
 {% if diff.added %}
 ➕ **Added**
-{% for file in diff.added %}- [`{{ file.path }}`]({{ file.url }})
-{% endfor %}{% endif %}{% if diff.modified %}
+{% for file in diff.added|slice:":10" %}- [`{{ file.path }}`]({{ file.url }})
+{% endfor %}{% if diff.added|length > 10 %}- *and {{ diff.added|length|add:"-10" }} more...*
+{% endif %}{% endif %}{% if diff.modified %}
 📝 **Modified**
-{% for file in diff.modified %}- [`{{ file.path }}`]({{ file.url }})
-{% endfor %}{% endif %}{% if diff.deleted %}
+{% for file in diff.modified|slice:":10" %}- [`{{ file.path }}`]({{ file.url }})
+{% endfor %}{% if diff.modified|length > 10 %}- *and {{ diff.modified|length|add:"-10" }} more...*
+{% endif %}{% endif %}{% if diff.deleted %}
 ➖ **Deleted**
-{% for file in diff.deleted %}- [`{{ file.path }}`]({{ file.url }})
-{% endfor %}{% endif %}
+{% for file in diff.deleted|slice:":10" %}- [`{{ file.path }}`]({{ file.url }})
+{% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more...*
+{% endif %}{% endif %}
 </details>
 {% else %}
 No files changed.
