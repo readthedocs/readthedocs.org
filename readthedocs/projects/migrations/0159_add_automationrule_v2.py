@@ -42,15 +42,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name="versionautomationrule",
-            name="project",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="version_automation_rules",
-                to="projects.project",
-            ),
-        ),
         migrations.CreateModel(
             name="AutomationRule",
             fields=[
@@ -187,15 +178,5 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Automation rules",
                 "ordering": ("priority", "-modified", "-created"),
             },
-        ),
-        migrations.AlterField(
-            model_name="automationrulematch",
-            name="rule",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="matches",
-                to="builds.automationrule",
-                verbose_name="Matched rule",
-            ),
         ),
     ]
