@@ -25,6 +25,9 @@ class ConfigError(BuildUserError):
     UV_MULTIPLE_INSTALL_ENTRIES_INVALID = "config:python:uv-multiple-install-entries-invalid"
     UV_SYNC_REQUIREMENTS_INVALID = "config:python:uv-sync-requirements-invalid"
     UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED = "config:python:uv-pip-requirements-or-path-required"
+    UV_PIP_REQUIREMENTS_AND_PATH_MUTUALLY_EXCLUSIVE = (
+        "config:python:uv-pip-requirements-and-path-mutually-exclusive"
+    )
     UV_PIP_GROUPS_NOT_ALLOWED = "config:python:uv-pip-groups-not-allowed"
     UV_GROUPS_EXTRAS_EMPTY = "config:python:uv-groups-extras-empty"
     UV_GROUPS_EXTRAS_INVALID_TYPE = "config:python:uv-groups-extras-invalid-type"

@@ -305,6 +305,19 @@ messages = [
         type=ERROR,
     ),
     Message(
+        id=ConfigError.UV_PIP_REQUIREMENTS_AND_PATH_MUTUALLY_EXCLUSIVE,
+        header=_("Invalid configuration key"),
+        body=_(
+            textwrap.dedent(
+                """
+            When using <code>method: uv</code> with <code>command: pip</code>,
+            both <code>python.install.path</code> and <code>python.install.requirements</code> cannot be specified at the same time.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=ConfigError.UV_PIP_GROUPS_NOT_ALLOWED,
         header=_("Invalid configuration for uv pip"),
         body=_(
