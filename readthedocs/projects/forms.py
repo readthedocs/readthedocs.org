@@ -17,6 +17,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import UNKNOWN
 from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.core.forms import PrevalidatedForm
 from readthedocs.core.forms import RichChoice
@@ -725,6 +726,22 @@ class OnePerLineList(forms.Field):
         return "\n".join(value)
 
 
+class CommaSeparatedMultipleChoiceField(forms.MultipleChoiceField):
+    """Handle comma-separated values for a single hidden input."""
+
+    hidden_widget = forms.HiddenInput
+
+    def to_python(self, value):
+        if isinstance(value, str):
+            value = [item.strip() for item in value.split(",") if item.strip()]
+        return super().to_python(value)
+
+    def prepare_value(self, value):
+        if isinstance(value, (list, tuple)):
+            return ",".join(value)
+        return super().prepare_value(value)
+
+
 class AddonsConfigForm(forms.ModelForm):
     """Form to opt-in into new addons."""
 
@@ -1296,12 +1313,10 @@ class AutomationRuleForm(forms.ModelForm):
 
     VERSION_TYPE_CHOICES = [
         RichChoice(text=name, value=value, description="description", disabled=False)
-        for name, value in VERSION_TYPES
+        for value, name in VERSION_TYPES
+        if value != UNKNOWN
     ]
-    # NOTE: I want to use something like, but I'm not sure how.
-    # https://semantic-ui.com/modules/dropdown.html#multiple-selection
-    # version_types = forms.MultipleChoiceField(
-    version_types = forms.ChoiceField(
+    version_types = CommaSeparatedMultipleChoiceField(
         widget=RichSelect(attrs={"multiple": "true", "use_data_binding": "true"}),
         choices=[(choice.value, choice) for choice in VERSION_TYPE_CHOICES],
         required=True,
@@ -1362,6 +1377,12 @@ class AutomationRuleForm(forms.ModelForm):
 
     def clean_project(self):
         return self.project
+
+    def clean_version_types(self):
+        version_types = self.cleaned_data["version_types"]
+        if not version_types:
+            raise forms.ValidationError(_("At least one version type must be selected."))
+        return version_types
 
     def clean_webhook_files_match_pattern(self):
         webhook_files_match_pattern = self.cleaned_data["webhook_files_match_pattern"]
