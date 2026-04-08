@@ -573,30 +573,6 @@ class BuildDirector:
                 record=False,
             )
 
-        if self.data.config.is_using_uv:
-            cmd = ["asdf", "plugin", "add", "uv"]
-            self.build_environment.run(
-                *cmd,
-                record=True,
-            )
-            cmd = ["asdf", "install", "uv", "latest"]
-            self.build_environment.run(
-                *cmd,
-                record=True,
-            )
-            cmd = ["asdf", "global", "uv", "latest"]
-            self.build_environment.run(
-                *cmd,
-                record=True,
-            )
-            # Save the Python path under UV_PYTHON to define it as an environment variable
-            cmd = ["asdf", "which", "python"]
-            command = self.build_environment.run(
-                *cmd,
-                record=True,
-            )
-            self.UV_PYTHON = command.output.strip()
-
         build_tools_storage = get_storage(
             build_id=self.data.build["id"],
             api_client=self.data.api_client,
@@ -686,6 +662,37 @@ class BuildDirector:
                 *cmd,
                 record=False,
             )
+
+            # Install UV if the tool is Python and the user has selected to use UV
+            if tool == "python" and self.data.config.is_using_uv:
+                cmd = ["asdf", "plugin", "add", "uv"]
+                self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                cmd = ["asdf", "install", "uv", "latest"]
+                self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                cmd = ["asdf", "global", "uv", "latest"]
+                self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                # Save the Python path under UV_PYTHON to define it as an environment variable
+                cmd = ["asdf", "which", "python"]
+                command = self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                # Add UV_PYTHON to build environment variables now we have Python installed.
+                # NOTE: we can't do this at `get_build_env_vars` because we need to have Python installed to get the path of it.
+                self.build_environment._environment.update(
+                    {
+                        "UV_PYTHON": command.output.strip(),
+                    },
+                )
 
             if all(
                 [
@@ -836,8 +843,10 @@ class BuildDirector:
                 UV_PROJECT = self.data.project.checkout_path(self.data.version.slug)
             env.update(
                 {
+                    # UV_PYTHON is set in `install_build_tools` once we have Python installed,
+                    # here I'm setting just an empty string.
+                    "UV_PYTHON": "",
                     "UV_PROJECT": UV_PROJECT,
-                    "UV_PYTHON": self.UV_PYTHON,
                     # UV_PROJECT_ENVIRONMENT is the same as READTHEDOCS_VIRTUALENV_PATH
                     "UV_PROJECT_ENVIRONMENT": os.path.join(
                         self.data.project.doc_path,
