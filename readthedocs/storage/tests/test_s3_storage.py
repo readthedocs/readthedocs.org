@@ -1,7 +1,7 @@
 from unittest import mock
 
 import pytest
-from django.core.exceptions import SuspiciousFileOperation
+from django.core.exceptions import SuspiciousFileOperation, SuspiciousOperation
 from django.test import TestCase
 
 from readthedocs.storage.s3_storage import RTDS3Storage
@@ -40,7 +40,7 @@ class TestRTDS3Storage(TestCase):
 
     def test_delete_directory_raises_for_root_path_with_location(self):
         self.storage.location = "projects"
-        with pytest.raises(SuspiciousFileOperation):
+        with pytest.raises(SuspiciousOperation):
             self.storage.delete_directory("/")
 
     def test_delete_directory_raises_for_empty_path_with_location(self):
