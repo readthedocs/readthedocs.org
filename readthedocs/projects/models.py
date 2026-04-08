@@ -2480,6 +2480,89 @@ class AutomationRule(TimeStampedModel):
             )
             return False
 
+    def _check_changed_files(self, changed_files):
+        if not self.webhook_files_match_pattern:
+            return True
+
+        for file_path in changed_files:
+            for file_pattern in self.webhook_files_match_pattern:
+                if fnmatch.fnmatch(file_path, file_pattern):
+                    log.info(
+                        "File pattern matched for webhook rule.",
+                        file_path=file_path,
+                        pattern=file_pattern,
+                        rule_id=self.pk,
+                    )
+                    return True
+        return False
+
+    def _check_commit_message(self, commit_message):
+        if not self.webhook_commit_message_match_pattern:
+            return True
+
+        try:
+            for commit_pattern in self.webhook_commit_message_match_pattern:
+                match = regex.search(
+                    commit_pattern,
+                    commit_message,
+                    flags=regex.VERSION0,
+                    timeout=self.TIMEOUT,
+                )
+                if match:
+                    log.info(
+                        "Commit message pattern matched for webhook rule.",
+                        commit_message=commit_message,
+                        pattern=commit_pattern,
+                        rule_id=self.pk,
+                    )
+                    return True
+        except TimeoutError:
+            log.warning(
+                "Timeout while parsing regex for commit message.",
+                pattern=commit_pattern,
+                rule_id=self.pk,
+            )
+        except Exception:
+            log.exception(
+                "Error parsing regex for commit message.",
+                exc_info=True,
+            )
+        return False
+
+    def _check_labels(self, labels):
+        if not self.webhook_labels_match_pattern:
+            return True
+
+        for label in labels:
+            for label_pattern in self.webhook_labels_match_pattern:
+                try:
+                    match = regex.search(
+                        label_pattern,
+                        label,
+                        flags=regex.VERSION0,
+                        timeout=self.TIMEOUT,
+                    )
+                    if match:
+                        log.info(
+                            "Label pattern matched for webhook rule.",
+                            label=label,
+                            pattern=label_pattern,
+                            rule_id=self.pk,
+                        )
+                        return True
+                except TimeoutError:
+                    log.warning(
+                        "Timeout while parsing regex for label.",
+                        pattern=label_pattern,
+                        rule_id=self.pk,
+                    )
+                except Exception:
+                    log.exception(
+                        "Error parsing regex for label.",
+                        exc_info=True,
+                    )
+        return False
+
     def match_webhook(self, changed_files=None, commit_message=None, labels=None):
         """
         Check if the webhook data matches this rule's webhook criteria.
@@ -2499,90 +2582,30 @@ class AutomationRule(TimeStampedModel):
 
         # Use fnmatch matching for file paths
         if self.webhook_files_match_pattern:
-            files_matched = False
-            for file_path in changed_files:
-                for file_pattern in self.webhook_files_match_pattern:
-                    if fnmatch.fnmatch(file_path, file_pattern):
-                        log.info(
-                            "File pattern matched for webhook rule.",
-                            file_path=file_path,
-                            pattern=file_pattern,
-                            rule_id=self.pk,
-                        )
-                        files_matched = True
-                        break
-            if not files_matched:
+            if not self._check_changed_files(changed_files):
+                log.info(
+                    "Webhook rule didn't match because of changed files.",
+                    changed_files=changed_files,
+                )
                 return False
 
         # Use regex matching for commit message
         if self.webhook_commit_message_match_pattern:
-            commit_matched = False
-            try:
-                for commit_pattern in self.webhook_commit_message_match_pattern:
-                    match = regex.search(
-                        commit_pattern,
-                        commit_message,
-                        flags=regex.VERSION0,
-                        timeout=self.TIMEOUT,
-                    )
-                    if match:
-                        log.info(
-                            "Commit message pattern matched for webhook rule.",
-                            commit_message=commit_message,
-                            pattern=commit_pattern,
-                            rule_id=self.pk,
-                        )
-                        commit_matched = True
-                        break
-            except TimeoutError:
-                log.warning(
-                    "Timeout while parsing regex for commit message.",
-                    pattern=commit_pattern,
-                    rule_id=self.pk,
+            if not self._check_commit_message(commit_message):
+                log.info(
+                    "Webhook rule didn't match because of commit message.",
+                    commit_message=commit_message,
                 )
-            except Exception:
-                log.exception(
-                    "Error parsing regex for commit message.",
-                    exc_info=True,
-                )
-            if not commit_matched:
                 return False
 
         # Use regex matching for labels
         if self.webhook_labels_match_pattern:
-            labels_matched = False
-            for label in labels:
-                for label_pattern in self.webhook_labels_match_pattern:
-                    try:
-                        match = regex.search(
-                            label_pattern,
-                            label,
-                            flags=regex.VERSION0,
-                            timeout=self.TIMEOUT,
-                        )
-                        if match:
-                            log.info(
-                                "Label pattern matched for webhook rule.",
-                                label=label,
-                                pattern=label_pattern,
-                                rule_id=self.pk,
-                            )
-                            labels_matched = True
-                            break
-                    except TimeoutError:
-                        log.warning(
-                            "Timeout while parsing regex for label.",
-                            pattern=label_pattern,
-                            rule_id=self.pk,
-                        )
-                    except Exception:
-                        log.exception(
-                            "Error parsing regex for label.",
-                            exc_info=True,
-                        )
-            if not labels_matched:
+            if not self._check_labels(labels):
+                log.info(
+                    "Webhook rule didn't match because of labels.",
+                    labels=labels,
+                )
                 return False
-
         return True
 
     def run(self, version):
