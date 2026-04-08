@@ -1302,7 +1302,7 @@ class AutomationRuleForm(forms.ModelForm):
     # https://semantic-ui.com/modules/dropdown.html#multiple-selection
     # version_types = forms.MultipleChoiceField(
     version_types = forms.ChoiceField(
-        widget=RichSelect(attrs={"multiple": "true"}),
+        widget=RichSelect(attrs={"multiple": "true", "use_data_binding": "true"}),
         choices=[(choice.value, choice) for choice in VERSION_TYPE_CHOICES],
         required=True,
     )
