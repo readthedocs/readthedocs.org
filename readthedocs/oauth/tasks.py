@@ -593,8 +593,7 @@ class GitHubAppWebhookHandler:
                 for version in project.versions_from_name(version_name, version_type):
                     rule_triggered_for_version = False
                     for rule in webhook_rules.iterator():
-                        if rule.match(
-                            version=version,
+                        if rule.match_version(version=version) and rule.match_webhook(
                             changed_files=changed_files,
                             commit_message=commit_message,
                             labels=labels,
@@ -673,8 +672,7 @@ class GitHubAppWebhookHandler:
                     labels = self._get_labels_from_pull_request_event(project)
 
                     for rule in webhook_rules.iterator():
-                        if rule.match(
-                            version=external_version,
+                        if rule.match_version(version=external_version) and rule.match_webhook(
                             changed_files=changed_files,
                             commit_message=commit_message,
                             labels=labels,

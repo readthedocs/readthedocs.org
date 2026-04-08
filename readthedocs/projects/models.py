@@ -2443,7 +2443,7 @@ class AutomationRule(TimeStampedModel):
         )
         return version_predefined_match_pattern
 
-    def _match_version(self, version):
+    def match_version(self, version):
         """
         Check if the version matches this rule's version criteria.
 
@@ -2480,7 +2480,7 @@ class AutomationRule(TimeStampedModel):
             )
             return False
 
-    def _match_webhook(self, changed_files=None, commit_message=None, labels=None):
+    def match_webhook(self, changed_files=None, commit_message=None, labels=None):
         """
         Check if the webhook data matches this rule's webhook criteria.
 
@@ -2582,33 +2582,6 @@ class AutomationRule(TimeStampedModel):
                         )
             if not labels_matched:
                 return False
-
-        return True
-
-    def match(self, version, changed_files=None, commit_message=None, labels=None):
-        """
-        Check if the version and webhook data match this rule's criteria.
-
-        :param version: Version instance to check
-        :param changed_files: List of file paths that were modified/added/deleted in the webhook event
-        :param commit_message: Commit message from the webhook event
-        :param labels: List of labels from PR webhook event
-        :return: True if the version and webhook data match the rule, False otherwise
-        """
-        if not self._match_version(version):
-            return False
-
-        if any(
-            [
-                changed_files,
-                commit_message,
-                labels,
-                self.webhook_files_match_pattern,
-                self.webhook_commit_message_match_pattern,
-                self.webhook_labels_match_pattern,
-            ]
-        ):
-            return self._match_webhook(changed_files, commit_message, labels)
 
         return True
 
