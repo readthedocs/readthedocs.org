@@ -219,8 +219,6 @@ class RichSelect(forms.Select):
         )
     """
 
-    hidden_widget = forms.HiddenInput
-
 
 class FacetField(forms.MultipleChoiceField):
     """
