@@ -584,7 +584,7 @@ class BuildConfigV2(BuildConfigBase):
             with self.catch_validation_error(method_key):
                 method = validate_choice(
                     self.pop_config(method_key, PIP),
-                    [None, PIP, SETUPTOOLS, UV],
+                    [PIP, SETUPTOOLS, UV],
                 )
                 python_install["method"] = method
 
@@ -593,7 +593,7 @@ class BuildConfigV2(BuildConfigBase):
                 extra_requirements = validate_list(
                     self.pop_config(extra_req_key, []),
                 )
-                if extra_requirements and method != PIP:
+                if extra_requirements and python_install["method"] != PIP:
                     raise ConfigError(
                         message_id=ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS,
                     )
@@ -645,8 +645,8 @@ class BuildConfigV2(BuildConfigBase):
         """Validate uv sync specific fields."""
         # groups (optional)
         groups_key = key + ".groups"
-        if groups_key.split(".")[-1] in raw_install:
-            groups = self.pop_config(groups_key)
+        groups = self.pop_config(groups_key)
+        if groups is not None:
             with self.catch_validation_error(groups_key):
                 if isinstance(groups, list):
                     if not groups:

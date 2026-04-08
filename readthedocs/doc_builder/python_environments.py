@@ -293,13 +293,8 @@ class UvEnv(Virtualenv):
 
         if install.requirements:
             args.extend(["-r", install.requirements])
-        elif install.path and install.path != ".":
+        elif install.path:
             local_path = install.path
-            if install.extras and isinstance(install.extras, list):
-                local_path = f"{local_path}[{','.join(install.extras)}]"
-            args.append(local_path)
-        else:
-            local_path = "."
             if install.extras and isinstance(install.extras, list):
                 local_path = f"{local_path}[{','.join(install.extras)}]"
             args.append(local_path)

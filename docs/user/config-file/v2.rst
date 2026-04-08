@@ -225,8 +225,6 @@ Set ``method: uv`` and choose one of the following commands:
 - ``command: sync`` to run ``uv sync`` using your ``pyproject.toml`` and, if present, ``uv.lock``
 - ``command: pip`` to run ``uv pip install`` from a requirements file or a local path
 
-The command used by Read the Docs.
-
 :Key: ``command``
 :Options: ``sync``, ``pip``
 :Required: ``true``

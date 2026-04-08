@@ -76,7 +76,7 @@ class PythonInstallRequirements(ConfigBaseModel):
 
 class PythonInstall(ConfigBaseModel):
     path: str
-    method: Literal["pip", "setuptools"] | None = "pip"
+    method: Literal["pip", "setuptools"] = "pip"
     extra_requirements: list[str] = []
 
 
