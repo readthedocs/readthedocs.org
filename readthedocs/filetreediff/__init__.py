@@ -64,6 +64,11 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     # created. Falls back to the live manifest if no snapshot exists.
     # TODO: call clear_base_manifest_snapshot() on PR rebase/synchronize
     # events so the snapshot is refreshed against the new base.
+    #
+    # When a snapshot is used, we intentionally skip the base-side `outdated`
+    # check. The snapshot's build will be older than the base version's latest
+    # build (the base branch kept moving) — that's the whole point. Marking
+    # the diff as outdated here would defeat the snapshot's purpose.
     base_version_manifest = None
     if current_version.is_external:
         base_version_manifest = _get_base_manifest_snapshot(current_version)
@@ -137,21 +142,13 @@ def write_manifest(version: Version, manifest: FileTreeDiffManifest):
         json.dump(manifest.as_dict(), f)
 
 
-def _get_storage_path(version: Version) -> str:
-    return version.project.get_storage_path(
-        type_=MEDIA_TYPE_DIFF,
-        version_slug=version.slug,
-        include_file=False,
-        version_type=version.type,
-    )
-
-
 def _get_base_manifest_snapshot(
     external_version: Version,
 ) -> FileTreeDiffManifest | None:
     """Get the snapshotted base manifest for an external version, or None."""
-    snapshot_path = build_media_storage.join(
-        _get_storage_path(external_version), BASE_MANIFEST_SNAPSHOT_FILE_NAME
+    snapshot_path = external_version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=BASE_MANIFEST_SNAPSHOT_FILE_NAME,
     )
     try:
         with build_media_storage.open(snapshot_path) as f:
@@ -187,8 +184,9 @@ def snapshot_base_manifest(external_version: Version, base_version: Version):
     if not base_manifest:
         return
 
-    snapshot_path = build_media_storage.join(
-        _get_storage_path(external_version), BASE_MANIFEST_SNAPSHOT_FILE_NAME
+    snapshot_path = external_version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=BASE_MANIFEST_SNAPSHOT_FILE_NAME,
     )
     with build_media_storage.open(snapshot_path, "w") as f:
         json.dump(base_manifest.as_dict(), f)

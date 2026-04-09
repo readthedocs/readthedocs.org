@@ -144,17 +144,18 @@ class FileManifestIndexer(Indexer):
         manifest = FileTreeDiffManifest(
             build_id=self.build.id,
             files=[
-                FileTreeDiffManifestFile(path=path, main_content_hash=hash)
-                for path, hash in self._hashes.items()
+                FileTreeDiffManifestFile(path=path, main_content_hash=content_hash)
+                for path, content_hash in self._hashes.items()
             ],
         )
         write_manifest(self.version, manifest)
 
-        # For PR previews, snapshot the base version's manifest on first build.
+        # For PR previews, snapshot the base version's manifest on the first
+        # PR build where the snapshot can be created.
         # This pins the diff baseline so that subsequent builds compare against
-        # the state of the base version at PR creation time, not its current
-        # state. This prevents false file changes when the base branch moves
-        # forward (the "stale branch" problem).
+        # that snapshotted base-version state instead of the base version's
+        # current state. This prevents false file changes when the base branch
+        # moves forward (the "stale branch" problem).
         if self.version.is_external:
             base_version = (
                 self.version.project.addons.options_base_version

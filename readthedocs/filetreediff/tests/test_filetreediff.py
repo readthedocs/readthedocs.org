@@ -28,8 +28,8 @@ def _mock_manifest(build_id: int, files: dict[str, str]):
             {
                 "build": {"id": build_id},
                 "files": {
-                    path: {"main_content_hash": hash}
-                    for path, hash in files.items()
+                    path: {"main_content_hash": content_hash}
+                    for path, content_hash in files.items()
                 },
             }
         )
