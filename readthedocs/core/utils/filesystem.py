@@ -157,7 +157,7 @@ def safe_rmtree(path, *args, **kwargs):
     """
     Wrapper around shutil.rmtree to check for symlinks.
 
-    shutil.rmtree doens't follow symlinks by default,
+    shutil.rmtree doesn't follow symlinks by default,
     this function just logs in case users are trying to use symlinks.
     https://docs.python.org/3/library/shutil.html#shutil.rmtree
 

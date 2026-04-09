@@ -972,7 +972,7 @@ class Project(models.Model):
 
     @property
     def clean_repo(self):
-        # NOTE: this method is used only when the project is going to be clonned.
+        # NOTE: this method is used only when the project is going to be cloned.
         # It probably makes sense to do a data migrations and force "Import Project"
         # form to validate it's an HTTPS URL when importing new ones
         if self.repo.startswith("http://github.com"):
@@ -1279,7 +1279,7 @@ class Project(models.Model):
         # default_branch can be a tag or a branch name!
         default_version_name = self.get_default_branch(fallback_to_vcs=False)
         # If the default_branch is not set, it means that the user
-        # wants to use the default branch of the respository, but
+        # wants to use the default branch of the repository, but
         # we don't know what that is here, `latest` will be updated
         # on the next build.
         if not default_version_name:

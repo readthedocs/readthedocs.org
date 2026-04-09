@@ -663,7 +663,7 @@ class APIBuildTests(TestCase):
         self.assertIn("Commit: {}".format(build.commit), resp.content.decode())
         self.assertIn("Date: ", resp.content.decode())
         self.assertIn("State: building", resp.content.decode())
-        self.assertIn("Success: Unknow", resp.content.decode())
+        self.assertIn("Success: Unknown", resp.content.decode())
         self.assertIn("[rtd-command-info]", resp.content.decode())
         self.assertIn(
             "python setup.py install\nInstalling dependencies...",
@@ -818,7 +818,7 @@ class APITests(TestCase):
         expected = (build_api_key_obj.expiry_date - timezone.now()).seconds
         self.assertAlmostEqual(expected, 86400, delta=5)
 
-        # Project with a custom containe time limit
+        # Project with a custom container time limit
         project.container_time_limit = 1200
         project.save()
         build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)

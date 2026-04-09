@@ -116,7 +116,7 @@ class FilterContextMixin(views.FilterMixin):
         :param kwargs: Arguments to pass to ``FilterSet.__init__``
         """
         # This method overrides the method from FilterMixin with differing
-        # arguments. We can switch this later if we ever resturcture the view
+        # arguments. We can switch this later if we ever restructure the view
         # pylint: disable=arguments-differ
         if not getattr(self, "filterset", None):
             filterset_class = self.get_filterset_class()

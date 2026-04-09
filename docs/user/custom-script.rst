@@ -55,7 +55,7 @@ then subscribe to the event for future updates (for example, when the URL change
     }
 
     // After that, we subscribe to the Read the Docs Addons event to access data
-    // on future dispatchs (e.g. when a URL changes on a SPA)
+    // on future dispatches (e.g. when a URL changes on a SPA)
     document.addEventListener("readthedocs-addons-data-ready", function (event) {
       handleReadTheDocsData(event.detail.data());
     });
