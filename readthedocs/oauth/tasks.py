@@ -582,7 +582,9 @@ class GitHubAppWebhookHandler:
             webhook_rules = project.automation_rules.filter(
                 enabled=True,
                 action__in=AutomationRule.BUILD_ACTIONS,
-                version_types__contains=version_type,
+                # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                # We are using `rule.match_version` below to check this instead.
+                # version_types__contains=version_type,
             )
             if webhook_rules.exists():
                 changed_files = self._get_changed_files_from_push_event()
@@ -660,7 +662,9 @@ class GitHubAppWebhookHandler:
                 webhook_rules = project.automation_rules.filter(
                     enabled=True,
                     action__in=AutomationRule.BUILD_ACTIONS,
-                    version_types__contains=EXTERNAL,
+                    # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                    # We are using `rule.match_version` below to check this instead.
+                    # version_types__contains=EXTERNAL,
                 )
                 if webhook_rules.exists():
                     rule_triggered = False
