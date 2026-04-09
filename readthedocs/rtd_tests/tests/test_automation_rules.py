@@ -168,6 +168,7 @@ class TestAutomationRuleVersionMatching:
             action=AutomationRule.ACTIVATE_VERSION_ACTION,
             version_types=[version_type],
         )
+        # Test match() and run() separately following new pattern
         assert rule.match_version(version) is result
         if result:
             assert rule.run(version) is True
