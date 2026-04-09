@@ -177,17 +177,17 @@ def snapshot_base_manifest(external_version: Version, base_version: Version):
     manifests. Same approach could extend to all build artifacts if we move
     toward content-addressed storage.
     """
-    if _get_base_manifest_snapshot(external_version) is not None:
+    snapshot_path = external_version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=BASE_MANIFEST_SNAPSHOT_FILE_NAME,
+    )
+    if build_media_storage.exists(snapshot_path):
         return
 
     base_manifest = get_manifest(base_version)
     if not base_manifest:
         return
 
-    snapshot_path = external_version.get_storage_path(
-        media_type=MEDIA_TYPE_DIFF,
-        filename=BASE_MANIFEST_SNAPSHOT_FILE_NAME,
-    )
     with build_media_storage.open(snapshot_path, "w") as f:
         json.dump(base_manifest.as_dict(), f)
 

@@ -234,23 +234,9 @@ class TestsBaseManifestSnapshot(TestCase):
         assert diff.added == []
         assert diff.deleted == []
 
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists", return_value=True)
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_snapshot_is_write_once(self, storage_open):
+    def test_snapshot_is_write_once(self, storage_open, storage_exists):
         """snapshot_base_manifest is a no-op if a snapshot already exists."""
-        existing = json.dumps(
-            {"build": {"id": 1}, "files": {"index.html": {"main_content_hash": "old"}}}
-        )
-
-        @contextmanager
-        def mock_existing(*a, **kw):
-            m = mock.MagicMock()
-            m.read.return_value = existing
-            yield m
-
-        storage_open.return_value = mock_existing()
         snapshot_base_manifest(self.pr_version, self.base_version)
-
-        for call in storage_open.call_args_list:
-            args, _ = call
-            if len(args) > 1:
-                assert args[1] != "w", "Should not write when snapshot exists"
+        storage_open.assert_not_called()
