@@ -9,6 +9,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
+from readthedocs.filetreediff import snapshot_base_manifest
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
@@ -148,6 +149,20 @@ class FileManifestIndexer(Indexer):
             ],
         )
         write_manifest(self.version, manifest)
+
+        # For PR previews, snapshot the base version's manifest on first build.
+        # This pins the diff baseline so that subsequent builds compare against
+        # the state of the base version at PR creation time, not its current
+        # state. This prevents false file changes when the base branch moves
+        # forward (the "stale branch" problem).
+        if self.version.is_external:
+            base_version = (
+                self.version.project.addons.options_base_version
+                or self.version.project.get_latest_version()
+            )
+            if base_version:
+                snapshot_base_manifest(self.version, base_version)
+
         if (
             self.post_build_overview
             and self.version.is_external
