@@ -105,12 +105,20 @@ class CommunityTestSettings(CommunityBaseSettings):
     def DATABASES(self):  # noqa
         return {
             "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": os.path.join(self.SITE_ROOT, "dev.db"),
+                "ENGINE": "django.db.backends.postgresql_psycopg2",
+                "NAME": "test_docs_db",
+                "USER": os.environ.get("DB_USER", "docs_user"),
+                "PASSWORD": os.environ.get("DB_PWD", "docs_pwd"),
+                "HOST": os.environ.get("DB_HOST", "localhost"),
+                "PORT": "",
             },
             "telemetry": {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": os.path.join(self.SITE_ROOT, "telemetry.dev.db"),
+                "ENGINE": "django.db.backends.postgresql_psycopg2",
+                "NAME": "test_telemetry",
+                "USER": os.environ.get("DB_USER", "docs_user"),
+                "PASSWORD": os.environ.get("DB_PWD", "docs_pwd"),
+                "HOST": os.environ.get("DB_HOST", "localhost"),
+                "PORT": "",
             },
         }
 
