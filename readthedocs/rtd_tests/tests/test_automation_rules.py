@@ -727,15 +727,18 @@ class TestWebhookAutomationRules:
             # Exact match
             ("docs/index.rst", ["docs/index.rst"], True),
             ("docs/index.rst", ["docs/other.rst"], False),
-            # Wildcard matches
+            # Wildcard matches - NOTE: fnmatch * matches across / unlike shell globs
             ("*.py", ["test.py"], True),
+            ("*.py", ["src/test.py"], True),  # * matches everything including /
             ("*.py", ["test.txt"], False),
-            # Recursive wildcard
+            # Recursive wildcard - ** is just two * wildcards in fnmatch
+            ("**/*.py", ["test.py"], False),  # literal ** needs dir before *.py
             ("**/*.py", ["src/test.py"], True),
             ("**/*.py", ["src/deep/test.py"], True),
             ("**/*.py", ["test.txt"], False),
             # Directory patterns
             ("docs/*", ["docs/index.rst"], True),
+            ("docs/*", ["docs/subdir/index.rst"], True),  # * matches across /
             ("docs/**", ["docs/index.rst"], True),
             ("docs/**", ["docs/subdir/index.rst"], True),
             ("docs/**", ["src/index.rst"], False),
@@ -743,6 +746,7 @@ class TestWebhookAutomationRules:
             ("docs/*.rst", ["docs/index.rst"], True),
             ("docs/*.rst", ["docs/api.rst"], True),
             ("docs/*.rst", ["docs/index.md"], False),
+            ("docs/*.rst", ["docs/subdir/index.rst"], True),  # * matches across /
             # Question mark wildcard
             ("file?.txt", ["file1.txt"], True),
             ("file?.txt", ["file2.txt"], True),
@@ -753,7 +757,7 @@ class TestWebhookAutomationRules:
         ],
     )
     def test_match_files(self, trigger_build, pattern, files, should_match):
-        """Test that AutomationRule correctly matches file patterns."""
+        """Test that AutomationRule.match_webhook() correctly matches file patterns."""
         rule = get(
             AutomationRule,
             project=self.project,
@@ -766,7 +770,7 @@ class TestWebhookAutomationRules:
         assert rule.match_webhook(changed_files=files) is should_match
 
     def test_match_multiple_files(self, trigger_build):
-        """Test that match_webhook returns True if any file in the list matches."""
+        """Test that match returns True if any file in the list matches."""
         rule = get(
             AutomationRule,
             project=self.project,
@@ -789,7 +793,7 @@ class TestWebhookAutomationRules:
         assert rule.match_webhook(changed_files=["src/code.py", "README.md"]) is False
 
     def test_match_empty_file_list(self, trigger_build):
-        """Test that match_webhook returns False for empty file list when pattern is set."""
+        """Test that match returns False for empty file list."""
         rule = get(
             AutomationRule,
             project=self.project,
