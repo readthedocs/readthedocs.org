@@ -431,7 +431,7 @@ Install dependencies with ``uv``
 
 Read the Docs supports `uv <https://docs.astral.sh/uv/>`__ natively in
 ``python.install``.
-For most uv-based projects, prefer the configuration file reference at
+Projects using uv can use the configuration methods referenced at
 :ref:`config-file/v2:python.install` instead of overriding ``build.jobs``.
 
 The following example uses ``uv sync`` with a dependency group named ``docs``.

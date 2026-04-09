@@ -148,7 +148,7 @@ You can have several of the following methods.
 
 .. note::
 
-   When using ``method: uv``, only one entry is allowed under ``python.install``.
+   When using ``method: uv``, currently only one entry is allowed under ``python.install``.
 
 :Type: ``list``
 :Default: ``[]``
