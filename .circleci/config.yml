@@ -51,6 +51,21 @@ commands:
           name: Combine requirements files for cache key
           command: cat requirements/*.txt > requirements-cache-key.txt
 
+  wait-for-postgres:
+    description: Wait for PostgreSQL to be ready and create the test_telemetry database
+    steps:
+      - run:
+          name: Wait for PostgreSQL and create test databases
+          command: |
+            until pg_isready -h localhost -U docs_user; do
+              echo "Waiting for PostgreSQL..."; sleep 1;
+            done
+            # test_docs_db is created automatically by POSTGRES_DB above;
+            # test_telemetry must be created explicitly.
+            PGPASSWORD=docs_pwd psql -U docs_user -h localhost -d postgres \
+              -c "CREATE DATABASE test_telemetry;" 2>/dev/null || \
+              echo "test_telemetry database already exists"
+
   skip-if-docs-only:
     description: Halt the job if only docs/ files changed
     steps:
@@ -98,7 +113,8 @@ jobs:
           keys:
             - pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
       - run: sudo apt update
-      - run: sudo apt install -y rclone
+      - run: sudo apt install -y rclone postgresql-client
+      - wait-for-postgres
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
       - run: pip install --user tox tox-uv
       - run: tox -e py312
@@ -143,7 +159,8 @@ jobs:
           keys:
             - pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
       - run: sudo apt update
-      - run: sudo apt install -y rclone
+      - run: sudo apt install -y rclone postgresql-client
+      - wait-for-postgres
       - run: pip install --user tox tox-uv
       - run: tox -e search
       - run: cp .coverage .coverage.search
@@ -179,6 +196,9 @@ jobs:
       - restore_cache:
           keys:
             - pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
+      - run: sudo apt update
+      - run: sudo apt install -y postgresql-client
+      - wait-for-postgres
       - run: pip install --user tox tox-uv
       - run: tox -e proxito
       - run: cp .coverage .coverage.proxito
