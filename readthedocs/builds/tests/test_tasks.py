@@ -356,7 +356,7 @@ class TestPostBuildOverview(TestCase):
             <summary>3 files changed</summary>
             <br>
             ➕ <a href="http://my-project--1.readthedocs.build/en/1/changes.html"><code>changes.html</code></a><br>
-            ± <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a><br>
+            📝 <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a><br>
             ➖ <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html"><code>deleteme.html</code></a><br>
             </details>
 
@@ -397,13 +397,13 @@ class TestPostBuildOverview(TestCase):
 
 
             <details>
-            <summary>6 files changed · ➕ 1 added · ± 4 modified · ➖ 1 deleted</summary>
+            <summary>6 files changed · ➕ 1 added · 📝 4 modified · ➖ 1 deleted</summary>
             <br>
 
             ➕ **Added**
             - [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
 
-            ± **Modified**
+            📝 **Modified**
             - [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
             - [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html)
             - [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html)
