@@ -629,7 +629,8 @@ class TestDocServingBackends(BaseDocServing):
             self.assertEqual(resp.status_code, 404)
 
     @override_settings(PYTHON_MEDIA=False)
-    def test_download_files_from_external_version(self):
+    def test_download_external_version_on_main_domain(self):
+        """Downloading an external version from the main domain should return 404."""
         fixture.get(
             Version,
             verbose_name="10",
@@ -646,7 +647,8 @@ class TestDocServingBackends(BaseDocServing):
             self.assertEqual(resp.status_code, 404)
 
     @override_settings(PYTHON_MEDIA=False)
-    def test_download_files_from_external_version_from_main_domain(self):
+    def test_download_internal_version_on_external_domain(self):
+        """Downloading an internal version from an external domain should return 404."""
         fixture.get(
             Version,
             verbose_name="10",

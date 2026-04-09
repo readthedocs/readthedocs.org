@@ -96,13 +96,10 @@ def get_manifest(version: Version) -> FileTreeDiffManifest | None:
 
     If the manifest file does not exist, return None.
     """
-    storage_path = version.project.get_storage_path(
-        type_=MEDIA_TYPE_DIFF,
-        version_slug=version.slug,
-        include_file=False,
-        version_type=version.type,
+    manifest_path = version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=MANIFEST_FILE_NAME,
     )
-    manifest_path = build_media_storage.join(storage_path, MANIFEST_FILE_NAME)
     try:
         with build_media_storage.open(manifest_path) as manifest_file:
             manifest = json.load(manifest_file)
@@ -113,12 +110,9 @@ def get_manifest(version: Version) -> FileTreeDiffManifest | None:
 
 
 def write_manifest(version: Version, manifest: FileTreeDiffManifest):
-    storage_path = version.project.get_storage_path(
-        type_=MEDIA_TYPE_DIFF,
-        version_slug=version.slug,
-        include_file=False,
-        version_type=version.type,
+    manifest_path = version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=MANIFEST_FILE_NAME,
     )
-    manifest_path = build_media_storage.join(storage_path, MANIFEST_FILE_NAME)
     with build_media_storage.open(manifest_path, "w") as f:
         json.dump(manifest.as_dict(), f)
