@@ -1119,6 +1119,9 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
                 "id": self.remote_repository.remote_id,
                 "full_name": self.remote_repository.full_name,
             },
+            "head_commit": {
+                "message": "Update docs",
+            },
             "commits": [
                 {
                     "added": ["docs/index.rst"],
@@ -1250,8 +1253,18 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             f"{api_url}/repositories/{self.remote_repository.remote_id}/pulls/1",
             json={
                 "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
+                "issue_url": f"https://api.github.com/repos/{self.remote_repository.full_name}/issues/1",
             },
         )
+        request.get(
+            f"{api_url}/repositories/{self.remote_repository.remote_id}/commits/1234abcd",
+            json={
+                "commit": {
+                    "message": "Update docs",
+                },
+            }
+        )
+
         request.get(
             f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1",
             json={
@@ -1260,7 +1273,20 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         )
         request.get(
             f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1/files",
-            json=[{"filename": "docs/index.rst"}],
+            json=[
+                {
+                    "filename": "docs/index.rst",
+                }
+            ],
+        )
+        request.get(
+            f"{api_url}/repos/{self.remote_repository.full_name}/issues/1/labels",
+            json=[
+                {
+                    "name": "bug",
+                    "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/labels/bug",
+                }
+            ],
         )
 
         payload = {
