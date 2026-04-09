@@ -1,7 +1,8 @@
 import json
 from unittest import mock
 
-from readthedocs.builds.models import WebhookAutomationRule, VersionAutomationRule
+from readthedocs.builds.constants import ALL_VERSIONS
+from readthedocs.projects.models import AutomationRule
 import requests_mock
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -1051,7 +1052,7 @@ class TestGitHubAppWebhook(TestCase):
 
 
 class TestGitHubAppWebhookWithAutomationRules(TestCase):
-    """Tests for webhook filtering with WebhookAutomationRule."""
+    """Tests for webhook filtering with AutomationRule."""
 
     def setUp(self):
         self.user = get(User)
@@ -1092,16 +1093,17 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
 
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     def test_push_branch_with_matching_webhook_rule(self, trigger_build):
-        """Test that push triggers build when WebhookAutomationRule matches."""
+        """Test that push triggers build when AutomationRule matches."""
 
         # Create a webhook automation rule that matches docs files
         rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="docs/*.rst",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=BRANCH,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            webhook_files_match_pattern=["docs/*.rst"],
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
         )
 
         payload = {
@@ -1133,16 +1135,17 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
 
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     def test_push_branch_with_non_matching_webhook_rule(self, trigger_build):
-        """Test that push does not trigger build when WebhookAutomationRule doesn't match."""
+        """Test that push does not trigger build when AutomationRule doesn't match."""
 
         # Create a webhook automation rule that matches docs files
         rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="docs/*.rst",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=BRANCH,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            webhook_files_match_pattern=["docs/*.rst"],
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
         )
 
         payload = {
@@ -1174,7 +1177,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
 
     @mock.patch("readthedocs.core.views.hooks.trigger_build")
     def test_push_branch_without_webhook_rules(self, trigger_build):
-        """Test that push triggers build normally when no WebhookAutomationRules exist."""
+        """Test that push triggers build normally when no AutomationRules exist."""
         # No automation rules - should trigger build as usual
         payload = {
             "installation": {
@@ -1211,19 +1214,20 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     @requests_mock.Mocker(kw="request")
     def test_pull_request_with_matching_webhook_rule(self, trigger_build, request):
-        """Test that PR triggers build when WebhookAutomationRule matches."""
+        """Test that PR triggers build when AutomationRule matches."""
 
         self.project.external_builds_enabled = True
         self.project.save()
 
         # Create a webhook automation rule for external versions (PRs)
         rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="docs/**",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=EXTERNAL,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            webhook_files_match_pattern=["docs/**"],
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[EXTERNAL],
         )
 
         # Mock the GitHub API call to get PR files
@@ -1295,19 +1299,20 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
     @requests_mock.Mocker(kw="request")
     def test_pull_request_with_non_matching_webhook_rule(self, trigger_build, request):
-        """Test that PR does not trigger build when WebhookAutomationRule doesn't match."""
+        """Test that PR does not trigger build when AutomationRule doesn't match."""
 
         self.project.external_builds_enabled = True
         self.project.save()
 
         # Create a webhook automation rule for external versions (PRs)
         rule = get(
-            WebhookAutomationRule,
+            AutomationRule,
             project=self.project,
             priority=0,
-            match_arg="docs/**",
-            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
-            version_type=EXTERNAL,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            webhook_files_match_pattern=["docs/**"],
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[EXTERNAL],
         )
 
         # Mock the GitHub API call to get PR files
@@ -1367,7 +1372,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
 
     @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_without_webhook_rules(self, trigger_build):
-        """Test that PR triggers build normally when no WebhookAutomationRules exist."""
+        """Test that PR triggers build normally when no AutomationRules exist."""
         self.project.external_builds_enabled = True
         self.project.save()
 
