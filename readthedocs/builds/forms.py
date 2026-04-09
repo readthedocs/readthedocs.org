@@ -1,4 +1,6 @@
 """Django forms for the builds app."""
+# TODO: this file can be completely removed once we are fully into the new automation rules.
+# We won't be using these forms anymore.
 
 import re
 import textwrap
@@ -17,7 +19,6 @@ from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BRANCH_TEXT
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.constants import TAG_TEXT
-from readthedocs.builds.models import AutomationRule
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.builds.models import VersionAutomationRule
@@ -215,59 +216,6 @@ class RegexAutomationRuleForm(forms.ModelForm):
                 _("Invalid Python regular expression."),
             )
         return match_arg
-
-    def clean_project(self):
-        return self.project
-
-
-class AutomationRuleForm(forms.ModelForm):
-    project = forms.CharField(widget=forms.HiddenInput(), required=False)
-    # NOTE: I want to use something like, but I'm not sure how.
-    # https://semantic-ui.com/modules/dropdown.html#multiple-selection
-    version_types = forms.MultipleChoiceField(
-        widget=forms.SelectMultiple,
-        choices=AutomationRule.VERSION_TYPE_CHOICES,
-        required=True,
-    )
-    webhook_match_pattern = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                "rows": 5,
-                "placeholder": "\n".join(
-                    [
-                        "docs/*.rst",
-                        "docs/*.md",
-                        "docs/requirements.txt",
-                        "requirements.txt",
-                        ".readthedocs.yaml",
-                    ],
-                ),
-            }
-        ),
-    )
-
-    class Meta:
-        model = AutomationRule
-        fields = [
-            "project",
-            "enabled",
-            "description",
-            "version_types",
-            "version_predefined_match_pattern",
-            "version_match_pattern",
-            "webhook_filter",
-            "webhook_match_pattern",
-            "action",
-        ]
-
-        widgets = {
-            "version_match_pattern": forms.TextInput(attrs={"placeholder": "^release-.*$"}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop("project", None)
-        super().__init__(*args, **kwargs)
 
     def clean_project(self):
         return self.project

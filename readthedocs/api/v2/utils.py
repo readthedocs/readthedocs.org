@@ -15,9 +15,9 @@ from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.constants import TAG
-from readthedocs.builds.models import AutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.db import delete_in_batches
+from readthedocs.projects.models import AutomationRule
 
 
 log = structlog.get_logger(__name__)
@@ -250,8 +250,7 @@ def run_version_automation_rules(project, added_versions, deleted_active_version
     ).order_by("priority")
     log.info(
         "Running version automation rules.",
-        rules=rules,
-        versions=[version.slug for version in versions],
+        project_slug=project.slug,
         version_slugs=version_slugs,
     )
     for version, rule in itertools.product(versions, rules):
