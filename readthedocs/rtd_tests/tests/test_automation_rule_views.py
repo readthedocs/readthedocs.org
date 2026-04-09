@@ -5,11 +5,11 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import (
     ALL_VERSIONS,
     BRANCH,
+    CUSTOM_MATCH,
     TAG,
 )
-from readthedocs.builds.models import AutomationRule
 from readthedocs.organizations.models import Organization
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import AutomationRule, Project
 
 
 @pytest.mark.django_db
@@ -114,6 +114,7 @@ class TestAutomationRulesViews:
             ),
             {
                 "description": "One rule",
+                "version_predefined_match_pattern": CUSTOM_MATCH,
                 "version_match_pattern": r"^master$",
                 "version_types": [TAG],
                 "action": AutomationRule.ACTIVATE_VERSION_ACTION,
@@ -123,6 +124,7 @@ class TestAutomationRulesViews:
         assert r["Location"] == self.list_rules_url
 
         rule = self.project.automation_rules.get(description="One rule")
+        assert rule.version_predefined_match_pattern == CUSTOM_MATCH
         assert rule.version_match_pattern == r"^master$"
 
     def test_create_rule_predefined_match(self):
@@ -144,7 +146,7 @@ class TestAutomationRulesViews:
         rule = self.project.automation_rules.get(description="rule")
         assert rule.version_predefined_match_pattern == ALL_VERSIONS
 
-    def test_create_rule_with_webhook_filter(self):
+    def test_create_rule_with_webhook_files_filter(self):
         r = self.client.post(
             reverse(
                 "projects_automation_rule_create",
@@ -152,19 +154,18 @@ class TestAutomationRulesViews:
             ),
             {
                 "description": "Webhook rule",
-                "version_match_pattern": ".*",
+                "version_predefined_match_pattern": ALL_VERSIONS,
                 "version_types": [BRANCH],
                 "action": AutomationRule.TRIGGER_BUILD_ACTION,
-                "webhook_filter": AutomationRule.WEBHOOK_FILTER_FILE_PATTERN,
-                "webhook_match_pattern": "docs/*.rst\nrequirements.txt",
+                "webhook_files_match_pattern": "docs/*.rst\nrequirements.txt",
             },
         )
         assert r.status_code == 302
         assert r["Location"] == self.list_rules_url
 
         rule = self.project.automation_rules.get(description="Webhook rule")
-        assert rule.webhook_filter == AutomationRule.WEBHOOK_FILTER_FILE_PATTERN
-        assert "docs/*.rst" in rule.webhook_match_pattern
+        assert "docs/*.rst" in rule.webhook_files_match_pattern
+        assert "requirements.txt" in rule.webhook_files_match_pattern
 
     def test_delete_rule(self):
         self.client.post(
@@ -208,7 +209,7 @@ class TestAutomationRulesViews:
         rule_1 = self.project.automation_rules.get(description="rule-1")
         rule_2 = self.project.automation_rules.get(description="rule-2")
 
-        self.project.automation_rules.all().count() == 3
+        assert self.project.automation_rules.all().count() == 3
 
         assert rule_0.priority == 0
         assert rule_1.priority == 1
@@ -223,7 +224,7 @@ class TestAutomationRulesViews:
         assert r.status_code == 302
         assert r["Location"] == self.list_rules_url
 
-        self.project.automation_rules.all().count() == 2
+        assert self.project.automation_rules.all().count() == 2
 
         rule_1.refresh_from_db()
         rule_2.refresh_from_db()
