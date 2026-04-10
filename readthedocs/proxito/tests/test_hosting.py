@@ -15,6 +15,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff.dataclasses import (
+    BaseSnapshot,
     FileTreeDiff,
     FileTreeDiffManifestFile,
     FileTreeDiffFileStatus,
@@ -1237,6 +1238,92 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             },
         }
+
+    @mock.patch("readthedocs.proxito.views.hosting.get_base_snapshot")
+    def test_doc_diff_base_url_uses_snapshot_for_external_version(
+        self, get_base_snapshot
+    ):
+        """When a base snapshot exists, doc_diff.base_url should point to the snapshot."""
+        pr_version = get(
+            Version,
+            project=self.project,
+            slug="456",
+            active=True,
+            built=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+        get(
+            Build,
+            project=self.project,
+            version=pr_version,
+            commit="d4e5f6",
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+        get_base_snapshot.return_value = BaseSnapshot(
+            base_build_id=self.build.id,
+            base_version_slug="latest",
+        )
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project--456.dev.readthedocs.build/en/456/index.html",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project--456.dev.readthedocs.build",
+            },
+        )
+        assert r.status_code == 200
+        doc_diff = r.json()["addons"]["doc_diff"]
+        assert doc_diff["enabled"] is True
+        # The base_url should point to the snapshot path, not the live version.
+        assert "/_/diff/456/base/index.html" in doc_diff["base_url"]
+        assert "project--456.dev.readthedocs.build" in doc_diff["base_url"]
+
+    @mock.patch("readthedocs.proxito.views.hosting.get_base_snapshot")
+    def test_doc_diff_base_url_falls_back_when_no_snapshot(self, get_base_snapshot):
+        """When no base snapshot exists, doc_diff.base_url should use the live version."""
+        pr_version = get(
+            Version,
+            project=self.project,
+            slug="789",
+            active=True,
+            built=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+        get(
+            Build,
+            project=self.project,
+            version=pr_version,
+            commit="g7h8i9",
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+        get_base_snapshot.return_value = None
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project--789.dev.readthedocs.build/en/789/index.html",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project--789.dev.readthedocs.build",
+            },
+        )
+        assert r.status_code == 200
+        doc_diff = r.json()["addons"]["doc_diff"]
+        # Should fall back to the live latest version URL.
+        assert "/en/latest/index.html" in doc_diff["base_url"]
+        assert "project.dev.readthedocs.io" in doc_diff["base_url"]
 
     def test_version_ordering(self):
         for slug in ["1.0", "1.2", "1.12", "2.0", "2020.01.05", "a-slug", "z-slug"]:

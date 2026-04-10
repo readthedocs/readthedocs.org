@@ -5,9 +5,10 @@ from unittest import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff import get_diff
+from readthedocs.filetreediff import get_base_snapshot, get_diff, snapshot_base_html, write_base_snapshot
+from readthedocs.filetreediff.dataclasses import BaseSnapshot
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
@@ -148,3 +149,97 @@ class TestsFileTreeDiff(TestCase):
         assert [file.path for file in diff.deleted] == ["deleted.html"]
         assert [file.path for file in diff.modified] == ["tutorials/index.html"]
         assert diff.outdated
+
+
+@mock.patch(
+    "readthedocs.filetreediff.build_media_storage",
+    new=BuildMediaFileSystemStorageTest(),
+)
+class TestBaseSnapshot(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.base_version = self.project.versions.get(slug=LATEST)
+        self.base_build = get(
+            Build,
+            project=self.project,
+            version=self.base_version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+        self.pr_version = get(
+            Version,
+            project=self.project,
+            slug="123",
+            active=True,
+            built=True,
+            type=EXTERNAL,
+        )
+
+    def _mock_open(self, content):
+        @contextmanager
+        def f(*args, **kwargs):
+            read_mock = mock.MagicMock()
+            read_mock.read.return_value = content
+            yield read_mock
+
+        return f
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_get_base_snapshot(self, storage_open):
+        snapshot_data = json.dumps(
+            {"base_build_id": self.base_build.id, "base_version_slug": "latest"}
+        )
+        storage_open.return_value = self._mock_open(snapshot_data)()
+        snapshot = get_base_snapshot(self.pr_version)
+        assert snapshot is not None
+        assert snapshot.base_build_id == self.base_build.id
+        assert snapshot.base_version_slug == "latest"
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_get_base_snapshot_not_found(self, storage_open):
+        storage_open.side_effect = FileNotFoundError
+        snapshot = get_base_snapshot(self.pr_version)
+        assert snapshot is None
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_write_base_snapshot(self, storage_open):
+        mock_file = mock.MagicMock()
+        storage_open.return_value.__enter__ = mock.MagicMock(return_value=mock_file)
+        storage_open.return_value.__exit__ = mock.MagicMock(return_value=False)
+
+        snapshot = BaseSnapshot(
+            base_build_id=self.base_build.id,
+            base_version_slug="latest",
+        )
+        write_base_snapshot(self.pr_version, snapshot)
+        storage_open.assert_called_once()
+        mock_file.write.assert_called()
+
+    @mock.patch("readthedocs.filetreediff.build_media_storage")
+    def test_snapshot_base_html(self, mock_storage):
+        mock_storage.open.side_effect = FileNotFoundError
+        snapshot_base_html(self.pr_version, self.base_version)
+        mock_storage.rclone_copy_remote_directory.assert_called_once()
+        call_kwargs = mock_storage.rclone_copy_remote_directory.call_args
+        assert call_kwargs.kwargs.get("include") == "*.html"
+
+    @mock.patch("readthedocs.filetreediff.build_media_storage")
+    def test_snapshot_base_html_skips_if_exists(self, mock_storage):
+        """If a base snapshot already exists, don't re-copy."""
+        snapshot_data = json.dumps(
+            {"base_build_id": self.base_build.id, "base_version_slug": "latest"}
+        )
+        mock_storage.open.return_value.__enter__ = mock.MagicMock(
+            return_value=mock.MagicMock(read=mock.MagicMock(return_value=snapshot_data))
+        )
+        mock_storage.open.return_value.__exit__ = mock.MagicMock(return_value=False)
+
+        snapshot_base_html(self.pr_version, self.base_version)
+        mock_storage.rclone_copy_remote_directory.assert_not_called()
+
+    def test_snapshot_base_html_no_successful_build(self):
+        """If base version has no successful build, skip snapshot."""
+        Build.objects.filter(version=self.base_version).delete()
+        # Should not raise, just skip.
+        with mock.patch("readthedocs.filetreediff.build_media_storage"):
+            snapshot_base_html(self.pr_version, self.base_version)

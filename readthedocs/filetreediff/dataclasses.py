@@ -57,6 +57,24 @@ class FileTreeDiffManifest:
         return asdict(self)
 
 
+@dataclass(slots=True)
+class BaseSnapshot:
+    """Snapshot of the base version's state at the time a PR was first built."""
+
+    base_build_id: int
+    base_version_slug: str
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "BaseSnapshot":
+        return cls(
+            base_build_id=data["base_build_id"],
+            base_version_slug=data["base_version_slug"],
+        )
+
+    def as_dict(self) -> dict:
+        return asdict(self)
+
+
 class FileTreeDiffFileStatus(StrEnum):
     """Status of a file in the file tree diff."""
 

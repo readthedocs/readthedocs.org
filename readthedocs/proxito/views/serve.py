@@ -22,6 +22,7 @@ from readthedocs.core.unresolver import TranslationWithoutVersionError
 from readthedocs.core.unresolver import VersionNotFoundError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import MEDIA_TYPE_DIFF
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.constants import PRIVATE
@@ -38,6 +39,7 @@ from readthedocs.proxito.views.mixins import InvalidPathError
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.proxito.views.mixins import ServeRedirectMixin
 from readthedocs.proxito.views.mixins import StorageFileNotFound
+from readthedocs.filetreediff import BASE_HTML_DIR_NAME
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
@@ -982,3 +984,61 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
     def _get_version(self):
         # This view isn't attached to a version.
         return None
+
+
+class ServeBaseHTMLSnapshotBase(CDNCacheControlMixin, ServeDocsMixin, View):
+    """
+    Serve base HTML snapshot files for visual diff.
+
+    These are frozen copies of the base version's HTML files stored alongside
+    the PR version's diff data. Used by the visual diff JS client to compare
+    against a stable base even when the base version is rebuilt.
+    """
+
+    # Snapshot content is immutable for a given PR version,
+    # so it can be cached.
+    cache_response = True
+
+    def get(self, request, version_slug, filename):
+        unresolved_domain = request.unresolved_domain
+        if not unresolved_domain:
+            raise Http404
+
+        project = unresolved_domain.project
+
+        version = project.versions.filter(
+            slug=version_slug,
+        ).first()
+        if not version or not version.is_external:
+            raise Http404
+
+        if not self.allowed_user(request, version):
+            return self.get_unauthed_response(request, project)
+
+        if not filename or filename.endswith("/"):
+            filename += "index.html"
+
+        base_storage_path = version.get_storage_path(
+            media_type=MEDIA_TYPE_DIFF,
+            filename=BASE_HTML_DIR_NAME,
+        )
+
+        try:
+            storage_path = build_media_storage.join(
+                base_storage_path, filename.lstrip("/")
+            )
+        except ValueError:
+            raise Http404
+
+        if not build_media_storage.exists(storage_path):
+            raise Http404
+
+        return self._serve_file(
+            request=request,
+            storage_path=storage_path,
+            storage_backend=build_media_storage,
+        )
+
+
+class ServeBaseHTMLSnapshot(SettingsOverrideObject):
+    _default_class = ServeBaseHTMLSnapshotBase
