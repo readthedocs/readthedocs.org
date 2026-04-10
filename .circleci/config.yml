@@ -36,10 +36,6 @@
 
 version: 2.1
 
-orbs:
-  codecov: codecov/codecov@3.2.2
-  node: circleci/node@5.1.0
-
 commands:
   setup-checkout:
     description: Checkout code, initialize submodules, and prepare cache keys
@@ -94,7 +90,10 @@ jobs:
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
       - run: pip install --user tox tox-uv
       - run: tox -e py312
-      - run: cp .coverage .coverage.tests
+      - run:
+          name: Save coverage data
+          command: cp .coverage .coverage.tests 2>/dev/null || true
+          when: always
       - save_cache:
           key: pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
           paths:
@@ -105,6 +104,7 @@ jobs:
           root: .
           paths:
             - .coverage.tests
+          when: always
 
   tests-search:
     # Search tests — needs Elasticsearch sidecar.
@@ -130,7 +130,10 @@ jobs:
       - run: sudo apt install -y rclone
       - run: pip install --user tox tox-uv
       - run: tox -e search
-      - run: cp .coverage .coverage.search
+      - run:
+          name: Save coverage data
+          command: cp .coverage .coverage.search 2>/dev/null || true
+          when: always
       - save_cache:
           key: pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
           paths:
@@ -141,6 +144,7 @@ jobs:
           root: .
           paths:
             - .coverage.search
+          when: always
 
   tests-proxito:
     # Proxito tests — uses readthedocs.settings.proxito.test Django settings.
@@ -157,7 +161,10 @@ jobs:
             - pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
       - run: pip install --user tox tox-uv
       - run: tox -e proxito
-      - run: cp .coverage .coverage.proxito
+      - run:
+          name: Save coverage data
+          command: cp .coverage .coverage.proxito 2>/dev/null || true
+          when: always
       - save_cache:
           key: pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
           paths:
@@ -168,6 +175,7 @@ jobs:
           root: .
           paths:
             - .coverage.proxito
+          when: always
 
   tests-embedapi:
     # Embed API tests — tests against 6 Sphinx versions.
@@ -203,10 +211,23 @@ jobs:
           name: Combine coverage and generate report
           command: |
             pip install --user coverage
-            coverage combine .coverage.*
-            coverage xml
-            coverage report --show-missing
-      - codecov/upload
+            if ls .coverage.* 1>/dev/null 2>&1; then
+              coverage combine .coverage.*
+              coverage xml
+              coverage report --show-missing
+            else
+              echo "No coverage files found — skipping report"
+            fi
+      - run:
+          name: Upload coverage to Codecov
+          command: |
+            if [ -f coverage.xml ]; then
+              curl -Os https://cli.codecov.io/latest/linux/codecov
+              chmod +x codecov
+              ./codecov upload-process --fail-on-error -f coverage.xml
+            else
+              echo "No coverage.xml — skipping upload"
+            fi
 
   checks:
     docker:
