@@ -215,27 +215,30 @@ class TestBaseSnapshot(TestCase):
         storage_open.assert_called_once()
         mock_file.write.assert_called()
 
+    @mock.patch("readthedocs.filetreediff.write_base_snapshot")
+    @mock.patch("readthedocs.filetreediff.get_base_snapshot")
     @mock.patch("readthedocs.filetreediff.build_media_storage")
-    def test_snapshot_base_html(self, mock_storage):
-        mock_storage.open.side_effect = FileNotFoundError
+    def test_snapshot_base_html(self, mock_storage, mock_get_snapshot, mock_write_snapshot):
+        # No existing snapshot.
+        mock_get_snapshot.return_value = None
         snapshot_base_html(self.pr_version, self.base_version)
         mock_storage.rclone_copy_remote_directory.assert_called_once()
         call_kwargs = mock_storage.rclone_copy_remote_directory.call_args
         assert call_kwargs.kwargs.get("include") == "*.html"
+        mock_write_snapshot.assert_called_once()
 
+    @mock.patch("readthedocs.filetreediff.write_base_snapshot")
+    @mock.patch("readthedocs.filetreediff.get_base_snapshot")
     @mock.patch("readthedocs.filetreediff.build_media_storage")
-    def test_snapshot_base_html_skips_if_exists(self, mock_storage):
+    def test_snapshot_base_html_skips_if_exists(self, mock_storage, mock_get_snapshot, mock_write_snapshot):
         """If a base snapshot already exists, don't re-copy."""
-        snapshot_data = json.dumps(
-            {"base_build_id": self.base_build.id, "base_version_slug": "latest"}
+        mock_get_snapshot.return_value = BaseSnapshot(
+            base_build_id=self.base_build.id,
+            base_version_slug="latest",
         )
-        mock_storage.open.return_value.__enter__ = mock.MagicMock(
-            return_value=mock.MagicMock(read=mock.MagicMock(return_value=snapshot_data))
-        )
-        mock_storage.open.return_value.__exit__ = mock.MagicMock(return_value=False)
-
         snapshot_base_html(self.pr_version, self.base_version)
         mock_storage.rclone_copy_remote_directory.assert_not_called()
+        mock_write_snapshot.assert_not_called()
 
     def test_snapshot_base_html_no_successful_build(self):
         """If base version has no successful build, skip snapshot."""

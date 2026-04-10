@@ -22,6 +22,7 @@ from readthedocs.core.unresolver import TranslationWithoutVersionError
 from readthedocs.core.unresolver import VersionNotFoundError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.filetreediff import BASE_HTML_DIR_NAME
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
@@ -39,7 +40,6 @@ from readthedocs.proxito.views.mixins import InvalidPathError
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.proxito.views.mixins import ServeRedirectMixin
 from readthedocs.proxito.views.mixins import StorageFileNotFound
-from readthedocs.filetreediff import BASE_HTML_DIR_NAME
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
