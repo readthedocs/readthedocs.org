@@ -1361,6 +1361,10 @@ class EnvironmentVariableForm(forms.ModelForm):
         return name
 
 
+# TODO if you are extending this form or reusing this pattern for any similar views,
+# be advised we probably want this form to be a project form instead. This is
+# especially true if we want to mix addons and backend configuration options.
+# We won't want the form tightly tied to addons models in this case.
 class AddonsConfigSearchSettingsForm(forms.ModelForm):
     """Form to configure addons search settings."""
 
