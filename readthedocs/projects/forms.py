@@ -737,19 +737,10 @@ class ProjectRelationshipForm(forms.ModelForm):
 class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
     """Project pull requests configuration form."""
 
-    # The underlying field lives on ``AddonsConfig`` (see
-    # ``AddonsConfigForm``) — we expose it here as an extra form field and
-    # persist it to the same ``AddonsConfig`` row on save so there is a
+    # The underlying field lives on ``AddonsConfig`` -- label, help text
+    # and initial value all come from that model field so there is a
     # single source of truth.
-    notifications_show_on_external = forms.BooleanField(
-        required=False,
-        label=_("Show a notification on builds from pull requests"),
-        help_text=_(
-            "Display a notification on the rendered documentation of pull "
-            "request previews. Readers will see a toast linking to the build "
-            "and the pull request."
-        ),
-    )
+    notifications_show_on_external = forms.BooleanField(required=False)
 
     class Meta:
         model = Project
@@ -771,12 +762,15 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("external_builds_privacy_level")
 
-        # Seed the toggle from the related ``AddonsConfig`` row so the form
-        # reflects the current value.
+        # Seed label, help text and initial value from the underlying
+        # ``AddonsConfig`` model field.
+        model_field = AddonsConfig._meta.get_field("notifications_show_on_external")
+        form_field = self.fields["notifications_show_on_external"]
+        form_field.label = model_field.verbose_name
+        form_field.help_text = model_field.help_text
         addons = getattr(self.instance, "addons", None)
         if addons is not None:
-            field = self.fields["notifications_show_on_external"]
-            field.initial = addons.notifications_show_on_external
+            form_field.initial = addons.notifications_show_on_external
 
     def save(self, commit=True):
         project = super().save(commit=commit)
@@ -868,19 +862,11 @@ class AddonsConfigForm(forms.ModelForm):
             "doc_diff_enabled": _("Visual diff enabled"),
             "filetreediff_enabled": _("Enabled"),
             "filetreediff_ignored_files": _("Ignored files"),
-            "notifications_show_on_external": _("Show a notification on builds from pull requests"),
             "notifications_show_on_non_stable": _("Show a notification on non-stable versions"),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
             "linkpreviews_selector": _("CSS link previews selector"),
             "options_root_selector": _("CSS main content selector"),
-        }
-        help_texts = {
-            "notifications_show_on_external": _(
-                "Display a notification on the rendered documentation of "
-                "pull request previews. Readers will see a toast linking to "
-                "the build and the pull request."
-            ),
         }
 
         widgets = {
