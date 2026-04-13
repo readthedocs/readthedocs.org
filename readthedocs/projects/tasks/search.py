@@ -12,6 +12,7 @@ from readthedocs.builds.tasks import post_build_overview
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import files_changed
@@ -214,12 +215,7 @@ def _get_indexers(
 
 
 def _process_files(*, version: Version, indexers: list[Indexer]):
-    storage_path = version.project.get_storage_path(
-        type_="html",
-        version_slug=version.slug,
-        include_file=False,
-        version_type=version.type,
-    )
+    storage_path = version.get_storage_path(media_type=MEDIA_TYPE_HTML)
     # A sync ID is a number different than the current `build` attribute (pending rename),
     # it's used to differentiate the files from the current sync from the previous one.
     # This is useful to easily delete the previous files from the DB and ES.

@@ -981,13 +981,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version=self.data.version.slug,
                 type_=media_type,
             )
-            to_path = self.data.project.get_storage_path(
-                type_=media_type,
-                version_slug=self.data.version.slug,
-                include_file=False,
-                version_type=self.data.version.type,
-            )
-
+            to_path = self.data.version.get_storage_path(media_type=media_type)
             self._log_directory_size(from_path, media_type)
 
             try:
@@ -1013,12 +1007,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Delete formats
         for media_type in types_to_delete:
-            media_path = self.data.version.project.get_storage_path(
-                type_=media_type,
-                version_slug=self.data.version.slug,
-                include_file=False,
-                version_type=self.data.version.type,
-            )
+            media_path = self.data.version.get_storage_path(media_type=media_type)
             try:
                 build_media_storage.delete_directory(media_path)
             except Exception as exc:

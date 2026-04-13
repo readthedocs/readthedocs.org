@@ -60,13 +60,11 @@ from readthedocs.projects.validators import validate_no_ip
 from readthedocs.projects.validators import validate_repository_url
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import GenericParser
-from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import ADDONS_FLYOUT_POSITION_CHOICES
 from .constants import ADDONS_FLYOUT_SORTING_CHOICES
 from .constants import ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
-from .constants import DOWNLOADABLE_MEDIA_TYPES
 from .constants import MEDIA_TYPES
 from .constants import MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 from .constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
@@ -784,47 +782,11 @@ class Project(models.Model):
         """
         Get the paths of all artifacts used by the project.
 
-        :return: the path to an item in storage
-                 (can be used with ``storage.url`` to get the URL).
+        :return: A list of paths where the project's artifacts are stored.
         """
         storage_paths = [f"{type_}/{self.slug}" for type_ in MEDIA_TYPES]
+        storage_paths.extend(f"{EXTERNAL}/{type_}/{self.slug}" for type_ in MEDIA_TYPES)
         return storage_paths
-
-    def get_storage_path(self, type_, version_slug=LATEST, include_file=True, version_type=None):
-        """
-        Get a path to a build artifact for use with Django's storage system.
-
-        :param type_: Media content type, ie - 'pdf', 'htmlzip'
-        :param version_slug: Project version slug for lookup
-        :param include_file: Include file name in return
-        :param version_type: Project version type
-        :return: the path to an item in storage
-            (can be used with ``storage.url`` to get the URL)
-        """
-        if type_ not in MEDIA_TYPES:
-            raise ValueError("Invalid content type.")
-
-        if include_file and type_ not in DOWNLOADABLE_MEDIA_TYPES:
-            raise ValueError("Invalid content type for downloadable file.")
-
-        type_dir = type_
-        # Add `external/` prefix for external versions
-        if version_type == EXTERNAL:
-            type_dir = f"{EXTERNAL}/{type_}"
-
-        # Version slug may come from an unstrusted input,
-        # so we use join to avoid any path traversal.
-        # All other values are already validated.
-        folder_path = build_media_storage.join(f"{type_dir}/{self.slug}", version_slug)
-
-        if include_file:
-            extension = type_.replace("htmlzip", "zip")
-            return "{}/{}.{}".format(
-                folder_path,
-                self.slug,
-                extension,
-            )
-        return folder_path
 
     def get_production_media_url(self, type_, version_slug, resolver=None):
         """Get the URL for downloading a specific media file."""
