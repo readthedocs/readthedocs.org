@@ -737,6 +737,20 @@ class ProjectRelationshipForm(forms.ModelForm):
 class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
     """Project pull requests configuration form."""
 
+    # The underlying field lives on ``AddonsConfig`` (see
+    # ``AddonsConfigForm``) — we expose it here as an extra form field and
+    # persist it to the same ``AddonsConfig`` row on save so there is a
+    # single source of truth.
+    notifications_show_on_external = forms.BooleanField(
+        required=False,
+        label=_("Show a notification on builds from pull requests"),
+        help_text=_(
+            "Display a notification on the rendered documentation of pull "
+            "request previews. Readers will see a toast linking to the build "
+            "and the pull request."
+        ),
+    )
+
     class Meta:
         model = Project
         fields = [
@@ -756,6 +770,24 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("external_builds_privacy_level")
+
+        # Seed the toggle from the related ``AddonsConfig`` row so the form
+        # reflects the current value.
+        addons = getattr(self.instance, "addons", None)
+        if addons is not None:
+            field = self.fields["notifications_show_on_external"]
+            field.initial = addons.notifications_show_on_external
+
+    def save(self, commit=True):
+        project = super().save(commit=commit)
+        addons = getattr(project, "addons", None)
+        if addons is not None:
+            addons.notifications_show_on_external = self.cleaned_data.get(
+                "notifications_show_on_external", False
+            )
+            if commit:
+                addons.save()
+        return project
 
 
 class OnePerLineList(forms.Field):
@@ -842,6 +874,13 @@ class AddonsConfigForm(forms.ModelForm):
             "linkpreviews_enabled": _("Enabled"),
             "linkpreviews_selector": _("CSS link previews selector"),
             "options_root_selector": _("CSS main content selector"),
+        }
+        help_texts = {
+            "notifications_show_on_external": _(
+                "Display a notification on the rendered documentation of "
+                "pull request previews. Readers will see a toast linking to "
+                "the build and the pull request."
+            ),
         }
 
         widgets = {
