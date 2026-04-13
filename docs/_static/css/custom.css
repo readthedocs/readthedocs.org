@@ -35,13 +35,45 @@
   font-size: 18px;
   font-weight: 700;
   color: #fff;
-  margin: 0 0 8px;
+  margin: 0 0 20px;
 }
 
-.rtd-cta-text {
-  font-size: 14px;
+.rtd-cta-groups {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.rtd-cta-group {
+  flex: 1 1 260px;
+  max-width: 320px;
+  padding: 16px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+.rtd-cta-group-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px;
+}
+
+.rtd-cta-group-text {
+  font-size: 13px;
   color: #9da5b4;
-  margin: 0 0 16px;
+  margin: 0 0 14px;
+  line-height: 1.4;
+}
+
+.rtd-cta-group-text code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #cfd6e0;
+  font-size: 12px;
 }
 
 .rtd-cta-buttons {
