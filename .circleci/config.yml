@@ -207,9 +207,13 @@ jobs:
           name: Combine coverage and generate report
           command: |
             pip install --user coverage
-            coverage combine .coverage.*
-            coverage xml
-            coverage report --show-missing
+            if ls .coverage.* 1>/dev/null 2>&1; then
+              coverage combine .coverage.*
+              coverage xml
+              coverage report --show-missing
+            else
+              echo "No coverage files found — skipping report"
+            fi
       - codecov/upload
 
   checks:

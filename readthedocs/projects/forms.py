@@ -533,7 +533,6 @@ class UpdateProjectForm(
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.had_search_disabled = not self.instance.search_indexing_enabled
 
         # Remove empty choice from options.
@@ -1360,3 +1359,20 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _("Only letters, numbers and underscore are allowed"),
             )
         return name
+
+
+# TODO if you are extending this form or reusing this pattern for any similar views,
+# be advised we probably want this form to be a project form instead. This is
+# especially true if we want to mix addons and backend configuration options.
+# We won't want the form tightly tied to addons models in this case.
+class AddonsConfigSearchSettingsForm(forms.ModelForm):
+    """Form to configure addons search settings."""
+
+    class Meta:
+        model = AddonsConfig
+        fields = ["search_enabled", "search_show_subprojects_filter"]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        kwargs["instance"] = self.project.addons
+        super().__init__(*args, **kwargs)
