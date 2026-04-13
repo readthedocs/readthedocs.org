@@ -25,6 +25,7 @@ from slumber.exceptions import HttpClientError
 
 from readthedocs.api.v2.client import setup_api
 from readthedocs.builds import tasks as build_tasks
+from readthedocs.builds.constants import ARTIFACT_TYPE_EXTENSIONS
 from readthedocs.builds.constants import ARTIFACT_TYPES
 from readthedocs.builds.constants import ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT
 from readthedocs.builds.constants import BRANCH
@@ -643,7 +644,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # These output format does not support multiple files yet.
             # In case multiple files are found, the upload for this format is not performed.
             if artifact_type in ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT:
-                list_dir = os.listdir(artifact_directory)
+                # Only consider files that match the expected extension for
+                # this artifact type. Files without the expected extension
+                # (or no extension at all) are ignored.
+                extension = ARTIFACT_TYPE_EXTENSIONS[artifact_type]
+                list_dir = [
+                    filename
+                    for filename in os.listdir(artifact_directory)
+                    if filename.lower().endswith(f".{extension}")
+                ]
                 artifact_format_files = len(list_dir)
                 if artifact_format_files > 1:
                     log.debug(
@@ -665,10 +674,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         },
                     )
 
-                # Rename file as "<project_slug>-<version_slug>.<artifact_type>",
+                # Rename file as "<project_slug>.<extension>",
                 # which is the filename that Proxito serves for offline formats.
                 filename = list_dir[0]
-                _, extension = filename.rsplit(".")
                 path = Path(artifact_directory) / filename
                 destination = Path(artifact_directory) / f"{self.data.project.slug}.{extension}"
                 assert_path_is_inside_docroot(path)

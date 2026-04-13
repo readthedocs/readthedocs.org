@@ -178,3 +178,10 @@ ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT = (
     "epub",
     "pdf",
 )
+# Mapping of artifact type to the expected file extension in the output
+# directory. Used to filter out unrelated files when locating the artifact.
+ARTIFACT_TYPE_EXTENSIONS = {
+    "htmlzip": "zip",
+    "epub": "epub",
+    "pdf": "pdf",
+}
