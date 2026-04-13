@@ -94,10 +94,15 @@ they are presented with a flyout menu matching the subproject's versions and :do
 Search
 ------
 
-Search on the parent project will include results from its subprojects.
+Search on the parent project will include results from its subprojects,
+and readers can filter results by subproject from the search modal.
 If you search on the ``v1`` version of the parent project,
 results from the ``v1`` version of its subprojects will be included,
 or from the default version for subprojects that don't have a ``v1`` version.
 
 This is currently the only way to share search results between projects,
 we do not yet support sharing search results between sibling subprojects or arbitrary projects.
+
+The subprojects filter in the search modal can be turned off from the parent project's
+:guilabel:`Settings`, in the left bar, under :guilabel:`Search`,
+by unchecking :guilabel:`Show subprojects filter in search modal`.
