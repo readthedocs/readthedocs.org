@@ -5,59 +5,8 @@
     <p class="rtd-cta-title">Build your docs with Read the Docs</p>
     <p class="rtd-cta-text">Free hosting for open source projects, plus powerful features for teams.</p>
     <div class="rtd-cta-buttons">
-      <button class="rtd-cta-btn rtd-cta-btn-primary" onclick="document.getElementById('rtd-signup-modal').style.display='flex'">Sign up</button>
-      <button class="rtd-cta-btn rtd-cta-btn-secondary" onclick="document.getElementById('rtd-login-modal').style.display='flex'">Log in</button>
-    </div>
-  </div>
-
-  {# Sign up modal #}
-  <div class="rtd-modal-overlay" id="rtd-signup-modal" onclick="if(event.target===this)this.style.display='none'">
-    <div class="rtd-modal">
-      <button class="rtd-modal-close" onclick="this.closest('.rtd-modal-overlay').style.display='none'" aria-label="Close">&times;</button>
-      <h3 class="rtd-modal-title">Get started with Read the Docs</h3>
-      <p class="rtd-modal-subtitle">Which site best fits your project?</p>
-      <div class="rtd-modal-cards">
-        <div class="rtd-modal-card">
-          <h4>Community</h4>
-          <p class="rtd-modal-card-sub">For free and open-source projects</p>
-          <ul>
-            <li>Clone public repositories</li>
-            <li>Public documentation</li>
-            <li>Ad-supported hosting</li>
-          </ul>
-          <p class="rtd-modal-card-price"><strong>Free</strong> for open-source software.</p>
-          <a href="https://app.readthedocs.org/accounts/signup/" class="rtd-cta-btn rtd-cta-btn-primary">Sign up</a>
-        </div>
-        <div class="rtd-modal-card">
-          <h4>Business</h4>
-          <p class="rtd-modal-card-sub">For commercial and non-free projects</p>
-          <ul>
-            <li>Clone private and public repositories</li>
-            <li>Public and private documentation</li>
-            <li>Team management</li>
-          </ul>
-          <p class="rtd-modal-card-price">Plans starting at <strong>$50/month</strong>.</p>
-          <a href="https://app.readthedocs.com/accounts/signup/" class="rtd-cta-btn rtd-cta-btn-primary">Sign up</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {# Log in modal #}
-  <div class="rtd-modal-overlay" id="rtd-login-modal" onclick="if(event.target===this)this.style.display='none'">
-    <div class="rtd-modal rtd-modal-sm">
-      <button class="rtd-modal-close" onclick="this.closest('.rtd-modal-overlay').style.display='none'" aria-label="Close">&times;</button>
-      <h3 class="rtd-modal-title">Log in</h3>
-      <div class="rtd-modal-links">
-        <a href="https://app.readthedocs.org/accounts/login/" class="rtd-modal-link">
-          <strong>Community</strong>
-          <span>readthedocs.org</span>
-        </a>
-        <a href="https://app.readthedocs.com/accounts/login/" class="rtd-modal-link">
-          <strong>Business</strong>
-          <span>readthedocs.com</span>
-        </a>
-      </div>
+      <a class="rtd-cta-btn rtd-cta-btn-primary" href="https://app.readthedocs.org/accounts/signup/">Sign up</a>
+      <a class="rtd-cta-btn rtd-cta-btn-secondary" href="https://app.readthedocs.org/accounts/login/">Log in</a>
     </div>
   </div>
 {% endblock extrafooter %}
