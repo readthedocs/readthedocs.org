@@ -339,49 +339,6 @@ if we want to make additional checks over those files, we will need to make addi
 We should also just check a X number of files, we don't want to run a diff of thousands of files,
 and also a limit on the size of the files.
 
-Pinning the base manifest for pull request previews
-----------------------------------------------------
-
-When a pull request is compared tip-to-tip against the base version's current
-manifest, the diff becomes inaccurate as soon as the base branch moves
-forward: files that were changed on the base branch (not by the pull request
-itself) start showing up as spurious additions, deletions, or modifications
-in the pull request's file tree diff.
-
-To avoid this, the base version's manifest is snapshotted on the first
-successful build of a pull request (external version) and stored alongside
-the pull request's build artifacts as ``base_manifest_snapshot.json`` under
-the diff media type. ``get_diff()`` prefers this snapshot over the live base
-manifest when diffing an external version; if no snapshot exists yet, it
-falls back to the live base manifest.
-
-Key properties of the snapshot:
-
-- **Write-once per pull request.** ``snapshot_base_manifest()`` is a no-op if
-  the snapshot file already exists, so subsequent builds keep comparing
-  against the baseline that was pinned on the first build.
-- **Full copy, not a reference.** The snapshot is a complete copy of the base
-  manifest stored under the pull request's own storage path. Manifests are
-  small (a few KB to a few hundred KB), and this makes cleanup trivial:
-  deleting the pull request's storage directory removes the snapshot with no
-  reference counting.
-- **Outdated check skipped on the base side.** When the snapshot is used, the
-  "outdated" check is deliberately not applied to the base side. The
-  snapshot's build will be older than the base version's latest build (that
-  is the whole point of pinning), so marking the diff as outdated would
-  defeat the purpose of the snapshot.
-- **Refresh on rebase (future work).** A ``clear_base_manifest_snapshot()``
-  helper is planned so that the snapshot can be refreshed when a pull request
-  is rebased or synchronized against a newer base commit. Until that is
-  wired up to the rebase/synchronize webhook events, the snapshot is only
-  ever created, never refreshed.
-- **Possible future optimization.** Storing manifests keyed by commit hash
-  (for example, ``manifests/{commit}.json``) and making the snapshot a
-  pointer would deduplicate storage across pull requests that branch from
-  the same base commit. This would require a garbage collection task for
-  unreferenced manifests, and could generalize to other build artifacts
-  under a content-addressed storage scheme.
-
 Future improvements and ideas
 -----------------------------
 
