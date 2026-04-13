@@ -50,6 +50,10 @@ commands:
       - run:
           name: Combine requirements files for cache key
           command: cat requirements/*.txt > requirements-cache-key.txt
+      - run:
+          name: Include ext-theme commit hash in cache key
+          command: |
+            git ls-remote https://github.com/readthedocs/ext-theme.git HEAD >> requirements-cache-key.txt
 
   skip-if-docs-only:
     description: Halt the job if only docs/ files changed
