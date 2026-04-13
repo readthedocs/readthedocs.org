@@ -45,6 +45,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.views import HealthCheckView
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.hosting import ReadTheDocsConfigJson
+from readthedocs.proxito.views.serve import ServeBaseHTMLSnapshot
 from readthedocs.proxito.views.serve import ServeDocs
 from readthedocs.proxito.views.serve import ServeError404
 from readthedocs.proxito.views.serve import ServeLLMSTXT
@@ -123,6 +124,17 @@ proxied_urls = [
         f"{DOC_PATH_PREFIX}addons/",
         ReadTheDocsConfigJson.as_view(),
         name="proxito_readthedocs_docs_addons",
+    ),
+    # Serve base HTML snapshots for visual diff.
+    # /_/diff/<version_slug>/base/<filename>
+    re_path(
+        r"^{DOC_PATH_PREFIX}diff/"
+        r"(?P<version_slug>{version_slug})/"
+        r"base/(?P<filename>.+)$".format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX, **pattern_opts
+        ),
+        ServeBaseHTMLSnapshot.as_view(),
+        name="proxito_base_html_snapshot",
     ),
 ]
 

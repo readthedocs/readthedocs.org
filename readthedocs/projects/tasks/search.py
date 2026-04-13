@@ -9,6 +9,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
+from readthedocs.filetreediff import snapshot_base_html
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
@@ -130,9 +131,16 @@ class IndexFileIndexer(Indexer):
 
 
 class FileManifestIndexer(Indexer):
-    def __init__(self, version: Version, build: Build, post_build_overview: bool = True):
+    def __init__(
+        self,
+        version: Version,
+        build: Build,
+        base_version: Version | None = None,
+        post_build_overview: bool = True,
+    ):
         self.version = version
         self.build = build
+        self.base_version = base_version
         self._hashes = {}
         self.post_build_overview = post_build_overview
 
@@ -148,6 +156,23 @@ class FileManifestIndexer(Indexer):
             ],
         )
         write_manifest(self.version, manifest)
+
+        # For external (PR) versions, snapshot the base version's HTML files
+        # so visual diff can compare against a stable base even if the base
+        # version is rebuilt.
+        if self.version.is_external and self.base_version is not None:
+            try:
+                snapshot_base_html(
+                    pr_version=self.version,
+                    base_version=self.base_version,
+                )
+            except Exception:
+                log.exception(
+                    "Failed to snapshot base HTML for visual diff.",
+                    pr_version_slug=self.version.slug,
+                    base_version_slug=self.base_version.slug,
+                )
+
         if (
             self.post_build_overview
             and self.version.is_external
@@ -190,18 +215,27 @@ def _get_indexers(
 
     # We compare PR previews against the latest version,
     # unless the project has a specific options_base_version set.
-    base_version = (
+    base_version_slug = (
         version.project.addons.options_base_version.slug
         if version.project.addons.options_base_version
         else LATEST
     )
     create_manifest = (
-        version.is_external or version.slug == base_version or settings.RTD_FILETREEDIFF_ALL
+        version.is_external or version.slug == base_version_slug or settings.RTD_FILETREEDIFF_ALL
     )
     if create_manifest:
+        # Resolve the base version object for external versions
+        # so the manifest indexer can snapshot its HTML for visual diff.
+        base_version_obj = None
+        if version.is_external:
+            base_version_obj = version.project.versions.filter(
+                slug=base_version_slug
+            ).first()
+
         file_manifest_indexer = FileManifestIndexer(
             version=version,
             build=build,
+            base_version=base_version_obj,
             post_build_overview=post_build_overview,
         )
         indexers.append(file_manifest_indexer)

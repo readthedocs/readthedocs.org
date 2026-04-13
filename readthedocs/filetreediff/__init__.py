@@ -18,16 +18,24 @@ The process is as follows:
 
 import json
 
+import structlog
+
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.filetreediff.dataclasses import BaseSnapshot
 from readthedocs.filetreediff.dataclasses import FileTreeDiff
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFileStatus
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.storage import build_media_storage
 
 
+log = structlog.get_logger(__name__)
+
 MANIFEST_FILE_NAME = "manifest.json"
+BASE_SNAPSHOT_FILE_NAME = "base_snapshot.json"
+BASE_HTML_DIR_NAME = "base_html"
 
 
 def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | None:
@@ -116,3 +124,87 @@ def write_manifest(version: Version, manifest: FileTreeDiffManifest):
     )
     with build_media_storage.open(manifest_path, "w") as f:
         json.dump(manifest.as_dict(), f)
+
+
+def get_base_snapshot(version: Version) -> BaseSnapshot | None:
+    """
+    Get the base snapshot for an external (PR) version.
+
+    Returns None if no base snapshot exists yet.
+    """
+    snapshot_path = version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=BASE_SNAPSHOT_FILE_NAME,
+    )
+    try:
+        with build_media_storage.open(snapshot_path) as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return None
+
+    return BaseSnapshot.from_dict(data)
+
+
+def write_base_snapshot(version: Version, snapshot: BaseSnapshot):
+    """Write the base snapshot metadata for an external (PR) version."""
+    snapshot_path = version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=BASE_SNAPSHOT_FILE_NAME,
+    )
+    with build_media_storage.open(snapshot_path, "w") as f:
+        json.dump(snapshot.as_dict(), f)
+
+
+def snapshot_base_html(pr_version: Version, base_version: Version):
+    """
+    Copy base version's HTML files into the PR version's diff storage.
+
+    Only copies *.html files -- static assets (CSS, JS, images) are not needed
+    since visual diff only extracts and compares <main> content from HTML pages.
+
+    Also writes a base_snapshot.json with the base build metadata.
+    """
+    latest_base_build = base_version.latest_successful_build
+    if not latest_base_build:
+        log.warning(
+            "No successful build for base version, skipping base HTML snapshot.",
+            base_version_slug=base_version.slug,
+        )
+        return
+
+    # Check if a snapshot already exists for this PR version.
+    existing_snapshot = get_base_snapshot(pr_version)
+    if existing_snapshot is not None:
+        log.info(
+            "Base HTML snapshot already exists, skipping.",
+            pr_version_slug=pr_version.slug,
+            base_build_id=existing_snapshot.base_build_id,
+        )
+        return
+
+    source_path = base_version.get_storage_path(media_type=MEDIA_TYPE_HTML)
+    dest_path = pr_version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=BASE_HTML_DIR_NAME,
+    )
+
+    log.info(
+        "Creating base HTML snapshot for PR version.",
+        pr_version_slug=pr_version.slug,
+        base_version_slug=base_version.slug,
+        base_build_id=latest_base_build.id,
+        source_path=source_path,
+        dest_path=dest_path,
+    )
+
+    build_media_storage.rclone_copy_remote_directory(
+        source=source_path,
+        destination=dest_path,
+        include="*.html",
+    )
+
+    snapshot = BaseSnapshot(
+        base_build_id=latest_base_build.id,
+        base_version_slug=base_version.slug,
+    )
+    write_base_snapshot(pr_version, snapshot)

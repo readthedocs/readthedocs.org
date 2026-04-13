@@ -1,6 +1,7 @@
 """Views for hosting features."""
 
 from functools import lru_cache
+from urllib.parse import urlunparse
 
 import packaging
 import structlog
@@ -30,6 +31,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.filetreediff import get_base_snapshot
 from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CALVER
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
@@ -549,19 +551,43 @@ class AddonsResponseBase:
                 if project.addons.options_base_version
                 else LATEST
             )
+
+            base_url = None
+            if filename:
+                # For external (PR) versions, prefer the frozen base HTML
+                # snapshot so visual diff remains stable even when the base
+                # version is rebuilt.
+                if version and version.is_external:
+                    base_snapshot = get_base_snapshot(version)
+                    if base_snapshot:
+                        # Build the snapshot URL on the same domain as the
+                        # PR preview to avoid CORS issues.
+                        domain, use_https = resolver._get_project_domain(
+                            project,
+                            external_version_slug=version.slug,
+                        )
+                        protocol = "https" if use_https else "http"
+                        snapshot_path = (
+                            f"/_/diff/{version.slug}/base/{filename}"
+                        )
+                        base_url = urlunparse(
+                            (protocol, domain, snapshot_path, "", "", "")
+                        )
+
+                if not base_url:
+                    # Fallback: use the live base version URL.
+                    base_url = resolver.resolve(
+                        project=project,
+                        version_slug=base_version_slug,
+                        language=project.language,
+                        filename=filename,
+                    )
+
             data["addons"].update(
                 {
                     "doc_diff": {
                         "enabled": project.addons.doc_diff_enabled,
-                        # "http://test-builds-local.devthedocs.org/en/latest/index.html"
-                        "base_url": resolver.resolve(
-                            project=project,
-                            version_slug=base_version_slug,
-                            language=project.language,
-                            filename=filename,
-                        )
-                        if filename
-                        else None,
+                        "base_url": base_url,
                         "inject_styles": True,
                     },
                 }

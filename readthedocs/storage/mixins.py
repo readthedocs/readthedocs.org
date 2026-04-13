@@ -52,6 +52,25 @@ class RTDBaseStorage:
         self._check_suspicious_path(source)
         return self._rclone.sync(source, destination)
 
+    def rclone_copy_remote_directory(self, source, destination, include=None):
+        """
+        Copy a directory from one remote path to another using rclone copy.
+
+        Both source and destination are remote storage paths (not local filesystem).
+        On S3, this uses server-side CopyObject without downloading data.
+
+        :param source: Remote path to the source directory.
+        :param destination: Remote path to the destination directory.
+        :param include: Optional glob pattern to filter files (e.g. "*.html").
+        """
+        if source in ("", "/") or destination in ("", "/"):
+            raise SuspiciousFileOperation("Copying all storage cannot be right")
+
+        options = []
+        if include:
+            options.append(f"--include={include}")
+        return self._rclone.copy_remote(source, destination, options=options)
+
     def delete_directory(self, path):
         raise NotImplementedError
 

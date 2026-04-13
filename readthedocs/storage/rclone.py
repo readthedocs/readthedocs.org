@@ -123,6 +123,25 @@ class BaseRClone:
         """
         return self.execute("sync", args=[source, self.get_target(destination)])
 
+    def copy_remote(self, source, destination, options=None):
+        """
+        Run the `rclone copy` command between two remote paths.
+
+        This performs a server-side copy (e.g. S3 CopyObject)
+        without downloading data to the local machine.
+
+        See https://rclone.org/commands/rclone_copy/.
+
+        :params source: Remote path to the source directory.
+        :params destination: Remote path to the destination directory.
+        :params options: Additional options to pass to rclone (e.g. --include).
+        """
+        return self.execute(
+            "copy",
+            args=[self.get_target(source), self.get_target(destination)],
+            options=options,
+        )
+
 
 class RCloneLocal(BaseRClone):
     """

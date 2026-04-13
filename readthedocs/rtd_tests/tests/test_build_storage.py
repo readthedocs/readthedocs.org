@@ -193,3 +193,51 @@ class TestBuildMediaStorage(TestCase):
         with override_settings(DOCROOT=tmp_docroot):
             with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
                 self.storage.rclone_sync_directory(tmp_dir, "files")
+
+    def test_copy_remote_directory(self):
+        """Test copying files between two remote storage paths."""
+        # First, sync some files to storage.
+        with override_settings(DOCROOT=files_dir):
+            self.storage.rclone_sync_directory(files_dir, "source")
+
+        # Copy from source to destination within storage.
+        self.storage.rclone_copy_remote_directory("source", "destination")
+
+        # Both should have the same tree.
+        tree = [
+            ("api", ["index.html"]),
+            "404.html",
+            "api.fjson",
+            "conf.py",
+            "index.html",
+            "test.html",
+        ]
+        self.assertFileTree("source", tree)
+        self.assertFileTree("destination", tree)
+
+    def test_copy_remote_directory_with_include_filter(self):
+        """Test that --include filter only copies matching files."""
+        with override_settings(DOCROOT=files_dir):
+            self.storage.rclone_sync_directory(files_dir, "source")
+
+        # Copy only *.html files.
+        self.storage.rclone_copy_remote_directory(
+            "source", "destination", include="*.html"
+        )
+
+        # Destination should only have HTML files.
+        html_tree = [
+            ("api", ["index.html"]),
+            "404.html",
+            "index.html",
+            "test.html",
+        ]
+        self.assertFileTree("destination", html_tree)
+
+    def test_copy_remote_directory_suspicious_paths(self):
+        with pytest.raises(SuspiciousFileOperation):
+            self.storage.rclone_copy_remote_directory("", "destination")
+        with pytest.raises(SuspiciousFileOperation):
+            self.storage.rclone_copy_remote_directory("source", "")
+        with pytest.raises(SuspiciousFileOperation):
+            self.storage.rclone_copy_remote_directory("/", "destination")
