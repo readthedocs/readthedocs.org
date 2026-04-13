@@ -22,12 +22,12 @@
 
 }
 
-/* Footer CTA */
+/* Footer CTA — colors pulled from about.readthedocs.com brand palette */
 .rtd-cta {
   text-align: center;
   padding: 24px 16px;
   margin-top: 24px;
-  background-color: #1a1c1e;
+  background-color: #1a1e22;
   border-radius: 8px;
 }
 
@@ -95,12 +95,18 @@
 
 .rtd-cta-btn-primary,
 .rtd-cta-btn-primary:visited {
-  background-color: #00a98e;
+  background-color: #0993af;
   color: #fff;
 }
 
 .rtd-cta-btn-primary:hover {
-  background-color: #00897a;
+  background-color: #00839d;
+  color: #fff;
+  text-decoration: none;
+}
+
+.rtd-cta-btn-primary:focus {
+  background-color: #00778e;
   color: #fff;
   text-decoration: none;
 }
