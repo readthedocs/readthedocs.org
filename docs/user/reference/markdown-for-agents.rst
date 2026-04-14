@@ -3,7 +3,7 @@ Markdown for AI agents
 
 Read the Docs serves a Markdown version of documentation pages to AI agents that request it,
 using HTTP content negotiation.
-This makes documentation more efficient for LLMs to consume,
+This makes documentation more efficient for language models to consume,
 since Markdown is smaller and easier to parse than rendered HTML.
 
 This feature is **enabled automatically** on all documentation domains hosted on Read the Docs,
@@ -41,7 +41,7 @@ Benefits
 --------
 
 * **Smaller payloads**: Markdown is more compact than HTML, which reduces bandwidth and context usage for AI agents.
-* **Better readability for LLMs**: Markdown is easier for language models to parse than HTML with styling and navigation markup.
+* **Better readability for language models**: Markdown is easier for language models to parse than HTML with styling and navigation markup.
 * **No configuration required**: The feature works automatically on all documentation hosted on Read the Docs.
 * **Transparent for readers**: Browsers continue to receive the regular HTML version of your documentation.
 
