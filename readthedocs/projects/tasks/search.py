@@ -147,22 +147,27 @@ class FileManifestIndexer(Indexer):
                 FileTreeDiffManifestFile(path=path, main_content_hash=content_hash)
                 for path, content_hash in self._hashes.items()
             ],
+            merge_base=self.build.merge_base,
         )
         write_manifest(self.version, manifest)
 
-        # For PR previews, snapshot the base version's manifest on the first
-        # PR build where the snapshot can be created.
-        # This pins the diff baseline so that subsequent builds compare against
-        # that snapshotted base-version state instead of the base version's
-        # current state. This prevents false file changes when the base branch
-        # moves forward (the "stale branch" problem).
+        # For PR previews, snapshot the base version's manifest. The snapshot
+        # is pinned to this PR's current merge-base so subsequent builds
+        # compare against the same base state, avoiding false file changes
+        # when the base branch moves forward (the "stale branch" problem). If
+        # the PR is rebased onto a newer base, the merge-base changes and the
+        # snapshot is refreshed automatically.
         if self.version.is_external:
             base_version = (
                 self.version.project.addons.options_base_version
                 or self.version.project.get_latest_version()
             )
             if base_version:
-                snapshot_base_manifest(self.version, base_version)
+                snapshot_base_manifest(
+                    self.version,
+                    base_version,
+                    current_merge_base=self.build.merge_base,
+                )
 
         if (
             self.post_build_overview

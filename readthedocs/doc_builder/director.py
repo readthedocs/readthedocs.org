@@ -114,6 +114,58 @@ class BuildDirector:
         if commit:
             self.data.build["commit"] = commit
 
+        # For external (PR) versions, compute the merge-base between the PR
+        # head and the base branch. This is used by the file tree diff feature
+        # to detect when the PR has been rebased onto a newer base and refresh
+        # its cached base manifest snapshot. Failures are non-fatal: if we
+        # can't compute it we just don't set the field.
+        if self.data.version.is_external and self.data.version.base_branch:
+            merge_base = self._compute_merge_base(self.data.version.base_branch)
+            if merge_base:
+                self.data.build["merge_base"] = merge_base
+
+    def _compute_merge_base(self, base_branch):
+        """
+        Fetch the base branch and compute ``git merge-base`` against HEAD.
+
+        The PR clone is shallow by default and only includes the PR head ref,
+        so we need to fetch some history of the base branch first. ``--depth``
+        is bounded so this stays cheap; if the merge-base is older than the
+        depth, we silently return None and the diff feature falls back to its
+        "pin once" behavior.
+        """
+        depth = "500"
+        try:
+            self.vcs_repository.run(
+                "git",
+                "fetch",
+                "--depth",
+                depth,
+                "origin",
+                f"{base_branch}:refs/remotes/origin/{base_branch}",
+                record=False,
+            )
+            self.vcs_repository.run("git", "fetch", "--deepen", depth, "origin", record=False)
+            exit_code, stdout, _ = self.vcs_repository.run(
+                "git",
+                "merge-base",
+                f"origin/{base_branch}",
+                "HEAD",
+                record=False,
+            )
+        except RepositoryError:
+            log.info(
+                "Failed to compute merge-base for external version.",
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
+                base_branch=base_branch,
+            )
+            return None
+
+        if exit_code == 0 and stdout.strip():
+            return stdout.strip()
+        return None
+
     def create_vcs_environment(self):
         self.vcs_environment = self.data.environment_class(
             project=self.data.project,

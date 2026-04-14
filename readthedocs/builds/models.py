@@ -139,6 +139,15 @@ class Version(TimeStampedModel):
         blank=True,
         help_text=_("State of the PR/MR associated to this version."),
     )
+    #: For external versions (PRs), the name of the base branch the PR targets
+    #: (e.g. ``"main"``). Set from the webhook payload at PR creation time and
+    #: updated if the PR is retargeted. Null for non-external versions.
+    base_branch = models.CharField(
+        _("Base branch"),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     built = models.BooleanField(_("Built"), default=False)
 
     # TODO: this field (`uploaded`) could be removed. It was used to mark a
@@ -746,6 +755,16 @@ class Build(models.Model):
     # This is also used after the version is deleted.
     commit = models.CharField(
         _("Commit"),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    # For external versions (PRs), the git merge-base between the PR head and
+    # the base branch at the time this build ran. Used by the file tree diff
+    # feature to detect when the PR has been rebased onto a newer base and
+    # refresh the cached base manifest snapshot.
+    merge_base = models.CharField(
+        _("Merge base"),
         max_length=255,
         null=True,
         blank=True,

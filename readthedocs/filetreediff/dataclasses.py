@@ -32,10 +32,22 @@ class FileTreeDiffManifest:
 
     files: dict[str, FileTreeDiffManifestFile]
     build: FileTreeDiffBuild
+    #: For external (PR) versions, the git merge-base between the PR head and
+    #: its base branch at the time this manifest was written. Used to detect
+    #: when a cached base manifest snapshot is stale because the PR has been
+    #: rebased onto a newer base. ``None`` for non-external versions or when
+    #: the merge-base could not be computed.
+    merge_base: str | None
 
-    def __init__(self, build_id: int, files: list[FileTreeDiffManifestFile]):
+    def __init__(
+        self,
+        build_id: int,
+        files: list[FileTreeDiffManifestFile],
+        merge_base: str | None = None,
+    ):
         self.build = FileTreeDiffBuild(id=build_id)
         self.files = {file.path: file for file in files}
+        self.merge_base = merge_base
 
     @classmethod
     def from_dict(cls, data: dict) -> "FileTreeDiffManifest":
@@ -50,7 +62,7 @@ class FileTreeDiffManifest:
             FileTreeDiffManifestFile(path=path, main_content_hash=file["main_content_hash"])
             for path, file in data["files"].items()
         ]
-        return cls(build_id, files)
+        return cls(build_id, files, merge_base=data.get("merge_base"))
 
     def as_dict(self) -> dict:
         """Convert the object to a dictionary."""
