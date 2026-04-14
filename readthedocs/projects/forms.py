@@ -736,6 +736,11 @@ class ProjectRelationshipForm(forms.ModelForm):
 class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
     """Project pull requests configuration form."""
 
+    # The underlying field lives on ``AddonsConfig`` -- label, help text
+    # and initial value all come from that model field so there is a
+    # single source of truth.
+    notifications_show_on_external = forms.BooleanField(required=False)
+
     class Meta:
         model = Project
         fields = [
@@ -755,6 +760,27 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("external_builds_privacy_level")
+
+        # Seed label, help text and initial value from the underlying
+        # ``AddonsConfig`` model field.
+        model_field = AddonsConfig._meta.get_field("notifications_show_on_external")
+        form_field = self.fields["notifications_show_on_external"]
+        form_field.label = model_field.verbose_name
+        form_field.help_text = model_field.help_text
+        addons = getattr(self.instance, "addons", None)
+        if addons is not None:
+            form_field.initial = addons.notifications_show_on_external
+
+    def save(self, commit=True):
+        project = super().save(commit=commit)
+        addons = getattr(project, "addons", None)
+        if addons is not None:
+            addons.notifications_show_on_external = self.cleaned_data.get(
+                "notifications_show_on_external", False
+            )
+            if commit:
+                addons.save()
+        return project
 
 
 class OnePerLineList(forms.Field):
@@ -835,7 +861,6 @@ class AddonsConfigForm(forms.ModelForm):
             "doc_diff_enabled": _("Visual diff enabled"),
             "filetreediff_enabled": _("Enabled"),
             "filetreediff_ignored_files": _("Ignored files"),
-            "notifications_show_on_external": _("Show a notification on builds from pull requests"),
             "notifications_show_on_non_stable": _("Show a notification on non-stable versions"),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
