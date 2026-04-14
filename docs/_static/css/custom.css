@@ -22,19 +22,20 @@
 
 }
 
-/* Footer CTA — colors pulled from about.readthedocs.com brand palette */
+/* Footer CTA — colors pulled from the sphinx_rtd_theme palette */
 .rtd-cta {
   text-align: center;
   padding: 24px 16px;
   margin-top: 24px;
-  background-color: #1a1e22;
-  border-radius: 8px;
+  background-color: #fcfcfc;
+  border: 1px solid #e1e4e5;
+  border-radius: 4px;
 }
 
 .rtd-cta-title {
   font-size: 18px;
   font-weight: 700;
-  color: #fff;
+  color: #404040;
   margin: 0 0 20px;
 }
 
@@ -49,21 +50,21 @@
   flex: 1 1 260px;
   max-width: 320px;
   padding: 16px;
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
+  background-color: #fff;
+  border: 1px solid #e1e4e5;
+  border-radius: 4px;
 }
 
 .rtd-cta-group-label {
   font-size: 15px;
   font-weight: 700;
-  color: #fff;
+  color: #404040;
   margin: 0 0 6px;
 }
 
 .rtd-cta-group-text {
   font-size: 13px;
-  color: #9da5b4;
+  color: #55606e;
   margin: 0 0 14px;
   line-height: 1.4;
 }
@@ -72,7 +73,7 @@
   background: transparent;
   border: none;
   padding: 0;
-  color: #cfd6e0;
+  color: #404040;
   font-size: 12px;
 }
 
@@ -86,7 +87,7 @@
 .rtd-cta-btn {
   display: inline-block;
   padding: 10px 24px;
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -95,18 +96,18 @@
 
 .rtd-cta-btn-primary,
 .rtd-cta-btn-primary:visited {
-  background-color: #0993af;
+  background-color: #2980b9;
   color: #fff;
 }
 
 .rtd-cta-btn-primary:hover {
-  background-color: #00839d;
+  background-color: #20699b;
   color: #fff;
   text-decoration: none;
 }
 
 .rtd-cta-btn-primary:focus {
-  background-color: #00778e;
+  background-color: #1b587f;
   color: #fff;
   text-decoration: none;
 }
@@ -114,12 +115,12 @@
 .rtd-cta-btn-secondary,
 .rtd-cta-btn-secondary:visited {
   background-color: transparent;
-  color: #fff;
-  border: 1px solid #fff;
+  color: #2980b9;
+  border: 1px solid #2980b9;
 }
 
 .rtd-cta-btn-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background-color: rgba(41, 128, 185, 0.08);
+  color: #2980b9;
   text-decoration: none;
 }
