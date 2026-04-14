@@ -90,7 +90,7 @@ Configuring search
 
 You can configure search options for your project from the :term:`dashboard`:
 
-#. Go to the new :term:`dashboard`.
+#. Go to the :term:`dashboard`.
 #. Click on a project name.
 #. Go to :guilabel:`Settings`.
 #. In the left bar, go to :guilabel:`Search`.
