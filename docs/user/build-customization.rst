@@ -442,20 +442,20 @@ If a ``uv.lock`` file exists, it is respected.
 
    version: 2
 
-  build:
-    os: ubuntu-24.04
-    tools:
-      python: "3.13"
+   build:
+     os: ubuntu-24.04
+     tools:
+       python: "3.13"
 
-  python:
-    install:
-      - method: uv
-        command: sync
-        groups:
-          - docs
+   python:
+     install:
+       - method: uv
+         command: sync
+         groups:
+           - docs
 
    sphinx:
-      configuration: docs/conf.py
+     configuration: docs/conf.py
 
 Use ``build.jobs`` only when you need an advanced uv workflow that isn't covered by
 ``python.install``, such as adding specific arguments to the ``uv`` command.
