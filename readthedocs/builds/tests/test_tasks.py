@@ -533,16 +533,12 @@ class TestPostBuildOverview(TestCase):
             [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
 
 
-            <details>
-            <summary>Show files changed (3 files in total): 📝 1 modified | ➕ 1 added | ➖ 1 deleted</summary>
-
-            | File | Status |
-            | --- | --- |
-            | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
-            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ➖ deleted |
-            | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
-
-
+            <details open>
+            <summary>3 files changed</summary>
+            <br>
+            <code>+</code> <a href="http://my-project--1.readthedocs.build/en/1/changes.html"><code>changes.html</code></a><br>
+            <code>±</code> <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a><br>
+            <code>-</code> <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html"><code>deleteme.html</code></a><br>
             </details>
 
             """
@@ -582,17 +578,20 @@ class TestPostBuildOverview(TestCase):
 
 
             <details>
-            <summary>Show files changed (6 files in total): 📝 4 modified | ➕ 1 added | ➖ 1 deleted</summary>
+            <summary>6 files changed · <code>+</code> 1 added · <code>±</code> 4 modified · <code>-</code> 1 deleted</summary>
+            <br>
 
-            | File | Status |
-            | --- | --- |
-            | [changes.html](http://my-project--1.readthedocs.build/en/1/changes.html) | ➕ added |
-            | [deleteme.html](http://my-project--1.readthedocs.build/en/1/deleteme.html) | ➖ deleted |
-            | [index.html](http://my-project--1.readthedocs.build/en/1/index.html) | 📝 modified |
-            | [one.html](http://my-project--1.readthedocs.build/en/1/one.html) | 📝 modified |
-            | [three.html](http://my-project--1.readthedocs.build/en/1/three.html) | 📝 modified |
-            | [two.html](http://my-project--1.readthedocs.build/en/1/two.html) | 📝 modified |
+            `+` **Added**
+            - [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
 
+            `±` **Modified**
+            - [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
+            - [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html)
+            - [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html)
+            - [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html)
+
+            `-` **Deleted**
+            - [`deleteme.html`](http://my-project--1.readthedocs.build/en/1/deleteme.html)
 
             </details>
 

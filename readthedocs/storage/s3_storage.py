@@ -18,6 +18,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import SuspiciousFileOperation
 from storages.backends.s3boto3 import S3Boto3Storage
 from storages.backends.s3boto3 import S3ManifestStaticStorage
+from storages.utils import clean_name
 
 from readthedocs.storage.mixins import RTDBaseStorage
 from readthedocs.storage.rclone import RCloneS3Remote
@@ -48,42 +49,33 @@ class RTDS3Storage(RTDBaseStorage, S3Boto3Storage):
     def join(self, directory, filepath):
         return safe_join(directory, filepath)
 
-    @staticmethod
-    def _dirpath(path):
-        """
-        Make the path to end with `/`.
-
-        It may just be Azure, but for listdir to work correctly, this is needed.
-        """
-        path = str(path)
-        if not path.endswith("/"):
-            path += "/"
-
-        return path
-
     def delete_directory(self, path):
         """
         Delete all files under a certain path from storage.
 
         Many storage backends (S3, Azure storage) don't care about "directories".
         The directory effectively doesn't exist if there are no files in it.
-        However, in these backends, there is no "rmdir" operation so you have to recursively
-        delete all files.
+        However, in these backends, there is no "rmdir" operation,
+        but boto3 allows batch actions over a prefix, so we can delete
+        all files with a certain prefix to achieve the same result
+        with fewer API calls than deleting each file one by one.
 
         :param path: the path to the directory to remove
         """
-        if path in ("", "/"):
+        # S3Boto3Storage does this normalization before interacting with
+        # the path in all its methods, following the same pattern here.
+        path = self._normalize_name(clean_name(path))
+
+        # The path needs to end with a slash.
+        if not path.endswith("/"):
+            path += "/"
+
+        location = self.location.rstrip("/") + "/"
+        if path == location:
             raise SuspiciousFileOperation("Deleting all storage cannot be right")
 
-        log.debug("Deleting path from media storage", path=path)
-        folders, files = self.listdir(self._dirpath(path))
-        for folder_name in folders:
-            if folder_name:
-                # Recursively delete the subdirectory
-                self.delete_directory(self.join(path, folder_name))
-        for filename in files:
-            if filename:
-                self.delete(self.join(path, filename))
+        log.debug("Deleting path from storage", path=path)
+        self.bucket.objects.filter(Prefix=path).delete()
 
     def delete_paths(self, paths):
         """
@@ -102,6 +94,9 @@ class S3BuildMediaStorage(OverrideHostnameMixin, RTDS3Storage):
 
     bucket_name = getattr(settings, "S3_MEDIA_STORAGE_BUCKET", None)
     override_hostname = getattr(settings, "S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME", None)
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

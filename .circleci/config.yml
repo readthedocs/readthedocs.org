@@ -1,3 +1,39 @@
+# CI Pipeline
+#
+# Stage 1 (parallel):   checks, tests, tests-proxito
+# Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (6 Sphinx versions)
+# Stage 3:              coverage-report (combines and uploads to codecov)
+#
+# Stage 2 runs after tests and tests-proxito pass (but not checks,
+# so a formatting error won't block test execution).
+#
+# Test marker coverage — every test runs in exactly one job:
+#   tests:          -m "not search and not proxito and not embed_api"
+#   tests-search:   -m "search and not proxito" + -m "search and proxito" (proxito settings)
+#   tests-proxito:  -m "proxito and not search"
+#   tests-embedapi: -m embed_api (multiple Sphinx versions via tox.embedapi.ini)
+#
+# Caching strategy:
+#   Each test job caches ~/.local/lib (tox packages) and .tox (virtualenvs
+#   with all deps). Both save_cache and restore_cache use an exact checksum
+#   key — on a cache miss (requirements changed), a full install runs and
+#   a new cache is saved. CircleCI keys are immutable (never overwritten).
+#   Bump "v1" in key names to bust all caches.
+#   See: https://circleci.com/docs/guides/optimize/caching/
+#
+# Other design decisions:
+#   - tests-search runs two pytest commands because some tests are marked
+#     both "search" and "proxito" (e.g. test_proxied_api.py). These need
+#     the ES sidecar AND proxito Django settings, so they run in
+#     tests-search with --ds=readthedocs.settings.proxito.test.
+#   - tests-embedapi uses tox<4 (tox.embedapi.ini isn't compatible with
+#     tox 4), so it can't use tox-uv.
+#   - Coverage files are copied to unique names (cp .coverage .coverage.tests)
+#     after each tox run because tox doesn't pass COVERAGE_FILE through to
+#     the test env. The coverage-report job combines them.
+#   - skip-if-docs-only compares against origin/main, so it only works for
+#     PRs targeting main. PRs targeting other branches will always run tests.
+
 version: 2.1
 
 orbs:
@@ -5,6 +41,16 @@ orbs:
   node: circleci/node@5.1.0
 
 commands:
+  setup-checkout:
+    description: Checkout code, initialize submodules, and prepare cache keys
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run:
+          name: Combine requirements files for cache key
+          command: cat requirements/*.txt > requirements-cache-key.txt
+
   skip-if-docs-only:
     description: Halt the job if only docs/ files changed
     steps:
@@ -19,10 +65,10 @@ commands:
             # Compare against the merge base with main to find changed files.
             changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
             if [ -z "$changed_files" ]; then
-              echo "No changed files detected — skipping tests."
-              circleci-agent step halt
+              echo "No changed files detected — running tests."
               exit 0
             fi
+            # grep -v returns exit code 1 when all lines match, so || true
             non_docs=$(echo "$changed_files" | grep -v '^docs/' || true)
             if [ -z "$non_docs" ]; then
               echo "Only docs changed — skipping tests."
@@ -31,61 +77,157 @@ commands:
 
 jobs:
   tests:
+    # Core tests — excludes search, proxito, and embed_api markers.
+    # No Elasticsearch sidecar needed.
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          # Don't skip search tests.
-          TOX_POSARGS: ''
-          PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=. --cov-append
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov
+    steps:
+      - setup-checkout
+      - skip-if-docs-only
+      - restore_cache:
+          keys:
+            - pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
+      - run: sudo apt update
+      - run: sudo apt install -y rclone
+      # tox-uv makes tox use uv for virtualenv creation and dep resolution.
+      - run: pip install --user tox tox-uv
+      - run: tox -e py312
+      - run: cp .coverage .coverage.tests
+      - save_cache:
+          key: pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
+          paths:
+            - ~/.local/lib
+            - ~/.local/bin
+            - .tox
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .coverage.tests
+
+  tests-search:
+    # Search tests — needs Elasticsearch sidecar.
+    # Runs in Stage 2 to avoid starting ES on broken builds.
+    docker:
+      - image: 'cimg/python:3.12'
+        environment:
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:9.3.1'
         name: search
         environment:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms750m -Xmx750m
           ELASTIC_PASSWORD: password
-          # Disabled SSL for testing.
           xpack.security.transport.ssl.enabled: 'false'
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
+      - setup-checkout
       - skip-if-docs-only
+      - restore_cache:
+          keys:
+            - pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
       - run: sudo apt update
       - run: sudo apt install -y rclone
-      - run: pip install --user tox
-      - run: tox -e py312
-      - codecov/upload
+      - run: pip install --user tox tox-uv
+      - run: tox -e search
+      - run: cp .coverage .coverage.search
+      - save_cache:
+          key: pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
+          paths:
+            - ~/.local/lib
+            - ~/.local/bin
+            - .tox
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .coverage.search
+
+  tests-proxito:
+    # Proxito tests — uses readthedocs.settings.proxito.test Django settings.
+    # No Elasticsearch sidecar needed.
+    docker:
+      - image: 'cimg/python:3.12'
+        environment:
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov
+    steps:
+      - setup-checkout
+      - skip-if-docs-only
+      - restore_cache:
+          keys:
+            - pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
+      - run: pip install --user tox tox-uv
+      - run: tox -e proxito
+      - run: cp .coverage .coverage.proxito
+      - save_cache:
+          key: pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
+          paths:
+            - ~/.local/lib
+            - ~/.local/bin
+            - .tox
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .coverage.proxito
 
   tests-embedapi:
+    # Embed API tests — tests against 6 Sphinx versions.
+    # Requires tox<4 (tox.embedapi.ini is not compatible with tox 4).
+    docker:
+      - image: 'cimg/python:3.12'
+    steps:
+      - setup-checkout
+      - skip-if-docs-only
+      - restore_cache:
+          keys:
+            - pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
+      - run: pip install --user 'tox<4'
+      - run: tox --version
+      - run: tox -c tox.embedapi.ini
+      - save_cache:
+          key: pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
+          paths:
+            - ~/.local/lib
+            - ~/.local/bin
+            - .tox
+
+  coverage-report:
+    # Combines coverage from tests, tests-search, and tests-proxito,
+    # then uploads a single unified report to codecov.
     docker:
       - image: 'cimg/python:3.12'
     steps:
       - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
-      - skip-if-docs-only
-      - run: pip install --user 'tox<4'
-      - run: tox --version
-      - run: tox -c tox.embedapi.ini
+      - attach_workspace:
+          at: .
+      - run:
+          name: Combine coverage and generate report
+          command: |
+            pip install --user coverage
+            if ls .coverage.* 1>/dev/null 2>&1; then
+              coverage combine .coverage.*
+              coverage xml
+              coverage report --show-missing
+            else
+              echo "No coverage files found — skipping report"
+            fi
+      - codecov/upload
 
   checks:
     docker:
       - image: 'cimg/python:3.12'
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
+      - setup-checkout
       # Recipe: https://pre-commit.com/#managing-ci-caches
       - run:
-          name: Combine pre-commit config, python version and testing requirements for caching
+          name: Combine pre-commit config and requirements for caching
           command: |
             cp common/pre-commit-config.yaml pre-commit-cache-key.txt
             python --version --version >> pre-commit-cache-key.txt
-            cat requirements/testing.txt >> pre-commit-cache-key.txt
+            cat requirements-cache-key.txt >> pre-commit-cache-key.txt
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: pip install --user tox
+      - run: pip install --user tox tox-uv
       - run: tox -e pre-commit
       - run: tox -e migrations
       - save_cache:
@@ -97,9 +239,22 @@ workflows:
   version: 2
   test:
     jobs:
+      # Stage 1: fast, lightweight jobs (parallel)
       - checks
       - tests
+      - tests-proxito
+      # Stage 2: heavier jobs, only after test jobs pass (parallel)
+      - tests-search:
+          requires:
+            - tests
+            - tests-proxito
       - tests-embedapi:
           requires:
-            - checks
             - tests
+            - tests-proxito
+      # Stage 3: combine coverage and upload to codecov
+      - coverage-report:
+          requires:
+            - tests
+            - tests-proxito
+            - tests-search
