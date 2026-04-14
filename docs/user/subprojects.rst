@@ -105,4 +105,4 @@ we do not yet support sharing search results between sibling subprojects or arbi
 
 The subprojects filter in the search modal can be turned off from the parent project's
 :guilabel:`Settings`, in the left bar, under :guilabel:`Search`,
-by unchecking :guilabel:`Show subprojects filter in search modal`.
+by disabling :guilabel:`Show subprojects filter in search modal`.

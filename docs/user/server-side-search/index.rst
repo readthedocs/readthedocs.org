@@ -85,6 +85,21 @@ It also saves recent searches, for future reference.
 
 Try it by pressing :guilabel:`/` (forward slash) and typing.
 
+Configuring search
+------------------
+
+You can configure search options for your project from the :term:`dashboard`:
+
+#. Go to the new :term:`dashboard`.
+#. Click on a project name.
+#. Go to :guilabel:`Settings`.
+#. In the left bar, go to :guilabel:`Search`.
+
+From there you can toggle :guilabel:`Enable search modal`,
+which controls whether the Read the Docs search modal is shown in your documentation,
+and :guilabel:`Show subprojects filter in search modal`,
+which controls whether readers can filter search results by :doc:`subproject </subprojects>`.
+
 How main content is detected
 ----------------------------
 
