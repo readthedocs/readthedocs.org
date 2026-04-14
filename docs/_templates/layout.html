@@ -7,13 +7,3 @@
   <script defer data-domain="{{ plausible_domain }}" src="https://plausible.io/js/script.js"></script>
   {% endif %}
 {% endblock extrahead %}
-
-{%- block document %}
-  <div class="info admonition rst-footer-buttons">
-    <div class="wy-btn-group">
-      <a class="btn btn-link" href="https://about.readthedocs.com/">Learn more about Read the Docs</a>
-      <a class="btn btn-info btn-mini float-right" href="https://about.readthedocs.com/#signup">Sign up</a>
-    </div>
-  </div>
-  {{ super() }}
-{%- endblock %}
