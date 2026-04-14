@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("projects", "0158_add_search_subproject_filter_option"),
+        ("projects", "0159_update_addonsconfig_field_name"),
     ]
 
     operations = [
