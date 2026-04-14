@@ -10,9 +10,6 @@ This feature is **enabled automatically** on all documentation domains hosted on
 with no configuration required.
 Browsers continue to receive the regular HTML version of your documentation.
 
-Example
--------
-
 A request with ``Accept: text/markdown`` returns a Markdown response:
 
 .. code-block:: bash
