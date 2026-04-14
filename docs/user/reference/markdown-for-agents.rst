@@ -20,16 +20,15 @@ For example, a request with ``Accept: text/markdown`` will return a Markdown res
 
 .. code-block:: bash
 
-   $ curl -i https://docs.readthedocs.com/platform/stable/intro/sphinx.html -H "Accept: text/markdown"
+   $ curl -i https://docs.readthedocs.com/platform/stable/reference/markdown-for-agents.html -H "Accept: text/markdown"
    HTTP/2 200
    content-type: text/markdown; charset=utf-8
    vary: accept
-   x-markdown-tokens: 1657
+   x-markdown-tokens: ...
    content-signal: ai-train=yes, search=yes, ai-input=yes
 
    ---
-   description: Hosting Sphinx documentation on Read the Docs.
-   title: Deploying Sphinx on Read the Docs
+   title: Markdown for AI agents
    ---
 
    ...
