@@ -261,7 +261,7 @@ class AddonsConfig(TimeStampedModel):
     notifications_show_on_latest = models.BooleanField(default=True)
     notifications_show_on_non_stable = models.BooleanField(default=True)
     notifications_show_on_external = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name=_("Show a notification on builds from pull requests"),
         help_text=_(
             "Display a notification on the rendered documentation of pull "
