@@ -140,7 +140,7 @@
     },
     "notifications": {
       "enabled": true,
-      "show_on_external": true,
+      "show_on_external": false,
       "show_on_latest": true,
       "show_on_non_stable": true
     },

@@ -55,6 +55,7 @@ from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
+from readthedocs.projects.forms import AddonsConfigSearchSettingsForm
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.forms import EmailHookForm
 from readthedocs.projects.forms import EnvironmentVariableForm
@@ -1336,3 +1337,18 @@ class ProjectPullRequestsUpdate(PrivateViewMixin, SuccessMessageMixin, UpdateVie
 
     def get_success_url(self):
         return reverse("projects_pull_requests", args=[self.object.slug])
+
+
+class ProjectSearchSettingsUpdate(PrivateViewMixin, ProjectAdminMixin, UpdateView):
+    model = Project
+    success_message = _("Search settings have been updated")
+    template_name = "projects/search_settings_form.html"
+    lookup_url_kwarg = "project_slug"
+    lookup_field = "slug"
+    form_class = AddonsConfigSearchSettingsForm
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
+
+    def get_success_url(self):
+        return reverse("projects_search_settings", args=[self.get_project().slug])
