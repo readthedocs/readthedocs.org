@@ -13,11 +13,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Only the Python-level default changes: new ``AddonsConfig`` rows
-        # default ``notifications_show_on_external`` to ``False`` while
-        # existing rows keep whatever value they already have (there is no
-        # ``db_default`` on this field, so ``AlterField`` does not rewrite
-        # data).
         migrations.AlterField(
             model_name="addonsconfig",
             name="notifications_show_on_external",

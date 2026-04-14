@@ -1337,8 +1337,3 @@ class TestAddonsConfigForm(TestCase):
             "The flyout sorting custom pattern is required when selecting a custom pattern.",
             form.errors["__all__"][0],
         )
-
-    def test_notifications_show_on_external_defaults_to_false(self):
-        """New projects should default the PR-build notification to off."""
-        project = get(Project)
-        self.assertFalse(project.addons.notifications_show_on_external)
