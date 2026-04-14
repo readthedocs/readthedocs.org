@@ -236,7 +236,7 @@ class AddonsConfig(TimeStampedModel):
     hotkeys_enabled = models.BooleanField(default=True)
 
     # Search
-    search_enabled = models.BooleanField(default=True)
+    search_enabled = models.BooleanField(_("Enable search modal"), default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
     search_show_subprojects_filter = models.BooleanField(
         "Show subprojects filter in search modal",
@@ -260,7 +260,15 @@ class AddonsConfig(TimeStampedModel):
     notifications_enabled = models.BooleanField(default=True)
     notifications_show_on_latest = models.BooleanField(default=True)
     notifications_show_on_non_stable = models.BooleanField(default=True)
-    notifications_show_on_external = models.BooleanField(default=False)
+    notifications_show_on_external = models.BooleanField(
+        default=False,
+        verbose_name=_("Show a notification on builds from pull requests"),
+        help_text=_(
+            "Display a notification on the rendered documentation of pull "
+            "request previews. Readers will see a toast linking to the "
+            "build and the pull request."
+        ),
+    )
 
     # Link Previews
     linkpreviews_enabled = models.BooleanField(default=False)
