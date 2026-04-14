@@ -1,11 +1,6 @@
 {% extends "!footer.html" %}
 
-{% block extrafooter %}
-  <div class="rtd-cta">
-    <p class="rtd-cta-title">Host your documentation on Read the Docs</p>
-    <p>
-      <a class="btn btn-neutral" href="https://about.readthedocs.com/#signup">Sign up</a>
-      <a class="btn btn-neutral" href="https://about.readthedocs.com/#login">Log in</a>
-    </p>
-  </div>
-{% endblock extrafooter %}
+{% block contentinfo %}
+  <a class="btn btn-neutral float-right" href="https://about.readthedocs.com/#signup">Sign up for Read the Docs</a>
+  {{ super() }}
+{% endblock %}

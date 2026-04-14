@@ -21,19 +21,3 @@
   -webkit-font-smoothing: antialiased;
 
 }
-
-/* Footer CTA — container only; buttons use the theme's .btn .btn-neutral */
-.rtd-cta {
-  text-align: center;
-  padding: 24px 16px;
-  margin-top: 24px;
-  background-color: #fcfcfc;
-  border: 1px solid #e1e4e5;
-  border-radius: 4px;
-}
-
-.rtd-cta-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0 0 8px;
-}
