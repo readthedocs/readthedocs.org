@@ -31,13 +31,16 @@
 #   - Coverage files are copied to unique names (cp .coverage .coverage.tests)
 #     after each tox run because tox doesn't pass COVERAGE_FILE through to
 #     the test env. The coverage-report job combines them.
-#   - skip-if-docs-only compares against origin/main, so it only works for
-#     PRs targeting main. PRs targeting other branches will always run tests.
-#   - tests-search and tests-embedapi are expensive (ES sidecar / 6 Sphinx
-#     versions), so they're additionally gated behind skip-if-no-relevant-changes:
-#     they are halted on PRs that don't touch the code paths those tests
-#     exercise. Infrastructure changes (CI config, requirements, tox, settings,
-#     shared test helpers) always force them to run.
+#   - skip-if-no-relevant-changes compares against origin/main, so it only
+#     works for PRs targeting main. PRs targeting other branches will always
+#     run tests. Each job passes an allow-list regex of paths whose changes
+#     should trigger it; if no changed file matches, the job is halted.
+#     Infrastructure changes (CI config, requirements, tox, settings, shared
+#     test helpers) always force every job to run, regardless of the regex.
+#     General jobs (tests, tests-proxito) use '^readthedocs/' — broad enough
+#     to catch any code change but still skips docs-only / README-only PRs.
+#     The expensive Stage 2 jobs (tests-search, tests-embedapi) use narrower
+#     patterns scoped to the modules they actually exercise.
 
 version: 2.1
 
@@ -59,30 +62,6 @@ commands:
           name: Include ext-theme commit hash in cache key
           command: |
             git ls-remote https://github.com/readthedocs/ext-theme.git HEAD >> requirements-cache-key.txt
-
-  skip-if-docs-only:
-    description: Halt the job if only docs/ files changed
-    steps:
-      - run:
-          name: Skip tests if only docs changed
-          command: |
-            # Only run this check on PR branches, not on main.
-            if [ "$CIRCLE_BRANCH" = "main" ]; then
-              echo "On main branch — running tests."
-              exit 0
-            fi
-            # Compare against the merge base with main to find changed files.
-            changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
-            if [ -z "$changed_files" ]; then
-              echo "No changed files detected — running tests."
-              exit 0
-            fi
-            # grep -v returns exit code 1 when all lines match, so || true
-            non_docs=$(echo "$changed_files" | grep -v '^docs/' || true)
-            if [ -z "$non_docs" ]; then
-              echo "Only docs changed — skipping tests."
-              circleci-agent step halt
-            fi
 
   skip-if-no-relevant-changes:
     description: |
@@ -136,7 +115,10 @@ jobs:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov
     steps:
       - setup-checkout
-      - skip-if-docs-only
+      # Core test job: runs on any change under readthedocs/. Docs-only,
+      # README-only, .github-only, and media-only PRs are halted.
+      - skip-if-no-relevant-changes:
+          paths: '^readthedocs/'
       - restore_cache:
           keys:
             - pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
@@ -173,7 +155,6 @@ jobs:
           xpack.security.transport.ssl.enabled: 'false'
     steps:
       - setup-checkout
-      - skip-if-docs-only
       # tests-search imports from: readthedocs.search.*, readthedocs.projects.*
       # (models, tasks.search, constants), readthedocs.builds.*, and
       # readthedocs.subscriptions.*. It also runs a subset under proxito
@@ -208,7 +189,8 @@ jobs:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov
     steps:
       - setup-checkout
-      - skip-if-docs-only
+      - skip-if-no-relevant-changes:
+          paths: '^readthedocs/'
       - restore_cache:
           keys:
             - pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
@@ -233,7 +215,6 @@ jobs:
       - image: 'cimg/python:3.12'
     steps:
       - setup-checkout
-      - skip-if-docs-only
       # tests-embedapi exercises the embed API itself and the Sphinx build
       # machinery it runs against, so it's gated on embed/ and doc_builder/.
       # projects/ is included because embed tests pull in projects models.
