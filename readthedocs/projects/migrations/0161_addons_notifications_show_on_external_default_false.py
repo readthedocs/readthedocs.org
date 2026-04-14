@@ -9,8 +9,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("projects", "0159_notifications_show_on_external_help_text"),
-        ("projects", "0159_update_addonsconfig_field_name"),
+        ("projects", "0160_notifications_show_on_external_help_text"),
     ]
 
     operations = [
