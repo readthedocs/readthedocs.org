@@ -22,10 +22,10 @@
 
 }
 
-/* Footer CTA — colors pulled from the sphinx_rtd_theme palette */
+/* Footer CTA — styled to match the sphinx_rtd_theme palette */
 .rtd-cta {
   text-align: center;
-  padding: 24px 16px;
+  padding: 20px 16px;
   margin-top: 24px;
   background-color: #fcfcfc;
   border: 1px solid #e1e4e5;
@@ -33,60 +33,26 @@
 }
 
 .rtd-cta-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #404040;
-  margin: 0 0 20px;
-}
-
-.rtd-cta-groups {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.rtd-cta-group {
-  flex: 1 1 260px;
-  max-width: 320px;
-  padding: 16px;
-  background-color: #fff;
-  border: 1px solid #e1e4e5;
-  border-radius: 4px;
-}
-
-.rtd-cta-group-label {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: #404040;
   margin: 0 0 6px;
 }
 
-.rtd-cta-group-text {
+.rtd-cta-text {
   font-size: 13px;
   color: #55606e;
   margin: 0 0 14px;
-  line-height: 1.4;
-}
-
-.rtd-cta-group-text code {
-  background: transparent;
-  border: none;
-  padding: 0;
-  color: #404040;
-  font-size: 12px;
 }
 
 .rtd-cta-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
+  margin: 0;
 }
 
 .rtd-cta-btn {
   display: inline-block;
-  padding: 10px 24px;
+  padding: 8px 20px;
+  margin: 4px;
   border-radius: 2px;
   font-size: 14px;
   font-weight: 600;
@@ -100,14 +66,9 @@
   color: #fff;
 }
 
-.rtd-cta-btn-primary:hover {
-  background-color: #20699b;
-  color: #fff;
-  text-decoration: none;
-}
-
+.rtd-cta-btn-primary:hover,
 .rtd-cta-btn-primary:focus {
-  background-color: #1b587f;
+  background-color: #20699b;
   color: #fff;
   text-decoration: none;
 }
@@ -119,7 +80,8 @@
   border: 1px solid #2980b9;
 }
 
-.rtd-cta-btn-secondary:hover {
+.rtd-cta-btn-secondary:hover,
+.rtd-cta-btn-secondary:focus {
   background-color: rgba(41, 128, 185, 0.08);
   color: #2980b9;
   text-decoration: none;
