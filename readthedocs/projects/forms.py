@@ -1322,6 +1322,7 @@ class AutomationRuleForm(forms.ModelForm):
         required=True,
     )
 
+    # Override to show it as Textarea instead of a JSON field in the UI
     webhook_files_match_pattern = forms.CharField(
         required=False,
         widget=forms.Textarea(
@@ -1357,9 +1358,6 @@ class AutomationRuleForm(forms.ModelForm):
 
         widgets = {
             "version_match_pattern": forms.TextInput(attrs={"placeholder": "^release-.*$"}),
-            "webhook_files_match_pattern": forms.TextInput(
-                attrs={"placeholder": "^docs/.*$"},
-            ),
             "webhook_labels_match_pattern": forms.TextInput(attrs={"placeholder": "^docs|build$"}),
             "webhook_commit_message_match_pattern": forms.TextInput(
                 attrs={"placeholder": "^fix|feature$"}
