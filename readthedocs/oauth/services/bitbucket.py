@@ -37,11 +37,15 @@ class BitbucketService(UserService):
         Paginate the workspaces the user is a member of.
 
         Bitbucket deprecated the cross-workspace ``/2.0/repositories/?role=<role>``
-        endpoint on 2026-04-14, so listing repositories now has to be done per
-        workspace.
+        endpoint on 2026-04-14, so listing repositories now has to be done per workspace.
         See https://developer.atlassian.com/cloud/bitbucket/changelog/#CHANGE-3022.
+
+        See https://developer.atlassian.com/cloud/bitbucket/rest/api-group-workspaces/#api-user-workspaces-get.
         """
-        return self.paginate(f"{self.base_api_url}/2.0/user/workspaces/")
+        return (
+            workspace_access["workspace"]
+            for workspace_access in self.paginate(f"{self.base_api_url}/2.0/user/workspaces/")
+        )
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API, one workspace at a time."""

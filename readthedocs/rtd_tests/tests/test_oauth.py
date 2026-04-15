@@ -2550,6 +2550,14 @@ class BitbucketOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
+    def _make_workspace_access_response(self, slug, uuid):
+        """Build a minimal workspace access payload returned by the /2.0/user/workspaces/ endpoint."""
+        return {
+            "type": "workspace_access",
+            "administrator": True,
+            "workspace": self._make_workspace_response(slug, uuid),
+        }
+
     def _make_workspace_response(self, slug, uuid):
         """Build a minimal workspace payload returned by the /2.0/workspaces/ endpoint."""
         return {
@@ -2602,8 +2610,8 @@ class BitbucketOAuthTests(TestCase):
         deprecated by Bitbucket on 2026-04-14, so the sync must enumerate
         workspaces first and hit ``/2.0/repositories/{workspace}`` per workspace.
         """
-        workspace_a = self._make_workspace_response("workspace-a", "{uuid-a}")
-        workspace_b = self._make_workspace_response("workspace-b", "{uuid-b}")
+        workspace_a = self._make_workspace_access_response("workspace-a", "{uuid-a}")
+        workspace_b = self._make_workspace_access_response("workspace-b", "{uuid-b}")
         repo_a = self._make_repo_response("workspace-a", "repo-a", "{repo-a}")
         repo_b = self._make_repo_response("workspace-b", "repo-b", "{repo-b}")
 
@@ -2640,7 +2648,7 @@ class BitbucketOAuthTests(TestCase):
     @requests_mock.Mocker(kw="request")
     def test_sync_repositories_sets_admin_flag_per_workspace(self, request):
         """Repositories returned by the ``role=admin`` query get admin=True."""
-        workspace = self._make_workspace_response("workspace-a", "{uuid-a}")
+        workspace = self._make_workspace_access_response("workspace-a", "{uuid-a}")
         admin_repo = self._make_repo_response("workspace-a", "admin-repo", "{repo-admin}")
         member_repo = self._make_repo_response("workspace-a", "member-repo", "{repo-member}")
 
@@ -2713,7 +2721,7 @@ class BitbucketOAuthTests(TestCase):
         assert not remote_repo.users.filter(id=self.user.id).exists()
         request.get(
             "https://api.bitbucket.org/2.0/user/workspaces/",
-            json={"values": [self._make_workspace_response("testuser", "{uuid-a}")]},
+            json={"values": [self._make_workspace_access_response("testuser", "{uuid-a}")]},
         )
         request.get(
             "https://api.bitbucket.org/2.0/repositories/testuser?role=admin",
@@ -2753,7 +2761,7 @@ class BitbucketOAuthTests(TestCase):
 
         request.get(
             "https://api.bitbucket.org/2.0/user/workspaces/",
-            json={"values": [self._make_workspace_response("testuser", "{uuid-a}")]},
+            json={"values": [self._make_workspace_access_response("testuser", "{uuid-a}")]},
         )
         request.get(
             "https://api.bitbucket.org/2.0/repositories/testuser?role=admin",
