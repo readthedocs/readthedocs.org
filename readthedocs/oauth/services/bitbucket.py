@@ -212,9 +212,9 @@ class BitbucketService(UserService):
         deprecated on 2026-04-14, so we scope the query to the workspace the
         repository belongs to.
         """
-        for workspace in self._get_workspaces():
+        for workspace_base in self._get_workspaces_base():
             repos = self.paginate(
-                f"{self.base_api_url}/2.0/repositories/{workspace['slug']}",
+                f"{self.base_api_url}/2.0/repositories/{workspace_base['slug']}",
                 role=role,
                 q=f'uuid="{remote_repository.remote_id}"',
             )
