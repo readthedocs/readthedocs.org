@@ -22,8 +22,6 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
 from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.core.forms import PrevalidatedForm
-from readthedocs.core.forms import RichChoice
-from readthedocs.core.forms import RichSelect
 from readthedocs.core.forms import RichValidationError
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.permissions import AdminPermission
@@ -1313,14 +1311,10 @@ class EnvironmentVariableForm(forms.ModelForm):
 class AutomationRuleForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    VERSION_TYPE_CHOICES = [
-        RichChoice(text=name, value=value, description="description", disabled=False)
-        for value, name in VERSION_TYPES
-        if value != UNKNOWN
-    ]
+    VERSION_TYPE_CHOICES = [(value, name) for value, name in VERSION_TYPES if value != UNKNOWN]
     version_types = CommaSeparatedMultipleChoiceField(
-        widget=RichSelect(attrs={"multiple": "true", "use_data_binding": "true"}),
-        choices=[(choice.value, choice) for choice in VERSION_TYPE_CHOICES],
+        widget=forms.CheckboxSelectMultiple,
+        choices=[(value, choice) for value, choice in VERSION_TYPE_CHOICES],
         required=True,
     )
 
