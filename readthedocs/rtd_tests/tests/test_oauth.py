@@ -2550,6 +2550,204 @@ class BitbucketOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
+    def _make_workspace_response(self, slug, uuid):
+        """Build a minimal workspace payload returned by the /2.0/workspaces/ endpoint."""
+        return {
+            "slug": slug,
+            "name": slug.title(),
+            "uuid": uuid,
+            "type": "workspace",
+            "is_private": True,
+            "links": {
+                "self": {"href": f"https://api.bitbucket.org/2.0/workspaces/{slug}"},
+                "html": {"href": f"https://bitbucket.org/{slug}"},
+                "avatar": {"href": f"https://bitbucket.org/{slug}/avatar"},
+            },
+        }
+
+    def _make_repo_response(self, workspace_slug, name, uuid):
+        """Build a minimal repository payload returned by the /2.0/repositories/ endpoint."""
+        workspace = self._make_workspace_response(workspace_slug, f"{{ws-{workspace_slug}}}")
+        return {
+            "scm": "git",
+            "uuid": uuid,
+            "name": name,
+            "full_name": f"{workspace_slug}/{name}",
+            "description": f"Repository {name}",
+            "is_private": False,
+            "workspace": workspace,
+            "mainbranch": {"type": "branch", "name": "main"},
+            "links": {
+                "html": {"href": f"https://bitbucket.org/{workspace_slug}/{name}"},
+                "avatar": {"href": ""},
+                "clone": [
+                    {
+                        "href": f"https://bitbucket.org/{workspace_slug}/{name}.git",
+                        "name": "https",
+                    },
+                    {
+                        "href": f"git@bitbucket.org:{workspace_slug}/{name}.git",
+                        "name": "ssh",
+                    },
+                ],
+            },
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_iterates_workspaces(self, request):
+        """
+        sync_repositories must query each workspace individually.
+
+        The cross-workspace ``/2.0/repositories/?role=<role>`` endpoint was
+        deprecated by Bitbucket on 2026-04-14, so the sync must enumerate
+        workspaces first and hit ``/2.0/repositories/{workspace}`` per workspace.
+        """
+        workspace_a = self._make_workspace_response("workspace-a", "{uuid-a}")
+        workspace_b = self._make_workspace_response("workspace-b", "{uuid-b}")
+        repo_a = self._make_repo_response("workspace-a", "repo-a", "{repo-a}")
+        repo_b = self._make_repo_response("workspace-b", "repo-b", "{repo-b}")
+
+        request.get(
+            "https://api.bitbucket.org/2.0/workspaces/",
+            json={"values": [workspace_a, workspace_b]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a",
+            json={"values": [repo_a]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-b",
+            json={"values": [repo_b]},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert sorted(remote_ids) == ["{repo-a}", "{repo-b}"]
+        assert RemoteRepository.objects.filter(
+            vcs_provider=BITBUCKET, remote_id="{repo-a}"
+        ).exists()
+        assert RemoteRepository.objects.filter(
+            vcs_provider=BITBUCKET, remote_id="{repo-b}"
+        ).exists()
+
+        # Ensure the deprecated cross-workspace endpoint is never hit.
+        for req in request.request_history:
+            assert req.path != "/2.0/repositories/", (
+                "sync_repositories must not call the deprecated "
+                "cross-workspace /2.0/repositories/ endpoint"
+            )
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_sets_admin_flag_per_workspace(self, request):
+        """Repositories returned by the ``role=admin`` query get admin=True."""
+        workspace = self._make_workspace_response("workspace-a", "{uuid-a}")
+        admin_repo = self._make_repo_response("workspace-a", "admin-repo", "{repo-admin}")
+        member_repo = self._make_repo_response("workspace-a", "member-repo", "{repo-member}")
+
+        request.get(
+            "https://api.bitbucket.org/2.0/workspaces/",
+            json={"values": [workspace]},
+        )
+        # ``?role=admin`` returns the admin-accessible repo, ``?role=member``
+        # returns every repo the user can see.
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a?role=admin",
+            json={"values": [admin_repo]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a?role=member",
+            json={"values": [admin_repo, member_repo]},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert sorted(remote_ids) == ["{repo-admin}", "{repo-member}"]
+
+        admin_relation = RemoteRepositoryRelation.objects.get(
+            user=self.user,
+            account=self.social_account,
+            remote_repository__remote_id="{repo-admin}",
+        )
+        member_relation = RemoteRepositoryRelation.objects.get(
+            user=self.user,
+            account=self.social_account,
+            remote_repository__remote_id="{repo-member}",
+        )
+        assert admin_relation.admin is True
+        assert member_relation.admin is False
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_no_workspaces(self, request):
+        """A user with no workspaces returns an empty list without API errors."""
+        request.get(
+            "https://api.bitbucket.org/2.0/workspaces/",
+            json={"values": []},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert remote_ids == []
+        # Only the workspaces endpoint should have been called.
+        assert [req.path for req in request.request_history] == ["/2.0/workspaces/"]
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_invalid_token_raises(self, request):
+        """A 401 from Bitbucket maps to ``SyncServiceError``."""
+        request.get(
+            "https://api.bitbucket.org/2.0/workspaces/",
+            status_code=401,
+            json={"error": {"message": "Unauthorized"}},
+        )
+
+        with self.assertRaises(SyncServiceError):
+            self.service.sync_repositories()
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_skips_workspaces_without_slug(self, request):
+        """Workspaces missing a slug are ignored instead of crashing the sync."""
+        good_workspace = self._make_workspace_response("workspace-a", "{uuid-a}")
+        bad_workspace = self._make_workspace_response("ignored", "{uuid-bad}")
+        bad_workspace.pop("slug")
+        repo = self._make_repo_response("workspace-a", "repo", "{repo}")
+
+        request.get(
+            "https://api.bitbucket.org/2.0/workspaces/",
+            json={"values": [bad_workspace, good_workspace]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a",
+            json={"values": [repo]},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert remote_ids == ["{repo}"]
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_repository_uses_workspace_scoped_endpoint(self, request):
+        """``update_repository`` must hit the per-workspace URL, not the deprecated one."""
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=BITBUCKET,
+            full_name="tutorials/tutorials.bitbucket.org",
+            remote_id=self.repo_response_data["uuid"],
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/tutorials?role=admin",
+            json={"values": [self.repo_response_data]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/tutorials?role=member",
+            json={"values": [self.repo_response_data]},
+        )
+
+        self.service.update_repository(remote_repo)
+
+        called_paths = {req.path for req in request.request_history}
+        assert called_paths == {"/2.0/repositories/tutorials"}
+        # Specifically, the deprecated cross-workspace path must not be called.
+        assert "/2.0/repositories/" not in called_paths
+
     @requests_mock.Mocker(kw="request")
     def test_update_remote_repository(self, request):
         remote_repo = get(
