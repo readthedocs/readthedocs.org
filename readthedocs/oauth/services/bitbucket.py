@@ -32,7 +32,7 @@ class BitbucketService(UserService):
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
 
-    def _get_workspaces(self):
+    def _get_workspaces_base(self):
         """
         Paginate the workspaces the user is a member of.
 
@@ -41,6 +41,9 @@ class BitbucketService(UserService):
         See https://developer.atlassian.com/cloud/bitbucket/changelog/#CHANGE-3022.
 
         See https://developer.atlassian.com/cloud/bitbucket/rest/api-group-workspaces/#api-user-workspaces-get.
+
+        NOTE: this endpoint doesn't return all the fields from the workspace object as the repositories endpoint does,
+        if you need more fields, you need to query the workspace endpoint for each workspace slug.
         """
         return (
             workspace_access["workspace"]
@@ -52,7 +55,9 @@ class BitbucketService(UserService):
         remote_ids = []
 
         try:
-            workspace_slugs = [workspace["slug"] for workspace in self._get_workspaces()]
+            workspace_slugs = [
+                workspace_base["slug"] for workspace_base in self._get_workspaces_base()
+            ]
         except (TypeError, ValueError, KeyError):
             log.warning("Error syncing Bitbucket workspaces")
             raise SyncServiceError(
@@ -116,7 +121,10 @@ class BitbucketService(UserService):
         organization_remote_ids = []
 
         try:
-            for workspace in self._get_workspaces():
+            for workspace_base in self._get_workspaces_base():
+                workspace = self.session.get(
+                    f"{self.base_api_url}/2.0/workspaces/{workspace_base['slug']}"
+                ).json()
                 remote_organization = self.create_organization(workspace)
                 remote_organization.get_remote_organization_relation(self.user, self.account)
                 organization_remote_ids.append(remote_organization.remote_id)

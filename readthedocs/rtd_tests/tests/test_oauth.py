@@ -2555,7 +2555,15 @@ class BitbucketOAuthTests(TestCase):
         return {
             "type": "workspace_access",
             "administrator": True,
-            "workspace": self._make_workspace_response(slug, uuid),
+            "workspace": {
+                "type": "workspace_base",
+                "slug": slug,
+                "uuid": uuid,
+                "links": {
+                    "self": {"href": f"https://api.bitbucket.org/2.0/workspaces/{slug}"},
+                    "avatar": {"href": f"https://bitbucket.org/{slug}/avatar"},
+                },
+            }
         }
 
     def _make_workspace_response(self, slug, uuid):
@@ -2565,7 +2573,6 @@ class BitbucketOAuthTests(TestCase):
             "name": slug.title(),
             "uuid": uuid,
             "type": "workspace",
-            "is_private": True,
             "links": {
                 "self": {"href": f"https://api.bitbucket.org/2.0/workspaces/{slug}"},
                 "html": {"href": f"https://bitbucket.org/{slug}"},
