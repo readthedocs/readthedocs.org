@@ -1254,6 +1254,72 @@ class GitHubAppTests(TestCase):
             "body": f"<!-- readthedocs-{self.project.id} -->\nComment!",
         }
 
+    @requests_mock.Mocker(kw="request")
+    def test_post_comment_skip_new_comment_on_closed_pr(self, request):
+        version = get(
+            Version,
+            verbose_name="1234",
+            project=self.project,
+            type=EXTERNAL,
+        )
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/pulls/{version.verbose_name}",
+            json=self._get_pull_request_json(
+                number=int(version.verbose_name),
+                repo_full_name=self.remote_repository.full_name,
+                state="closed",
+            ),
+        )
+        request.get(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+            json=[],
+        )
+        request_post_comment = request.post(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+        )
+
+        service = self.installation.service
+
+        # The PR is closed and there is no existing comment, so no new
+        # comment should be created.
+        service.post_comment(build, "Comment!")
+        assert not request_post_comment.called
+
+        # An existing bot comment can still be updated on a closed PR.
+        request.get(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+            json=[
+                self._get_comment_json(
+                    id=1,
+                    issue_number=int(version.verbose_name),
+                    repo_full_name=self.remote_repository.full_name,
+                    user={"login": f"{settings.GITHUB_APP_NAME}[bot]"},
+                    body=f"<!-- readthedocs-{self.project.id} -->\nOld comment!",
+                ),
+            ],
+        )
+        request_patch_comment = request.patch(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/comments/1",
+            json={},
+        )
+
+        service.post_comment(build, "Updated comment!")
+        assert not request_post_comment.called
+        assert request_patch_comment.called
+        assert request_patch_comment.last_request.json() == {
+            "body": f"<!-- readthedocs-{self.project.id} -->\nUpdated comment!",
+        }
+
     def test_integration_attributes(self):
         assert self.integration.is_active
         assert self.integration.get_absolute_url() == "https://github.com/apps/readthedocs/installations/1111"

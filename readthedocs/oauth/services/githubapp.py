@@ -544,6 +544,19 @@ class GitHubAppService(Service):
         # since we only need the object to interact with the commit status API.
         gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
         gh_pull = gh_repo.get_pull(int(version.verbose_name))
+
+        # Don't create new comments on pull requests that have already been
+        # closed or merged. Existing comments can still be updated to reflect
+        # the final build state.
+        if gh_pull.state != "open" and create_new:
+            log.debug(
+                "Pull request is closed or merged, skipping new comment.",
+                project=project.slug,
+                build=build.pk,
+                pr_state=gh_pull.state,
+            )
+            create_new = False
+
         existing_gh_comment = None
         comment_marker = f"<!-- readthedocs-{project.pk} -->"
         for gh_comment in gh_pull.get_issue_comments():
