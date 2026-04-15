@@ -669,7 +669,7 @@ class GitHubAppWebhookHandler:
                         action,
                     )
                     commit_message = self._get_commit_message_from_pull_request_event(project)
-                    labels = self._get_labels_from_pull_request_event(project)
+                    labels = self._get_labels_from_pull_request_event()
 
                     for rule in webhook_rules.iterator():
                         if rule.match_version(version=external_version) and rule.match_webhook(
@@ -936,22 +936,15 @@ class GitHubAppWebhookHandler:
         )
         return gh_commit.commit.message
 
-    def _get_labels_from_pull_request_event(self, project):
+    def _get_labels_from_pull_request_event(self):
         """
         Get the list of labels from the pull request event.
 
         :return: List of labels
         """
         labels = set()
-        installation, _ = self._get_or_create_installation()
-
-        gh_repository = installation.service.installation_client.get_repo(
-            int(project.remote_repository.remote_id),
-            lazy=True,
-        )
-
-        for label in gh_repository.get_pull(int(self.data["pull_request"]["number"])).get_labels():
-            labels.add(label.name)
+        for label in self.data["pull_request"]["labels"]:
+            labels.add(label["name"])
 
         return labels
 
