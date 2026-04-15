@@ -2703,27 +2703,6 @@ class BitbucketOAuthTests(TestCase):
             self.service.sync_repositories()
 
     @requests_mock.Mocker(kw="request")
-    def test_sync_repositories_skips_workspaces_without_slug(self, request):
-        """Workspaces missing a slug are ignored instead of crashing the sync."""
-        good_workspace = self._make_workspace_response("workspace-a", "{uuid-a}")
-        bad_workspace = self._make_workspace_response("ignored", "{uuid-bad}")
-        bad_workspace.pop("slug")
-        repo = self._make_repo_response("workspace-a", "repo", "{repo}")
-
-        request.get(
-            "https://api.bitbucket.org/2.0/workspaces/",
-            json={"values": [bad_workspace, good_workspace]},
-        )
-        request.get(
-            "https://api.bitbucket.org/2.0/repositories/workspace-a",
-            json={"values": [repo]},
-        )
-
-        remote_ids = self.service.sync_repositories()
-
-        assert remote_ids == ["{repo}"]
-
-    @requests_mock.Mocker(kw="request")
     def test_update_repository_uses_workspace_scoped_endpoint(self, request):
         """``update_repository`` must hit the per-workspace URL, not the deprecated one."""
         remote_repo = get(
