@@ -2560,8 +2560,14 @@ class BitbucketOAuthTests(TestCase):
         )
         assert not remote_repo.users.filter(id=self.user.id).exists()
 
-        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=admin", json={"values": [self.repo_response_data]})
-        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=member", json={"values": [self.repo_response_data]})
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=admin",
+            json={"values": [self.repo_response_data]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=member",
+            json={"values": [self.repo_response_data]},
+        )
         self.service.update_repository(remote_repo)
         remote_repo.refresh_from_db()
 
@@ -2590,8 +2596,14 @@ class BitbucketOAuthTests(TestCase):
         )
         assert remote_repo.users.filter(id=self.user.id).exists()
 
-        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=admin", json={"values": []})
-        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=member", json={"values": []})
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=admin",
+            json={"values": []},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=member",
+            json={"values": []},
+        )
         self.service.update_repository(remote_repo)
         remote_repo.refresh_from_db()
 
