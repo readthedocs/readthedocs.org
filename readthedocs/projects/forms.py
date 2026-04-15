@@ -1,6 +1,7 @@
 """Project forms."""
 
 import json
+import re
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
@@ -16,6 +17,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
 from readthedocs.builds.constants import VERSION_TYPES
@@ -1399,3 +1401,32 @@ class AutomationRuleForm(forms.ModelForm):
                 _("You should use either a predefined match or a custom match."),
             )
         return super().clean()
+
+    def clean_version_match_pattern(self):
+        version_match_pattern = self.cleaned_data.get("version_match_pattern")
+        version_predefined_match_pattern = self.cleaned_data.get("version_predefined_match_pattern")
+        if version_predefined_match_pattern == CUSTOM_MATCH and not version_match_pattern:
+            raise forms.ValidationError(
+                _("You should use either a predefined match or a custom match."),
+            )
+        return self.clean_regex_input("version_match_pattern")
+
+    def clean_webhook_labels_match_pattern(self):
+        return self.clean_regex_input("webhook_labels_match_pattern")
+
+    def clean_webhook_commit_message_match_pattern(self):
+        return self.clean_regex_input("webhook_commit_message_match_pattern")
+
+    def clean_regex_input(self, field_name):
+        """Check that a custom match was given if a predefined match wasn't used."""
+        regex = self.cleaned_data[field_name]
+        if not regex:
+            return None
+
+        try:
+            re.compile(regex)
+        except Exception:
+            raise forms.ValidationError(
+                _("Invalid Python regular expression."),
+            )
+        return regex
