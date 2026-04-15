@@ -38,18 +38,14 @@ class BitbucketService(UserService):
 
         Bitbucket deprecated the cross-workspace ``/2.0/repositories/?role=<role>``
         endpoint on 2026-04-14, so listing repositories now has to be done per
-        workspace. See
-        https://developer.atlassian.com/cloud/bitbucket/changelog/#CHANGE-3022.
+        workspace.
+        See https://developer.atlassian.com/cloud/bitbucket/changelog/#CHANGE-3022.
         """
-        return self.paginate(
-            f"{self.base_api_url}/2.0/workspaces/",
-            role="member",
-        )
+        return self.paginate(f"{self.base_api_url}/2.0/user/workspaces/")
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API, one workspace at a time."""
         remote_ids = []
-        admin_remote_ids = []
 
         try:
             workspace_slugs = [workspace["slug"] for workspace in self._get_workspaces()]
@@ -89,20 +85,19 @@ class BitbucketService(UserService):
                     f"{self.base_api_url}/2.0/repositories/{workspace_slug}",
                     role="admin",
                 )
-                admin_remote_ids.extend(repo["uuid"] for repo in admin_repos)
+                admin_repos_ids = [repo["uuid"] for repo in admin_repos]
+                if admin_repos_ids:
+                    RemoteRepositoryRelation.objects.filter(
+                        user=self.user,
+                        account=self.account,
+                        remote_repository__vcs_provider=self.vcs_provider_slug,
+                        remote_repository__remote_id__in=admin_repos_ids,
+                    ).update(admin=True)
             except (TypeError, ValueError):
                 log.warning(
                     "Error syncing Bitbucket admin repositories for workspace.",
                     workspace=workspace_slug,
                 )
-
-        if admin_remote_ids:
-            RemoteRepositoryRelation.objects.filter(
-                user=self.user,
-                account=self.account,
-                remote_repository__vcs_provider=self.vcs_provider_slug,
-                remote_repository__remote_id__in=admin_remote_ids,
-            ).update(admin=True)
 
         return remote_ids
 
@@ -205,25 +200,15 @@ class BitbucketService(UserService):
         deprecated on 2026-04-14, so we scope the query to the workspace the
         repository belongs to.
         """
-        # ``full_name`` has the form ``workspace_slug/repo_slug``. Fall back to
-        # the organization slug if ``full_name`` is not available.
-        workspace_slug = None
-        if remote_repository.full_name and "/" in remote_repository.full_name:
-            workspace_slug = remote_repository.full_name.split("/", 1)[0]
-        elif remote_repository.organization:
-            workspace_slug = remote_repository.organization.slug
-
-        if not workspace_slug:
-            return None
-
-        repos = self.paginate(
-            f"{self.base_api_url}/2.0/repositories/{workspace_slug}",
-            role=role,
-            q=f'uuid="{remote_repository.remote_id}"',
-        )
-        for repo in repos:
-            if repo["uuid"] == remote_repository.remote_id:
-                return repo
+        for workspace in self._get_workspaces():
+            repos = self.paginate(
+                f"{self.base_api_url}/2.0/repositories/{workspace['slug']}",
+                role=role,
+                q=f'uuid="{remote_repository.remote_id}"',
+            )
+            for repo in repos:
+                if repo["uuid"] == remote_repository.remote_id:
+                    return repo
         return None
 
     def _update_repository_from_fields(self, repo, fields):
