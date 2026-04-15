@@ -9,6 +9,10 @@ from urllib.parse import urlparse
 import dns.name
 import dns.resolver
 from allauth.socialaccount.models import SocialAccount
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Field
+from crispy_forms.layout import Layout
+from crispy_forms.layout import MultiField
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -22,6 +26,8 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
 from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.core.forms import PrevalidatedForm
+from readthedocs.core.forms import RichChoice
+from readthedocs.core.forms import RichSelect
 from readthedocs.core.forms import RichValidationError
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.permissions import AdminPermission
@@ -47,6 +53,27 @@ from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_D
 from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
+
+
+class ProjectRemoteRepositorySelect(RichSelect):
+    """
+    Rich select for user's remote repository listing
+
+    Some attributes, passed in through ``attrs``, are defined and used by the base :py:class:`RichSelect`.
+    In addition to those, this class and its templates use:
+
+    ``can_connect_remote_repository``
+        Show the remote repository part of the field as usable if the current
+        user able to connect a remote repository.
+    """
+
+    can_connect_remote_repository = False
+
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs.setdefault("can_connect_remote_repository", self.can_connect_remote_repository)
+        super().__init__(attrs)
 
 
 class ProjectForm(SimpleHistoryModelForm):
@@ -75,13 +102,8 @@ class ProjectForm(SimpleHistoryModelForm):
             empty_value=None,
             help_text=self.fields["remote_repository"].help_text,
             label=self.fields["remote_repository"].label,
+            widget=ProjectRemoteRepositorySelect(attrs={"use_data_binding": False}),
         )
-
-        # The clone URL will be set from the remote repository.
-        if self.instance.remote_repository and not self.instance.has_feature(
-            Feature.DONT_SYNC_WITH_REMOTE_REPO
-        ):
-            self.fields["repo"].disabled = True
 
     def _get_remote_repository_choices(self):
         """
@@ -100,14 +122,39 @@ class ProjectForm(SimpleHistoryModelForm):
         """
         queryset = RemoteRepository.objects.for_project_linking(self.user)
         current_remote_repo = self.instance.remote_repository if self.instance.pk else None
-        options = [
-            (None, _("No connected repository")),
+        choices = [
+            (
+                None,
+                RichChoice(
+                    text=_("No connected repository"),
+                    description=_("This project uses a manually configured repository URL"),
+                    value=None,
+                ),
+            ),
         ]
+        # Show currently connected remote repository instance even if the
+        # maintainer does not control this remote repository through their
+        # connected account.
         if current_remote_repo and current_remote_repo not in queryset:
-            options.append((current_remote_repo.pk, str(current_remote_repo)))
+            choice = RichChoice(
+                text=current_remote_repo.full_name,
+                description=current_remote_repo.clone_url,
+                extra=_("This repository is connected through another user's account"),
+                value=current_remote_repo.pk,
+                image_url=current_remote_repo.avatar_url,
+            )
+            choices.append((choice.value, choice))
 
-        options.extend((repo.pk, repo.clone_url) for repo in queryset)
-        return options
+        for repo in queryset:
+            choice = RichChoice(
+                text=repo.full_name,
+                description=repo.clone_url,
+                value=repo.pk,
+                image_url=repo.avatar_url,
+            )
+            choices.append((choice.value, choice))
+
+        return choices
 
     def save(self, commit=True):
         project = super().save(commit)
@@ -555,6 +602,34 @@ class UpdateProjectForm(
 
         self.setup_external_builds_option()
 
+        # We use crispy layout here strictly for multifield and field ordering,
+        # There's no HTML in Python, it's all in templates and web components.
+        self.helper = FormHelper()
+        # Let templates close form tag and add submit button
+        self.helper.form_tag = False
+
+        multifield_attrs = {}
+        if not SocialAccount.objects.filter(user=self.user).exists():
+            multifield_attrs["show_connected_service_warning"] = True
+        if self.instance.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
+            multifield_attrs["dont_sync"] = True
+        multifield = MultiField(
+            _("Repository"),
+            Field("remote_repository"),
+            Field("repo"),
+            template="projects/includes/crispy/repository.html",
+            **multifield_attrs,
+        )
+
+        # We only care about the order of the first fields, the rest of the
+        # fields are dictated by Meta class configuration.
+        fields_other = [
+            field
+            for field in self.fields.keys()
+            if field not in ["name", "repo", "remote_repository"]
+        ]
+        self.helper.layout = Layout("name", multifield, *fields_other)
+
     def get_all_active_versions(self):
         """
         Returns all active versions.
@@ -667,6 +742,11 @@ class ProjectRelationshipForm(forms.ModelForm):
 class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
     """Project pull requests configuration form."""
 
+    # The underlying field lives on ``AddonsConfig`` -- label, help text
+    # and initial value all come from that model field so there is a
+    # single source of truth.
+    notifications_show_on_external = forms.BooleanField(required=False)
+
     class Meta:
         model = Project
         fields = [
@@ -686,6 +766,27 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("external_builds_privacy_level")
+
+        # Seed label, help text and initial value from the underlying
+        # ``AddonsConfig`` model field.
+        model_field = AddonsConfig._meta.get_field("notifications_show_on_external")
+        form_field = self.fields["notifications_show_on_external"]
+        form_field.label = model_field.verbose_name
+        form_field.help_text = model_field.help_text
+        addons = getattr(self.instance, "addons", None)
+        if addons is not None:
+            form_field.initial = addons.notifications_show_on_external
+
+    def save(self, commit=True):
+        project = super().save(commit=commit)
+        addons = getattr(project, "addons", None)
+        if addons is not None:
+            addons.notifications_show_on_external = self.cleaned_data.get(
+                "notifications_show_on_external", False
+            )
+            if commit:
+                addons.save()
+        return project
 
 
 class OnePerLineList(forms.Field):
@@ -1306,6 +1407,23 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _("Only letters, numbers and underscore are allowed"),
             )
         return name
+
+
+# TODO if you are extending this form or reusing this pattern for any similar views,
+# be advised we probably want this form to be a project form instead. This is
+# especially true if we want to mix addons and backend configuration options.
+# We won't want the form tightly tied to addons models in this case.
+class AddonsConfigSearchSettingsForm(forms.ModelForm):
+    """Form to configure addons search settings."""
+
+    class Meta:
+        model = AddonsConfig
+        fields = ["search_enabled", "search_show_subprojects_filter"]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        kwargs["instance"] = self.project.addons
+        super().__init__(*args, **kwargs)
 
 
 class AutomationRuleForm(forms.ModelForm):

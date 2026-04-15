@@ -156,6 +156,12 @@ class ProfileViewsTest(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
 
+    def test_delete_api_token_without_token(self):
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
+
+        resp = self.client.post(reverse("profiles_tokens_delete"))
+        assert resp.status_code == 404
+
     def test_list_security_logs(self):
         project = get(Project, users=[self.user], slug="project")
         another_project = get(Project, users=[self.user], slug="another-project")
