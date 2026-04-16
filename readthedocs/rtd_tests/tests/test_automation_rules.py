@@ -914,3 +914,38 @@ class TestWebhookAutomationRules:
             version=external_version,
             from_webhook=True,
         )
+
+    def test_match_webhook_with_labels(self, trigger_build):
+        """Test that match_webhook uses webhook_labels_match_pattern (single regex string)."""
+        rule = get(
+            AutomationRule,
+            project=self.project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            webhook_labels_match_pattern="docs|build",
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
+        )
+
+        assert rule.match_webhook(labels=["docs"]) is True
+        assert rule.match_webhook(labels=["build"]) is True
+        assert rule.match_webhook(labels=["unrelated"]) is False
+        assert rule.match_webhook(labels=[]) is False
+
+    def test_match_webhook_with_commit_message(self, trigger_build):
+        """Test that match_webhook uses webhook_commit_message_match_pattern (single regex string)."""
+        rule = get(
+            AutomationRule,
+            project=self.project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            webhook_commit_message_match_pattern="^fix|feature",
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
+        )
+
+        assert rule.match_webhook(commit_message="fix: typo") is True
+        assert rule.match_webhook(commit_message="feature: new thing") is True
+        assert rule.match_webhook(commit_message="chore: update deps") is False
+        assert rule.match_webhook(commit_message="") is False
+
