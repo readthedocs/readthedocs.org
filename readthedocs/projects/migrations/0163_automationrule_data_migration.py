@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("projects", "0159_add_automationrule_v2"),
+        ("projects", "0162_add_automationrule_v2"),
     ]
 
     operations = [
