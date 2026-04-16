@@ -666,6 +666,14 @@ class CommunityBaseSettings(Settings):
     CELERY_WORKER_PREFETCH_MULTIPLIER = 1
     CELERY_TASK_CREATE_MISSING_QUEUES = True
 
+    # Reduce the max number of revoked task IDs kept in memory from the
+    # default of 50,000 to 2,000. Each worker syncs its full revoked set via
+    # pidbox "hello" replies during mingle (worker startup), and with
+    # aggressive build cancellation the default limit produces ~6 MB reply
+    # messages that leak in Redis with TTL=-1.
+    # See https://github.com/celery/celery/issues/6089
+    CELERY_WORKER_REVOKES_MAX = 2000
+
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
     CELERY_BROKER_TRANSPORT_OPTIONS = {
