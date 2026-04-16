@@ -143,7 +143,7 @@ class TestDeleteInBatches(TestCase):
 
         # Delete only 10 projects with a limit
         queryset = Project.objects.filter(slug__startswith="limit-project-")
-        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=3, end=10)
+        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=3, start=0, end=10)
 
         # Should delete exactly 10 projects and their related objects
         assert deleted_counter["projects.Project"] == 10
@@ -158,7 +158,7 @@ class TestDeleteInBatches(TestCase):
 
         # Set limit larger than actual count
         queryset = Project.objects.filter(slug__startswith="over-limit-")
-        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=2, end=100)
+        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=2, start=0, end=100)
 
         # Should delete all 5 projects
         assert deleted_counter["projects.Project"] == 5
@@ -172,7 +172,7 @@ class TestDeleteInBatches(TestCase):
 
         # Set limit equal to batch_size
         queryset = Project.objects.filter(slug__startswith="equal-limit-")
-        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=5, end=5)
+        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=5, start=0, end=5)
 
         # Should delete exactly 5 projects
         assert deleted_counter["projects.Project"] == 5
@@ -186,7 +186,7 @@ class TestDeleteInBatches(TestCase):
 
         # Set limit to 1
         queryset = Project.objects.filter(slug__startswith="one-limit-")
-        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=2, end=1)
+        total_deleted, deleted_counter = delete_in_batches(queryset, batch_size=2, start=0, end=1)
 
         # Should delete exactly 1 project and its related objects
         assert deleted_counter["projects.Project"] == 1
@@ -196,7 +196,7 @@ class TestDeleteInBatches(TestCase):
         """Test that providing start without end raises a ValueError."""
         queryset = Project.objects.all()
 
-        with pytest.raises(ValueError, match="'start' requires 'end' to also be provided."):
+        with pytest.raises(ValueError, match="'start' and 'end' must be provided together."):
             delete_in_batches(queryset, start=5)
 
 
