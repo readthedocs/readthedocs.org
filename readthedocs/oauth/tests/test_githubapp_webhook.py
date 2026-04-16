@@ -1305,6 +1305,11 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
                 "base": {
                     "ref": "main",
                 },
+                "labels": [
+                    {
+                        "name": "bug",
+                    },
+                ],
             },
             "repository": {
                 "id": self.remote_repository.remote_id,
