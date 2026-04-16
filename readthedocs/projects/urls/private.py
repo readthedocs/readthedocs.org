@@ -41,6 +41,7 @@ from readthedocs.projects.views.private import ProjectRedirectsDelete
 from readthedocs.projects.views.private import ProjectRedirectsInsert
 from readthedocs.projects.views.private import ProjectRedirectsList
 from readthedocs.projects.views.private import ProjectRedirectsUpdate
+from readthedocs.projects.views.private import ProjectSearchSettingsUpdate
 from readthedocs.projects.views.private import ProjectTranslationsCreate
 from readthedocs.projects.views.private import ProjectTranslationsDelete
 from readthedocs.projects.views.private import ProjectTranslationsList
@@ -188,6 +189,11 @@ urlpatterns = [
         r"^(?P<project_slug>[-\w]+)/pull-requests/$",
         ProjectPullRequestsUpdate.as_view(),
         name="projects_pull_requests",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/search-settings/$",
+        ProjectSearchSettingsUpdate.as_view(),
+        name="projects_search_settings",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/search-analytics/$",

@@ -7,38 +7,12 @@ from django.db import models
 from django_safemigrate import Safe
 
 
-def forward_migrate_data(apps, schema_editor):
-    RegexAutomationRule = apps.get_model("builds", "RegexAutomationRule")
-    AutomationRule = apps.get_model("projects", "AutomationRule")
-
-    for rule in RegexAutomationRule.objects.iterator():
-        AutomationRule.objects.create(
-            # Keep the same date for the migrated rules.
-            created=rule.created,
-            modified=rule.modified,
-            project=rule.project,
-            priority=rule.priority,
-            description=rule.description,
-            version_types=[rule.version_type],
-            version_match_pattern=rule.match_arg,
-            # ``predefined_match_arg`` could be:
-            # - semver-versions
-            # - all-versions
-            # - custom-match (if the match_arg doesn't match with any of the predefined patterns).
-            version_predefined_match_pattern=rule.predefined_match_arg
-            if rule.predefined_match_arg
-            else "custom-match",
-            action=rule.action,
-            enabled=True,
-        )
-
-
 class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
         ("builds", "0070_delete_build_old_config"),
-        ("projects", "0158_add_search_subproject_filter_option"),
+        ("projects", "0161_addons_notifications_show_on_external_default_false"),
     ]
 
     operations = [

@@ -167,6 +167,114 @@ class TestAutomationRulesViews:
         assert "docs/*.rst" in rule.webhook_files_match_pattern
         assert "requirements.txt" in rule.webhook_files_match_pattern
 
+    def test_create_rule_invalid_regex_version_match(self):
+        r = self.client.post(
+            reverse(
+                "projects_automation_rule_create",
+                args=[self.project.slug],
+            ),
+            {
+                "description": "Bad regex rule",
+                "version_predefined_match_pattern": CUSTOM_MATCH,
+                "version_match_pattern": "[invalid",
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
+            },
+        )
+        assert r.status_code == 200
+        assert self.project.automation_rules.count() == 0
+
+    def test_create_rule_custom_match_empty_pattern(self):
+        r = self.client.post(
+            reverse(
+                "projects_automation_rule_create",
+                args=[self.project.slug],
+            ),
+            {
+                "description": "Empty custom match",
+                "version_predefined_match_pattern": CUSTOM_MATCH,
+                "version_match_pattern": "",
+                "version_types": [TAG],
+                "action": AutomationRule.ACTIVATE_VERSION_ACTION,
+            },
+        )
+        assert r.status_code == 200
+        assert self.project.automation_rules.count() == 0
+
+    def test_create_rule_with_webhook_labels_filter(self):
+        r = self.client.post(
+            reverse(
+                "projects_automation_rule_create",
+                args=[self.project.slug],
+            ),
+            {
+                "description": "Label rule",
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.TRIGGER_BUILD_ACTION,
+                "webhook_labels_match_pattern": "docs|build",
+            },
+        )
+        assert r.status_code == 302
+        assert r["Location"] == self.list_rules_url
+
+        rule = self.project.automation_rules.get(description="Label rule")
+        assert rule.webhook_labels_match_pattern == "docs|build"
+
+    def test_create_rule_invalid_regex_labels(self):
+        r = self.client.post(
+            reverse(
+                "projects_automation_rule_create",
+                args=[self.project.slug],
+            ),
+            {
+                "description": "Bad label regex",
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.TRIGGER_BUILD_ACTION,
+                "webhook_labels_match_pattern": "[invalid",
+            },
+        )
+        assert r.status_code == 200
+        assert self.project.automation_rules.count() == 0
+
+    def test_create_rule_with_webhook_commit_message_filter(self):
+        r = self.client.post(
+            reverse(
+                "projects_automation_rule_create",
+                args=[self.project.slug],
+            ),
+            {
+                "description": "Commit message rule",
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.TRIGGER_BUILD_ACTION,
+                "webhook_commit_message_match_pattern": "^fix|feature",
+            },
+        )
+        assert r.status_code == 302
+        assert r["Location"] == self.list_rules_url
+
+        rule = self.project.automation_rules.get(description="Commit message rule")
+        assert rule.webhook_commit_message_match_pattern == "^fix|feature"
+
+    def test_create_rule_invalid_regex_commit_message(self):
+        r = self.client.post(
+            reverse(
+                "projects_automation_rule_create",
+                args=[self.project.slug],
+            ),
+            {
+                "description": "Bad commit regex",
+                "version_predefined_match_pattern": ALL_VERSIONS,
+                "version_types": [BRANCH],
+                "action": AutomationRule.TRIGGER_BUILD_ACTION,
+                "webhook_commit_message_match_pattern": "[invalid",
+            },
+        )
+        assert r.status_code == 200
+        assert self.project.automation_rules.count() == 0
+
     def test_delete_rule(self):
         self.client.post(
             reverse(
