@@ -1,10 +1,14 @@
-{% extends "!footer.html" %}
+{% extends "!breadcrumbs.html" %}
 
-{% block extrafooter %}
+{% block breadcrumbs %}
+  {# Close the parent <ul>, inject CTA, reopen <ul> — hacky but avoids copying the full template #}
+  </ul>
   <div class="info admonition rst-footer-buttons">
     <div class="wy-btn-group">
       <button class="btn btn-link" onclick="window.location.href='https://about.readthedocs.com/'">Learn more about Read the Docs</button>
       <button class="btn btn-info btn-mini float-right" onclick="window.location.href='https://about.readthedocs.com/#signup'">Signup</button>
     </div>
   </div>
-{% endblock extrafooter %}
+  <ul class="wy-breadcrumbs">
+  {{ super() }}
+{% endblock %}
