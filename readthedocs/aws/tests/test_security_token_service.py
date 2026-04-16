@@ -78,12 +78,12 @@ class TestSecurityTokenService(TestCase):
                         "s3:DeleteObject",
                     ],
                     "Resource": [
-                        "arn:aws:s3:::readthedocs-media/html/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/pdf/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/epub/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/htmlzip/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/json/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/diff/project/latest/*",
+                        "arn:aws:s3:::readthedocs-media/html/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/pdf/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/epub/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/htmlzip/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/json/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/diff/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
                     ],
                 },
                 {
@@ -95,12 +95,12 @@ class TestSecurityTokenService(TestCase):
                     "Condition": {
                         "StringLike": {
                             "s3:prefix": [
-                                "html/project/latest/*",
-                                "pdf/project/latest/*",
-                                "epub/project/latest/*",
-                                "htmlzip/project/latest/*",
-                                "json/project/latest/*",
-                                "diff/project/latest/*",
+                                "html/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "pdf/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "epub/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "htmlzip/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "json/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "diff/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
                             ]
                         }
                     },
@@ -111,7 +111,11 @@ class TestSecurityTokenService(TestCase):
         boto3_client().assume_role.assert_called_once_with(
             RoleArn="arn:aws:iam::1234:role/RoleName",
             RoleSessionName=f"rtd-{self.build.id}-project-latest",
-            Policy=json.dumps(policy),
+            Policy=json.dumps(policy, separators=(",", ":")),
+            Tags=[
+                {"Key": "Project", "Value": self.project.slug},
+                {"Key": "Version", "Value": self.version.slug},
+            ],
             DurationSeconds=15 * 60,
         )
 
@@ -147,12 +151,12 @@ class TestSecurityTokenService(TestCase):
                         "s3:DeleteObject",
                     ],
                     "Resource": [
-                        "arn:aws:s3:::readthedocs-media/external/html/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/external/pdf/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/external/epub/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/external/htmlzip/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/external/json/project/latest/*",
-                        "arn:aws:s3:::readthedocs-media/external/diff/project/latest/*",
+                        "arn:aws:s3:::readthedocs-media/external/html/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/external/pdf/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/external/epub/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/external/htmlzip/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/external/json/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                        "arn:aws:s3:::readthedocs-media/external/diff/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
                     ],
                 },
                 {
@@ -164,12 +168,12 @@ class TestSecurityTokenService(TestCase):
                     "Condition": {
                         "StringLike": {
                             "s3:prefix": [
-                                "external/html/project/latest/*",
-                                "external/pdf/project/latest/*",
-                                "external/epub/project/latest/*",
-                                "external/htmlzip/project/latest/*",
-                                "external/json/project/latest/*",
-                                "external/diff/project/latest/*",
+                                "external/html/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "external/pdf/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "external/epub/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "external/htmlzip/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "external/json/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
+                                "external/diff/${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}/*",
                             ]
                         }
                     },
@@ -180,7 +184,11 @@ class TestSecurityTokenService(TestCase):
         boto3_client().assume_role.assert_called_once_with(
             RoleArn="arn:aws:iam::1234:role/RoleName",
             RoleSessionName=f"rtd-{self.build.id}-project-latest",
-            Policy=json.dumps(policy),
+            Policy=json.dumps(policy, separators=(",", ":")),
+            Tags=[
+                {"Key": "Project", "Value": self.project.slug},
+                {"Key": "Version", "Value": self.version.slug},
+            ],
             DurationSeconds=15 * 60,
         )
 
@@ -233,7 +241,8 @@ class TestSecurityTokenService(TestCase):
         boto3_client().assume_role.assert_called_once_with(
             RoleArn="arn:aws:iam::1234:role/RoleName",
             RoleSessionName=f"rtd-{self.build.id}-project-latest",
-            Policy=json.dumps(policy),
+            Policy=json.dumps(policy, separators=(",", ":")),
+            Tags=[],
             DurationSeconds=15 * 60,
         )
 
@@ -278,6 +287,7 @@ class TestSecurityTokenService(TestCase):
         boto3_client().assume_role.assert_called_once_with(
             RoleArn="arn:aws:iam::1234:role/RoleName",
             RoleSessionName=f"rtd-{self.build.id}-project-latest",
-            Policy=json.dumps(policy),
+            Policy=json.dumps(policy, separators=(",", ":")),
+            Tags=[],
             DurationSeconds=15 * 60,
         )

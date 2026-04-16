@@ -9,7 +9,7 @@ from django.conf import settings
 from django.test import override_settings
 from pytest import raises
 
-from readthedocs.config import ALL, PIP, SETUPTOOLS, BuildConfigV2, load
+from readthedocs.config import ALL, PIP, SETUPTOOLS, UV, BuildConfigV2, load
 from readthedocs.config.config import CONFIG_FILENAME_REGEX
 from readthedocs.config.exceptions import ConfigError, ConfigValidationError
 from readthedocs.config.models import (
@@ -18,6 +18,7 @@ from readthedocs.config.models import (
     BuildWithOs,
     PythonInstall,
     PythonInstallRequirements,
+    UvInstall,
 )
 
 from .utils import apply_fs
@@ -2022,3 +2023,479 @@ class TestBuildConfigV2:
             },
         }
         assert build.as_dict() == expected_dict
+
+    def test_python_install_uv_sync_valid(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], UvInstall)
+        assert install[0].method == UV
+        assert install[0].command == "sync"
+        assert install[0].path is None
+
+    def test_python_install_uv_pip_valid_with_requirements(self, tmpdir):
+        apply_fs(tmpdir, {"requirements.txt": ""})
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "requirements": "requirements.txt",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], UvInstall)
+        assert install[0].method == UV
+        assert install[0].command == "pip"
+        assert install[0].requirements == "requirements.txt"
+
+    def test_python_install_uv_pip_valid_with_path(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "path": ".",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], UvInstall)
+        assert install[0].method == UV
+        assert install[0].command == "pip"
+        assert install[0].path == "."
+
+    def test_python_install_uv_sync_with_path(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "path": ".",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], UvInstall)
+        assert install[0].command == "sync"
+        assert install[0].path == "."
+
+    def test_python_install_uv_sync_with_groups(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": ["docs", "dev"],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "sync"
+        assert install[0].groups == ["docs", "dev"]
+
+    def test_python_install_uv_sync_with_groups_all(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": "all",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "sync"
+        assert install[0].groups == ALL
+
+    def test_python_install_uv_sync_with_extras(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "extras": ["docs", "tests"],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "sync"
+        assert install[0].extras == ["docs", "tests"]
+
+    def test_python_install_uv_sync_with_extras_all(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "extras": "all",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "sync"
+        assert install[0].extras == ALL
+
+    def test_python_install_uv_pip_with_extras(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "path": ".",
+                            "extras": ["docs"],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "pip"
+        assert install[0].extras == ["docs"]
+
+    def test_python_install_uv_command_required(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_COMMAND_REQUIRED
+
+    def test_python_install_uv_invalid_command(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "invalid",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigValidationError.INVALID_CHOICE
+
+    def test_python_install_uv_sync_requirements_not_allowed(self, tmpdir):
+        apply_fs(tmpdir, {"requirements.txt": ""})
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "requirements": "requirements.txt",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_SYNC_REQUIREMENTS_INVALID
+
+    def test_python_install_uv_pip_groups_not_allowed(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "requirements": "requirements.txt",
+                            "groups": ["docs"],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_PIP_GROUPS_NOT_ALLOWED
+
+    def test_python_install_uv_pip_requires_requirements_or_path(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED
+
+    def test_python_install_uv_multiple_entries_invalid(self, tmpdir):
+        apply_fs(tmpdir, {"requirements.txt": ""})
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                        },
+                        {
+                            "requirements": "requirements.txt",
+                        },
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_MULTIPLE_INSTALL_ENTRIES_INVALID
+
+    def test_python_install_uv_sync_groups_empty_list_invalid(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": [],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_EMPTY
+        assert excinfo.value.format_values.get("field") == "groups"
+
+    def test_python_install_uv_sync_extras_empty_list_invalid(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "extras": [],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_EMPTY
+        assert excinfo.value.format_values.get("field") == "extras"
+
+    @pytest.mark.parametrize("value", [1, True, {"key": "val"}])
+    def test_python_install_uv_sync_groups_invalid_type(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE
+        assert excinfo.value.format_values.get("field") == "groups"
+
+    @pytest.mark.parametrize("value", [1, True, {"key": "val"}])
+    def test_python_install_uv_sync_extras_invalid_type(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "extras": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE
+        assert excinfo.value.format_values.get("field") == "extras"
+
+    @pytest.mark.parametrize("value", [1, True, {"key": "val"}])
+    def test_python_install_uv_pip_extras_invalid_type(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "path": ".",
+                            "extras": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE
+        assert excinfo.value.format_values.get("field") == "extras"
+
+    def test_python_install_uv_pip_extras_empty_list_invalid(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "path": ".",
+                            "extras": [],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_EMPTY
+        assert excinfo.value.format_values.get("field") == "extras"
+
+    def test_is_using_uv_true(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        assert build.is_using_uv is True
+
+    def test_is_using_uv_false_with_pip(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        assert build.is_using_uv is False
+
+    def test_is_using_uv_false_with_no_install(self):
+        build = get_build_config({})
+        build.validate()
+        assert build.is_using_uv is False

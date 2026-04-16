@@ -8,7 +8,7 @@ In order to make use of STS, we need:
 - Create a role in IAM with a trusted entity type set to the AWS account that is going to be used to generate the temporary credentials.
 - Create an inline policy for the role, the policy should allow access to all S3 buckets and paths that are going to be used.
 - Create an inline policy to the user that is going to be used to generate the temporary credentials,
-  the policy should allow the ``sts:AssumeRole`` action for the role created in the previous step.
+  the policy should allow the ``sts:AssumeRole`` and ``sts:TagSession`` actions for the role created in the previous step.
 
 The permissions of the temporary credentials are the result of the intersection of the role policy and the inline policy that is passed to the AssumeRole API.
 This means that the inline policy can be used to limit the permissions of the temporary credentials, but not to expand them.
@@ -62,13 +62,21 @@ def get_sts_client():
     )
 
 
-def _get_scoped_credentials(*, session_name, policy, duration) -> AWSTemporaryCredentials:
+def _get_scoped_credentials(
+    *, session_name, policy, duration, tags: dict[str, str] | None = None
+) -> AWSTemporaryCredentials:
     """
     :param session_name: An identifier to attach to the generated credentials, useful to identify who requested them.
      AWS limits the session name to 64 characters, so if the session_name is too long, it will be truncated.
     :param duration: The duration of the credentials in seconds. Default is 15 minutes.
      Note that the minimum duration time is 15 minutes and the maximum is given by the role (defaults to 1 hour).
     :param policy: The inline policy to attach to the generated credentials.
+     Note: the policy has a limit of 2048 characters (after minification).
+    :param tags: The tags to attach to the generated credentials, these can be used in the policy.
+     Note: Keys have a limit of 128 characters, and values have a limit of 256 characters.
+     See:
+     - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html
+     - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html
 
     .. note::
 
@@ -88,14 +96,18 @@ def _get_scoped_credentials(*, session_name, policy, duration) -> AWSTemporaryCr
             session_token=None,
         )
 
+    tags = tags or {}
     # Limit to 64 characters, as per AWS limitations.
     session_name = session_name[:64]
+    # Minify the policy to avoid hitting the size limit (2048 characters).
+    policy_str = json.dumps(policy, separators=(",", ":"))
     try:
         sts_client = get_sts_client()
         response = sts_client.assume_role(
             RoleArn=settings.AWS_STS_ASSUME_ROLE_ARN,
             RoleSessionName=session_name,
-            Policy=json.dumps(policy),
+            Policy=policy_str,
+            Tags=[{"Key": key, "Value": value} for key, value in tags.items()],
             DurationSeconds=duration,
         )
     except Exception:
@@ -136,7 +148,18 @@ def get_s3_build_media_scoped_credentials(
     # The resulting prefix looks like:
     # - html/project/latest/*
     # - pdf/project/latest/*
-    allowed_prefixes = [f"{storage_path}/*" for storage_path in storage_paths]
+
+    # Replace the project and version slugs with a tag, so it can be used in the policy.
+    # This is done to avoid repeating the project and version slug in the policy,
+    # if the project and version slug are too long, we might hit the policy size limit (2048 characters).
+    def _replace_with_tag(storage_path: str):
+        return storage_path.replace(
+            f"{project.slug}/{version.slug}",
+            "${aws:PrincipalTag/Project}/${aws:PrincipalTag/Version}",
+            1,
+        )
+
+    allowed_prefixes = [f"{_replace_with_tag(storage_path)}/*" for storage_path in storage_paths]
 
     # Generate the list of allowed object resources in ARN format.
     # The resulting ARN looks like:
@@ -179,6 +202,10 @@ def get_s3_build_media_scoped_credentials(
         session_name=session_name,
         policy=policy,
         duration=duration,
+        tags={
+            "Project": project.slug,
+            "Version": version.slug,
+        },
     )
     return AWSS3TemporaryCredentials(
         access_key_id=credentials.access_key_id,
