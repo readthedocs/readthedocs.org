@@ -932,7 +932,6 @@ class GitHubAppWebhookHandler:
 
         gh_commit = gh_repository.get_commit(
             self.data["pull_request"]["head"]["sha"],
-            commit_files_per_page=0,
         )
         return gh_commit.commit.message
 
