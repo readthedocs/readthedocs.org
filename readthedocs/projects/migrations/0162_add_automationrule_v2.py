@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("builds", "0070_delete_build_old_config"),
-        ("projects", "0158_add_search_subproject_filter_option"),
+        ("projects", "0161_addons_notifications_show_on_external_default_false"),
     ]
 
     operations = [
